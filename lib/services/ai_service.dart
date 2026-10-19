@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:onnxruntime/onnxruntime.dart';
-import 'package:flutter_embedder/flutter_embedder.dart'; // برای HfTokenizer
+import 'package:flutter_embedder/flutter_embedder.dart';
 
 class AIService {
   late OrtSession _session;
@@ -13,11 +13,15 @@ class AIService {
   Future<void> initialize() async {
     OrtEnv.instance.init();
 
-    // 1. بارگذاری مدل ONNX
+    // 1. ایجاد Session با استفاده از OrtSession.fromBuffer (روش صحیح)
+    final sessionOptions = OrtSessionOptions();
     final modelBytes = await rootBundle.load('assets/model_int8.onnx');
-    _session = OrtSession(modelBytes.buffer.asUint8List());
+    _session = OrtSession.fromBuffer(
+      modelBytes.buffer.asUint8List(),
+      sessionOptions,
+    );
 
-    // 2. بارگذاری توکنایزر با استفاده از flutter_embedder
+    // 2. بارگذاری توکنایزر
     _tokenizer = await HfTokenizer.fromAsset('assets/tokenizer.json');
 
     // 3. بارگذاری دانش محلی
@@ -30,12 +34,14 @@ class AIService {
   }
 
   Future<List<double>> _getEmbedding(String text) async {
-    // توکنایز کردن متن با HfTokenizer
-    final ids = _tokenizer.encode(text);
-    final inputIds = ids.map((e) => e.toInt()).toList();
-    final attentionMask = List.filled(inputIds.length, 1);
+    // توکنایز کردن متن
+    final encoding = _tokenizer.encode(text);
     
-    // ساخت تنسورها
+    // دسترسی مستقیم به فیلدهای inputIds و attentionMask (بدون استفاده از map)
+    final inputIds = encoding.inputIds.toList();
+    final attentionMask = encoding.attentionMask.toList();
+
+    // ساخت تنسورهای ورودی
     final inputIdsTensor = OrtValueTensor.createTensorWithDataList(
         Int64List.fromList(inputIds), [1, inputIds.length]);
     final attentionMaskTensor = OrtValueTensor.createTensorWithDataList(
@@ -45,13 +51,20 @@ class AIService {
       'input_ids': inputIdsTensor,
       'attention_mask': attentionMaskTensor,
     };
-    final outputs = await _session.runAsync(inputs);
-    
+
+    // ایجاد OrtRunOptions (که در خطای سوم به آن نیاز بود)
+    final runOptions = OrtRunOptions();
+
+    // اجرای مدل با ارسال runOptions به عنوان آرگومان اول
+    final outputs = await _session.runAsync(runOptions, inputs);
+
     final outputData = outputs?[0]?.value as List<List<double>>;
-    
+
+    // آزادسازی منابع
     inputIdsTensor.release();
     attentionMaskTensor.release();
-    for (var out in outputs!) { out?.release(); }
+    runOptions.release();
+    outputs?.forEach((element) => element?.release());
 
     return outputData[0];
   }
