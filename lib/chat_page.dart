@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'about_page.dart';
+import 'app_drawer.dart';
 import 'assistant.dart';
 import 'engine.dart';
+import 'history.dart';
+import 'history_page.dart';
+import 'settings.dart';
+import 'settings_page.dart';
 import 'templates.dart';
 import 'templates_page.dart';
 
@@ -16,6 +21,8 @@ class ChatPage extends StatefulWidget {
   final KnowledgeEngine engine;
   final Assistant assistant;
   final TemplateRepository repo;
+  final HistoryStore history;
+  final AppSettings settings;
   final String? loadError;
 
   const ChatPage({
@@ -23,6 +30,8 @@ class ChatPage extends StatefulWidget {
     required this.engine,
     required this.assistant,
     required this.repo,
+    required this.history,
+    required this.settings,
     this.loadError,
   });
 
@@ -35,14 +44,36 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scroll = ScrollController();
   final List<_Msg> _msgs = [];
   bool _busy = false;
+  String _sessionId = _newId();
 
   static const String _welcome =
-      'سلام! من دستیار هستم و بدون اینترنت کار می‌کنم. هر چه می‌خواهید بپرسید، یا از دکمهٔ «تهیه متن حقوقی» برای ساخت دادخواست و نامه استفاده کنید.';
+      'سلام! من دستیار هستم و بدون اینترنت کار می‌کنم. هر چه می‌خواهید بپرسید، یا از منوی کناری «تهیه متن حقوقی» را برای ساخت دادخواست و نامه باز کنید.';
+
+  static String _newId() => DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   void initState() {
     super.initState();
     _msgs.add(_Msg(widget.loadError ?? _welcome, false));
+  }
+
+  Future<void> _saveSession() async {
+    if (!widget.settings.saveHistory) return;
+    final stored = _msgs
+        .skip(1)
+        .where((m) => m.text != '...')
+        .map((m) => StoredMsg(m.text, m.fromUser))
+        .toList();
+    final users = stored.where((m) => m.fromUser).toList();
+    if (users.isEmpty) return;
+    await widget.history.upsert(
+      ChatSession(
+        id: _sessionId,
+        title: HistoryStore.makeTitle(users.first.text),
+        updated: DateTime.now().millisecondsSinceEpoch,
+        messages: stored,
+      ),
+    );
   }
 
   Future<void> _send() async {
@@ -67,6 +98,7 @@ class _ChatPageState extends State<ChatPage> {
         setState(() => bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.');
       }
     }
+    await _saveSession();
     if (mounted) setState(() => _busy = false);
   }
 
@@ -82,12 +114,49 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _newChat() {
+    if (_busy) return;
+    setState(() {
+      _sessionId = _newId();
+      _msgs
+        ..clear()
+        ..add(_Msg(_welcome, false));
+    });
+  }
+
+  Future<void> _openHistory() async {
+    if (_busy) return;
+    final s = await Navigator.of(context).push<ChatSession>(
+      MaterialPageRoute(builder: (_) => HistoryPage(history: widget.history)),
+    );
+    if (s == null || !mounted) return;
+    setState(() {
+      _sessionId = s.id;
+      _msgs
+        ..clear()
+        ..add(_Msg(_welcome, false))
+        ..addAll(s.messages.map((m) => _Msg(m.text, m.fromUser)));
+    });
+    _scrollDown();
+  }
+
   void _openTemplates() {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => TemplatesPage(
           repo: widget.repo,
           engine: widget.engine,
+        ),
+      ),
+    );
+  }
+
+  void _openSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SettingsPage(
+          settings: widget.settings,
+          history: widget.history,
         ),
       ),
     );
@@ -104,33 +173,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future<void> _confirmClear() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('پاک کردن گفتگو'),
-        content: const Text('همهٔ پیام‌ها پاک شود؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('انصراف'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('پاک شود'),
-          ),
-        ],
-      ),
-    );
-    if (ok == true && mounted) {
-      setState(() {
-        _msgs
-          ..clear()
-          ..add(_Msg(_welcome, false));
-      });
-    }
-  }
-
   @override
   void dispose() {
     _ctrl.dispose();
@@ -142,6 +184,13 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
+      drawer: AppDrawer(
+        onNewChat: _newChat,
+        onHistory: _openHistory,
+        onTemplates: _openTemplates,
+        onSettings: _openSettings,
+        onAbout: _openAbout,
+      ),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,16 +207,6 @@ class _ChatPageState extends State<ChatPage> {
             tooltip: 'تهیه متن حقوقی',
             onPressed: _openTemplates,
             icon: const Icon(Icons.description_outlined),
-          ),
-          IconButton(
-            tooltip: 'اطلاعات و وضعیت داده‌ها',
-            onPressed: _openAbout,
-            icon: const Icon(Icons.info_outline),
-          ),
-          IconButton(
-            tooltip: 'پاک کردن گفتگو',
-            onPressed: _busy ? null : _confirmClear,
-            icon: const Icon(Icons.delete_outline),
           ),
         ],
       ),
