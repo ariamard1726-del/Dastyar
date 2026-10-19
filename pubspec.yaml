@@ -16,5 +16,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/knowledge.txt
+    - assets/data_info.json
     - assets/laws/
     - assets/templates/

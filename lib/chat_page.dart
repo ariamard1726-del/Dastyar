@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'about_page.dart';
 import 'assistant.dart';
 import 'engine.dart';
 import 'templates.dart';
@@ -92,6 +93,17 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _openAbout() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AboutPage(
+          engine: widget.engine,
+          repo: widget.repo,
+        ),
+      ),
+    );
+  }
+
   Future<void> _confirmClear() async {
     final ok = await showDialog<bool>(
       context: context,
@@ -146,6 +158,11 @@ class _ChatPageState extends State<ChatPage> {
             tooltip: 'تهیه متن حقوقی',
             onPressed: _openTemplates,
             icon: const Icon(Icons.description_outlined),
+          ),
+          IconButton(
+            tooltip: 'اطلاعات و وضعیت داده‌ها',
+            onPressed: _openAbout,
+            icon: const Icon(Icons.info_outline),
           ),
           IconButton(
             tooltip: 'پاک کردن گفتگو',
