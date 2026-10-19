@@ -20,9 +20,23 @@ jobs:
         flutter-version: '3.47.7'
         channel: 'stable'
         
-    # این مرحله پوشه‌های اندروید و فایل‌های Gradle را به صورت خودکار می‌سازد
     - name: Generate Android Platform Files
       run: flutter create --platforms=android .
+      
+    # --- دانلود خودکار مدل با استفاده از Secrets ---
+    - name: Download AI Models from HuggingFace
+      run: |
+        mkdir -p assets
+        echo "Downloading tokenizer..."
+        curl -L -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+             -o assets/tokenizer.json \
+             "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/resolve/main/tokenizer.json"
+             
+        echo "Downloading INT8 ONNX model..."
+        curl -L -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+             -o assets/model_int8.onnx \
+             "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/resolve/main/onnx/model_quantized.onnx"
+    # ------------------------------------
         
     - name: Install dependencies
       run: flutter pub get
