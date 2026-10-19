@@ -31,6 +31,29 @@ class TemplateField {
   }
 }
 
+/// ارجاع به یک ماده قانونی. متن ماده هرگز در قالب نوشته نمی‌شود،
+/// فقط نام قانون و شمارهٔ ماده؛ متن از بستهٔ رسمی قوانین خوانده می‌شود.
+class LawRef {
+  final String law;
+  final String article;
+  final String note;
+
+  LawRef({required this.law, required this.article, required this.note});
+
+  factory LawRef.fromJson(Map<String, dynamic> j) {
+    final law = (j['law'] ?? '').toString().trim();
+    final article = (j['article'] ?? '').toString().trim();
+    if (law.isEmpty || article.isEmpty) {
+      throw const FormatException('lawRefs needs law and article');
+    }
+    return LawRef(
+      law: law,
+      article: article,
+      note: (j['note'] ?? '').toString(),
+    );
+  }
+}
+
 class LegalTemplate {
   final String id;
   final String title;
@@ -40,6 +63,7 @@ class LegalTemplate {
   final String reviewNote;
   final List<String> tips;
   final List<TemplateField> fields;
+  final List<LawRef> lawRefs;
   final String body;
 
   LegalTemplate({
@@ -51,6 +75,7 @@ class LegalTemplate {
     required this.reviewNote,
     required this.tips,
     required this.fields,
+    required this.lawRefs,
     required this.body,
   });
 
@@ -69,6 +94,9 @@ class LegalTemplate {
       tips: ((j['tips'] ?? []) as List).map((e) => e.toString()).toList(),
       fields: ((j['fields'] ?? []) as List)
           .map((e) => TemplateField.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lawRefs: ((j['lawRefs'] ?? []) as List)
+          .map((e) => LawRef.fromJson(e as Map<String, dynamic>))
           .toList(),
       body: body,
     );
@@ -171,7 +199,10 @@ class TemplateRenderer {
       },
     );
 
-    return out.replaceAll(RegExp(r'[ \t]+\n'), '\n').replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
+    return out
+        .replaceAll(RegExp(r'[ \t]+\n'), '\n')
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
   }
 }
 
