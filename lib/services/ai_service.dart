@@ -1,69 +1,35 @@
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
-import 'package:onnxruntime/onnxruntime.dart';
-import 'package:hf_tokenizers/hf_tokenizers.dart';
+import 'package:mobile_rag_engine/mobile_rag_engine.dart';
 
 class AIService {
-  late OrtSession _session;
-  late Tokenizer _tokenizer;
+  late EmbeddingService _embeddingService;
   List<List<double>> _knowledgeEmbeddings = [];
   List<String> _knowledgeSentences = [];
 
   Future<void> initialize() async {
-    OrtEnv.instance.init();
+    // 1. مقداردهی اولیه سرویس Embedding
+    _embeddingService = EmbeddingService();
 
-    final sessionOptions = OrtSessionOptions();
     final modelBytes = await rootBundle.load('assets/model_int8.onnx');
-    _session = OrtSession.fromBuffer(
-      modelBytes.buffer.asUint8List(),
-      sessionOptions,
-    );
+    await _embeddingService.init(modelBytes.buffer.asUint8List());
 
-    final tokenizerBytes = await rootBundle.load('assets/tokenizer.json');
-    _tokenizer = Tokenizer.fromBytes(tokenizerBytes.buffer.asUint8List());
-
+    // 2. بارگذاری دانش محلی
     final knowledgeText = await rootBundle.loadString('assets/knowledge.txt');
     _knowledgeSentences = knowledgeText
         .split('\n')
         .where((s) => s.trim().isNotEmpty)
         .toList();
 
+    // 3. تبدیل تمام جملات به بردار (فقط یکبار در شروع)
     for (String sentence in _knowledgeSentences) {
       _knowledgeEmbeddings.add(await _getEmbedding(sentence));
     }
   }
 
   Future<List<double>> _getEmbedding(String text) async {
-    // hf_tokenizers مستقیماً لیست شناسه‌ها را برمی‌گرداند
-    final inputIds = _tokenizer.encode(text).map((e) => e.toInt()).toList();
-    final attentionMask = List.filled(inputIds.length, 1);
-
-    final inputIdsTensor = OrtValueTensor.createTensorWithDataList(
-      Int64List.fromList(inputIds),
-      [1, inputIds.length],
-    );
-    final attentionMaskTensor = OrtValueTensor.createTensorWithDataList(
-      Int64List.fromList(attentionMask),
-      [1, attentionMask.length],
-    );
-
-    final inputs = {
-      'input_ids': inputIdsTensor,
-      'attention_mask': attentionMaskTensor,
-    };
-
-    final runOptions = OrtRunOptions();
-    final outputs = await _session.runAsync(runOptions, inputs);
-
-    final outputData = outputs?[0]?.value as List<List<double>>;
-
-    inputIdsTensor.release();
-    attentionMaskTensor.release();
-    runOptions.release();
-    outputs?.forEach((element) => element?.release());
-
-    return outputData[0];
+    // این پکیج توکنایز و اجرای مدل را خودکار انجام می‌دهد
+    return await _embeddingService.embed(text);
   }
 
   double _cosineSimilarity(List<double> a, List<double> b) {
