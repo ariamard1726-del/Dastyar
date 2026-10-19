@@ -68,6 +68,8 @@ class KnowledgeEngine {
     return sb.toString().toLowerCase();
   }
 
+  static String _collapse(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
+
   static String _stem(String w) {
     for (final suf in _suffixes) {
       if (w.length - suf.length >= 3 && w.endsWith(suf)) {
@@ -154,6 +156,21 @@ class KnowledgeEngine {
       _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
     });
     _vocab = df.keys.toList();
+  }
+
+  /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
+  /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
+  Chunk? findArticle(String law, String article) {
+    final want = 'ماده ${_collapse(normalize(article))}';
+    final lawN = _collapse(normalize(law));
+    if (lawN.isEmpty) return null;
+    for (final c in _chunks) {
+      if (_collapse(normalize(c.title)) != want) continue;
+      final s = _collapse(normalize(c.source));
+      if (s.isEmpty) continue;
+      if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
+    }
+    return null;
   }
 
   String format(Chunk c) {

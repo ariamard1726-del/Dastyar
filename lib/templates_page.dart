@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
+import 'engine.dart';
 import 'templates.dart';
 
 const String _disclaimer =
@@ -34,7 +35,8 @@ class _Banner extends StatelessWidget {
 
 class TemplatesPage extends StatelessWidget {
   final TemplateRepository repo;
-  const TemplatesPage({super.key, required this.repo});
+  final KnowledgeEngine engine;
+  const TemplatesPage({super.key, required this.repo, required this.engine});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +81,8 @@ class TemplatesPage extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_left),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => TemplateFormPage(template: t),
+                      builder: (_) =>
+                          TemplateFormPage(template: t, engine: engine),
                     ),
                   ),
                 ),
@@ -101,7 +104,12 @@ class TemplatesPage extends StatelessWidget {
 
 class TemplateFormPage extends StatefulWidget {
   final LegalTemplate template;
-  const TemplateFormPage({super.key, required this.template});
+  final KnowledgeEngine engine;
+  const TemplateFormPage({
+    super.key,
+    required this.template,
+    required this.engine,
+  });
 
   @override
   State<TemplateFormPage> createState() => _TemplateFormPageState();
@@ -146,7 +154,11 @@ class _TemplateFormPageState extends State<TemplateFormPage> {
     final text = TemplateRenderer.render(widget.template, v);
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ResultPage(template: widget.template, text: text),
+        builder: (_) => ResultPage(
+          template: widget.template,
+          text: text,
+          engine: widget.engine,
+        ),
       ),
     );
   }
@@ -283,13 +295,76 @@ class _TemplateFormPageState extends State<TemplateFormPage> {
 class ResultPage extends StatelessWidget {
   final LegalTemplate template;
   final String text;
-  const ResultPage({super.key, required this.template, required this.text});
+  final KnowledgeEngine engine;
+  const ResultPage({
+    super.key,
+    required this.template,
+    required this.text,
+    required this.engine,
+  });
 
   Future<void> _copy(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('متن کپی شد')),
+    );
+  }
+
+  Widget _lawSection(BuildContext context) {
+    if (template.lawRefs.isEmpty) return const SizedBox.shrink();
+    final items = <Widget>[];
+    for (final r in template.lawRefs) {
+      final c = engine.findArticle(r.law, r.article);
+      if (c == null) continue;
+      items.add(
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${c.source} — ${c.title}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (r.note.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(r.note),
+                ],
+                const SizedBox(height: 8),
+                SelectableText(
+                  c.body,
+                  style: const TextStyle(fontSize: 15, height: 1.8),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    final Widget content;
+    if (items.isEmpty) {
+      content = const Text('متن رسمی مواد مرتبط هنوز در برنامه نیست.');
+    } else {
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: items,
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'مواد قانونی مرتبط',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          content,
+        ],
+      ),
     );
   }
 
@@ -334,6 +409,7 @@ class ResultPage extends StatelessWidget {
               icon: const Icon(Icons.arrow_forward),
               label: const Text('ویرایش اطلاعات'),
             ),
+            _lawSection(context),
             const SizedBox(height: 12),
             const _Banner(_disclaimer),
             const SizedBox(height: 16),

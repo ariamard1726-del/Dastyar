@@ -83,7 +83,12 @@ class _ChatPageState extends State<ChatPage> {
 
   void _openTemplates() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => TemplatesPage(repo: widget.repo)),
+      MaterialPageRoute(
+        builder: (_) => TemplatesPage(
+          repo: widget.repo,
+          engine: widget.engine,
+        ),
+      ),
     );
   }
 
