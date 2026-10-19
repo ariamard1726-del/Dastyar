@@ -17,3 +17,4 @@ flutter:
   assets:
     - assets/knowledge.txt
     - assets/laws/
+    - assets/templates/

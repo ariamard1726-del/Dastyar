@@ -1,0 +1,51 @@
+{
+  "id": "demand_money",
+  "title": "دادخواست مطالبهٔ وجه",
+  "description": "برای زمانی که کسی مبلغی به شما بدهکار است و پرداخت نمی‌کند.",
+  "version": 1,
+  "reviewed": false,
+  "reviewNote": "این قالب هنوز توسط کارشناس حقوقی بازبینی نشده و فقط پیش‌نویس است.",
+  "tips": [
+    "نشانی خوانده را دقیق بنویسید؛ بدون نشانی درست، ابلاغ دادخواست به او مشکل می‌شود.",
+    "مدارک را آماده کنید: رسید، چک، قرارداد، پیامک یا هر نوشتهٔ دیگری که بدهی را نشان می‌دهد.",
+    "پیش از ثبت، متن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید."
+  ],
+  "fields": [
+    {"id": "court_city", "label": "شهر دادگاه", "type": "text", "required": true, "hint": "معمولاً شهر محل اقامت خوانده"},
+    {"id": "plaintiff_name", "label": "نام و نام خانوادگی شما (خواهان)", "type": "text", "required": true},
+    {"id": "plaintiff_address", "label": "نشانی شما", "type": "multiline", "required": true},
+    {"id": "plaintiff_phone", "label": "تلفن شما", "type": "text", "required": false},
+    {"id": "defendant_name", "label": "نام و نام خانوادگی بدهکار (خوانده)", "type": "text", "required": true},
+    {"id": "defendant_address", "label": "نشانی بدهکار", "type": "multiline", "required": true},
+    {"id": "amount", "label": "مبلغ بدهی به ریال", "type": "number", "required": true, "hint": "هر تومان ده ریال است"},
+    {"id": "basis", "label": "بدهی بر چه اساسی است؟", "type": "choice", "required": true, "options": ["سند عادی (رسید یا قرارداد)", "چک", "قرض", "سایر"]},
+    {"id": "basis_detail", "label": "توضیح کوتاه دربارهٔ بدهی", "type": "multiline", "required": false, "hint": "چه زمانی و چطور بدهکار شد"},
+    {"id": "evidence", "label": "مدارکی که دارید", "type": "multiline", "required": false, "hint": "مثلاً رسید، چک، پیامک"},
+    {"id": "interest", "label": "خسارت تأخیر پرداخت هم خواسته شود", "type": "check", "required": false}
+  ],
+  "body": [
+    "به نام خدا",
+    "",
+    "دادخواست مطالبهٔ وجه",
+    "",
+    "ریاست محترم دادگاه عمومی حقوقی {{court_city}}",
+    "",
+    "خواهان: {{plaintiff_name}}",
+    "نشانی: {{plaintiff_address}}{{#if plaintiff_phone}}، تلفن: {{plaintiff_phone}}{{/if}}",
+    "",
+    "خوانده: {{defendant_name}}",
+    "نشانی: {{defendant_address}}",
+    "",
+    "خواسته: مطالبهٔ مبلغ {{amount|money}} ریال{{#if interest}}، همراه با خسارت تأخیر تأدیه{{/if}} و هزینهٔ دادرسی",
+    "",
+    "بهای خواسته: {{amount|money}} ریال",
+    "",
+    "{{#if evidence}}دلایل و منضمات: {{evidence}}{{else}}دلایل و منضمات: مدارک پیوست{{/if}}",
+    "",
+    "شرح دادخواست:",
+    "ریاست محترم دادگاه، با سلام و احترام؛ خوانده بر اساس {{basis}} مبلغ {{amount|money}} ریال به اینجانب بدهکار است. {{#if basis_detail}}{{basis_detail}} {{/if}}با وجود مطالبه، تاکنون بدهی خود را پرداخت نکرده است. لذا با استناد به مدارک پیوست، رسیدگی و صدور حکم به محکومیت خوانده به پرداخت خواسته{{#if interest}}، خسارت تأخیر تأدیه{{/if}} و هزینهٔ دادرسی مورد استدعاست.",
+    "",
+    "با تشکر",
+    "{{plaintiff_name}}"
+  ]
+}
