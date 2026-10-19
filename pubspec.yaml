@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_embedder: ^0.1.7
   onnxruntime: ^1.4.1
+  hf_tokenizers: ^1.0.0
   path_provider: ^2.1.1
   
 flutter:
