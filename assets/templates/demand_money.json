@@ -11,17 +11,82 @@
     "پیش از ثبت، متن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید."
   ],
   "fields": [
-    {"id": "court_city", "label": "شهر دادگاه", "type": "text", "required": true, "hint": "معمولاً شهر محل اقامت خوانده"},
-    {"id": "plaintiff_name", "label": "نام و نام خانوادگی شما (خواهان)", "type": "text", "required": true},
-    {"id": "plaintiff_address", "label": "نشانی شما", "type": "multiline", "required": true},
-    {"id": "plaintiff_phone", "label": "تلفن شما", "type": "text", "required": false},
-    {"id": "defendant_name", "label": "نام و نام خانوادگی بدهکار (خوانده)", "type": "text", "required": true},
-    {"id": "defendant_address", "label": "نشانی بدهکار", "type": "multiline", "required": true},
-    {"id": "amount", "label": "مبلغ بدهی به ریال", "type": "number", "required": true, "hint": "هر تومان ده ریال است"},
-    {"id": "basis", "label": "بدهی بر چه اساسی است؟", "type": "choice", "required": true, "options": ["سند عادی (رسید یا قرارداد)", "چک", "قرض", "سایر"]},
-    {"id": "basis_detail", "label": "توضیح کوتاه دربارهٔ بدهی", "type": "multiline", "required": false, "hint": "چه زمانی و چطور بدهکار شد"},
-    {"id": "evidence", "label": "مدارکی که دارید", "type": "multiline", "required": false, "hint": "مثلاً رسید، چک، پیامک"},
-    {"id": "interest", "label": "خسارت تأخیر پرداخت هم خواسته شود", "type": "check", "required": false}
+    {
+      "id": "court_city",
+      "label": "شهر دادگاه",
+      "type": "text",
+      "required": true,
+      "hint": "معمولاً شهر محل اقامت خوانده"
+    },
+    {
+      "id": "plaintiff_name",
+      "label": "نام و نام خانوادگی شما (خواهان)",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "plaintiff_address",
+      "label": "نشانی شما",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "plaintiff_phone",
+      "label": "تلفن شما",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "defendant_name",
+      "label": "نام و نام خانوادگی بدهکار (خوانده)",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "defendant_address",
+      "label": "نشانی بدهکار",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "amount",
+      "label": "مبلغ بدهی به ریال",
+      "type": "number",
+      "required": true,
+      "hint": "هر تومان ده ریال است"
+    },
+    {
+      "id": "basis",
+      "label": "بدهی بر چه اساسی است؟",
+      "type": "choice",
+      "required": true,
+      "options": [
+        "سند عادی (رسید یا قرارداد)",
+        "چک",
+        "قرض",
+        "سایر"
+      ]
+    },
+    {
+      "id": "basis_detail",
+      "label": "توضیح کوتاه دربارهٔ بدهی",
+      "type": "multiline",
+      "required": false,
+      "hint": "چه زمانی و چطور بدهکار شد"
+    },
+    {
+      "id": "evidence",
+      "label": "مدارکی که دارید",
+      "type": "multiline",
+      "required": false,
+      "hint": "مثلاً رسید، چک، پیامک"
+    },
+    {
+      "id": "interest",
+      "label": "خسارت تأخیر پرداخت هم خواسته شود",
+      "type": "check",
+      "required": false
+    }
   ],
   "body": [
     "به نام خدا",
@@ -47,5 +112,15 @@
     "",
     "با تشکر",
     "{{plaintiff_name}}"
+  ],
+  "keywords": [
+    "طلب",
+    "بدهی",
+    "قرض",
+    "پول",
+    "چک",
+    "رسید",
+    "پس نمی‌دهد",
+    "مطالبه"
   ]
 }

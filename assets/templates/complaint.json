@@ -12,19 +12,92 @@
     "پیش از ثبت، متن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید."
   ],
   "fields": [
-    {"id": "court_city", "label": "شهر دادسرا", "type": "text", "required": true, "hint": "معمولاً شهری که رفتار مجرمانه در آن رخ داده"},
-    {"id": "complainant_name", "label": "نام و نام خانوادگی شما (شاکی)", "type": "text", "required": true},
-    {"id": "complainant_address", "label": "نشانی شما", "type": "multiline", "required": true},
-    {"id": "complainant_phone", "label": "تلفن شما", "type": "text", "required": false},
-    {"id": "accused_name", "label": "نام و نام خانوادگی شخص مورد شکایت", "type": "text", "required": true, "hint": "اگر نمی‌شناسید بنویسید «مجهول‌الهویه»"},
-    {"id": "accused_address", "label": "نشانی شخص مورد شکایت", "type": "multiline", "required": false, "hint": "اگر نمی‌دانید خالی بگذارید"},
-    {"id": "charge", "label": "موضوع شکایت", "type": "text", "required": true, "hint": "مثلاً فروش مال غیر، تهدید، ضرب و جرح، یا «طبق نظر مقام قضایی»"},
-    {"id": "event_date", "label": "تاریخ رخداد", "type": "text", "required": false, "hint": "مثلاً ۱۴۰۵/۰۷/۱۵ یا «حدود مهرماه»"},
-    {"id": "event_place", "label": "محل رخداد", "type": "text", "required": false},
-    {"id": "narrative", "label": "شرح ماجرا", "type": "multiline", "required": true, "hint": "چه شد، چه کسی چه کاری کرد، چه ضرری دیدید"},
-    {"id": "evidence", "label": "مدارک شما", "type": "multiline", "required": false, "hint": "پیامک، عکس، فیلم، رسید، گواهی"},
-    {"id": "witnesses", "label": "شاهدان", "type": "multiline", "required": false, "hint": "نام و تلفن"},
-    {"id": "damages", "label": "ضرر و زیان ناشی از جرم هم مطالبه شود", "type": "check", "required": false}
+    {
+      "id": "court_city",
+      "label": "شهر دادسرا",
+      "type": "text",
+      "required": true,
+      "hint": "معمولاً شهری که رفتار مجرمانه در آن رخ داده"
+    },
+    {
+      "id": "complainant_name",
+      "label": "نام و نام خانوادگی شما (شاکی)",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "complainant_address",
+      "label": "نشانی شما",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "complainant_phone",
+      "label": "تلفن شما",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "accused_name",
+      "label": "نام و نام خانوادگی شخص مورد شکایت",
+      "type": "text",
+      "required": true,
+      "hint": "اگر نمی‌شناسید بنویسید «مجهول‌الهویه»"
+    },
+    {
+      "id": "accused_address",
+      "label": "نشانی شخص مورد شکایت",
+      "type": "multiline",
+      "required": false,
+      "hint": "اگر نمی‌دانید خالی بگذارید"
+    },
+    {
+      "id": "charge",
+      "label": "موضوع شکایت",
+      "type": "text",
+      "required": true,
+      "hint": "مثلاً فروش مال غیر، تهدید، ضرب و جرح، یا «طبق نظر مقام قضایی»"
+    },
+    {
+      "id": "event_date",
+      "label": "تاریخ رخداد",
+      "type": "text",
+      "required": false,
+      "hint": "مثلاً ۱۴۰۵/۰۷/۱۵ یا «حدود مهرماه»"
+    },
+    {
+      "id": "event_place",
+      "label": "محل رخداد",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "narrative",
+      "label": "شرح ماجرا",
+      "type": "multiline",
+      "required": true,
+      "hint": "چه شد، چه کسی چه کاری کرد، چه ضرری دیدید"
+    },
+    {
+      "id": "evidence",
+      "label": "مدارک شما",
+      "type": "multiline",
+      "required": false,
+      "hint": "پیامک، عکس، فیلم، رسید، گواهی"
+    },
+    {
+      "id": "witnesses",
+      "label": "شاهدان",
+      "type": "multiline",
+      "required": false,
+      "hint": "نام و تلفن"
+    },
+    {
+      "id": "damages",
+      "label": "ضرر و زیان ناشی از جرم هم مطالبه شود",
+      "type": "check",
+      "required": false
+    }
   ],
   "body": [
     "به نام خدا",
@@ -53,5 +126,15 @@
     "",
     "با تشکر",
     "{{complainant_name}}"
+  ],
+  "keywords": [
+    "شکایت",
+    "شکوائیه",
+    "دادسرا",
+    "کیفری",
+    "کلاهبرداری",
+    "تهدید",
+    "سرقت",
+    "توهین"
   ]
 }

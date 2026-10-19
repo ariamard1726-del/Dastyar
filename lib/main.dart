@@ -14,6 +14,39 @@ Future<void> main() async {
   runApp(DastyarApp(settings: settings));
 }
 
+ThemeData _buildTheme(Brightness b) {
+  final dark = b == Brightness.dark;
+  final bg = dark ? const Color(0xFF262624) : const Color(0xFFFAF9F5);
+  final scheme = ColorScheme.fromSeed(
+    seedColor: const Color(0xFFC96442),
+    brightness: b,
+  ).copyWith(surface: bg);
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    scaffoldBackgroundColor: bg,
+    appBarTheme: AppBarTheme(
+      backgroundColor: bg,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
+    drawerTheme: DrawerThemeData(
+      backgroundColor: bg,
+      surfaceTintColor: Colors.transparent,
+    ),
+    cardTheme: CardThemeData(
+      color: dark ? const Color(0xFF30302E) : Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
+    ),
+  );
+}
+
 class DastyarApp extends StatelessWidget {
   final AppSettings settings;
   const DastyarApp({super.key, required this.settings});
@@ -33,10 +66,9 @@ class DastyarApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          theme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed: const Color(0xFF1B6B5A),
-          ),
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          themeMode: ThemeMode.system,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
             return MediaQuery(

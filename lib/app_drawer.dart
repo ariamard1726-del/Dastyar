@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class AppDrawer extends StatelessWidget {
   final VoidCallback onNewChat;
   final VoidCallback onHistory;
-  final VoidCallback onTemplates;
   final VoidCallback onSettings;
   final VoidCallback onAbout;
 
@@ -11,7 +10,6 @@ class AppDrawer extends StatelessWidget {
     super.key,
     required this.onNewChat,
     required this.onHistory,
-    required this.onTemplates,
     required this.onSettings,
     required this.onAbout,
   });
@@ -40,39 +38,29 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-              color: cs.primaryContainer,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.balance, size: 36, color: cs.onPrimaryContainer),
-                  const SizedBox(height: 8),
                   Text(
                     'دستیار',
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: cs.onPrimaryContainer,
+                      color: cs.primary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'کاملاً آفلاین؛ اطلاعات شما از گوشی خارج نمی‌شود',
-                    style: TextStyle(color: cs.onPrimaryContainer),
+                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.6),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
             _item(context, Icons.add_comment_outlined, 'گفتگوی جدید', onNewChat),
             _item(context, Icons.history, 'تاریخچه', onHistory),
-            _item(
-              context,
-              Icons.description_outlined,
-              'تهیه متن حقوقی',
-              onTemplates,
-            ),
             const Divider(),
             _item(context, Icons.settings_outlined, 'تنظیمات', onSettings),
             _item(context, Icons.info_outline, 'اطلاعات و وضعیت داده‌ها', onAbout),

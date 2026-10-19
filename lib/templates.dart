@@ -62,6 +62,7 @@ class LegalTemplate {
   final bool reviewed;
   final String reviewNote;
   final List<String> tips;
+  final List<String> keywords;
   final List<TemplateField> fields;
   final List<LawRef> lawRefs;
   final String body;
@@ -74,6 +75,7 @@ class LegalTemplate {
     required this.reviewed,
     required this.reviewNote,
     required this.tips,
+    required this.keywords,
     required this.fields,
     required this.lawRefs,
     required this.body,
@@ -92,6 +94,8 @@ class LegalTemplate {
       reviewed: j['reviewed'] == true,
       reviewNote: (j['reviewNote'] ?? '').toString(),
       tips: ((j['tips'] ?? []) as List).map((e) => e.toString()).toList(),
+      keywords:
+          ((j['keywords'] ?? []) as List).map((e) => e.toString()).toList(),
       fields: ((j['fields'] ?? []) as List)
           .map((e) => TemplateField.fromJson(e as Map<String, dynamic>))
           .toList(),

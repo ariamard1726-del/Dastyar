@@ -12,20 +12,103 @@
     "پیش از ثبت، متن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید."
   ],
   "fields": [
-    {"id": "court_city", "label": "شهر دادگاه", "type": "text", "required": true, "hint": "همان دادگاهی که پروندهٔ اصلی در آن است"},
-    {"id": "applicant_name", "label": "نام و نام خانوادگی شما", "type": "text", "required": true},
-    {"id": "applicant_address", "label": "نشانی شما", "type": "multiline", "required": true},
-    {"id": "applicant_phone", "label": "تلفن شما", "type": "text", "required": false},
-    {"id": "case_title", "label": "موضوع پروندهٔ اصلی", "type": "text", "required": true, "hint": "مثلاً مطالبهٔ وجه یا تخلیهٔ ملک"},
-    {"id": "case_number", "label": "شمارهٔ پرونده", "type": "text", "required": false, "hint": "اگر دارید"},
-    {"id": "other_party", "label": "نام طرف مقابل در پروندهٔ اصلی", "type": "text", "required": false},
-    {"id": "fee_for", "label": "از پرداخت چه هزینه‌ای ناتوانید؟", "type": "choice", "required": true, "options": ["هزینهٔ دادرسی", "هزینهٔ اجرای حکم", "هزینهٔ کارشناسی"]},
-    {"id": "job", "label": "شغل و منبع درآمد شما", "type": "text", "required": true, "hint": "اگر بیکارید همین را بنویسید"},
-    {"id": "income_state", "label": "وضعیت درآمد و هزینهٔ شما", "type": "multiline", "required": true, "hint": "درآمد ماهانه، اجاره، هزینهٔ درمان یا هر مورد مهم"},
-    {"id": "dependents", "label": "تعداد افراد تحت تکفل شما", "type": "text", "required": false},
-    {"id": "assets_state", "label": "اموال شما", "type": "multiline", "required": true, "hint": "هر مال یا حسابی را بنویسید؛ اگر چیزی ندارید همین را بنویسید"},
-    {"id": "witnesses", "label": "شاهدان", "type": "multiline", "required": false, "hint": "نام و تلفن"},
-    {"id": "evidence", "label": "مدارک شما", "type": "multiline", "required": false, "hint": "مثلاً گواهی بیکاری یا فیش حقوق"}
+    {
+      "id": "court_city",
+      "label": "شهر دادگاه",
+      "type": "text",
+      "required": true,
+      "hint": "همان دادگاهی که پروندهٔ اصلی در آن است"
+    },
+    {
+      "id": "applicant_name",
+      "label": "نام و نام خانوادگی شما",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "applicant_address",
+      "label": "نشانی شما",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "applicant_phone",
+      "label": "تلفن شما",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "case_title",
+      "label": "موضوع پروندهٔ اصلی",
+      "type": "text",
+      "required": true,
+      "hint": "مثلاً مطالبهٔ وجه یا تخلیهٔ ملک"
+    },
+    {
+      "id": "case_number",
+      "label": "شمارهٔ پرونده",
+      "type": "text",
+      "required": false,
+      "hint": "اگر دارید"
+    },
+    {
+      "id": "other_party",
+      "label": "نام طرف مقابل در پروندهٔ اصلی",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "fee_for",
+      "label": "از پرداخت چه هزینه‌ای ناتوانید؟",
+      "type": "choice",
+      "required": true,
+      "options": [
+        "هزینهٔ دادرسی",
+        "هزینهٔ اجرای حکم",
+        "هزینهٔ کارشناسی"
+      ]
+    },
+    {
+      "id": "job",
+      "label": "شغل و منبع درآمد شما",
+      "type": "text",
+      "required": true,
+      "hint": "اگر بیکارید همین را بنویسید"
+    },
+    {
+      "id": "income_state",
+      "label": "وضعیت درآمد و هزینهٔ شما",
+      "type": "multiline",
+      "required": true,
+      "hint": "درآمد ماهانه، اجاره، هزینهٔ درمان یا هر مورد مهم"
+    },
+    {
+      "id": "dependents",
+      "label": "تعداد افراد تحت تکفل شما",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "assets_state",
+      "label": "اموال شما",
+      "type": "multiline",
+      "required": true,
+      "hint": "هر مال یا حسابی را بنویسید؛ اگر چیزی ندارید همین را بنویسید"
+    },
+    {
+      "id": "witnesses",
+      "label": "شاهدان",
+      "type": "multiline",
+      "required": false,
+      "hint": "نام و تلفن"
+    },
+    {
+      "id": "evidence",
+      "label": "مدارک شما",
+      "type": "multiline",
+      "required": false,
+      "hint": "مثلاً گواهی بیکاری یا فیش حقوق"
+    }
   ],
   "body": [
     "به نام خدا",
@@ -55,5 +138,12 @@
     "",
     "با تشکر",
     "{{applicant_name}}"
+  ],
+  "keywords": [
+    "اعسار",
+    "ناتوانی مالی",
+    "هزینه دادرسی",
+    "نمی‌توانم هزینه",
+    "تهیدست"
   ]
 }
