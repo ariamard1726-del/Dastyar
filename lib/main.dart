@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'assistant.dart';
 import 'engine.dart';
 
 void main() => runApp(const DastyarApp());
@@ -30,7 +31,7 @@ class DastyarApp extends StatelessWidget {
 }
 
 class _Msg {
-  final String text;
+  String text;
   final bool fromUser;
   _Msg(this.text, this.fromUser);
 }
@@ -44,10 +45,13 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final KnowledgeEngine _engine = KnowledgeEngine();
+  // برای اتصال مدل بعداً: Assistant(_engine, llm: MyLlmBackend())
+  late final Assistant _assistant = Assistant(_engine);
   final TextEditingController _ctrl = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final List<_Msg> _msgs = [];
   bool _ready = false;
+  bool _busy = false;
   String? _error;
 
   static const String _welcome =
@@ -72,21 +76,29 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _send() {
+  Future<void> _send() async {
     final text = _ctrl.text.trim();
-    if (text.isEmpty || !_ready) return;
-    String reply;
-    try {
-      reply = _engine.answer(text);
-    } catch (e) {
-      reply = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
-    }
+    if (text.isEmpty || !_ready || _busy) return;
+    final bot = _Msg('...', false);
     setState(() {
+      _busy = true;
       _msgs.add(_Msg(text, true));
-      _msgs.add(_Msg(reply, false));
+      _msgs.add(bot);
     });
     _ctrl.clear();
     _scrollDown();
+    try {
+      await for (final t in _assistant.ask(text)) {
+        if (!mounted) return;
+        setState(() => bot.text = t);
+        _scrollDown();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.');
+      }
+    }
+    if (mounted) setState(() => _busy = false);
   }
 
   void _scrollDown() {
@@ -94,7 +106,7 @@ class _ChatPageState extends State<ChatPage> {
       if (_scroll.hasClients) {
         _scroll.animateTo(
           _scroll.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 250),
+          duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       }
@@ -153,7 +165,7 @@ class _ChatPageState extends State<ChatPage> {
         actions: [
           IconButton(
             tooltip: 'پاک کردن گفتگو',
-            onPressed: _ready ? _confirmClear : null,
+            onPressed: _ready && !_busy ? _confirmClear : null,
             icon: const Icon(Icons.delete_outline),
           ),
         ],
@@ -220,7 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    onPressed: _ready ? _send : null,
+                    onPressed: _ready && !_busy ? _send : null,
                     icon: const Icon(Icons.send),
                   ),
                 ],

@@ -10,6 +10,18 @@ class Chunk {
   Chunk(this.source, this.title, this.body, this.tf);
 }
 
+class Hit {
+  final Chunk chunk;
+  final double score;
+  Hit(this.chunk, this.score);
+}
+
+class RankResult {
+  final List<Hit> hits;
+  final String note;
+  RankResult(this.hits, [this.note = '']);
+}
+
 class KnowledgeEngine {
   final List<Chunk> _chunks = [];
   final Map<String, double> _idf = {};
@@ -144,30 +156,22 @@ class KnowledgeEngine {
     _vocab = df.keys.toList();
   }
 
-  String _format(Chunk c) {
+  String format(Chunk c) {
     final src = c.source.isEmpty ? '' : '\n\nمنبع: ${c.source}';
     if (c.body == c.title) return '${c.title}$src';
     return '${c.title}\n${c.body}$src';
   }
 
-  String answer(String question) {
+  RankResult rank(String question, {int k = 3}) {
     final q = normalize(question);
     final qTokens = tokenize(question).toSet().toList();
-
-    if (qTokens.isEmpty) {
-      if (q.contains('سلام')) return 'سلام! چه کمکی از من برمی‌آید؟';
-      return 'لطفاً پرسش خود را کامل‌تر بنویسید.';
-    }
-    if (_chunks.isEmpty) {
-      return 'هنوز دانشی در برنامه نیست.';
-    }
+    if (qTokens.isEmpty || _chunks.isEmpty) return RankResult([]);
 
     final art = RegExp(r'ماده\s*(\d+)').firstMatch(q);
     if (art != null) {
       final want = 'ماده ${art.group(1)}';
-      final found = _chunks
-          .where((c) => normalize(c.title).trim() == want)
-          .toList();
+      final found =
+          _chunks.where((c) => normalize(c.title).trim() == want).toList();
       if (found.isNotEmpty) {
         Chunk pick = found.first;
         var bestOverlap = -1;
@@ -179,7 +183,7 @@ class KnowledgeEngine {
             pick = c;
           }
         }
-        var res = _format(pick);
+        var note = '';
         if (found.length > 1 && bestOverlap <= 0) {
           final others = found
               .where((c) => c != pick && c.source.isNotEmpty)
@@ -187,10 +191,11 @@ class KnowledgeEngine {
               .take(3)
               .join('، ');
           if (others.isNotEmpty) {
-            res += '\n\nهمین شمارهٔ ماده در این منابع هم هست: $others. نام قانون را هم بنویسید.';
+            note =
+                'همین شمارهٔ ماده در این منابع هم هست: $others. نام قانون را هم بنویسید.';
           }
         }
-        return res;
+        return RankResult([Hit(pick, 99)], note);
       }
     }
 
@@ -199,7 +204,7 @@ class KnowledgeEngine {
     for (final t in qTokens) {
       total += _idf[t] ?? 1.0;
       if (_idf.containsKey(t)) {
-        terms[t] = math.max(terms[t] ?? 0, 1.0);
+        terms[t] = 1.0;
       } else if (t.length >= 3) {
         for (final v in _vocab) {
           if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
@@ -208,34 +213,42 @@ class KnowledgeEngine {
         }
       }
     }
-    if (terms.isEmpty) return _notFound();
+    if (terms.isEmpty) return RankResult([]);
 
-    Chunk? best;
-    Chunk? second;
-    double bestScore = 0;
-    double secondScore = 0;
+    final hits = <Hit>[];
     for (final c in _chunks) {
       double s = 0;
       terms.forEach((t, w) {
         final tf = c.tf[t];
         if (tf != null) s += w * (_idf[t] ?? 1.0) * (1 + math.log(tf));
       });
-      s = s / total;
-      if (s > bestScore) {
-        second = best;
-        secondScore = bestScore;
-        best = c;
-        bestScore = s;
-      } else if (s > secondScore) {
-        second = c;
-        secondScore = s;
-      }
+      if (s > 0) hits.add(Hit(c, s / total));
     }
-    if (best == null || bestScore < 0.3) return _notFound();
+    hits.sort((a, b) => b.score.compareTo(a.score));
+    return RankResult(hits.take(k).toList());
+  }
 
-    var res = _format(best);
-    if (second != null && secondScore >= bestScore * 0.8 && secondScore >= 0.3) {
-      res += '\n\nموضوع مرتبط: ${second.title}';
+  String answer(String question) {
+    final qTokens = tokenize(question);
+    if (qTokens.isEmpty) {
+      if (normalize(question).contains('سلام')) {
+        return 'سلام! چه کمکی از من برمی‌آید؟';
+      }
+      return 'لطفاً پرسش خود را کامل‌تر بنویسید.';
+    }
+    if (_chunks.isEmpty) return 'هنوز دانشی در برنامه نیست.';
+
+    final r = rank(question, k: 2);
+    if (r.hits.isEmpty || r.hits.first.score < 0.3) return _notFound();
+
+    var res = format(r.hits.first.chunk);
+    if (r.note.isNotEmpty) res += '\n\n${r.note}';
+    if (r.hits.length > 1) {
+      final b = r.hits[0].score;
+      final s = r.hits[1];
+      if (b < 99 && s.score >= b * 0.8 && s.score >= 0.3) {
+        res += '\n\nموضوع مرتبط: ${s.chunk.title}';
+      }
     }
     return res;
   }
