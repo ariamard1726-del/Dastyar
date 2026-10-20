@@ -35,7 +35,8 @@ jobs:
         continue-on-error: true
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Tests (informational)
+      - name: Tests
+        id: tests
         continue-on-error: true
         run: flutter test
 
@@ -45,3 +46,9 @@ jobs:
         with:
           name: dastyar-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Report failed tests (APK is already saved)
+        if: steps.tests.outcome == 'failure'
+        run: |
+          echo "Some tests failed. Open the Tests step log."
+          exit 1
