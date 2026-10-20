@@ -82,8 +82,10 @@ class Drafting {
     'چیست', 'چیه', 'چه فرقی', 'چگونه', 'چطور', 'آیا', 'چرا', 'کجا', 'چقدر', '؟', '?',
   ];
 
+  // پرسش‌های صرفاً اطلاعاتی: پیشنهاد تهیهٔ متن نمی‌آید.
   static const List<String> _definitional = [
-    'چیست', 'چیه', 'چه فرقی', 'یعنی چه', 'معنی',
+    'چیست', 'چیه', 'چه فرقی', 'یعنی چه', 'معنی', 'تعریف', 'مجازات',
+    'جرم است', 'جرمه', 'حکمش',
   ];
 
   static const String chooseText = 'کدام متن را می‌خواهید تهیه کنم؟';
@@ -98,9 +100,14 @@ class Drafting {
   static final RegExp _nonLetter = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
+  static final RegExp _miPrefix = RegExp(r'(^| )(نمی|می) ');
 
-  static String _norm(String s) =>
-      KnowledgeEngine.normalize(s).replaceAll(_nonLetter, ' ').trim();
+  // یکسان‌سازی نیم‌فاصله و فاصله در «می/نمی» (نمی دهد = نمیدهد)
+  static String _norm(String s) {
+    var n = KnowledgeEngine.normalize(s).replaceAll(_nonLetter, ' ');
+    n = n.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return n.replaceAllMapped(_miPrefix, (m) => '${m.group(1)}${m.group(2)}');
+  }
 
   static bool _kwHit(String kw, String text, List<String> words) {
     if (kw.contains(' ')) return text.contains(kw);
@@ -114,11 +121,19 @@ class Drafting {
     return false;
   }
 
+  /// کلمه‌های کلیدی قالب. اگر با «-» شروع شود، کلمهٔ منفی است:
+  /// وجودش در پیام یعنی این قالب برای وضعیت کاربر مناسب نیست.
   static int keywordScore(String text, LegalTemplate t) {
     final n = _norm(text);
     final words = n.split(' ');
+    for (final k in t.keywords) {
+      if (!k.startsWith('-')) continue;
+      final kn = _norm(k.substring(1));
+      if (kn.isNotEmpty && _kwHit(kn, n, words)) return 0;
+    }
     var s = 0;
     for (final k in t.keywords) {
+      if (k.startsWith('-')) continue;
       final kn = _norm(k);
       if (kn.isEmpty) continue;
       if (_kwHit(kn, n, words)) s++;
@@ -274,6 +289,9 @@ class Drafting {
 
   static bool isYes(String raw) =>
       _yes.contains(KnowledgeEngine.normalize(raw).trim());
+
+  static bool isNo(String raw) =>
+      _no.contains(KnowledgeEngine.normalize(raw).trim());
 
   static DraftReply answer(DraftSession s, String raw) {
     final input = raw.trim();

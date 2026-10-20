@@ -6,9 +6,20 @@
   "reviewed": false,
   "reviewNote": "این قالب هنوز توسط کارشناس حقوقی بازبینی نشده و فقط پیش‌نویس است.",
   "keywords": [
-    "معاضدت", "وکیل رایگان", "وکیل تسخیری", "وکیل ندارم",
-    "پول وکیل ندارم", "نمی‌توانم وکیل", "نمیتونم وکیل",
-    "حق الوکاله", "هزینه وکیل", "توان پرداخت وکیل"
+    "معاضدت",
+    "وکیل رایگان",
+    "وکیل مجانی",
+    "وکیل تسخیری",
+    "وکیل معاضدتی",
+    "وکیل ندارم",
+    "پول وکیل",
+    "هزینه وکیل",
+    "حق الوکاله",
+    "وکیل بگیرم",
+    "نمی‌توانم وکیل",
+    "نمیتونم وکیل",
+    "توان پرداخت وکیل",
+    "وکیل نمی‌توانم"
   ],
   "tips": [
     "مرجع دقیق ثبت این درخواست و مدارک لازم را از دفتر خدمات قضایی یا دادگاه محل خود بپرسید؛ ممکن است برای هر نوع پرونده فرق کند.",
@@ -17,18 +28,91 @@
     "پیش از ثبت، متن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید."
   ],
   "fields": [
-    {"id": "court_city", "label": "شهر دادگاه", "type": "text", "required": true, "hint": "دادگاهی که پروندهٔ شما در آن است یا مراجعه می‌کنید"},
-    {"id": "applicant_name", "label": "نام و نام خانوادگی شما", "type": "text", "required": true},
-    {"id": "applicant_address", "label": "نشانی شما", "type": "multiline", "required": true},
-    {"id": "applicant_phone", "label": "تلفن شما", "type": "text", "required": false},
-    {"id": "role", "label": "نقش شما در پرونده", "type": "choice", "required": true, "options": ["خواهان", "خوانده", "شاکی", "متهم"]},
-    {"id": "case_title", "label": "موضوع پرونده", "type": "text", "required": true, "hint": "مثلاً مطالبهٔ وجه یا تخلیهٔ ملک"},
-    {"id": "case_number", "label": "شمارهٔ پرونده", "type": "text", "required": false, "hint": "اگر دارید"},
-    {"id": "other_party", "label": "نام طرف مقابل", "type": "text", "required": false},
-    {"id": "job", "label": "شغل و منبع درآمد شما", "type": "text", "required": true, "hint": "اگر بیکارید همین را بنویسید"},
-    {"id": "income_state", "label": "وضعیت درآمد و هزینهٔ شما", "type": "multiline", "required": true, "hint": "درآمد ماهانه، اجاره، هزینهٔ درمان یا هر مورد مهم"},
-    {"id": "assets_state", "label": "اموال شما", "type": "multiline", "required": true, "hint": "هر مال یا حسابی را بنویسید؛ اگر چیزی ندارید همین را بنویسید"},
-    {"id": "evidence", "label": "مدارک شما", "type": "multiline", "required": false, "hint": "مثلاً گواهی بیکاری یا فیش حقوق"}
+    {
+      "id": "court_city",
+      "label": "شهر دادگاه",
+      "type": "text",
+      "required": true,
+      "hint": "دادگاهی که پروندهٔ شما در آن است یا مراجعه می‌کنید"
+    },
+    {
+      "id": "applicant_name",
+      "label": "نام و نام خانوادگی شما",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "applicant_address",
+      "label": "نشانی شما",
+      "type": "multiline",
+      "required": true
+    },
+    {
+      "id": "applicant_phone",
+      "label": "تلفن شما",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "role",
+      "label": "نقش شما در پرونده",
+      "type": "choice",
+      "required": true,
+      "options": [
+        "خواهان",
+        "خوانده",
+        "شاکی",
+        "متهم"
+      ]
+    },
+    {
+      "id": "case_title",
+      "label": "موضوع پرونده",
+      "type": "text",
+      "required": true,
+      "hint": "مثلاً مطالبهٔ وجه یا تخلیهٔ ملک"
+    },
+    {
+      "id": "case_number",
+      "label": "شمارهٔ پرونده",
+      "type": "text",
+      "required": false,
+      "hint": "اگر دارید"
+    },
+    {
+      "id": "other_party",
+      "label": "نام طرف مقابل",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "job",
+      "label": "شغل و منبع درآمد شما",
+      "type": "text",
+      "required": true,
+      "hint": "اگر بیکارید همین را بنویسید"
+    },
+    {
+      "id": "income_state",
+      "label": "وضعیت درآمد و هزینهٔ شما",
+      "type": "multiline",
+      "required": true,
+      "hint": "درآمد ماهانه، اجاره، هزینهٔ درمان یا هر مورد مهم"
+    },
+    {
+      "id": "assets_state",
+      "label": "اموال شما",
+      "type": "multiline",
+      "required": true,
+      "hint": "هر مال یا حسابی را بنویسید؛ اگر چیزی ندارید همین را بنویسید"
+    },
+    {
+      "id": "evidence",
+      "label": "مدارک شما",
+      "type": "multiline",
+      "required": false,
+      "hint": "مثلاً گواهی بیکاری یا فیش حقوق"
+    }
   ],
   "body": [
     "به نام خدا",
