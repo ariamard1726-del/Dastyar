@@ -43,7 +43,7 @@
 ## ۵. بارگذاری قانون
 
 - متن را فقط از منبع رسمی بگیرید و تاریخ دریافت را یادداشت کنید.
-- تبدیل: python tools/convert.py raw/فایل.txt "نام قانون" assets/laws/فایل.txt
+- تبدیل: python tools/convert.py ID raw/ID.txt "نام رسمی قانون" --source "منبع" --date "تاریخ"
 - در assets/data_info.json تاریخ آخرین به‌روزرسانی (lawsUpdated) و dataVersion را عوض کنید.
 - قبل از پوش: python tools/check.py
 
