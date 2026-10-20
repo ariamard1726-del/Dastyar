@@ -73,6 +73,11 @@ class _ChatPageState extends State<ChatPage> {
   String _sessionId = _newId();
   DraftSession? _draft;
 
+  // پیشنهاد در انتظار تصمیم کاربر
+  String? _pendingText;
+  List<LegalTemplate> _pendingList = [];
+  final Set<String> _declined = {};
+
   static String _newId() => DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
@@ -88,6 +93,13 @@ class _ChatPageState extends State<ChatPage> {
     _ctrl.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  void _resetFlow() {
+    _draft = null;
+    _pendingText = null;
+    _pendingList = [];
+    _declined.clear();
   }
 
   // ---------- ذخیرهٔ تاریخچه ----------
@@ -125,6 +137,27 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
+    // پاسخ به پیشنهادی که قبلاً داده شده
+    if (_pendingText != null) {
+      final pt = _pendingText!;
+      final list = _pendingList;
+      _pendingText = null;
+      _pendingList = [];
+      if (text == DraftCmd.offerNo) {
+        for (final t in list) {
+          _declined.add(t.id);
+        }
+        setState(() => _msgs.add(_Msg(text, true, sensitive: true)));
+        await _ask(pt, addUser: false, sensitive: true);
+        return;
+      }
+      if (text == DraftCmd.offerYes && list.length == 1) {
+        _startDraft(text, list.first);
+        return;
+      }
+    }
+
+    // درخواست صریح تهیهٔ متن
     final intent = Drafting.detect(text, widget.repo.templates);
     if (intent.template != null) {
       _startDraft(text, intent.template!);
@@ -145,14 +178,61 @@ class _ChatPageState extends State<ChatPage> {
       _scrollDown();
       return;
     }
+
+    // توصیف وضعیت بدون درخواست صریح: فقط پیشنهاد
+    final avail =
+        widget.repo.templates.where((t) => !_declined.contains(t.id)).toList();
+    final sug = Drafting.suggest(text, avail);
+    if (sug.template != null) {
+      setState(() {
+        _pendingText = text;
+        _pendingList = [sug.template!];
+        _msgs.add(_Msg(text, true, sensitive: true));
+        _msgs.add(
+          _Msg(
+            Drafting.offerText(sug.template!),
+            false,
+            sensitive: true,
+            chips: const [DraftCmd.offerYes, DraftCmd.offerNo],
+          ),
+        );
+      });
+      _scrollDown();
+      return;
+    }
+    if (sug.choices.isNotEmpty) {
+      setState(() {
+        _pendingText = text;
+        _pendingList = sug.choices;
+        _msgs.add(_Msg(text, true, sensitive: true));
+        _msgs.add(
+          _Msg(
+            Drafting.suggestChooseText,
+            false,
+            sensitive: true,
+            chips: [
+              ...sug.choices.map((t) => t.title),
+              DraftCmd.offerNo,
+            ],
+          ),
+        );
+      });
+      _scrollDown();
+      return;
+    }
+
     await _ask(text);
   }
 
-  Future<void> _ask(String text) async {
-    final bot = _Msg('...', false);
+  Future<void> _ask(
+    String text, {
+    bool addUser = true,
+    bool sensitive = false,
+  }) async {
+    final bot = _Msg('...', false, sensitive: sensitive);
     setState(() {
       _busy = true;
-      _msgs.add(_Msg(text, true));
+      if (addUser) _msgs.add(_Msg(text, true, sensitive: sensitive));
       _msgs.add(bot);
     });
     _scrollDown();
@@ -232,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
     if (_busy) return;
     setState(() {
       _sessionId = _newId();
-      _draft = null;
+      _resetFlow();
       _msgs.clear();
     });
   }
@@ -245,7 +325,7 @@ class _ChatPageState extends State<ChatPage> {
     if (s == null || !mounted) return;
     setState(() {
       _sessionId = s.id;
-      _draft = null;
+      _resetFlow();
       _msgs
         ..clear()
         ..addAll(s.messages.map((m) => _Msg(m.text, m.fromUser)));
@@ -433,7 +513,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'بدون اینترنت کار می‌کنم. می‌توانید سؤال بپرسید یا بنویسید «می‌خواهم دادخواست بنویسم».',
+              'بدون اینترنت کار می‌کنم. می‌توانید سؤال بپرسید، مشکل خود را شرح دهید، یا بنویسید «می‌خواهم دادخواست بنویسم».',
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, height: 1.7),
             ),

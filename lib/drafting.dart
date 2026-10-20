@@ -10,6 +10,8 @@ class DraftCmd {
   static const String finish = 'پایان';
   static const String yes = 'بله';
   static const String no = 'خیر';
+  static const String offerYes = 'بله، آماده کن';
+  static const String offerNo = 'نه، فقط توضیح بده';
 }
 
 class DraftSession {
@@ -80,7 +82,49 @@ class Drafting {
     'چیست', 'چیه', 'چه فرقی', 'چگونه', 'چطور', 'آیا', 'چرا', 'کجا', 'چقدر', '؟', '?',
   ];
 
+  static const List<String> _definitional = [
+    'چیست', 'چیه', 'چه فرقی', 'یعنی چه', 'معنی',
+  ];
+
   static const String chooseText = 'کدام متن را می‌خواهید تهیه کنم؟';
+  static const String suggestChooseText =
+      'برای وضعیتی که نوشتید این متن‌ها می‌توانند مفید باشند. کدام را آماده کنم؟';
+
+  static String offerText(LegalTemplate t) {
+    final desc = t.description.isEmpty ? '' : '\n${t.description}';
+    return 'به نظر می‌رسد «${t.title}» برای وضعیت شما مفید است.$desc\n\nمی‌خواهید همین حالا آماده‌اش کنم؟ این فقط یک پیشنهاد است و تصمیم نهایی با شماست.';
+  }
+
+  static final RegExp _nonLetter = RegExp(
+    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
+  );
+
+  static String _norm(String s) =>
+      KnowledgeEngine.normalize(s).replaceAll(_nonLetter, ' ').trim();
+
+  static bool _kwHit(String kw, String text, List<String> words) {
+    if (kw.contains(' ')) return text.contains(kw);
+    for (final w in words) {
+      if (w == kw) return true;
+      if (kw.length >= 3 && w.startsWith(kw)) return true;
+      if (kw.length < 3 && w.startsWith(kw) && w.length <= kw.length + 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static int keywordScore(String text, LegalTemplate t) {
+    final n = _norm(text);
+    final words = n.split(' ');
+    var s = 0;
+    for (final k in t.keywords) {
+      final kn = _norm(k);
+      if (kn.isEmpty) continue;
+      if (_kwHit(kn, n, words)) s++;
+    }
+    return s;
+  }
 
   static bool _wantsDraft(String n) {
     if (_verbs.any((w) => n.contains(w))) return true;
@@ -88,13 +132,13 @@ class Drafting {
     return !_questionWords.any((w) => n.contains(w));
   }
 
-  static Set<String> _keywordTokens(LegalTemplate t) {
-    final all = '${t.title} ${t.description} ${t.keywords.join(' ')}';
-    return KnowledgeEngine.tokenize(all)
+  static Set<String> _titleTokens(LegalTemplate t) {
+    return KnowledgeEngine.tokenize('${t.title} ${t.description}')
         .where((w) => !_generic.contains(w))
         .toSet();
   }
 
+  /// کاربر صریحاً خواسته متنی تهیه شود (یا عنوان قالب را زده).
   static IntentResult detect(String text, List<LegalTemplate> ts) {
     if (ts.isEmpty) return const IntentResult(null, []);
     final n = KnowledgeEngine.normalize(text).trim();
@@ -109,12 +153,34 @@ class Drafting {
     var best = 0;
     final scores = <LegalTemplate, int>{};
     for (final t in ts) {
-      final kw = _keywordTokens(t);
-      final s = tokens.where(kw.contains).length;
+      final tt = _titleTokens(t);
+      final s = tokens.where((w) => tt.contains(w)).length +
+          2 * keywordScore(text, t);
       scores[t] = s;
       if (s > best) best = s;
     }
     if (best == 0) return IntentResult(null, List.of(ts));
+    final top = ts.where((t) => scores[t] == best).toList();
+    if (top.length == 1) return IntentResult(top.first, const []);
+    return IntentResult(null, top);
+  }
+
+  /// کاربر وضعیتش را شرح داده و صریحاً متن نخواسته: فقط پیشنهاد می‌دهیم.
+  static IntentResult suggest(String text, List<LegalTemplate> ts) {
+    if (ts.isEmpty) return const IntentResult(null, []);
+    final n = KnowledgeEngine.normalize(text).trim();
+    if (n.length < 6) return const IntentResult(null, []);
+    if (_definitional.any((w) => n.contains(w))) {
+      return const IntentResult(null, []);
+    }
+    var best = 0;
+    final scores = <LegalTemplate, int>{};
+    for (final t in ts) {
+      final s = keywordScore(text, t);
+      scores[t] = s;
+      if (s > best) best = s;
+    }
+    if (best == 0) return const IntentResult(null, []);
     final top = ts.where((t) => scores[t] == best).toList();
     if (top.length == 1) return IntentResult(top.first, const []);
     return IntentResult(null, top);
@@ -205,6 +271,9 @@ class Drafting {
 
   static const Set<String> _yes = {'بله', 'آره', 'اره', 'بلی', 'بله.'};
   static const Set<String> _no = {'خیر', 'نه', 'نخیر'};
+
+  static bool isYes(String raw) =>
+      _yes.contains(KnowledgeEngine.normalize(raw).trim());
 
   static DraftReply answer(DraftSession s, String raw) {
     final input = raw.trim();
