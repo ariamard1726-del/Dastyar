@@ -9,7 +9,9 @@ LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 
 ORD = ('اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|'
        'سیزدهم|چهاردهم|پانزدهم|شانزدهم|هفدهم|هجدهم|نوزدهم|بیستم')
-HEAD = re.compile(r'^(فصل|بخش|کتاب|باب|مبحث|گفتار)\s+(?:' + ORD + r'|\d+)(?!\w)')
+HEAD_KW = 'فصل|قسمت|بخش|کتاب|باب|مبحث|گفتار'
+HEAD = re.compile(r'^(?:' + HEAD_KW + r')\s+(?:' + ORD + r'|\d+)(?!\w)')
+HEAD_SEP = re.compile(r'^(?:' + HEAD_KW + r')\s+(?:' + ORD + r'|\d+)\s*[-–—ـ:]')
 ONE = re.compile(r'^ماده\s+واحده\s*(?:[-–—ـ.:]+)?\s*(.*)$')
 ART_SEP = re.compile(r'^ماده\s*(\d+)(\s*مکرر(?:\s*\d+)?)?\s*[-–—ـ.:)]+\s*(.*)$')
 ART_END = re.compile(r'^ماده\s*(\d+)(\s*مکرر(?:\s*\d+)?)?\s*$')
@@ -32,6 +34,14 @@ def mk_title(num, mk):
     if mk:
         t += ' ' + re.sub(r'\s+', ' ', mk)
     return t
+
+
+def is_heading(line):
+    if not HEAD.match(line):
+        return False
+    if len(line) < 60:
+        return True
+    return len(line) < 300 and bool(HEAD_SEP.match(line))
 
 
 def main():
@@ -67,7 +77,7 @@ def main():
             continue
         d = digits(line)
 
-        if len(line) < 90 and HEAD.match(line):
+        if is_heading(line):
             chapter = line
             heads += 1
             cur = None
@@ -126,7 +136,6 @@ def main():
     with open(dest, 'w', encoding='utf-8') as f:
         f.write('\n'.join(out).strip() + '\n')
 
-    # ثبت منبع و تاریخ
     meta_path = os.path.join(LAWS_DIR, '_meta.json')
     meta = {}
     if os.path.exists(meta_path):
@@ -145,7 +154,6 @@ def main():
         json.dump(meta, f, ensure_ascii=False, indent=2)
         f.write('\n')
 
-    # گزارش
     nums = set()
     seen = set()
     dups = []
@@ -162,9 +170,9 @@ def main():
 
     print('نوشته شد: assets/laws/%s.txt' % a.law_id)
     print('تعداد ماده:', len(articles))
-    print('عنوان فصل/بخش دیده‌شده:', heads)
+    print('عنوان فصل/بخش/قسمت دیده‌شده:', heads)
     if a.chapters:
-        print('هشدار: --chapters فقط بعد از به‌روزرسانی موتور برنامه (بخش ۲) استفاده شود.')
+        print('هشدار: --chapters فقط بعد از به‌روزرسانی موتور برنامه استفاده شود.')
     if ignored:
         print('خطوط قبل از اولین ماده (نادیده گرفته شد):', ignored)
     if nums:
@@ -172,7 +180,6 @@ def main():
         if gaps:
             print('شمارهٔ ماده‌های جاافتاده (%d مورد): %s%s' % (
                 len(gaps), ', '.join(map(str, gaps[:15])), ' ...' if len(gaps) > 15 else ''))
-            print('  اگر ماده‌ای منسوخ نشده، متن را بررسی کنید؛ احتمالاً کپی ناقص است.')
         else:
             print('شماره‌گذاری: پیوسته از ۱ تا %d' % max(nums))
     if dups:
@@ -181,8 +188,6 @@ def main():
         print('مادهٔ بدون متن:', ', '.join(empty[:10]))
     if not articles:
         print('هیچ ماده‌ای پیدا نشد. قالب خطوط باید «ماده ۱ - متن» باشد.')
-    else:
-        print('نمونه: %s | %s' % (articles[0]['title'], ' '.join(articles[0]['lines'])[:60]))
     if not a.source or not a.date:
         print('یادآوری: منبع و تاریخ را با --source و --date ثبت کنید.')
 
