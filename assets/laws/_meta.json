@@ -2,7 +2,11 @@
   "civil": {
     "title": "قانون مدنی",
     "source": "",
-    "date": "",
+    "date": "۱۴۰۵/۰۷/۲۸",
     "articles": 1333
+  },
+  "cheque": {
+    "title": "قانون صدور چک",
+    "file": "cheque.txt"
   }
 }
