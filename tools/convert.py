@@ -9,13 +9,23 @@ LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 
 ORD = ('اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|'
        'سیزدهم|چهاردهم|پانزدهم|شانزدهم|هفدهم|هجدهم|نوزدهم|بیستم')
-HEAD_KW = 'فصل|قسمت|بخش|کتاب|باب|مبحث|گفتار'
+HEAD_KW = 'جلد|فصل|قسمت|بخش|کتاب|باب|مبحث|گفتار'
 HEAD = re.compile(r'^(?:' + HEAD_KW + r')\s+(?:' + ORD + r'|\d+)(?!\w)')
 HEAD_SEP = re.compile(r'^(?:' + HEAD_KW + r')\s+(?:' + ORD + r'|\d+)\s*[-–—ـ:]')
 ONE = re.compile(r'^ماده\s+واحده\s*(?:[-–—ـ.:]+)?\s*(.*)$')
 ART_SEP = re.compile(r'^ماده\s*(\d+)(\s*مکرر(?:\s*\d+)?)?\s*[-–—ـ.:)]+\s*(.*)$')
 ART_END = re.compile(r'^ماده\s*(\d+)(\s*مکرر(?:\s*\d+)?)?\s*$')
+ART_ANN = re.compile(
+    r'^ماده\s*(\d+)(\s*مکرر(?:\s*\d+)?)?\s*'
+    r'(?=\(\s*(?:اصلاحی|الحاقی|مصوب|منسوخ|ملغی|مطابق))(.*)$')
 ART_LOOSE = re.compile(r'^ماده\s*(\d+)\s+(.+)$')
+# خطوطی که شبیه شرح یا خلاصهٔ غیررسمی‌اند، نه متن قانون
+NOTE = re.compile(
+    r'^\(\s*(?:ماده|توضیح|نکته|تفسیر|شرح)\b'
+    r'|^با\s+حذف\s+این\s+ماده'
+    r'|نیز\s+وجود\s+دارد'
+    r'|مطابق\s+آخرین\s+اصلاحات'
+    r'|^ماده\s*\d+\s*[-–—ـ]?\s*\(\s*در\s+مورد')
 
 
 def digits(s):
@@ -52,6 +62,7 @@ def main():
     ap.add_argument('--source', default='')
     ap.add_argument('--date', default='')
     ap.add_argument('--chapters', action='store_true')
+    ap.add_argument('--drop-notes', action='store_true')
     a = ap.parse_args()
 
     if not re.fullmatch(r'[a-z0-9_]+', a.law_id):
@@ -70,12 +81,19 @@ def main():
     heads = 0
     ignored = 0
     last = 0
+    notes = []
 
     for raw_line in text.split('\n'):
         line = re.sub(r'\s+', ' ', raw_line).strip()
         if not line:
             continue
         d = digits(line)
+
+        if NOTE.search(d):
+            where = cur['title'] if cur else '(قبل از اولین ماده)'
+            notes.append((where, line))
+            if a.drop_notes:
+                continue
 
         if is_heading(line):
             chapter = line
@@ -104,12 +122,19 @@ def main():
                     if not m.group(2):
                         last = int(m.group(1))
                 else:
-                    m = ART_LOOSE.match(d)
-                    if (m and int(m.group(1)) == last + 1
-                            and not m.group(2).startswith('مکرر')):
-                        title = mk_title(m.group(1), '')
-                        first = line[m.start(2):].strip()
-                        last = int(m.group(1))
+                    m = ART_ANN.match(d)
+                    if m:
+                        title = mk_title(m.group(1), m.group(2))
+                        first = line[m.start(3):].strip()
+                        if not m.group(2):
+                            last = int(m.group(1))
+                    else:
+                        m = ART_LOOSE.match(d)
+                        if (m and int(m.group(1)) == last + 1
+                                and not m.group(2).startswith('مکرر')):
+                            title = mk_title(m.group(1), '')
+                            first = line[m.start(2):].strip()
+                            last = int(m.group(1))
 
         if title:
             cur = {'title': title, 'lines': [first] if first else [], 'chapter': chapter}
@@ -170,9 +195,7 @@ def main():
 
     print('نوشته شد: assets/laws/%s.txt' % a.law_id)
     print('تعداد ماده:', len(articles))
-    print('عنوان فصل/بخش/قسمت دیده‌شده:', heads)
-    if a.chapters:
-        print('هشدار: --chapters فقط بعد از به‌روزرسانی موتور برنامه استفاده شود.')
+    print('عنوان جلد/فصل/قسمت دیده‌شده:', heads)
     if ignored:
         print('خطوط قبل از اولین ماده (نادیده گرفته شد):', ignored)
     if nums:
@@ -186,10 +209,18 @@ def main():
         print('عنوان تکراری:', ', '.join(dups[:10]))
     if empty:
         print('مادهٔ بدون متن:', ', '.join(empty[:10]))
+    if notes:
+        if a.drop_notes:
+            print('خطوط شبیه شرح غیررسمی که حذف شد: %d' % len(notes))
+        else:
+            print('خطوط شبیه شرح غیررسمی (حذف نشد): %d' % len(notes))
+            print('  اگر متن رسمی نیستند، بعد از بررسی --drop-notes بزنید.')
+        for where, line in notes[:8]:
+            print('  [%s] %s' % (where, line[:90]))
     if not articles:
         print('هیچ ماده‌ای پیدا نشد. قالب خطوط باید «ماده ۱ - متن» باشد.')
     if not a.source or not a.date:
-        print('یادآوری: منبع و تاریخ را با --source و --date ثبت کنید.')
+        print('یادآوری: منبع و تاریخ را فقط اگر واقعاً می‌دانید با --source و --date ثبت کنید.')
 
 
 main()
