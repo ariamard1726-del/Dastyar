@@ -84,6 +84,49 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
+  List<Widget> _lawRows() {
+    final e = widget.engine;
+    if (e.catalog.isEmpty) {
+      return [_p('فهرست قوانین در دسترس نیست.')];
+    }
+    final out = <Widget>[];
+    for (final entry in e.categoryNames.entries) {
+      final laws = e.catalog.where((l) => l.category == entry.key).toList()
+        ..sort((a, b) => a.priority.compareTo(b.priority));
+      if (laws.isEmpty) continue;
+      out.add(Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 2),
+        child: Text(
+          entry.value,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ));
+      for (final l in laws) {
+        final n = e.lawCounts[l.id] ?? 0;
+        final date = (e.meta[l.id]?['date'] ?? '').toString().trim();
+        final String detail;
+        if (n > 0) {
+          detail = '${_fa(n)} ماده${date.isEmpty ? ' | تاریخ ثبت نشده' : ' | ${_fa(date)}'}';
+        } else {
+          detail = 'هنوز وارد نشده';
+        }
+        out.add(Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(n > 0 ? '✅ ' : '❌ '),
+              Expanded(child: Text(l.title)),
+              const SizedBox(width: 8),
+              Text(detail, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+        ));
+      }
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     final total = widget.repo.templates.length;
@@ -104,6 +147,11 @@ class _AboutPageState extends State<AboutPage> {
               if (note.isNotEmpty) _p(note),
             ]),
             const SizedBox(height: 8),
+            _card('قوانین موجود در برنامه', [
+              _p('هر قانونی که ❌ دارد هنوز وارد نشده و دستیار از روی آن جواب نمی‌دهد.'),
+              ..._lawRows(),
+            ]),
+            const SizedBox(height: 8),
             _card('این برنامه چه کاری می‌کند', [
               _p('• از متن‌های داخل خود برنامه جواب می‌دهد و هیچ اطلاعاتی را به اینترنت نمی‌فرستد.'),
               _p('• متن دادخواست و نامه را از روی قالب و اطلاعاتی که شما وارد می‌کنید می‌سازد.'),
@@ -111,7 +159,7 @@ class _AboutPageState extends State<AboutPage> {
             const SizedBox(height: 8),
             _card('این برنامه چه کاری نمی‌کند', [
               _p('• جایگزین وکیل نیست و نتیجهٔ پرونده را پیش‌بینی نمی‌کند.'),
-              _p('• اگر قانونی تغییر کرده باشد، ممکن است متن داخل برنامه قدیمی باشد؛ تاریخ به‌روزرسانی را بالا ببینید.'),
+              _p('• اگر قانونی تغییر کرده باشد، ممکن است متن داخل برنامه قدیمی باشد؛ تاریخ دریافت متن را ببینید.'),
               _p('• قالب‌های «بازبینی‌نشده» فقط پیش‌نویس‌اند.'),
             ]),
             const SizedBox(height: 8),
