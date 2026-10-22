@@ -29,6 +29,14 @@ jobs:
           cp -r /tmp/lib lib
           rm -f analysis_options.yaml test/widget_test.dart
 
+      - name: App name and icon (non-fatal)
+        continue-on-error: true
+        run: |
+          sed -i 's|android:label="[^"]*"|android:label="دستیار"|' android/app/src/main/AndroidManifest.xml
+          python3 -c "import PIL" 2>/dev/null || python3 -m pip install --break-system-packages pillow || python3 -m pip install pillow
+          python3 tools/make_icon.py
+          ls -la android/app/src/main/res/mipmap-xxhdpi/
+
       - run: flutter pub get
 
       - name: Analyze (informational)
