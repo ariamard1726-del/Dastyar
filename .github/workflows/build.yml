@@ -50,6 +50,26 @@ jobs:
             echo "No signing secrets; the APK will use a temporary debug key."
           fi
 
+      - name: Diagnose keystore safely
+        continue-on-error: true
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set +x
+          set -eu
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "Signing secrets are missing."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/diagnostic.jks"
+          if [ ! -s "$RUNNER_TEMP/diagnostic.jks" ]; then
+            echo "Decoded keystore is empty."
+            exit 1
+          fi
+          keytool -list -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" 2>&1 |
+            awk -F', ' '/PrivateKeyEntry/ {print "Private-key alias: " $1; found=1} END {if (!found) print "No private-key alias identified."}'
+
       - run: flutter pub get
 
       - name: Analyze (informational)
