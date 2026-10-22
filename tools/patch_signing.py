@@ -70,6 +70,10 @@ def patch(path, block, pattern, repl):
         if imports_needed:
             text = '\n'.join(imports_needed) + '\n\n' + text
 
+    # Recalculate after adding imports; the old offset is stale.
+    m = re.search(r"^[ \t]*buildTypes\s*\{", text, re.M)
+    if not m:
+        return False
     text = text[:m.start()] + block + text[m.start():]
     text = re.sub(pattern, repl, text)
     with open(path, 'w', encoding='utf-8') as f:
