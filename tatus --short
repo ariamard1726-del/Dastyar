@@ -1,0 +1,15 @@
+[1mdiff --git a/tools/patch_signing.py b/tools/patch_signing.py[m
+[1mindex c516aeb..166cf5f 100644[m
+[1m--- a/tools/patch_signing.py[m
+[1m+++ b/tools/patch_signing.py[m
+[36m@@ -70,6 +70,10 @@[m [mdef patch(path, block, pattern, repl):[m
+         if imports_needed:[m
+             text = '\n'.join(imports_needed) + '\n\n' + text[m
+ [m
+[32m+[m[32m    # Recalculate after adding imports; the old offset is stale.[m
+[32m+[m[32m    m = re.search(r"^[ \t]*buildTypes\s*\{", text, re.M)[m
+[32m+[m[32m    if not m:[m
+[32m+[m[32m        return False[m
+     text = text[:m.start()] + block + text[m.start():][m
+     text = re.sub(pattern, repl, text)[m
+     with open(path, 'w', encoding='utf-8') as f:[m

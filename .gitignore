@@ -123,3 +123,7 @@ app.*.symbols
 *.keystore
 key.properties
 *.b64
+
+brain_out/
+nano_out/
+artifacts/

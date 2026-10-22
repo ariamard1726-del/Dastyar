@@ -1,0 +1,42 @@
+name: Train brain
+
+on:
+  workflow_dispatch:
+
+jobs:
+  brain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python brain/train_brain.py
+        env:
+          STEPS: '3000'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brain-model
+          path: brain_out/
+
+  nano:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python brain/train_nano.py
+        env:
+          ITERS: '2500'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nano-report
+          path: nano_out/
