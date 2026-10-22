@@ -19,10 +19,10 @@ with open('android/key.properties', 'w') as f:
 
 KTS_BLOCK = '''    signingConfigs {
         create("release") {
-            val props = java.util.Properties()
+            val props = Properties()
             val pf = rootProject.file("key.properties")
             if (pf.exists()) {
-                java.io.FileInputStream(pf).use { props.load(it) }
+                FileInputStream(pf).use { props.load(it) }
                 storeFile = file(props.getProperty("storeFile"))
                 storePassword = props.getProperty("storePassword")
                 keyAlias = props.getProperty("keyAlias")
@@ -59,6 +59,17 @@ def patch(path, block, pattern, repl):
     m = re.search(r'^[ \t]*buildTypes\s*\{', text, re.M)
     if not m or not re.search(pattern, text):
         return False
+        
+    # اضافه کردن ایمپورت‌ها برای فایل‌های کاتلین (KTS)
+    if path.endswith('.kts'):
+        imports_needed = []
+        if 'import java.util.Properties' not in text:
+            imports_needed.append('import java.util.Properties')
+        if 'import java.io.FileInputStream' not in text:
+            imports_needed.append('import java.io.FileInputStream')
+        if imports_needed:
+            text = '\n'.join(imports_needed) + '\n\n' + text
+
     text = text[:m.start()] + block + text[m.start():]
     text = re.sub(pattern, repl, text)
     with open(path, 'w', encoding='utf-8') as f:
