@@ -37,6 +37,19 @@ jobs:
           python3 tools/make_icon.py
           ls -la android/app/src/main/res/mipmap-xxhdpi/
 
+      - name: Signing key (only if secrets exist)
+        continue-on-error: true
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/patch_signing.py
+          else
+            echo "No signing secrets; the APK will use a temporary debug key."
+          fi
+
       - run: flutter pub get
 
       - name: Analyze (informational)
@@ -49,6 +62,10 @@ jobs:
         run: flutter test
 
       - run: flutter build apk --release
+
+      - name: Show signer of the APK
+        continue-on-error: true
+        run: keytool -printcert -jarfile build/app/outputs/flutter-apk/app-release.apk | grep -E "Owner|SHA256"
 
       - uses: actions/upload-artifact@v4
         with:
