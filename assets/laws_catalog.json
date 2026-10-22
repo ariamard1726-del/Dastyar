@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "note": "عنوان‌ها نام کاری‌اند. عنوان رسمی از منبع رسمی هنگام ورود متن گرفته می‌شود. اولویت ۱ یعنی اول وارد شود.",
+  "version": 2,
+  "note": "عنوان‌ها نام کاری‌اند. عنوان رسمی از منبع رسمی هنگام ورود متن گرفته می‌شود. اولویت ۱ یعنی اول وارد شود. aliases نام‌های رایجی است که کاربر می‌نویسد.",
   "categories": {
     "constitution": "قانون اساسی",
     "civil": "حقوق مدنی و خانواده",
@@ -13,25 +13,25 @@
   },
   "laws": [
     {"id": "civil", "title": "قانون مدنی", "category": "civil", "priority": 1},
-    {"id": "family_protection", "title": "قانون حمایت خانواده", "category": "civil", "priority": 1},
+    {"id": "family_protection", "title": "قانون حمایت خانواده", "category": "civil", "priority": 1, "aliases": ["قانون حمایت از خانواده"]},
     {"id": "civil_liability", "title": "قانون مسئولیت مدنی", "category": "civil", "priority": 2},
-    {"id": "child_protection", "title": "قانون حمایت از کودکان و نوجوانان", "category": "civil", "priority": 2},
+    {"id": "child_protection", "title": "قانون حمایت از کودکان و نوجوانان", "category": "civil", "priority": 2, "aliases": ["قانون کودکان و نوجوانان"]},
     {"id": "marriage", "title": "قانون ازدواج", "category": "civil", "priority": 3, "note": "عنوان و نسخهٔ معتبر تأیید شود."},
     {"id": "penal", "title": "قانون مجازات اسلامی", "category": "penal", "priority": 1, "note": "بخش تعزیرات ممکن است در قانون جداگانه باشد؛ نسخهٔ معتبر را کارشناس تأیید کند."},
     {"id": "cybercrime", "title": "قانون جرایم رایانه‌ای", "category": "penal", "priority": 3},
-    {"id": "civil_procedure", "title": "قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی", "category": "procedure", "priority": 1},
+    {"id": "civil_procedure", "title": "قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی", "category": "procedure", "priority": 1, "aliases": ["قانون آیین دادرسی مدنی", "آیین دادرسی مدنی"]},
     {"id": "criminal_procedure", "title": "قانون آیین دادرسی کیفری", "category": "procedure", "priority": 1},
     {"id": "civil_execution", "title": "قانون اجرای احکام مدنی", "category": "procedure", "priority": 1},
-    {"id": "financial_sentences", "title": "قانون نحوه اجرای محکومیت‌های مالی", "category": "procedure", "priority": 1},
-    {"id": "dispute_councils", "title": "قانون شوراهای حل اختلاف", "category": "procedure", "priority": 2},
-    {"id": "cheque", "title": "قانون صدور چک", "category": "commerce", "priority": 1},
+    {"id": "financial_sentences", "title": "قانون نحوه اجرای محکومیت‌های مالی", "category": "procedure", "priority": 1, "aliases": ["قانون محکومیت‌های مالی", "قانون محکومیت مالی", "قانون اجرای محکومیت‌های مالی"]},
+    {"id": "dispute_councils", "title": "قانون شوراهای حل اختلاف", "category": "procedure", "priority": 2, "aliases": ["قانون شورای حل اختلاف"]},
+    {"id": "cheque", "title": "قانون صدور چک", "category": "commerce", "priority": 1, "aliases": ["قانون چک"]},
     {"id": "commerce", "title": "قانون تجارت", "category": "commerce", "priority": 2},
-    {"id": "consumer_protection", "title": "قانون حمایت از حقوق مصرف‌کنندگان", "category": "commerce", "priority": 3},
-    {"id": "registration", "title": "قانون ثبت اسناد و املاک", "category": "property", "priority": 1},
-    {"id": "landlord_tenant", "title": "قانون روابط موجر و مستأجر", "category": "property", "priority": 1, "note": "چند قانون با این عنوان در دوره‌های مختلف هست؛ کارشناس تعیین کند کدام یا هر دو."},
+    {"id": "consumer_protection", "title": "قانون حمایت از حقوق مصرف‌کنندگان", "category": "commerce", "priority": 3, "aliases": ["قانون حمایت از مصرف‌کنندگان"]},
+    {"id": "registration", "title": "قانون ثبت اسناد و املاک", "category": "property", "priority": 1, "aliases": ["قانون ثبت اسناد"]},
+    {"id": "landlord_tenant", "title": "قانون روابط موجر و مستأجر", "category": "property", "priority": 1, "aliases": ["قانون موجر و مستأجر"], "note": "چند قانون با این عنوان در دوره‌های مختلف هست؛ کارشناس تعیین کند کدام یا هر دو."},
     {"id": "labor", "title": "قانون کار", "category": "labor", "priority": 2},
     {"id": "social_security", "title": "قانون تأمین اجتماعی", "category": "labor", "priority": 3},
     {"id": "direct_taxes", "title": "قانون مالیات‌های مستقیم", "category": "finance", "priority": 3},
-    {"id": "constitution", "title": "قانون اساسی جمهوری اسلامی ایران", "category": "constitution", "priority": 2}
+    {"id": "constitution", "title": "قانون اساسی جمهوری اسلامی ایران", "category": "constitution", "priority": 2, "aliases": ["قانون اساسی"]}
   ]
 }

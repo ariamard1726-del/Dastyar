@@ -41,7 +41,8 @@ class CatalogLaw {
   final String title;
   final String category;
   final int priority;
-  CatalogLaw(this.id, this.title, this.category, this.priority);
+  final List<String> aliases;
+  CatalogLaw(this.id, this.title, this.category, this.priority, this.aliases);
 }
 
 class KnowledgeEngine {
@@ -152,6 +153,7 @@ class KnowledgeEngine {
           l['title'].toString(),
           (l['category'] ?? '').toString(),
           (l['priority'] ?? 3) as int,
+          ((l['aliases'] ?? []) as List).map((x) => x.toString()).toList(),
         ));
       }
     } catch (_) {}
@@ -267,22 +269,57 @@ class KnowledgeEngine {
     return null;
   }
 
-  /// قوانین فهرست که نامشان در پرسش آمده است.
+  /// قوانین فهرست که نام یا نام رایجشان در پرسش آمده است.
   List<CatalogLaw> _mentionedLaws(String q) {
     final n = _collapse(normalize(q));
     final out = <CatalogLaw>[];
     for (final l in catalog) {
-      final full = _collapse(normalize(l.title));
-      if (full.isEmpty) continue;
-      var hit = n.contains(full);
-      if (!hit) {
+      var hit = false;
+      for (final name in [l.title, ...l.aliases]) {
+        final full = _collapse(normalize(name));
+        if (full.isEmpty) continue;
+        if (n.contains(full)) {
+          hit = true;
+          break;
+        }
         final short =
             full.startsWith('قانون ') ? full.substring(6).trim() : full;
-        hit = short.length >= 5 && n.contains(short);
+        if (short.length >= 5 && n.contains(short)) {
+          hit = true;
+          break;
+        }
       }
       if (hit) out.add(l);
     }
     return out;
+  }
+
+  List<CatalogLaw> _loadedLaws() =>
+      catalog.where((l) => isLoaded(l.id)).toList();
+
+  bool _asksLawList(String n) {
+    return n.contains('چه قوانین') ||
+        n.contains('کدام قوانین') ||
+        n.contains('فهرست قوانین') ||
+        n.contains('قوانین موجود') ||
+        n.contains('چه قانون');
+  }
+
+  String _lawListText() {
+    final loaded = _loadedLaws();
+    if (loaded.isEmpty) return 'هنوز متن هیچ قانونی در برنامه نیست.';
+    final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
+    for (final l in loaded) {
+      final n = _lawCounts[l.id] ?? 0;
+      sb.write('\n• ${l.title} (${TemplateRenderer.toFa(n.toString())} ماده)');
+    }
+    final rest = catalog.length - loaded.length;
+    if (rest > 0) {
+      sb.write(
+        '\n\n${TemplateRenderer.toFa(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
+      );
+    }
+    return sb.toString();
   }
 
   String format(Chunk c) {
@@ -391,6 +428,8 @@ class KnowledgeEngine {
     }
     if (_chunks.isEmpty) return 'هنوز دانشی در برنامه نیست.';
 
+    if (_asksLawList(n)) return _lawListText();
+
     final mentioned = _mentionedLaws(question);
     final missing = mentioned.where((l) => !isLoaded(l.id)).toList();
     final loaded = mentioned.where((l) => isLoaded(l.id)).toList();
@@ -400,6 +439,12 @@ class KnowledgeEngine {
 
     if (loaded.isEmpty && missing.isNotEmpty) {
       return '$missingNote برای همین نمی‌توانم از روی آن جواب بدهم. می‌توانید از منبع رسمی قوانین، دفتر خدمات قضایی یا یک کارشناس حقوقی بپرسید.';
+    }
+
+    // شمارهٔ ماده با «قانون» ولی نام قانونی که نمی‌شناسیم
+    if (art != null && mentioned.isEmpty && n.contains('قانون')) {
+      final names = _loadedLaws().map((l) => l.title).join('، ');
+      return 'نام این قانون را در فهرست خودم پیدا نکردم یا متنش در برنامه نیست.${names.isEmpty ? '' : ' قوانین موجود: $names.'} نام کامل قانون را بنویسید، مثلاً «ماده ۱۰ قانون مدنی».';
     }
 
     final r = rank(question, k: 2);

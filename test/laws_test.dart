@@ -22,6 +22,24 @@ void main() {
     expect(a, contains('هنوز در برنامه نیست'));
   });
 
+  test('نام رایج «قانون چک» هم شناخته می‌شود', () {
+    if (e.isLoaded('cheque')) return;
+    final a = e.answer('ماده ۲۱۷ قانون چک');
+    expect(a, contains('هنوز در برنامه نیست'));
+    expect(a.contains('قانون مدنی'), isFalse);
+  });
+
+  test('قانون ناشناخته ماده قانون دیگر نمی‌آورد', () {
+    final a = e.answer('ماده ۱۰ قانون زمین شهری');
+    expect(a, contains('نام این قانون را'));
+  });
+
+  test('فهرست قوانین', () {
+    if (!e.isLoaded('civil')) return;
+    final a = e.answer('چه قوانینی دارید؟');
+    expect(a, contains('قانون مدنی'));
+  });
+
   test('ماده با نام قانون مدنی', () {
     if (!e.isLoaded('civil')) return;
     final a = e.answer('ماده ۱۰ قانون مدنی');
