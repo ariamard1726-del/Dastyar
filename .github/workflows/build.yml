@@ -67,8 +67,12 @@ jobs:
             echo "Decoded keystore is empty."
             exit 1
           fi
-          keytool -list -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" 2>&1 |
-            awk -F', ' '/PrivateKeyEntry/ {print "Private-key alias: " $1; found=1} END {if (!found) print "No private-key alias identified."}'
+          if keytool -list -v -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" > "$RUNNER_TEMP/keytool-check.log" 2>&1; then
+            awk '/Alias name:/ {alias=$0} /Entry type: PrivateKeyEntry/ {print "Private-key entry found: " alias; found=1} END {if (!found) print "No PrivateKeyEntry found in keystore."}' "$RUNNER_TEMP/keytool-check.log"
+          else
+            echo "KEYTOOL_CHECK_FAILED"
+            grep -Ei 'keytool error:|exception:|password|invalid|integrity|tampered|format|keystore' "$RUNNER_TEMP/keytool-check.log" | head -n 8 || true
+          fi
 
       - run: flutter pub get
 
