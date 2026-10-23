@@ -127,3 +127,8 @@ key.properties
 brain_out/
 nano_out/
 artifacts/
+
+dastyar-apk/
+*.apk
+test_cheque.txt
+project_report.txt
