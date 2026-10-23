@@ -188,6 +188,7 @@ class KnowledgeEngine {
         await _parse(text, '', stem);
       }
     }
+    await _loadSynonyms();
     _buildIndex();
   }
 
@@ -252,6 +253,37 @@ class KnowledgeEngine {
       _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
     });
     _vocab = df.keys.toList();
+  }
+
+  final List<List<String>> _syn = [];
+
+  static String _phrase(String s) =>
+      _collapse(normalize(s).replaceAll(_nonWord, ' '));
+
+  Future<void> _loadSynonyms() async {
+    _syn.clear();
+    try {
+      final t = await rootBundle.loadString('assets/synonyms.txt');
+      for (final line in t.split('\n')) {
+        final l = line.trim();
+        if (l.isEmpty || l.startsWith('#')) continue;
+        final i = l.indexOf('|');
+        if (i < 0) continue;
+        final k = _phrase(l.substring(0, i));
+        final v = l.substring(i + 1).trim();
+        if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
+      }
+    } catch (_) {}
+  }
+
+  /// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
+  List<String> _expand(String question) {
+    final n = ' ${_phrase(question)} ';
+    final out = <String>[];
+    for (final r in _syn) {
+      if (n.contains(' ${r[0]} ')) out.addAll(tokenize(r[1]));
+    }
+    return out;
   }
 
   /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
@@ -401,6 +433,9 @@ class KnowledgeEngine {
         }
       }
     }
+    for (final t in _expand(question)) {
+      if (_idf.containsKey(t)) terms[t] = math.max(terms[t] ?? 0, 1.0);
+    }
     if (terms.isEmpty) return RankResult([]);
 
     final hits = <Hit>[];
@@ -411,7 +446,7 @@ class KnowledgeEngine {
         if (tf != null) s += w * (_idf[t] ?? 1.0) * (1 + math.log(tf));
       });
       if (s <= 0) continue;
-      s = s / total;
+      s = s / (total > 0 ? total : 1.0);
       if (c.obsolete) s *= 0.1;
       hits.add(Hit(c, s));
     }
