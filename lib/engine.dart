@@ -352,9 +352,10 @@ class KnowledgeEngine {
     final pool =
         ids.isEmpty ? _chunks : _chunks.where((c) => ids.contains(c.lawId)).toList();
 
-    final art = RegExp(r'ماده\s*(\d+)').firstMatch(q);
+    final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(q);
     if (art != null) {
-      final want = 'ماده ${art.group(1)}';
+      final want =
+          'ماده ${art.group(1)}${art.group(2) != null ? ' مکرر' : ''}';
       final found =
           pool.where((c) => normalize(c.title).trim() == want).toList();
       if (found.isNotEmpty) {
@@ -420,7 +421,7 @@ class KnowledgeEngine {
 
   String answer(String question) {
     final n = normalize(question);
-    final art = RegExp(r'ماده\s*(\d+)').firstMatch(n);
+    final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.isEmpty && art == null) {
       if (n.contains('سلام')) return 'سلام! چه کمکی از من برمی‌آید؟';
@@ -452,7 +453,8 @@ class KnowledgeEngine {
     if (art != null &&
         loaded.isNotEmpty &&
         (r.hits.isEmpty || r.hits.first.score < 99)) {
-      final num = TemplateRenderer.toFa(art.group(1)!);
+      final num = TemplateRenderer.toFa(art.group(1)!) +
+          (art.group(2) != null ? ' مکرر' : '');
       return 'ماده $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}';
     }
 
