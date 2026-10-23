@@ -44,6 +44,8 @@ void main() {
     }
     print('EVAL retrieval recall@1 ${(top1 / n).toStringAsFixed(2)} '
         'recall@5 ${(top5 / n).toStringAsFixed(2)} MRR ${(mrr / n).toStringAsFixed(3)}');
+    expect(top5 / n, greaterThanOrEqualTo(0.80));
+    expect(mrr / n, greaterThanOrEqualTo(0.50));
   });
 
   test('EVAL intents on the real rules', () async {
