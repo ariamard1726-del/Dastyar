@@ -132,3 +132,4 @@ dastyar-apk/
 *.apk
 test_cheque.txt
 project_report.txt
+*.bak
