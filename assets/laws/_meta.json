@@ -1,32 +1,37 @@
 {
   "civil": {
     "title": "قانون مدنی",
-    "source": "",
+    "source": "python tools/check.py | tail -12",
     "date": "۱۴۰۵/۰۷/۲۸",
-    "articles": 1333
+    "articles": 1333,
+    "amended": "git add -A"
   },
   "cheque": {
     "title": "قانون صدور چک",
-    "source": "",
+    "source": "git commit -m \"meta: ثبت منبع و تاریخ قوانین\"",
     "date": "۱۴۰۵/۰۸/۰۱",
-    "articles": 27
+    "articles": 27,
+    "amended": "git push۱۴۰۳/۰۳/۳۰"
   },
   "financial_sentences": {
     "title": "قانون نحوه اجرای محکومیت‌های مالی",
     "source": "مرکز پژوهش‌های مجلس شورای اسلامی",
-    "date": "",
-    "articles": 29
+    "date": "۱۴۰۵/۰۶/۰۱",
+    "articles": 29,
+    "amended": "۱۴۰۵/۰۶/۰۱"
   },
   "commerce": {
     "title": "قانون تجارت",
-    "source": "",
+    "source": "سامانه قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۲",
-    "articles": 522
+    "articles": 522,
+    "amended": "۱۴۰۳/۰۶/۲۸"
   },
   "commerce_1347": {
     "title": "لایحه اصلاحی قسمتی از قانون تجارت",
-    "source": "",
+    "source": "سامنه قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۲",
-    "articles": 300
+    "articles": 300,
+    "amended": "۱۴۰۳/۰۶/۲۸"
   }
 }
