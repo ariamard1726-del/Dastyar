@@ -3,7 +3,7 @@ import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CAT = os.path.join(ROOT, 'tools', 'laws_catalog.json')
+CAT = os.path.join(ROOT, 'assets', 'laws_catalog.json')
 LAWS = os.path.join(ROOT, 'assets', 'laws')
 
 

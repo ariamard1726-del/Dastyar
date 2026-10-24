@@ -127,7 +127,9 @@ class Engine:
             want = 'ماده %s%s' % (m.group(1), ' مکرر' if m.group(2) else '')
             found = [c for c in pool if normalize(c['title']).strip() == want]
             if found:
-                return [(found[0], 99.0)]
+                qs = set(qt)
+                best = max(found, key=lambda c: len(qs & set(tok(c['source']))))
+                return [(best, 99.0)]
         if not qt:
             return []
         terms, total = {}, 0.0
