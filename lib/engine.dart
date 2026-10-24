@@ -644,6 +644,32 @@ class KnowledgeEngine {
     return res;
   }
 
+  /// پیشنهاد مواد نزدیک برای دکمه‌های گفتگو.
+  /// هر پیشنهاد به شکل «ماده ۲۰۲ قانون مدنی» است و اگر کاربر آن را بزند،
+  /// همان ماده دقیقاً پیدا می‌شود. در موارد نامطمئن فهرست خالی است.
+  List<String> alternatives(String question, {int max = 3}) {
+    final n = normalize(question);
+    if (RegExp(r'ماده\s*\d+').hasMatch(n)) return [];
+    if (_asksLawList(n)) return [];
+    if (_mentionedLaws(question).any((l) => !isLoaded(l.id))) return [];
+    final r = rank(question, k: 12);
+    if (r.hits.length < 2) return [];
+    final top = r.hits.first.score;
+    if (top >= 99) return [];
+    final articleTitle = RegExp(r'^ماده\s*\d+( مکرر)?$');
+    final out = <String>[];
+    for (final h in r.hits.skip(1)) {
+      if (h.score < 0.3 || h.score < top * 0.4) continue;
+      final c = h.chunk;
+      if (c.source.isEmpty) continue;
+      if (!articleTitle.hasMatch(normalize(c.title).trim())) continue;
+      if (!_mentionedLaws(c.source).any((l) => l.id == c.lawId)) continue;
+      out.add(TemplateRenderer.toFa('${c.title} ${c.source}'));
+      if (out.length >= max) break;
+    }
+    return out;
+  }
+
   String _notFound() {
     return 'پاسخ این پرسش را در دانش خودم پیدا نکردم. پرسش را با کلمات دیگر بنویسید.';
   }
