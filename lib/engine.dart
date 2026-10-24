@@ -12,7 +12,10 @@ class Chunk {
   final String title;
   final String body;
   final bool obsolete;
-  final Map<String, int> tf;
+  final Map<String, int> tfT; // واژه‌های عنوان
+  final Map<String, int> tfB; // واژه‌های متن
+  final Map<String, int> tfC; // واژه‌های فصل و نام قانون
+  final int len;
   Chunk(
     this.lawId,
     this.source,
@@ -20,7 +23,10 @@ class Chunk {
     this.title,
     this.body,
     this.obsolete,
-    this.tf,
+    this.tfT,
+    this.tfB,
+    this.tfC,
+    this.len,
   );
 }
 
@@ -48,6 +54,14 @@ class CatalogLaw {
 class KnowledgeEngine {
   final List<Chunk> _chunks = [];
   final Map<String, double> _idf = {};
+  double _avgLen = 1.0;
+
+  // پارامترهای BM25F
+  static const double _k1 = 1.2;
+  static const double _b = 0.4;
+  static const double _wT = 3.0;
+  static const double _wB = 1.0;
+  static const double _wC = 0.5;
   final Map<String, int> _lawCounts = {};
   List<String> _vocab = [];
 
@@ -112,6 +126,29 @@ class KnowledgeEngine {
   static final RegExp _nonWord = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
+
+  // ریشه‌یابی محافظه‌کار برای نمایهٔ جست‌وجو: فقط «ها/های/هایی/ترین».
+  // «ی» و «ان» حذف نمی‌شوند تا «مالی» با «مال» و «زندان» با «زند» یکی نشود.
+  static const List<String> _suffixesIndex = ['ترین', 'هایی', 'های', 'ها'];
+
+  static String _stemIndex(String w) {
+    for (final suf in _suffixesIndex) {
+      if (w.length - suf.length >= 3 && w.endsWith(suf)) {
+        return w.substring(0, w.length - suf.length);
+      }
+    }
+    return w;
+  }
+
+  static List<String> tokenizeIndex(String s) {
+    final cleaned = normalize(s).replaceAll(_nonWord, ' ');
+    final out = <String>[];
+    for (final w in cleaned.split(' ')) {
+      if (w.isEmpty || _stop.contains(w)) continue;
+      out.add(_stemIndex(w));
+    }
+    return out;
+  }
 
   static List<String> tokenize(String s) {
     final cleaned = normalize(s).replaceAll(_nonWord, ' ');
@@ -211,18 +248,25 @@ class KnowledgeEngine {
         continue;
       }
       final body = lines.length > 1 ? lines.sublist(1).join('\n').trim() : first;
-      final tf = <String, int>{};
-      for (final t in tokenize(first)) {
-        tf[t] = (tf[t] ?? 0) + 2;
+      final tfT = <String, int>{};
+      final tfB = <String, int>{};
+      final tfC = <String, int>{};
+      var len = 0;
+      for (final t in tokenizeIndex(first)) {
+        tfT[t] = (tfT[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(body)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(body)) {
+        tfB[t] = (tfB[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(chapter)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(chapter)) {
+        tfC[t] = (tfC[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(source)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(source)) {
+        tfC[t] = (tfC[t] ?? 0) + 1;
+        len++;
       }
       _chunks.add(Chunk(
         lawId,
@@ -231,7 +275,10 @@ class KnowledgeEngine {
         first,
         body,
         body != first && _isObsolete(body),
-        tf,
+        tfT,
+        tfB,
+        tfC,
+        len,
       ));
       _lawCounts[lawId] = (_lawCounts[lawId] ?? 0) + 1;
       n++;
@@ -243,12 +290,16 @@ class KnowledgeEngine {
 
   void _buildIndex() {
     final df = <String, int>{};
+    var totalLen = 0;
     for (final c in _chunks) {
-      for (final t in c.tf.keys) {
+      totalLen += c.len;
+      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
+      for (final t in seen) {
         df[t] = (df[t] ?? 0) + 1;
       }
     }
     final n = _chunks.length;
+    _avgLen = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
     df.forEach((t, d) {
       _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
     });
@@ -281,7 +332,7 @@ class KnowledgeEngine {
     final n = ' ${_phrase(question)} ';
     final out = <String>[];
     for (final r in _syn) {
-      if (n.contains(' ${r[0]} ')) out.addAll(tokenize(r[1]));
+      if (n.contains(' ${r[0]} ')) out.addAll(tokenizeIndex(r[1]));
     }
     return out;
   }
@@ -375,7 +426,7 @@ class KnowledgeEngine {
   RankResult rank(String question, {int k = 3}) {
     if (_chunks.isEmpty) return RankResult([]);
     final q = normalize(question);
-    final qTokens = tokenize(question).toSet().toList();
+    final qTokens = tokenizeIndex(question).toSet().toList();
 
     final ids = _mentionedLaws(question)
         .where((l) => isLoaded(l.id))
@@ -394,7 +445,7 @@ class KnowledgeEngine {
         Chunk pick = found.first;
         var bestOverlap = -1;
         for (final c in found) {
-          final st = tokenize(c.source).toSet();
+          final st = tokenizeIndex(c.source).toSet();
           final ov = qTokens.where(st.contains).length;
           if (ov > bestOverlap) {
             bestOverlap = ov;
@@ -441,9 +492,15 @@ class KnowledgeEngine {
     final hits = <Hit>[];
     for (final c in pool) {
       double s = 0;
+      final lenNorm = 1 - _b + _b * c.len / _avgLen;
       terms.forEach((t, w) {
-        final tf = c.tf[t];
-        if (tf != null) s += w * (_idf[t] ?? 1.0) * (1 + math.log(tf));
+        final tf = _wT * (c.tfT[t] ?? 0) +
+            _wB * (c.tfB[t] ?? 0) +
+            _wC * (c.tfC[t] ?? 0);
+        if (tf > 0) {
+          final tfn = tf / lenNorm;
+          s += w * (_idf[t] ?? 1.0) * tfn * (_k1 + 1) / (tfn + _k1);
+        }
       });
       if (s <= 0) continue;
       s = s / (total > 0 ? total : 1.0);
