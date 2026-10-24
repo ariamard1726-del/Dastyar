@@ -75,6 +75,8 @@ jobs:
             if keytool -list -v -storetype "$store_type" -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" > "$RUNNER_TEMP/keytool-check.log" 2>&1; then
               echo "STORETYPE_OK=$store_type"
               awk '/Alias name:/ {alias=$0} /Entry type: PrivateKeyEntry/ {print "Private-key entry found: " alias; found=1} END {if (!found) print "No PrivateKeyEntry found."}' "$RUNNER_TEMP/keytool-check.log"
+              echo "Keystore certificate fingerprint:"
+              grep -E "SHA256:" "$RUNNER_TEMP/keytool-check.log" || true
             else
               echo "STORETYPE_FAILED=$store_type"
               grep -Ei 'keytool error:|exception:|password|invalid|integrity|tampered|format|keystore' "$RUNNER_TEMP/keytool-check.log" | head -n 5 || true
@@ -92,6 +94,11 @@ jobs:
         continue-on-error: true
         run: flutter test
 
+      - name: EVAL numbers
+        continue-on-error: true
+        run: |
+          flutter test test/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
+
       - run: flutter build apk --release
 
       - name: Show signer of the APK
@@ -103,7 +110,8 @@ jobs:
             echo "apksigner not found"
             exit 0
           fi
-          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk | grep -E "Signer #1 certificate (DN|SHA-256)" || echo "no signer lines printed"
+          echo "Using: $APKSIGNER"
+          "$APKSIGNER" verify -v --print-certs build/app/outputs/flutter-apk/app-release.apk 2>&1 | head -n 40 || true
 
       - uses: actions/upload-artifact@v4
         with:
