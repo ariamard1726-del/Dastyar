@@ -483,7 +483,7 @@ class KnowledgeEngine {
       return 'نام این قانون را در فهرست خودم پیدا نکردم یا متنش در برنامه نیست.${names.isEmpty ? '' : ' قوانین موجود: $names.'} نام کامل قانون را بنویسید، مثلاً «ماده ۱۰ قانون مدنی».';
     }
 
-    final r = rank(question, k: 2);
+    final r = rank(question, k: 4);
 
     if (art != null &&
         loaded.isNotEmpty &&
@@ -499,9 +499,18 @@ class KnowledgeEngine {
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
       final b = r.hits[0].score;
-      final s = r.hits[1];
-      if (b < 99 && s.score >= b * 0.8 && s.score >= 0.3) {
-        res += '\n\nموضوع مرتبط: ${s.chunk.title}';
+      if (b < 99) {
+        final others = r.hits
+            .skip(1)
+            .where((h) => h.score >= 0.3 && h.score >= b * 0.5)
+            .take(2)
+            .toList();
+        if (others.isNotEmpty) {
+          res += '\n\nمواد نزدیک دیگر:';
+          for (final h in others) {
+            res += '\n• ${h.chunk.title} — ${h.chunk.source}';
+          }
+        }
       }
     }
     if (missingNote.isNotEmpty) res += '\n\n$missingNote';
