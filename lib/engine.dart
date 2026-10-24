@@ -73,6 +73,9 @@ class KnowledgeEngine {
   final Map<String, String> categoryNames = {};
   final Map<String, Map<String, dynamic>> meta = {};
 
+  /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
+  final List<String> warnings = [];
+
   int get size => _chunks.length;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
@@ -181,6 +184,7 @@ class KnowledgeEngine {
     catalog.clear();
     categoryNames.clear();
     meta.clear();
+    warnings.clear();
 
     try {
       final t = await rootBundle.loadString('assets/laws_catalog.json');
@@ -197,7 +201,9 @@ class KnowledgeEngine {
           ((l['aliases'] ?? []) as List).map((x) => x.toString()).toList(),
         ));
       }
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('laws_catalog.json: $e');
+    }
 
     try {
       final t = await rootBundle.loadString('assets/laws/_meta.json');
@@ -205,7 +211,9 @@ class KnowledgeEngine {
       m.forEach((k, v) {
         if (v is Map<String, dynamic>) meta[k] = v;
       });
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('_meta.json: $e');
+    }
 
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final paths = manifest
@@ -219,7 +227,8 @@ class KnowledgeEngine {
       String text;
       try {
         text = await rootBundle.loadString(p);
-      } catch (_) {
+      } catch (e) {
+        warnings.add('$p: $e');
         continue;
       }
       if (p == 'assets/knowledge.txt') {
@@ -332,7 +341,9 @@ class KnowledgeEngine {
         final v = l.substring(i + 1).trim();
         if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
       }
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('synonyms.txt: $e');
+    }
   }
 
   /// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
