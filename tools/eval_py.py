@@ -194,7 +194,7 @@ def run(eng, path, verbose):
 
 if __name__ == '__main__':
     e = Engine()
-    for f in ('eval.txt', 'eval_extra.txt'):
+    for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
         p = os.path.join(ROOT, 'brain', f)
         if os.path.exists(p):
             run(e, p, '-v' in sys.argv)
