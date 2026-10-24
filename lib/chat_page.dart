@@ -248,6 +248,12 @@ class _ChatPageState extends State<ChatPage> {
         setState(() => bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.');
       }
     }
+    if (mounted) {
+      try {
+        final alts = widget.engine.alternatives(text);
+        if (alts.isNotEmpty) setState(() => bot.chips = alts);
+      } catch (_) {}
+    }
     await _saveSession();
     if (mounted) setState(() => _busy = false);
   }

@@ -9,6 +9,22 @@ TYPES = {'text', 'multiline', 'number', 'choice', 'check'}
 errors = []
 warnings = []
 
+# با STRICT=1 یا --strict خالی‌بودن منبع و تاریخ قانون «خطا» می‌شود، نه هشدار.
+STRICT = os.environ.get('STRICT') == '1' or '--strict' in sys.argv
+
+# نشانهٔ متنی که ممکن است با هوش مصنوعی نوشته شده باشد، نه از منبع رسمی.
+AI_MARKERS = [
+    'هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
+    'chatgpt', 'gemini', 'claude', 'as an ai', 'language model',
+]
+
+try:
+    with open(os.path.join(ROOT, 'assets', 'laws', '_meta.json'), encoding='utf-8') as _f:
+        META = json.load(_f)
+except Exception as _e:
+    META = {}
+    errors.append('_meta.json: %s' % _e)
+
 
 def digits(s):
     return s.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
@@ -88,6 +104,28 @@ def check_law(path):
         if len(lines) < 2:
             warnings.append('%s: %s بدون متن است' % (name, title))
     print('قانون %s: %d بخش' % (name, n))
+
+    low = text.lower()
+    for m in AI_MARKERS:
+        if m in low:
+            errors.append('%s: عبارت مشکوک به متن تولیدشده با هوش مصنوعی: «%s»' % (name, m))
+
+    lid = name[:-4]
+    info = META.get(lid)
+    if not isinstance(info, dict):
+        errors.append('%s: در _meta.json ثبت نشده' % name)
+        return
+    problems = []
+    if not str(info.get('source', '')).strip():
+        problems.append('منبع (source) خالی است')
+    if not str(info.get('date', '')).strip():
+        problems.append('تاریخ (date) خالی است')
+    for pr in problems:
+        msg = '%s: %s' % (name, pr)
+        (errors if STRICT else warnings).append(msg)
+    want = info.get('articles')
+    if isinstance(want, int) and want != n:
+        warnings.append('%s: در _meta.json %d ماده نوشته شده ولی %d بخش خوانده شد' % (name, want, n))
 
 
 for p in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))):

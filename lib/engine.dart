@@ -12,7 +12,10 @@ class Chunk {
   final String title;
   final String body;
   final bool obsolete;
-  final Map<String, int> tf;
+  final Map<String, int> tfT; // واژه‌های عنوان
+  final Map<String, int> tfB; // واژه‌های متن
+  final Map<String, int> tfC; // واژه‌های فصل و نام قانون
+  final int len;
   Chunk(
     this.lawId,
     this.source,
@@ -20,7 +23,10 @@ class Chunk {
     this.title,
     this.body,
     this.obsolete,
-    this.tf,
+    this.tfT,
+    this.tfB,
+    this.tfC,
+    this.len,
   );
 }
 
@@ -48,12 +54,27 @@ class CatalogLaw {
 class KnowledgeEngine {
   final List<Chunk> _chunks = [];
   final Map<String, double> _idf = {};
+  double _avgLen = 1.0;
+  double _maxIdf = 1.0;
+
+  // زیر این پوشش، پاسخ با هشدار «مطمئن نیستم» نشان داده می‌شود.
+  static const double _lowCover = 0.4;
+
+  // پارامترهای BM25F
+  static const double _k1 = 1.2;
+  static const double _b = 0.4;
+  static const double _wT = 3.0;
+  static const double _wB = 1.0;
+  static const double _wC = 0.5;
   final Map<String, int> _lawCounts = {};
   List<String> _vocab = [];
 
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
   final Map<String, Map<String, dynamic>> meta = {};
+
+  /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
+  final List<String> warnings = [];
 
   int get size => _chunks.length;
   Map<String, int> get lawCounts => _lawCounts;
@@ -113,6 +134,29 @@ class KnowledgeEngine {
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
 
+  // ریشه‌یابی محافظه‌کار برای نمایهٔ جست‌وجو: فقط «ها/های/هایی/ترین».
+  // «ی» و «ان» حذف نمی‌شوند تا «مالی» با «مال» و «زندان» با «زند» یکی نشود.
+  static const List<String> _suffixesIndex = ['ترین', 'هایی', 'های', 'ها'];
+
+  static String _stemIndex(String w) {
+    for (final suf in _suffixesIndex) {
+      if (w.length - suf.length >= 3 && w.endsWith(suf)) {
+        return w.substring(0, w.length - suf.length);
+      }
+    }
+    return w;
+  }
+
+  static List<String> tokenizeIndex(String s) {
+    final cleaned = normalize(s).replaceAll(_nonWord, ' ');
+    final out = <String>[];
+    for (final w in cleaned.split(' ')) {
+      if (w.isEmpty || _stop.contains(w)) continue;
+      out.add(_stemIndex(w));
+    }
+    return out;
+  }
+
   static List<String> tokenize(String s) {
     final cleaned = normalize(s).replaceAll(_nonWord, ' ');
     final out = <String>[];
@@ -140,6 +184,7 @@ class KnowledgeEngine {
     catalog.clear();
     categoryNames.clear();
     meta.clear();
+    warnings.clear();
 
     try {
       final t = await rootBundle.loadString('assets/laws_catalog.json');
@@ -156,7 +201,9 @@ class KnowledgeEngine {
           ((l['aliases'] ?? []) as List).map((x) => x.toString()).toList(),
         ));
       }
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('laws_catalog.json: $e');
+    }
 
     try {
       final t = await rootBundle.loadString('assets/laws/_meta.json');
@@ -164,7 +211,9 @@ class KnowledgeEngine {
       m.forEach((k, v) {
         if (v is Map<String, dynamic>) meta[k] = v;
       });
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('_meta.json: $e');
+    }
 
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final paths = manifest
@@ -178,7 +227,8 @@ class KnowledgeEngine {
       String text;
       try {
         text = await rootBundle.loadString(p);
-      } catch (_) {
+      } catch (e) {
+        warnings.add('$p: $e');
         continue;
       }
       if (p == 'assets/knowledge.txt') {
@@ -211,18 +261,25 @@ class KnowledgeEngine {
         continue;
       }
       final body = lines.length > 1 ? lines.sublist(1).join('\n').trim() : first;
-      final tf = <String, int>{};
-      for (final t in tokenize(first)) {
-        tf[t] = (tf[t] ?? 0) + 2;
+      final tfT = <String, int>{};
+      final tfB = <String, int>{};
+      final tfC = <String, int>{};
+      var len = 0;
+      for (final t in tokenizeIndex(first)) {
+        tfT[t] = (tfT[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(body)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(body)) {
+        tfB[t] = (tfB[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(chapter)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(chapter)) {
+        tfC[t] = (tfC[t] ?? 0) + 1;
+        len++;
       }
-      for (final t in tokenize(source)) {
-        tf[t] = (tf[t] ?? 0) + 1;
+      for (final t in tokenizeIndex(source)) {
+        tfC[t] = (tfC[t] ?? 0) + 1;
+        len++;
       }
       _chunks.add(Chunk(
         lawId,
@@ -231,7 +288,10 @@ class KnowledgeEngine {
         first,
         body,
         body != first && _isObsolete(body),
-        tf,
+        tfT,
+        tfB,
+        tfC,
+        len,
       ));
       _lawCounts[lawId] = (_lawCounts[lawId] ?? 0) + 1;
       n++;
@@ -243,15 +303,23 @@ class KnowledgeEngine {
 
   void _buildIndex() {
     final df = <String, int>{};
+    var totalLen = 0;
     for (final c in _chunks) {
-      for (final t in c.tf.keys) {
+      totalLen += c.len;
+      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
+      for (final t in seen) {
         df[t] = (df[t] ?? 0) + 1;
       }
     }
     final n = _chunks.length;
+    _avgLen = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
     df.forEach((t, d) {
       _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
     });
+    _maxIdf = 1.0;
+    for (final v in _idf.values) {
+      if (v > _maxIdf) _maxIdf = v;
+    }
     _vocab = df.keys.toList();
   }
 
@@ -273,7 +341,9 @@ class KnowledgeEngine {
         final v = l.substring(i + 1).trim();
         if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
       }
-    } catch (_) {}
+    } catch (e) {
+      warnings.add('synonyms.txt: $e');
+    }
   }
 
   /// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
@@ -281,7 +351,7 @@ class KnowledgeEngine {
     final n = ' ${_phrase(question)} ';
     final out = <String>[];
     for (final r in _syn) {
-      if (n.contains(' ${r[0]} ')) out.addAll(tokenize(r[1]));
+      if (n.contains(' ${r[0]} ')) out.addAll(tokenizeIndex(r[1]));
     }
     return out;
   }
@@ -372,10 +442,56 @@ class KnowledgeEngine {
     return sb.toString();
   }
 
+  /// چه کسری از وزن واژه‌های پرسش در این ماده (یا با کمک مترادف‌ها) پیدا می‌شود.
+  /// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
+  double coverage(String question, Chunk c) {
+    final qt = tokenizeIndex(question).toSet().toList();
+    if (qt.isEmpty || _idf.isEmpty) return 0.0;
+    bool has(String t) =>
+        c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
+    var den = 0.0;
+    var got = 0.0;
+    final covered = <String>{};
+    for (final t in qt) {
+      den += _idf[t] ?? _maxIdf;
+      if (has(t)) {
+        covered.add(t);
+        got += _idf[t] ?? _maxIdf;
+      } else if (!_idf.containsKey(t) && t.length >= 3) {
+        var pref = false;
+        for (final m in [c.tfT, c.tfB, c.tfC]) {
+          for (final v in m.keys) {
+            if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
+              pref = true;
+              break;
+            }
+          }
+          if (pref) break;
+        }
+        if (pref) {
+          covered.add(t);
+          got += 0.5 * _maxIdf;
+        }
+      }
+    }
+    final n = ' ${_phrase(question)} ';
+    for (final r in _syn) {
+      if (!n.contains(' ${r[0]} ')) continue;
+      if (!tokenizeIndex(r[1]).any(has)) continue;
+      for (final t in tokenizeIndex(r[0])) {
+        if (qt.contains(t) && !covered.contains(t)) {
+          covered.add(t);
+          got += _idf[t] ?? _maxIdf;
+        }
+      }
+    }
+    return den > 0 ? got / den : 0.0;
+  }
+
   RankResult rank(String question, {int k = 3}) {
     if (_chunks.isEmpty) return RankResult([]);
     final q = normalize(question);
-    final qTokens = tokenize(question).toSet().toList();
+    final qTokens = tokenizeIndex(question).toSet().toList();
 
     final ids = _mentionedLaws(question)
         .where((l) => isLoaded(l.id))
@@ -394,7 +510,7 @@ class KnowledgeEngine {
         Chunk pick = found.first;
         var bestOverlap = -1;
         for (final c in found) {
-          final st = tokenize(c.source).toSet();
+          final st = tokenizeIndex(c.source).toSet();
           final ov = qTokens.where(st.contains).length;
           if (ov > bestOverlap) {
             bestOverlap = ov;
@@ -441,9 +557,15 @@ class KnowledgeEngine {
     final hits = <Hit>[];
     for (final c in pool) {
       double s = 0;
+      final lenNorm = 1 - _b + _b * c.len / _avgLen;
       terms.forEach((t, w) {
-        final tf = c.tf[t];
-        if (tf != null) s += w * (_idf[t] ?? 1.0) * (1 + math.log(tf));
+        final tf = _wT * (c.tfT[t] ?? 0) +
+            _wB * (c.tfB[t] ?? 0) +
+            _wC * (c.tfC[t] ?? 0);
+        if (tf > 0) {
+          final tfn = tf / lenNorm;
+          s += w * (_idf[t] ?? 1.0) * tfn * (_k1 + 1) / (tfn + _k1);
+        }
       });
       if (s <= 0) continue;
       s = s / (total > 0 ? total : 1.0);
@@ -496,6 +618,11 @@ class KnowledgeEngine {
     if (r.hits.isEmpty || r.hits.first.score < 0.3) return _notFound();
 
     var res = format(r.hits.first.chunk);
+    if (r.hits.first.score < 99 &&
+        coverage(question, r.hits.first.chunk) < _lowCover) {
+      res =
+          'توجه: مطمئن نیستم این ماده به پرسش شما مربوط باشد. اگر نیست، پرسش را با کلمات دیگر یا با نام قانون بنویسید.\n\n$res';
+    }
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
       final b = r.hits[0].score;
@@ -515,6 +642,32 @@ class KnowledgeEngine {
     }
     if (missingNote.isNotEmpty) res += '\n\n$missingNote';
     return res;
+  }
+
+  /// پیشنهاد مواد نزدیک برای دکمه‌های گفتگو.
+  /// هر پیشنهاد به شکل «ماده ۲۰۲ قانون مدنی» است و اگر کاربر آن را بزند،
+  /// همان ماده دقیقاً پیدا می‌شود. در موارد نامطمئن فهرست خالی است.
+  List<String> alternatives(String question, {int max = 3}) {
+    final n = normalize(question);
+    if (RegExp(r'ماده\s*\d+').hasMatch(n)) return [];
+    if (_asksLawList(n)) return [];
+    if (_mentionedLaws(question).any((l) => !isLoaded(l.id))) return [];
+    final r = rank(question, k: 12);
+    if (r.hits.length < 2) return [];
+    final top = r.hits.first.score;
+    if (top >= 99) return [];
+    final articleTitle = RegExp(r'^ماده\s*\d+( مکرر)?$');
+    final out = <String>[];
+    for (final h in r.hits.skip(1)) {
+      if (h.score < 0.3 || h.score < top * 0.4) continue;
+      final c = h.chunk;
+      if (c.source.isEmpty) continue;
+      if (!articleTitle.hasMatch(normalize(c.title).trim())) continue;
+      if (!_mentionedLaws(c.source).any((l) => l.id == c.lawId)) continue;
+      out.add(TemplateRenderer.toFa('${c.title} ${c.source}'));
+      if (out.length >= max) break;
+    }
+    return out;
   }
 
   String _notFound() {
