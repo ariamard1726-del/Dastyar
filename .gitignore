@@ -118,3 +118,18 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 # AI Models
+
+*.jks
+*.keystore
+key.properties
+*.b64
+
+brain_out/
+nano_out/
+artifacts/
+
+dastyar-apk/
+*.apk
+test_cheque.txt
+project_report.txt
+*.bak

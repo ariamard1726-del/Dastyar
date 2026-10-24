@@ -188,6 +188,7 @@ class KnowledgeEngine {
         await _parse(text, '', stem);
       }
     }
+    await _loadSynonyms();
     _buildIndex();
   }
 
@@ -252,6 +253,37 @@ class KnowledgeEngine {
       _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
     });
     _vocab = df.keys.toList();
+  }
+
+  final List<List<String>> _syn = [];
+
+  static String _phrase(String s) =>
+      _collapse(normalize(s).replaceAll(_nonWord, ' '));
+
+  Future<void> _loadSynonyms() async {
+    _syn.clear();
+    try {
+      final t = await rootBundle.loadString('assets/synonyms.txt');
+      for (final line in t.split('\n')) {
+        final l = line.trim();
+        if (l.isEmpty || l.startsWith('#')) continue;
+        final i = l.indexOf('|');
+        if (i < 0) continue;
+        final k = _phrase(l.substring(0, i));
+        final v = l.substring(i + 1).trim();
+        if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
+      }
+    } catch (_) {}
+  }
+
+  /// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
+  List<String> _expand(String question) {
+    final n = ' ${_phrase(question)} ';
+    final out = <String>[];
+    for (final r in _syn) {
+      if (n.contains(' ${r[0]} ')) out.addAll(tokenize(r[1]));
+    }
+    return out;
   }
 
   /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
@@ -352,9 +384,10 @@ class KnowledgeEngine {
     final pool =
         ids.isEmpty ? _chunks : _chunks.where((c) => ids.contains(c.lawId)).toList();
 
-    final art = RegExp(r'ماده\s*(\d+)').firstMatch(q);
+    final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(q);
     if (art != null) {
-      final want = 'ماده ${art.group(1)}';
+      final want =
+          'ماده ${art.group(1)}${art.group(2) != null ? ' مکرر' : ''}';
       final found =
           pool.where((c) => normalize(c.title).trim() == want).toList();
       if (found.isNotEmpty) {
@@ -400,6 +433,9 @@ class KnowledgeEngine {
         }
       }
     }
+    for (final t in _expand(question)) {
+      if (_idf.containsKey(t)) terms[t] = math.max(terms[t] ?? 0, 1.0);
+    }
     if (terms.isEmpty) return RankResult([]);
 
     final hits = <Hit>[];
@@ -410,7 +446,7 @@ class KnowledgeEngine {
         if (tf != null) s += w * (_idf[t] ?? 1.0) * (1 + math.log(tf));
       });
       if (s <= 0) continue;
-      s = s / total;
+      s = s / (total > 0 ? total : 1.0);
       if (c.obsolete) s *= 0.1;
       hits.add(Hit(c, s));
     }
@@ -420,7 +456,7 @@ class KnowledgeEngine {
 
   String answer(String question) {
     final n = normalize(question);
-    final art = RegExp(r'ماده\s*(\d+)').firstMatch(n);
+    final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.isEmpty && art == null) {
       if (n.contains('سلام')) return 'سلام! چه کمکی از من برمی‌آید؟';
@@ -447,12 +483,13 @@ class KnowledgeEngine {
       return 'نام این قانون را در فهرست خودم پیدا نکردم یا متنش در برنامه نیست.${names.isEmpty ? '' : ' قوانین موجود: $names.'} نام کامل قانون را بنویسید، مثلاً «ماده ۱۰ قانون مدنی».';
     }
 
-    final r = rank(question, k: 2);
+    final r = rank(question, k: 4);
 
     if (art != null &&
         loaded.isNotEmpty &&
         (r.hits.isEmpty || r.hits.first.score < 99)) {
-      final num = TemplateRenderer.toFa(art.group(1)!);
+      final num = TemplateRenderer.toFa(art.group(1)!) +
+          (art.group(2) != null ? ' مکرر' : '');
       return 'ماده $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}';
     }
 
@@ -462,9 +499,18 @@ class KnowledgeEngine {
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
       final b = r.hits[0].score;
-      final s = r.hits[1];
-      if (b < 99 && s.score >= b * 0.8 && s.score >= 0.3) {
-        res += '\n\nموضوع مرتبط: ${s.chunk.title}';
+      if (b < 99) {
+        final others = r.hits
+            .skip(1)
+            .where((h) => h.score >= 0.3 && h.score >= b * 0.5)
+            .take(2)
+            .toList();
+        if (others.isNotEmpty) {
+          res += '\n\nمواد نزدیک دیگر:';
+          for (final h in others) {
+            res += '\n• ${h.chunk.title} — ${h.chunk.source}';
+          }
+        }
       }
     }
     if (missingNote.isNotEmpty) res += '\n\n$missingNote';

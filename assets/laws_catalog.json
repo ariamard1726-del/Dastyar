@@ -26,6 +26,7 @@
     {"id": "dispute_councils", "title": "قانون شوراهای حل اختلاف", "category": "procedure", "priority": 2, "aliases": ["قانون شورای حل اختلاف"]},
     {"id": "cheque", "title": "قانون صدور چک", "category": "commerce", "priority": 1, "aliases": ["قانون چک"]},
     {"id": "commerce", "title": "قانون تجارت", "category": "commerce", "priority": 2},
+    {"id": "commerce_1347", "title": "لایحه اصلاحی شرکت‌های سهامی", "category": "commerce", "priority": 2, "aliases": ["لایحه شرکت‌های سهامی"]},
     {"id": "consumer_protection", "title": "قانون حمایت از حقوق مصرف‌کنندگان", "category": "commerce", "priority": 3, "aliases": ["قانون حمایت از مصرف‌کنندگان"]},
     {"id": "registration", "title": "قانون ثبت اسناد و املاک", "category": "property", "priority": 1, "aliases": ["قانون ثبت اسناد"]},
     {"id": "landlord_tenant", "title": "قانون روابط موجر و مستأجر", "category": "property", "priority": 1, "aliases": ["قانون موجر و مستأجر"], "note": "چند قانون با این عنوان در دوره‌های مختلف هست؛ کارشناس تعیین کند کدام یا هر دو."},

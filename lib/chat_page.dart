@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:share_plus/share_plus.dart';
 
 import 'about_page.dart';
 import 'app_drawer.dart';
@@ -363,6 +364,17 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Future<void> _share(String text, {String? subject}) async {
+    try {
+      await Share.share(text, subject: subject);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('اشتراک‌گذاری انجام نشد. از کپی استفاده کنید.')),
+      );
+    }
+  }
+
   // ---------- ظاهر ----------
 
   bool get _dark => Theme.of(context).brightness == Brightness.dark;
@@ -389,6 +401,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _botText(_Msg m) {
+    final canAct = !m.sensitive && m.text != '...';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -398,15 +411,23 @@ class _ChatPageState extends State<ChatPage> {
             m.text,
             style: const TextStyle(fontSize: 16, height: 1.9),
           ),
-          if (!m.sensitive && m.text != '...')
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'کپی',
-                icon: const Icon(Icons.copy, size: 18),
-                onPressed: () => _copy(m.text),
-              ),
+          if (canAct)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  tooltip: 'کپی',
+                  icon: const Icon(Icons.copy, size: 18),
+                  onPressed: () => _copy(m.text),
+                ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  tooltip: 'اشتراک‌گذاری',
+                  icon: const Icon(Icons.share_outlined, size: 18),
+                  onPressed: () => _share(m.text),
+                ),
+              ],
             ),
         ],
       ),
@@ -456,10 +477,21 @@ class _ChatPageState extends State<ChatPage> {
                 Text(m.note, style: TextStyle(color: cs.error, height: 1.6)),
               ],
               const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                onPressed: () => _copy(m.text),
-                icon: const Icon(Icons.copy, size: 18),
-                label: const Text('کپی متن'),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: () => _copy(m.text),
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: const Text('کپی متن'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _share(m.text, subject: m.docTitle),
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    label: const Text('اشتراک‌گذاری'),
+                  ),
+                ],
               ),
               if (m.laws.isNotEmpty || m.lawRefsTotal > 0) ...[
                 const Divider(height: 28),

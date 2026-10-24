@@ -12,6 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shared_preferences: ^2.2.0
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:
@@ -23,5 +24,6 @@ flutter:
     - assets/knowledge.txt
     - assets/data_info.json
     - assets/laws_catalog.json
+    - assets/synonyms.txt
     - assets/laws/
     - assets/templates/

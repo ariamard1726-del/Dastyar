@@ -29,6 +29,58 @@ jobs:
           cp -r /tmp/lib lib
           rm -f analysis_options.yaml test/widget_test.dart
 
+      - name: App name and icon (non-fatal)
+        continue-on-error: true
+        run: |
+          sed -i 's|android:label="[^"]*"|android:label="دستیار"|' android/app/src/main/AndroidManifest.xml
+          python3 -c "import PIL" 2>/dev/null || python3 -m pip install --break-system-packages pillow || python3 -m pip install pillow
+          python3 tools/make_icon.py
+          ls -la android/app/src/main/res/mipmap-xxhdpi/
+
+      - name: Signing key (only if secrets exist)
+        continue-on-error: true
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/patch_signing.py
+          else
+            echo "No signing secrets; the APK will use a temporary debug key."
+          fi
+
+      - name: Diagnose keystore safely
+        continue-on-error: true
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set +x
+          set -eu
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "Signing secrets are missing."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/diagnostic.jks"
+          if [ ! -s "$RUNNER_TEMP/diagnostic.jks" ]; then
+            echo "Decoded keystore is empty."
+            exit 1
+          fi
+          echo "Decoded keystore size: $(wc -c < "$RUNNER_TEMP/diagnostic.jks") bytes"
+          file "$RUNNER_TEMP/diagnostic.jks"
+          printf "First 8 bytes (hex): "
+          od -An -tx1 -N8 "$RUNNER_TEMP/diagnostic.jks"
+          for store_type in PKCS12 JKS; do
+            if keytool -list -v -storetype "$store_type" -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" > "$RUNNER_TEMP/keytool-check.log" 2>&1; then
+              echo "STORETYPE_OK=$store_type"
+              awk '/Alias name:/ {alias=$0} /Entry type: PrivateKeyEntry/ {print "Private-key entry found: " alias; found=1} END {if (!found) print "No PrivateKeyEntry found."}' "$RUNNER_TEMP/keytool-check.log"
+            else
+              echo "STORETYPE_FAILED=$store_type"
+              grep -Ei 'keytool error:|exception:|password|invalid|integrity|tampered|format|keystore' "$RUNNER_TEMP/keytool-check.log" | head -n 5 || true
+            fi
+          done
+
       - run: flutter pub get
 
       - name: Analyze (informational)
@@ -41,6 +93,10 @@ jobs:
         run: flutter test
 
       - run: flutter build apk --release
+
+      - name: Show signer of the APK
+        continue-on-error: true
+        run: keytool -printcert -jarfile build/app/outputs/flutter-apk/app-release.apk | grep -E "Owner|SHA256"
 
       - uses: actions/upload-artifact@v4
         with:
