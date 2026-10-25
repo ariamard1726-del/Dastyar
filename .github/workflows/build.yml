@@ -38,6 +38,13 @@ jobs:
           python3 tools/make_icon.py
           ls -la android/app/src/main/res/mipmap-xxhdpi/
 
+      - name: Save android sources (before signing)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-src
+          path: android/
+          include-hidden-files: true
+
       - name: Signing key (only if secrets exist)
         continue-on-error: true
         env:
@@ -86,13 +93,18 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Save pubspec.lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: pubspec-lock
+          path: pubspec.lock
+
       - name: Analyze (informational)
         continue-on-error: true
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Tests
         id: tests
-        continue-on-error: true
         run: flutter test
 
       - name: EVAL numbers
