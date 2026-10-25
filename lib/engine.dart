@@ -69,6 +69,7 @@ class KnowledgeEngine {
     'گویند', 'کسی', 'کیست',
   };
   static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند');
+  static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // پارامترهای BM25F
   static const double _k1 = 1.2;
@@ -597,18 +598,26 @@ class KnowledgeEngine {
     final toks =
         tokenizeIndex(question).where((t) => !_defWords.contains(t)).toList();
     if (toks.isEmpty) return hits;
-    final cands = <Hit>[];
+    var cands = <Hit>[];
     for (final n in [2, 1]) {
       if (toks.length < n) continue;
       final term = toks.take(n).join(' ');
+      final strong = <Hit>[];
+      final weak = <Hit>[];
       for (final h in hits) {
         final c = h.chunk;
         if (c.lawId == 'knowledge' || c.obsolete) continue;
         final body = _cleanBody(c.body);
-        if (!body.startsWith(term)) continue;
-        final end = math.min(body.length, term.length + 30);
-        if (_defMark.hasMatch(body.substring(term.length, end))) cands.add(h);
+        final p = body.startsWith(term)
+            ? term
+            : (body.startsWith('عقد $term') ? 'عقد $term' : null);
+        if (p == null) continue;
+        final end = math.min(body.length, p.length + 30);
+        final tail = body.substring(p.length, end);
+        if (!_defMark.hasMatch(tail)) continue;
+        (_defStrong.hasMatch(tail) ? strong : weak).add(h);
       }
+      cands = [...strong, ...weak];
       if (cands.isNotEmpty) break;
     }
     if (cands.isEmpty) return hits;
