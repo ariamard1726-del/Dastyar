@@ -1,14 +1,14 @@
 {
   "civil": {
     "title": "قانون مدنی",
-    "source": "",
+    "source": "سایت اختبار",
     "date": "۱۴۰۵/۰۷/۲۸",
-    "articles": 1333,
-    "amended": ""
+    "articles": 1336,
+    "amended": "۱۴۰۴/۰۷/۲۳"
   },
   "cheque": {
     "title": "قانون صدور چک",
-    "source": "",
+    "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۱",
     "articles": 27,
     "amended": "۱۴۰۳/۰۳/۳۰"
