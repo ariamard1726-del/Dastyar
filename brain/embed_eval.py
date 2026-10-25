@@ -126,7 +126,7 @@ def lex_c(q):
 
 
 log('\nمجموعه | روش | recall@1 | recall@5 | MRR')
-for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
+for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_v2.txt', 'eval_v3.txt', 'eval_v4.txt'):
     rows = [r for r in read_rows(f) if len(r) == 3]
     if not rows:
         continue
@@ -136,7 +136,7 @@ for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
 
 # آیا شباهت بالاترین نتیجه، پرسش بی‌پاسخ را از پرسش درست جدا می‌کند؟
 pos, neg = [], []
-for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
+for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_v2.txt', 'eval_v3.txt', 'eval_v4.txt'):
     for r in read_rows(f):
         if len(r) == 3:
             pos.append(dense_c(r[0])[0][1])
