@@ -22,12 +22,13 @@ jobs:
       - name: Create android platform files
         run: |
           cp pubspec.yaml /tmp/pubspec.yaml
+          cp analysis_options.yaml /tmp/analysis_options.yaml
           cp -r lib /tmp/lib
           flutter create --platforms=android --org com.ariabod --project-name dastyar .
           cp /tmp/pubspec.yaml pubspec.yaml
           rm -rf lib
           cp -r /tmp/lib lib
-          rm -f analysis_options.yaml test/widget_test.dart
+          rm -f test/widget_test.dart
 
       - name: App name and icon (non-fatal)
         continue-on-error: true
