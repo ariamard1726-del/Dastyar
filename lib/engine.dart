@@ -60,6 +60,16 @@ class KnowledgeEngine {
   // زیر این پوشش، پاسخ با هشدار «مطمئن نیستم» نشان داده می‌شود.
   static const double _lowCover = 0.4;
 
+  // پرسش‌های «X چیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
+  static final RegExp _defQ = RegExp(
+    r'چیست|چیه|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن',
+  );
+  static const Set<String> _defWords = {
+    'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
+    'گویند', 'کسی', 'کیست',
+  };
+  static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند');
+
   // پارامترهای BM25F
   static const double _k1 = 1.2;
   static const double _b = 0.4;
@@ -573,7 +583,45 @@ class KnowledgeEngine {
       hits.add(Hit(c, s));
     }
     hits.sort((a, b) => b.score.compareTo(a.score));
-    return RankResult(hits.take(k).toList());
+    return RankResult(_promoteDefinitions(question, hits).take(k).toList());
+  }
+
+  static String _cleanBody(String body) => _collapse(normalize(body))
+      .replaceFirst(RegExp(r'^[\(\[][^)\]]*[\)\]]\s*-?\s*'), '');
+
+  /// اگر پرسش از نوع «X چیست» بود، تا دو مادهٔ منسوخ‌نشده‌ای که متنشان با
+  /// همان واژه شروع می‌شود و حالت تعریفی دارد («عقدی است…»، «عبارت است…»)
+  /// به ابتدای فهرست می‌آیند. دانش عمومی و ماده‌های منسوخ هیچ‌وقت نمی‌آیند.
+  List<Hit> _promoteDefinitions(String question, List<Hit> hits) {
+    if (hits.isEmpty || !_defQ.hasMatch(normalize(question))) return hits;
+    final toks =
+        tokenizeIndex(question).where((t) => !_defWords.contains(t)).toList();
+    if (toks.isEmpty) return hits;
+    final cands = <Hit>[];
+    for (final n in [2, 1]) {
+      if (toks.length < n) continue;
+      final term = toks.take(n).join(' ');
+      for (final h in hits) {
+        final c = h.chunk;
+        if (c.lawId == 'knowledge' || c.obsolete) continue;
+        final body = _cleanBody(c.body);
+        if (!body.startsWith(term)) continue;
+        final end = math.min(body.length, term.length + 30);
+        if (_defMark.hasMatch(body.substring(term.length, end))) cands.add(h);
+      }
+      if (cands.isNotEmpty) break;
+    }
+    if (cands.isEmpty) return hits;
+    final picked = cands.take(2).toList();
+    final top = hits.first.score;
+    final out = <Hit>[
+      Hit(picked[0].chunk, math.max(picked[0].score, top)),
+      ...picked.skip(1),
+    ];
+    for (final h in hits) {
+      if (!picked.any((p) => identical(p.chunk, h.chunk))) out.add(h);
+    }
+    return out;
   }
 
   String answer(String question) {
