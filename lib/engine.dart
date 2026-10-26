@@ -667,6 +667,13 @@ class KnowledgeEngine {
     if (art != null &&
         loaded.isNotEmpty &&
         (r.hits.isEmpty || r.hits.first.score < 99)) {
+      final gapNum = int.tryParse(art.group(1)!) ?? 0;
+      if (art.group(2) == null &&
+          loaded.any((l) => l.id == 'commerce') &&
+          gapNum >= 21 &&
+          gapNum <= 93) {
+        return _commerceGapText(art.group(1)!);
+      }
       final num = TemplateRenderer.toFa(art.group(1)!) +
           (art.group(2) != null ? ' مکرر' : '');
       return 'ماده $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}';
@@ -725,6 +732,18 @@ class KnowledgeEngine {
       if (out.length >= max) break;
     }
     return out;
+  }
+
+  /// مواد ۲۱ تا ۹۳ قانون تجارت ۱۳۱۱ در متن رسمیِ برنامه نیست: دربارهٔ شرکت سهامی
+  /// با لایحهٔ ۱۳۴۷ جایگزین شده است.
+  String _commerceGapText(String num) {
+    final fa = TemplateRenderer.toFa(num);
+    return 'ماده $fa قانون تجارت در متن رسمی برنامه نیست.\n\n'
+        'مواد ۲۰ تا ۹۳ قانون تجارت (۱۳۱۱) دربارهٔ شرکت سهامی (عام و خاص) با '
+        '«لایحهٔ اصلاحی قسمتی از قانون تجارت» (۱۳۴۷) جایگزین شده است. '
+        'برای شرکت سهامی، همان لایحه را بپرسید (نام آن را کامل بنویسید). '
+        'دربارهٔ سایر انواع شرکت‌ها این مواد همچنان به قوت خود باقی است، '
+        'ولی متنشان در برنامه نیست؛ از منبع رسمی قوانین یا یک کارشناس حقوقی بپرسید.';
   }
 
   String _notFound() {
