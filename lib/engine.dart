@@ -245,8 +245,16 @@ class KnowledgeEngine {
       if (p == 'assets/knowledge.txt') {
         await _parse(text, 'دانش عمومی', 'knowledge');
       } else {
-        final stem = p.split('/').last.replaceAll('.txt', '');
-        await _parse(text, '', stem);
+        final relPath = p.replaceFirst('assets/laws/', '');
+        String lawId = p.split('/').last.replaceAll('.txt', ''); // نام فایل به عنوان پیش‌فرض
+        
+        // پیدا کردن شناسه اصلی (مثل civil) بر اساس مسیر جدید در فایل _meta.json
+        final match = meta.entries.where((e) => e.value['path'] == relPath).toList();
+        if (match.isNotEmpty) {
+          lawId = match.first.key;
+        }
+        
+        await _parse(text, '', lawId);
       }
     }
     await _loadSynonyms();

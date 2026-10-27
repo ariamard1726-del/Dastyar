@@ -4,41 +4,47 @@
     "source": "سایت اختبار",
     "date": "۱۴۰۵/۰۷/۲۸",
     "articles": 1336,
-    "amended": "۱۴۰۴/۰۷/۲۳"
+    "amended": "۱۴۰۴/۰۷/۲۳",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_madani.txt"
   },
   "cheque": {
     "title": "قانون صدور چک",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۱",
     "articles": 27,
-    "amended": "۱۴۰۳/۰۳/۳۰"
+    "amended": "۱۴۰۳/۰۳/۳۰",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_sodour_e_check.txt"
   },
   "financial_sentences": {
     "title": "قانون نحوه اجرای محکومیت‌های مالی",
     "source": "مرکز پژوهش‌های مجلس شورای اسلامی",
     "date": "۱۴۰۵/۰۶/۰۱",
     "articles": 29,
-    "amended": "۱۴۰۵/۰۶/۰۱"
+    "amended": "۱۴۰۵/۰۶/۰۱",
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ejray_e_mohkoumiyat_e_mali.txt"
   },
   "commerce": {
     "title": "قانون تجارت",
     "source": "سامانه قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۲",
     "articles": 522,
-    "amended": "۱۴۰۳/۰۶/۲۸"
+    "amended": "۱۴۰۳/۰۶/۲۸",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_tejarat.txt"
   },
   "commerce_1347": {
     "title": "لایحه اصلاحی قسمتی از قانون تجارت",
     "source": "سامانه قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۲",
     "articles": 300,
-    "amended": "۱۴۰۳/۰۶/۲۸"
+    "amended": "۱۴۰۳/۰۶/۲۸",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/layehe_eslah_e_ghanoun_e_tejarat_1347.txt"
   },
   "landlord_tenant": {
     "title": "قانون روابط موجر و مستأجر",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۵",
     "articles": 13,
-    "amended": "python tools/check.py && python tools/eval_none.py۱۳۷۶/۰۵/۲۶"
+    "amended": "۱۳۷۶/۰۵/۲۶",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_roabat_e_mojer_va_mostajer.txt"
   }
 }
