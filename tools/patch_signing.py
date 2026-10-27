@@ -11,8 +11,8 @@ if not store or not pw:
     print('No keystore or password; the temporary debug key stays.')
     sys.exit(0)
 if re.search(r'[\\\s=#!:]', pw):
-    print('Password has a space or one of \\ = # ! : ; signing skipped.')
-    sys.exit(0)
+    print('ERROR: bad password chars; signing NOT applied.')
+    sys.exit(1)
 
 with open('android/key.properties', 'w') as f:
     f.write('storePassword=%s\nkeyPassword=%s\nkeyAlias=dastyar\nstoreFile=%s\n' % (pw, pw, store))
@@ -106,4 +106,5 @@ if ok:
             if 'signingConfig' in line or 'key.properties' in line:
                 print('  ' + line.rstrip())
 else:
-    print('Could not patch the gradle file; the debug key stays.')
+    print('ERROR: gradle not patched; refusing debug-signed APK.')
+    sys.exit(1)

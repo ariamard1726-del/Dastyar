@@ -38,6 +38,12 @@ jobs:
           python3 tools/make_icon.py
           ls -la android/app/src/main/res/mipmap-xxhdpi/
 
+      - name: Disable Android backup
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          grep -q 'allowBackup' "$M" || sed -i 's|<application|<application android:allowBackup="false"|' "$M"
+          grep -n 'allowBackup' "$M"
+
       - name: Save android sources (before signing)
         uses: actions/upload-artifact@v4
         with:
@@ -46,7 +52,6 @@ jobs:
           include-hidden-files: true
 
       - name: Signing key (only if secrets exist)
-        continue-on-error: true
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -105,6 +110,7 @@ jobs:
 
       - name: Tests
         id: tests
+        continue-on-error: true
         run: flutter test
 
       - name: EVAL numbers
@@ -112,7 +118,7 @@ jobs:
         run: |
           flutter test test/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
 
-      - run: flutter build apk --release
+      - run: flutter build apk --release --build-number=${{ github.run_number }}
 
       - name: Show signer of the APK
         continue-on-error: true
