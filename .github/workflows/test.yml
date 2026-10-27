@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Check asset folders
+        run: python tools/check_assets.py
       - name: Check meta
         run: python tools/check_meta.py
       - name: Check data and templates
