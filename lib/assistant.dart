@@ -10,6 +10,27 @@ class Assistant {
   static const int _maxBody = 1200;
   static const int _maxTotal = 3500;
 
+  static final RegExp _artRef = RegExp(r'ماده\s*(\d+)');
+
+  /// شماره‌های مادهٔ ذکرشده در یک متن (با ارقام لاتین).
+  static Set<String> citedArticles(String text) {
+    final n = KnowledgeEngine.normalize(text);
+    return _artRef.allMatches(n).map((m) => m.group(1)!).toSet();
+  }
+
+  /// اگر پاسخ مدل شمارهٔ مادهٔ ‌ای را بیاورد که در متن‌های بازیابی‌شده
+  /// نیست، پاسخ اعتبار ندارد.
+  static bool isGrounded(String answer, List<Hit> ctx) {
+    final cited = citedArticles(answer);
+    if (cited.isEmpty) return true;
+    final allowed = <String>{};
+    for (final h in ctx) {
+      allowed.addAll(citedArticles(h.chunk.title));
+      allowed.addAll(citedArticles(h.chunk.body));
+    }
+    return cited.every(allowed.contains);
+  }
+
   /// هر بار متن کامل‌شدهٔ فعلی پاسخ را برمی‌گرداند.
   Stream<String> ask(String question) async* {
     final fallback = engine.answer(question);
@@ -42,6 +63,12 @@ class Assistant {
       return;
     }
     if (acc.trim().isEmpty) {
+      yield fallback;
+      return;
+    }
+
+    // بازبینی: مادهٔ ساختگی یعنی بازگشت به پاسخ مطمئن موتور.
+    if (!isGrounded(acc, ctx)) {
       yield fallback;
       return;
     }
