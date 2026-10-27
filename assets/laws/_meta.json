@@ -38,7 +38,7 @@
     "title": "قانون روابط موجر و مستأجر",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
     "date": "۱۴۰۵/۰۸/۰۵",
-    "articles": 4,
-    "amended": "۱۳۷۶/۰۵/۲۶"
+    "articles": 13,
+    "amended": "python tools/check.py && python tools/eval_none.py۱۳۷۶/۰۵/۲۶"
   }
 }
