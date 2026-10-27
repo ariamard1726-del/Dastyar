@@ -728,7 +728,7 @@ class KnowledgeEngine {
 
     if (r.hits.isEmpty || r.hits.first.score < 0.3) return _notFound();
 
-    if (r.hits.first.score < 99 &&
+    if ((art == null || r.hits.first.score < 99) &&
         coverage(question, r.hits.first.chunk) < _lowCover) {
       return _notFound();
     }
