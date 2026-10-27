@@ -377,10 +377,10 @@ class Drafting {
         }
       }
     } else if (f.type == 'number') {
-      final n = KnowledgeEngine.normalize(input);
-      final leftover = n.replaceAll(RegExp(r'[0-9\s,،٬.]'), '');
+      final n = KnowledgeEngine.normalize(input).replaceAll(RegExp(r'\s'), '');
+      final okFmt = RegExp(r'^(\d+|\d{1,3}([,،٬.]\d{3})+)$').hasMatch(n);
       final digits = n.replaceAll(RegExp(r'[^0-9]'), '');
-      if (leftover.isNotEmpty || digits.isEmpty) {
+      if (!okFmt || digits.isEmpty) {
         err = 'لطفاً فقط عدد کامل را بنویسید، بدون کلمه (مثلاً ۵۰۰۰۰۰۰۰).';
       } else {
         value = digits;

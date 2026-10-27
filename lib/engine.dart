@@ -391,13 +391,16 @@ class KnowledgeEngine {
       for (final name in [l.title, ...l.aliases]) {
         final full = _collapse(normalize(name));
         if (full.isEmpty) continue;
+        final isLawName =
+            full.startsWith('قانون ') || full.startsWith('لایحه ');
+        if (!isLawName) continue;
         if (n.contains(full)) {
           hit = true;
           break;
         }
         final short =
-            full.startsWith('قانون ') ? full.substring(6).trim() : full;
-        if (short.length >= 5 && n.contains(short)) {
+            full.startsWith('قانون ') ? full.substring(6).trim() : '';
+        if (short.length >= 5 && n.contains('قانون $short')) {
           hit = true;
           break;
         }
