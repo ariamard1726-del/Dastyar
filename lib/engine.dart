@@ -226,35 +226,27 @@ class KnowledgeEngine {
       warnings.add('_meta.json: $e');
     }
 
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final paths = manifest
-        .listAssets()
-        .where((p) =>
-            p == 'assets/knowledge.txt' ||
-            (p.startsWith('assets/laws/') && p.endsWith('.txt')))
-        .toList()
-      ..sort();
-    for (final p in paths) {
-      String text;
-      try {
-        text = await rootBundle.loadString(p);
-      } catch (e) {
-        warnings.add('$p: $e');
-        continue;
-      }
-      if (p == 'assets/knowledge.txt') {
-        await _parse(text, 'دانش عمومی', 'knowledge');
-      } else {
-        final relPath = p.replaceFirst('assets/laws/', '');
-        String lawId = p.split('/').last.replaceAll('.txt', ''); // نام فایل به عنوان پیش‌فرض
-        
-        // پیدا کردن شناسه اصلی (مثل civil) بر اساس مسیر جدید در فایل _meta.json
-        final match = meta.entries.where((e) => e.value['path'] == relPath).toList();
-        if (match.isNotEmpty) {
-          lawId = match.first.key;
+    // ۱. لود فایل دانش عمومی
+    try {
+      final text = await rootBundle.loadString('assets/knowledge.txt');
+      await _parse(text, 'دانش عمومی', 'knowledge');
+    } catch (e) {
+      warnings.add('assets/knowledge.txt: $e');
+    }
+
+    // ۲. لود قوانین بر اساس مسیرهای ثبت شده در _meta.json
+    for (final entry in meta.entries) {
+      final lawId = entry.key;
+      final path = entry.value['path'];
+      
+      if (path != null && path is String) {
+        final fullPath = 'assets/laws/$path';
+        try {
+          final text = await rootBundle.loadString(fullPath);
+          await _parse(text, '', lawId);
+        } catch (e) {
+          warnings.add('$fullPath: $e');
         }
-        
-        await _parse(text, '', lawId);
       }
     }
     await _loadSynonyms();
