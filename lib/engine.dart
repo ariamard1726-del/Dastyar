@@ -637,8 +637,58 @@ class KnowledgeEngine {
     return out;
   }
 
+
+
+  bool _asksAssistantCapabilities(String n) {
+    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
+    final asksWhat =
+        compact.contains('چهکاری') || compact.contains('چهکارهایی');
+    final capabilityVerb =
+        compact.contains('انجاممیدهی') ||
+        compact.contains('انجاممیدی') ||
+        compact.contains('میتوانی') ||
+        compact.contains('میتونی') ||
+        compact.contains('میکنی') ||
+        compact.contains('ازدستتبرمیاد');
+    final asksAboutCapabilities =
+        (compact.contains('قابلیتهای') ||
+         compact.contains('تواناییهای')) &&
+        (compact.contains('دستیار') ||
+         compact.contains('برنامه') ||
+         compact.contains('تو'));
+    return (asksWhat && capabilityVerb) || asksAboutCapabilities;
+  }
+
+  bool _asksOutcomePrediction(String n) {
+    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
+    final asksCase = compact.contains('پرونده') ||
+        compact.contains('حکمقاضی') ||
+        compact.contains('نتیجهدادگاه');
+    final asksPrediction =
+        compact.contains('چهحکمی') ||
+        compact.contains('صادرخواهدکرد') ||
+        compact.contains('پیشبینینتیجه') ||
+        compact.contains('نتیجهقطعی') ||
+        compact.contains('حکمدقیق');
+    return asksCase && asksPrediction;
+  }
+
+  String _assistantCapabilitiesText() {
+    return 'من دستیار حقوقی آفلاین هستم. می‌توانم در متن قوانین موجود در برنامه جست‌وجو کنم، مواد مرتبط را نمایش دهم و در موارد پشتیبانی‌شده برای تنظیم پیش‌نویس اسناد کمک کنم. اگر قانون یا اطلاعات لازم در داده‌های برنامه نباشد، ممکن است نتوانم پاسخ بدهم. من وکیل نیستم و نمی‌توانم نتیجه پرونده را قطعی پیش‌بینی کنم.';
+  }
+
+  String _outcomePredictionText() {
+    return 'نمی‌توانم حکم قاضی یا نتیجه یک پرونده را به‌طور قطعی پیش‌بینی کنم. نتیجه به جزئیات پرونده، ادله، قوانین قابل اعمال و تشخیص مرجع قضایی بستگی دارد. اگر موضوع و اطلاعات غیرحساس پرونده را توضیح دهید، می‌توانم در حد قوانین موجود در برنامه به شناسایی مسائل حقوقی مرتبط کمک کنم.';
+  }
+
   String answer(String question) {
     final n = normalize(question);
+    if (_asksAssistantCapabilities(n)) {
+      return _assistantCapabilitiesText();
+    }
+    if (_asksOutcomePrediction(n)) {
+      return _outcomePredictionText();
+    }
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.isEmpty && art == null) {
