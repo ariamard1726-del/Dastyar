@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/services.dart' show rootBundle, AssetManifest;
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'templates.dart' show TemplateRenderer;
 
