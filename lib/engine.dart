@@ -728,12 +728,11 @@ class KnowledgeEngine {
 
     if (r.hits.isEmpty || r.hits.first.score < 0.3) return _notFound();
 
-    var res = format(r.hits.first.chunk);
     if (r.hits.first.score < 99 &&
         coverage(question, r.hits.first.chunk) < _lowCover) {
-      res =
-          'توجه: مطمئن نیستم این ماده به پرسش شما مربوط باشد. اگر نیست، پرسش را با کلمات دیگر یا با نام قانون بنویسید.\n\n$res';
+      return _notFound();
     }
+    var res = format(r.hits.first.chunk);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
       final b = r.hits[0].score;
