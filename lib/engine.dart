@@ -16,6 +16,7 @@ class Chunk {
   final Map<String, int> tfB; // واژه‌های متن
   final Map<String, int> tfC; // واژه‌های فصل و نام قانون
   final int len;
+  late final String normTitle = KnowledgeEngine.normalize(title).trim();
   Chunk(
     this.lawId,
     this.source,
@@ -374,7 +375,7 @@ class KnowledgeEngine {
     final lawN = _collapse(normalize(law));
     if (lawN.isEmpty) return null;
     for (final c in _chunks) {
-      if (_collapse(normalize(c.title)) != want) continue;
+      if (_collapse(c.normTitle) != want) continue;
       final s = _collapse(normalize(c.source));
       if (s.isEmpty) continue;
       if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
@@ -519,7 +520,7 @@ class KnowledgeEngine {
       final want =
           'ماده ${art.group(1)}${art.group(2) != null ? ' مکرر' : ''}';
       final found =
-          pool.where((c) => normalize(c.title).trim() == want).toList();
+          pool.where((c) => c.normTitle == want).toList();
       if (found.isNotEmpty) {
         Chunk pick = found.first;
         var bestOverlap = -1;

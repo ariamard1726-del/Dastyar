@@ -141,10 +141,17 @@ class Drafting {
     return s;
   }
 
+  // فعل‌های امری: حتی با علامت پرسش، یعنی کاربر متن می‌خواهد.
+  static const List<String> _imperatives = [
+    'بنویس', 'بساز', 'آماده کن', 'تنظیم کن', 'تهیه کن', 'پیش نویس کن',
+    'پیشنویس کن',
+  ];
+
   static bool _wantsDraft(String n) {
+    final asks = _questionWords.any((w) => n.contains(w));
+    if (asks && !_imperatives.any((w) => n.contains(w))) return false;
     if (_verbs.any((w) => n.contains(w))) return true;
-    if (!_nouns.any((w) => n.contains(w))) return false;
-    return !_questionWords.any((w) => n.contains(w));
+    return _nouns.any((w) => n.contains(w));
   }
 
   static Set<String> _titleTokens(LegalTemplate t) {
