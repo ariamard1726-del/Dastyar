@@ -28,5 +28,8 @@ void main() {
   test('پرسش عادی درباره مجازات به پاسخ عمومی پیش‌بینی تبدیل نمی‌شود', () {
     final answer = engine.answer('مجازات کلاهبرداری چیست؟');
     expect(answer, isNot(contains('حکم قاضی یا نتیجه یک پرونده')));
+    expect(answer, isNot(contains('ماده ۴۳۸')));
+    expect(answer, isNot(contains('ماده 438')));
+    expect(answer, contains('پیدا نکردم'));
   });
 }
