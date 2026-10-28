@@ -32,4 +32,10 @@ void main() {
     expect(answer, isNot(contains('ماده 438')));
     expect(answer, contains('پیدا نکردم'));
   });
+
+  test('پرسش مشخص درباره ماده ۲۴۹ متن همان ماده را بازیابی می‌کند', () {
+    final answer = engine.answer('ماده ۲۴۹ لایحه اصلاحی قانون تجارت چیست؟');
+    expect(answer, contains('اعلامیه پذیره‌نویسی'));
+    expect(answer, contains('کلاهبرداری'));
+  });
 }
