@@ -23,6 +23,7 @@ flutter:
   assets:
     - assets/data_info.json
     - assets/knowledge.txt
+    - assets/replies.json
     - assets/laws_catalog.json
     - assets/synonyms.txt
     - assets/laws/

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'persian_text.dart';
+import 'replies.dart';
 import 'templates.dart' show TemplateRenderer;
 
 class Chunk {
@@ -54,6 +55,8 @@ class CatalogLaw {
 }
 
 class KnowledgeEngine {
+  /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
+  final Replies replies = Replies();
   final List<Chunk> _chunks = [];
   final Map<String, double> _idf = {};
   double _avgLen = 1.0;
@@ -148,6 +151,14 @@ class KnowledgeEngine {
       });
     } catch (e) {
       warnings.add('_meta.json: $e');
+    }
+
+    try {
+      final t = await rootBundle.loadString('assets/replies.json');
+      final m = jsonDecode(t) as Map<String, dynamic>;
+      replies.setOverrides(m.map((k, v) => MapEntry(k, v.toString())));
+    } catch (e) {
+      warnings.add('replies.json: $e');
     }
 
     // ۱. لود فایل دانش عمومی
@@ -378,7 +389,7 @@ class KnowledgeEngine {
 
   String _lawListText() {
     final loaded = _loadedLaws();
-    if (loaded.isEmpty) return 'هنوز متن هیچ قانونی در برنامه نیست.';
+    if (loaded.isEmpty) return replies.get('no_laws');
     final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
     for (final l in loaded) {
       final n = _lawCounts[l.id] ?? 0;
@@ -628,11 +639,11 @@ class KnowledgeEngine {
   }
 
   String _assistantCapabilitiesText() {
-    return 'من دستیار حقوقی آفلاین هستم. می‌توانم در متن قوانین موجود در برنامه جست‌وجو کنم، مواد مرتبط را نمایش دهم و در موارد پشتیبانی‌شده برای تنظیم پیش‌نویس اسناد کمک کنم. اگر قانون یا اطلاعات لازم در داده‌های برنامه نباشد، ممکن است نتوانم پاسخ بدهم. من وکیل نیستم و نمی‌توانم نتیجه پرونده را قطعی پیش‌بینی کنم.';
+    return replies.get('capabilities');
   }
 
   String _outcomePredictionText() {
-    return 'نمی‌توانم حکم قاضی یا نتیجه یک پرونده را به‌طور قطعی پیش‌بینی کنم. نتیجه به جزئیات پرونده، ادله، قوانین قابل اعمال و تشخیص مرجع قضایی بستگی دارد. اگر موضوع و اطلاعات غیرحساس پرونده را توضیح دهید، می‌توانم در حد قوانین موجود در برنامه به شناسایی مسائل حقوقی مرتبط کمک کنم.';
+    return replies.get('outcome_prediction');
   }
 
   String answer(String question) {
@@ -646,10 +657,10 @@ class KnowledgeEngine {
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.isEmpty && art == null) {
-      if (n.contains('سلام')) return 'سلام! چه کمکی از من برمی‌آید؟';
-      return 'لطفاً پرسش خود را کامل‌تر بنویسید.';
+      if (n.contains('سلام')) return replies.get('greeting');
+      return replies.get('ask_more');
     }
-    if (_chunks.isEmpty) return 'هنوز دانشی در برنامه نیست.';
+    if (_chunks.isEmpty) return replies.get('no_knowledge');
 
     if (_asksLawList(n)) return _lawListText();
 
@@ -658,7 +669,7 @@ class KnowledgeEngine {
     final loaded = mentioned.where((l) => isLoaded(l.id)).toList();
     final missingNote = missing.isEmpty
         ? ''
-        : 'توجه: متن «${missing.first.title}» هنوز در برنامه نیست.';
+        : replies.get('missing_law', {'law': missing.first.title});
 
     if (loaded.isEmpty && missing.isNotEmpty) {
       return '$missingNote برای همین نمی‌توانم از روی آن جواب بدهم. می‌توانید از منبع رسمی قوانین، دفتر خدمات قضایی یا یک کارشناس حقوقی بپرسید.';
@@ -742,6 +753,6 @@ class KnowledgeEngine {
   }
 
   String _notFound() {
-    return 'پاسخ این پرسش را در دانش خودم پیدا نکردم. پرسش را با کلمات دیگر بنویسید.';
+    return replies.get('not_found');
   }
 }
