@@ -733,7 +733,8 @@ class KnowledgeEngine {
       return _notFound();
     }
     final topBody = r.hits.first.chunk.body;
-    if (n.contains('کلاهبرداری') &&
+    if (art == null &&
+        n.contains('کلاهبرداری') &&
         n.contains('مجازات') &&
         topBody.contains('اعلامیه پذیره‌نویسی')) {
       return _notFound();
