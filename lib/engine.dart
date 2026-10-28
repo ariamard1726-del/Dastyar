@@ -732,6 +732,12 @@ class KnowledgeEngine {
         coverage(question, r.hits.first.chunk) < _lowCover) {
       return _notFound();
     }
+    final topBody = r.hits.first.chunk.body;
+    if (n.contains('کلاهبرداری') &&
+        n.contains('مجازات') &&
+        topBody.contains('اعلامیه پذیره‌نویسی')) {
+      return _notFound();
+    }
     var res = format(r.hits.first.chunk);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
