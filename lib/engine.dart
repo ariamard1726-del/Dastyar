@@ -386,19 +386,23 @@ class KnowledgeEngine {
   /// قوانین فهرست که نام یا نام رایجشان در پرسش آمده است.
   List<CatalogLaw> _mentionedLaws(String q) {
     final n = _collapse(normalize(q));
-    final out = <CatalogLaw>[];
+    final matched = <CatalogLaw>[];
+
     for (final l in catalog) {
       var hit = false;
       for (final name in [l.title, ...l.aliases]) {
         final full = _collapse(normalize(name));
         if (full.isEmpty) continue;
+
         final isLawName =
             full.startsWith('قانون ') || full.startsWith('لایحه ');
         if (!isLawName) continue;
+
         if (n.contains(full)) {
           hit = true;
           break;
         }
+
         final short =
             full.startsWith('قانون ') ? full.substring(6).trim() : '';
         if (short.length >= 5 && n.contains('قانون $short')) {
@@ -406,9 +410,37 @@ class KnowledgeEngine {
           break;
         }
       }
-      if (hit) out.add(l);
+      if (hit) matched.add(l);
     }
-    return out;
+
+    if (matched.length < 2) return matched;
+
+    final matchedNames = <String, String>{};
+    for (final l in matched) {
+      for (final name in [l.title, ...l.aliases]) {
+        final full = _collapse(normalize(name));
+        if (full.isNotEmpty && n.contains(full)) {
+          matchedNames[l.id] = full;
+          break;
+        }
+      }
+    }
+
+    return matched.where((law) {
+      final ownName = matchedNames[law.id];
+      if (ownName == null) return true;
+
+      for (final other in matched) {
+        if (other.id == law.id) continue;
+        final otherName = matchedNames[other.id];
+        if (otherName != null &&
+            otherName.length > ownName.length &&
+            otherName.contains(ownName)) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
   }
 
   List<CatalogLaw> _loadedLaws() =>
