@@ -8,6 +8,7 @@ import 'persian_text.dart';
 import 'replies.dart';
 import 'templates.dart' show TemplateRenderer;
 import 'models.dart';
+import 'router.dart';
 
 export 'models.dart';
 
@@ -588,55 +589,13 @@ class KnowledgeEngine {
 
 
 
-  bool _asksAssistantCapabilities(String n) {
-    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
-    final asksWhat =
-        compact.contains('چهکاری') || compact.contains('چهکارهایی');
-    final capabilityVerb =
-        compact.contains('انجاممیدهی') ||
-        compact.contains('انجاممیدی') ||
-        compact.contains('میتوانی') ||
-        compact.contains('میتونی') ||
-        compact.contains('میکنی') ||
-        compact.contains('ازدستتبرمیاد');
-    final asksAboutCapabilities =
-        (compact.contains('قابلیتهای') ||
-         compact.contains('تواناییهای')) &&
-        (compact.contains('دستیار') ||
-         compact.contains('برنامه') ||
-         compact.contains('تو'));
-    return (asksWhat && capabilityVerb) || asksAboutCapabilities;
-  }
-
-  bool _asksOutcomePrediction(String n) {
-    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
-    final asksCase = compact.contains('پرونده') ||
-        compact.contains('حکمقاضی') ||
-        compact.contains('نتیجهدادگاه');
-    final asksPrediction =
-        compact.contains('چهحکمی') ||
-        compact.contains('صادرخواهدکرد') ||
-        compact.contains('پیشبینینتیجه') ||
-        compact.contains('نتیجهقطعی') ||
-        compact.contains('حکمدقیق');
-    return asksCase && asksPrediction;
-  }
-
-  String _assistantCapabilitiesText() {
-    return replies.get('capabilities');
-  }
-
-  String _outcomePredictionText() {
-    return replies.get('outcome_prediction');
-  }
-
   String answer(String question) {
     final n = normalize(question);
-    if (_asksAssistantCapabilities(n)) {
-      return _assistantCapabilitiesText();
+    if (QueryRouter.asksCapabilities(n)) {
+      return QueryRouter.capabilitiesText();
     }
-    if (_asksOutcomePrediction(n)) {
-      return _outcomePredictionText();
+    if (QueryRouter.asksOutcomePrediction(n)) {
+      return QueryRouter.outcomeText();
     }
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
