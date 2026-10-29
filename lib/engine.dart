@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -161,38 +162,91 @@ class KnowledgeEngine {
       warnings.add('replies.json: $e');
     }
 
-    // ۱. لود فایل دانش عمومی
+    // متن همهٔ فایل‌ها را اینجا می‌خوانیم؛ پارس و ساخت نمایه در Isolate انجام می‌شود.
+    final raw = <List<String>>[];
     try {
       final text = await rootBundle.loadString('assets/knowledge.txt');
-      await _parse(text, 'دانش عمومی', 'knowledge');
+      raw.add(['knowledge', 'دانش عمومی', text]);
     } catch (e) {
       warnings.add('assets/knowledge.txt: $e');
     }
 
-    // ۲. لود قوانین بر اساس مسیرهای ثبت شده در _meta.json
     for (final entry in meta.entries) {
       final lawId = entry.key;
       final path = entry.value['path'];
-      
       if (path != null && path is String) {
         final fullPath = 'assets/laws/$path';
         try {
           final text = await rootBundle.loadString(fullPath);
-          await _parse(text, '', lawId);
+          raw.add([lawId, '', text]);
         } catch (e) {
           warnings.add('$fullPath: $e');
         }
       }
     }
     await _loadSynonyms();
-    _buildIndex();
+
+    _Built built;
+    try {
+      built = await _buildAsync(raw);
+    } catch (_) {
+      built = _build(raw); // اگر Isolate شکست خورد، روی همین رشته
+    }
+    _chunks
+      ..clear()
+      ..addAll(built.chunks);
+    _lawCounts
+      ..clear()
+      ..addAll(built.lawCounts);
+    _idf
+      ..clear()
+      ..addAll(built.idf);
+    _avgLen = built.avgLen;
+    _maxIdf = built.maxIdf;
+    _vocab = built.vocab;
   }
 
-  Future<void> _parse(String text, String defaultSource, String lawId) async {
+
+  static Future<_Built> _buildAsync(List<List<String>> raw) =>
+      Isolate.run(() => _build(raw));
+
+  static _Built _build(List<List<String>> raw) {
+    final chunks = <Chunk>[];
+    final counts = <String, int>{};
+    for (final r in raw) {
+      _parseInto(r[2], r[1], r[0], chunks, counts);
+    }
+    final df = <String, int>{};
+    var totalLen = 0;
+    for (final c in chunks) {
+      totalLen += c.len;
+      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
+      for (final t in seen) {
+        df[t] = (df[t] ?? 0) + 1;
+      }
+    }
+    final n = chunks.length;
+    final avg = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
+    final idf = <String, double>{};
+    var maxIdf = 1.0;
+    df.forEach((t, d) {
+      final v = math.log((n + 1) / (d + 1)) + 1.0;
+      idf[t] = v;
+      if (v > maxIdf) maxIdf = v;
+    });
+    return _Built(chunks, counts, idf, avg, maxIdf, df.keys.toList());
+  }
+
+  static void _parseInto(
+    String text,
+    String defaultSource,
+    String lawId,
+    List<Chunk> out,
+    Map<String, int> counts,
+  ) {
     var source = defaultSource;
     var chapter = '';
     final parts = text.replaceAll('\r', '').split(RegExp(r'\n\s*\n'));
-    var n = 0;
     for (final p in parts) {
       final lines = p.trim().split('\n');
       if (lines.isEmpty || lines.first.trim().isEmpty) continue;
@@ -227,7 +281,7 @@ class KnowledgeEngine {
         tfC[t] = (tfC[t] ?? 0) + 1;
         len++;
       }
-      _chunks.add(Chunk(
+      out.add(Chunk(
         lawId,
         source,
         chapter,
@@ -239,34 +293,8 @@ class KnowledgeEngine {
         tfC,
         len,
       ));
-      _lawCounts[lawId] = (_lawCounts[lawId] ?? 0) + 1;
-      n++;
-      if (n % 200 == 0) {
-        await Future<void>.delayed(Duration.zero);
-      }
+      counts[lawId] = (counts[lawId] ?? 0) + 1;
     }
-  }
-
-  void _buildIndex() {
-    final df = <String, int>{};
-    var totalLen = 0;
-    for (final c in _chunks) {
-      totalLen += c.len;
-      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
-      for (final t in seen) {
-        df[t] = (df[t] ?? 0) + 1;
-      }
-    }
-    final n = _chunks.length;
-    _avgLen = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
-    df.forEach((t, d) {
-      _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
-    });
-    _maxIdf = 1.0;
-    for (final v in _idf.values) {
-      if (v > _maxIdf) _maxIdf = v;
-    }
-    _vocab = df.keys.toList();
   }
 
   final List<List<String>> _syn = [];
@@ -755,4 +783,16 @@ class KnowledgeEngine {
   String _notFound() {
     return replies.get('not_found');
   }
+}
+
+/// نتیجهٔ ساخت نمایه که از Isolate به رشتهٔ اصلی برمی‌گردد.
+class _Built {
+  final List<Chunk> chunks;
+  final Map<String, int> lawCounts;
+  final Map<String, double> idf;
+  final double avgLen;
+  final double maxIdf;
+  final List<String> vocab;
+  _Built(this.chunks, this.lawCounts, this.idf, this.avgLen, this.maxIdf,
+      this.vocab);
 }
