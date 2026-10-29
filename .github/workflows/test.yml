@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,4 +34,16 @@ jobs:
       - name: Near-miss report
         continue-on-error: true
         run: |
-          flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" || echo "no NEAR lines printed"
+          mkdir -p brain/reports
+          flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+          head -n 60 brain/reports/near_miss.txt
+      - name: Commit near-miss report
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/near_miss.txt
+          git diff --cached --quiet || git commit -m "گزارش near-miss (خودکار)"
+          git pull --rebase || true
+          git push origin HEAD:"${GITHUB_REF_NAME}" || true
