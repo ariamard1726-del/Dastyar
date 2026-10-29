@@ -27,3 +27,8 @@ jobs:
           channel: stable
       - run: flutter clean && flutter pub get
       - run: flutter test
+
+      - name: Near-miss report
+        continue-on-error: true
+        run: |
+          flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" || echo "no NEAR lines printed"
