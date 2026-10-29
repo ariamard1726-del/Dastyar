@@ -592,10 +592,10 @@ class KnowledgeEngine {
   String answer(String question) {
     final n = normalize(question);
     if (QueryRouter.asksCapabilities(n)) {
-      return QueryRouter.capabilitiesText();
+      return replies.get('capabilities');
     }
     if (QueryRouter.asksOutcomePrediction(n)) {
-      return QueryRouter.outcomeText();
+      return replies.get('outcome_prediction');
     }
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
