@@ -35,8 +35,8 @@ class KnowledgeEngine {
   static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // پارامترهای BM25F
-  static const double _k1 = 1.2;
-  static const double _b = 0.4;
+  static const double _k1 = 0.9;
+  static const double _b = 0.7;
   static const double _wT = 3.0;
   static const double _wB = 1.0;
   static const double _wC = 0.5;
