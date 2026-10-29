@@ -1,0 +1,33 @@
+name: Near-miss report
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  near:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+      - run: flutter clean && flutter pub get
+      - name: Run near-miss report
+        run: |
+          mkdir -p brain/reports
+          flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+          echo "--- lines: $(wc -l < brain/reports/near_miss.txt)"
+          head -n 60 brain/reports/near_miss.txt
+      - name: Commit report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/near_miss.txt
+          git commit -m "گزارش near-miss" || echo "nothing to commit"
+          git pull --rebase
+          git push
