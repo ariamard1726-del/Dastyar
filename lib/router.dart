@@ -37,11 +37,4 @@ class QueryRouter {
     return asksCase && asksPrediction;
   }
 
-  static String capabilitiesText() {
-    return replies.get('capabilities');
-  }
-
-  static String outcomeText() {
-    return replies.get('outcome_prediction');
-  }
 }
