@@ -133,3 +133,10 @@ test_cheque.txt
 project_report.txt
 *.bak
 tools/patch_*.py
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
