@@ -1,0 +1,8 @@
+{
+  "articles": {
+    "101": { "title": "ماده ۱۰۱", "conflicts_with": ["105"] },
+    "105": { "title": "ماده ۱۰۵", "conflicts_with": ["108"] },
+    "108": { "title": "ماده ۱۰۸", "conflicts_with": ["109"] },
+    "109": { "title": "ماده ۱۰۹", "conflicts_with": [] }
+  }
+}
