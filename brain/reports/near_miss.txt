@@ -1,0 +1,33 @@
+00:00 +0: NEAR-MISS report (no assertions)
+NEAR brain/eval.txt n=30 exact@1 0.70 near@1 0.83 law@1 0.93 near@5 1.00
+NEAR brain/eval_v2.txt n=49 exact@1 0.49 near@1 0.59 law@1 0.86 near@5 0.82
+NEAR brain/eval_v3.txt n=20 exact@1 0.30 near@1 0.40 law@1 1.00 near@5 0.80
+NEAR brain/eval_v4.txt n=18 exact@1 0.33 near@1 0.33 law@1 0.72 near@5 0.67
+NEAR brain/eval_extra.txt n=30 exact@1 0.63 near@1 0.67 law@1 0.97 near@5 0.83
+NEAR brain/eval_blind.txt n=31 exact@1 0.55 near@1 0.77 law@1 0.97 near@5 0.97
+NEAR TOTAL n=178 exact@1 0.52 near@1 0.63 law@1 0.91 near@5 0.86
+NEAR far | brain/eval_v2.txt | اگر پدر یا مادر بمیره بچه پیش کدوم می‌ماند | want civil ماده 1171 | got civil ماده 906
+NEAR far | brain/eval_v2.txt | چه کسانی محجور حساب می‌شوند | want civil ماده 1207 | got labor ماده ۱۰۴- کارفرمایان و دیگر کسانی‌که مانع ورود بازرسان کار و کارشناسان بهداشت کار به کارگاه‌های مشمول این قانون گردند و یا مانع انجام وظیفه ایشان شوند یا از دادن اطلاعات و مدارک لازم به آنان خودداری نمایند، حسب مورد به مجازات‌های مقرر در این قانون محکوم خواهند شد.
+NEAR far | brain/eval_v2.txt | زن چقدر از شوهر ارث می‌برد اگر بچه نداشته باشند | want civil ماده 900 | got civil ماده 946
+NEAR far | brain/eval_v2.txt | زن و شوهر باید چطور با هم رفتار کنند | want civil ماده 1103 | got civil ماده 1221
+NEAR far | brain/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got labor تبصره ۱ (اصلاحی ۱۳۹۰/۰۳/۳۱)- دولت موظف است با استفاده از تسهیلات بانکی و امکانات وزارت راه و شهرسازی، شهرداری‌ها و سایر دستگاه‌های ذی‌ربط همکاری لازم را بنماید.
+NEAR far | brain/eval_v2.txt | چک چند نوع دارد | want cheque ماده 1 | got commerce ماده 313
+NEAR far | brain/eval_v2.txt | چکی که در ایران روی بانک خارجی نوشته شده | want cheque ماده 8 | got cheque ماده 1
+NEAR far | brain/eval_v2.txt | شرکت‌های تجارتی چند نوع هستند | want commerce ماده 20 | got financial_sentences ماده 17
+NEAR far | brain/eval_v2.txt | ضامن برات گم‌شده تا چند سال مسئول است | want commerce ماده 272 | got commerce ماده 268
+NEAR far | brain/eval_v3.txt | ولی قهری بچه کیه | want civil ماده 1180 | got civil ماده 1184
+NEAR far | brain/eval_v3.txt | قیم می‌تونه ملک بچه رو بفروشه | want civil ماده 1241 | got civil ماده 1161
+NEAR far | brain/eval_v3.txt | ارث بر چه اساسی تعلق می‌گیره | want civil ماده 861 | got civil ماده 868
+NEAR far | brain/eval_v3.txt | آیا آدم می‌تونه آزادی خودشو از بین ببره | want civil ماده 960 | got civil ماده 889
+NEAR far | brain/eval_v4.txt | ضامن یکی شدم و خودم بدهیش رو دادم می‌تونم از خودش پس بگیرم | want civil ماده 709 | got labor ماده ۱۵۹- رأی هیأت‌های تشخیص پس از ۱۵ روز از تاریخ ابلاغ آن لازم‌الاجراء می‌گردد و در صورتی که ظرف مدت مذکور یکی از طرفین نسبت به رأی مزبور اعتراض داشته باشد اعتراض خود را کتباً به هیأت حل اختلاف تقدیم می‌نماید و رأی هیأت حل اختلاف پس از صدور قطعی و لازم‌الاجراء خواهد بود. نظرات اعضاء هیأت بایستی در پرونده درج شود.
+NEAR far | brain/eval_v4.txt | وصیت کرده بیشتر اموالش رو به یک نفر بدن اگه ورثه قبول نکنن چی میشه | want civil ماده 843 | got civil ماده 849
+NEAR far | brain/eval_v4.txt | چکم گم شده یا دزدیده شده چطور جلوی پرداختش رو بگیرم | want cheque ماده 14 | got commerce ماده 326
+NEAR far | brain/eval_v4.txt | تو خیابون پولی پیدا کردم که زیاده باید چی کار کنم | want civil ماده 163 | got civil ماده 175
+NEAR far | brain/eval_v4.txt | اگه برای تحویل جنس و پرداخت پول زمان نذاشته باشیم چی میشه | want civil ماده 344 | got labor ماده ۳۸- برای انجام کار مساوی که در شرایط مساوی در یک کارگاه انجام می‌گیرد باید به زن و مرد مزد مساوی پرداخت شود. تبعیض در تعیین میزان مزد براساس سن، جنس، نژاد و قومیت و اعتقادات سیاسی و مذهبی ممنوع است.
+NEAR far | brain/eval_v4.txt | قرارداد رو می‌شه یک‌طرفه به هم زد | want civil ماده 219 | got commerce ماده 551
+NEAR far | brain/eval_extra.txt | کسی که چیزی را می‌بخشد باید مالک آن باشد | want civil ماده 797 | got civil ماده 301
+NEAR far | brain/eval_extra.txt | دفاتر تجاری علیه صاحبش سند است | want civil ماده 1300 | got commerce ماده 14
+NEAR far | brain/eval_extra.txt | مدیرعامل شرکت سهامی نمایندهٔ شرکت است | want commerce_1347 ماده 126 | got commerce_1347 ماده 24
+NEAR far | brain/eval_extra.txt | ضمان را چه کسی می‌تواند فسخ کند | want civil ماده 701 | got civil ماده 708
+NEAR far | brain/eval_extra.txt | راه‌های به دست آوردن مالکیت چیست | want civil ماده 140 | got civil ماده 180
+NEAR far | brain/eval_blind.txt | بازرس شرکت سهامی در برابر خسارت چه مسئولیتی دارد | want commerce_1347 ماده 154 | got commerce_1347 ماده 145

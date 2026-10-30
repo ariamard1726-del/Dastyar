@@ -7,6 +7,7 @@ import 'app_drawer.dart';
 import 'assistant.dart';
 import 'drafting.dart';
 import 'engine.dart';
+import 'feedback.dart';
 import 'history.dart';
 import 'history_page.dart';
 import 'settings.dart';
@@ -408,6 +409,9 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _botText(_Msg m) {
     final canAct = !m.sensitive && m.text != '...';
+    final qi = _msgs.indexOf(m);
+    final question =
+        (qi > 0 && _msgs[qi - 1].fromUser) ? _msgs[qi - 1].text : '';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -433,6 +437,7 @@ class _ChatPageState extends State<ChatPage> {
                   icon: const Icon(Icons.share_outlined, size: 18),
                   onPressed: () => _share(m.text),
                 ),
+                FeedbackBar(question: question, answer: m.text),
               ],
             ),
         ],

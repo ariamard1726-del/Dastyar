@@ -1,57 +1,20 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:math' as math;
 
-import 'package:flutter/services.dart' show rootBundle, AssetManifest;
+import 'package:flutter/services.dart' show rootBundle;
 
+import 'persian_text.dart';
+import 'replies.dart';
 import 'templates.dart' show TemplateRenderer;
+import 'models.dart';
+import 'router.dart';
 
-class Chunk {
-  final String lawId;
-  final String source;
-  final String chapter;
-  final String title;
-  final String body;
-  final bool obsolete;
-  final Map<String, int> tfT; // واژه‌های عنوان
-  final Map<String, int> tfB; // واژه‌های متن
-  final Map<String, int> tfC; // واژه‌های فصل و نام قانون
-  final int len;
-  Chunk(
-    this.lawId,
-    this.source,
-    this.chapter,
-    this.title,
-    this.body,
-    this.obsolete,
-    this.tfT,
-    this.tfB,
-    this.tfC,
-    this.len,
-  );
-}
-
-class Hit {
-  final Chunk chunk;
-  final double score;
-  Hit(this.chunk, this.score);
-}
-
-class RankResult {
-  final List<Hit> hits;
-  final String note;
-  RankResult(this.hits, [this.note = '']);
-}
-
-class CatalogLaw {
-  final String id;
-  final String title;
-  final String category;
-  final int priority;
-  final List<String> aliases;
-  CatalogLaw(this.id, this.title, this.category, this.priority, this.aliases);
-}
+export 'models.dart';
 
 class KnowledgeEngine {
+  /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
+  final Replies replies = Replies();
   final List<Chunk> _chunks = [];
   final Map<String, double> _idf = {};
   double _avgLen = 1.0;
@@ -72,8 +35,8 @@ class KnowledgeEngine {
   static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // پارامترهای BM25F
-  static const double _k1 = 1.2;
-  static const double _b = 0.4;
+  static const double _k1 = 0.9;
+  static const double _b = 0.7;
   static const double _wT = 3.0;
   static const double _wB = 1.0;
   static const double _wC = 0.5;
@@ -91,92 +54,14 @@ class KnowledgeEngine {
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
-  static const Set<String> _stop = {
-    'و', 'در', 'به', 'از', 'که', 'را', 'با', 'این', 'آن', 'برای', 'یک',
-    'است', 'هست', 'چه', 'چی', 'چیست', 'کی', 'کجا', 'چرا', 'چطور',
-    'چگونه', 'آیا', 'من', 'تو', 'شما', 'می', 'هم', 'یا', 'تا', 'بر',
-    'هر', 'بود', 'شد', 'باشد', 'کند', 'کنم', 'کن', 'بگو',
-    'درباره', 'مورد', 'لطفا', 'ممنون', 'ماده', 'قانون',
-  };
+  // لایهٔ متن به persian_text.dart رفته؛ اینجا فقط نام‌های قدیمی نگه داشته شده‌اند.
+  static String normalize(String s) => PersianText.normalize(s);
 
-  static const List<String> _suffixes = [
-    'ترین', 'هایی', 'های', 'ها', 'تر', 'ان', 'ات', 'ی',
-  ];
+  static String _collapse(String s) => PersianText.collapse(s);
 
-  static String normalize(String s) {
-    const map = {
-      'ي': 'ی', 'ى': 'ی', 'ك': 'ک', 'ۀ': 'ه', 'ة': 'ه',
-      'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا',
-    };
-    final sb = StringBuffer();
-    for (final r in s.runes) {
-      if (r >= 0x06F0 && r <= 0x06F9) {
-        sb.write(r - 0x06F0);
-        continue;
-      }
-      if (r >= 0x0660 && r <= 0x0669) {
-        sb.write(r - 0x0660);
-        continue;
-      }
-      if (r == 0x200C || r == 0x200D || r == 0x200E || r == 0x200F) {
-        sb.write(' ');
-        continue;
-      }
-      if (r >= 0x064B && r <= 0x065F) continue;
-      if (r == 0x0640) continue;
-      final ch = String.fromCharCode(r);
-      sb.write(map[ch] ?? ch);
-    }
-    return sb.toString().toLowerCase();
-  }
+  static List<String> tokenizeIndex(String s) => PersianText.tokenizeIndex(s);
 
-  static String _collapse(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
-
-  static String _stem(String w) {
-    for (final suf in _suffixes) {
-      if (w.length - suf.length >= 3 && w.endsWith(suf)) {
-        return w.substring(0, w.length - suf.length);
-      }
-    }
-    return w;
-  }
-
-  static final RegExp _nonWord = RegExp(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
-  );
-
-  // ریشه‌یابی محافظه‌کار برای نمایهٔ جست‌وجو: فقط «ها/های/هایی/ترین».
-  // «ی» و «ان» حذف نمی‌شوند تا «مالی» با «مال» و «زندان» با «زند» یکی نشود.
-  static const List<String> _suffixesIndex = ['ترین', 'هایی', 'های', 'ها'];
-
-  static String _stemIndex(String w) {
-    for (final suf in _suffixesIndex) {
-      if (w.length - suf.length >= 3 && w.endsWith(suf)) {
-        return w.substring(0, w.length - suf.length);
-      }
-    }
-    return w;
-  }
-
-  static List<String> tokenizeIndex(String s) {
-    final cleaned = normalize(s).replaceAll(_nonWord, ' ');
-    final out = <String>[];
-    for (final w in cleaned.split(' ')) {
-      if (w.isEmpty || _stop.contains(w)) continue;
-      out.add(_stemIndex(w));
-    }
-    return out;
-  }
-
-  static List<String> tokenize(String s) {
-    final cleaned = normalize(s).replaceAll(_nonWord, ' ');
-    final out = <String>[];
-    for (final w in cleaned.split(' ')) {
-      if (w.isEmpty || _stop.contains(w)) continue;
-      out.add(_stem(w));
-    }
-    return out;
-  }
+  static List<String> tokenize(String s) => PersianText.tokenize(s);
 
   static bool _isObsolete(String body) {
     var n = _collapse(normalize(body));
@@ -226,38 +111,99 @@ class KnowledgeEngine {
       warnings.add('_meta.json: $e');
     }
 
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final paths = manifest
-        .listAssets()
-        .where((p) =>
-            p == 'assets/knowledge.txt' ||
-            (p.startsWith('assets/laws/') && p.endsWith('.txt')))
-        .toList()
-      ..sort();
-    for (final p in paths) {
-      String text;
-      try {
-        text = await rootBundle.loadString(p);
-      } catch (e) {
-        warnings.add('$p: $e');
-        continue;
-      }
-      if (p == 'assets/knowledge.txt') {
-        await _parse(text, 'دانش عمومی', 'knowledge');
-      } else {
-        final stem = p.split('/').last.replaceAll('.txt', '');
-        await _parse(text, '', stem);
+    try {
+      final t = await rootBundle.loadString('assets/replies.json');
+      final m = jsonDecode(t) as Map<String, dynamic>;
+      replies.setOverrides(m.map((k, v) => MapEntry(k, v.toString())));
+    } catch (e) {
+      warnings.add('replies.json: $e');
+    }
+
+    // متن همهٔ فایل‌ها را اینجا می‌خوانیم؛ پارس و ساخت نمایه در Isolate انجام می‌شود.
+    final raw = <List<String>>[];
+    try {
+      final text = await rootBundle.loadString('assets/knowledge.txt');
+      raw.add(['knowledge', 'دانش عمومی', text]);
+    } catch (e) {
+      warnings.add('assets/knowledge.txt: $e');
+    }
+
+    for (final entry in meta.entries) {
+      final lawId = entry.key;
+      final path = entry.value['path'];
+      if (path != null && path is String) {
+        final fullPath = 'assets/laws/$path';
+        try {
+          final text = await rootBundle.loadString(fullPath);
+          raw.add([lawId, '', text]);
+        } catch (e) {
+          warnings.add('$fullPath: $e');
+        }
       }
     }
     await _loadSynonyms();
-    _buildIndex();
+
+    _Built built;
+    try {
+      built = await _buildAsync(raw);
+    } catch (_) {
+      built = _build(raw); // اگر Isolate شکست خورد، روی همین رشته
+    }
+    _chunks
+      ..clear()
+      ..addAll(built.chunks);
+    _lawCounts
+      ..clear()
+      ..addAll(built.lawCounts);
+    _idf
+      ..clear()
+      ..addAll(built.idf);
+    _avgLen = built.avgLen;
+    _maxIdf = built.maxIdf;
+    _vocab = built.vocab;
   }
 
-  Future<void> _parse(String text, String defaultSource, String lawId) async {
+
+  static Future<_Built> _buildAsync(List<List<String>> raw) =>
+      Isolate.run(() => _build(raw));
+
+  static _Built _build(List<List<String>> raw) {
+    final chunks = <Chunk>[];
+    final counts = <String, int>{};
+    for (final r in raw) {
+      _parseInto(r[2], r[1], r[0], chunks, counts);
+    }
+    final df = <String, int>{};
+    var totalLen = 0;
+    for (final c in chunks) {
+      totalLen += c.len;
+      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
+      for (final t in seen) {
+        df[t] = (df[t] ?? 0) + 1;
+      }
+    }
+    final n = chunks.length;
+    final avg = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
+    final idf = <String, double>{};
+    var maxIdf = 1.0;
+    df.forEach((t, d) {
+      final v = math.log((n + 1) / (d + 1)) + 1.0;
+      idf[t] = v;
+      if (v > maxIdf) maxIdf = v;
+    });
+    return _Built(chunks, counts, idf, avg, maxIdf, df.keys.toList());
+  }
+
+  static void _parseInto(
+    String text,
+    String defaultSource,
+    String lawId,
+    List<Chunk> out,
+    Map<String, int> counts,
+  ) {
     var source = defaultSource;
     var chapter = '';
     final parts = text.replaceAll('\r', '').split(RegExp(r'\n\s*\n'));
-    var n = 0;
     for (final p in parts) {
       final lines = p.trim().split('\n');
       if (lines.isEmpty || lines.first.trim().isEmpty) continue;
@@ -292,7 +238,7 @@ class KnowledgeEngine {
         tfC[t] = (tfC[t] ?? 0) + 1;
         len++;
       }
-      _chunks.add(Chunk(
+      out.add(Chunk(
         lawId,
         source,
         chapter,
@@ -304,40 +250,13 @@ class KnowledgeEngine {
         tfC,
         len,
       ));
-      _lawCounts[lawId] = (_lawCounts[lawId] ?? 0) + 1;
-      n++;
-      if (n % 200 == 0) {
-        await Future<void>.delayed(Duration.zero);
-      }
+      counts[lawId] = (counts[lawId] ?? 0) + 1;
     }
-  }
-
-  void _buildIndex() {
-    final df = <String, int>{};
-    var totalLen = 0;
-    for (final c in _chunks) {
-      totalLen += c.len;
-      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
-      for (final t in seen) {
-        df[t] = (df[t] ?? 0) + 1;
-      }
-    }
-    final n = _chunks.length;
-    _avgLen = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
-    df.forEach((t, d) {
-      _idf[t] = math.log((n + 1) / (d + 1)) + 1.0;
-    });
-    _maxIdf = 1.0;
-    for (final v in _idf.values) {
-      if (v > _maxIdf) _maxIdf = v;
-    }
-    _vocab = df.keys.toList();
   }
 
   final List<List<String>> _syn = [];
 
-  static String _phrase(String s) =>
-      _collapse(normalize(s).replaceAll(_nonWord, ' '));
+  static String _phrase(String s) => PersianText.phrase(s);
 
   Future<void> _loadSynonyms() async {
     _syn.clear();
@@ -374,7 +293,7 @@ class KnowledgeEngine {
     final lawN = _collapse(normalize(law));
     if (lawN.isEmpty) return null;
     for (final c in _chunks) {
-      if (_collapse(normalize(c.title)) != want) continue;
+      if (_collapse(c.normTitle) != want) continue;
       final s = _collapse(normalize(c.source));
       if (s.isEmpty) continue;
       if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
@@ -385,26 +304,61 @@ class KnowledgeEngine {
   /// قوانین فهرست که نام یا نام رایجشان در پرسش آمده است.
   List<CatalogLaw> _mentionedLaws(String q) {
     final n = _collapse(normalize(q));
-    final out = <CatalogLaw>[];
+    final matched = <CatalogLaw>[];
+
     for (final l in catalog) {
       var hit = false;
       for (final name in [l.title, ...l.aliases]) {
         final full = _collapse(normalize(name));
         if (full.isEmpty) continue;
+
+        final isLawName =
+            full.startsWith('قانون ') || full.startsWith('لایحه ');
+        if (!isLawName) continue;
+
         if (n.contains(full)) {
           hit = true;
           break;
         }
+
         final short =
-            full.startsWith('قانون ') ? full.substring(6).trim() : full;
-        if (short.length >= 5 && n.contains(short)) {
+            full.startsWith('قانون ') ? full.substring(6).trim() : '';
+        if (short.length >= 5 && n.contains('قانون $short')) {
           hit = true;
           break;
         }
       }
-      if (hit) out.add(l);
+      if (hit) matched.add(l);
     }
-    return out;
+
+    if (matched.length < 2) return matched;
+
+    final matchedNames = <String, String>{};
+    for (final l in matched) {
+      for (final name in [l.title, ...l.aliases]) {
+        final full = _collapse(normalize(name));
+        if (full.isNotEmpty && n.contains(full)) {
+          matchedNames[l.id] = full;
+          break;
+        }
+      }
+    }
+
+    return matched.where((law) {
+      final ownName = matchedNames[law.id];
+      if (ownName == null) return true;
+
+      for (final other in matched) {
+        if (other.id == law.id) continue;
+        final otherName = matchedNames[other.id];
+        if (otherName != null &&
+            otherName.length > ownName.length &&
+            otherName.contains(ownName)) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
   }
 
   List<CatalogLaw> _loadedLaws() =>
@@ -420,7 +374,7 @@ class KnowledgeEngine {
 
   String _lawListText() {
     final loaded = _loadedLaws();
-    if (loaded.isEmpty) return 'هنوز متن هیچ قانونی در برنامه نیست.';
+    if (loaded.isEmpty) return replies.get('no_laws');
     final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
     for (final l in loaded) {
       final n = _lawCounts[l.id] ?? 0;
@@ -516,7 +470,7 @@ class KnowledgeEngine {
       final want =
           'ماده ${art.group(1)}${art.group(2) != null ? ' مکرر' : ''}';
       final found =
-          pool.where((c) => normalize(c.title).trim() == want).toList();
+          pool.where((c) => c.normTitle == want).toList();
       if (found.isNotEmpty) {
         Chunk pick = found.first;
         var bestOverlap = -1;
@@ -633,15 +587,23 @@ class KnowledgeEngine {
     return out;
   }
 
+
+
   String answer(String question) {
     final n = normalize(question);
+    if (QueryRouter.asksCapabilities(n)) {
+      return replies.get('capabilities');
+    }
+    if (QueryRouter.asksOutcomePrediction(n)) {
+      return replies.get('outcome_prediction');
+    }
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.isEmpty && art == null) {
-      if (n.contains('سلام')) return 'سلام! چه کمکی از من برمی‌آید؟';
-      return 'لطفاً پرسش خود را کامل‌تر بنویسید.';
+      if (n.contains('سلام')) return replies.get('greeting');
+      return replies.get('ask_more');
     }
-    if (_chunks.isEmpty) return 'هنوز دانشی در برنامه نیست.';
+    if (_chunks.isEmpty) return replies.get('no_knowledge');
 
     if (_asksLawList(n)) return _lawListText();
 
@@ -650,7 +612,7 @@ class KnowledgeEngine {
     final loaded = mentioned.where((l) => isLoaded(l.id)).toList();
     final missingNote = missing.isEmpty
         ? ''
-        : 'توجه: متن «${missing.first.title}» هنوز در برنامه نیست.';
+        : replies.get('missing_law', {'law': missing.first.title});
 
     if (loaded.isEmpty && missing.isNotEmpty) {
       return '$missingNote برای همین نمی‌توانم از روی آن جواب بدهم. می‌توانید از منبع رسمی قوانین، دفتر خدمات قضایی یا یک کارشناس حقوقی بپرسید.';
@@ -674,12 +636,18 @@ class KnowledgeEngine {
 
     if (r.hits.isEmpty || r.hits.first.score < 0.3) return _notFound();
 
-    var res = format(r.hits.first.chunk);
-    if (r.hits.first.score < 99 &&
+    if ((art == null || r.hits.first.score < 99) &&
         coverage(question, r.hits.first.chunk) < _lowCover) {
-      res =
-          'توجه: مطمئن نیستم این ماده به پرسش شما مربوط باشد. اگر نیست، پرسش را با کلمات دیگر یا با نام قانون بنویسید.\n\n$res';
+      return _notFound();
     }
+    final topBody = r.hits.first.chunk.body;
+    if (art == null &&
+        n.contains('کلاهبرداری') &&
+        n.contains('مجازات') &&
+        topBody.contains('اعلامیه پذیره‌نویسی')) {
+      return _notFound();
+    }
+    var res = format(r.hits.first.chunk);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (r.hits.length > 1) {
       final b = r.hits[0].score;
@@ -728,6 +696,18 @@ class KnowledgeEngine {
   }
 
   String _notFound() {
-    return 'پاسخ این پرسش را در دانش خودم پیدا نکردم. پرسش را با کلمات دیگر بنویسید.';
+    return replies.get('not_found');
   }
+}
+
+/// نتیجهٔ ساخت نمایه که از Isolate به رشتهٔ اصلی برمی‌گردد.
+class _Built {
+  final List<Chunk> chunks;
+  final Map<String, int> lawCounts;
+  final Map<String, double> idf;
+  final double avgLen;
+  final double maxIdf;
+  final List<String> vocab;
+  _Built(this.chunks, this.lawCounts, this.idf, this.avgLen, this.maxIdf,
+      this.vocab);
 }

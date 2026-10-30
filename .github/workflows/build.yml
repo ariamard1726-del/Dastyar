@@ -22,12 +22,13 @@ jobs:
       - name: Create android platform files
         run: |
           cp pubspec.yaml /tmp/pubspec.yaml
+          cp analysis_options.yaml /tmp/analysis_options.yaml
           cp -r lib /tmp/lib
           flutter create --platforms=android --org com.ariabod --project-name dastyar .
           cp /tmp/pubspec.yaml pubspec.yaml
           rm -rf lib
           cp -r /tmp/lib lib
-          rm -f analysis_options.yaml test/widget_test.dart
+          rm -f test/widget_test.dart
 
       - name: App name and icon (non-fatal)
         continue-on-error: true
@@ -37,8 +38,20 @@ jobs:
           python3 tools/make_icon.py
           ls -la android/app/src/main/res/mipmap-xxhdpi/
 
+      - name: Disable Android backup
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          grep -q 'allowBackup' "$M" || sed -i 's|<application|<application android:allowBackup="false"|' "$M"
+          grep -n 'allowBackup' "$M"
+
+      - name: Save android sources (before signing)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-src
+          path: android/
+          include-hidden-files: true
+
       - name: Signing key (only if secrets exist)
-        continue-on-error: true
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -83,7 +96,13 @@ jobs:
             fi
           done
 
-      - run: flutter pub get
+      - run: flutter clean && flutter pub get
+
+      - name: Save pubspec.lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: pubspec-lock
+          path: pubspec.lock
 
       - name: Analyze (informational)
         continue-on-error: true
@@ -99,7 +118,7 @@ jobs:
         run: |
           flutter test test/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
 
-      - run: flutter build apk --release
+      - run: flutter build apk --release --build-number=${{ github.run_number }}
 
       - name: Show signer of the APK
         continue-on-error: true

@@ -1,6 +1,5 @@
 # Miscellaneous
 *.class
-*.lock
 *.log
 *.pyc
 *.swp
@@ -133,3 +132,4 @@ dastyar-apk/
 test_cheque.txt
 project_report.txt
 *.bak
+tools/patch_*.py

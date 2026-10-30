@@ -21,9 +21,18 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/knowledge.txt
     - assets/data_info.json
+    - assets/knowledge.txt
+    - assets/replies.json
     - assets/laws_catalog.json
     - assets/synonyms.txt
     - assets/laws/
+    - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/
+    - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/
+    - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Tejarat/
+    - assets/laws/Hoghough_e_Omumi/Hoghough_e_Asasi/
+    - assets/laws/Hoghough_e_Omumi/Hoghough_e_Edari/
+    - assets/laws/Hoghough_e_Omumi/Hoghough_e_Keyfari/
+    - assets/laws/Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/
+    - assets/laws/Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/
     - assets/templates/
