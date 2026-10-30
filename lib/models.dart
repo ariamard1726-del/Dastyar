@@ -1,4 +1,4 @@
-import 'engine.dart' show KnowledgeEngine;
+import 'core/text_utils.dart';
 
 class Chunk {
   final String lawId;
@@ -7,11 +7,14 @@ class Chunk {
   final String title;
   final String body;
   final bool obsolete;
-  final Map<String, int> tfT; // واژه‌های عنوان
-  final Map<String, int> tfB; // واژه‌های متن
-  final Map<String, int> tfC; // واژه‌های فصل و نام قانون
+  final Map<String, int> tfT;
+  final Map<String, int> tfB;
+  final Map<String, int> tfC;
   final int len;
-  late final String normTitle = KnowledgeEngine.normalize(title).trim();
+
+  // استفاده از TextUtils به جای KnowledgeEngine برای استقلال مدل
+  String get normTitle => TextUtils.collapse(TextUtils.normalize(title)).trim();
+
   Chunk(
     this.lawId,
     this.source,
