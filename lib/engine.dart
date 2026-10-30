@@ -1,3 +1,4 @@
+import "config.dart";
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math' as math;
@@ -35,11 +36,11 @@ class KnowledgeEngine {
   static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // پارامترهای BM25F
-  static const double _k1 = 0.9;
-  static const double _b = 0.7;
-  static const double _wT = 3.0;
-  static const double _wB = 1.0;
-  static const double _wC = 0.5;
+  final double _k1 = AppConfig.k1;
+  final double _b = AppConfig.b;
+  final double _wT = AppConfig.wT;
+  final double _wB = AppConfig.wB;
+  final double _wC = AppConfig.wC;
   final Map<String, int> _lawCounts = {};
   List<String> _vocab = [];
 
