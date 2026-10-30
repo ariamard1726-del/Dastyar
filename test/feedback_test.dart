@@ -2,6 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/feedback.dart';
 
+List<String> _rows(String t) => t
+    .split('\n')
+    .where((l) => l.trim().isNotEmpty && !l.startsWith('#'))
+    .toList();
+
 void main() {
   test('export: 👎 به سطر ارزیابی و 👍 به توضیح تبدیل می‌شود', () {
     final t = FeedbackStore.exportText([
@@ -10,11 +15,7 @@ void main() {
     ]);
     expect(t.contains('ولی قهری بچه کیه | ؟ | ؟'), isTrue);
     expect(t.contains('# 👍 چک چیست'), isTrue);
-    final rows = t
-        .split('\n')
-        .where((l) => l.trim().isNotEmpty && !l.startsWith('#'))
-        .toList();
-    expect(rows.length, 1);
+    expect(_rows(t).length, 1);
   });
 
   test('snippet فاصله‌ها را فشرده و طول را محدود می‌کند', () {
@@ -26,7 +27,8 @@ void main() {
     final t = FeedbackStore.exportText([
       FeedbackEntry('الف|ب', 'پاسخ', -1, 1),
     ]);
-    final row = t.split('\n').firstWhere((l) => l.contains('؟'));
-    expect(row.split('|').length, 3);
+    final rows = _rows(t);
+    expect(rows.length, 1);
+    expect(rows.first.split('|').length, 3);
   });
 }
