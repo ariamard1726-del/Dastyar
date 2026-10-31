@@ -1,4 +1,4 @@
-commit: dcc7e0f
+commit: 214c570
 🎉 88 tests passed.
 --- analyze ---
-1 issue found. (ran in 11.4s)
+1 issue found. (ran in 11.1s)
