@@ -13,19 +13,23 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.2.0
   share_plus: ^10.1.4
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/data_info.json
     - assets/knowledge.txt
     - assets/replies.json
     - assets/laws_catalog.json
     - assets/synonyms.txt
+    - assets/relationships.json
     - assets/laws/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/
