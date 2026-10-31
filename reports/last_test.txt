@@ -1,4 +1,4 @@
-commit: 36429eb
+commit: f671369
 🎉 88 tests passed.
 --- analyze ---
-No issues found! (ran in 11.1s)
+No issues found! (ran in 11.3s)
