@@ -601,7 +601,7 @@ class KnowledgeEngine {
     }
     final art = RegExp(r'ماده\s*(\d+)(\s*مکرر)?').firstMatch(n);
     final qTokens = tokenize(question);
-    if (qTokens.isEmpty && art == null) {
+    if (qTokens.every((t) => t.replaceAll(RegExp(r'[\p{P}]', unicode: true), '').isEmpty) && art == null) {
       if (n.contains('سلام')) return replies.get('greeting');
       return replies.get('ask_more');
     }
