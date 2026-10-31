@@ -4,8 +4,14 @@ class PersianText {
     return text
         .replaceAll(RegExp(r'[\u064A]'), '\u06CC')
         .replaceAll(RegExp(r'[\u0643]'), '\u06A9')
-        .replaceAllMapped(RegExp(r'[\u0660-\u0669]'), (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 0x0660 + 0x06F0))
-        .replaceAllMapped(RegExp(r'[0-9]'), (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 0x30 + 0x06F0))
+        .replaceAllMapped(
+            RegExp(r'[\u0660-\u0669]'),
+            (m) => String.fromCharCode(
+                m.group(0)!.codeUnitAt(0) - 0x0660 + 0x30))
+        .replaceAllMapped(
+            RegExp(r'[\u06F0-\u06F9]'),
+            (m) => String.fromCharCode(
+                m.group(0)!.codeUnitAt(0) - 0x06F0 + 0x30))
         .replaceAll(RegExp(r'\u200C+'), '\u200C')
         .replaceAll(RegExp(r' +'), ' ')
         .trim();
@@ -14,6 +20,7 @@ class PersianText {
   static String phrase(String text) {
     return normalize(text)
         .replaceAll(RegExp(r'[\p{P}]', unicode: true), '')
+        .replaceAll('\u200C', '')
         .replaceAll(RegExp(r' +'), ' ')
         .trim();
   }
