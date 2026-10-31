@@ -36,7 +36,7 @@ class PersianText {
   }
 
   static List<String> tokenize(String text) {
-    return normalize(text).split(RegExp(r'[\s\u200C]+'));
+    return normalize(text).split(RegExp(r'[\s\u200C]+')).where((t) => t.isNotEmpty).toList();
   }
 
   static String stemIndex(String word) {
