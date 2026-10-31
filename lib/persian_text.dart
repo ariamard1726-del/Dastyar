@@ -26,7 +26,7 @@ class PersianText {
   }
 
   static String collapse(String text) {
-    return normalize(text).replaceAll(RegExp(r'[\s\u200C]'), '');
+    return normalize(text).replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 
   static List<String> tokenizeIndex(String text) {
