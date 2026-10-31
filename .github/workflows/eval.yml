@@ -1,0 +1,32 @@
+name: Eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit or branch to evaluate'
+        default: 'main'
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+      - run: flutter pub get
+      - name: Run eval
+        continue-on-error: true
+        run: |
+          mkdir -p out
+          flutter test test/eval_test.dart test/eval_extra_test.dart --reporter expanded 2>&1 | grep -E "EVAL|EXTRA" | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 > out/eval.txt || true
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tail -n 12 | cut -c1-220 > out/analyze.txt || true
+          git rev-parse HEAD > out/ref.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: out/
