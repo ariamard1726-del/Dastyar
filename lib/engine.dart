@@ -291,7 +291,7 @@ class KnowledgeEngine {
   /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
   /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
   Chunk? findArticle(String law, String article) {
-    final want = 'ماده ${_collapse(normalize(article))}';
+    final want = PersianText.collapse('ماده ${normalize(article)}');
     final lawN = _collapse(normalize(law));
     if (lawN.isEmpty) return null;
     for (final c in _chunks) {
