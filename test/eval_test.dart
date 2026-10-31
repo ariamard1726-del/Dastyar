@@ -65,7 +65,9 @@ void main() {
       if (got == want) {
         ok++;
       } else {
+        final sc = ts.map((t) => '${t.id}=${Drafting.keywordScore(text, t)}').join(' ');
         print('EVAL intent wrong: want $want got $got | $text');
+        print('EVAL   scores: $sc');
       }
     }
     print('EVAL intent accuracy ${(ok / n).toStringAsFixed(2)} ($ok/$n)');
