@@ -35,28 +35,28 @@ void main() {
   });
 
   test('فهرست قوانین', () {
-    if (!e.isLoaded('civil')) return;
+    if (!e.isLoaded('civil')) fail('قانون civil بارگذاری نشده است');
     final a = e.answer('چه قوانینی دارید؟');
     expect(a, contains('قانون مدنی'));
   });
 
   test('ماده با نام قانون مدنی', () {
-    if (!e.isLoaded('civil')) return;
+    if (!e.isLoaded('civil')) fail('قانون civil بارگذاری نشده است');
     final a = e.answer('ماده ۱۰ قانون مدنی');
     expect(a, contains('ماده 10'));
     expect(a, contains('قانون مدنی'));
   });
 
   test('ماده‌ای که وجود ندارد ساخته نمی‌شود', () {
-    if (!e.isLoaded('civil')) return;
+    if (!e.isLoaded('civil')) fail('قانون civil بارگذاری نشده است');
     final a = e.answer('ماده ۹۹۹۹ قانون مدنی');
     expect(a, contains('پیدا نشد'));
   });
 
   test('مادهٔ منسوخ علامت می‌خورد', () {
-    if (!e.isLoaded('civil')) return;
+    if (!e.isLoaded('civil')) fail('قانون civil بارگذاری نشده است');
     final c = e.findArticle('قانون مدنی', '653');
-    if (c == null) return;
+    if (c == null) fail('ماده پیدا نشد');
     expect(c.obsolete, isTrue);
     expect(e.answer('ماده ۶۵۳ قانون مدنی'), contains('منسوخ'));
   });
