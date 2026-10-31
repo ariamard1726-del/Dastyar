@@ -472,7 +472,7 @@ class KnowledgeEngine {
       final want =
           'ماده ${art.group(1)}${art.group(2) != null ? ' مکرر' : ''}';
       final found =
-          pool.where((c) => c.normTitle == want).toList();
+          pool.where((c) => c.normTitle == PersianText.collapse(want)).toList();
       if (found.isNotEmpty) {
         Chunk pick = found.first;
         var bestOverlap = -1;
