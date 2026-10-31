@@ -16,34 +16,43 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Check asset folders
-        run: python tools/check_assets.py
-      - name: Check meta
-        run: python tools/check_meta.py
-      - name: Check data and templates
-        run: python tools/check.py
-      - name: Doctor (laws, files, refs)
-        run: python tools/doctor.py
+      - name: Data checks
+        id: data
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          (python tools/check_assets.py && python tools/check_meta.py && python tools/check.py && python tools/doctor.py) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
           channel: stable
       - run: flutter clean && flutter pub get
-      - run: flutter test
-
+      - name: Flutter test
+        id: ft
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Short report
+        if: always()
+        env:
+          DATA_FAILED: ${{ steps.data.outcome == 'failure' && '1' || '0' }}
+        run: python tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
       - name: Near-miss report
         continue-on-error: true
         run: |
           mkdir -p brain/reports
           flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
-          head -n 60 brain/reports/near_miss.txt
-      - name: Commit near-miss report
+      - name: Commit reports
         if: github.event_name == 'push'
         continue-on-error: true
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/near_miss.txt
-          git diff --cached --quiet || git commit -m "گزارش near-miss (خودکار)"
+          git add brain/reports/near_miss.txt reports/last_test.txt
+          git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
           git pull --rebase || true
           git push origin HEAD:"${GITHUB_REF_NAME}" || true
+      - name: Fail if anything failed
+        if: steps.data.outcome == 'failure' || steps.ft.outcome == 'failure'
+        run: exit 1
