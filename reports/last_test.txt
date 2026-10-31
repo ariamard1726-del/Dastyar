@@ -1,15 +1,4 @@
-commit: c9941d4
+commit: dcc7e0f
 🎉 88 tests passed.
 --- analyze ---
-12 issues found. (ran in 10.8s)
-  error • Target of URI doesn't exist: 'engine.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist • lib/features/assistant/domain/entities/assistant_enti
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/alternatives_test.dart:28:5 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_extra_test.dart:32:7 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_extra_test.dart:34:5 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_test.dart:43:7 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_test.dart:45:5 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_test.dart:67:9 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/eval_test.dart:70:5 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/near_miss_test.dart:73:7 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/near_miss_test.dart:82:5 • avoid_print
-   info • Don't invoke 'print' in production code. Try using a logging framework • test/near_miss_test.dart:85:7 • avoid_print
+1 issue found. (ran in 11.4s)
