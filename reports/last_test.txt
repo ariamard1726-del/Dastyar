@@ -1,4 +1,4 @@
-commit: 31fe467
+commit: 166eeaa
 ::error::91 tests passed, 1 failed.
 ::group::❌ test/labor_test.dart: ماده ۱ قانون کار پیدا می‌شود (failed)
    Expected: contains 'کلیه کارفرمایان'
@@ -7,4 +7,4 @@ commit: 31fe467
    test/labor_test.dart 27:5                           main.<fn>
    ::endgroup::
 --- analyze ---
-No issues found! (ran in 12.7s)
+No issues found! (ran in 11.6s)
