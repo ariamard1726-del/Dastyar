@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'assistant.dart';
@@ -30,6 +32,8 @@ class ChatController extends ChangeNotifier {
   List<LegalTemplate> _pendingList = [];
   final Set<String> _declined = {};
 
+  StreamSubscription<AssistantTurn>? _sub;
+  Completer<void>? _askDone;
   int _askEpoch = 0;
   bool _disposed = false;
 
@@ -70,10 +74,21 @@ class ChatController extends ChangeNotifier {
     _declined.clear();
   }
 
-  /// لغو ایمن پاسخ در حال تولید و آزادسازی منبع مدل زبانی.
+  void _detachStream() {
+    unawaited(_sub?.cancel());
+    _sub = null;
+    final done = _askDone;
+    _askDone = null;
+    if (done != null && !done.isCompleted) {
+      done.complete();
+    }
+  }
+
+  /// لغو ایمن پاسخ در حال تولید و آزادسازی فوری اشتراک استریم و مدل زبانی.
   void cancelActiveAsk() {
     if (!_busy) return;
     _askEpoch++;
+    _detachStream();
     try {
       assistant.llm.cancel();
     } catch (_) {}
@@ -267,20 +282,37 @@ class ChatController extends ChangeNotifier {
     _notify();
     _requestScroll();
 
+    final done = Completer<void>();
+    _askDone = done;
     var alts = const <String>[];
-    try {
-      await for (final turn in assistant.askWithAlternatives(text)) {
+
+    _sub = assistant.askWithAlternatives(text).listen(
+      (turn) {
         if (_disposed || myEpoch != _askEpoch) return;
         alts = turn.alternatives;
         bot.text = turn.text;
         _notify();
         _requestScroll();
-      }
-    } catch (_) {
-      if (!_disposed && myEpoch == _askEpoch) {
-        bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
-        _notify();
-      }
+      },
+      onError: (_) {
+        if (!_disposed && myEpoch == _askEpoch) {
+          bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
+          _notify();
+        }
+        if (!done.isCompleted) done.complete();
+      },
+      onDone: () {
+        if (!done.isCompleted) done.complete();
+      },
+      cancelOnError: true,
+    );
+
+    await done.future;
+    if (identical(_askDone, done)) _askDone = null;
+    final activeSub = _sub;
+    if (activeSub != null && myEpoch == _askEpoch) {
+      _sub = null;
+      await activeSub.cancel();
     }
 
     if (_disposed || myEpoch != _askEpoch) return;
@@ -359,6 +391,13 @@ class ChatController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _askEpoch++;
+    unawaited(_sub?.cancel());
+    _sub = null;
+    final done = _askDone;
+    _askDone = null;
+    if (done != null && !done.isCompleted) {
+      done.complete();
+    }
     if (_busy) {
       try {
         assistant.llm.cancel();

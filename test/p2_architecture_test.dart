@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,19 +22,26 @@ import 'package:dastyar/settings_page.dart';
 import 'package:dastyar/templates.dart';
 
 class _ControllableLlm extends LlmBackend {
-  final List<Completer<String?>> _steps = [];
+  StreamController<String>? _controller;
+  Completer<void>? _startedSignal;
   bool cancelled = false;
 
+  Future<void> waitUntilStarted() async {
+    if (_controller != null) return;
+    final sig = _startedSignal ??= Completer<void>();
+    await sig.future.timeout(const Duration(seconds: 3));
+  }
+
   void emit(String token) {
-    if (_steps.isNotEmpty && !_steps.last.isCompleted) {
-      _steps.last.complete(token);
+    final c = _controller;
+    if (c != null && !c.isClosed) {
+      c.add(token);
     }
   }
 
   void finish() {
-    if (_steps.isNotEmpty && !_steps.last.isCompleted) {
-      _steps.last.complete(null);
-    }
+    unawaited(_controller?.close());
+    _controller = null;
   }
 
   @override
@@ -45,14 +54,15 @@ class _ControllableLlm extends LlmBackend {
   Stream<String> generate(
     String prompt, {
     LlmOptions options = const LlmOptions(),
-  }) async* {
-    while (!cancelled) {
-      final c = Completer<String?>();
-      _steps.add(c);
-      final next = await c.future;
-      if (next == null || cancelled) break;
-      yield next;
+  }) {
+    final c = StreamController<String>();
+    _controller = c;
+    final sig = _startedSignal;
+    if (sig != null && !sig.isCompleted) {
+      _startedSignal = null;
+      sig.complete();
     }
+    return c.stream;
   }
 
   @override
@@ -66,10 +76,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late KnowledgeEngine engine;
+  late Map<String, dynamic> relationshipsData;
 
   setUpAll(() async {
     engine = KnowledgeEngine();
     await engine.load();
+    relationshipsData = jsonDecode(
+      File('assets/relationships.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
   });
 
   setUp(() {
@@ -90,7 +104,9 @@ void main() {
         settings: settings,
       );
 
-      await ctrl.submit('ماده ۱۰ قانون مدنی');
+      await ctrl
+          .submit('ماده ۱۰ قانون مدنی')
+          .timeout(const Duration(seconds: 5));
       expect(ctrl.busy, isFalse);
       expect(ctrl.messages.length, 2);
       expect(ctrl.messages.first.fromUser, isTrue);
@@ -105,25 +121,29 @@ void main() {
       final settings = AppSettings()..saveHistory = false;
       final ctrl = ChatController(
         engine: engine,
-        assistant: Assistant(engine, llm: llm),
+        assistant: Assistant(
+          engine,
+          llm: llm,
+          stallTimeout: const Duration(seconds: 2),
+        ),
         repo: TemplateRepository(),
         history: HistoryStore(),
         settings: settings,
       );
 
       final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await Future<void>.delayed(Duration.zero);
+      await llm.waitUntilStarted();
       expect(ctrl.busy, isTrue);
 
       llm.emit('طبق ماده ۱۰ ');
-      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
 
       ctrl.cancelActiveAsk();
       expect(ctrl.busy, isFalse);
       expect(llm.cancelled, isTrue);
 
-      await future;
+      await future.timeout(const Duration(seconds: 5));
       expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
       ctrl.dispose();
     });
@@ -132,19 +152,23 @@ void main() {
       final llm = _ControllableLlm();
       final ctrl = ChatController(
         engine: engine,
-        assistant: Assistant(engine, llm: llm),
+        assistant: Assistant(
+          engine,
+          llm: llm,
+          stallTimeout: const Duration(seconds: 2),
+        ),
         repo: TemplateRepository(),
         history: HistoryStore(),
         settings: AppSettings()..saveHistory = false,
       );
 
       final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await Future<void>.delayed(Duration.zero);
+      await llm.waitUntilStarted();
       expect(ctrl.busy, isTrue);
 
       expect(ctrl.dispose, returnsNormally);
       expect(llm.cancelled, isTrue);
-      await future;
+      await future.timeout(const Duration(seconds: 5));
     });
 
     testWidgets('دکمهٔ توقف پاسخ در حین استریم نمایش داده می‌شود و کار می‌کند',
@@ -156,7 +180,11 @@ void main() {
             textDirection: TextDirection.rtl,
             child: ChatPage(
               engine: engine,
-              assistant: Assistant(engine, llm: llm),
+              assistant: Assistant(
+                engine,
+                llm: llm,
+                stallTimeout: const Duration(seconds: 2),
+              ),
               repo: TemplateRepository(),
               history: HistoryStore(),
               settings: AppSettings()..saveHistory = false,
@@ -167,6 +195,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'ماده ۱۰ قانون مدنی');
       await tester.tap(find.byIcon(Icons.arrow_upward));
+      await tester.pump();
       await tester.pump();
 
       expect(find.byIcon(Icons.stop_rounded), findsOneWidget);
@@ -188,12 +217,11 @@ void main() {
       expect(TemplateRenderer.toFa('1397'), '۱۳۹۷');
     });
 
-    test('ConflictsService زنجیره، حلقه و سقف عمق را به‌درستی مدیریت می‌کند', () async {
+    test('ConflictsService زنجیره، حلقه و سقف عمق را به‌درستی مدیریت می‌کند', () {
       final svc = ConflictsService();
-      final assetData = await svc.loadData();
-      final chains = svc.getConflictsChain('101', assetData);
+      final chains = svc.getConflictsChain('101', relationshipsData);
       expect(chains, contains('101 -> 105 -> 108 -> 109'));
-      expect(svc.getTitle('101', assetData), 'ماده ۱۰۱');
+      expect(svc.getTitle('101', relationshipsData), 'ماده ۱۰۱');
 
       final cyclic = <String, dynamic>{
         'articles': <String, dynamic>{
@@ -208,7 +236,8 @@ void main() {
       final cycChains = svc.getConflictsChain('1', cyclic);
       expect(cycChains.any((c) => c.contains('⚠️ (حلقه)')), isTrue);
 
-      final capped = svc.getConflictsChain('101', assetData, maxDepth: 2);
+      final capped =
+          svc.getConflictsChain('101', relationshipsData, maxDepth: 2);
       expect(capped, ['101 -> 105']);
     });
 
@@ -219,9 +248,22 @@ void main() {
         MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
-            child: AboutPage(engine: engine, repo: repo),
+            child: AboutPage(
+              engine: engine,
+              repo: repo,
+              initialInfo: const <String, dynamic>{
+                'dataVersion': '0.2',
+                'lawsUpdated': '۱۴۰۵/۰۸/۰۸',
+              },
+            ),
           ),
         ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('هشدارهای بارگذاری'),
+        200,
       );
       await tester.pumpAndSettle();
 
@@ -242,7 +284,7 @@ void main() {
 
     testWidgets('انتخاب حالت تیره در SettingsPage تنظیمات را به‌روز می‌کند',
         (tester) async {
-      final settings = await AppSettings.load();
+      final settings = AppSettings();
       final history = HistoryStore();
       await tester.pumpWidget(
         MaterialApp(
@@ -260,24 +302,21 @@ void main() {
 
     testWidgets('جست‌وجو در HistoryPage با نرمال‌سازی حروف عربی/فارسی فیلتر می‌کند',
         (tester) async {
-      final history = HistoryStore();
-      await history.load();
-      await history.upsert(
-        ChatSession(
-          id: '1',
-          title: 'سؤال درباره چک صیادی',
-          updated: 1700000000000,
-          messages: [StoredMsg('چک من برگشت خورد', true)],
-        ),
-      );
-      await history.upsert(
-        ChatSession(
-          id: '2',
-          title: 'قرارداد اجاره مسکونی',
-          updated: 1700000050000,
-          messages: [StoredMsg('ودیعه مستأجر', true)],
-        ),
-      );
+      final history = HistoryStore()
+        ..sessions.addAll([
+          ChatSession(
+            id: '2',
+            title: 'قرارداد اجاره مسکونی',
+            updated: 1700000050000,
+            messages: [StoredMsg('ودیعه مستأجر', true)],
+          ),
+          ChatSession(
+            id: '1',
+            title: 'سؤال درباره چک صیادی',
+            updated: 1700000000000,
+            messages: [StoredMsg('چک من برگشت خورد', true)],
+          ),
+        ]);
 
       await tester.pumpWidget(
         MaterialApp(

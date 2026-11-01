@@ -10,7 +10,14 @@ import 'templates.dart';
 class AboutPage extends StatefulWidget {
   final KnowledgeEngine engine;
   final TemplateRepository repo;
-  const AboutPage({super.key, required this.engine, required this.repo});
+  final Map<String, dynamic>? initialInfo;
+
+  const AboutPage({
+    super.key,
+    required this.engine,
+    required this.repo,
+    this.initialInfo,
+  });
 
   @override
   State<AboutPage> createState() => _AboutPageState();
@@ -22,7 +29,12 @@ class _AboutPageState extends State<AboutPage> {
   @override
   void initState() {
     super.initState();
-    _load();
+    final preset = widget.initialInfo;
+    if (preset != null) {
+      _info = Map<String, dynamic>.of(preset);
+    } else {
+      _load();
+    }
   }
 
   Future<void> _load() async {
