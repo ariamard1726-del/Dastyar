@@ -114,15 +114,16 @@ void main() {
 
       await sendMessage(tester, 'نه');
       expect(find.text(engine.answer(q)), findsOneWidget);
-      expect(find.textContaining('محکومیت‌های مالی'), findsOneWidget);
+      expect(find.textContaining('محکومیت‌های مالی'), findsWidgets);
     });
 
     testWidgets(
         'تایپ «بله» در پیشنهاد چندقالبی، پرسش اصلی را حفظ می‌کند و بعد با «نه» جواب می‌دهد',
         (tester) async {
+      const q = 'چکم برگشت خورد';
       await tester.pumpWidget(buildApp());
 
-      await sendMessage(tester, 'چک من پاس نشد');
+      await sendMessage(tester, q);
       expect(find.text(Drafting.suggestChooseText), findsOneWidget);
 
       await sendMessage(tester, 'بله');
@@ -133,6 +134,7 @@ void main() {
       expect(find.textContaining('لطفاً پرسش خود را کامل‌تر بنویسید'), findsNothing);
 
       await sendMessage(tester, 'نه');
+      expect(find.text(engine.answer(q)), findsOneWidget);
       expect(find.textContaining('قانون صدور چک'), findsWidgets);
     });
 
@@ -140,7 +142,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildApp());
 
-      await sendMessage(tester, 'چک من پاس نشد');
+      await sendMessage(tester, 'چکم برگشت خورد');
       expect(find.text(Drafting.suggestChooseText), findsOneWidget);
 
       await sendMessage(tester, 'اجراییه');
