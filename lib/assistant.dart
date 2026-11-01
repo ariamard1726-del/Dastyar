@@ -39,9 +39,9 @@ class Assistant {
         options = options ?? const LlmOptions();
 
   static final RegExp _singleArtRe =
-      RegExp(r'ماده(?:\s+(واحده)|\s*(\d+(?:\s+مکرر(?:\s+\d{1,2})?)?))');
+      RegExp(r'(?:ماده|اصل)(?:\s+(واحده)|\s*(\d+(?:\s+مکرر(?:\s+\d{1,2})?)?))');
   static final RegExp _pluralArtRe = RegExp(
-    r'مواد\s+((?:\d+(?:\s+مکرر(?:\s+\d{1,2})?)?)(?:\s*(?:،|,|و|یا|تا|الی|-)\s*(?:\d+(?:\s+مکرر(?:\s+\d{1,2})?)?))*)',
+    r'(?:مواد|اصول)\s+((?:\d+(?:\s+مکرر(?:\s+\d{1,2})?)?)(?:\s*(?:،|,|و|یا|تا|الی|-)\s*(?:\d+(?:\s+مکرر(?:\s+\d{1,2})?)?))*)',
   );
   static final RegExp _artNumTokenRe =
       RegExp(r'\d+(?:\s+مکرر(?:\s+\d{1,2})?)?');

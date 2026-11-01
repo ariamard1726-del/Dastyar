@@ -26,7 +26,7 @@ errors, warnings, infos = [], [], []
 AI_MARKERS = ['هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
               'chatgpt', 'gemini', 'claude', 'as an ai', 'language model']
 FA_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
-ARTICLE = re.compile(r'^ماده\s*(?:(واحده)|(\d+)(?:\s*(مکرر(?:\s*\d{1,2})?))?)\s*$')
+ARTICLE = re.compile(r'^(?:ماده|اصل)\s*(?:(واحده)|(\d+)(?:\s*(مکرر(?:\s*\d{1,2})?))?)\s*$')
 
 
 def norm(s):
@@ -191,7 +191,7 @@ for tp in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json')))
         continue
     for r in t.get('lawRefs', []):
         law, art = norm(str(r.get('law', ''))), norm(str(r.get('article', '')))
-        title = art if art.startswith('ماده ') else 'ماده ' + art
+        title = art if (art.startswith('ماده ') or art.startswith('اصل ')) else 'ماده ' + art
         found = False
         for lid_key, (srcs, titles) in sources_by_law.items():
             if title not in titles:

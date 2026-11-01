@@ -17,6 +17,7 @@ class DraftCmd {
   static const String yes = 'بله';
   static const String no = 'خیر';
   static const String offerYes = 'بله، آماده کن';
+  static const String offerCounsel = 'مشاورهٔ گام‌به‌گام وضعیت';
   static const String offerNo = 'نه، فقط توضیح بده';
 }
 

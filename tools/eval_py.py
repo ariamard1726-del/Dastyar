@@ -17,16 +17,19 @@ NONWORD = re.compile(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+'
 )
 ART_QUERY_RE = re.compile(
-    r'ماده\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)'
+    r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))'
 )
 DEF_Q_RE = re.compile(
-    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن'
+    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن|گفته می شود'
 )
 DEF_WORDS = {
     'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
-    'گویند', 'کسی', 'کیست',
+    'گویند', 'کسی', 'کیست', 'گفته', 'شود',
 }
-DEF_MARK_RE = re.compile(r'عقدی|عبارت|است|گویند')
+DEF_META_PREFIXES = {
+    'مجازات', 'مجازاتی', 'شرایط', 'حکم', 'مهلت', 'موارد', 'نحوه', 'میزان',
+}
+DEF_MARK_RE = re.compile(r'عقدی|عبارت|است|گویند|حاصل')
 DEF_STRONG_RE = re.compile(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)')
 CLEAN_BODY_RE = re.compile(r'^[(\[][^)\]]*[)\]]\s*-?\s*')
 
@@ -68,11 +71,12 @@ def obsolete(body):
 
 
 def _wanted_article(m):
-    if m.group(1):
-        return 'ماده واحده'
-    num = m.group(2)
-    mk = (' مکرر ' + m.group(4)) if (m.group(3) and m.group(4)) else (' مکرر' if m.group(3) else '')
-    return f'ماده {num}{mk}'
+    kind = 'اصل' if m.group(1) == 'اصل' else 'ماده'
+    if m.group(2):
+        return f'{kind} واحده'
+    num = m.group(3)
+    mk = (' مکرر ' + m.group(5)) if (m.group(4) and m.group(5)) else (' مکرر' if m.group(4) else '')
+    return f'{kind} {num}{mk}'
 
 
 class Engine:
@@ -240,6 +244,8 @@ class Engine:
         if not hits or not DEF_Q_RE.search(normalize(question)):
             return hits
         toks = [t for t in tok(question) if t not in DEF_WORDS]
+        if len(toks) >= 2 and toks[0] in DEF_META_PREFIXES:
+            toks = toks[1:]
         if not toks:
             return hits
         cands = []
@@ -385,9 +391,10 @@ if __name__ == '__main__':
         'eval.txt': (0.75, 0.85, 0.80),
         'eval_extra.txt': (0.70, 0.90, 0.78),
         'eval_blind.txt': (0.55, 0.80, 0.65),
+        'eval_all_laws.txt': (0.75, 0.90, 0.80),
     }
     failed = False
-    for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
+    for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_all_laws.txt'):
         p = os.path.join(ROOT, 'brain', f)
         if os.path.exists(p):
             r1, r5, mrr = run(e, p, verbose)

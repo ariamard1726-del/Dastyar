@@ -25,12 +25,12 @@ void main() {
     expect(answer, isNot(contains('ماده 128')));
   });
 
-  test('پرسش عادی درباره مجازات به پاسخ عمومی پیش‌بینی تبدیل نمی‌شود', () {
+  test('پرسش عادی درباره مجازات به پاسخ عمومی پیش‌بینی یا مادهٔ اشتباه مدنی تبدیل نمی‌شود', () {
     final answer = engine.answer('مجازات کلاهبرداری چیست؟');
     expect(answer, isNot(contains('حکم قاضی یا نتیجه یک پرونده')));
     expect(answer, isNot(contains('ماده ۴۳۸')));
     expect(answer, isNot(contains('ماده 438')));
-    expect(answer, contains('پیدا نکردم'));
+    expect(answer, contains('تشدید مجازات'));
   });
 
   test('پرسش مشخص درباره ماده ۲۴۹ متن همان ماده را بازیابی می‌کند', () {

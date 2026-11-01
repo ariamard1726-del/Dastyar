@@ -148,17 +148,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       setState(() {});
                     },
                   ),
-                  SwitchListTile(
-                    title: const Text('استفاده از مدل زبانی محلی (در صورت نصب)'),
-                    subtitle: const Text(
-                      'کاملاً آفلاین روی همین دستگاه؛ هر پاسخ با متن رسمی قوانین راستی‌آزمایی می‌شود.',
-                    ),
-                    value: s.useLocalLlm,
-                    onChanged: (v) {
-                      s.setUseLocalLlm(v);
-                      setState(() {});
-                    },
-                  ),
                   ListTile(
                     leading: const Icon(Icons.delete_outline),
                     title: const Text('پاک کردن همهٔ تاریخچه'),

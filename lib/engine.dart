@@ -28,13 +28,16 @@ class KnowledgeEngine {
 
   // پرسش‌های «X چیست / کیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
   static final RegExp _defQ = RegExp(
-    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن',
+    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن|گفته می شود',
   );
   static const Set<String> _defWords = {
     'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
-    'گویند', 'کسی', 'کیست',
+    'گویند', 'کسی', 'کیست', 'گفته', 'شود',
   };
-  static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند');
+  static const Set<String> _defMetaPrefixes = {
+    'مجازات', 'مجازاتی', 'شرایط', 'حکم', 'مهلت', 'موارد', 'نحوه', 'میزان',
+  };
+  static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند|حاصل');
   static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // الگوهای ازپیش‌کامپایل‌شده برای جلوگیری از ساخت مکرر RegExp
@@ -42,12 +45,12 @@ class KnowledgeEngine {
   static final RegExp _paraSplitRe = RegExp(r'\n\s*\n');
   static final RegExp _hashPrefixRe = RegExp(r'^#+\s*');
   static final RegExp _artQueryRe = RegExp(
-    r'ماده\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)',
+    r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))',
   );
   static final RegExp _punctOnlyRe = RegExp(r'[\p{P}]', unicode: true);
   static final RegExp _cleanBodyRe = RegExp(r'^[\(\[][^)\]]*[\)\]]\s*-?\s*');
   static final RegExp _articleTitleRe = RegExp(
-    r'^ماده\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
+    r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
 
   // پارامترهای BM25F
@@ -80,6 +83,13 @@ class KnowledgeEngine {
     ('حضانت', ['حضانت', 'طفل']),
     ('مهریه', ['مهر', 'صداق', 'مهریه']),
     ('دیه', ['دیه']),
+    ('سربازی', ['سربازی', 'وظیفه عمومی']),
+    ('گمرک', ['گمرک', 'گمرکی', 'ترخیص']),
+    ('گواهینامه', ['گواهینامه', 'رانندگی']),
+    ('خلافی', ['خلافی', 'رانندگی']),
+    ('ویزا', ['ویزا', 'روادید']),
+    ('شنگن', ['شنگن', 'روادید']),
+    ('پناهندگی', ['پناهندگی', 'پناهنده']),
   ];
 
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
@@ -380,25 +390,26 @@ class KnowledgeEngine {
   static String _canonicalArticleTitle(String rawArticle) {
     var a = _collapse(normalize(rawArticle));
     if (a.isEmpty) return '';
-    if (!a.startsWith('ماده ')) a = 'ماده $a';
+    if (!a.startsWith('ماده ') && !a.startsWith('اصل ')) a = 'ماده $a';
     return _collapse(a);
   }
 
   static String _wantedArticleFromMatch(RegExpMatch m) {
-    if (m.group(1) != null) return 'ماده واحده';
-    final num = m.group(2)!;
-    final mk = m.group(3) != null
-        ? (m.group(4) != null ? ' مکرر ${m.group(4)}' : ' مکرر')
+    final kind = m.group(1) == 'اصل' ? 'اصل' : 'ماده';
+    if (m.group(2) != null) return '$kind واحده';
+    final num = m.group(3)!;
+    final mk = m.group(4) != null
+        ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر')
         : '';
-    return 'ماده $num$mk';
+    return '$kind $num$mk';
   }
 
   static String _faArticleLabel(RegExpMatch m) {
-    if (m.group(1) != null) return 'واحده';
-    final num = PersianText.toFaDigits(m.group(2)!);
-    final mk = m.group(3) != null
-        ? (m.group(4) != null
-            ? ' مکرر ${PersianText.toFaDigits(m.group(4)!)}'
+    if (m.group(2) != null) return 'واحده';
+    final num = PersianText.toFaDigits(m.group(3)!);
+    final mk = m.group(4) != null
+        ? (m.group(5) != null
+            ? ' مکرر ${PersianText.toFaDigits(m.group(5)!)}'
             : ' مکرر')
         : '';
     return '$num$mk';
@@ -407,10 +418,13 @@ class KnowledgeEngine {
   /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
   /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
   Chunk? findArticle(String law, String article) {
-    final want = _canonicalArticleTitle(article);
     final lawN = _collapse(normalize(law));
+    var want = _canonicalArticleTitle(article);
     if (want.isEmpty || lawN.isEmpty) return null;
-    final indices = _byTitle[want];
+    var indices = _byTitle[want];
+    if (indices == null && want.startsWith('ماده ')) {
+      indices = _byTitle['اصل ${want.substring(5)}'];
+    }
     if (indices == null) return null;
     final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
     for (final idx in indices) {
@@ -721,8 +735,11 @@ class KnowledgeEngine {
   /// به ابتدای فهرست می‌آیند. دانش عمومی و ماده‌های منسوخ هیچ‌وقت نمی‌آیند.
   List<Hit> _promoteDefinitions(String question, List<Hit> hits) {
     if (hits.isEmpty || !_defQ.hasMatch(normalize(question))) return hits;
-    final toks =
+    var toks =
         tokenizeIndex(question).where((t) => !_defWords.contains(t)).toList();
+    if (toks.length >= 2 && _defMetaPrefixes.contains(toks.first)) {
+      toks = toks.skip(1).toList();
+    }
     if (toks.isEmpty) return hits;
     var cands = <Hit>[];
     for (final n in [2, 1]) {
@@ -818,10 +835,11 @@ class KnowledgeEngine {
     if (art != null &&
         loaded.isNotEmpty &&
         (top4.isEmpty || top4.first.score < 99)) {
+      final kind = art.group(1) == 'اصل' ? 'اصل' : 'ماده';
       final num = _faArticleLabel(art);
       return EngineReply(
         text:
-            'ماده $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}',
+            '$kind $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}',
         alternatives: alts,
       );
     }
@@ -929,8 +947,8 @@ class KnowledgeEngine {
     if (articles is! Map<String, dynamic> || articles.isEmpty) return const [];
     final m = _artQueryRe.firstMatch(c.normTitle);
     if (m == null) return const [];
-    final key = _collapse(m.group(1) ??
-        '${m.group(2) ?? ''}${m.group(3) != null ? (m.group(4) != null ? ' مکرر ${m.group(4)}' : ' مکرر') : ''}');
+    final key = _collapse(m.group(2) ??
+        '${m.group(3) ?? ''}${m.group(4) != null ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر') : ''}');
     if (key.isEmpty) return const [];
 
     final scopedKey = '${c.lawId}:$key';

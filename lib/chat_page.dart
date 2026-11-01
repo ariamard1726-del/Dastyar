@@ -208,6 +208,7 @@ class _ChatPageState extends State<ChatPage> {
                   controller: _ctrl,
                   busy: _chat.busy,
                   isDrafting: _chat.isDrafting,
+                  isCounseling: _chat.isCounseling,
                   onSend: _submit,
                   onStop: _chat.cancelActiveAsk,
                 ),

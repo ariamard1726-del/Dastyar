@@ -100,8 +100,8 @@ def check_law(lid, path):
         lines = p.split('\n')
         title = digits(lines[0]).strip()
         n += 1
-        if not title.startswith('ماده'):
-            warnings.append('%s: بخشی بدون عنوان ماده: %s' % (rel_name, title[:30]))
+        if not (title.startswith('ماده') or title.startswith('اصل')):
+            warnings.append('%s: بخشی بدون عنوان ماده/اصل: %s' % (rel_name, title[:30]))
         if title in seen:
             warnings.append('%s: عنوان تکراری: %s' % (rel_name, title))
         seen.add(title)

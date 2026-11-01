@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -8,7 +6,6 @@ import 'chat_page.dart';
 import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
-import 'llm.dart';
 import 'privacy.dart';
 import 'settings.dart';
 import 'templates.dart';
@@ -105,14 +102,7 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  late final LlmBackend _llm = AdaptiveLlm(
-    isEnabled: () => widget.settings.useLocalLlm,
-    candidates: [
-      OnDeviceChannelLlm(),
-      LocalLoopbackLlm(),
-    ],
-  );
-  late final Assistant _assistant = Assistant(_engine, llm: _llm);
+  late final Assistant _assistant = Assistant(_engine);
   DraftSession? _initialDraft;
   bool _ready = false;
   String? _error;
@@ -121,12 +111,6 @@ class _LoaderState extends State<Loader> {
   void initState() {
     super.initState();
     _init();
-  }
-
-  @override
-  void dispose() {
-    unawaited(_llm.dispose());
-    super.dispose();
   }
 
   Future<void> _init() async {

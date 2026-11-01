@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../chat_models.dart';
 import '../feedback.dart';
+import '../legal_counselor.dart';
 import '../templates.dart';
 
 class UserMessageBubble extends StatelessWidget {
@@ -265,11 +266,18 @@ class ChatEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'بدون اینترنت کار می‌کنم. می‌توانید سؤال بپرسید، مشکل خود را شرح دهید، یا بنویسید «می‌خواهم دادخواست بنویسم».',
+              'وکیل و مشاور حقوقی آفلاین (بدون نیاز به اینترنت یا مدل هوش مصنوعی). مشکل خود را شرح دهید تا با پرسش‌وپاسخ منطقی بررسی کنیم و در صورت نیاز دادخواست، لایحه یا شکوائیه برایتان تنظیم کنم.',
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, height: 1.7),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: () =>
+                  onSelectTemplate(LegalCounselor.startCounselCmd),
+              icon: const Icon(Icons.forum_outlined, size: 20),
+              label: const Text(LegalCounselor.startCounselCmd),
+            ),
+            const SizedBox(height: 16),
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
@@ -331,6 +339,7 @@ class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool busy;
   final bool isDrafting;
+  final bool isCounseling;
   final VoidCallback onSend;
   final VoidCallback onStop;
 
@@ -339,6 +348,7 @@ class ChatInputBar extends StatelessWidget {
     required this.controller,
     required this.busy,
     required this.isDrafting,
+    this.isCounseling = false,
     required this.onSend,
     required this.onStop,
   });
@@ -369,8 +379,10 @@ class ChatInputBar extends StatelessWidget {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: isDrafting
-                      ? 'پاسخ خود را بنویسید...'
-                      : 'پیام خود را بنویسید...',
+                      ? 'پاسخ فیلد پیش‌نویس را بنویسید...'
+                      : (isCounseling
+                          ? 'پاسخ خود را بنویسید یا از گزینه‌ها انتخاب کنید...'
+                          : 'مشکل حقوقی یا پرسش خود را بنویسید...'),
                 ),
               ),
             ),

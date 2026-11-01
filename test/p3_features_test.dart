@@ -65,7 +65,7 @@ void main() {
       expect(r3.hits.first.chunk.lawId, 'labor');
     });
 
-    test('پرسش‌های خارج از پوشش (کیفری عمومی، مالیات، تأمین اجتماعی، طلاق یک‌طرفه) پاسخ غلط نمی‌دهند', () {
+    test('قوانین تازه واردشده پاسخ مستند می‌دهند و حوزه‌های واقعاً خارج از برنامه رد می‌شوند', () {
       for (final q in const [
         'مجازات سرقت چیست',
         'مالیات بر درآمد حقوق چگونه محاسبه می‌شود',
@@ -73,13 +73,17 @@ void main() {
         'شرایط طلاق یک‌طرفه از طرف زن چیست',
       ]) {
         final reply = engine.query(q);
-        expect(reply.text, contains('پیدا نکردم'), reason: q);
+        expect(reply.text, isNot(contains('پیدا نکردم')), reason: q);
       }
 
-      // اما پرسش معتبر دربارهٔ طلاق خلع در قانون مدنی همچنان پاسخ درست می‌دهد
-      final validDivorce = engine.query('طلاق خلع چیست');
-      expect(validDivorce.text, contains('قانون مدنی'));
-      expect(validDivorce.text, isNot(contains('پیدا نکردم')));
+      for (final outQ in const [
+        'شرایط معافیت کفالت سربازی چیست',
+        'تعرفه ترخیص خودرو از گمرک چقدر است',
+        'مدارک لازم برای گرفتن ویزای شنگن چیست',
+      ]) {
+        final reply = engine.query(outQ);
+        expect(reply.text, contains('پیدا نکردم'), reason: outQ);
+      }
     });
   });
 
@@ -336,7 +340,7 @@ void main() {
       }
     });
 
-    testWidgets('تنظیمات جدید P3 در SettingsPage نمایش داده می‌شوند و کار می‌کنند',
+    testWidgets('SettingsPage بدون وابستگی به مدل زبانی، گزینهٔ پیش‌نویس ناتمام را نمایش می‌دهد',
         (tester) async {
       final settings = AppSettings();
       await tester.pumpWidget(
@@ -349,15 +353,16 @@ void main() {
       );
 
       await tester.scrollUntilVisible(
-        find.text('استفاده از مدل زبانی محلی (در صورت نصب)'),
+        find.text('ذخیرهٔ موقت پیش‌نویس ناتمام'),
         200,
       );
       await tester.pumpAndSettle();
 
       expect(find.text('ذخیرهٔ موقت پیش‌نویس ناتمام'), findsOneWidget);
-      await tester.tap(find.text('استفاده از مدل زبانی محلی (در صورت نصب)'));
+      expect(find.text('استفاده از مدل زبانی محلی (در صورت نصب)'), findsNothing);
+      await tester.tap(find.text('ذخیرهٔ موقت پیش‌نویس ناتمام'));
       await tester.pumpAndSettle();
-      expect(settings.useLocalLlm, isTrue);
+      expect(settings.saveDraftProgress, isTrue);
     });
   });
 }

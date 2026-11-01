@@ -7,6 +7,7 @@ import 'chat_models.dart';
 import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
+import 'legal_counselor.dart';
 import 'settings.dart';
 import 'templates.dart';
 
@@ -26,6 +27,8 @@ class ChatController extends ChangeNotifier {
   bool _busy = false;
   String _sessionId = _newId();
   DraftSession? _draft;
+  CounselingSession? _counsel;
+  final ConversationMemory _memory = ConversationMemory();
 
   // پیشنهاد در انتظار تصمیم کاربر
   String? _pendingText;
@@ -63,6 +66,7 @@ class ChatController extends ChangeNotifier {
   String get sessionId => _sessionId;
   DraftSession? get draft => _draft;
   bool get isDrafting => _draft != null;
+  bool get isCounseling => _counsel != null && !_counsel!.concluded;
   List<LegalTemplate> get pendingChoices => List.unmodifiable(_pendingList);
 
   void _notify() {
@@ -75,6 +79,8 @@ class ChatController extends ChangeNotifier {
 
   void _resetFlow() {
     _draft = null;
+    _counsel = null;
+    _memory.clear();
     _pendingText = null;
     _pendingList = [];
     _declined.clear();
@@ -137,10 +143,62 @@ class ChatController extends ChangeNotifier {
       return;
     }
 
+    // ادامهٔ گفتگوی تشخیصی و استدلالی دوطرفه (مشاور حقوقی)
+    if (_counsel != null) {
+      final turn =
+          LegalCounselor.step(_counsel!, text, engine, repo.templates);
+      if (turn.cancelled) {
+        _counsel = null;
+        messages.add(ChatMessage(text, true));
+        messages.add(ChatMessage(turn.text, false));
+        unawaited(_saveSession());
+        _notify();
+        _requestScroll();
+        return;
+      }
+      if (turn.startTemplate != null) {
+        _counsel = null;
+        _startDraft(text, turn.startTemplate!);
+        return;
+      }
+      if (turn.text.isNotEmpty) {
+        if (turn.completed && turn.chips.isEmpty) {
+          _counsel = null;
+        }
+        messages.add(ChatMessage(text, true));
+        messages.add(ChatMessage(turn.text, false, chips: turn.chips));
+        unawaited(_saveSession());
+        _notify();
+        _requestScroll();
+        return;
+      }
+      // اگر مشاوره قبلاً جمع‌بندی شده و کاربر اکنون پرسش جدیدی مطرح کرده است:
+      _counsel = null;
+    }
+
     // پاسخ به پیشنهاد یا فهرست انتخاب قالب که قبلاً نمایش داده شده
     if (_pendingList.isNotEmpty) {
       final pt = _pendingText;
       final list = _pendingList;
+
+      if (text == DraftCmd.offerCounsel ||
+          text == LegalCounselor.startCounselCmd) {
+        _pendingText = null;
+        _pendingList = [];
+        final started =
+            LegalCounselor.start(pt ?? text, engine, repo.templates);
+        if (started != null) {
+          _counsel = started.$1;
+          messages.add(ChatMessage(text, true));
+          messages.add(
+            ChatMessage(started.$2.text, false, chips: started.$2.chips),
+          );
+          unawaited(_saveSession());
+          _notify();
+          _requestScroll();
+          return;
+        }
+      }
 
       final isDecline = text == DraftCmd.offerNo ||
           text == DraftCmd.cancel ||
@@ -245,7 +303,11 @@ class ChatController extends ChangeNotifier {
           Drafting.offerText(sugTpl),
           false,
           sensitive: true,
-          chips: const [DraftCmd.offerYes, DraftCmd.offerNo],
+          chips: const [
+            DraftCmd.offerYes,
+            DraftCmd.offerCounsel,
+            DraftCmd.offerNo,
+          ],
         ),
       );
       _notify();
@@ -263,6 +325,7 @@ class ChatController extends ChangeNotifier {
           sensitive: true,
           chips: [
             ...sug.choices.map((t) => t.title),
+            DraftCmd.offerCounsel,
             DraftCmd.offerNo,
           ],
         ),
@@ -270,6 +333,26 @@ class ChatController extends ChangeNotifier {
       _notify();
       _requestScroll();
       return;
+    }
+
+    // حالت گفتگوی دوطرفه و پرسشگری تشخیصی برای مسائل و مشکلات حقوقی کاربر
+    if (LegalCounselor.shouldStartCounseling(text)) {
+      final seed = (text == LegalCounselor.startCounselCmd &&
+              _memory.lastTopicQuery.isNotEmpty)
+          ? _memory.lastTopicQuery
+          : text;
+      final started = LegalCounselor.start(seed, engine, repo.templates);
+      if (started != null) {
+        _counsel = started.$1;
+        messages.add(ChatMessage(text, true));
+        messages.add(
+          ChatMessage(started.$2.text, false, chips: started.$2.chips),
+        );
+        await _saveSession();
+        _notify();
+        _requestScroll();
+        return;
+      }
     }
 
     await _ask(text);
@@ -280,6 +363,7 @@ class ChatController extends ChangeNotifier {
     bool addUser = true,
     bool sensitive = false,
   }) async {
+    final resolvedQuery = _memory.resolveFollowUp(text);
     final myEpoch = ++_askEpoch;
     final bot = ChatMessage('...', false, sensitive: sensitive);
     _busy = true;
@@ -292,7 +376,7 @@ class ChatController extends ChangeNotifier {
     _askDone = done;
     var alts = const <String>[];
 
-    _sub = assistant.askWithAlternatives(text).listen(
+    _sub = assistant.askWithAlternatives(resolvedQuery).listen(
       (turn) {
         if (_disposed || myEpoch != _askEpoch) return;
         alts = turn.alternatives;
@@ -323,8 +407,17 @@ class ChatController extends ChangeNotifier {
     }
 
     if (_disposed || myEpoch != _askEpoch) return;
-    if (alts.isNotEmpty) {
-      bot.chips = alts;
+    _memory.recordTurn(
+      resolvedQuery,
+      engine.query(resolvedQuery, maxAlternatives: 0),
+    );
+    final mergedChips = <String>[
+      ...alts,
+      if (!sensitive && LegalCounselor.detectTopic(resolvedQuery) != null)
+        LegalCounselor.startCounselCmd,
+    ];
+    if (mergedChips.isNotEmpty) {
+      bot.chips = mergedChips;
     }
     await _saveSession();
     if (_disposed || myEpoch != _askEpoch) return;
