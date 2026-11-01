@@ -101,11 +101,18 @@ class Drafting {
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
   static final RegExp _miPrefix = RegExp(r'(^| )(نمی|می) ');
+  static final RegExp _spacesRe = RegExp(r'\s+');
+  static final RegExp _choiceIdxRe =
+      RegExp(r'^(?:گزینه|مورد|شماره)?\s*(\d+)\s*$');
+  static final RegExp _whitespaceRe = RegExp(r'\s');
+  static final RegExp _numberFmtRe =
+      RegExp(r'^(\d+|\d{1,3}([,،٬.]\d{3})+)$');
+  static final RegExp _nonDigitsRe = RegExp(r'[^0-9]');
 
   // یکسان‌سازی نیم‌فاصله و فاصله در «می/نمی» (نمی دهد = نمیدهد)
   static String _norm(String s) {
     var n = KnowledgeEngine.normalize(s).replaceAll(_nonLetter, ' ');
-    n = n.replaceAll(RegExp(r'\s+'), ' ').trim();
+    n = n.replaceAll(_spacesRe, ' ').trim();
     return n.replaceAllMapped(_miPrefix, (m) => '${m.group(1)}${m.group(2)}');
   }
 
@@ -314,7 +321,7 @@ class Drafting {
         .replaceAll('ئ', 'ی')
         .replaceAll('ؤ', 'و')
         .replaceAll(_nonLetter, ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
+        .replaceAll(_spacesRe, ' ')
         .trim();
   }
 
@@ -337,8 +344,7 @@ class Drafting {
     final asks = _questionWords.any((w) => n.contains(w));
     if (asks && !_imperatives.any((w) => n.contains(w))) return null;
 
-    final idxMatch =
-        RegExp(r'^(?:گزینه|مورد|شماره)?\s*(\d+)\s*$').firstMatch(n);
+    final idxMatch = _choiceIdxRe.firstMatch(n);
     if (idxMatch != null) {
       final idx = int.tryParse(idxMatch.group(1)!);
       if (idx != null && idx >= 1 && idx <= choices.length) {
@@ -462,9 +468,9 @@ class Drafting {
         }
       }
     } else if (f.type == 'number') {
-      final n = KnowledgeEngine.normalize(input).replaceAll(RegExp(r'\s'), '');
-      final okFmt = RegExp(r'^(\d+|\d{1,3}([,،٬.]\d{3})+)$').hasMatch(n);
-      final digits = n.replaceAll(RegExp(r'[^0-9]'), '');
+      final n = KnowledgeEngine.normalize(input).replaceAll(_whitespaceRe, '');
+      final okFmt = _numberFmtRe.hasMatch(n);
+      final digits = n.replaceAll(_nonDigitsRe, '');
       if (!okFmt || digits.isEmpty) {
         err = 'لطفاً فقط عدد کامل را بنویسید، بدون کلمه (مثلاً ۵۰۰۰۰۰۰۰).';
       } else {

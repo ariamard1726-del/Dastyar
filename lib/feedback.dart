@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// یک نظر کاربر دربارهٔ یک پاسخ. فقط روی همین گوشی ذخیره می‌شود.
+import 'persian_text.dart';
+import 'privacy.dart';
+
+/// یک نظر کاربر دربارهٔ یک پاسخ. فقط روی همین گوشی (به‌صورت رمزنگاری‌شده) ذخیره می‌شود.
 class FeedbackEntry {
   final String q;
   final String a;
@@ -27,24 +29,32 @@ class FeedbackEntry {
 class FeedbackStore {
   static const String _key = 'feedback_v1';
   static const int maxEntries = 300;
+  static final RegExp _spacesRe = RegExp(r'\s+');
 
-  static String _flat(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
+  static String _flat(String s) => s.replaceAll(_spacesRe, ' ').trim();
 
   /// خلاصهٔ کوتاه پاسخ (برای شناسایی، نه ذخیرهٔ کل متن)
   static String snippet(String a) {
     final s = _flat(a);
-    return s.length > 120 ? s.substring(0, 120) : s;
+    return PersianText.truncate(s, 120);
   }
 
   static Future<List<FeedbackEntry>> all() async {
     try {
       final p = await SharedPreferences.getInstance();
-      final raw = p.getString(_key);
+      final stored = p.getString(_key);
+      if (stored == null || stored.isEmpty) return [];
+      final wasPlain = !PrivacyService.isEncrypted(stored);
+      final raw = await PrivacyService.open(stored);
       if (raw == null || raw.isEmpty) return [];
-      return (jsonDecode(raw) as List)
+      final list = (jsonDecode(raw) as List)
           .map((e) => FeedbackEntry.fromJson(e as Map<String, dynamic>))
           .where((e) => e.q.isNotEmpty)
           .toList();
+      if (wasPlain && list.isNotEmpty) {
+        await _save(list);
+      }
+      return list;
     } catch (_) {
       return [];
     }
@@ -53,10 +63,9 @@ class FeedbackStore {
   static Future<bool> _save(List<FeedbackEntry> list) async {
     try {
       final p = await SharedPreferences.getInstance();
-      return await p.setString(
-        _key,
-        jsonEncode(list.map((e) => e.toJson()).toList()),
-      );
+      final raw = jsonEncode(list.map((e) => e.toJson()).toList());
+      final sealed = await PrivacyService.seal(raw);
+      return await p.setString(_key, sealed);
     } catch (_) {
       return false;
     }
@@ -140,7 +149,7 @@ class _FeedbackBarState extends State<FeedbackBar> {
     try {
       await Share.share(text, subject: 'نظرات دستیار');
     } catch (_) {
-      await Clipboard.setData(ClipboardData(text: text));
+      await PrivacyService.copyText(text, sensitive: true);
       _snack('اشتراک‌گذاری انجام نشد؛ متن کپی شد');
     }
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:share_plus/share_plus.dart';
 
 import 'about_page.dart';
@@ -10,6 +9,7 @@ import 'engine.dart';
 import 'feedback.dart';
 import 'history.dart';
 import 'history_page.dart';
+import 'privacy.dart';
 import 'settings.dart';
 import 'settings_page.dart';
 import 'templates.dart';
@@ -291,22 +291,23 @@ class _ChatPageState extends State<ChatPage> {
       _msgs.add(bot);
     });
     _scrollDown();
+    List<String> alts = const [];
     try {
-      await for (final t in widget.assistant.ask(text)) {
+      await for (final turn in widget.assistant.askWithAlternatives(text)) {
         if (!mounted) return;
-        setState(() => bot.text = t);
+        alts = turn.alternatives;
+        setState(() => bot.text = turn.text);
         _scrollDown();
       }
     } catch (_) {
       if (mounted) {
-        setState(() => bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.');
+        setState(
+          () => bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.',
+        );
       }
     }
-    if (mounted) {
-      try {
-        final alts = widget.engine.alternatives(text);
-        if (alts.isNotEmpty) setState(() => bot.chips = alts);
-      } catch (_) {}
+    if (mounted && alts.isNotEmpty) {
+      setState(() => bot.chips = alts);
     }
     await _saveSession();
     if (mounted) setState(() => _busy = false);
@@ -416,8 +417,8 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future<void> _copy(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
+  Future<void> _copy(String text, {bool sensitive = false}) async {
+    await PrivacyService.copyText(text, sensitive: sensitive);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('کپی شد')),
@@ -430,7 +431,9 @@ class _ChatPageState extends State<ChatPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('اشتراک‌گذاری انجام نشد. از کپی استفاده کنید.')),
+        const SnackBar(
+          content: Text('اشتراک‌گذاری انجام نشد. از کپی استفاده کنید.'),
+        ),
       );
     }
   }
@@ -546,7 +549,7 @@ class _ChatPageState extends State<ChatPage> {
                 runSpacing: 8,
                 children: [
                   FilledButton.tonalIcon(
-                    onPressed: () => _copy(m.text),
+                    onPressed: () => _copy(m.text, sensitive: true),
                     icon: const Icon(Icons.copy, size: 18),
                     label: const Text('کپی متن'),
                   ),

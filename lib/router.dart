@@ -3,8 +3,10 @@
 class QueryRouter {
   QueryRouter._();
 
+  static final RegExp _compactRe = RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+');
+
   static bool asksCapabilities(String n) {
-    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
+    final compact = n.replaceAll(_compactRe, '');
     final asksWhat =
         compact.contains('چهکاری') || compact.contains('چهکارهایی');
     final capabilityVerb =
@@ -24,7 +26,7 @@ class QueryRouter {
   }
 
   static bool asksOutcomePrediction(String n) {
-    final compact = n.replaceAll(RegExp(r'[\s‌‍‎‏،؛؟,.!?:]+'), '');
+    final compact = n.replaceAll(_compactRe, '');
     final asksCase = compact.contains('پرونده') ||
         compact.contains('حکمقاضی') ||
         compact.contains('نتیجهدادگاه');
@@ -36,5 +38,4 @@ class QueryRouter {
         compact.contains('حکمدقیق');
     return asksCase && asksPrediction;
   }
-
 }

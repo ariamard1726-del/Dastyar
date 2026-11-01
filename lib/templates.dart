@@ -55,6 +55,10 @@ class LawRef {
 }
 
 class LegalTemplate {
+  static final RegExp _ifOpenRe = RegExp(r'\{\{\s*#if\s+(\w+)\s*\}\}');
+  static final RegExp _placeholderNameRe =
+      RegExp(r'\{\{\s*(\w+)(?:\|\w+)?\s*\}\}');
+
   final String id;
   final String title;
   final String description;
@@ -109,10 +113,10 @@ class LegalTemplate {
   Set<String> undefinedPlaceholders() {
     final defined = fields.map((f) => f.id).toSet();
     final used = <String>{};
-    for (final m in RegExp(r'\{\{\s*#if\s+(\w+)\s*\}\}').allMatches(body)) {
+    for (final m in _ifOpenRe.allMatches(body)) {
       used.add(m.group(1)!);
     }
-    for (final m in RegExp(r'\{\{\s*(\w+)(?:\|\w+)?\s*\}\}').allMatches(body)) {
+    for (final m in _placeholderNameRe.allMatches(body)) {
       final id = m.group(1)!;
       if (id != 'else') used.add(id);
     }
@@ -122,6 +126,13 @@ class LegalTemplate {
 
 class TemplateRenderer {
   static const String _faDigits = '۰۱۲۳۴۵۶۷۸۹';
+  static final RegExp _ifBlockRe =
+      RegExp(r'\{\{\s*#if\s+(\w+)\s*\}\}([\s\S]*?)\{\{\s*/if\s*\}\}');
+  static final RegExp _elseRe = RegExp(r'\{\{\s*else\s*\}\}');
+  static final RegExp _placeholderRe =
+      RegExp(r'\{\{\s*(\w+)(?:\|(\w+))?\s*\}\}');
+  static final RegExp _trailingSpaceLineRe = RegExp(r'[ \t]+\n');
+  static final RegExp _multiBlankLineRe = RegExp(r'\n{3,}');
 
   static String toFa(String s) {
     final sb = StringBuffer();
@@ -182,9 +193,9 @@ class TemplateRenderer {
     var out = t.body;
 
     out = out.replaceAllMapped(
-      RegExp(r'\{\{\s*#if\s+(\w+)\s*\}\}([\s\S]*?)\{\{\s*/if\s*\}\}'),
+      _ifBlockRe,
       (m) {
-        final parts = m.group(2)!.split(RegExp(r'\{\{\s*else\s*\}\}'));
+        final parts = m.group(2)!.split(_elseRe);
         final yes = parts.first;
         final no = parts.length > 1 ? parts.sublist(1).join() : '';
         return _has(values[m.group(1)!]) ? yes : no;
@@ -192,7 +203,7 @@ class TemplateRenderer {
     );
 
     out = out.replaceAllMapped(
-      RegExp(r'\{\{\s*(\w+)(?:\|(\w+))?\s*\}\}'),
+      _placeholderRe,
       (m) {
         final v = (values[m.group(1)!] ?? '').trim();
         if (v.isEmpty) return blank;
@@ -204,8 +215,8 @@ class TemplateRenderer {
     );
 
     return out
-        .replaceAll(RegExp(r'[ \t]+\n'), '\n')
-        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .replaceAll(_trailingSpaceLineRe, '\n')
+        .replaceAll(_multiBlankLineRe, '\n\n')
         .trim();
   }
 }
@@ -223,19 +234,33 @@ class TemplateRepository {
         .where((p) => p.startsWith('assets/templates/') && p.endsWith('.json'))
         .toList()
       ..sort();
-    for (final p in paths) {
+    final loaded = await Future.wait(
+      paths.map((p) async {
+        try {
+          final text = await rootBundle.loadString(p);
+          return (path: p, text: text, error: null);
+        } catch (e) {
+          return (path: p, text: null, error: e);
+        }
+      }),
+    );
+    for (final item in loaded) {
+      final text = item.text;
+      if (item.error != null || text == null) {
+        problems.add('${item.path}: ${item.error}');
+        continue;
+      }
       try {
-        final text = await rootBundle.loadString(p);
         final map = jsonDecode(text) as Map<String, dynamic>;
         final t = LegalTemplate.fromJson(map);
         final bad = t.undefinedPlaceholders();
         if (bad.isNotEmpty) {
-          problems.add('$p: ${bad.join(', ')}');
+          problems.add('${item.path}: ${bad.join(', ')}');
           continue;
         }
         templates.add(t);
       } catch (e) {
-        problems.add('$p: $e');
+        problems.add('${item.path}: $e');
       }
     }
   }

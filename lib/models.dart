@@ -12,8 +12,9 @@ class Chunk {
   final Map<String, int> tfC;
   final int len;
 
-  // استفاده از TextUtils به جای KnowledgeEngine برای استقلال مدل
-  String get normTitle => TextUtils.collapse(TextUtils.normalize(title)).trim();
+  /// عنوان و منبع نرمال‌شده که یک‌بار هنگام ساخت Chunk (در Isolate) محاسبه می‌شوند.
+  final String normTitle;
+  final String normSource;
 
   Chunk(
     this.lawId,
@@ -26,7 +27,8 @@ class Chunk {
     this.tfB,
     this.tfC,
     this.len,
-  );
+  )   : normTitle = TextUtils.collapse(TextUtils.normalize(title)),
+        normSource = TextUtils.collapse(TextUtils.normalize(source));
 }
 
 class Hit {
@@ -39,6 +41,18 @@ class RankResult {
   final List<Hit> hits;
   final String note;
   RankResult(this.hits, [this.note = '']);
+}
+
+class EngineReply {
+  final String text;
+  final List<Hit> contextHits;
+  final List<String> alternatives;
+
+  const EngineReply({
+    required this.text,
+    this.contextHits = const [],
+    this.alternatives = const [],
+  });
 }
 
 class CatalogLaw {

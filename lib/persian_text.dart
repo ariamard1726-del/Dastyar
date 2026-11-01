@@ -23,6 +23,7 @@ class PersianText {
   static final RegExp _nonWord = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
+  static final RegExp _spaces = RegExp(r'\s+');
 
   static String normalize(String s) {
     const map = {
@@ -51,7 +52,25 @@ class PersianText {
     return sb.toString().toLowerCase();
   }
 
-  static String collapse(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
+  static String collapse(String s) => s.replaceAll(_spaces, ' ').trim();
+
+  /// برش ایمن بر پایهٔ نویسه‌های یونیکد (Runes) تا جفت‌های جایگزین (UTF-16 Surrogates)
+  /// مانند ایموجی‌ها از وسط نصف نشوند.
+  static String truncate(String s, int maxRunes, {String ellipsis = ''}) {
+    if (maxRunes <= 0) return ellipsis;
+    if (s.length <= maxRunes) return s;
+    final it = s.runes.iterator;
+    var count = 0;
+    final taken = <int>[];
+    while (it.moveNext()) {
+      if (count >= maxRunes) {
+        return '${String.fromCharCodes(taken)}$ellipsis';
+      }
+      taken.add(it.current);
+      count++;
+    }
+    return s;
+  }
 
   static String _stem(String w) {
     for (final suf in _suffixes) {

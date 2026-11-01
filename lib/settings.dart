@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'privacy.dart';
+
 class AppSettings extends ChangeNotifier {
   double fontScale = 1.0;
   bool saveHistory = true;
+  bool secureScreen = false;
   SharedPreferences? _prefs;
 
   static const List<double> scales = [0.9, 1.0, 1.2, 1.4];
@@ -22,6 +25,7 @@ class AppSettings extends ChangeNotifier {
       final fs = p.getDouble('fontScale') ?? 1.0;
       s.fontScale = scales.contains(fs) ? fs : 1.0;
       s.saveHistory = p.getBool('saveHistory') ?? true;
+      s.secureScreen = p.getBool('secureScreen') ?? false;
     } catch (_) {}
     return s;
   }
@@ -39,6 +43,15 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     try {
       await _prefs?.setBool('saveHistory', v);
+    } catch (_) {}
+  }
+
+  Future<void> setSecureScreen(bool v) async {
+    secureScreen = v;
+    notifyListeners();
+    await PrivacyService.setSecureScreen(v);
+    try {
+      await _prefs?.setBool('secureScreen', v);
     } catch (_) {}
   }
 }

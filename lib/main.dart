@@ -5,12 +5,16 @@ import 'assistant.dart';
 import 'chat_page.dart';
 import 'engine.dart';
 import 'history.dart';
+import 'privacy.dart';
 import 'settings.dart';
 import 'templates.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settings = await AppSettings.load();
+  if (settings.secureScreen) {
+    await PrivacyService.setSecureScreen(true);
+  }
   runApp(DastyarApp(settings: settings));
 }
 
@@ -109,17 +113,13 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> _init() async {
-    try {
-      await _engine.load();
-    } catch (_) {
-      _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
-    }
-    try {
-      await _repo.load();
-    } catch (_) {}
-    try {
-      await _history.load();
-    } catch (_) {}
+    await Future.wait([
+      _engine.load().catchError((_) {
+        _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
+      }),
+      _repo.load().catchError((_) {}),
+      _history.load().catchError((_) {}),
+    ]);
     if (!mounted) return;
     setState(() => _ready = true);
   }

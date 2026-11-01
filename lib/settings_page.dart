@@ -92,11 +92,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   SwitchListTile(
                     title: const Text('ذخیرهٔ تاریخچهٔ گفتگوها'),
                     subtitle: const Text(
-                      'اگر گوشی را با دیگران مشترک استفاده می‌کنید، آن را خاموش کنید.',
+                      'تاریخچه به‌صورت رمزنگاری‌شده ذخیره می‌شود؛ در گوشی مشترک می‌توانید خاموشش کنید.',
                     ),
                     value: s.saveHistory,
                     onChanged: (v) {
                       s.setSaveHistory(v);
+                      setState(() {});
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('محافظت از صفحه (جلوگیری از اسکرین‌شات)'),
+                    subtitle: const Text(
+                      'مخفی‌سازی صفحه در فهرست برنامه‌های اخیر و جلوگیری از ثبت تصویر صفحه.',
+                    ),
+                    value: s.secureScreen,
+                    onChanged: (v) {
+                      s.setSecureScreen(v);
                       setState(() {});
                     },
                   ),
