@@ -139,22 +139,70 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    // پاسخ به پیشنهادی که قبلاً داده شده
-    if (_pendingText != null) {
-      final pt = _pendingText!;
+    // پاسخ به پیشنهاد یا فهرست انتخاب قالب که قبلاً نمایش داده شده
+    if (_pendingList.isNotEmpty) {
+      final pt = _pendingText;
       final list = _pendingList;
-      _pendingText = null;
-      _pendingList = [];
-      if (text == DraftCmd.offerNo) {
-        for (final t in list) {
-          _declined.add(t.id);
+
+      final isDecline = text == DraftCmd.offerNo ||
+          text == DraftCmd.cancel ||
+          Drafting.isNo(text);
+      if (isDecline) {
+        _pendingText = null;
+        _pendingList = [];
+        if (pt != null) {
+          for (final t in list) {
+            _declined.add(t.id);
+          }
+          setState(() => _msgs.add(_Msg(text, true, sensitive: true)));
+          await _ask(pt, addUser: false, sensitive: true);
+        } else {
+          setState(() {
+            _msgs.add(_Msg(text, true, sensitive: true));
+            _msgs.add(
+              _Msg(
+                'تهیهٔ متن لغو شد. هر سؤالی دارید بپرسید.',
+                false,
+                sensitive: true,
+              ),
+            );
+          });
+          _scrollDown();
         }
-        setState(() => _msgs.add(_Msg(text, true, sensitive: true)));
-        await _ask(pt, addUser: false, sensitive: true);
         return;
       }
-      if (text == DraftCmd.offerYes && list.length == 1) {
-        _startDraft(text, list.first);
+
+      final isAccept = text == DraftCmd.offerYes || Drafting.isYes(text);
+      if (isAccept) {
+        if (list.length == 1) {
+          _pendingText = null;
+          _pendingList = [];
+          _startDraft(text, list.first);
+          return;
+        }
+        setState(() {
+          _msgs.add(_Msg(text, true, sensitive: true));
+          _msgs.add(
+            _Msg(
+              'لطفاً مشخص کنید کدام‌یک از این قالب‌ها را آماده کنم:',
+              false,
+              sensitive: true,
+              chips: [
+                ...list.map((t) => t.title),
+                if (pt != null) DraftCmd.offerNo else DraftCmd.cancel,
+              ],
+            ),
+          );
+        });
+        _scrollDown();
+        return;
+      }
+
+      final picked = Drafting.pickChoice(text, list);
+      _pendingText = null;
+      _pendingList = [];
+      if (picked != null) {
+        _startDraft(text, picked);
         return;
       }
     }
@@ -167,13 +215,18 @@ class _ChatPageState extends State<ChatPage> {
     }
     if (intent.choices.isNotEmpty) {
       setState(() {
+        _pendingText = null;
+        _pendingList = intent.choices;
         _msgs.add(_Msg(text, true, sensitive: true));
         _msgs.add(
           _Msg(
             Drafting.chooseText,
             false,
             sensitive: true,
-            chips: intent.choices.map((t) => t.title).toList(),
+            chips: [
+              ...intent.choices.map((t) => t.title),
+              DraftCmd.cancel,
+            ],
           ),
         );
       });

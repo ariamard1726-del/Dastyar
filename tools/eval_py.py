@@ -1,7 +1,7 @@
 """بازنویسی پایتونیِ موتور lib/engine.dart برای ارزیابی سریع.
 خروجی تقریباً با Dart یکی است ولی مرجع نهایی، تست‌های Dart در GitHub است.
 اجرا: python3 tools/eval_py.py [-v]"""
-import glob, json, math, os, re, sys
+import json, math, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'brain'))
@@ -11,7 +11,7 @@ NONWORD = re.compile(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
 STOP = set('و در به از که را با این آن برای یک است هست چه چی چیست کی کجا چرا چطور چگونه آیا من تو شما می هم یا تا بر هر بود شد باشد کند کنم کن بگو درباره مورد لطفا ممنون ماده قانون'.split())
 SUF = ['ترین', 'هایی', 'های', 'ها']
-K1, B, WT, WB, WC = 1.2, 0.4, 3.0, 1.0, 0.5
+K1, B, WT, WB, WC = 0.9, 0.7, 3.0, 1.0, 0.5
 
 
 def collapse(s):
@@ -49,13 +49,23 @@ class Engine:
         A = os.path.join(ROOT, 'assets')
         cat = json.load(open(os.path.join(A, 'laws_catalog.json'), encoding='utf-8'))
         self.catalog = cat.get('laws', [])
-        paths = [os.path.join(A, 'knowledge.txt')] + sorted(glob.glob(os.path.join(A, 'laws', '*.txt')))
-        for p in paths:
-            text = open(p, encoding='utf-8').read().replace('\r', '')
-            if p.endswith('knowledge.txt'):
-                self.parse(text, 'دانش عمومی', 'knowledge')
-            else:
-                self.parse(text, '', os.path.basename(p)[:-4])
+        meta_path = os.path.join(A, 'laws', '_meta.json')
+        meta = json.load(open(meta_path, encoding='utf-8')) if os.path.isfile(meta_path) else {}
+
+        k_path = os.path.join(A, 'knowledge.txt')
+        if os.path.isfile(k_path):
+            text = open(k_path, encoding='utf-8').read().replace('\r', '')
+            self.parse(text, 'دانش عمومی', 'knowledge')
+
+        for lid, info in meta.items():
+            if not isinstance(info, dict) or not info.get('path'):
+                continue
+            p = os.path.join(A, 'laws', info['path'])
+            if os.path.isfile(p):
+                text = open(p, encoding='utf-8').read().replace('\r', '')
+                fallback = str(info.get('title', '')).strip()
+                self.parse(text, fallback, lid)
+
         self.syn = []
         for line in open(os.path.join(A, 'synonyms.txt'), encoding='utf-8'):
             l = line.strip()
@@ -72,7 +82,7 @@ class Engine:
             for t in set(c['T']) | set(c['B']) | set(c['C']):
                 df[t] = df.get(t, 0) + 1
         n = len(self.chunks)
-        self.avg = max(1.0, total / n)
+        self.avg = max(1.0, total / n) if n else 1.0
         self.idf = {t: math.log((n + 1) / (d + 1)) + 1.0 for t, d in df.items()}
         self.vocab = list(df)
 
@@ -106,15 +116,51 @@ class Engine:
 
     def mentioned(self, q):
         n = collapse(normalize(q))
-        out = []
+        matched = []
         for l in self.catalog:
+            hit = False
             for name in [l['title']] + list(l.get('aliases', [])):
                 full = collapse(normalize(name))
                 if not full:
                     continue
-                short = full[6:].strip() if full.startswith('قانون ') else full
-                if full in n or (len(short) >= 5 and short in n):
-                    out.append(l['id']); break
+                if not (full.startswith('قانون ') or full.startswith('لایحه ')):
+                    continue
+                if full in n:
+                    hit = True
+                    break
+                short = full[6:].strip() if full.startswith('قانون ') else ''
+                if len(short) >= 5 and ('قانون ' + short) in n:
+                    hit = True
+                    break
+            if hit:
+                matched.append(l)
+
+        if len(matched) < 2:
+            return [l['id'] for l in matched]
+
+        matched_names = {}
+        for l in matched:
+            for name in [l['title']] + list(l.get('aliases', [])):
+                full = collapse(normalize(name))
+                if full and full in n:
+                    matched_names[l['id']] = full
+                    break
+
+        out = []
+        for l in matched:
+            own = matched_names.get(l['id'])
+            if own is None:
+                out.append(l['id'])
+                continue
+            shadowed = any(
+                other['id'] != l['id']
+                and matched_names.get(other['id'])
+                and len(matched_names[other['id']]) > len(own)
+                and own in matched_names[other['id']]
+                for other in matched
+            )
+            if not shadowed:
+                out.append(l['id'])
         return out
 
     def rank(self, question, k=60):
@@ -125,7 +171,7 @@ class Engine:
         m = re.search(r'ماده\s*(\d+)(\s*مکرر)?', q)
         if m:
             want = 'ماده %s%s' % (m.group(1), ' مکرر' if m.group(2) else '')
-            found = [c for c in pool if normalize(c['title']).strip() == want]
+            found = [c for c in pool if collapse(normalize(c['title'])) == want]
             if found:
                 qs = set(qt)
                 best = max(found, key=lambda c: len(qs & set(tok(c['source']))))
@@ -146,7 +192,7 @@ class Engine:
             if (' %s ' % kk) in n:
                 for t in tok(v):
                     if t in self.idf:
-                        terms[t] = max(terms.get(t, 0), 1.0)
+                        terms[t] = max(terms.get(v, 0), 1.0)
         if not terms:
             return []
         hits = []

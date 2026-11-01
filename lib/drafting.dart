@@ -291,14 +291,93 @@ class Drafting {
     return DraftReply(text, chips: chips);
   }
 
-  static const Set<String> _yes = {'بله', 'آره', 'اره', 'بلی', 'بله.'};
-  static const Set<String> _no = {'خیر', 'نه', 'نخیر'};
+  static const Set<String> _yes = {
+    'بله',
+    'اره',
+    'بلی',
+    'بله اماده کن',
+    'اره اماده کن',
+  };
+  static const Set<String> _no = {
+    'خیر',
+    'نه',
+    'نخیر',
+    'نه ممنون',
+    'خیر ممنون',
+    'نه فقط توضیح بده',
+    'فقط توضیح بده',
+  };
 
-  static bool isYes(String raw) =>
-      _yes.contains(KnowledgeEngine.normalize(raw).trim());
+  static String _fold(String raw) {
+    return KnowledgeEngine.normalize(raw)
+        .replaceAll('آ', 'ا')
+        .replaceAll('ئ', 'ی')
+        .replaceAll('ؤ', 'و')
+        .replaceAll(_nonLetter, ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
 
-  static bool isNo(String raw) =>
-      _no.contains(KnowledgeEngine.normalize(raw).trim());
+  static bool isYes(String raw) => _yes.contains(_fold(raw));
+
+  static bool isNo(String raw) => _no.contains(_fold(raw));
+
+  /// انتخاب یک قالب از فهرست گزینه‌های پیشنهادی بر اساس پاسخ کاربر
+  /// (عنوان دقیق، شمارهٔ گزینه، زیررشتهٔ یکتا در عنوان، یا امتیاز واژگانی).
+  /// اگر پیام کاربر پرسش اطلاعاتی باشد، null برمی‌گرداند تا به موتور پاسخ داده شود.
+  static LegalTemplate? pickChoice(String raw, List<LegalTemplate> choices) {
+    if (choices.isEmpty) return null;
+    final n = KnowledgeEngine.normalize(raw).trim();
+    if (n.isEmpty) return null;
+
+    for (final t in choices) {
+      if (KnowledgeEngine.normalize(t.title).trim() == n) return t;
+    }
+
+    final asks = _questionWords.any((w) => n.contains(w));
+    if (asks && !_imperatives.any((w) => n.contains(w))) return null;
+
+    final idxMatch =
+        RegExp(r'^(?:گزینه|مورد|شماره)?\s*(\d+)\s*$').firstMatch(n);
+    if (idxMatch != null) {
+      final idx = int.tryParse(idxMatch.group(1)!);
+      if (idx != null && idx >= 1 && idx <= choices.length) {
+        return choices[idx - 1];
+      }
+    }
+
+    final folded = _fold(raw);
+    if (folded.length >= 2) {
+      final exactFold =
+          choices.where((t) => _fold(t.title) == folded).toList();
+      if (exactFold.length == 1) return exactFold.first;
+
+      final sub = choices.where((t) {
+        final tf = _fold(t.title);
+        return tf.contains(folded) || folded.contains(tf);
+      }).toList();
+      if (sub.length == 1) return sub.first;
+    }
+
+    if (folded.split(' ').length <= 6) {
+      final tokens = KnowledgeEngine.tokenize(raw).toSet();
+      var best = 0;
+      final scores = <LegalTemplate, int>{};
+      for (final t in choices) {
+        final tt = _titleTokens(t);
+        final s =
+            tokens.where(tt.contains).length + 2 * keywordScore(raw, t);
+        scores[t] = s;
+        if (s > best) best = s;
+      }
+      if (best > 0) {
+        final top = choices.where((t) => scores[t] == best).toList();
+        if (top.length == 1) return top.first;
+      }
+    }
+
+    return null;
+  }
 
   static DraftReply answer(DraftSession s, String raw) {
     final input = raw.trim();
@@ -357,10 +436,9 @@ class Drafting {
     if (isBlank) {
       value = f.type == 'check' ? 'false' : '';
     } else if (f.type == 'check') {
-      final n = KnowledgeEngine.normalize(input).trim();
-      if (_yes.contains(n)) {
+      if (isYes(input)) {
         value = 'true';
-      } else if (_no.contains(n)) {
+      } else if (isNo(input)) {
         value = 'false';
       } else {
         err = 'لطفاً «${DraftCmd.yes}» یا «${DraftCmd.no}» را انتخاب کنید.';

@@ -5,6 +5,7 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 TYPES = {'text', 'multiline', 'number', 'choice', 'check'}
 errors = []
 warnings = []
@@ -19,7 +20,7 @@ AI_MARKERS = [
 ]
 
 try:
-    with open(os.path.join(ROOT, 'assets', 'laws', '_meta.json'), encoding='utf-8') as _f:
+    with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as _f:
         META = json.load(_f)
 except Exception as _e:
     META = {}
@@ -78,16 +79,19 @@ def check_template(path):
     print('قالب %s: %d فیلد' % (name, len(ids)))
 
 
-def check_law(path):
-    name = os.path.basename(path)
+def check_law(lid, path):
+    rel_name = os.path.relpath(path, LAWS_DIR)
+    if not os.path.isfile(path):
+        errors.append('%s: فایل %s وجود ندارد' % (lid, rel_name))
+        return
     with open(path, encoding='utf-8') as f:
         text = f.read().replace('\r', '')
     parts = [p.strip() for p in re.split(r'\n\s*\n', text) if p.strip()]
     if not parts:
-        warnings.append('%s: فایل خالی است' % name)
+        warnings.append('%s: فایل خالی است' % rel_name)
         return
     if not parts[0].startswith('#'):
-        errors.append('%s: خط اول باید با # و نام قانون شروع شود' % name)
+        errors.append('%s: خط اول باید با # و نام قانون شروع شود' % rel_name)
     seen = set()
     n = 0
     for p in parts:
@@ -97,23 +101,22 @@ def check_law(path):
         title = digits(lines[0]).strip()
         n += 1
         if not title.startswith('ماده'):
-            warnings.append('%s: بخشی بدون عنوان ماده: %s' % (name, title[:30]))
+            warnings.append('%s: بخشی بدون عنوان ماده: %s' % (rel_name, title[:30]))
         if title in seen:
-            warnings.append('%s: عنوان تکراری: %s' % (name, title))
+            warnings.append('%s: عنوان تکراری: %s' % (rel_name, title))
         seen.add(title)
         if len(lines) < 2:
-            warnings.append('%s: %s بدون متن است' % (name, title))
-    print('قانون %s: %d بخش' % (name, n))
+            warnings.append('%s: %s بدون متن است' % (rel_name, title))
+    print('قانون %s (%s): %d بخش' % (lid, os.path.basename(path), n))
 
     low = text.lower()
     for m in AI_MARKERS:
         if m in low:
-            errors.append('%s: عبارت مشکوک به متن تولیدشده با هوش مصنوعی: «%s»' % (name, m))
+            errors.append('%s: عبارت مشکوک به متن تولیدشده با هوش مصنوعی: «%s»' % (rel_name, m))
 
-    lid = name[:-4]
-    info = META.get(lid)
+    info = META.get(lid) if lid else None
     if not isinstance(info, dict):
-        errors.append('%s: در _meta.json ثبت نشده' % name)
+        errors.append('%s: در _meta.json ثبت نشده' % rel_name)
         return
     problems = []
     if not str(info.get('source', '')).strip():
@@ -121,17 +124,33 @@ def check_law(path):
     if not str(info.get('date', '')).strip():
         problems.append('تاریخ (date) خالی است')
     for pr in problems:
-        msg = '%s: %s' % (name, pr)
+        msg = '%s: %s' % (lid, pr)
         (errors if STRICT else warnings).append(msg)
     want = info.get('articles')
     if isinstance(want, int) and want != n:
-        warnings.append('%s: در _meta.json %d ماده نوشته شده ولی %d بخش خوانده شد' % (name, want, n))
+        warnings.append('%s: در _meta.json %d ماده نوشته شده ولی %d بخش خوانده شد' % (lid, want, n))
 
 
 for p in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))):
     check_template(p)
-for p in sorted(glob.glob(os.path.join(ROOT, 'assets', 'laws', '*.txt'))):
-    check_law(p)
+
+checked_paths = set()
+for lid, info in sorted(META.items()):
+    if not isinstance(info, dict) or not info.get('path'):
+        errors.append('%s: کلید path در _meta.json وجود ندارد' % lid)
+        continue
+    full = os.path.normpath(os.path.join(LAWS_DIR, info['path']))
+    checked_paths.add(full)
+    check_law(lid, full)
+
+for root, _dirs, files in os.walk(LAWS_DIR):
+    for fn in sorted(files):
+        if not fn.endswith('.txt'):
+            continue
+        full = os.path.normpath(os.path.join(root, fn))
+        if full not in checked_paths:
+            check_law(None, full)
+
 info = os.path.join(ROOT, 'assets', 'data_info.json')
 try:
     with open(info, encoding='utf-8') as f:

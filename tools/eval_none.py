@@ -28,18 +28,8 @@ def coverage(eng, q, c):
 
 
 def mentions_missing_law(eng, q):
-    n = collapse(normalize(q))
-    for l in eng.catalog:
-        if eng.lawcount.get(l['id'], 0) > 0:
-            continue
-        for name in [l['title']] + list(l.get('aliases', [])):
-            full = collapse(normalize(name))
-            if not full:
-                continue
-            short = full[6:].strip() if full.startswith('قانون ') else full
-            if full in n or (len(short) >= 5 and short in n):
-                return True
-    return False
+    m = eng.mentioned(q)
+    return bool(m) and all(eng.lawcount.get(i, 0) <= 0 for i in m)
 
 
 def gate(eng, q):

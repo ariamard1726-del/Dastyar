@@ -136,7 +136,8 @@ class KnowledgeEngine {
         final fullPath = 'assets/laws/$path';
         try {
           final text = await rootBundle.loadString(fullPath);
-          raw.add([lawId, '', text]);
+          final fallbackTitle = (entry.value['title'] ?? '').toString().trim();
+          raw.add([lawId, fallbackTitle, text]);
         } catch (e) {
           warnings.add('$fullPath: $e');
         }
