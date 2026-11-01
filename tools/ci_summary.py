@@ -27,6 +27,24 @@ if os.environ.get('DATA_FAILED') == '1':
     out.append('--- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---')
     out += [cut(l) for l in read(data_f)[-15:]]
 
+# بلوک‌های تست ناموفقِ «flutter test» (خروجی compact با نشانگر [E])
+status_re = re.compile(r'^\d{2}:\d{2} \+\d+')
+i = 0
+while i < len(lines):
+    if ' [E]' in lines[i]:
+        out.append('--- تست ناموفق ---')
+        out.append(cut(lines[i]))
+        j, k = i + 1, 0
+        while j < len(lines) and k < 20 and not status_re.match(lines[j]):
+            t = cut(lines[j])
+            if t and not t.startswith(('package:', 'dart:')):
+                out.append('   ' + t)
+                k += 1
+            j += 1
+        i = j
+    else:
+        i += 1
+
 i = 0
 while i < len(lines):
     if '❌' in lines[i]:

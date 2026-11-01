@@ -174,7 +174,10 @@ void main() {
 
       await ctrl.submit(DraftCmd.offerCounsel);
       expect(ctrl.isCounseling, isTrue);
-      expect(ctrl.messages.last.text, contains('مدرک'));
+      // گفتگو باید روی همان موضوع قبلی (طلب/بدهی) آغاز شود: نخستین پرسش،
+      // تشخیص نقش کاربر (طلبکار یا بدهکار) است.
+      expect(ctrl.messages.last.text, contains('طلبکار'));
+      expect(ctrl.messages.last.text, contains('بدهکار'));
       ctrl.dispose();
     });
 

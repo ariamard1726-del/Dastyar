@@ -73,7 +73,7 @@ jobs:
 
   commit-reports:
     needs: test
-    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: always() && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
