@@ -1,4 +1,4 @@
-commit: b8e7c97
+commit: 2ccf5ab
 🎉 89 tests passed.
 --- analyze ---
-No issues found! (ran in 10.4s)
+No issues found! (ran in 11.0s)
