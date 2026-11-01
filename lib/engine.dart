@@ -379,8 +379,10 @@ class KnowledgeEngine {
     if (want.isEmpty || lawN.isEmpty) return null;
     final indices = _byTitle[want];
     if (indices == null) return null;
+    final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
     for (final idx in indices) {
       final c = _chunks[idx];
+      if (c.lawId == lawN || mentionedIds.contains(c.lawId)) return c;
       final s = c.normSource;
       if (s.isEmpty) continue;
       if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
