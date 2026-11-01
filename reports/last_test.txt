@@ -1,10 +1,20 @@
-commit: 166eeaa
-::error::91 tests passed, 1 failed.
-::group::❌ test/labor_test.dart: ماده ۱ قانون کار پیدا می‌شود (failed)
-   Expected: contains 'کلیه کارفرمایان'
-   Actual: 'ماده ۱ در متن «قانون کار» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.'
-   Which: does not contain 'کلیه کارفرمایان'
-   test/labor_test.dart 27:5                           main.<fn>
-   ::endgroup::
+commit: 2fa6cf9
+🎉 92 tests passed.
+--- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---
+قالب legal_aid.json: 12 فیلد
+هشدار: cheque_complaint.json: بازبینی‌نشده
+هشدار: cheque_execution.json: بازبینی‌نشده
+هشدار: complaint.json: بازبینی‌نشده
+هشدار: demand_money.json: بازبینی‌نشده
+هشدار: insolvency.json: بازبینی‌نشده
+هشدار: legal_aid.json: بازبینی‌نشده
+نتیجه: همه چیز درست است.
+اطلاع: civil: مادهٔ جاافتاده (3): 1167، 1257-1258
+اطلاع: commerce: مادهٔ جاافتاده (73): بیش از ۴۰ مورد
+هشدار: Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt: خط اول با # و نام قانون شروع نمی‌شود
+هشدار: labor: _meta.json می‌گوید 203 ماده، متن 381 بخش دارد
+خطا: Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt: «ماده 31» تکراری است
+قانون‌های بررسی‌شده: 7 | خطا: 1 | هشدار: 2
+نتیجه: ناموفق؛ پوش نکنید.
 --- analyze ---
-No issues found! (ran in 11.6s)
+No issues found! (ran in 9.1s)
