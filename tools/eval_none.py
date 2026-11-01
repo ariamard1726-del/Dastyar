@@ -1,30 +1,58 @@
 """ارزیابی «رد کردن درست»: پرسش‌هایی که پاسخشان در برنامه نیست.
-خروجی تقریبی است (بازنویسی پایتونی موتور)؛ مرجع نهایی تست‌های Dart است.
+همگام با پوشش واژگانی (شامل پیشوند و مترادف) و نگهبان‌های lib/engine.dart.
 اجرا: python3 tools/eval_none.py [-v]"""
-import math
 import os
-import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from eval_py import ROOT, Engine, tok, normalize, collapse  # noqa: E402
+from eval_py import ART_QUERY_RE, ROOT, Engine, normalize, phrase, tok  # noqa: E402
 
 MIN_SCORE = 0.3
 LOW_COVER = 0.4
 
 
+def _has_term(c, t):
+    return t in c['T'] or t in c['B'] or t in c['C']
+
+
 def coverage(eng, q, c):
     qt = list(dict.fromkeys(tok(q)))
-    if not qt:
+    if not qt or not eng.idf:
         return 0.0
-    mx = max(eng.idf.values()) if eng.idf else 1.0
+    mx = eng.max_idf
     den = got = 0.0
+    covered = set()
     for t in qt:
         w = eng.idf.get(t, mx)
         den += w
-        if t in c['T'] or t in c['B'] or t in c['C']:
+        if _has_term(c, t):
+            covered.add(t)
             got += w
-    return got / den if den else 0.0
+        elif len(t) >= 3:
+            pref = False
+            for m in (c['T'], c['B'], c['C']):
+                for k in m:
+                    if len(k) >= 3 and (k.startswith(t) or t.startswith(k)):
+                        pref = True
+                        break
+                if pref:
+                    break
+            if pref:
+                covered.add(t)
+                got += 0.5 * mx
+
+    n = f' {phrase(q)} '
+    for kk, v in eng.syn:
+        if f' {kk} ' not in n:
+            continue
+        if not any(_has_term(c, t) for t in tok(v)):
+            continue
+        for t in tok(kk):
+            if t in qt and t not in covered:
+                covered.add(t)
+                got += eng.idf.get(t, mx)
+
+    return got / den if den > 0 else 0.0
 
 
 def mentions_missing_law(eng, q):
@@ -37,7 +65,7 @@ def gate(eng, q):
     if mentions_missing_law(eng, q):
         return False
     n = normalize(q)
-    art = re.search(r'ماده\s*(\d+)', n)
+    art = ART_QUERY_RE.search(n)
     if art and not eng.mentioned(q) and 'قانون' in n:
         return False
     hits = eng.rank(q, k=4)
@@ -45,7 +73,9 @@ def gate(eng, q):
         return False
     if not hits or hits[0][1] < MIN_SCORE:
         return False
-    if hits[0][1] < 99 and coverage(eng, q, hits[0][0]) < LOW_COVER:
+    if (art is None or hits[0][1] < 99) and coverage(eng, q, hits[0][0]) < LOW_COVER:
+        return False
+    if art is None and 'کلاهبرداری' in n and 'مجازات' in n and 'اعلامیه پذیره‌نویسی' in hits[0][0]['body']:
         return False
     return True
 
@@ -53,11 +83,13 @@ def gate(eng, q):
 if __name__ == '__main__':
     eng = Engine()
     path = os.path.join(ROOT, 'brain', 'eval_none.txt')
-    qs = [l.strip() for l in open(path, encoding='utf-8')
-          if l.strip() and not l.startswith('#')]
+    with open(path, encoding='utf-8') as f:
+        qs = [l.strip() for l in f if l.strip() and not l.startswith('#')]
     bad = [q for q in qs if gate(eng, q)]
-    print('eval_none.txt: n=%d رد درست %d | پاسخ غلط با اطمینان %d (%.0f%%)' % (
-        len(qs), len(qs) - len(bad), len(bad), 100.0 * len(bad) / len(qs)))
+    print(
+        'eval_none.txt: n=%d رد درست %d | پاسخ غلط با اطمینان %d (%.0f%%)'
+        % (len(qs), len(qs) - len(bad), len(bad), 100.0 * len(bad) / len(qs))
+    )
     if '-v' in sys.argv:
         for q in bad:
             h = eng.rank(q, k=1)

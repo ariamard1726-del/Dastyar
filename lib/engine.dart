@@ -9,7 +9,6 @@ import 'models.dart';
 import 'persian_text.dart';
 import 'replies.dart';
 import 'router.dart';
-import 'templates.dart' show TemplateRenderer;
 
 export 'models.dart';
 
@@ -362,10 +361,10 @@ class KnowledgeEngine {
 
   static String _faArticleLabel(RegExpMatch m) {
     if (m.group(1) != null) return 'واحده';
-    final num = TemplateRenderer.toFa(m.group(2)!);
+    final num = PersianText.toFaDigits(m.group(2)!);
     final mk = m.group(3) != null
         ? (m.group(4) != null
-            ? ' مکرر ${TemplateRenderer.toFa(m.group(4)!)}'
+            ? ' مکرر ${PersianText.toFaDigits(m.group(4)!)}'
             : ' مکرر')
         : '';
     return '$num$mk';
@@ -469,12 +468,12 @@ class KnowledgeEngine {
     final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
     for (final l in loaded) {
       final n = _lawCounts[l.id] ?? 0;
-      sb.write('\n• ${l.title} (${TemplateRenderer.toFa(n.toString())} ماده)');
+      sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
     }
     final rest = catalog.length - loaded.length;
     if (rest > 0) {
       sb.write(
-        '\n\n${TemplateRenderer.toFa(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
+        '\n\n${PersianText.toFaDigits(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
       );
     }
     return sb.toString();
@@ -492,7 +491,7 @@ class KnowledgeEngine {
       if (c.chapter.isNotEmpty) sb.write(' — ${c.chapter}');
       final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
       if (date.isNotEmpty) {
-        sb.write('\nتاریخ دریافت متن: ${TemplateRenderer.toFa(date)}');
+        sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
       }
     }
     return sb.toString();
@@ -862,7 +861,7 @@ class KnowledgeEngine {
       if (c.source.isEmpty) continue;
       if (!_articleTitleRe.hasMatch(c.normTitle)) continue;
       if (!_mentionedLaws(c.source).any((l) => l.id == c.lawId)) continue;
-      out.add(TemplateRenderer.toFa('${c.title} ${c.source}'));
+      out.add(PersianText.toFaDigits('${c.title} ${c.source}'));
       if (out.length >= max) break;
     }
     return out;

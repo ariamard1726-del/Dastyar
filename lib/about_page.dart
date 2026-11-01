@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'engine.dart';
+import 'persian_text.dart';
 import 'templates.dart';
 
 class AboutPage extends StatefulWidget {
@@ -34,7 +35,7 @@ class _AboutPageState extends State<AboutPage> {
     } catch (_) {}
   }
 
-  String _fa(Object n) => TemplateRenderer.toFa(n.toString());
+  String _fa(Object n) => PersianText.toFaDigits(n.toString());
 
   String _text(String key, String empty) {
     final v = (_info[key] ?? '').toString().trim();
@@ -103,22 +104,45 @@ class _AboutPageState extends State<AboutPage> {
       ));
       for (final l in laws) {
         final n = e.lawCounts[l.id] ?? 0;
-        final date = (e.meta[l.id]?['date'] ?? '').toString().trim();
+        final metaInfo = e.meta[l.id];
+        final date = (metaInfo?['date'] ?? '').toString().trim();
+        final amended = (metaInfo?['amended'] ?? '').toString().trim();
+        final src = (metaInfo?['source'] ?? '').toString().trim();
         final String detail;
         if (n > 0) {
-          detail = '${_fa(n)} ماده${date.isEmpty ? ' | تاریخ ثبت نشده' : ' | ${_fa(date)}'}';
+          detail =
+              '${_fa(n)} ماده${date.isEmpty ? ' | تاریخ ثبت نشده' : ' | ${_fa(date)}'}';
         } else {
           detail = 'هنوز وارد نشده';
         }
+        final subParts = <String>[
+          if (src.isNotEmpty) 'منبع: $src',
+          if (amended.isNotEmpty) 'آخرین اصلاحیه: ${_fa(amended)}',
+        ];
         out.add(Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Row(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(n > 0 ? '✅ ' : '❌ '),
-              Expanded(child: Text(l.title)),
-              const SizedBox(width: 8),
-              Text(detail, style: Theme.of(context).textTheme.bodySmall),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(n > 0 ? '✅ ' : '❌ '),
+                  Expanded(child: Text(l.title)),
+                  const SizedBox(width: 8),
+                  Text(detail, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+              if (n > 0 && subParts.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 24, top: 2),
+                  child: Text(
+                    subParts.join(' • '),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
             ],
           ),
         ));
@@ -132,6 +156,10 @@ class _AboutPageState extends State<AboutPage> {
     final total = widget.repo.templates.length;
     final reviewed = widget.repo.templates.where((t) => t.reviewed).length;
     final note = (_info['note'] ?? '').toString().trim();
+    final diagnostics = <String>[
+      ...widget.engine.warnings,
+      ...widget.repo.problems,
+    ];
     return Scaffold(
       appBar: AppBar(title: const Text('اطلاعات و وضعیت داده‌ها')),
       body: SafeArea(
@@ -146,6 +174,12 @@ class _AboutPageState extends State<AboutPage> {
               _row('قالب‌های بازبینی‌شده', _fa(reviewed)),
               if (note.isNotEmpty) _p(note),
             ]),
+            if (diagnostics.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _card('هشدارهای بارگذاری', [
+                for (final d in diagnostics) _p('• $d'),
+              ]),
+            ],
             const SizedBox(height: 8),
             _card('قوانین موجود در برنامه', [
               _p('هر قانونی که ❌ دارد هنوز وارد نشده و دستیار از روی آن جواب نمی‌دهد.'),

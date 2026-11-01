@@ -4,16 +4,18 @@
 
 ## ساختار
 
-- lib/main.dart، chat_page.dart و بقیهٔ صفحه‌ها: رابط
-- lib/assistant.dart: هماهنگ‌کننده بین مسیریاب، موتور و پیش‌نویس
-- lib/router.dart: تشخیص نیت پرسش
-- lib/engine.dart: بارگذاری قوانین، رتبه‌بندی، تشخیص نام قانون و ماده
-- lib/persian_text.dart: لایهٔ متن فارسی (نرمال‌سازی، ایست‌واژه، ریشه‌یابی). هر تغییر زبانی فقط اینجا انجام شود.
-- lib/drafting.dart، templates.dart: پیش‌نویس مرحله‌به‌مرحله
-- assets/laws: متن قوانین. assets/templates: قالب‌ها. assets/synonyms.txt، relationships.json، replies.json
-- test: تست‌ها. test/eval_*: گزارش کیفیت بازیابی بدون assertion
-- tools و scripts: ابزارهای پایتون برای داده (بررسی، وارد کردن قانون، آیکون، امضا)
-- brain: آزمایش‌های آفلاین (embedding و مدل کوچک). اپ آن‌ها را نمی‌خواند.
+- `lib/main.dart`، `chat_page.dart`، `widgets/chat_bubbles.dart` و صفحه‌های جانبی: رابط کاربری
+- `lib/chat_controller.dart`، `chat_models.dart`: کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن پاسخ
+- `lib/assistant.dart`، `prompt_builder.dart`، `llm.dart`: هماهنگ‌کنندهٔ پاسخ، نگهبان استناد مواد/قوانین و لایهٔ مدل زبانی
+- `lib/router.dart`: تشخیص نیت پرسش (معرفی توانایی‌ها و پیش‌بینی نتیجهٔ دادگاه)
+- `lib/engine.dart`، `models.dart`: بارگذاری موازی قوانین، نمایهٔ معکوس BM25F و بازیابی تک‌مرحله‌ای مواد
+- `lib/persian_text.dart`، `core/text_utils.dart`: لایهٔ متن فارسی (نرمال‌سازی، تبدیل ارقام، برش ایمن یونیکد، ایست‌واژه و ریشه‌یابی)
+- `lib/privacy.dart`: رمزنگاری محلی داده‌ها با Android Keystore (`AES-256-GCM`)، کلیپ‌بورد حساس و `FLAG_SECURE`
+- `lib/drafting.dart`، `templates.dart`: پیش‌نویس مرحله‌به‌مرحلهٔ اسناد حقوقی
+- `assets/laws`: متن قوانین (در ساختار پوشه‌ای دسته‌بندی‌شده به همراه `_meta.json`). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json`، `replies.json`
+- `test`: تست‌های واحد، ویجت و ارزیابی کیفیت بازیابی
+- `tools`: ابزارهای پایتون برای اعتبارسنجی، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار
+- `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک). اپ آن‌ها را نمی‌خواند.
 
 ## ساخت و آزمایش
 
@@ -25,11 +27,11 @@
     python tools/diag.py          # وضعیت git و گزارش تست
     python tools/diag.py lib/engine.dart:590-640 "g:findArticle"
 
-Workflowها در .github/workflows:
+Workflowها در `.github/workflows`:
 
-- build.yml: ساخت APK (دستی). با کلید خودمان امضا می‌شود. کلید فقط در Secrets است.
-- test.yml: بررسی داده‌ها و flutter test روی هر push
-- embed.yml و train.yml: آزمایش‌های دستی
+- `build.yml`: ساخت APK (دستی). با کلید اصلی امضا می‌شود و کلید فقط در Secrets نگهداری می‌شود.
+- `test.yml`: بررسی داده‌ها، `flutter analyze` و `flutter test` روی هر push
+- `embed.yml` و `train.yml`: آزمایش‌های دستی آفلاین
 
 ## قواعد
 

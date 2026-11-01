@@ -1,58 +1,65 @@
 import 'dart:convert';
+
 import 'package:flutter/services.dart' show rootBundle;
 
-/// سرویس مدیریت زنجیره تضادهای مواد قانونی.
+/// سرویس مدیریت زنجیرهٔ تضادها و ارجاعات متقابل مواد قانونی.
 class ConflictsService {
   /// کش داده‌ها برای جلوگیری از خواندن مکرر فایل.
   Map<String, dynamic>? _cache;
 
   /// خواندن relationships.json از assets و کش کردن.
   Future<Map<String, dynamic>> loadData() async {
-    if (_cache != null) return _cache!;
-    final String raw = await rootBundle.loadString('assets/relationships.json');
-    _cache = json.decode(raw) as Map<String, dynamic>;
-    return _cache!;
+    final cached = _cache;
+    if (cached != null) return cached;
+    final raw = await rootBundle.loadString('assets/relationships.json');
+    final decoded = json.decode(raw) as Map<String, dynamic>;
+    _cache = decoded;
+    return decoded;
   }
 
-  /// زنجیره تضادها را از یک ماده به صورت بازگشتی برمی‌گرداند.
+  /// زنجیرهٔ تضادها را از یک ماده به‌صورت بازگشتی برمی‌گرداند.
   /// - با محافظت در برابر حلقه (cycle) با پارامتر [path]
+  /// - با سقف عمق پیمایش [maxDepth] برای جلوگیری از سرریز پشته
   /// - با اعتبارسنجی نوع داده‌ها (null/type safety)
   List<String> getConflictsChain(
     String articleId,
     Map<String, dynamic> data, {
     List<String>? path,
+    int maxDepth = 32,
   }) {
-    path ??= [articleId];
+    final currentPath = path ?? <String>[articleId];
+    if (currentPath.length > maxDepth) return const [];
 
     final articles = data['articles'];
-    if (articles is! Map<String, dynamic>) return [];
+    if (articles is! Map<String, dynamic>) return const [];
 
     final currentArticle = articles[articleId];
-    if (currentArticle is! Map<String, dynamic>) return [];
+    if (currentArticle is! Map<String, dynamic>) return const [];
 
     final rawConflicts = currentArticle['conflicts_with'];
-    if (rawConflicts is! List) return [];
+    if (rawConflicts is! List) return const [];
 
     final conflicts = rawConflicts.map((e) => e.toString()).toList();
     final results = <String>[];
 
     for (final conflictId in conflicts) {
-      // محافظت در برابر حلقه
-      if (path.contains(conflictId)) {
-        results.add('${path.join(' -> ')} -> $conflictId ⚠️ (حلقه)');
+      if (currentPath.contains(conflictId)) {
+        results.add('${currentPath.join(' -> ')} -> $conflictId ⚠️ (حلقه)');
         continue;
       }
 
-      final newPath = [...path, conflictId];
+      final newPath = <String>[...currentPath, conflictId];
       results.add(newPath.join(' -> '));
 
-      // فراخوانی بازگشتی با مسیر جدید
-      final subConflicts = getConflictsChain(
-        conflictId,
-        data,
-        path: newPath,
-      );
-      results.addAll(subConflicts);
+      if (newPath.length < maxDepth) {
+        final subConflicts = getConflictsChain(
+          conflictId,
+          data,
+          path: newPath,
+          maxDepth: maxDepth,
+        );
+        results.addAll(subConflicts);
+      }
     }
 
     return results;

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle, AssetManifest;
 
+import 'persian_text.dart';
+
 class TemplateField {
   final String id;
   final String label;
@@ -125,7 +127,6 @@ class LegalTemplate {
 }
 
 class TemplateRenderer {
-  static const String _faDigits = '۰۱۲۳۴۵۶۷۸۹';
   static final RegExp _ifBlockRe =
       RegExp(r'\{\{\s*#if\s+(\w+)\s*\}\}([\s\S]*?)\{\{\s*/if\s*\}\}');
   static final RegExp _elseRe = RegExp(r'\{\{\s*else\s*\}\}');
@@ -134,35 +135,10 @@ class TemplateRenderer {
   static final RegExp _trailingSpaceLineRe = RegExp(r'[ \t]+\n');
   static final RegExp _multiBlankLineRe = RegExp(r'\n{3,}');
 
-  static String toFa(String s) {
-    final sb = StringBuffer();
-    for (final ch in s.split('')) {
-      final d = int.tryParse(ch);
-      if (d != null && ch.codeUnitAt(0) >= 48 && ch.codeUnitAt(0) <= 57) {
-        sb.write(_faDigits[d]);
-      } else {
-        sb.write(ch);
-      }
-    }
-    return sb.toString();
-  }
-
-  static String _asciiDigits(String s) {
-    final sb = StringBuffer();
-    for (final r in s.runes) {
-      if (r >= 0x06F0 && r <= 0x06F9) {
-        sb.write(r - 0x06F0);
-      } else if (r >= 0x0660 && r <= 0x0669) {
-        sb.write(r - 0x0660);
-      } else if (r >= 48 && r <= 57) {
-        sb.write(String.fromCharCode(r));
-      }
-    }
-    return sb.toString();
-  }
+  static String toFa(String s) => PersianText.toFaDigits(s);
 
   static String money(String v) {
-    final d = _asciiDigits(v);
+    final d = PersianText.asciiDigits(v);
     if (d.isEmpty) return v;
     final sb = StringBuffer();
     for (var i = 0; i < d.length; i++) {

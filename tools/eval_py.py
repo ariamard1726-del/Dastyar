@@ -1,15 +1,39 @@
-"""بازنویسی پایتونیِ موتور lib/engine.dart برای ارزیابی سریع.
-خروجی تقریباً با Dart یکی است ولی مرجع نهایی، تست‌های Dart در GitHub است.
+"""بازنویسی پایتونیِ همگام با موتور lib/engine.dart برای ارزیابی سریع آفلاین.
+شامل نمایهٔ معکوس (Inverted Index)، جستجوی دودویی پیشوند، پشتیبانی از ماده واحده و مکرر شماره‌دار،
+و ارتقای مواد تعریفی (X چیست / یعنی چه) منطبق بر موتور Dart.
 اجرا: python3 tools/eval_py.py [-v]"""
-import json, math, os, re, sys
+from bisect import bisect_left
+import json
+import math
+import os
+import re
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'brain'))
 from common import normalize  # noqa: E402
 
 NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
-STOP = set('و در به از که را با این آن برای یک است هست چه چی چیست کی کجا چرا چطور چگونه آیا من تو شما می هم یا تا بر هر بود شد باشد کند کنم کن بگو درباره مورد لطفا ممنون ماده قانون'.split())
+    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+'
+)
+ART_QUERY_RE = re.compile(
+    r'ماده\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)'
+)
+DEF_Q_RE = re.compile(
+    r'چیست|چیه|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن'
+)
+DEF_WORDS = {
+    'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
+    'گویند', 'کسی', 'کیست',
+}
+DEF_MARK_RE = re.compile(r'عقدی|عبارت|است|گویند')
+DEF_STRONG_RE = re.compile(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)')
+CLEAN_BODY_RE = re.compile(r'^[(\[][^)\]]*[)\]]\s*-?\s*')
+
+STOP = set(
+    'و در به از که را با این آن برای یک است هست چه چی چیست کی کجا چرا چطور چگونه '
+    'آیا من تو شما می هم یا تا بر هر بود شد باشد کند کنم کن بگو درباره مورد لطفا ممنون ماده قانون'.split()
+)
 SUF = ['ترین', 'هایی', 'های', 'ها']
 K1, B, WT, WB, WC = 0.9, 0.7, 3.0, 1.0, 0.5
 
@@ -43,48 +67,72 @@ def obsolete(body):
     return n.startswith(('منسوخ', 'ملغی', 'ملغا', 'حذف شد'))
 
 
+def _wanted_article(m):
+    if m.group(1):
+        return 'ماده واحده'
+    num = m.group(2)
+    mk = (' مکرر ' + m.group(4)) if (m.group(3) and m.group(4)) else (' مکرر' if m.group(3) else '')
+    return f'ماده {num}{mk}'
+
+
 class Engine:
     def __init__(self):
-        self.chunks, self.lawcount = [], {}
-        A = os.path.join(ROOT, 'assets')
-        cat = json.load(open(os.path.join(A, 'laws_catalog.json'), encoding='utf-8'))
+        self.chunks = []
+        self.lawcount = {}
+        assets_dir = os.path.join(ROOT, 'assets')
+        with open(os.path.join(assets_dir, 'laws_catalog.json'), encoding='utf-8') as f:
+            cat = json.load(f)
         self.catalog = cat.get('laws', [])
-        meta_path = os.path.join(A, 'laws', '_meta.json')
-        meta = json.load(open(meta_path, encoding='utf-8')) if os.path.isfile(meta_path) else {}
+        meta_path = os.path.join(assets_dir, 'laws', '_meta.json')
+        if os.path.isfile(meta_path):
+            with open(meta_path, encoding='utf-8') as f:
+                meta = json.load(f)
+        else:
+            meta = {}
 
-        k_path = os.path.join(A, 'knowledge.txt')
+        k_path = os.path.join(assets_dir, 'knowledge.txt')
         if os.path.isfile(k_path):
-            text = open(k_path, encoding='utf-8').read().replace('\r', '')
+            with open(k_path, encoding='utf-8') as f:
+                text = f.read().replace('\r', '')
             self.parse(text, 'دانش عمومی', 'knowledge')
 
         for lid, info in meta.items():
             if not isinstance(info, dict) or not info.get('path'):
                 continue
-            p = os.path.join(A, 'laws', info['path'])
+            p = os.path.join(assets_dir, 'laws', info['path'])
             if os.path.isfile(p):
-                text = open(p, encoding='utf-8').read().replace('\r', '')
+                with open(p, encoding='utf-8') as f:
+                    text = f.read().replace('\r', '')
                 fallback = str(info.get('title', '')).strip()
                 self.parse(text, fallback, lid)
 
         self.syn = []
-        for line in open(os.path.join(A, 'synonyms.txt'), encoding='utf-8'):
-            l = line.strip()
-            if not l or l.startswith('#') or '|' not in l:
-                continue
-            k, v = l.split('|', 1)
-            k, v = phrase(k), v.strip()
-            if k and v:
-                self.syn.append((k, v))
+        with open(os.path.join(assets_dir, 'synonyms.txt'), encoding='utf-8') as f:
+            for line in f:
+                l = line.strip()
+                if not l or l.startswith('#') or '|' not in l:
+                    continue
+                k, v = l.split('|', 1)
+                k, v = phrase(k), v.strip()
+                if k and v:
+                    self.syn.append((k, v))
+
         df = {}
+        self.postings = {}
+        self.by_title = {}
         total = 0
-        for c in self.chunks:
+        for idx, c in enumerate(self.chunks):
             total += c['len']
+            self.by_title.setdefault(c['norm_title'], []).append(idx)
             for t in set(c['T']) | set(c['B']) | set(c['C']):
                 df[t] = df.get(t, 0) + 1
+                self.postings.setdefault(t, []).append(idx)
+
         n = len(self.chunks)
         self.avg = max(1.0, total / n) if n else 1.0
         self.idf = {t: math.log((n + 1) / (d + 1)) + 1.0 for t, d in df.items()}
-        self.vocab = list(df)
+        self.max_idf = max(self.idf.values()) if self.idf else 1.0
+        self.vocab = sorted(df.keys())
 
     def parse(self, text, source, law):
         chapter = ''
@@ -101,17 +149,31 @@ class Engine:
                 chapter = ''
                 continue
             body = '\n'.join(lines[1:]).strip() if len(lines) > 1 else first
-            T, Bd, C = {}, {}, {}
+            t_map, b_map, c_map = {}, {}, {}
             ln = 0
             for t in tok(first):
-                T[t] = T.get(t, 0) + 1; ln += 1
+                t_map[t] = t_map.get(t, 0) + 1
+                ln += 1
             for t in tok(body):
-                Bd[t] = Bd.get(t, 0) + 1; ln += 1
+                b_map[t] = b_map.get(t, 0) + 1
+                ln += 1
             for t in tok(chapter) + tok(source):
-                C[t] = C.get(t, 0) + 1; ln += 1
-            self.chunks.append(dict(law=law, source=source, title=first, body=body,
-                                    obs=(body != first and obsolete(body)),
-                                    T=T, B=Bd, C=C, len=ln))
+                c_map[t] = c_map.get(t, 0) + 1
+                ln += 1
+            self.chunks.append(
+                dict(
+                    law=law,
+                    source=source,
+                    title=first,
+                    norm_title=collapse(normalize(first)),
+                    body=body,
+                    obs=(body != first and obsolete(body)),
+                    T=t_map,
+                    B=b_map,
+                    C=c_map,
+                    len=ln,
+                )
+            )
             self.lawcount[law] = self.lawcount.get(law, 0) + 1
 
     def mentioned(self, q):
@@ -163,40 +225,108 @@ class Engine:
                 out.append(l['id'])
         return out
 
+    def _add_prefix_terms(self, t, terms):
+        for ln in range(3, len(t)):
+            sub = t[:ln]
+            if sub in self.idf:
+                terms[sub] = max(terms.get(sub, 0.0), 0.5)
+        idx = bisect_left(self.vocab, t)
+        while idx < len(self.vocab) and self.vocab[idx].startswith(t):
+            v = self.vocab[idx]
+            terms[v] = max(terms.get(v, 0.0), 0.5)
+            idx += 1
+
+    def _promote_definitions(self, question, hits):
+        if not hits or not DEF_Q_RE.search(normalize(question)):
+            return hits
+        toks = [t for t in tok(question) if t not in DEF_WORDS]
+        if not toks:
+            return hits
+        cands = []
+        for n in (2, 1):
+            if len(toks) < n:
+                continue
+            term = ' '.join(toks[:n])
+            strong, weak = [], []
+            for h in hits:
+                c = h[0]
+                if c['law'] == 'knowledge' or c['obs']:
+                    continue
+                body = CLEAN_BODY_RE.sub('', collapse(normalize(c['body'])), count=1)
+                p = term if body.startswith(term) else (
+                    f'عقد {term}' if body.startswith(f'عقد {term}') else None
+                )
+                if p is None:
+                    continue
+                tail = body[len(p):len(p) + 30]
+                if not DEF_MARK_RE.search(tail):
+                    continue
+                (strong if DEF_STRONG_RE.search(tail) else weak).append(h)
+            cands = strong + weak
+            if cands:
+                break
+        if not cands:
+            return hits
+        picked = cands[:2]
+        top_score = hits[0][1]
+        picked_ids = {id(p[0]) for p in picked}
+        out = [(picked[0][0], max(picked[0][1], top_score))] + list(picked[1:])
+        for h in hits:
+            if id(h[0]) not in picked_ids:
+                out.append(h)
+        return out
+
     def rank(self, question, k=60):
         q = normalize(question)
         qt = list(dict.fromkeys(tok(question)))
         ids = {i for i in self.mentioned(question) if self.lawcount.get(i, 0) > 0}
-        pool = [c for c in self.chunks if c['law'] in ids] if ids else self.chunks
-        m = re.search(r'ماده\s*(\d+)(\s*مکرر)?', q)
+
+        m = ART_QUERY_RE.search(q)
         if m:
-            want = 'ماده %s%s' % (m.group(1), ' مکرر' if m.group(2) else '')
-            found = [c for c in pool if collapse(normalize(c['title'])) == want]
+            want = collapse(_wanted_article(m))
+            title_indices = self.by_title.get(want, [])
+            found = [
+                self.chunks[idx]
+                for idx in title_indices
+                if not ids or self.chunks[idx]['law'] in ids
+            ]
             if found:
                 qs = set(qt)
                 best = max(found, key=lambda c: len(qs & set(tok(c['source']))))
                 return [(best, 99.0)]
+
         if not qt:
             return []
+
         terms, total = {}, 0.0
         for t in qt:
             total += self.idf.get(t, 1.0)
             if t in self.idf:
                 terms[t] = 1.0
             elif len(t) >= 3:
-                for v in self.vocab:
-                    if len(v) >= 3 and (v.startswith(t) or t.startswith(v)):
-                        terms[v] = max(terms.get(v, 0), 0.5)
-        n = ' %s ' % phrase(question)
+                self._add_prefix_terms(t, terms)
+
+        n = f' {phrase(question)} '
         for kk, v in self.syn:
-            if (' %s ' % kk) in n:
+            if f' {kk} ' in n:
                 for t in tok(v):
                     if t in self.idf:
-                        terms[t] = max(terms.get(v, 0), 1.0)
+                        terms[t] = max(terms.get(t, 0.0), 1.0)
+
         if not terms:
             return []
+
+        cand_set = set()
+        for t in terms:
+            cand_set.update(self.postings.get(t, ()))
+        if not cand_set:
+            return []
+
         hits = []
-        for c in pool:
+        for idx in sorted(cand_set):
+            c = self.chunks[idx]
+            if ids and c['law'] not in ids:
+                continue
             s = 0.0
             ln = 1 - B + B * c['len'] / self.avg
             for t, w in terms.items():
@@ -210,29 +340,37 @@ class Engine:
             if c['obs']:
                 s *= 0.1
             hits.append((c, s))
+
         hits.sort(key=lambda h: -h[1])
-        return hits[:k]
+        return self._promote_definitions(question, hits)[:k]
 
 
 def run(eng, path, verbose):
     rows = []
-    for l in open(path, encoding='utf-8'):
-        l = l.strip()
-        if l and not l.startswith('#'):
-            rows.append([x.strip() for x in l.split('|')])
-    r1 = r5 = 0; mrr = 0.0; bad = []
+    with open(path, encoding='utf-8') as f:
+        for l in f:
+            l = l.strip()
+            if l and not l.startswith('#'):
+                rows.append([x.strip() for x in l.split('|')])
+    r1 = r5 = 0
+    mrr = 0.0
+    bad = []
     for q, law, title in rows:
         rank = 0
         for i, (c, _) in enumerate(eng.rank(q)):
             if c['law'] == law and c['title'] == title:
-                rank = i + 1; break
-        r1 += rank == 1; r5 += 1 <= rank <= 5
+                rank = i + 1
+                break
+        r1 += rank == 1
+        r5 += 1 <= rank <= 5
         mrr += 1 / rank if rank else 0
         if rank != 1:
             bad.append((rank, q))
     n = len(rows)
-    print('%s: n=%d recall@1 %.2f recall@5 %.2f MRR %.3f' % (
-        os.path.basename(path), n, r1 / n, r5 / n, mrr / n))
+    print(
+        '%s: n=%d recall@1 %.2f recall@5 %.2f MRR %.3f'
+        % (os.path.basename(path), n, r1 / n, r5 / n, mrr / n)
+    )
     if verbose:
         for rank, q in bad:
             print('  rank %s | %s' % (rank or '>60', q))

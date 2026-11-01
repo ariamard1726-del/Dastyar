@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'privacy.dart';
@@ -7,6 +7,7 @@ class AppSettings extends ChangeNotifier {
   double fontScale = 1.0;
   bool saveHistory = true;
   bool secureScreen = false;
+  ThemeMode themeMode = ThemeMode.system;
   SharedPreferences? _prefs;
 
   static const List<double> scales = [0.9, 1.0, 1.2, 1.4];
@@ -17,6 +18,39 @@ class AppSettings extends ChangeNotifier {
     'خیلی بزرگ',
   ];
 
+  static const List<ThemeMode> themeModes = [
+    ThemeMode.system,
+    ThemeMode.light,
+    ThemeMode.dark,
+  ];
+  static const List<String> themeNames = [
+    'هماهنگ با گوشی',
+    'روشن',
+    'تیره',
+  ];
+
+  static ThemeMode _parseThemeMode(String? raw) {
+    switch (raw) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  static String _themeModeName(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'light';
+      case ThemeMode.dark:
+        return 'dark';
+      case ThemeMode.system:
+        return 'system';
+    }
+  }
+
   static Future<AppSettings> load() async {
     final s = AppSettings();
     try {
@@ -26,6 +60,7 @@ class AppSettings extends ChangeNotifier {
       s.fontScale = scales.contains(fs) ? fs : 1.0;
       s.saveHistory = p.getBool('saveHistory') ?? true;
       s.secureScreen = p.getBool('secureScreen') ?? false;
+      s.themeMode = _parseThemeMode(p.getString('themeMode'));
     } catch (_) {}
     return s;
   }
@@ -35,6 +70,15 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     try {
       await _prefs?.setDouble('fontScale', v);
+    } catch (_) {}
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode = mode;
+    notifyListeners();
+    try {
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setString('themeMode', _themeModeName(mode));
     } catch (_) {}
   }
 
@@ -51,7 +95,8 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     await PrivacyService.setSecureScreen(v);
     try {
-      await _prefs?.setBool('secureScreen', v);
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setBool('secureScreen', v);
     } catch (_) {}
   }
 }

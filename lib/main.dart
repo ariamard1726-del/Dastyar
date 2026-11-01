@@ -72,7 +72,7 @@ class DastyarApp extends StatelessWidget {
           ],
           theme: _buildTheme(Brightness.light),
           darkTheme: _buildTheme(Brightness.dark),
-          themeMode: ThemeMode.system,
+          themeMode: settings.themeMode,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
             return MediaQuery(

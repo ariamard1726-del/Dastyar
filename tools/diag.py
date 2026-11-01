@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 
-def sh(cmd):
-    r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+def sh(args):
+    r = subprocess.run(args, capture_output=True, text=True)
     return (r.stdout + r.stderr).strip()
 
 
@@ -20,18 +20,31 @@ def head(title, text, n=40):
         print('... (%d خط دیگر)' % (len(lines) - n))
 
 
-head('git', sh('git branch --show-current; git log --oneline -5; git status -sb'), 15)
+git_summary = '\n'.join(
+    part
+    for part in (
+        sh(['git', 'branch', '--show-current']),
+        sh(['git', 'log', '--oneline', '-5']),
+        sh(['git', 'status', '-sb']),
+    )
+    if part
+)
+head('git', git_summary, 15)
 
 try:
-    head('آخرین گزارش تست', open('reports/last_test.txt', encoding='utf-8').read(), 40)
+    with open('reports/last_test.txt', encoding='utf-8') as f:
+        head('آخرین گزارش تست', f.read(), 40)
 except OSError:
     print('=== گزارش تست هنوز نیست ===')
 
 for spec in sys.argv[1:]:
     if spec.startswith('g:'):
         pat = spec[2:]
-        out = subprocess.run(['grep', '-rn', '-E', pat, 'lib', 'test'],
-                             capture_output=True, text=True).stdout
+        out = subprocess.run(
+            ['grep', '-rn', '-E', pat, 'lib', 'test'],
+            capture_output=True,
+            text=True,
+        ).stdout
         head('grep ' + pat, out, 30)
         continue
     m = re.match(r'^(.+?):(\d+)-(\d+)$', spec)
@@ -41,7 +54,8 @@ for spec in sys.argv[1:]:
         path, a, b = spec, 1, 80
     b = min(b, a + 120)
     try:
-        lines = open(path, encoding='utf-8', errors='replace').read().splitlines()
+        with open(path, encoding='utf-8', errors='replace') as f:
+            lines = f.read().splitlines()
     except OSError:
         print('=== %s: پیدا نشد ===' % path)
         continue

@@ -1,0 +1,369 @@
+import 'package:flutter/foundation.dart';
+
+import 'assistant.dart';
+import 'chat_models.dart';
+import 'drafting.dart';
+import 'engine.dart';
+import 'history.dart';
+import 'settings.dart';
+import 'templates.dart';
+
+/// کنترلر مستقل منطق گفتگو، مدیریت وضعیت پیش‌نویس، پیشنهادهای معوق و استریم پاسخ.
+///
+/// جداسازی این لایه از ویجت‌ها باعث می‌شود ماشین حالت گفتگو، لغو استریم در میانهٔ
+/// تولید و ذخیره‌سازی تاریخچه بدون وابستگی به درخت ویجت قابل تست و نگهداری باشد.
+class ChatController extends ChangeNotifier {
+  final KnowledgeEngine engine;
+  final Assistant assistant;
+  final TemplateRepository repo;
+  final HistoryStore history;
+  final AppSettings settings;
+  final VoidCallback? onScrollRequested;
+
+  final List<ChatMessage> messages = [];
+  bool _busy = false;
+  String _sessionId = _newId();
+  DraftSession? _draft;
+
+  // پیشنهاد در انتظار تصمیم کاربر
+  String? _pendingText;
+  List<LegalTemplate> _pendingList = [];
+  final Set<String> _declined = {};
+
+  int _askEpoch = 0;
+  bool _disposed = false;
+
+  ChatController({
+    required this.engine,
+    required this.assistant,
+    required this.repo,
+    required this.history,
+    required this.settings,
+    String? loadError,
+    this.onScrollRequested,
+  }) {
+    if (loadError != null && loadError.isNotEmpty) {
+      messages.add(ChatMessage(loadError, false, sensitive: true));
+    }
+  }
+
+  static String _newId() => DateTime.now().microsecondsSinceEpoch.toString();
+
+  bool get busy => _busy;
+  String get sessionId => _sessionId;
+  DraftSession? get draft => _draft;
+  bool get isDrafting => _draft != null;
+  List<LegalTemplate> get pendingChoices => List.unmodifiable(_pendingList);
+
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
+
+  void _requestScroll() {
+    if (!_disposed) onScrollRequested?.call();
+  }
+
+  void _resetFlow() {
+    _draft = null;
+    _pendingText = null;
+    _pendingList = [];
+    _declined.clear();
+  }
+
+  /// لغو ایمن پاسخ در حال تولید و آزادسازی منبع مدل زبانی.
+  void cancelActiveAsk() {
+    if (!_busy) return;
+    _askEpoch++;
+    try {
+      assistant.llm.cancel();
+    } catch (_) {}
+    _busy = false;
+    if (messages.isNotEmpty &&
+        !messages.last.fromUser &&
+        messages.last.text == '...') {
+      messages.last.text = 'پاسخ متوقف شد.';
+    }
+    _notify();
+  }
+
+  Future<void> _saveSession() async {
+    if (!settings.saveHistory || _disposed) return;
+    final stored = messages
+        .where((m) => !m.sensitive && !m.isDoc && m.text != '...')
+        .map((m) => StoredMsg(m.text, m.fromUser))
+        .toList();
+    final users = stored.where((m) => m.fromUser).toList();
+    if (users.isEmpty) return;
+    await history.upsert(
+      ChatSession(
+        id: _sessionId,
+        title: HistoryStore.makeTitle(users.first.text),
+        updated: DateTime.now().millisecondsSinceEpoch,
+        messages: stored,
+      ),
+    );
+  }
+
+  Future<void> submit(String rawText) async {
+    final text = rawText.trim();
+    if (text.isEmpty || _busy || _disposed) return;
+    for (final m in messages) {
+      m.chips = const [];
+    }
+
+    if (_draft != null) {
+      _draftStep(text);
+      return;
+    }
+
+    // پاسخ به پیشنهاد یا فهرست انتخاب قالب که قبلاً نمایش داده شده
+    if (_pendingList.isNotEmpty) {
+      final pt = _pendingText;
+      final list = _pendingList;
+
+      final isDecline = text == DraftCmd.offerNo ||
+          text == DraftCmd.cancel ||
+          Drafting.isNo(text);
+      if (isDecline) {
+        _pendingText = null;
+        _pendingList = [];
+        if (pt != null) {
+          for (final t in list) {
+            _declined.add(t.id);
+          }
+          messages.add(ChatMessage(text, true, sensitive: true));
+          _notify();
+          await _ask(pt, addUser: false, sensitive: true);
+        } else {
+          messages.add(ChatMessage(text, true, sensitive: true));
+          messages.add(
+            ChatMessage(
+              'تهیهٔ متن لغو شد. هر سؤالی دارید بپرسید.',
+              false,
+              sensitive: true,
+            ),
+          );
+          _notify();
+          _requestScroll();
+        }
+        return;
+      }
+
+      final isAccept = text == DraftCmd.offerYes || Drafting.isYes(text);
+      if (isAccept) {
+        if (list.length == 1) {
+          _pendingText = null;
+          _pendingList = [];
+          _startDraft(text, list.first);
+          return;
+        }
+        messages.add(ChatMessage(text, true, sensitive: true));
+        messages.add(
+          ChatMessage(
+            'لطفاً مشخص کنید کدام‌یک از این قالب‌ها را آماده کنم:',
+            false,
+            sensitive: true,
+            chips: [
+              ...list.map((t) => t.title),
+              if (pt != null) DraftCmd.offerNo else DraftCmd.cancel,
+            ],
+          ),
+        );
+        _notify();
+        _requestScroll();
+        return;
+      }
+
+      final picked = Drafting.pickChoice(text, list);
+      _pendingText = null;
+      _pendingList = [];
+      if (picked != null) {
+        _startDraft(text, picked);
+        return;
+      }
+    }
+
+    // درخواست صریح تهیهٔ متن
+    final intent = Drafting.detect(text, repo.templates);
+    final directTpl = intent.template;
+    if (directTpl != null) {
+      _startDraft(text, directTpl);
+      return;
+    }
+    if (intent.choices.isNotEmpty) {
+      _pendingText = null;
+      _pendingList = intent.choices;
+      messages.add(ChatMessage(text, true, sensitive: true));
+      messages.add(
+        ChatMessage(
+          Drafting.chooseText,
+          false,
+          sensitive: true,
+          chips: [
+            ...intent.choices.map((t) => t.title),
+            DraftCmd.cancel,
+          ],
+        ),
+      );
+      _notify();
+      _requestScroll();
+      return;
+    }
+
+    // توصیف وضعیت بدون درخواست صریح: فقط پیشنهاد
+    final avail =
+        repo.templates.where((t) => !_declined.contains(t.id)).toList();
+    final sug = Drafting.suggest(text, avail);
+    final sugTpl = sug.template;
+    if (sugTpl != null) {
+      _pendingText = text;
+      _pendingList = [sugTpl];
+      messages.add(ChatMessage(text, true, sensitive: true));
+      messages.add(
+        ChatMessage(
+          Drafting.offerText(sugTpl),
+          false,
+          sensitive: true,
+          chips: const [DraftCmd.offerYes, DraftCmd.offerNo],
+        ),
+      );
+      _notify();
+      _requestScroll();
+      return;
+    }
+    if (sug.choices.isNotEmpty) {
+      _pendingText = text;
+      _pendingList = sug.choices;
+      messages.add(ChatMessage(text, true, sensitive: true));
+      messages.add(
+        ChatMessage(
+          Drafting.suggestChooseText,
+          false,
+          sensitive: true,
+          chips: [
+            ...sug.choices.map((t) => t.title),
+            DraftCmd.offerNo,
+          ],
+        ),
+      );
+      _notify();
+      _requestScroll();
+      return;
+    }
+
+    await _ask(text);
+  }
+
+  Future<void> _ask(
+    String text, {
+    bool addUser = true,
+    bool sensitive = false,
+  }) async {
+    final myEpoch = ++_askEpoch;
+    final bot = ChatMessage('...', false, sensitive: sensitive);
+    _busy = true;
+    if (addUser) messages.add(ChatMessage(text, true, sensitive: sensitive));
+    messages.add(bot);
+    _notify();
+    _requestScroll();
+
+    var alts = const <String>[];
+    try {
+      await for (final turn in assistant.askWithAlternatives(text)) {
+        if (_disposed || myEpoch != _askEpoch) return;
+        alts = turn.alternatives;
+        bot.text = turn.text;
+        _notify();
+        _requestScroll();
+      }
+    } catch (_) {
+      if (!_disposed && myEpoch == _askEpoch) {
+        bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
+        _notify();
+      }
+    }
+
+    if (_disposed || myEpoch != _askEpoch) return;
+    if (alts.isNotEmpty) {
+      bot.chips = alts;
+    }
+    await _saveSession();
+    if (_disposed || myEpoch != _askEpoch) return;
+    _busy = false;
+    _notify();
+  }
+
+  ChatMessage _botFromReply(DraftReply r, LegalTemplate t) {
+    if (r.isDocument) {
+      return ChatMessage(
+        r.text,
+        false,
+        sensitive: true,
+        isDoc: true,
+        docTitle: t.title,
+        docReviewed: t.reviewed,
+        docReviewNote: t.reviewNote,
+        note: r.note,
+        laws: Drafting.lawTexts(engine, t),
+        lawRefsTotal: t.lawRefs.length,
+        chips: r.chips,
+      );
+    }
+    return ChatMessage(r.text, false, sensitive: true, chips: r.chips);
+  }
+
+  void _startDraft(String userText, LegalTemplate t) {
+    final s = DraftSession(t);
+    final r = Drafting.start(s);
+    _draft = s;
+    messages.add(ChatMessage(userText, true, sensitive: true));
+    messages.add(_botFromReply(r, t));
+    _notify();
+    _requestScroll();
+  }
+
+  void _draftStep(String text) {
+    final s = _draft;
+    if (s == null) return;
+    final r = Drafting.answer(s, text);
+    messages.add(ChatMessage(text, true, sensitive: true));
+    messages.add(_botFromReply(r, s.template));
+    if (r.ended) _draft = null;
+    _notify();
+    _requestScroll();
+  }
+
+  void newChat({bool force = false}) {
+    if (_busy) {
+      if (!force) return;
+      cancelActiveAsk();
+    }
+    _sessionId = _newId();
+    _resetFlow();
+    messages.clear();
+    _notify();
+  }
+
+  void loadSession(ChatSession s) {
+    if (_busy) return;
+    _sessionId = s.id;
+    _resetFlow();
+    messages
+      ..clear()
+      ..addAll(s.messages.map((m) => ChatMessage(m.text, m.fromUser)));
+    _notify();
+    _requestScroll();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _askEpoch++;
+    if (_busy) {
+      try {
+        assistant.llm.cancel();
+      } catch (_) {}
+    }
+    super.dispose();
+  }
+}

@@ -1,11 +1,14 @@
-import os, re, sys
+import os
+import re
+import sys
 
 test_f, data_f, dst, sha = sys.argv[1:5]
 
 
 def read(p):
     try:
-        return open(p, encoding='utf-8', errors='replace').read().splitlines()
+        with open(p, encoding='utf-8', errors='replace') as f:
+            return f.read().splitlines()
     except OSError:
         return []
 
@@ -47,4 +50,7 @@ if errs:
     out += errs[:15]
 
 os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
-open(dst, 'w', encoding='utf-8').write('\n'.join(out[:140]) + '\n')
+summary_text = '\n'.join(out[:140]) + '\n'
+with open(dst, 'w', encoding='utf-8') as f:
+    f.write(summary_text)
+print(summary_text, end='', flush=True)

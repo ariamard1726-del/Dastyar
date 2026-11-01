@@ -26,7 +26,7 @@ errors, warnings, infos = [], [], []
 AI_MARKERS = ['هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
               'chatgpt', 'gemini', 'claude', 'as an ai', 'language model']
 FA_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
-ARTICLE = re.compile(r'^ماده\s*(\d+)(?:\s*(مکرر(?:\s*\d+)?))?\s*$')
+ARTICLE = re.compile(r'^ماده\s*(?:(واحده)|(\d+)(?:\s*(مکرر(?:\s*\d{1,2})?))?)\s*$')
 
 
 def norm(s):
@@ -147,8 +147,8 @@ for full, lid in sorted(registered.items(), key=lambda x: x[1]):
         if t in seen:
             errors.append('%s: «%s» تکراری است' % (rel, t))
         seen[t] = True
-        if not m.group(2):
-            n = int(m.group(1))
+        if m.group(2) and not m.group(3):
+            n = int(m.group(2))
             if n < prev:
                 errors.append('%s: شمارهٔ ماده برگشت دارد (%d بعد از %d)' % (rel, n, prev))
             prev = max(prev, n)
@@ -176,16 +176,32 @@ for full, lid in sorted(registered.items(), key=lambda x: x[1]):
             warnings.append('%s: %s در _meta.json خالی است' % (lid, k))
 
 # ---------- ۶: lawRefs ----------
+catalog_names_by_id = {}
+for l in catalog.get('laws', []):
+    lid_key = l.get('id')
+    if lid_key:
+        names = {norm(str(l.get('title', '')))}
+        for al in l.get('aliases', []):
+            names.add(norm(str(al)))
+        catalog_names_by_id[lid_key] = {x for x in names if x}
+
 for tp in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))):
     t = load_json(tp, os.path.basename(tp))
     if not t:
         continue
     for r in t.get('lawRefs', []):
         law, art = norm(str(r.get('law', ''))), norm(str(r.get('article', '')))
-        title = 'ماده ' + art
+        title = art if art.startswith('ماده ') else 'ماده ' + art
         found = False
-        for srcs, titles in sources_by_law.values():
-            if title in titles and any(s == law or law in s or s in law for s in srcs):
+        for lid_key, (srcs, titles) in sources_by_law.items():
+            if title not in titles:
+                continue
+            cat_names = catalog_names_by_id.get(lid_key, set())
+            if (
+                law == lid_key
+                or law in cat_names
+                or any(s == law or law in s or s in law for s in srcs)
+            ):
                 found = True
                 break
         if not found:

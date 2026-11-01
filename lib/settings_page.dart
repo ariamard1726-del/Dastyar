@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'history.dart';
+import 'persian_text.dart';
 import 'settings.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -47,6 +48,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final s = widget.settings;
+    final countFa = PersianText.toFaDigits(
+      widget.history.sessions.length.toString(),
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('تنظیمات')),
       body: SafeArea(
@@ -59,6 +63,28 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'حالت نمایش',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (var i = 0; i < AppSettings.themeModes.length; i++)
+                          ChoiceChip(
+                            label: Text(AppSettings.themeNames[i]),
+                            selected:
+                                s.themeMode == AppSettings.themeModes[i],
+                            onSelected: (_) {
+                              s.setThemeMode(AppSettings.themeModes[i]);
+                              setState(() {});
+                            },
+                          ),
+                      ],
+                    ),
+                    const Divider(height: 24),
                     Text(
                       'اندازهٔ نوشته',
                       style: Theme.of(context).textTheme.titleMedium,
@@ -114,9 +140,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.delete_outline),
                     title: const Text('پاک کردن همهٔ تاریخچه'),
-                    subtitle: Text(
-                      '${widget.history.sessions.length} گفتگو ذخیره شده',
-                    ),
+                    subtitle: Text('$countFa گفتگو ذخیره شده'),
                     onTap: _clearHistory,
                   ),
                 ],

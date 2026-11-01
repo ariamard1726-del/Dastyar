@@ -1,10 +1,14 @@
-import json, subprocess, sys, time, urllib.request
+import json
+import subprocess
+import sys
+import time
+import urllib.request
 
 REPO = 'ariamard1726-del/Dastyar'
 
 
-def sh(cmd, check=True):
-    r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+def sh(args, check=True):
+    r = subprocess.run(args, capture_output=True, text=True)
     if check and r.returncode != 0:
         print(r.stdout + r.stderr)
         sys.exit(1)
@@ -19,9 +23,10 @@ def api(url):
 
 def show_report(sha):
     for _ in range(8):
-        sh('git pull --rebase -q', check=False)
+        sh(['git', 'pull', '--rebase', '-q'], check=False)
         try:
-            txt = open('reports/last_test.txt', encoding='utf-8').read()
+            with open('reports/last_test.txt', encoding='utf-8') as f:
+                txt = f.read()
         except OSError:
             txt = ''
         if txt.startswith('commit: ' + sha[:7]):
@@ -34,26 +39,30 @@ def show_report(sha):
 def main():
     args = sys.argv[1:]
     if args and args[0] == 'report':
-        sh('git pull --rebase -q', check=False)
-        print(open('reports/last_test.txt', encoding='utf-8').read())
+        sh(['git', 'pull', '--rebase', '-q'], check=False)
+        with open('reports/last_test.txt', encoding='utf-8') as f:
+            print(f.read())
         return
     msg = args[0] if args else 'update'
-    if sh('git status --porcelain'):
-        sh('git add -A')
-        print(sh('git diff --cached --stat'))
+    if sh(['git', 'status', '--porcelain']):
+        sh(['git', 'add', '-A'])
+        print(sh(['git', 'diff', '--cached', '--stat']))
         subprocess.run(['git', 'commit', '-q', '-m', msg], check=True)
-    sh('git pull --rebase -q')
-    sha = sh('git rev-parse HEAD')
-    sh('git push -q')
+    sh(['git', 'pull', '--rebase', '-q'])
+    sha = sh(['git', 'rev-parse', 'HEAD'])
+    sh(['git', 'push', '-q'])
     print('push شد:', sha[:7], '- منتظر نتیجهٔ Test ...')
-    url = ('https://api.github.com/repos/%s/actions/runs?head_sha=%s'
-           '&per_page=10' % (REPO, sha))
+    url = (
+        'https://api.github.com/repos/%s/actions/runs?head_sha=%s&per_page=10'
+        % (REPO, sha)
+    )
     end = time.time() + 900
     run = None
     while time.time() < end:
         try:
-            runs = [r for r in api(url)['workflow_runs']
-                    if r['name'] == 'Test']
+            runs = [
+                r for r in api(url)['workflow_runs'] if r['name'] == 'Test'
+            ]
         except Exception:
             runs = []
         if runs and runs[0]['status'] == 'completed':
@@ -64,4 +73,5 @@ def main():
     show_report(sha)
 
 
-main()
+if __name__ == '__main__':
+    main()

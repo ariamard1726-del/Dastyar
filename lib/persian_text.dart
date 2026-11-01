@@ -1,8 +1,10 @@
-/// لایهٔ متن فارسی: یکدست‌سازی نویسه‌ها، ریشه‌یابی سبک و واژه‌بندی.
+/// لایهٔ متن فارسی: یکدست‌سازی نویسه‌ها، تبدیل ارقام، ریشه‌یابی سبک و واژه‌بندی.
 /// موتور جست‌وجو و بخش‌های دیگر فقط از اینجا استفاده می‌کنند،
 /// تا هر بهبود زبانی (ریشه‌یاب بهتر، نیم‌فاصله، ...) در یک جا انجام شود.
 class PersianText {
   PersianText._();
+
+  static const String _faDigits = '۰۱۲۳۴۵۶۷۸۹';
 
   static const Set<String> _stop = {
     'و', 'در', 'به', 'از', 'که', 'را', 'با', 'این', 'آن', 'برای', 'یک',
@@ -50,6 +52,36 @@ class PersianText {
       sb.write(map[ch] ?? ch);
     }
     return sb.toString().toLowerCase();
+  }
+
+  /// تبدیل ارقام لاتین و عربی به ارقام فارسی به صورت ایمن روی Runes.
+  static String toFaDigits(String s) {
+    final sb = StringBuffer();
+    for (final r in s.runes) {
+      if (r >= 48 && r <= 57) {
+        sb.write(_faDigits[r - 48]);
+      } else if (r >= 0x0660 && r <= 0x0669) {
+        sb.write(_faDigits[r - 0x0660]);
+      } else {
+        sb.writeCharCode(r);
+      }
+    }
+    return sb.toString();
+  }
+
+  /// استخراج فقط ارقام از متن به صورت لاتین (۰-۹ / ٠-٩ / 0-9 -> 0-9).
+  static String asciiDigits(String s) {
+    final sb = StringBuffer();
+    for (final r in s.runes) {
+      if (r >= 0x06F0 && r <= 0x06F9) {
+        sb.write(r - 0x06F0);
+      } else if (r >= 0x0660 && r <= 0x0669) {
+        sb.write(r - 0x0660);
+      } else if (r >= 48 && r <= 57) {
+        sb.writeCharCode(r);
+      }
+    }
+    return sb.toString();
   }
 
   static String collapse(String s) => s.replaceAll(_spaces, ' ').trim();
