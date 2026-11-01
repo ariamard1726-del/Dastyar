@@ -9,6 +9,7 @@ import 'models.dart';
 import 'persian_text.dart';
 import 'replies.dart';
 import 'router.dart';
+import 'services/conflicts_service.dart';
 
 export 'models.dart';
 
@@ -25,9 +26,9 @@ class KnowledgeEngine {
   // زیر این پوشش، پاسخ با هشدار «مطمئن نیستم» نشان داده می‌شود.
   static const double _lowCover = 0.4;
 
-  // پرسش‌های «X چیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
+  // پرسش‌های «X چیست / کیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
   static final RegExp _defQ = RegExp(
-    r'چیست|چیه|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن',
+    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن',
   );
   static const Set<String> _defWords = {
     'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
@@ -61,6 +62,25 @@ class KnowledgeEngine {
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
   final Map<String, Map<String, dynamic>> meta = {};
+  final ConflictsService _conflictsService = ConflictsService();
+  Map<String, dynamic> _relationships = const {};
+
+  static const List<String> _unloadedPenalTerms = [
+    'سرقت', 'دزدی', 'کلاهبرداری', 'قتل', 'ضرب و جرح', 'خیانت در امانت',
+    'توهین', 'افترا', 'جعل', 'رشوه', 'اختلاس', 'جرایم رایانه', 'هک',
+  ];
+  static const List<String> _penalContextMarkers = [
+    'مجازات', 'دیه', 'قصاص', 'حدود', 'تعزیر', 'جرم',
+  ];
+  static const List<String> _loadedCriminalExceptions = [
+    'چک', 'ورشکست', 'شرکت', 'سهام', 'برات', 'سفته', 'کارگر', 'کارفرما',
+  ];
+  static const List<(String, List<String>)> _anchorGroups = [
+    ('طلاق', ['طلاق', 'خلع', 'مبارات', 'عده']),
+    ('حضانت', ['حضانت', 'طفل']),
+    ('مهریه', ['مهر', 'صداق', 'مهریه']),
+    ('دیه', ['دیه']),
+  ];
 
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
   final List<String> warnings = [];
@@ -131,6 +151,18 @@ class KnowledgeEngine {
     }
   }
 
+  Future<void> _loadRelationships() async {
+    try {
+      final t = await rootBundle.loadString('assets/relationships.json');
+      final m = jsonDecode(t);
+      if (m is Map<String, dynamic>) {
+        _relationships = m;
+      }
+    } catch (e) {
+      warnings.add('relationships.json: $e');
+    }
+  }
+
   Future<List<String>?> _loadKnowledgeChunk() async {
     try {
       final text = await rootBundle.loadString('assets/knowledge.txt');
@@ -150,6 +182,7 @@ class KnowledgeEngine {
     catalog.clear();
     categoryNames.clear();
     meta.clear();
+    _relationships = const {};
     warnings.clear();
 
     final knowledgeFuture = _loadKnowledgeChunk();
@@ -158,6 +191,7 @@ class KnowledgeEngine {
       _loadMeta(),
       _loadReplies(),
       _loadSynonyms(),
+      _loadRelationships(),
       knowledgeFuture,
     ]);
 
@@ -805,15 +839,12 @@ class KnowledgeEngine {
       );
     }
 
-    final topBody = top4.first.chunk.body;
-    if (art == null &&
-        n.contains('کلاهبرداری') &&
-        n.contains('مجازات') &&
-        topBody.contains('اعلامیه پذیره‌نویسی')) {
+    if (art == null && _hitsUnloadedDomain(n, mentioned, top4.first.chunk)) {
       return EngineReply(text: _notFound(), alternatives: alts);
     }
 
-    var res = format(top4.first.chunk);
+    final topChunk = top4.first.chunk;
+    var res = format(topChunk);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (top4.length > 1) {
       final b = top4[0].score;
@@ -837,7 +868,89 @@ class KnowledgeEngine {
       text: res,
       contextHits: ctx,
       alternatives: alts,
+      conflictChains: conflictChainsFor(topChunk),
     );
+  }
+
+  static bool _chunkHasTerm(Chunk c, String t) =>
+      c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
+
+  /// تشخیص عمومی پرسش‌هایی که موضوع اصلی آن‌ها متعلق به قوانین واردنشده است
+  /// یا با مادهٔ بازیابی‌شده صرفاً اشتراک واژه‌های عمومی دارند.
+  bool _hitsUnloadedDomain(
+    String normQuestion,
+    List<CatalogLaw> mentioned,
+    Chunk top,
+  ) {
+    if (mentioned.isNotEmpty) return false;
+    final cn = _collapse(normQuestion);
+
+    if (!isLoaded('penal')) {
+      final hasMarker = _penalContextMarkers.any(cn.contains);
+      final hasCrime = _unloadedPenalTerms.any(cn.contains);
+      final hasLoadedExc = _loadedCriminalExceptions.any(cn.contains);
+      if (hasMarker && hasCrime && !hasLoadedExc) return true;
+    }
+
+    if (!isLoaded('direct_taxes') && cn.contains('مالیات')) {
+      if (cn.contains('مالیات بر درآمد') ||
+          cn.contains('محاسبه مالیات') ||
+          cn.contains('نرخ مالیات') ||
+          cn.contains('معافیت مالیاتی') ||
+          (!_chunkHasTerm(top, 'مالیات') &&
+              !top.normSource.contains('مالیات'))) {
+        return true;
+      }
+    }
+
+    if (!isLoaded('social_security') && cn.contains('تامین اجتماعی')) {
+      if (cn.contains('حق بیمه') ||
+          cn.contains('مستمری') ||
+          cn.contains('بازنشستگی')) {
+        return true;
+      }
+    }
+
+    final qWords = ' ${_phrase(normQuestion)} ';
+    for (final (trigger, requiredAny) in _anchorGroups) {
+      if (qWords.contains(' $trigger ')) {
+        if (!requiredAny.any((r) => _chunkHasTerm(top, r))) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// استخراج زنجیره‌های تعارض یا ارجاع متقابل ثبت‌شده برای یک ماده در relationships.json.
+  List<String> conflictChainsFor(Chunk c) {
+    final articles = _relationships['articles'];
+    if (articles is! Map<String, dynamic> || articles.isEmpty) return const [];
+    final m = _artQueryRe.firstMatch(c.normTitle);
+    if (m == null) return const [];
+    final key = _collapse(m.group(1) ??
+        '${m.group(2) ?? ''}${m.group(3) != null ? (m.group(4) != null ? ' مکرر ${m.group(4)}' : ' مکرر') : ''}');
+    if (key.isEmpty) return const [];
+
+    final scopedKey = '${c.lawId}:$key';
+    String? lookupKey;
+    if (articles.containsKey(scopedKey)) {
+      lookupKey = scopedKey;
+    } else if (articles.containsKey(key)) {
+      final node = articles[key];
+      final nodeLaw = node is Map<String, dynamic> ? node['law'] : null;
+      if (nodeLaw == null || nodeLaw.toString() == c.lawId) {
+        lookupKey = key;
+      }
+    }
+    if (lookupKey == null) return const [];
+
+    return _conflictsService
+        .getConflictsChain(lookupKey, _relationships)
+        .where((chain) => chain.contains('->'))
+        .map(PersianText.toFaDigits)
+        .toList();
   }
 
   String answer(String question) => query(question, maxAlternatives: 0).text;

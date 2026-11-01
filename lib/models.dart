@@ -47,11 +47,13 @@ class EngineReply {
   final String text;
   final List<Hit> contextHits;
   final List<String> alternatives;
+  final List<String> conflictChains;
 
   const EngineReply({
     required this.text,
     this.contextHits = const [],
     this.alternatives = const [],
+    this.conflictChains = const [],
   });
 }
 

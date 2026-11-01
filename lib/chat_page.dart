@@ -5,6 +5,7 @@ import 'about_page.dart';
 import 'app_drawer.dart';
 import 'assistant.dart';
 import 'chat_controller.dart';
+import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
 import 'history_page.dart';
@@ -21,6 +22,7 @@ class ChatPage extends StatefulWidget {
   final HistoryStore history;
   final AppSettings settings;
   final String? loadError;
+  final DraftSession? initialDraft;
 
   const ChatPage({
     super.key,
@@ -30,6 +32,7 @@ class ChatPage extends StatefulWidget {
     required this.history,
     required this.settings,
     this.loadError,
+    this.initialDraft,
   });
 
   @override
@@ -51,6 +54,7 @@ class _ChatPageState extends State<ChatPage> {
       history: widget.history,
       settings: widget.settings,
       loadError: widget.loadError,
+      initialDraft: widget.initialDraft,
       onScrollRequested: _scrollDown,
     );
   }

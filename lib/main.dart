@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'assistant.dart';
 import 'chat_page.dart';
+import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
+import 'llm.dart';
 import 'privacy.dart';
 import 'settings.dart';
 import 'templates.dart';
@@ -101,8 +105,15 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  // برای اتصال مدل زبانی بعداً: Assistant(_engine, llm: MyLlmBackend())
-  late final Assistant _assistant = Assistant(_engine);
+  late final LlmBackend _llm = AdaptiveLlm(
+    isEnabled: () => widget.settings.useLocalLlm,
+    candidates: [
+      OnDeviceChannelLlm(),
+      LocalLoopbackLlm(),
+    ],
+  );
+  late final Assistant _assistant = Assistant(_engine, llm: _llm);
+  DraftSession? _initialDraft;
   bool _ready = false;
   String? _error;
 
@@ -110,6 +121,12 @@ class _LoaderState extends State<Loader> {
   void initState() {
     super.initState();
     _init();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_llm.dispose());
+    super.dispose();
   }
 
   Future<void> _init() async {
@@ -120,6 +137,9 @@ class _LoaderState extends State<Loader> {
       _repo.load().catchError((_) {}),
       _history.load().catchError((_) {}),
     ]);
+    if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
+      _initialDraft = await DraftCheckpointStore.load(_repo.templates);
+    }
     if (!mounted) return;
     setState(() => _ready = true);
   }
@@ -138,6 +158,7 @@ class _LoaderState extends State<Loader> {
       history: _history,
       settings: widget.settings,
       loadError: _error,
+      initialDraft: _initialDraft,
     );
   }
 }

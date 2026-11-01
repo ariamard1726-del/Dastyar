@@ -44,10 +44,16 @@ class ChatController extends ChangeNotifier {
     required this.history,
     required this.settings,
     String? loadError,
+    DraftSession? initialDraft,
     this.onScrollRequested,
   }) {
     if (loadError != null && loadError.isNotEmpty) {
       messages.add(ChatMessage(loadError, false, sensitive: true));
+    }
+    if (initialDraft != null && !initialDraft.done) {
+      _draft = initialDraft;
+      final r = Drafting.resumePrompt(initialDraft);
+      messages.add(_botFromReply(r, initialDraft.template));
     }
   }
 
@@ -291,6 +297,7 @@ class ChatController extends ChangeNotifier {
         if (_disposed || myEpoch != _askEpoch) return;
         alts = turn.alternatives;
         bot.text = turn.text;
+        bot.conflictChains = turn.conflictChains;
         _notify();
         _requestScroll();
       },
@@ -347,9 +354,10 @@ class ChatController extends ChangeNotifier {
   void _startDraft(String userText, LegalTemplate t) {
     final s = DraftSession(t);
     final r = Drafting.start(s);
-    _draft = s;
+    _draft = r.ended ? null : s;
     messages.add(ChatMessage(userText, true, sensitive: true));
     messages.add(_botFromReply(r, t));
+    _syncDraftCheckpoint();
     _notify();
     _requestScroll();
   }
@@ -361,8 +369,42 @@ class ChatController extends ChangeNotifier {
     messages.add(ChatMessage(text, true, sensitive: true));
     messages.add(_botFromReply(r, s.template));
     if (r.ended) _draft = null;
+    _syncDraftCheckpoint();
     _notify();
     _requestScroll();
+  }
+
+  void _syncDraftCheckpoint() {
+    if (!settings.saveDraftProgress || _disposed) return;
+    final s = _draft;
+    if (s == null || s.done) {
+      unawaited(DraftCheckpointStore.clear());
+    } else {
+      unawaited(DraftCheckpointStore.save(s));
+    }
+  }
+
+  /// ذخیرهٔ صریح وضعیت پیش‌نویس ناتمام به‌صورت رمزنگاری‌شده.
+  Future<bool> saveDraftCheckpoint() async {
+    final s = _draft;
+    if (s == null || s.done) {
+      await DraftCheckpointStore.clear();
+      return false;
+    }
+    return DraftCheckpointStore.save(s);
+  }
+
+  /// بازیابی پیش‌نویس ناتمام ذخیره‌شده و نمایش پرسش جاری در گفتگو.
+  Future<bool> restoreDraftCheckpoint() async {
+    if (_busy || _disposed) return false;
+    final restored = await DraftCheckpointStore.load(repo.templates);
+    if (restored == null || _disposed) return false;
+    _draft = restored;
+    final r = Drafting.resumePrompt(restored);
+    messages.add(_botFromReply(r, restored.template));
+    _notify();
+    _requestScroll();
+    return true;
   }
 
   void newChat({bool force = false}) {
@@ -372,6 +414,9 @@ class ChatController extends ChangeNotifier {
     }
     _sessionId = _newId();
     _resetFlow();
+    if (settings.saveDraftProgress) {
+      unawaited(DraftCheckpointStore.clear());
+    }
     messages.clear();
     _notify();
   }
@@ -380,6 +425,9 @@ class ChatController extends ChangeNotifier {
     if (_busy) return;
     _sessionId = s.id;
     _resetFlow();
+    if (settings.saveDraftProgress) {
+      unawaited(DraftCheckpointStore.clear());
+    }
     messages
       ..clear()
       ..addAll(s.messages.map((m) => ChatMessage(m.text, m.fromUser)));

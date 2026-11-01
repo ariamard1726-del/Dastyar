@@ -6,12 +6,12 @@
 
 - `lib/main.dart`، `chat_page.dart`، `widgets/chat_bubbles.dart` و صفحه‌های جانبی: رابط کاربری
 - `lib/chat_controller.dart`، `chat_models.dart`: کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن پاسخ
-- `lib/assistant.dart`، `prompt_builder.dart`، `llm.dart`: هماهنگ‌کنندهٔ پاسخ، نگهبان استناد مواد/قوانین و لایهٔ مدل زبانی
+- `lib/assistant.dart`، `prompt_builder.dart`، `llm.dart`: هماهنگ‌کنندهٔ پاسخ، نگهبان استناد مواد/قوانین و بک‌اندهای مدل زبانی محلی (`OnDeviceChannelLlm`، `LocalLoopbackLlm` محدود به `127.0.0.1` و `AdaptiveLlm`)
 - `lib/router.dart`: تشخیص نیت پرسش (معرفی توانایی‌ها و پیش‌بینی نتیجهٔ دادگاه)
-- `lib/engine.dart`، `models.dart`: بارگذاری موازی قوانین، نمایهٔ معکوس BM25F و بازیابی تک‌مرحله‌ای مواد
-- `lib/persian_text.dart`، `core/text_utils.dart`: لایهٔ متن فارسی (نرمال‌سازی، تبدیل ارقام، برش ایمن یونیکد، ایست‌واژه و ریشه‌یابی)
+- `lib/engine.dart`، `models.dart`، `services/conflicts_service.dart`: بارگذاری موازی قوانین، نمایهٔ معکوس BM25F، نگهبان حوزه‌های خارج از پوشش، تشخیص زنجیرهٔ تعارض/ارتباط مواد و بازیابی تک‌مرحله‌ای
+- `lib/persian_text.dart`، `core/text_utils.dart`: لایهٔ متن فارسی (نرمال‌سازی، تبدیل ارقام، برش ایمن یونیکد، اعتبارسنجی کد ملی و شماره تلفن ایران، ایست‌واژه و ریشه‌یابی)
 - `lib/privacy.dart`: رمزنگاری محلی داده‌ها با Android Keystore (`AES-256-GCM`)، کلیپ‌بورد حساس و `FLAG_SECURE`
-- `lib/drafting.dart`، `templates.dart`: پیش‌نویس مرحله‌به‌مرحلهٔ اسناد حقوقی
+- `lib/drafting.dart`، `templates.dart`: پیش‌نویس مرحله‌به‌مرحلهٔ اسناد حقوقی با امکان ذخیرهٔ موقت رمزنگاری‌شدهٔ پیش‌نویس ناتمام (`DraftCheckpointStore`)
 - `assets/laws`: متن قوانین (در ساختار پوشه‌ای دسته‌بندی‌شده به همراه `_meta.json`). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json`، `replies.json`
 - `test`: تست‌های واحد، ویجت و ارزیابی کیفیت بازیابی
 - `tools`: ابزارهای پایتون برای اعتبارسنجی، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار

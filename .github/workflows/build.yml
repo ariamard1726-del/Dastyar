@@ -28,6 +28,8 @@ jobs:
           python tools/check_meta.py
           python tools/check.py
           python tools/doctor.py
+          python tools/eval_py.py --check
+          python tools/eval_none.py --check
 
       - uses: actions/setup-java@v5
         with:

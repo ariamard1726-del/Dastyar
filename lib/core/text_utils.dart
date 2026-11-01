@@ -10,6 +10,12 @@ class TextUtils {
   static String phrase(String s) => PersianText.phrase(s);
   static String toFaDigits(String s) => PersianText.toFaDigits(s);
   static String asciiDigits(String s) => PersianText.asciiDigits(s);
+  static bool isValidIranianNationalId(String s) =>
+      PersianText.isValidIranianNationalId(s);
+  static bool isValidIranianPhone(String s) =>
+      PersianText.isValidIranianPhone(s);
+  static String? normalizeIranianPhone(String s) =>
+      PersianText.normalizeIranianPhone(s);
   static List<String> tokenizeIndex(String s) => PersianText.tokenizeIndex(s);
   static List<String> tokenize(String s) => PersianText.tokenize(s);
 }

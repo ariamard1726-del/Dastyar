@@ -149,4 +149,44 @@ class PersianText {
   /// عبارت یکدست‌شده: نرمال، بدون نشانه، با فاصلهٔ تک.
   static String phrase(String s) =>
       collapse(normalize(s).replaceAll(_nonWord, ' '));
+
+  static final RegExp _allSameTenDigitsRe = RegExp(r'^(\d)\1{9}$');
+  static final RegExp _irPhoneCleanRe = RegExp(r'[\s\-().]+');
+  static final RegExp _irMobileOrLandlineRe =
+      RegExp(r'^0(?:9\d{9}|[1-8]\d{9})$');
+
+  /// اعتبارسنجی کد ملی ۱۰ رقمی ایران بر پایهٔ رقم کنترل (Modulo-11).
+  static bool isValidIranianNationalId(String raw) {
+    final cleaned = normalize(raw).replaceAll(_irPhoneCleanRe, '');
+    if (cleaned.length != 10) return false;
+    final digits = asciiDigits(cleaned);
+    if (digits.length != 10) return false;
+    if (_allSameTenDigitsRe.hasMatch(digits)) return false;
+
+    var sum = 0;
+    for (var i = 0; i < 9; i++) {
+      sum += (digits.codeUnitAt(i) - 48) * (10 - i);
+    }
+    final rem = sum % 11;
+    final check = digits.codeUnitAt(9) - 48;
+    return rem < 2 ? check == rem : check == (11 - rem);
+  }
+
+  /// یکدست‌سازی شماره تلفن ایران (تبدیل +98 / 0098 به پیشوند 0 با ارقام لاتین).
+  static String? normalizeIranianPhone(String raw) {
+    var cleaned = normalize(raw).replaceAll(_irPhoneCleanRe, '');
+    if (cleaned.startsWith('+98')) {
+      cleaned = '0${cleaned.substring(3)}';
+    } else if (cleaned.startsWith('0098')) {
+      cleaned = '0${cleaned.substring(4)}';
+    } else if (cleaned.length == 10 && cleaned.startsWith('9')) {
+      cleaned = '0$cleaned';
+    }
+    if (!_irMobileOrLandlineRe.hasMatch(cleaned)) return null;
+    return cleaned;
+  }
+
+  /// بررسی صحت قالب شماره تلفن همراه یا ثابت ایران.
+  static bool isValidIranianPhone(String raw) =>
+      normalizeIranianPhone(raw) != null;
 }

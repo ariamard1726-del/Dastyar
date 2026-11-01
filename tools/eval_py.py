@@ -20,7 +20,7 @@ ART_QUERY_RE = re.compile(
     r'ماده\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)'
 )
 DEF_Q_RE = re.compile(
-    r'چیست|چیه|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن'
+    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن'
 )
 DEF_WORDS = {
     'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
@@ -374,11 +374,30 @@ def run(eng, path, verbose):
     if verbose:
         for rank, q in bad:
             print('  rank %s | %s' % (rank or '>60', q))
+    return (r1 / n, r5 / n, mrr / n)
 
 
 if __name__ == '__main__':
     e = Engine()
+    verbose = '-v' in sys.argv
+    check_mode = '--check' in sys.argv
+    thresholds = {
+        'eval.txt': (0.75, 0.85, 0.80),
+        'eval_extra.txt': (0.70, 0.90, 0.78),
+        'eval_blind.txt': (0.55, 0.80, 0.65),
+    }
+    failed = False
     for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt'):
         p = os.path.join(ROOT, 'brain', f)
         if os.path.exists(p):
-            run(e, p, '-v' in sys.argv)
+            r1, r5, mrr = run(e, p, verbose)
+            if check_mode and f in thresholds:
+                min_r1, min_r5, min_mrr = thresholds[f]
+                if r1 < min_r1 or r5 < min_r5 or mrr < min_mrr:
+                    print(
+                        f'FAIL {f}: got ({r1:.2f}, {r5:.2f}, {mrr:.3f}) < '
+                        f'min ({min_r1:.2f}, {min_r5:.2f}, {min_mrr:.3f})'
+                    )
+                    failed = True
+    if failed:
+        sys.exit(1)

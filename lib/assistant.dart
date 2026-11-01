@@ -6,10 +6,12 @@ import 'prompt_builder.dart';
 class AssistantTurn {
   final String text;
   final List<String> alternatives;
+  final List<String> conflictChains;
 
   const AssistantTurn({
     required this.text,
     this.alternatives = const [],
+    this.conflictChains = const [],
   });
 }
 
@@ -179,13 +181,21 @@ class Assistant {
       ready = await llm.isReady();
     } catch (_) {}
     if (!ready) {
-      yield AssistantTurn(text: base.text, alternatives: base.alternatives);
+      yield AssistantTurn(
+        text: base.text,
+        alternatives: base.alternatives,
+        conflictChains: base.conflictChains,
+      );
       return;
     }
 
     final ctx = base.contextHits;
     if (ctx.isEmpty) {
-      yield AssistantTurn(text: base.text, alternatives: base.alternatives);
+      yield AssistantTurn(
+        text: base.text,
+        alternatives: base.alternatives,
+        conflictChains: base.conflictChains,
+      );
       return;
     }
 
@@ -214,7 +224,11 @@ class Assistant {
           good = false;
           break;
         }
-        yield AssistantTurn(text: acc, alternatives: base.alternatives);
+        yield AssistantTurn(
+          text: acc,
+          alternatives: base.alternatives,
+          conflictChains: base.conflictChains,
+        );
       }
       finished = true;
     } catch (_) {
@@ -228,13 +242,21 @@ class Assistant {
     }
 
     if (!good || stalled || acc.trim().isEmpty) {
-      yield AssistantTurn(text: base.text, alternatives: base.alternatives);
+      yield AssistantTurn(
+        text: base.text,
+        alternatives: base.alternatives,
+        conflictChains: base.conflictChains,
+      );
       return;
     }
 
     // بازبینی نهایی: ماده یا قانون ساختگی یعنی بازگشت به پاسخ مطمئن موتور.
     if (!isAnswerGrounded(acc, ctx)) {
-      yield AssistantTurn(text: base.text, alternatives: base.alternatives);
+      yield AssistantTurn(
+        text: base.text,
+        alternatives: base.alternatives,
+        conflictChains: base.conflictChains,
+      );
       return;
     }
 
@@ -248,6 +270,7 @@ class Assistant {
     yield AssistantTurn(
       text: '$acc\n\nمنبع: ${srcs.join('، ')}',
       alternatives: base.alternatives,
+      conflictChains: base.conflictChains,
     );
   }
 

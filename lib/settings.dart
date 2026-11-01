@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'drafting.dart';
 import 'privacy.dart';
 
 class AppSettings extends ChangeNotifier {
   double fontScale = 1.0;
   bool saveHistory = true;
+  bool saveDraftProgress = false;
   bool secureScreen = false;
+  bool useLocalLlm = false;
   ThemeMode themeMode = ThemeMode.system;
   SharedPreferences? _prefs;
 
@@ -59,7 +62,9 @@ class AppSettings extends ChangeNotifier {
       final fs = p.getDouble('fontScale') ?? 1.0;
       s.fontScale = scales.contains(fs) ? fs : 1.0;
       s.saveHistory = p.getBool('saveHistory') ?? true;
+      s.saveDraftProgress = p.getBool('saveDraftProgress') ?? false;
       s.secureScreen = p.getBool('secureScreen') ?? false;
+      s.useLocalLlm = p.getBool('useLocalLlm') ?? false;
       s.themeMode = _parseThemeMode(p.getString('themeMode'));
     } catch (_) {}
     return s;
@@ -86,7 +91,29 @@ class AppSettings extends ChangeNotifier {
     saveHistory = v;
     notifyListeners();
     try {
-      await _prefs?.setBool('saveHistory', v);
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setBool('saveHistory', v);
+    } catch (_) {}
+  }
+
+  Future<void> setSaveDraftProgress(bool v) async {
+    saveDraftProgress = v;
+    notifyListeners();
+    if (!v) {
+      await DraftCheckpointStore.clear();
+    }
+    try {
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setBool('saveDraftProgress', v);
+    } catch (_) {}
+  }
+
+  Future<void> setUseLocalLlm(bool v) async {
+    useLocalLlm = v;
+    notifyListeners();
+    try {
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setBool('useLocalLlm', v);
     } catch (_) {}
   }
 

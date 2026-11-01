@@ -1,21 +1,43 @@
 import os
 import re
+import subprocess
 import sys
 
 store = os.environ.get('KEYSTORE_PATH', '')
 pw = os.environ.get('KEYSTORE_PASSWORD', '')
+key_pw = os.environ.get('KEY_PASSWORD', '') or pw
+alias = os.environ.get('KEY_ALIAS', '').strip()
 KTS = 'android/app/build.gradle.kts'
 GROOVY = 'android/app/build.gradle'
 
 if not store or not pw:
     print('No keystore or password; the temporary debug key stays.')
     sys.exit(0)
-if re.search(r'[\\\s=#!:]', pw):
+if re.search(r'[\\\s=#!:]', pw) or re.search(r'[\\\s=#!:]', key_pw):
     print('ERROR: bad password chars; signing NOT applied.')
     sys.exit(1)
 
-with open('android/key.properties', 'w') as f:
-    f.write('storePassword=%s\nkeyPassword=%s\nkeyAlias=dastyar\nstoreFile=%s\n' % (pw, pw, store))
+if not alias:
+    try:
+        out = subprocess.check_output(
+            ['keytool', '-list', '-keystore', store, '-storepass', pw],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        for line in out.splitlines():
+            if 'PrivateKeyEntry' in line and ',' in line:
+                alias = line.split(',', 1)[0].strip()
+                break
+    except Exception:
+        pass
+if not alias:
+    alias = 'dastyar'
+
+with open('android/key.properties', 'w', encoding='utf-8') as f:
+    f.write(
+        'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=%s\n'
+        % (pw, key_pw, alias, store)
+    )
 
 KTS_BLOCK = '''    signingConfigs {
         create("release") {
@@ -54,13 +76,12 @@ def patch(path, block, pattern, repl):
     with open(path, encoding='utf-8') as f:
         text = f.read()
     if 'key.properties' in text:
-        print('Already patched:', path)
+        print('Already configured for key.properties:', path)
         return True
     m = re.search(r'^[ \t]*buildTypes\s*\{', text, re.M)
     if not m or not re.search(pattern, text):
         return False
-        
-    # اضافه کردن ایمپورت‌ها برای فایل‌های کاتلین (KTS)
+
     if path.endswith('.kts'):
         imports_needed = []
         if 'import java.util.Properties' not in text:
@@ -70,8 +91,7 @@ def patch(path, block, pattern, repl):
         if imports_needed:
             text = '\n'.join(imports_needed) + '\n\n' + text
 
-    # Recalculate after adding imports; the old offset is stale.
-    m = re.search(r"^[ \t]*buildTypes\s*\{", text, re.M)
+    m = re.search(r'^[ \t]*buildTypes\s*\{', text, re.M)
     if not m:
         return False
     text = text[:m.start()] + block + text[m.start():]
@@ -100,7 +120,7 @@ elif os.path.exists(GROOVY):
     path = GROOVY
 
 if ok:
-    print('Signing patched. Relevant lines:')
+    print(f'Signing configured (alias={alias}). Relevant lines:')
     with open(path, encoding='utf-8') as f:
         for line in f:
             if 'signingConfig' in line or 'key.properties' in line:

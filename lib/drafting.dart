@@ -1,4 +1,10 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'engine.dart';
+import 'persian_text.dart';
+import 'privacy.dart';
 import 'templates.dart';
 
 class DraftCmd {
@@ -25,11 +31,107 @@ class DraftSession {
   DraftSession(this.template);
 
   TemplateField? get current {
-    if (editing != null) return template.fields[editing!];
+    final ed = editing;
+    if (ed != null && ed >= 0 && ed < template.fields.length) {
+      return template.fields[ed];
+    }
     if (index >= 0 && index < template.fields.length) {
       return template.fields[index];
     }
     return null;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'templateId': template.id,
+        'templateVersion': template.version,
+        'index': index,
+        'editing': editing,
+        'pickingEdit': pickingEdit,
+        'done': done,
+        'values': Map<String, String>.of(values),
+      };
+
+  static DraftSession? fromJson(
+    Map<String, dynamic> j,
+    List<LegalTemplate> templates,
+  ) {
+    final tid = (j['templateId'] ?? '').toString();
+    if (tid.isEmpty) return null;
+    LegalTemplate? tpl;
+    for (final t in templates) {
+      if (t.id == tid) {
+        tpl = t;
+        break;
+      }
+    }
+    if (tpl == null) return null;
+    final s = DraftSession(tpl);
+    final rawIdx = j['index'];
+    if (rawIdx is int && rawIdx >= 0 && rawIdx <= tpl.fields.length) {
+      s.index = rawIdx;
+    }
+    final rawEd = j['editing'];
+    if (rawEd is int && rawEd >= 0 && rawEd < tpl.fields.length) {
+      s.editing = rawEd;
+    }
+    s.pickingEdit = j['pickingEdit'] == true;
+    s.done = j['done'] == true;
+    final rawVals = j['values'];
+    if (rawVals is Map) {
+      rawVals.forEach((k, v) {
+        if (k != null && v != null) {
+          s.values[k.toString()] = v.toString();
+        }
+      });
+    }
+    return s;
+  }
+}
+
+/// ذخیره‌گاه رمزنگاری‌شدهٔ موقت برای پیش‌نویس ناتمام کاربر (بازیابی پس از بستن ناگهانی برنامه).
+class DraftCheckpointStore {
+  DraftCheckpointStore._();
+
+  static const String _key = 'active_draft_v1';
+
+  static Future<bool> save(DraftSession session) async {
+    if (session.done) {
+      await clear();
+      return false;
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = jsonEncode(session.toJson());
+      final sealed = await PrivacyService.seal(raw);
+      return await prefs.setString(_key, sealed);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<DraftSession?> load(List<LegalTemplate> templates) async {
+    if (templates.isEmpty) return null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString(_key);
+      if (stored == null || stored.isEmpty) return null;
+      final raw = await PrivacyService.open(stored);
+      if (raw == null || raw.isEmpty) return null;
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return null;
+      final s = DraftSession.fromJson(decoded, templates);
+      if (s == null || s.done) return null;
+      return s;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> clear() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_key);
+    } catch (_) {}
   }
 }
 
@@ -240,8 +342,17 @@ class Drafting {
     return DraftReply(sb.toString(), chips: q.chips);
   }
 
+  static DraftReply resumePrompt(DraftSession s) {
+    final q = _question(s);
+    return DraftReply(
+      'پیش‌نویس ناتمام «${s.template.title}» بازیابی شد. می‌توانید از همان‌جا ادامه دهید یا «${DraftCmd.cancel}» را بزنید.\n\n${q.text}',
+      chips: q.chips,
+    );
+  }
+
   static DraftReply _question(DraftSession s, {String prefix = ''}) {
-    final f = s.current!;
+    final f = s.current;
+    if (f == null) return _document(s);
     final sb = StringBuffer();
     if (prefix.isNotEmpty) {
       sb.writeln(prefix);
@@ -345,8 +456,9 @@ class Drafting {
     if (asks && !_imperatives.any((w) => n.contains(w))) return null;
 
     final idxMatch = _choiceIdxRe.firstMatch(n);
-    if (idxMatch != null) {
-      final idx = int.tryParse(idxMatch.group(1)!);
+    final idxGroup = idxMatch?.group(1);
+    if (idxGroup != null) {
+      final idx = int.tryParse(idxGroup);
       if (idx != null && idx >= 1 && idx <= choices.length) {
         return choices[idx - 1];
       }
@@ -475,6 +587,19 @@ class Drafting {
         err = 'لطفاً فقط عدد کامل را بنویسید، بدون کلمه (مثلاً ۵۰۰۰۰۰۰۰).';
       } else {
         value = digits;
+      }
+    } else if (f.type == 'phone') {
+      final normalizedPhone = PersianText.normalizeIranianPhone(input);
+      if (normalizedPhone == null) {
+        err = 'لطفاً شماره تلفن معتبر وارد کنید (مثلاً ۰۹۱۲۳۴۵۶۷۸۹).';
+      } else {
+        value = PersianText.toFaDigits(normalizedPhone);
+      }
+    } else if (f.type == 'national_id') {
+      if (!PersianText.isValidIranianNationalId(input)) {
+        err = 'کد ملی واردشده معتبر نیست؛ باید ۱۰ رقم صحیح باشد.';
+      } else {
+        value = PersianText.toFaDigits(PersianText.asciiDigits(input));
       }
     } else {
       value = input;

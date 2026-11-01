@@ -15,6 +15,7 @@ class ChatMessage {
   final List<LawText> laws;
   final int lawRefsTotal;
   List<String> chips;
+  List<String> conflictChains;
 
   ChatMessage(
     this.text,
@@ -28,5 +29,6 @@ class ChatMessage {
     this.laws = const [],
     this.lawRefsTotal = 0,
     this.chips = const [],
+    this.conflictChains = const [],
   });
 }

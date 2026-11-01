@@ -127,6 +127,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SwitchListTile(
+                    title: const Text('ذخیرهٔ موقت پیش‌نویس ناتمام'),
+                    subtitle: const Text(
+                      'به‌صورت پیش‌فرض خاموش است. با روشن‌کردن، فرم ناتمام رمزنگاری می‌شود تا پس از بسته شدن برنامه ادامه یابد و با پایان فرم پاک می‌شود.',
+                    ),
+                    value: s.saveDraftProgress,
+                    onChanged: (v) {
+                      s.setSaveDraftProgress(v);
+                      setState(() {});
+                    },
+                  ),
+                  SwitchListTile(
                     title: const Text('محافظت از صفحه (جلوگیری از اسکرین‌شات)'),
                     subtitle: const Text(
                       'مخفی‌سازی صفحه در فهرست برنامه‌های اخیر و جلوگیری از ثبت تصویر صفحه.',
@@ -134,6 +145,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     value: s.secureScreen,
                     onChanged: (v) {
                       s.setSecureScreen(v);
+                      setState(() {});
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('استفاده از مدل زبانی محلی (در صورت نصب)'),
+                    subtitle: const Text(
+                      'کاملاً آفلاین روی همین دستگاه؛ هر پاسخ با متن رسمی قوانین راستی‌آزمایی می‌شود.',
+                    ),
+                    value: s.useLocalLlm,
+                    onChanged: (v) {
+                      s.setUseLocalLlm(v);
                       setState(() {});
                     },
                   ),

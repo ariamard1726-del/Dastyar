@@ -53,6 +53,7 @@ class BotMessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canAct = !message.sensitive && message.text != '...';
+    final cs = Theme.of(context).colorScheme;
     return Semantics(
       label: 'پاسخ دستیار',
       child: Padding(
@@ -64,6 +65,40 @@ class BotMessageView extends StatelessWidget {
               message.text,
               style: const TextStyle(fontSize: 16, height: 1.9),
             ),
+            if (message.conflictChains.isNotEmpty && message.text != '...') ...[
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.secondaryContainer.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ارتباط یا تعارض ثبت‌شدهٔ مواد:',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSecondaryContainer,
+                      ),
+                    ),
+                    for (final chain in message.conflictChains)
+                      Text(
+                        '• ${chain.replaceAll('->', '←')}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.6,
+                          color: cs.onSecondaryContainer,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
             if (canAct)
               Row(
                 mainAxisSize: MainAxisSize.min,
