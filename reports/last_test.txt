@@ -1,10 +1,5 @@
-commit: 39327cb
-::error::90 tests passed, 2 failed.
-::group::❌ test/labor_test.dart: ماده ۱۷۲ قانون کار پیدا می‌شود (failed)
-   Expected: a string starting with 'ماده 172'
-   Actual: 'ماده ۱۷۲ در متن «قانون کار» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.'
-   test/labor_test.dart 21:5                           main.<fn>
-   ::endgroup::
+commit: 31fe467
+::error::91 tests passed, 1 failed.
 ::group::❌ test/labor_test.dart: ماده ۱ قانون کار پیدا می‌شود (failed)
    Expected: contains 'کلیه کارفرمایان'
    Actual: 'ماده ۱ در متن «قانون کار» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.'
@@ -12,4 +7,4 @@ commit: 39327cb
    test/labor_test.dart 27:5                           main.<fn>
    ::endgroup::
 --- analyze ---
-No issues found! (ran in 11.1s)
+No issues found! (ran in 12.7s)
