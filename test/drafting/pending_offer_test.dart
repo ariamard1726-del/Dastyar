@@ -113,13 +113,19 @@ void main() {
       expect(find.textContaining('قانون صدور چک'), findsWidgets);
 
       // بهجای متن، برچسبهای کوتاه در نوار ChoiceChip دیده میشوند.
+      String diag() =>
+          'chips=${find.byType(ChoiceChip).evaluate().length} '
+          'stop=${find.byIcon(Icons.stop_rounded).evaluate().length} '
+          'sv=${find.byType(SingleChildScrollView).evaluate().length}';
       expect(
         find.widgetWithText(ChoiceChip, 'شکوائیه چک'),
         findsOneWidget,
+        reason: diag(),
       );
       expect(
         find.widgetWithText(ChoiceChip, 'درخواست اجرائیه'),
         findsOneWidget,
+        reason: diag(),
       );
       final sv = tester.widget<SingleChildScrollView>(
         find.byType(SingleChildScrollView),

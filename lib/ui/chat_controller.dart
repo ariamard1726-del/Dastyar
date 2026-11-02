@@ -470,7 +470,14 @@ class ChatController extends ChangeNotifier {
   }) async {
     final resolvedQuery = _memory.resolveFollowUp(text);
     final myEpoch = ++_askEpoch;
-    final bot = ChatMessage('...', false, sensitive: sensitive);
+    // گزینه‌های پیشنهادی از همان ابتدا همراه پیام ساخته می‌شوند تا
+    // نوار بالای فیلد حتی پیش از پایان کامل چرخهٔ جریان قابل نمایش باشد.
+    final bot = ChatMessage(
+      '...',
+      false,
+      sensitive: sensitive,
+      chips: extraChips,
+    );
     _busy = true;
     if (addUser) messages.add(ChatMessage(text, true, sensitive: sensitive));
     messages.add(bot);
@@ -480,6 +487,17 @@ class ChatController extends ChangeNotifier {
     final done = Completer<void>();
     _askDone = done;
     var alts = const <String>[];
+
+    // بستن پرچم «در حال پاسخ» به محض پایان جریان؛ وابسته به ادامهٔ
+    // زنجیرهٔ await در انتهای [_ask] نیست (در تست‌های ویجتی و محیط‌های
+    // کند اطمینان می‌دهد نوار گزینه‌ها و دکمهٔ ارسال به‌موقع برگردند).
+    void finishStream() {
+      if (!done.isCompleted) done.complete();
+      if (!_disposed && myEpoch == _askEpoch && _busy) {
+        _busy = false;
+        _notify();
+      }
+    }
 
     _sub = assistant.askWithAlternatives(resolvedQuery).listen(
       (turn) {
@@ -495,11 +513,9 @@ class ChatController extends ChangeNotifier {
           bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
           _notify();
         }
-        if (!done.isCompleted) done.complete();
+        finishStream();
       },
-      onDone: () {
-        if (!done.isCompleted) done.complete();
-      },
+      onDone: finishStream,
       cancelOnError: true,
     );
 
@@ -528,10 +544,9 @@ class ChatController extends ChangeNotifier {
     if (mergedChips.isNotEmpty) {
       bot.chips = mergedChips;
     }
-    await _saveSession();
-    if (_disposed || myEpoch != _askEpoch) return;
     _busy = false;
     _notify();
+    await _saveSession();
   }
 
   ChatMessage _botFromReply(DraftReply r, LegalTemplate t) {
