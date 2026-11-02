@@ -200,6 +200,27 @@ class Drafting {
     return 'به نظر می‌رسد «${t.title}» برای وضعیت شما مفید است.$desc\n\nمی‌خواهید همین حالا آماده‌اش کنم؟ این فقط یک پیشنهاد است و تصمیم نهایی با شماست.';
   }
 
+  /// برچسب‌های کوتاه قالب‌ها برای نوار گزینه‌ها (مثل Claude).
+  /// متن کامل عنوان همچنان به‌عنوان مقدار فرستاده می‌شود تا منطق
+  /// [detect]/[pickChoice] بدون تغییر بماند.
+  static const Map<String, String> shortTitles = {
+    'cheque_complaint': 'شکوائیه چک',
+    'cheque_execution': 'درخواست اجرائیه',
+    'complaint': 'شکوائیه',
+    'defense_brief': 'لایحه‌ دفاعیه',
+    'demand_money': 'دادخواست وجه',
+    'formal_notice': 'اظهارنامه',
+    'insolvency': 'دادخواست اعسار',
+    'legal_aid': 'معاضدت قضایی',
+  };
+
+  static String chipLabel(String value, List<LegalTemplate> ts) {
+    for (final t in ts) {
+      if (t.title == value) return shortTitles[t.id] ?? t.title;
+    }
+    return value;
+  }
+
   static final RegExp _nonLetter = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );

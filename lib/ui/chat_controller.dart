@@ -96,6 +96,16 @@ class ChatController extends ChangeNotifier {
   bool get isCounseling => _counsel != null && !_counsel!.concluded;
   List<LegalTemplate> get pendingChoices => List.unmodifiable(_pendingList);
 
+  /// گزینه‌های نوار بالای فیلد تایپ. برچسب قالب‌ها کوتاه می‌شود، ولی
+  /// مقدار ارسالی همان عنوان کامل قالب است تا منطق پیش‌نویس تغییر نکند.
+  List<ChatSuggestion> get suggestions {
+    if (messages.isEmpty || messages.last.fromUser) return const [];
+    return [
+      for (final c in messages.last.chips)
+        ChatSuggestion(Drafting.chipLabel(c, repo.templates), c),
+    ];
+  }
+
   void _notify() {
     if (!_disposed) notifyListeners();
   }
@@ -402,55 +412,27 @@ class ChatController extends ChangeNotifier {
       return;
     }
 
-    // توصیف وضعیت بدون درخواست صریح: فقط پیشنهاد
+    // توصیف وضعیت: پاسخ موتور نوشته می‌شود،
+    // ولی قالب‌ها فقط در نوار بالای فیلد تایپ نمایش داده می‌شوند (یعنی هیچ متن پیشنهادی در چت نیست).
     final avail =
         repo.templates.where((t) => !_declined.contains(t.id)).toList();
     final sug = Drafting.suggest(text, avail);
-    final sugTpl = sug.template;
-    if (sugTpl != null) {
-      _pendingText = text;
-      _pendingList = [sugTpl];
-      messages.add(ChatMessage(text, true, sensitive: true));
-      messages.add(
-        ChatMessage(
-          Drafting.offerText(sugTpl),
-          false,
-          sensitive: true,
-          chips: const [
-            DraftCmd.offerYes,
-            DraftCmd.offerCounsel,
-            DraftCmd.offerNo,
-          ],
-        ),
+    final titles = <String>[
+      if (sug.template != null) sug.template!.title,
+      ...sug.choices.map((t) => t.title),
+    ];
+    if (titles.isNotEmpty) {
+      await _ask(
+        text,
+        extraChips: [...titles, DraftCmd.offerCounsel],
       );
-      _notify();
-      _requestScroll();
-      return;
-    }
-    if (sug.choices.isNotEmpty) {
-      _pendingText = text;
-      _pendingList = sug.choices;
-      messages.add(ChatMessage(text, true, sensitive: true));
-      messages.add(
-        ChatMessage(
-          Drafting.suggestChooseText,
-          false,
-          sensitive: true,
-          chips: [
-            ...sug.choices.map((t) => t.title),
-            DraftCmd.offerCounsel,
-            DraftCmd.offerNo,
-          ],
-        ),
-      );
-      _notify();
-      _requestScroll();
       return;
     }
 
     // حالت گفتگوی دوطرفه و پرسشگری تشخیصی برای مسائل و مشکلات حقوقی کاربر
     if (LegalCounselor.shouldStartCounseling(text, net: _intentNet)) {
-      final seed = (text == LegalCounselor.startCounselCmd &&
+      final seed = ((text == LegalCounselor.startCounselCmd ||
+                  text == DraftCmd.offerCounsel) &&
               _memory.lastTopicQuery.isNotEmpty)
           ? _memory.lastTopicQuery
           : text;
@@ -484,6 +466,7 @@ class ChatController extends ChangeNotifier {
     String text, {
     bool addUser = true,
     bool sensitive = false,
+    List<String> extraChips = const [],
   }) async {
     final resolvedQuery = _memory.resolveFollowUp(text);
     final myEpoch = ++_askEpoch;
@@ -534,8 +517,10 @@ class ChatController extends ChangeNotifier {
       engine.query(resolvedQuery, maxAlternatives: 0),
     );
     final mergedChips = <String>[
+      ...extraChips,
       ...alts,
       if (!sensitive &&
+          !extraChips.contains(DraftCmd.offerCounsel) &&
           LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet) !=
               null)
         LegalCounselor.startCounselCmd,

@@ -27,16 +27,38 @@ ThemeData _buildTheme(Brightness b) {
   final scheme = ColorScheme.fromSeed(
     seedColor: const Color(0xFFC96442),
     brightness: b,
-  ).copyWith(surface: bg);
+  ).copyWith(
+    surface: bg,
+    outlineVariant: dark ? const Color(0xFF45443F) : const Color(0xFFE6E3DA),
+  );
+  final ink = dark ? const Color(0xFFEDEBE4) : const Color(0xFF2E2D2B);
+  final base = ThemeData(useMaterial3: true, brightness: b).textTheme;
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: bg,
+    textTheme: base.apply(
+      bodyColor: ink,
+      displayColor: ink,
+      decorationColor: ink,
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: bg,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
+      titleTextStyle: base.titleLarge?.copyWith(
+        fontSize: 17,
+        fontWeight: FontWeight.w600,
+        color: ink,
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: dark ? const Color(0xFF30302E) : Colors.white,
+      side: BorderSide(color: scheme.outlineVariant),
+      labelStyle: TextStyle(fontSize: 12, color: ink),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     drawerTheme: DrawerThemeData(
       backgroundColor: bg,

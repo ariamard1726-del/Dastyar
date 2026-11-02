@@ -200,8 +200,16 @@ void main() {
         ),
       );
 
-      expect(find.text(LegalCounselor.startCounselCmd), findsOneWidget);
-      await tester.tap(find.text(LegalCounselor.startCounselCmd));
+      // صفحهٔ آغازین فقط خوش‌آمدگویی و فیلد تایپ دارد؛ مشاوره با نوشتن
+      // فرمان در همان فیلد آغاز می‌شود (هیچ منو/دکمه‌ای در Home نیست).
+      expect(find.text('سلام، چه کمکی از من برمی‌آید؟'), findsOneWidget);
+      expect(find.byType(ActionChip), findsNothing);
+      await tester.enterText(
+        find.byType(TextField),
+        LegalCounselor.startCounselCmd,
+      );
+      await tester.tap(find.byIcon(Icons.arrow_upward));
+      await tester.pump();
       await tester.pumpAndSettle();
 
       expect(find.textContaining('با کمال میل همراه شما هستم'), findsOneWidget);

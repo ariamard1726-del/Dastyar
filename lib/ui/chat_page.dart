@@ -178,10 +178,7 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                   child: msgs.isEmpty
-                      ? ChatEmptyState(
-                          templates: widget.repo.templates,
-                          onSelectTemplate: _submit,
-                        )
+                      ? const ChatEmptyState()
                       : ListView.builder(
                           controller: _scroll,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -213,7 +210,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 ChatChipsBar(
                   busy: _chat.busy,
-                  messages: msgs,
+                  suggestions: _chat.suggestions,
                   onSelectChip: _submit,
                 ),
                 ChatInputBar(

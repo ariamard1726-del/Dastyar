@@ -3,6 +3,16 @@ import 'package:dastyar/domain/drafting.dart';
 const String docDisclaimer =
     'این متن فقط پیش‌نویس است و جایگزین مشاورهٔ وکیل نیست. پیش از ثبت، آن را با یک کارشناس حقوقی یا مرکز مشاورهٔ رایگان بررسی کنید و به مهلت‌های قانونی دقت کنید.';
 
+/// یک گزینه‌ کوچک در نوار بالای فیلد تایپ. [label] همان متن کوتاهی است که
+/// دیده می‌شود و [value] متنی است که با لمس شدن به‌عنوان پیام فرستاده
+/// می‌شود (مثلاً عنوان کامل یک قالب، نه برچسب کوتاهش).
+class ChatSuggestion {
+  final String label;
+  final String value;
+
+  const ChatSuggestion(this.label, this.value);
+}
+
 class ChatMessage {
   String text;
   final bool fromUser;
