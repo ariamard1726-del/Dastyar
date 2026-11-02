@@ -3,6 +3,9 @@ name: Train brain
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   brain:
     runs-on: ubuntu-latest

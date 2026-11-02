@@ -2,6 +2,15 @@ name: Build APK
 
 on:
   workflow_dispatch:
+    inputs:
+      allow_debug_signing:
+        description: 'در صورت نبود کلید اصلی، اجازهٔ ساخت آزمایشی با کلید debug داده شود؟'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -9,7 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Data checks
+        run: |
+          python tools/check.py all
+          python tools/doctor.py
+          python tools/eval_py.py --check
+          python tools/eval_none.py --check
+
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -19,126 +39,64 @@ jobs:
           flutter-version: '3.47.6'
           channel: stable
 
-      - name: Create android platform files
-        run: |
-          cp pubspec.yaml /tmp/pubspec.yaml
-          cp analysis_options.yaml /tmp/analysis_options.yaml
-          cp -r lib /tmp/lib
-          flutter create --platforms=android --org com.ariabod --project-name dastyar .
-          cp /tmp/pubspec.yaml pubspec.yaml
-          rm -rf lib
-          cp -r /tmp/lib lib
-          rm -f test/widget_test.dart
-
-      - name: App name and icon (non-fatal)
-        continue-on-error: true
-        run: |
-          sed -i 's|android:label="[^"]*"|android:label="دستیار"|' android/app/src/main/AndroidManifest.xml
-          python3 -c "import PIL" 2>/dev/null || python3 -m pip install --break-system-packages pillow || python3 -m pip install pillow
-          python3 tools/make_icon.py
-          ls -la android/app/src/main/res/mipmap-xxhdpi/
-
-      - name: Disable Android backup
-        run: |
-          M=android/app/src/main/AndroidManifest.xml
-          grep -q 'allowBackup' "$M" || sed -i 's|<application|<application android:allowBackup="false"|' "$M"
-          grep -n 'allowBackup' "$M"
-
-      - name: Save android sources (before signing)
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-src
-          path: android/
-          include-hidden-files: true
-
-      - name: Signing key (only if secrets exist)
+      - name: Configure release signing
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/patch_signing.py
-          else
-            echo "No signing secrets; the APK will use a temporary debug key."
-          fi
-
-      - name: Diagnose keystore safely
-        continue-on-error: true
-        env:
-          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          ALLOW_DEBUG: ${{ inputs.allow_debug_signing && 'true' || 'false' }}
         run: |
           set +x
           set -eu
-          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "Signing secrets are missing."
-            exit 1
-          fi
-          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/diagnostic.jks"
-          if [ ! -s "$RUNNER_TEMP/diagnostic.jks" ]; then
-            echo "Decoded keystore is empty."
-            exit 1
-          fi
-          echo "Decoded keystore size: $(wc -c < "$RUNNER_TEMP/diagnostic.jks") bytes"
-          file "$RUNNER_TEMP/diagnostic.jks"
-          printf "First 8 bytes (hex): "
-          od -An -tx1 -N8 "$RUNNER_TEMP/diagnostic.jks"
-          for store_type in PKCS12 JKS; do
-            if keytool -list -v -storetype "$store_type" -keystore "$RUNNER_TEMP/diagnostic.jks" -storepass "$KEYSTORE_PASSWORD" > "$RUNNER_TEMP/keytool-check.log" 2>&1; then
-              echo "STORETYPE_OK=$store_type"
-              awk '/Alias name:/ {alias=$0} /Entry type: PrivateKeyEntry/ {print "Private-key entry found: " alias; found=1} END {if (!found) print "No PrivateKeyEntry found."}' "$RUNNER_TEMP/keytool-check.log"
-              echo "Keystore certificate fingerprint:"
-              grep -E "SHA256:" "$RUNNER_TEMP/keytool-check.log" || true
-            else
-              echo "STORETYPE_FAILED=$store_type"
-              grep -Ei 'keytool error:|exception:|password|invalid|integrity|tampered|format|keystore' "$RUNNER_TEMP/keytool-check.log" | head -n 5 || true
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            if [ ! -s "$RUNNER_TEMP/release.jks" ]; then
+              echo "::error::فایل کلید امضا پس از رمزگشایی خالی است."
+              exit 1
             fi
-          done
+            keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" >/dev/null
+            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/setup_release_signing.py
+          elif [ "$ALLOW_DEBUG" = "true" ]; then
+            echo "::warning::کلید امضای اصلی تنظیم نشده؛ بنا به درخواست صریح با کلید debug امضا می‌شود."
+          else
+            echo "::error::سکرت‌های امضای دیجیتال (KEYSTORE_B64 / KEYSTORE_PASSWORD) تنظیم نشده‌اند. ساخت APK متوقف شد."
+            exit 1
+          fi
 
-      - run: flutter clean && flutter pub get
+      - run: flutter pub get
 
-      - name: Save pubspec.lock
-        uses: actions/upload-artifact@v4
-        with:
-          name: pubspec-lock
-          path: pubspec.lock
-
-      - name: Analyze (informational)
-        continue-on-error: true
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Analyze
+        run: flutter analyze --fatal-warnings --no-fatal-infos
 
       - name: Tests
-        id: tests
-        continue-on-error: true
         run: flutter test
 
       - name: EVAL numbers
         continue-on-error: true
         run: |
-          flutter test test/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
+          flutter test test/engine/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
 
-      - run: flutter build apk --release --build-number=${{ github.run_number }}
+      - name: Build release APK
+        run: flutter build apk --release --build-number=${{ github.run_number }}
 
-      - name: Show signer of the APK
-        continue-on-error: true
+      - name: Verify APK signature
+        env:
+          ALLOW_DEBUG: ${{ inputs.allow_debug_signing && 'true' || 'false' }}
         run: |
+          set -eu
           SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           APKSIGNER="$(find "$SDK/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1)"
           if [ -z "$APKSIGNER" ]; then
-            echo "apksigner not found"
-            exit 0
+            echo "::error::ابزار apksigner پیدا نشد."
+            exit 1
           fi
-          echo "Using: $APKSIGNER"
-          "$APKSIGNER" verify -v --print-certs build/app/outputs/flutter-apk/app-release.apk 2>&1 | head -n 40 || true
+          CERT_INFO="$("$APKSIGNER" verify -v --print-certs build/app/outputs/flutter-apk/app-release.apk)"
+          echo "$CERT_INFO" | head -n 30
+          if [ "$ALLOW_DEBUG" != "true" ] && echo "$CERT_INFO" | grep -q "CN=Android Debug"; then
+            echo "::error::فایل خروجی با کلید Android Debug امضا شده است! آپلود متوقف شد."
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: dastyar-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Report failed tests (APK is already saved)
-        if: steps.tests.outcome == 'failure'
-        run: |
-          echo "Some tests failed. Open the Tests step log."
-          exit 1

@@ -43,9 +43,13 @@
 ## ۵. بارگذاری قانون
 
 - متن را فقط از منبع رسمی بگیرید و تاریخ دریافت را یادداشت کنید.
-- تبدیل: python tools/convert.py ID raw/ID.txt "نام رسمی قانون" --source "منبع" --date "تاریخ"
-- در assets/data_info.json تاریخ آخرین به‌روزرسانی (lawsUpdated) و dataVersion را عوض کنید.
-- قبل از پوش: python tools/check.py
+- تبدیل و ثبت در مسیر دسته‌بندی‌شده:
+  `python tools/import_law.py raw/ID.txt --id ID --title "نام رسمی قانون" --source "منبع" --date "تاریخ" --out دسته/فایل.txt`
+  (یا برای قالب‌های دیگر: `python tools/convert.py ID raw/ID.txt "نام رسمی قانون" --source "منبع" --date "تاریخ" --out دسته/فایل.txt`)
+- اگر پوشهٔ جدیدی زیر `assets/laws/` ساخته‌اید: `python tools/check.py assets --fix`
+- `python tools/sync_meta.py --write` را اجرا کنید: عنوان کاتالوگ و `lawsUpdated` از `_meta.json` (منبع یکتا) مشتق می‌شوند؛ `dataVersion` را دستی عوض کنید.
+- اگر متن قوانین عوض شد: `python tools/parity.py --write` (استاندارد طلایی برابری پایتون↔دارت تازه شود).
+- قبل از پوش حتماً اجرا کنید: `python tools/check.py all && python tools/doctor.py`
 
 ## ۶. چیزهایی که نباید انجام شود
 

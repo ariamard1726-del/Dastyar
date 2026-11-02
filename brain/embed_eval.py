@@ -32,7 +32,7 @@ def log(*a):
 
 def read_rows(name):
     rows = []
-    p = os.path.join(HERE, name)
+    p = os.path.join(HERE, 'eval', name)
     if not os.path.exists(p):
         return rows
     for l in open(p, encoding='utf-8'):

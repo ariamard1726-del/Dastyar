@@ -1,4 +1,4 @@
-import glob
+import json
 import os
 import re
 
@@ -64,15 +64,29 @@ def is_obsolete(body):
     return n.startswith(('منسوخ', 'ملغی', 'ملغا', 'حذف شد'))
 
 
+def iter_law_files():
+    """فهرست (law_id, fallback_title, full_path) را از _meta.json می‌خواند."""
+    laws_dir = os.path.join(ROOT, 'assets', 'laws')
+    meta_path = os.path.join(laws_dir, '_meta.json')
+    meta = json.load(open(meta_path, encoding='utf-8')) if os.path.isfile(meta_path) else {}
+    out = []
+    for lid, info in sorted(meta.items()):
+        if not isinstance(info, dict) or not info.get('path'):
+            continue
+        full = os.path.join(laws_dir, info['path'])
+        if os.path.isfile(full):
+            out.append((lid, str(info.get('title', '')).strip(), full))
+    return out
+
+
 def load_articles():
     arts = []
     notes = 0
     obs = 0
-    for p in sorted(glob.glob(os.path.join(ROOT, 'assets', 'laws', '*.txt'))):
-        law = os.path.basename(p)[:-4]
+    for law, fallback_source, p in iter_law_files():
         with open(p, encoding='utf-8') as f:
             text = f.read().replace('\r', '')
-        source = ''
+        source = fallback_source
         chapter = ''
         for part in re.split(r'\n\s*\n', text):
             lines = part.strip().split('\n')

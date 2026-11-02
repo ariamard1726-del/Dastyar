@@ -1,9 +1,12 @@
-import os
 import json
+import os
+
 
 def get_data_path():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(current_dir, 'data', 'relationships.json')
+    # منبع یکتای دادهٔ روابط: assets/relationships.json (کپی محلی حذف شده است).
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(root_dir, 'assets', 'relationships.json')
+
 
 def load_data():
     data_path = get_data_path()
@@ -11,46 +14,49 @@ def load_data():
         with open(data_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"❌ خطا: فایل در مسیر {data_path} پیدا نشد.")
+        print(f'❌ خطا: فایل در مسیر {data_path} پیدا نشد.')
         return None
 
-def find_conflicts(article_id, data, path=None):
-    """
-    زنجیره تضادها را از یک ماده به صورت بازگشتی دنبال می‌کند.
-    """
+
+def find_conflicts(article_id, data, path=None, max_depth=32):
+    """زنجیرهٔ تضادها را از یک ماده به‌صورت بازگشتی با محافظت در برابر حلقه و عمق دنبال می‌کند."""
     if path is None:
         path = [str(article_id)]
-    
-    articles = data.get("articles", {})
+    if len(path) > max_depth:
+        return []
+
+    articles = data.get('articles', {})
     article = articles.get(str(article_id), {})
-    next_articles = article.get("conflicts_with", [])
-    
+    next_articles = article.get('conflicts_with', [])
+
     results = []
     for next_art in next_articles:
-        # محافظت در برابر حلقه (cycle)
-        if str(next_art) in path:
-            results.append(" -> ".join(path + [str(next_art)]) + " ⚠️ (حلقه)")
+        next_key = str(next_art)
+        if next_key in path:
+            results.append(' -> '.join(path + [next_key]) + ' ⚠️ (حلقه)')
             continue
-        new_path = path + [str(next_art)]
-        results.append(" -> ".join(new_path))
-        results.extend(find_conflicts(next_art, data, new_path))
-    
+        new_path = path + [next_key]
+        results.append(' -> '.join(new_path))
+        if len(new_path) < max_depth:
+            results.extend(find_conflicts(next_key, data, new_path, max_depth=max_depth))
+
     return results
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     data = load_data()
     if data:
-        print("✅ دیتابیس با موفقیت بارگذاری شد.")
-        articles = data.get("articles", {})
-        print(f"تعداد مقالات: {len(articles)}")
+        print('✅ دیتابیس با موفقیت بارگذاری شد.')
+        articles = data.get('articles', {})
+        print(f'تعداد مواد دارای رابطه: {len(articles)}')
         print()
-        
-        target = "101"
+
+        target = '101'
         chains = find_conflicts(target, data)
-        
+
         if chains:
-            print(f"زنجیره تضادها برای ماده {target}:")
+            print(f'زنجیرهٔ تضادها برای ماده {target}:')
             for chain in chains:
-                print(f"  {chain}")
+                print(f'  {chain}')
         else:
-            print(f"تضادی برای ماده {target} یافت نشد.")
+            print(f'تضادی برای ماده {target} یافت نشد.')

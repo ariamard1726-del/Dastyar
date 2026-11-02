@@ -1,29 +1,32 @@
 00:00 +0: NEAR-MISS report (no assertions)
-NEAR brain/eval.txt n=30 exact@1 0.73 near@1 0.87 law@1 0.97 near@5 1.00
-NEAR brain/eval_v2.txt n=49 exact@1 0.47 near@1 0.59 law@1 0.86 near@5 0.84
-NEAR brain/eval_v3.txt n=20 exact@1 0.35 near@1 0.45 law@1 1.00 near@5 0.80
-NEAR brain/eval_v4.txt n=18 exact@1 0.39 near@1 0.39 law@1 0.83 near@5 0.67
-NEAR brain/eval_extra.txt n=30 exact@1 0.73 near@1 0.77 law@1 0.97 near@5 0.93
-NEAR brain/eval_blind.txt n=31 exact@1 0.55 near@1 0.77 law@1 0.97 near@5 0.97
-NEAR TOTAL n=178 exact@1 0.55 near@1 0.66 law@1 0.93 near@5 0.88
-NEAR far | brain/eval_v2.txt | اگر پدر یا مادر بمیره بچه پیش کدوم می‌ماند | want civil ماده 1171 | got civil ماده 906
-NEAR far | brain/eval_v2.txt | چه کسانی محجور حساب می‌شوند | want civil ماده 1207 | got labor ماده 3
-NEAR far | brain/eval_v2.txt | زن چقدر از شوهر ارث می‌برد اگر بچه نداشته باشند | want civil ماده 900 | got civil ماده 946
-NEAR far | brain/eval_v2.txt | زن و شوهر باید چطور با هم رفتار کنند | want civil ماده 1103 | got civil ماده 1221
-NEAR far | brain/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got labor تبصره ۱ (اصلاحی ۱۳۹۰/۰۳/۳۱)- دولت موظف است با استفاده از تسهیلات بانکی و امکانات وزارت راه و شهرسازی، شهرداری‌ها و سایر دستگاه‌های ذی‌ربط همکاری لازم را بنماید.
-NEAR far | brain/eval_v2.txt | چک چند نوع دارد | want cheque ماده 1 | got civil ماده 1328 مکرر
-NEAR far | brain/eval_v2.txt | چکی که در ایران روی بانک خارجی نوشته شده | want cheque ماده 8 | got cheque ماده 1
-NEAR far | brain/eval_v2.txt | ضامن برات گم‌شده تا چند سال مسئول است | want commerce ماده 272 | got commerce ماده 268
-NEAR far | brain/eval_v3.txt | ولی قهری بچه کیه | want civil ماده 1180 | got civil ماده 1184
-NEAR far | brain/eval_v3.txt | قیم می‌تونه ملک بچه رو بفروشه | want civil ماده 1241 | got civil ماده 1161
-NEAR far | brain/eval_v3.txt | ارث بر چه اساسی تعلق می‌گیره | want civil ماده 861 | got civil ماده 868
-NEAR far | brain/eval_v3.txt | آیا آدم می‌تونه آزادی خودشو از بین ببره | want civil ماده 960 | got civil ماده 889
-NEAR far | brain/eval_v4.txt | ضامن یکی شدم و خودم بدهیش رو دادم می‌تونم از خودش پس بگیرم | want civil ماده 709 | got commerce ماده 403
-NEAR far | brain/eval_v4.txt | وصیت کرده بیشتر اموالش رو به یک نفر بدن اگه ورثه قبول نکنن چی میشه | want civil ماده 843 | got civil ماده 849
-NEAR far | brain/eval_v4.txt | چکم گم شده یا دزدیده شده چطور جلوی پرداختش رو بگیرم | want cheque ماده 14 | got commerce ماده 326
-NEAR far | brain/eval_v4.txt | تو خیابون پولی پیدا کردم که زیاده باید چی کار کنم | want civil ماده 163 | got civil ماده 175
-NEAR far | brain/eval_v4.txt | اگه برای تحویل جنس و پرداخت پول زمان نذاشته باشیم چی میشه | want civil ماده 344 | got civil ماده 296
-NEAR far | brain/eval_v4.txt | قرارداد رو می‌شه یک‌طرفه به هم زد | want civil ماده 219 | got commerce ماده 551
-NEAR far | brain/eval_extra.txt | ضمان را چه کسی می‌تواند فسخ کند | want civil ماده 701 | got civil ماده 708
-NEAR far | brain/eval_extra.txt | راه‌های به دست آوردن مالکیت چیست | want civil ماده 140 | got civil ماده 180
-NEAR far | brain/eval_blind.txt | بازرس شرکت سهامی در برابر خسارت چه مسئولیتی دارد | want commerce_1347 ماده 154 | got commerce_1347 ماده 145
+NEAR brain/eval/eval.txt n=30 exact@1 0.87 near@1 0.90 law@1 0.93 near@5 1.00
+NEAR brain/eval/eval_v2.txt n=49 exact@1 0.45 near@1 0.57 law@1 0.82 near@5 0.82
+NEAR brain/eval/eval_v3.txt n=20 exact@1 0.35 near@1 0.45 law@1 0.80 near@5 0.70
+NEAR brain/eval/eval_v4.txt n=18 exact@1 0.39 near@1 0.39 law@1 0.83 near@5 0.67
+NEAR brain/eval/eval_extra.txt n=30 exact@1 0.80 near@1 0.83 law@1 0.93 near@5 0.97
+NEAR brain/eval/eval_blind.txt n=31 exact@1 0.58 near@1 0.71 law@1 0.87 near@5 0.94
+NEAR TOTAL n=178 exact@1 0.58 near@1 0.66 law@1 0.87 near@5 0.87
+NEAR far | brain/eval/eval_v2.txt | اگر تو معامله خیلی ضرر کرده باشم می‌تونم فسخ کنم | want civil ماده 416 | got civil ماده 246
+NEAR far | brain/eval/eval_v2.txt | چه کسانی محجور حساب می‌شوند | want civil ماده 1207 | got civil_procedure ماده 337
+NEAR far | brain/eval/eval_v2.txt | مالک تا چه حد در مال خودش حق تصرف دارد | want civil ماده 30 | got civil_procedure ماده 171
+NEAR far | brain/eval/eval_v2.txt | زن چقدر از شوهر ارث می‌برد اگر بچه نداشته باشند | want civil ماده 900 | got civil ماده 944
+NEAR far | brain/eval/eval_v2.txt | زن و شوهر باید چطور با هم رفتار کنند | want civil ماده 1103 | got civil ماده 1221
+NEAR far | brain/eval/eval_v2.txt | بدهکارهای زندانی را باید جدا از مجرمان نگه دارند | want financial_sentences ماده 5 | got criminal_procedure ماده 46
+NEAR far | brain/eval/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got criminal_procedure ماده 151
+NEAR far | brain/eval/eval_v2.txt | چک چند نوع دارد | want cheque ماده 1 | got penal ماده 541
+NEAR far | brain/eval/eval_v2.txt | چکی که در ایران روی بانک خارجی نوشته شده | want cheque ماده 8 | got cheque ماده 1
+NEAR far | brain/eval/eval_v3.txt | ولی قهری بچه کیه | want civil ماده 1180 | got civil ماده 1184
+NEAR far | brain/eval/eval_v3.txt | قیم می‌تونه ملک بچه رو بفروشه | want civil ماده 1241 | got constitution اصل 50
+NEAR far | brain/eval/eval_v3.txt | بعد از مرگ حق فسخ به وارث می‌رسه | want civil ماده 445 | got civil ماده 888
+NEAR far | brain/eval/eval_v3.txt | حواله با رضایت کدوم طرف‌ها درست میشه | want civil ماده 725 | got criminal_procedure ماده 685
+NEAR far | brain/eval/eval_v3.txt | ارث بر چه اساسی تعلق می‌گیره | want civil ماده 861 | got civil ماده 868
+NEAR far | brain/eval/eval_v3.txt | آیا آدم می‌تونه آزادی خودشو از بین ببره | want civil ماده 960 | got criminal_procedure ماده 558
+NEAR far | brain/eval/eval_v4.txt | ضامن یکی شدم و خودم بدهیش رو دادم می‌تونم از خودش پس بگیرم | want civil ماده 709 | got criminal_procedure ماده 199
+NEAR far | brain/eval/eval_v4.txt | وصیت کرده بیشتر اموالش رو به یک نفر بدن اگه ورثه قبول نکنن چی میشه | want civil ماده 843 | got civil ماده 849
+NEAR far | brain/eval/eval_v4.txt | چکم گم شده یا دزدیده شده چطور جلوی پرداختش رو بگیرم | want cheque ماده 14 | got commerce ماده 326
+NEAR far | brain/eval/eval_v4.txt | تو خیابون پولی پیدا کردم که زیاده باید چی کار کنم | want civil ماده 163 | got civil ماده 175
+NEAR far | brain/eval/eval_v4.txt | اگه برای تحویل جنس و پرداخت پول زمان نذاشته باشیم چی میشه | want civil ماده 344 | got civil ماده 296
+NEAR far | brain/eval/eval_v4.txt | قرارداد رو می‌شه یک‌طرفه به هم زد | want civil ماده 219 | got constitution اصل 50
+NEAR far | brain/eval/eval_extra.txt | اگر کسی را به زور مجبور به معامله کنند معامله معتبر است | want civil ماده 199 | got civil ماده 203
+NEAR far | brain/eval/eval_blind.txt | بدهکار می‌تواند مالی را که دادگاه از تصرفش منع کرده بپردازد | want civil ماده 276 | got civil_procedure ماده 124
+NEAR far | brain/eval/eval_blind.txt | اداره اموال صغیر و مجنون با کیست | want civil ماده 1217 | got direct_taxes ماده 117

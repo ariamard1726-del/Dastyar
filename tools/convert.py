@@ -64,6 +64,8 @@ def main():
     ap.add_argument('name')
     ap.add_argument('--source', default='')
     ap.add_argument('--date', default='')
+    ap.add_argument('--amended', default='')
+    ap.add_argument('--out', default='', help='مسیر نسبی زیر assets/laws')
     ap.add_argument('--chapters', action='store_true')
     ap.add_argument('--drop-notes', action='store_true')
     ap.add_argument('--dry-run', action='store_true')
@@ -167,25 +169,30 @@ def main():
             out.append(body)
         out.append('')
 
+    meta_path = os.path.join(LAWS_DIR, '_meta.json')
+    meta = {}
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, encoding='utf-8') as f:
+                meta = json.load(f)
+        except Exception:
+            meta = {}
+    prev_info = meta.get(a.law_id, {}) if isinstance(meta.get(a.law_id), dict) else {}
+    rel_out = a.out or prev_info.get('path') or (a.law_id + '.txt')
+
     if not a.dry_run:
-        os.makedirs(LAWS_DIR, exist_ok=True)
-        dest = os.path.join(LAWS_DIR, a.law_id + '.txt')
+        dest = os.path.join(LAWS_DIR, rel_out)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(dest, 'w', encoding='utf-8') as f:
             f.write('\n'.join(out).strip() + '\n')
 
-        meta_path = os.path.join(LAWS_DIR, '_meta.json')
-        meta = {}
-        if os.path.exists(meta_path):
-            try:
-                with open(meta_path, encoding='utf-8') as f:
-                    meta = json.load(f)
-            except Exception:
-                meta = {}
         meta[a.law_id] = {
             'title': a.name,
-            'source': a.source,
-            'date': a.date,
+            'source': a.source or prev_info.get('source', ''),
+            'date': a.date or prev_info.get('date', ''),
             'articles': len(articles),
+            'amended': a.amended or prev_info.get('amended', ''),
+            'path': rel_out,
         }
         with open(meta_path, 'w', encoding='utf-8') as f:
             json.dump(meta, f, ensure_ascii=False, indent=2)
@@ -208,7 +215,7 @@ def main():
     if a.dry_run:
         print('--- فقط بررسی (چیزی نوشته نشد) ---')
     else:
-        print('نوشته شد: assets/laws/%s.txt' % a.law_id)
+        print('نوشته شد: assets/laws/%s' % rel_out)
     print('تعداد ماده:', len(articles))
     print('عنوان جلد/فصل/قسمت دیده‌شده:', heads)
     if ignored:

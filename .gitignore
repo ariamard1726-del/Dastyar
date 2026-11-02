@@ -18,7 +18,7 @@ android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 *.keystore
 key.properties
 
-# Backups and junk
+# Backups, logs, and scratch files
 lib_backup/
 apk-check/
 apk-test/
@@ -26,5 +26,8 @@ artifacts/
 __pycache__/
 *.bak
 *.pyc
+*.log
 brain_out/
 nano_out/
+project_report.txt
+status.txt
