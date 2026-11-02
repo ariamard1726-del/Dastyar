@@ -41,6 +41,9 @@ class _ControllableAssistant extends Assistant {
     String question, {
     int maxAlternatives = 3,
   }) {
+    // جریان عمداً تا پایان تست باز می‌ماند تا «پاسخ در حال پردازش» شبیه‌سازی
+    // شود؛ [dispose] آن را می‌بندد. تحلیل‌گر بستن در همان تابع را می‌خواهد.
+    // ignore: close_sinks
     final c = StreamController<AssistantTurn>(
       onCancel: () => cancelled = true,
     );
