@@ -1,6 +1,6 @@
-commit: 7f0a185
-🎉 175 tests passed.
+commit: a5321c5
+🎉 177 tests passed.
 --- analyze ---
-2 issues found. (ran in 11.5s)
+2 issues found. (ran in 12.0s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:564:5 • prefer_final_locals
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:44:11 • close_sinks
