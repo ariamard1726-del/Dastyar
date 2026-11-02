@@ -1,33 +1,6 @@
-commit: 53449d5
-::error::177 tests passed, 3 failed.
-::group::❌ test/drafting/pending_offer_test.dart: مأموریت ۷: قالبها فقط در نوار بالای فیلد تایپ توصیف مشکل، پاسخ موتور را مینویسد ولی هیچ متن پیشنهاد قالبی داخل چت نیست (failed)
-   ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-   The following TestFailure was thrown running a test:
-   Expected: exactly one matching candidate
-   Actual: _AncestorWidgetFinder:<Found 0 widgets with type "ChoiceChip" that are ancestors of
-   widgets with text "شکوائیه چک": []>
-   Which: means none were found but one was expected
-   When the exception was thrown, this was the stack:
-   #4      main.<anonymous closure>.<anonymous closure> (file://test/drafting/pending_offer_test.dart:116:7)
-::group::❌ test/drafting/pending_offer_test.dart: مأموریت ۷: قالبها فقط در نوار بالای فیلد تایپ لمس «درخواست اجرائیه» مستقیم قالب اجرائیه چک را باز میکند (failed)
-   ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-   The following assertion was thrown running a test:
-   The finder "Found 0 widgets with type "ChoiceChip" that are ancestors of widgets with text "درخواست
-   اجرائیه": []" (used in a call to "tap()") could not find any matching widgets.
-   When the exception was thrown, this was the stack:
-   #0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
-   #1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
-   #2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
-::group::❌ test/drafting/pending_offer_test.dart: مأموریت ۷: قالبها فقط در نوار بالای فیلد تایپ تکقالب: پاسخ فوراً داده میشود و برچسب کوتاه آغاز پیشنویس است (failed)
-   ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
-   The following TestFailure was thrown running a test:
-   Expected: exactly one matching candidate
-   Actual: _AncestorWidgetFinder:<Found 0 widgets with type "ChoiceChip" that are ancestors of
-   widgets with text "دادخواست وجه": []>
-   Which: means none were found but one was expected
-   When the exception was thrown, this was the stack:
-   #4      main.<anonymous closure>.<anonymous closure> (file://test/drafting/pending_offer_test.dart:160:7)
+commit: 2620b18
+🎉 180 tests passed.
 --- analyze ---
-2 issues found. (ran in 8.9s)
+2 issues found. (ran in 11.3s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:564:5 • prefer_final_locals
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:44:11 • close_sinks
