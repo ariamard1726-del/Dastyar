@@ -37,7 +37,7 @@
 
 | داده | منبع یکتا | مشتق‌ها / مصرف‌کننده‌ها |
 |---|---|---|
-| متادیتای قوانین | `assets/laws/_meta.json` | `laws_catalog.json` (عنوان‌ها) و `data_info.json` (`lawsUpdated`) با `tools/sync_meta.py --write` مشتق می‌شوند؛ `tools/check.py meta` تازگی مشتق‌ها را در CI می‌سنجد |
+| متادیتای قوانین | `assets/laws/_meta.json` | `laws_catalog.json` (عنوان‌ها) و `data_info.json` (`sourceStatus`) با `tools/sync_meta.py --write` مشتق می‌شوند؛ `tools/check.py meta` تازگی مشتق‌ها را در CI می‌سنجد |
 | روابط/تضاد مواد | `assets/relationships.json` | دارت: `core/conflicts_service.dart`؛ پایتون: `brain/engine.py` (کپی محلی حذف شد) |
 | مدل نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `tools/check.py intent` |
 | پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` |

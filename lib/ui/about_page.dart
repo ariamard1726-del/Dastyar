@@ -117,19 +117,20 @@ class _AboutPageState extends State<AboutPage> {
       for (final l in laws) {
         final n = e.lawCounts[l.id] ?? 0;
         final metaInfo = e.meta[l.id];
-        final date = (metaInfo?['date'] ?? '').toString().trim();
-        final amended = (metaInfo?['amended'] ?? '').toString().trim();
+        final verified = metaInfo?['source_verified'] == true;
         final src = (metaInfo?['source'] ?? '').toString().trim();
+        final amended = (metaInfo?['amended'] ?? '').toString().trim();
         final String detail;
         if (n > 0) {
-          detail =
-              '${_fa(n)} ماده${date.isEmpty ? ' | تاریخ ثبت نشده' : ' | ${_fa(date)}'}';
+          detail = '${_fa(n)} ماده | '
+              '${verified ? 'منبع تأییدشده' : 'منبع تأیید نشده'}';
         } else {
           detail = 'هنوز وارد نشده';
         }
         final subParts = <String>[
-          if (src.isNotEmpty) 'منبع: $src',
-          if (amended.isNotEmpty) 'آخرین اصلاحیه: ${_fa(amended)}',
+          if (!verified) 'منبع رسمی تأیید نشده',
+          if (verified && src.isNotEmpty) 'منبع: $src',
+          if (verified && amended.isNotEmpty) 'آخرین اصلاحیه: ${_fa(amended)}',
         ];
         out.add(Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -180,7 +181,7 @@ class _AboutPageState extends State<AboutPage> {
           children: [
             _card('وضعیت داده‌ها', [
               _row('نسخهٔ داده‌ها', _text('dataVersion', 'ثبت نشده')),
-              _row('آخرین به‌روزرسانی قوانین', _text('lawsUpdated', 'ثبت نشده')),
+              _row('وضعیت منابع رسمی', _text('sourceStatus', 'تأیید نشده')),
               _row('بخش‌های دانش', _fa(widget.engine.size)),
               _row('قالب‌ها', _fa(total)),
               _row('قالب‌های بازبینی‌شده', _fa(reviewed)),
@@ -205,7 +206,7 @@ class _AboutPageState extends State<AboutPage> {
             const SizedBox(height: 8),
             _card('این برنامه چه کاری نمی‌کند', [
               _p('• جایگزین وکیل نیست و نتیجهٔ پرونده را پیش‌بینی نمی‌کند.'),
-              _p('• اگر قانونی تغییر کرده باشد، ممکن است متن داخل برنامه قدیمی باشد؛ تاریخ دریافت متن را ببینید.'),
+              _p('• منابع رسمی قوانین هنوز تأیید نشده‌اند؛ پیش از هر اقدامی متن قانون را از منبع رسمی بررسی کنید.'),
               _p('• قالب‌های «بازبینی‌نشده» فقط پیش‌نویس‌اند.'),
             ]),
             const SizedBox(height: 8),

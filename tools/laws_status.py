@@ -83,8 +83,8 @@ for cid, cname in cat['categories'].items():
         if dups:
             mark = '⚠️'
             extra.append('%d تکراری' % dups)
-        if not info.get('date'):
-            extra.append('تاریخ ثبت نشده')
+        if info.get('source_verified') is not True:
+            extra.append('منبع تأیید نشده')
         if n > 0:
             done[pr] += 1
         print('  %s [%d] %s (%d ماده)%s' % (

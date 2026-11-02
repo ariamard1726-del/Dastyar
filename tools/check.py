@@ -9,7 +9,7 @@
   all      همهٔ موارد بالا (پیش‌فرض)
 
 اجرا: python3 tools/check.py [زیردستور] [--strict] [--fix]
-با STRICT=1 یا --strict خالی‌بودن منبع و تاریخ قانون «خطا» می‌شود، نه هشدار.
+با STRICT=1 یا --strict نبودن `source_verified: false` یا وجود منبع/تاریخ تأییدنشده «خطا» می‌شود، نه هشدار.
 """
 import base64
 import glob
@@ -139,10 +139,15 @@ def cmd_corpus():
             errors.append('%s: در _meta.json ثبت نشده' % rel_name)
             return
         problems = []
-        if not str(info.get('source', '')).strip():
-            problems.append('منبع (source) خالی است')
-        if not str(info.get('date', '')).strip():
-            problems.append('تاریخ (date) خالی است')
+        # تا تأیید منبع رسمی نباید هیچ منبع/تاریخ ادعاشدهای در _meta.json باشد.
+        if info.get('source_verified') is not True:
+            for k in ('source', 'date', 'amended'):
+                if k in info:
+                    problems.append('فیلد تأییدنشدهٔ %s ثبت شده است' % k)
+        if 'source_verified' not in info:
+            problems.append('وضعیت تأیید منبع (source_verified) ثبت نشده است')
+        elif not isinstance(info['source_verified'], bool):
+            problems.append('source_verified باید true یا false باشد')
         for pr in problems:
             msg = '%s: %s' % (lid, pr)
             (errors if STRICT else warnings).append(msg)
@@ -241,6 +246,17 @@ def cmd_meta():
         if not isinstance(info, dict):
             errors.append('%s: ساختار نادرست' % lid)
             continue
+        verified = info.get('source_verified')
+        if verified is not False:
+            errors.append('%s: تا تأیید منبع رسمی باید source_verified: false باشد' % lid)
+        if 'source_verified' not in info:
+            errors.append('%s: فیلد source_verified وجود ندارد' % lid)
+        elif not isinstance(verified, bool):
+            errors.append('%s: source_verified باید true یا false باشد' % lid)
+        # منابع مبهم و تاریخهای ساختگی نباید دوباره وارد _meta.json شوند.
+        for key in ('source', 'date', 'amended'):
+            if key in info:
+                errors.append('%s: فیلد %s بدون منبع رسمی مجاز نیست؛ حذف شود' % (lid, key))
         src = str(info.get('source', '')).strip()
         if src:
             if SHELL.search(src):

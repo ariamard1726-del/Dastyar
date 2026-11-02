@@ -28,7 +28,8 @@ void main() {
               repo: repo,
               initialInfo: const <String, dynamic>{
                 'dataVersion': '0.2',
-                'lawsUpdated': '۱۴۰۵/۰۸/۰۸',
+                'sourceStatus': 'تأیید نشده',
+                'note': 'منابع رسمی قوانین هنوز تأیید نشده\u200cاند.',
               },
             ),
           ),
@@ -44,6 +45,8 @@ void main() {
 
       expect(find.text('هشدارهای بارگذاری'), findsOneWidget);
       expect(find.textContaining('bad_template.json'), findsOneWidget);
+      expect(find.textContaining('۱۴۰۵/'), findsNothing);
+      expect(find.textContaining('تاریخ دریافت متن'), findsNothing);
     });
   });
 }

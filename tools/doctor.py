@@ -171,9 +171,12 @@ for full, lid in sorted(registered.items(), key=lambda x: x[1]):
     sources_by_law[lid] = ({norm(b[2]) for b in blocks if b[2]}, set(seen))
 
     info = meta[lid]
-    for k in ('source', 'date'):
-        if not str(info.get(k, '')).strip():
-            warnings.append('%s: %s در _meta.json خالی است' % (lid, k))
+    # تا تأیید منابع رسمی، نبود منبع/تاریخ طبیعی است؛ فقط وضعیت تأیید بررسی میشود.
+    if info.get('source_verified') is not False:
+        warnings.append('%s: source_verified: false در _meta.json نیست' % lid)
+    for k in ('source', 'date', 'amended'):
+        if k in info:
+            warnings.append('%s: فیلد تأییدنشدهٔ %s در _meta.json است' % (lid, k))
 
 # ---------- ۶: lawRefs ----------
 catalog_names_by_id = {}

@@ -62,9 +62,6 @@ def main():
     ap.add_argument('law_id')
     ap.add_argument('raw')
     ap.add_argument('name')
-    ap.add_argument('--source', default='')
-    ap.add_argument('--date', default='')
-    ap.add_argument('--amended', default='')
     ap.add_argument('--out', default='', help='مسیر نسبی زیر assets/laws')
     ap.add_argument('--chapters', action='store_true')
     ap.add_argument('--drop-notes', action='store_true')
@@ -188,11 +185,10 @@ def main():
 
         meta[a.law_id] = {
             'title': a.name,
-            'source': a.source or prev_info.get('source', ''),
-            'date': a.date or prev_info.get('date', ''),
             'articles': len(articles),
-            'amended': a.amended or prev_info.get('amended', ''),
             'path': rel_out,
+            # ورود دوبارهٔ متن یعنی منبع رسمی دوباره باید تأیید شود.
+            'source_verified': False,
         }
         with open(meta_path, 'w', encoding='utf-8') as f:
             json.dump(meta, f, ensure_ascii=False, indent=2)

@@ -6,8 +6,8 @@
 #   python3 tools/import_law.py RAW.txt
 # نوشتن فایل قانون و ثبت در _meta.json:
 #   python3 tools/import_law.py RAW.txt --id labor --title "قانون کار" \
-#     --source "نام سایت یا سازمان" --date 1405/08/08 \
 #     --out Hoghough_e_Khosousi/Hoghough_e_Kar/ghanoun_e_kar.txt
+# منبع و تاریخ ساختگی ثبت نمی\u200cشود؛ source_verified تا تأیید منبع رسمی false می\u200cماند.
 import argparse
 import json
 import os
@@ -21,9 +21,6 @@ ap = argparse.ArgumentParser()
 ap.add_argument('raw')
 ap.add_argument('--id')
 ap.add_argument('--title')
-ap.add_argument('--source')
-ap.add_argument('--date')
-ap.add_argument('--amended', default='')
 ap.add_argument('--out')
 ap.add_argument('--force', action='store_true', help='با وجود تعارض بنویس و نسخهٔ بلندتر را نگه دار')
 a = ap.parse_args()
@@ -127,10 +124,10 @@ if conflicts:
         print('  %s: طول نسخه‌ها %s' % (k, [len(x) for x in cands[k]]))
 
 if not a.out:
-    print('\n(فقط گزارش؛ برای نوشتن --out و --id و --title و --source و --date بدهید.)')
+    print('\n(فقط گزارش؛ برای نوشتن --out و --id و --title بدهید.)')
     sys.exit(0)
-if not (a.id and a.title and a.source and a.date):
-    print('خطا: با --out باید --id و --title و --source و --date هم بدهید.')
+if not (a.id and a.title):
+    print('خطا: با --out باید --id و --title هم بدهید.')
     sys.exit(1)
 if conflicts and not a.force:
     print('خطا: تعارض متن وجود دارد. اول متن خام را اصلاح کنید یا --force بدهید.')
@@ -150,8 +147,8 @@ open(dest, 'w', encoding='utf-8').write('\n'.join(out_lines).rstrip() + '\n')
 
 mp = os.path.join(LAWS, '_meta.json')
 meta = json.load(open(mp, encoding='utf-8'))
-meta[a.id] = {'title': a.title, 'source': a.source, 'date': a.date,
-              'articles': len(order), 'amended': a.amended, 'path': a.out}
+meta[a.id] = {'title': a.title, 'articles': len(order), 'path': a.out,
+              'source_verified': False}
 json.dump(meta, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
 open(mp, 'a', encoding='utf-8').write('\n')
 print('نوشته شد: assets/laws/%s و _meta.json (%s).' % (a.out, a.id))

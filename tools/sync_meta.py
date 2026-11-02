@@ -1,10 +1,11 @@
 """همگام‌سازی متادیتای قوانین از منبع یکتا.
 
-منبع کانونیک: assets/laws/_meta.json  (عنوان، منبع، تاریخ، تعداد مواد، مسیر)
+منبع کانونیک: assets/laws/_meta.json  (عنوان، تعداد مواد، مسیر، وضعیت تأیید منبع)
 مشتق‌ها:
   - assets/laws_catalog.json → عنوان هر قانون از _meta گرفته می‌شود؛
     عنوان قبلی کاتالوگ اگر متفاوت باشد به aliases منتقل می‌شود (تا جستجوی نام رایج نشکند).
-  - assets/data_info.json   → lawsUpdated = آخرین تاریخ دریافت متن در _meta.
+  - assets/data_info.json   → sourceStatus = وضعیت تأیید منابع رسمی.
+    تا وقتی منبع رسمی تأیید نشده، هیچ تاریخ/منبعی ثبت نمی‌شود.
 
 اجرا:
   python3 tools/sync_meta.py           # فقط بررسی تازگی (خروج ۱ اگر مشتق‌ها کهنه‌اند)
@@ -60,14 +61,16 @@ def build():
         if (new_aliases or existing is not None) and new_aliases != existing:
             law['aliases'] = new_aliases
 
-    dates = []
-    for m in meta.values():
-        if isinstance(m, dict):
-            d = str(m.get('date', '')).strip()
-            if d:
-                dates.append(d)
-    if dates:
-        info['lawsUpdated'] = to_fa(max(dates, key=digits))
+    # تاریخ و منبع ساختگی حذف شده‌اند؛ تنها وضعیت تأیید منابع رسمی منتشر می‌شود.
+    info.pop('lawsUpdated', None)
+    entries = [m for m in meta.values() if isinstance(m, dict)]
+    verified = sum(1 for m in entries if m.get('source_verified') is True)
+    total = len(entries)
+    if verified == 0:
+        info['sourceStatus'] = 'تأیید نشده'
+    else:
+        info['sourceStatus'] = '%s از %s قانون' % (to_fa(str(verified)),
+                                                  to_fa(str(total)))
 
     return dump(catalog), dump(info)
 

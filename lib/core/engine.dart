@@ -551,9 +551,9 @@ class KnowledgeEngine {
     if (c.source.isNotEmpty) {
       sb.write('\n\nمنبع: ${c.source}');
       if (c.chapter.isNotEmpty) sb.write(' — ${c.chapter}');
-      final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
-      if (date.isNotEmpty) {
-        sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
+      // تا زمانی که منبع رسمی تأیید نشده، هیچ تاریخی بهعنوان واقعیت نمایش داده نمیشود.
+      if (meta[c.lawId]?['source_verified'] != true) {
+        sb.write('\nمنبع رسمی این متن هنوز تأیید نشده است.');
       }
     }
     return sb.toString();
