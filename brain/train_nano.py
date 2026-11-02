@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import ROOT
+from common import ROOT, iter_law_files
 
 torch.manual_seed(0)
 OUT = os.path.join(ROOT, 'nano_out')
@@ -28,7 +28,7 @@ def log(*a):
 
 
 parts = []
-for p in sorted(glob.glob(os.path.join(ROOT, 'assets', 'laws', '*.txt'))):
+for _lid, _title, p in iter_law_files():
     with open(p, encoding='utf-8') as f:
         parts.append(f.read().replace('\r', ''))
 text = '\n'.join(parts)

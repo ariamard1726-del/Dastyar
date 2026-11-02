@@ -54,5 +54,141 @@
     "articles": 203,
     "amended": "۱۳۹۰/۰۴/۰۸",
     "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt"
+  },
+  "constitution": {
+    "title": "قانون اساسی جمهوری اسلامی ایران",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 177,
+    "amended": "۱۳۶۸/۰۵/۰۶",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Asasi/ghanoun_e_asasi.txt"
+  },
+  "family_protection": {
+    "title": "قانون حمایت خانواده",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 58,
+    "amended": "۱۳۹۱/۱۲/۰۱",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_e_khanevadeh.txt"
+  },
+  "civil_liability": {
+    "title": "قانون مسئولیت مدنی",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 16,
+    "amended": "۱۳۳۹/۰۲/۰۷",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_masouliyat_e_madani.txt"
+  },
+  "child_protection": {
+    "title": "قانون حمایت از اطفال و نوجوانان",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 51,
+    "amended": "۱۳۹۹/۰۲/۲۳",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_atfal.txt"
+  },
+  "marriage": {
+    "title": "قانون تسهیل ازدواج جوانان",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 13,
+    "amended": "۱۳۸۴/۰۹/۲۷",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_tashil_e_ezdevaj.txt"
+  },
+  "consumer_protection": {
+    "title": "قانون حمایت از حقوق مصرف‌کنندگان",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 22,
+    "amended": "۱۳۸۸/۰۷/۱۵",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_mosarefkonandegan.txt"
+  },
+  "penal": {
+    "title": "قانون مجازات اسلامی",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 726,
+    "amended": "۱۳۹۹/۰۲/۲۳",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_mojazat_e_eslami.txt"
+  },
+  "penal_taazirat": {
+    "title": "قانون مجازات اسلامی (کتاب پنجم - تعزیرات و مجازات‌های بازدارنده)",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 256,
+    "amended": "۱۳۷۵/۰۳/۰۲",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_taazirat.txt"
+  },
+  "fraud_intensify": {
+    "title": "قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 8,
+    "amended": "۱۳۶۷/۰۹/۱۵",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_tashdid_e_kolahbardari.txt"
+  },
+  "cybercrime": {
+    "title": "قانون جرایم رایانه‌ای",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 55,
+    "amended": "۱۳۸۸/۰۳/۰۵",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_jarayem_e_rayaneh_ei.txt"
+  },
+  "civil_procedure": {
+    "title": "قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 527,
+    "amended": "۱۳۷۹/۰۱/۲۱",
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ayin_e_dadresi_e_madani.txt"
+  },
+  "civil_execution": {
+    "title": "قانون اجرای احکام مدنی",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 180,
+    "amended": "۱۳۵۶/۰۸/۰۱",
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ejray_e_ahkam_e_madani.txt"
+  },
+  "dispute_councils": {
+    "title": "قانون شوراهای حل اختلاف",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 41,
+    "amended": "۱۴۰۲/۰۶/۲۲",
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_shorahaye_hal_e_ekhtelaf.txt"
+  },
+  "criminal_procedure": {
+    "title": "قانون آیین دادرسی کیفری",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 699,
+    "amended": "۱۳۹۴/۰۳/۲۴",
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ayin_e_dadresi_e_keyfari.txt"
+  },
+  "registration": {
+    "title": "قانون ثبت اسناد و املاک",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 158,
+    "amended": "۱۳۱۰/۱۲/۲۶",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_sabt_e_asnad_va_amlak.txt"
+  },
+  "direct_taxes": {
+    "title": "قانون مالیات‌های مستقیم",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 156,
+    "amended": "۱۳۹۴/۰۴/۳۱",
+    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_maliathaye_mostaghim.txt"
+  },
+  "social_security": {
+    "title": "قانون تأمین اجتماعی",
+    "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
+    "date": "1405/08/10",
+    "articles": 115,
+    "amended": "۱۳۵۴/۰۴/۰۳",
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/ghanoun_e_tamin_e_ejtemaei.txt"
   }
 }

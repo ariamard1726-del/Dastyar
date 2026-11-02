@@ -47,7 +47,7 @@ if os.path.exists(mp):
     except Exception:
         meta = {}
 
-known = set()
+known_paths = set()
 done = {1: 0, 2: 0, 3: 0}
 allp = {1: 0, 2: 0, 3: 0}
 total_articles = 0
@@ -61,16 +61,18 @@ for cid, cname in cat['categories'].items():
         continue
     print('\n== %s ==' % cname)
     for l in laws:
-        known.add(l['id'] + '.txt')
-        path = os.path.join(LAWS, l['id'] + '.txt')
+        lid = l['id']
+        info = meta.get(lid, {}) if isinstance(meta.get(lid), dict) else {}
+        rel_path = info.get('path') or (lid + '.txt')
+        path = os.path.normpath(os.path.join(LAWS, rel_path))
+        known_paths.add(path)
         pr = l['priority']
         allp[pr] += 1
-        if not os.path.exists(path):
+        if not os.path.isfile(path):
             print('  ❌ [%d] %s' % (pr, l['title']))
             continue
         n, dups, gaps = analyze(path)
         total_articles += n
-        info = meta.get(l['id'], {})
         mark = '✅'
         extra = []
         if n == 0:
@@ -90,9 +92,12 @@ for cid, cname in cat['categories'].items():
 
 others = []
 if os.path.isdir(LAWS):
-    for fn in sorted(os.listdir(LAWS)):
-        if fn.endswith('.txt') and fn not in known:
-            others.append(fn)
+    for root, _dirs, files in os.walk(LAWS):
+        for fn in sorted(files):
+            if fn.endswith('.txt'):
+                full = os.path.normpath(os.path.join(root, fn))
+                if full not in known_paths:
+                    others.append(os.path.relpath(full, LAWS))
 if others:
     print('\nفایل‌هایی که در فهرست نیستند: ' + ', '.join(others))
 

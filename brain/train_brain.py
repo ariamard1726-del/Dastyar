@@ -168,7 +168,7 @@ def read_rows(path):
 key = {(a['law'], a['title']): i for i, a in enumerate(arts)}
 ev = []
 missing = 0
-for q, law, title in read_rows(os.path.join(ROOT, 'brain', 'eval.txt')):
+for q, law, title in read_rows(os.path.join(ROOT, 'brain', 'eval', 'eval.txt')):
     if (law, title) in key:
         ev.append((q, key[(law, title)]))
     else:

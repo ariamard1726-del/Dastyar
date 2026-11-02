@@ -1,11 +1,14 @@
-import os, re, sys
+import os
+import re
+import sys
 
 test_f, data_f, dst, sha = sys.argv[1:5]
 
 
 def read(p):
     try:
-        return open(p, encoding='utf-8', errors='replace').read().splitlines()
+        with open(p, encoding='utf-8', errors='replace') as f:
+            return f.read().splitlines()
     except OSError:
         return []
 
@@ -23,6 +26,24 @@ out += summ[-1:] or ['(خلاصهٔ تست پیدا نشد)']
 if os.environ.get('DATA_FAILED') == '1':
     out.append('--- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---')
     out += [cut(l) for l in read(data_f)[-15:]]
+
+# بلوک‌های تست ناموفقِ «flutter test» (خروجی compact با نشانگر [E])
+status_re = re.compile(r'^\d{2}:\d{2} \+\d+')
+i = 0
+while i < len(lines):
+    if ' [E]' in lines[i]:
+        out.append('--- تست ناموفق ---')
+        out.append(cut(lines[i]))
+        j, k = i + 1, 0
+        while j < len(lines) and k < 20 and not status_re.match(lines[j]):
+            t = cut(lines[j])
+            if t and not t.startswith(('package:', 'dart:')):
+                out.append('   ' + t)
+                k += 1
+            j += 1
+        i = j
+    else:
+        i += 1
 
 i = 0
 while i < len(lines):
@@ -47,4 +68,7 @@ if errs:
     out += errs[:15]
 
 os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
-open(dst, 'w', encoding='utf-8').write('\n'.join(out[:140]) + '\n')
+summary_text = '\n'.join(out[:140]) + '\n'
+with open(dst, 'w', encoding='utf-8') as f:
+    f.write(summary_text)
+print(summary_text, end='', flush=True)

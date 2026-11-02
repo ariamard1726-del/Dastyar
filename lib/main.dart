@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'assistant.dart';
-import 'chat_page.dart';
-import 'engine.dart';
-import 'history.dart';
-import 'settings.dart';
-import 'templates.dart';
+import 'package:dastyar/domain/assistant.dart';
+import 'package:dastyar/ui/chat_page.dart';
+import 'package:dastyar/domain/drafting.dart';
+import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/history.dart';
+import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/legal_counselor.dart';
+import 'package:dastyar/core/privacy.dart';
+import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/domain/templates.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settings = await AppSettings.load();
+  if (settings.secureScreen) {
+    await PrivacyService.setSecureScreen(true);
+  }
   runApp(DastyarApp(settings: settings));
 }
 
@@ -68,7 +75,7 @@ class DastyarApp extends StatelessWidget {
           ],
           theme: _buildTheme(Brightness.light),
           darkTheme: _buildTheme(Brightness.dark),
-          themeMode: ThemeMode.system,
+          themeMode: settings.themeMode,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
             return MediaQuery(
@@ -97,8 +104,14 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  // برای اتصال مدل زبانی بعداً: Assistant(_engine, llm: MyLlmBackend())
   late final Assistant _assistant = Assistant(_engine);
+  DraftSession? _initialDraft;
+  CounselingSession? _initialCounsel;
+
+  /// شبکهٔ عصبی آفلاین تشخیص نیت؛ پیش از نخستین فریم بارگذاری می‌شود تا
+  /// گفتگو از همان پیام اول هوشمند باشد (در تست‌های ویجتی تزریق‌نشده و
+  /// مسیر نمادین فعال می‌ماند).
+  IntentNet? _intentNet;
   bool _ready = false;
   String? _error;
 
@@ -109,17 +122,18 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> _init() async {
-    try {
-      await _engine.load();
-    } catch (_) {
-      _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
+    await Future.wait([
+      _engine.load().catchError((_) {
+        _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
+      }),
+      _repo.load().catchError((_) {}),
+      _history.load().catchError((_) {}),
+      IntentNet.load().then((n) => _intentNet = n),
+    ]);
+    if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
+      _initialDraft = await DraftCheckpointStore.load(_repo.templates);
+      _initialCounsel = await CounselCheckpointStore.load();
     }
-    try {
-      await _repo.load();
-    } catch (_) {}
-    try {
-      await _history.load();
-    } catch (_) {}
     if (!mounted) return;
     setState(() => _ready = true);
   }
@@ -138,6 +152,9 @@ class _LoaderState extends State<Loader> {
       history: _history,
       settings: widget.settings,
       loadError: _error,
+      initialDraft: _initialDraft,
+      intentNet: _intentNet,
+      initialCounsel: _initialCounsel,
     );
   }
 }
