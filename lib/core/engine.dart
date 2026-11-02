@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/config.dart';
+import 'package:dastyar/core/legal_facts.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/replies.dart';
@@ -173,6 +174,18 @@ class KnowledgeEngine {
     }
   }
 
+  /// جمله\u200cهای حقوقی (ادعا/مهلت/مجازات) فقط از `assets/legal_facts.json`
+  /// خوانده می\u200cشوند؛ اگر فایل خراب یا نباشد، هشدار ثبت می\u200cشود و کد به\u200cجای
+  /// حدس زدن، پیام «تأیید نشده» نشان می\u200cدهد.
+  Future<void> _loadLegalFacts() async {
+    try {
+      await LegalFacts.instance.load();
+    } catch (e) {
+      warnings.add('legal_facts.json: $e');
+      LegalFacts.instance.clear();
+    }
+  }
+
   Future<List<String>?> _loadKnowledgeChunk() async {
     try {
       final text = await rootBundle.loadString('assets/knowledge.txt');
@@ -202,6 +215,7 @@ class KnowledgeEngine {
       _loadReplies(),
       _loadSynonyms(),
       _loadRelationships(),
+      _loadLegalFacts(),
       knowledgeFuture,
     ]);
 

@@ -1,0 +1,753 @@
+{
+  "schema_version": 1,
+  "description": "ادعاها، مهلت‌ها و مجازات‌های حقوقی به‌صورت دادهٔ جدا از کد. تا تأیید منابع رسمی، هیچ‌کدام تأییدشده نیستند.",
+  "facts": [
+    {
+      "id": "cheque_holder_all_routes_01",
+      "block": "cheque_holder_all_routes",
+      "order": 1,
+      "claim_text": "۱. به دلیل اینکه چک بابت بدهی قطعی و به تاریخ روز صادر شده و زیر ۶ ماه از تاریخ صدور و گواهی عدم پرداخت گذشته است، هر سه مسیر قانونی پیش روی شما باز است:",
+      "law_name": "قانون صدور چک",
+      "article_number": "۲۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_holder_all_routes_02",
+      "block": "cheque_holder_all_routes",
+      "order": 2,
+      "claim_text": "• سریع‌ترین مسیر: درخواست «صدور اجرائیهٔ مستقیم چک» از دادگاه حقوقی (طبق مادهٔ ۲۳ اصلاحی قانون صدور چک) بدون نیاز به نوبت دادرسی طولانی، به شرطی که در متن چک شرطی ذکر نشده باشد.",
+      "law_name": "قانون صدور چک",
+      "article_number": "۲۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_holder_all_routes_03",
+      "block": "cheque_holder_all_routes",
+      "order": 3,
+      "claim_text": "• مسیر کیفری: ثبت «شکوائیهٔ صدور چک بلامحل» (طبق مواد ۷ و ۱۱ قانون صدور چک).",
+      "law_name": "قانون صدور چک",
+      "article_number": "۷",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_holder_all_routes_04",
+      "block": "cheque_holder_all_routes",
+      "order": 4,
+      "claim_text": "• مسیر حقوقی: ثبت «دادخواست مطالبهٔ وجه چک» همراه با درخواست قرار تأمین خواسته (توقیف فوری اموال بدون تودیع خسارت احتمالی) و خسارت تأخیر تأدیه از تاریخ چک.",
+      "law_name": "قانون صدور چک",
+      "article_number": "۲۳",
+      "separator_after": ""
+    },
+    {
+      "id": "cheque_holder_limited_01",
+      "block": "cheque_holder_limited",
+      "order": 1,
+      "claim_text": "۱. با توجه به اینکه چک جنبهٔ تضمینی/مشروط/وعده‌دار داشته یا مهلت ۶ ماههٔ شکایت کیفری منقضی شده است، طبق مواد ۱۱ و ۱۳ قانون صدور چک **تعقیب کیفری مسموع نیست** (در صورت طرح شکایت کیفری، قرار منع تعقیب صادر می‌شود).",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۱",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_holder_limited_02",
+      "block": "cheque_holder_limited",
+      "order": 2,
+      "claim_text": "۲. اما اصل طلب شما کاملاً پابرجاست!",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۳",
+      "separator_after": " "
+    },
+    {
+      "id": "cheque_holder_limited_03",
+      "block": "cheque_holder_limited",
+      "order": 3,
+      "claim_text": "بهترین اقدام، طرح «دادخواست حقوقی مطالبهٔ وجه» (و در صورت بدون شرط بودن ظاهر چک، درخواست اجرائیهٔ مادهٔ ۲۳) به همراه تقاضای تأمین خواسته برای توقیف حساب‌های صادرکننده است.",
+      "law_name": "قانون صدور چک",
+      "article_number": "۲۳",
+      "separator_after": ""
+    },
+    {
+      "id": "cheque_issuer_01",
+      "block": "cheque_issuer",
+      "order": 1,
+      "claim_text": "۱. از آنجا که شما صادرکننده یا ضامن چک هستید:",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_issuer_02",
+      "block": "cheque_issuer",
+      "order": 2,
+      "claim_text": "• اگر چک بابت تضمین انجام تعهد، امانت، سفیدامضا یا وعده‌دار بوده است، به استناد **مادهٔ ۱۳ قانون صدور چک** جرم کیفری صدور چک بلامحل محقق نمی‌شود و در دادسرا می‌توانید با استشهادیه، قرارداد پایه یا رسید، «لایحهٔ دفاعیه» بدهید و قرار منع تعقیب بگیرید.",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cheque_issuer_03",
+      "block": "cheque_issuer",
+      "order": 3,
+      "claim_text": "• اگر دعوای حقوقی یا اجرائیه علیه شما ثبت شده و توان پرداخت یکجای مبلغ را ندارید، ظرف ۳۰ روز از ابلاغ اجرائیه دادخواست «اعسار و تقسیط محکوم‌به» ثبت کنید تا از جلب و مسدودی بیشتر جلوگیری شود.",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۳",
+      "separator_after": ""
+    },
+    {
+      "id": "labor_dismissal_overdue_01",
+      "block": "labor_dismissal_overdue",
+      "order": 1,
+      "claim_text": "۱. اگر بیش از مهلت قانونی از اخراج گذشته و عذر موجهی نباشد، ممکن است خواستهٔ بازگشت به کار با ایراد مواجه شود، اما **اصل مطالبات مزدی، سنوات پایان کار، عیدی و مرخصی ذخیره‌شده مشمول مرور زمان نمی‌شود** و همیشه قابل مطالبه است.",
+      "law_name": "قانون کار",
+      "article_number": "۲۷",
+      "separator_after": ""
+    },
+    {
+      "id": "labor_insurance_01",
+      "block": "labor_insurance",
+      "order": 1,
+      "claim_text": "۱. به موجب **مادهٔ ۱۴۸ قانون کار** و **مادهٔ ۲۸ قانون تأمین اجتماعی**، بیمه کردن کارگر از روز اول کار یک تکلیف آمره است و حتی توافق کتبی کارگر مبنی بر نداشتن بیمه **باطل و بی‌اثر** است.",
+      "law_name": "قانون کار",
+      "article_number": "۱۴۸",
+      "separator_after": "\n"
+    },
+    {
+      "id": "labor_insurance_02",
+      "block": "labor_insurance",
+      "order": 2,
+      "claim_text": "۲. ابتدا در ادارهٔ کار دادخواست الزام کارفرما به واریز حق بیمهٔ ایام کارکرد بدهید؛",
+      "law_name": "قانون کار",
+      "article_number": "۱۴۸",
+      "separator_after": " "
+    },
+    {
+      "id": "labor_insurance_03",
+      "block": "labor_insurance",
+      "order": 3,
+      "claim_text": "با رأی قطعی هیأت تشخیص، شعبهٔ تأمین اجتماعی کارفرما را ملزم به پرداخت اصل حق بیمه و جرایم و ثبت سابقهٔ شما می‌کند.",
+      "law_name": "قانون کار",
+      "article_number": "۱۴۸",
+      "separator_after": ""
+    },
+    {
+      "id": "labor_wages_01",
+      "block": "labor_wages",
+      "order": 1,
+      "claim_text": "۱. کارفرما مکلف است مزد، فوق‌العادهٔ اضافه‌کاری، عیدی و سنوات پایان خدمت (معادل یک ماه آخرین حقوق به ازای هر سال سابقه طبق مادهٔ ۲۴ قانون کار) را به‌طور کامل بپردازد.",
+      "law_name": "قانون کار",
+      "article_number": "۲۴",
+      "separator_after": "\n"
+    },
+    {
+      "id": "labor_wages_02",
+      "block": "labor_wages",
+      "order": 2,
+      "claim_text": "۲. حتی بدون قرارداد کتبی، طبق مادهٔ ۷ قانون کار قرارداد شفاهی نیز معتبر است و با پرینت واریزی‌های بانکی، پیامک‌ها و شهادت همکاران در هیأت تشخیص ادارهٔ کار اثبات می‌شود.",
+      "law_name": "قانون کار قرارداد شفاهی نیز معتبر است و با پرینت واریزی‌های بانکی",
+      "article_number": "۷",
+      "separator_after": ""
+    },
+    {
+      "id": "lease_landlord_fast_01",
+      "block": "lease_landlord_fast",
+      "order": 1,
+      "claim_text": "۱. خبر خوب حقوقی: چون مدت اجاره منقضی شده و قرارداد کتبی با امضای دو شاهد (یا سند رسمی) دارید، مشمول **مادهٔ ۳ قانون روابط موجر و مستأجر مصوب ۱۳۷۶** هستید و نیازی به دادرسی طولانی ندارید!",
+      "law_name": "قانون روابط موجر و مستأجر مصوب ۱۳۷۶",
+      "article_number": "۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "lease_landlord_fast_02",
+      "block": "lease_landlord_fast",
+      "order": 2,
+      "claim_text": "۲. می‌توانید از طریق دفتر خدمات قضایی درخواست «دستور تخلیهٔ فوری» از دادگاه صلح / شورای حل اختلاف بخواهید؛",
+      "law_name": "قانون روابط موجر و مستأجر",
+      "article_number": "۳",
+      "separator_after": " "
+    },
+    {
+      "id": "lease_landlord_fast_03",
+      "block": "lease_landlord_fast",
+      "order": 3,
+      "claim_text": "مرجع قضایی با تودیع مبلغ ودیعه (پول پیش) از سوی شما به حساب سپردهٔ دادگستری، ظرف یک هفته دستور تخلیه صادر می‌کند.",
+      "law_name": "قانون روابط موجر و مستأجر",
+      "article_number": "۳",
+      "separator_after": ""
+    },
+    {
+      "id": "lease_landlord_regular_01",
+      "block": "lease_landlord_regular",
+      "order": 1,
+      "claim_text": "۱. از آنجا که یا مدت قرارداد هنوز منقضی نشده یا قرارداد فاقد امضای دو شاهد است، شرایط صدور «دستور تخلیهٔ فوری» مادهٔ ۳ فراهم نیست.",
+      "law_name": "قانون مدنی",
+      "article_number": "۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "lease_landlord_regular_02",
+      "block": "lease_landlord_regular",
+      "order": 2,
+      "claim_text": "۲. مسیر درست قانونی، ارسال یک «اظهارنامهٔ رسمی» و سپس ثبت «دادخواست صدور حکم تخلیه» در دادگاه صلح به استناد انقضای مدت (مادهٔ ۴۹۴ قانون مدنی) یا تخلف از شروط قرارداد است.",
+      "law_name": "قانون مدنی",
+      "article_number": "۴۹۴",
+      "separator_after": ""
+    },
+    {
+      "id": "lease_tenant_01",
+      "block": "lease_tenant",
+      "order": 1,
+      "claim_text": "۱. به عنوان مستأجر، طبق مادهٔ ۴ قانون روابط موجر و مستأجر ۱۳۷۶، تخلیهٔ ملک منوط به استرداد هم‌زمان مبلغ قرض‌الحسنه (ودیعه / پول پیش) به شماست.",
+      "law_name": "قانون روابط موجر و مستأجر ۱۳۷۶",
+      "article_number": "۴",
+      "separator_after": "\n"
+    },
+    {
+      "id": "lease_tenant_02",
+      "block": "lease_tenant",
+      "order": 2,
+      "claim_text": "۲. اگر مدت قرارداد تمام شده و مالک پول پیش را پس نمی‌دهد: اولاً بلافاصله یک «اظهارنامهٔ رسمی» مبنی بر آمادگی تحویل کلید در قبال دریافت ودیعه بفرستید (تا به شما اجرت‌المثل ایام تصرف تعلق نگیرد) و ثانیاً «دادخواست مطالبهٔ وجه ودیعه» همراه با تأمین خواسته ثبت کنید.",
+      "law_name": "قانون روابط موجر و مستأجر",
+      "article_number": "۴",
+      "separator_after": ""
+    },
+    {
+      "id": "family_mehrieh_wife_01",
+      "block": "family_mehrieh_wife",
+      "order": 1,
+      "claim_text": "۱. به موجب مادهٔ ۱۰۸۲ قانون مدنی، به مجرد عقد، زوجه مالک مهر می‌شود.",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۰۸۲",
+      "separator_after": " "
+    },
+    {
+      "id": "family_mehrieh_wife_02",
+      "block": "family_mehrieh_wife",
+      "order": 2,
+      "claim_text": "برای مطالبهٔ مهریه با سند رسمی ازدواج، بهتراست ابتدا از طریق **اجرای ثبت** (دفتر ازدواج و ادارهٔ ثبت) اقدام به توقیف اموال و حساب‌های زوج و ممنوع‌الخروجی نمایید و در صورت عدم شناسایی مال، به دادگاه خانواده دادخواست بدهید.",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۰۸۲",
+      "separator_after": "\n"
+    },
+    {
+      "id": "family_mehrieh_wife_03",
+      "block": "family_mehrieh_wife",
+      "order": 3,
+      "claim_text": "۲. توجه داشته باشید که طبق **مادهٔ ۲۲ قانون حمایت خانواده**، ضمانت اجرای جلب و حبس تا سقف ۱۱۰ سکهٔ بهار آزادی بدون نیاز به اثبات ملائت زوج اعمال می‌شود و مازاد بر ۱۱۰ سکه منوط به اثبات توانایی مالی زوج است.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "۲۲",
+      "separator_after": ""
+    },
+    {
+      "id": "family_mehrieh_husband_01",
+      "block": "family_mehrieh_husband",
+      "order": 1,
+      "claim_text": "۱. اگر مهریه علیه شما به اجرا گذاشته شده و توان پرداخت یکجا ندارید، بلافاصله دادخواست «اعسار و تقسیط مهریه» به دادگاه خانواده تقدیم کنید و فهرست دقیق درآمد، هزینه‌های زندگی و لیست اموال خود را ضمیمه نمایید.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "۲۲",
+      "separator_after": "\n"
+    },
+    {
+      "id": "family_mehrieh_husband_02",
+      "block": "family_mehrieh_husband",
+      "order": 2,
+      "claim_text": "۲. طبق مادهٔ ۲۲ قانون حمایت خانواده، نسبت به مازاد ۱۱۰ سکه، بار اثبات توانایی مالی شما بر عهدهٔ زوجه است و جلب بابت مازاد ۱۱۰ سکه بدون اثبات ملائت قانونی نیست.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "۲۲",
+      "separator_after": ""
+    },
+    {
+      "id": "family_nafaqeh_01",
+      "block": "family_nafaqeh",
+      "order": 1,
+      "claim_text": "۱. طبق مواد ۱۱۰۶ و ۱۱۰۸ قانون مدنی، در عقد دائم نفقهٔ زوجه بر عهدهٔ زوج است، مشروط بر تمکین زوجه (مگر آنکه زوجه عذر موجه قانونی یا حق حبس موضوع مادهٔ ۱۰۸۵ داشته باشد).",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۱۰۶",
+      "separator_after": "\n"
+    },
+    {
+      "id": "family_nafaqeh_02",
+      "block": "family_nafaqeh",
+      "order": 2,
+      "claim_text": "۲. ترک انفاق با داشتن استطاعت مالی، علاوه بر امکان مطالبهٔ حقوقی، جرم قابل گذشت محسوب می‌شود و عدم پرداخت نفقه به مدت ۶ ماه می‌تواند از موجبات طلاق به درخواست زوجه (مادهٔ ۱۱۲۹ قانون مدنی) گردد.",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۱۲۹",
+      "separator_after": ""
+    },
+    {
+      "id": "family_custody_01",
+      "block": "family_custody",
+      "order": 1,
+      "claim_text": "۱. به استناد **مادهٔ ۱۱۶۹ اصلاحی قانون مدنی**، برای حضانت و نگهداری طفلی که ابوین او جدا از یکدیگر زندگی می‌کنند، مادر تا سن ۷ سالگی (چه دختر چه پسر) اولویت دارد و پس از آن با پدر است؛",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۱۶۹",
+      "separator_after": " "
+    },
+    {
+      "id": "family_custody_02",
+      "block": "family_custody",
+      "order": 2,
+      "claim_text": "مگر آنکه مصلحت طفل خلاف آن را اقتضا کند.",
+      "law_name": "قانون مدنی",
+      "article_number": "۱۱۶۹",
+      "separator_after": "\n"
+    },
+    {
+      "id": "family_custody_03",
+      "block": "family_custody",
+      "order": 3,
+      "claim_text": "۲. هیچ‌یک از والدین حق ندارند طرف دیگر را از ملاقات فرزند محروم کنند (مادهٔ ۱۱۷۴ قانون مدنی و مادهٔ ۲۹ قانون حمایت خانواده).",
+      "law_name": "قانون مدنی و مادهٔ ۲۹ قانون حمایت خانواده",
+      "article_number": "۱۱۷۴",
+      "separator_after": ""
+    },
+    {
+      "id": "family_divorce_01",
+      "block": "family_divorce",
+      "order": 1,
+      "claim_text": "۱. در قوانین ایران، طلاق یا به صورت **توافقی** (با صدور گواهی عدم امکان سازش)، یا به درخواست زوج با پرداخت کلیهٔ حقوق مالی زوجه (مادهٔ ۲۹ قانون حمایت خانواده)، و یا به درخواست زوجه در صورت اثبات **عسر و حرج** (مادهٔ ۱۱۳۰ قانون مدنی) یا تحقق شروط دوازده‌گانهٔ ضمن عقد نکاح انجام می‌شود.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "۲۹",
+      "separator_after": "\n"
+    },
+    {
+      "id": "family_divorce_02",
+      "block": "family_divorce",
+      "order": 2,
+      "claim_text": "۲. طبق مادهٔ ۱۲ قانون حمایت خانواده، زوجه می‌تواند در دادگاه محل اقامت خودش نیز طرح دعوای خانوادگی نماید.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "۱۲",
+      "separator_after": ""
+    },
+    {
+      "id": "fraud_cyber_computer_01",
+      "block": "fraud_cyber_computer",
+      "order": 1,
+      "claim_text": "۱. برداشت غیرمجاز اینترنتی، فیشینگ یا فریب رایانه‌ای مشمول **مادهٔ ۱۳ قانون جرایم رایانه‌ای** (کلاهبرداری رایانه‌ای) است که مجازات آن علاوه بر **رد کامل مال به صاحبش**، حبس از یک تا پنج سال یا جزای نقدی است.",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "۱۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "fraud_cyber_computer_02",
+      "block": "fraud_cyber_computer",
+      "order": 2,
+      "claim_text": "۲. اقدام فوری: پرینت گردش حساب مبدأ همراه با شناسهٔ شبا/کارت مقصد را از بانک بگیرید و از طریق دفتر خدمات قضایی شکوائیه به «دادسرای ویژهٔ جرایم رایانه‌ای» ثبت کنید تا دستور مسدودی حساب مقصد به پلیس فتا صادر شود.",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "۱۳",
+      "separator_after": ""
+    },
+    {
+      "id": "fraud_cyber_trust_breach_01",
+      "block": "fraud_cyber_trust_breach",
+      "order": 1,
+      "claim_text": "۱. اگر مال به شرط بازگرداندن یا مصرف معین به طرف مقابل سپرده شده و او عمداً از استرداد خودداری یا آن را تصاحب کرده است، مشمول جرم **خیانت در امانت (مادهٔ ۶۷۴ کتاب پنجم قانون مجازات اسلامی - تعزیرات)** است.",
+      "law_name": "قانون مجازات اسلامی - تعزیرات",
+      "article_number": "۶۷۴",
+      "separator_after": "\n"
+    },
+    {
+      "id": "fraud_cyber_trust_breach_02",
+      "block": "fraud_cyber_trust_breach",
+      "order": 2,
+      "claim_text": "۲. نکتهٔ کلیدی وکیل: پیش از ثبت شکایت کیفری خیانت در امانت، حتماً یک **«اظهارنامهٔ رسمی استرداد مال امانی»** بفرستید؛",
+      "law_name": "قانون مجازات اسلامی (تعزیرات)",
+      "article_number": "۶۷۴",
+      "separator_after": " "
+    },
+    {
+      "id": "fraud_cyber_trust_breach_03",
+      "block": "fraud_cyber_trust_breach",
+      "order": 3,
+      "claim_text": "عدم استرداد پس از ابلاغ اظهارنامه، سوءنیت متهم را در دادسرا به شکل قاطع اثبات می‌کند!",
+      "law_name": "قانون مجازات اسلامی (تعزیرات)",
+      "article_number": "۶۷۴",
+      "separator_after": ""
+    },
+    {
+      "id": "fraud_cyber_classic_01",
+      "block": "fraud_cyber_classic",
+      "order": 1,
+      "claim_text": "۱. تحقق جرم **کلاهبرداری (مادهٔ ۱ قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری)** مستلزم اثبات «توسل به وسایل متقلبانه» (صحنه‌سازی، سندسازی یا معرفی خلاف واقع) پیش از تسلیم مال است؛",
+      "law_name": "قانون تشدید مجازات مرتکبین ارتشاء",
+      "article_number": "۱",
+      "separator_after": " "
+    },
+    {
+      "id": "fraud_cyber_classic_02",
+      "block": "fraud_cyber_classic",
+      "order": 2,
+      "claim_text": "صرفِ خلف وعده یا نپرداختن بدهی، جرم کیفری نیست و جنبهٔ حقوقی دارد.",
+      "law_name": "قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری",
+      "article_number": "۱",
+      "separator_after": "\n"
+    },
+    {
+      "id": "fraud_cyber_classic_03",
+      "block": "fraud_cyber_classic",
+      "order": 3,
+      "claim_text": "۲. اگر شخص مال شما را بدون مجوز قانونی به دیگری فروخته باشد، عمل او در حکم کلاهبرداری (انتقال مال غیر) است و علاوه بر حبس و جزای نقدی، حکم به رد اصل مال صادر می‌شود.",
+      "law_name": "قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری",
+      "article_number": "۱",
+      "separator_after": ""
+    },
+    {
+      "id": "harm_assault_01",
+      "block": "harm_assault",
+      "order": 1,
+      "claim_text": "۱. در صدمات بدنی عمدی، بلافاصله با مراجعه به کلانتری یا دفتر خدمات قضایی نامهٔ معرفی به **پزشکی قانونی** دریافت کنید تا نوع و میزان صدمات (کبودی، جراحت یا شکستگی) برای تعیین **دیه و مجازات تعزیری** مستندسازی شود.",
+      "law_name": "قانون مجازات اسلامی (تعزیرات)",
+      "article_number": "۶۱۴",
+      "separator_after": ""
+    },
+    {
+      "id": "harm_private_media_01",
+      "block": "harm_private_media",
+      "order": 1,
+      "claim_text": "۱. انتشار یا تهدید به انتشار صوت، تصویر یا اسرار خصوصی دیگران در فضای مجازی، مشمول **مادهٔ ۱۷ قانون جرایم رایانه‌ای** است و مجازات حبس و جزای نقدی دارد.",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "۱۷",
+      "separator_after": " "
+    },
+    {
+      "id": "harm_private_media_02",
+      "block": "harm_private_media",
+      "order": 2,
+      "claim_text": "اسکرین‌شات‌ها و نشانی صفحهٔ منتشرکننده را پیش از پاک شدن مستندسازی کنید.",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "۱۷",
+      "separator_after": ""
+    },
+    {
+      "id": "harm_threat_01",
+      "block": "harm_threat",
+      "order": 1,
+      "claim_text": "۱. تهدید به قتل یا ضررهای نفسی، شرفی یا مالی و یا افشای سر، به موجب **مادهٔ ۶۶۹ کتاب پنجم قانون مجازات اسلامی (تعزیرات)** جرم مستقل است؛",
+      "law_name": "قانون مجازات اسلامی",
+      "article_number": "۶۶۹",
+      "separator_after": " "
+    },
+    {
+      "id": "harm_threat_02",
+      "block": "harm_threat",
+      "order": 2,
+      "claim_text": "حتی اگر تهدیدکننده آن تهدید را عملی نکرده باشد.",
+      "law_name": "قانون مجازات اسلامی (تعزیرات)",
+      "article_number": "۶۶۹",
+      "separator_after": ""
+    },
+    {
+      "id": "harm_insult_01",
+      "block": "harm_insult",
+      "order": 1,
+      "claim_text": "۱. توهین و فحاشی به افراد به موجب **مادهٔ ۶۰۸ تعزیرات** و نسبت دادن صریح جرم اثبات‌نشده به دیگری (افترا) به موجب **مادهٔ ۶۹۷ تعزیرات** قابل تعقیب کیفری در دادسرای محل وقوع جرم است.",
+      "law_name": "قانون مجازات اسلامی (تعزیرات)",
+      "article_number": "۶۰۸",
+      "separator_after": ""
+    },
+    {
+      "id": "litigation_default_within_20d_01",
+      "block": "litigation_default_within_20d",
+      "order": 1,
+      "claim_text": "۱. از آنجا که رأی **غیابی** صادر شده و هنوز در مهلت ۲۰ روزه هستید، طبق **مواد ۳۰۵ و ۳۰۶ قانون آیین دادرسی مدنی** (و مادهٔ ۴۰۶ قانون آیین دادرسی کیفری) حق «واخواهی» در همان شعبهٔ صادرکنندهٔ رأی را دارید و با ثبت واخواهی، اجرای حکم متوقف می‌شود.",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۳۰۵",
+      "separator_after": ""
+    },
+    {
+      "id": "litigation_default_late_01",
+      "block": "litigation_default_late",
+      "order": 1,
+      "claim_text": "۱. حتی اگر بیش از ۲۰ روز از ابلاغ قانونی رأی غیابی گذشته باشد، طبق **تبصرهٔ ۱ مادهٔ ۳۰۶ قانون آیین دادرسی مدنی** در صورتی که ابلاغ واقعی نبوده و از مفاد رأی مطلع نبوده‌اید یا عذر موجهی (مانند بیماری مانع حرکت) داشته‌اید، همچنان می‌توانید دادخواست واخواهی خارج از مهلت با ذکر دلیل عدم اطلاع بدهید!",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۳۰۶",
+      "separator_after": ""
+    },
+    {
+      "id": "litigation_appeal_01",
+      "block": "litigation_appeal",
+      "order": 1,
+      "claim_text": "۱. طبق **مادهٔ ۳۳۶ قانون آیین دادرسی مدنی** مهلت تجدیدنظرخواهی برای اشخاص مقیم ایران **۲۰ روز** از تاریخ ابلاغ رأی است.",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۳۳۶",
+      "separator_after": " "
+    },
+    {
+      "id": "litigation_appeal_02",
+      "block": "litigation_appeal",
+      "order": 2,
+      "claim_text": "در لایحهٔ تجدیدنظرخواهی باید جهات نقض رأی (مخالفت رأی با قانون یا عدم توجه قاضی به دلایل ابرازی) را مستند و دقیق بنویسید.",
+      "law_name": "قانون یا عدم توجه قاضی به دلایل ابرازی",
+      "article_number": "۳۳۶",
+      "separator_after": ""
+    },
+    {
+      "id": "litigation_first_hearing_01",
+      "block": "litigation_first_hearing",
+      "order": 1,
+      "claim_text": "۱. چون پرونده در جریان رسیدگی است، مهم‌ترین قاعدهٔ دفاعی این است که هرگونه ایراد شکلی (مثل عدم صلاحیت دادگاه) را تا **پایان اولین جلسهٔ دادرسی** مطرح کنید (مادهٔ ۸۷ آیین دادرسی مدنی) و در دادسرا نیز طبق **مادهٔ ۱۹۰ قانون آیین دادرسی کیفری** حق همراه داشتن وکیل و ارائهٔ لایحهٔ دفاعیه و مستندات را دارید.",
+      "law_name": "قانون آیین دادرسی کیفری",
+      "article_number": "۸۷",
+      "separator_after": ""
+    },
+    {
+      "id": "debt_creditor_01",
+      "block": "debt_creditor",
+      "order": 1,
+      "claim_text": "۱. به عنوان طلبکار، اگر هنوز اخطار رسمی نفرستاده‌اید، ابتدا یک **«اظهارنامهٔ رسمی» (مادهٔ ۱۵۶ قانون آیین دادرسی مدنی)** ارسال کنید تا مبدأ مطالبه و خسارت تأخیر تأدیه (مادهٔ ۵۲۲ آیین دادرسی مدنی) رسماً ثبت شود.",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۱۵۶",
+      "separator_after": "\n"
+    },
+    {
+      "id": "debt_creditor_02",
+      "block": "debt_creditor",
+      "order": 2,
+      "claim_text": "۲. سپس دادخواست «مطالبهٔ وجه» (در دعاوی تا نصاب قانونی در دادگاه صلح و بالاتر از آن در دادگاه عمومی حقوقی محل اقامت خوانده) ثبت کنید و اگر بیم تضییع اموال بدهکار وجود دارد، هم‌زمان تقاضای **قرار تأمین خواسته** (مادهٔ ۱۰۸ آیین دادرسی مدنی) بنمایید.",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۱۰۸",
+      "separator_after": ""
+    },
+    {
+      "id": "debt_debtor_01",
+      "block": "debt_debtor",
+      "order": 1,
+      "claim_text": "۱. طبق **مواد ۳، ۸ و ۱۱ قانون نحوهٔ اجرای محکومیت‌های مالی**، حبس بدهکارِ فاقد توان مالی (معسر) ممنوع است؛",
+      "law_name": "قانون نحوهٔ اجرای محکومیت‌های مالی",
+      "article_number": "۳",
+      "separator_after": " "
+    },
+    {
+      "id": "debt_debtor_02",
+      "block": "debt_debtor",
+      "order": 2,
+      "claim_text": "فقط کسی که مال دارد و از معرفی یا پرداخت خودداری می‌کند بازداشت می‌شود و مسکن و وسایل ضروری زندگی نیز جزء **مستثنیات دین** و غیرقابل توقیف است.",
+      "law_name": "قانون نحوهٔ اجرای محکومیت‌های مالی",
+      "article_number": "۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "debt_debtor_03",
+      "block": "debt_debtor",
+      "order": 3,
+      "claim_text": "۲. در برابر دادخواست یا اجرائیه، یا با «لایحهٔ دفاعیه» مستندات پرداخت/برائت ذمهٔ خود را ارائه دهید و یا دادخواست «اعسار و تقسیط محکوم‌به» با شهادت شهود مطلع از وضعیت معیشتی خود ثبت نمایید.",
+      "law_name": "قانون نحوهٔ اجرای محکومیت‌های مالی",
+      "article_number": "۳",
+      "separator_after": ""
+    },
+    {
+      "id": "labor_dismissal_action_01",
+      "block": "labor_dismissal_action",
+      "order": 1,
+      "claim_text": "۱. اگر اخراج شده‌اید، مدارک رابطهٔ کاری و دلیل قطع همکاری را گردآوری کنید و برای پیگیری موضوع به «هیأت تشخیص ادارهٔ کار» مراجعه کنید.",
+      "law_name": "قانون کار",
+      "article_number": "۲۷",
+      "separator_after": " "
+    },
+    {
+      "id": "labor_dismissal_action_02",
+      "block": "labor_dismissal_action",
+      "order": 2,
+      "claim_text": "پیش از هر اقدامی، متن قانون و مقررات مربوط را از منابع رسمی بررسی کنید.",
+      "law_name": "قانون و مقررات مربوط را از منابع رسمی بررسی کنید",
+      "article_number": "۲۷",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_cheque_01",
+      "block": "intro_cheque",
+      "order": 1,
+      "claim_text": "متوجه موضوع چک شما شدم.",
+      "law_name": "قانون صدور چک",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_cheque_02",
+      "block": "intro_cheque",
+      "order": 2,
+      "claim_text": "برای اینکه دقیق‌ترین مسیر را پیشنهاد دهم، لطفاً این موارد را مشخص کنید:",
+      "law_name": "قانون صدور چک",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_labor_01",
+      "block": "intro_labor",
+      "order": 1,
+      "claim_text": "متوجه موضوع کاری و بیمه‌ای شما شدم.",
+      "law_name": "قانون کار",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_labor_02",
+      "block": "intro_labor",
+      "order": 2,
+      "claim_text": "برای راهنمایی دقیق، لطفاً این موارد را مشخص کنید:",
+      "law_name": "قانون کار",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_lease_01",
+      "block": "intro_lease",
+      "order": 1,
+      "claim_text": "اختلافات موجر و مستأجر بسته به نوع قرارداد مسیر متفاوتی دارند.",
+      "law_name": "قانون روابط موجر و مستأجر",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_lease_02",
+      "block": "intro_lease",
+      "order": 2,
+      "claim_text": "بیایید گام‌به‌گام بررسی کنیم:",
+      "law_name": "قانون روابط موجر و مستأجر",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_family_01",
+      "block": "intro_family",
+      "order": 1,
+      "claim_text": "مسائل خانواده نیازمند دقت و آرامش است.",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_family_02",
+      "block": "intro_family",
+      "order": 2,
+      "claim_text": "برای ارائهٔ تحلیل دقیق، لطفاً بفرمایید:",
+      "law_name": "قانون حمایت خانواده",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_fraud_cyber_01",
+      "block": "intro_fraud_cyber",
+      "order": 1,
+      "claim_text": "متأسفم که چنین اتفاقی افتاده است.",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_fraud_cyber_02",
+      "block": "intro_fraud_cyber",
+      "order": 2,
+      "claim_text": "برای کمک به تشخیص درست موضوع، لطفاً بفرمایید:",
+      "law_name": "قانون جرایم رایانه‌ای",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_criminal_harm_01",
+      "block": "intro_criminal_harm",
+      "order": 1,
+      "claim_text": "برای اینکه ببینیم چه مستندات و عنوان شکایتی مطرح است، لطفاً بفرمایید:",
+      "law_name": "قانون مجازات اسلامی",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_litigation_defense_01",
+      "block": "intro_litigation_defense",
+      "order": 1,
+      "claim_text": "نگران نباشید؛",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_litigation_defense_02",
+      "block": "intro_litigation_defense",
+      "order": 2,
+      "claim_text": "بیایید وضعیت پرونده و زمان‌بندی آن را گام‌به‌گام بررسی کنیم:",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "intro_debt_01",
+      "block": "intro_debt",
+      "order": 1,
+      "claim_text": "بسیار خوب؛",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "—",
+      "separator_after": " "
+    },
+    {
+      "id": "intro_debt_02",
+      "block": "intro_debt",
+      "order": 2,
+      "claim_text": "بیایید وضعیت طلب یا بدهی و مدارک شما را دقیق بررسی کنیم:",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "—",
+      "separator_after": ""
+    },
+    {
+      "id": "cq_cheque_nature_01",
+      "block": "cq_cheque_nature",
+      "order": 1,
+      "claim_text": "۲. آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین، امانت، معاملهٔ مشروط و سفیدامضا بوده است؟",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۳",
+      "separator_after": "\n"
+    },
+    {
+      "id": "cq_cheque_nature_02",
+      "block": "cq_cheque_nature",
+      "order": 2,
+      "claim_text": "(این نکته طبق مادهٔ ۱۳ قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است.)",
+      "law_name": "قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است",
+      "article_number": "۱۳",
+      "separator_after": ""
+    },
+    {
+      "id": "cq_cheque_cert_time_01",
+      "block": "cq_cheque_cert_time",
+      "order": 1,
+      "claim_text": "۳. آیا گواهی عدم پرداخت از بانک دریافت شده و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟",
+      "law_name": "قانون صدور چک",
+      "article_number": "۱۱",
+      "separator_after": ""
+    },
+    {
+      "id": "cq_labor_time_01",
+      "block": "cq_labor_time",
+      "order": 1,
+      "claim_text": "۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟",
+      "law_name": "قانون کار",
+      "article_number": "۲۷",
+      "separator_after": " "
+    },
+    {
+      "id": "cq_labor_time_02",
+      "block": "cq_labor_time",
+      "order": 2,
+      "claim_text": "اگر اخراج شده‌اید، چند وقت از تاریخ اخراج گذشته است؟",
+      "law_name": "قانون کار",
+      "article_number": "۲۷",
+      "separator_after": ""
+    },
+    {
+      "id": "cq_litigation_defense_deadline_01",
+      "block": "cq_litigation_defense_deadline",
+      "order": 1,
+      "claim_text": "۲. چند روز از تاریخ درج ابلاغیه در سامانهٔ ثنا گذشته است؟",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۳۰۶",
+      "separator_after": " "
+    },
+    {
+      "id": "cq_litigation_defense_deadline_02",
+      "block": "cq_litigation_defense_deadline",
+      "order": 2,
+      "claim_text": "(برای مقیمان ایران مهلت واخواهی و تجدیدنظر ۲۰ روز است.)",
+      "law_name": "قانون آیین دادرسی مدنی",
+      "article_number": "۳۰۶",
+      "separator_after": ""
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/legal_facts.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/core/llm.dart';
@@ -283,11 +284,11 @@ void main() {
       ) as Map<String, dynamic>;
       final r = Replies()..setOverridesRaw(m);
 
-      // هر قالب پرسش حیاتی در همهٔ نسخه‌ها زیررشتهٔ کلیدی دارد
+      // هر قالب پرسش حیاتی در همهٔ نسخه‌ها زیررشتهٔ کلیدی دارد.
+      // پرسش\u200cهای حاوی مهلت/استناد قانونی از replies.json به
+      // assets/legal_facts.json منتقل شده\u200cاند و جداگانه بررسی می\u200cشوند.
       const invariants = {
         'cq_lease_witnesses': ['دو شاهد'],
-        'cq_litigation_defense_deadline': ['۲۰ روز'],
-        'cq_cheque_cert_time': ['گواهی عدم پرداخت'],
         'cq_debt_role': ['طلبکار', 'بدهکار'],
         'cq_labor_issue': ['کارفرما'],
         'counselor_intake_greeting': ['با کمال میل همراه شما هستم'],
@@ -318,9 +319,10 @@ void main() {
       for (var seed = 1; seed <= 40; seed++) {
         final rnd = Random(seed);
         expect(r.pick('cq_lease_witnesses', rnd: rnd), contains('دو شاهد'));
-        expect(r.pick('cq_litigation_defense_deadline', rnd: rnd),
+        // مهلت\u200cها و استنادها فقط از legal_facts.json خوانده می\u200cشوند
+        expect(LegalFacts.instance.block('cq_litigation_defense_deadline'),
             contains('۲۰ روز'));
-        expect(r.pick('cq_cheque_cert_time', rnd: rnd),
+        expect(LegalFacts.instance.block('cq_cheque_cert_time'),
             contains('گواهی عدم پرداخت'));
         final role = r.pick('cq_debt_role', rnd: rnd);
         expect(role, contains('طلبکار'));
