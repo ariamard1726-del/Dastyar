@@ -66,7 +66,21 @@ void main() {
       final ids = RegExp(r"_facts\('([^']+)'\)")
           .allMatches(source)
           .map((m) => m.group(1)!)
+          .where((id) => !id.contains(r'$'))
           .toSet();
+      // شناسهٔ پویای مقدمه (\u200cintro_${topicId}) جداگانه برای همهٔ حوزه\u200cها بررسی می\u200cشود
+      for (final topic in const [
+        'cheque',
+        'labor',
+        'lease',
+        'family',
+        'fraud_cyber',
+        'criminal_harm',
+        'litigation_defense',
+        'debt',
+      ]) {
+        ids.add('intro_$topic');
+      }
       expect(ids.length, greaterThan(25));
       final blocks = (doc['facts'] as List)
           .map((f) => (f as Map<String, dynamic>)['block'].toString())
