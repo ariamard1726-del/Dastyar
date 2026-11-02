@@ -155,7 +155,7 @@ class KnowledgeEngine {
     try {
       final t = await rootBundle.loadString('assets/replies.json');
       final m = jsonDecode(t) as Map<String, dynamic>;
-      replies.setOverrides(m.map((k, v) => MapEntry(k, v.toString())));
+      replies.setOverridesRaw(m);
     } catch (e) {
       warnings.add('replies.json: $e');
     }

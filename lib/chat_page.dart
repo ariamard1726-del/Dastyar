@@ -9,6 +9,8 @@ import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
 import 'history_page.dart';
+import 'intent_net.dart';
+import 'legal_counselor.dart';
 import 'privacy.dart';
 import 'settings.dart';
 import 'settings_page.dart';
@@ -24,6 +26,12 @@ class ChatPage extends StatefulWidget {
   final String? loadError;
   final DraftSession? initialDraft;
 
+  /// شبکهٔ عصبی آفلاین تشخیص نیت (اختیاری؛ در نبودِ آن مسیر نمادین فعال است).
+  final IntentNet? intentNet;
+
+  /// گفتگوی مشاورهٔ ناتمام بازیابی‌شده از اجرای قبلی.
+  final CounselingSession? initialCounsel;
+
   const ChatPage({
     super.key,
     required this.engine,
@@ -33,6 +41,8 @@ class ChatPage extends StatefulWidget {
     required this.settings,
     this.loadError,
     this.initialDraft,
+    this.intentNet,
+    this.initialCounsel,
   });
 
   @override
@@ -55,6 +65,8 @@ class _ChatPageState extends State<ChatPage> {
       settings: widget.settings,
       loadError: widget.loadError,
       initialDraft: widget.initialDraft,
+      intentNet: widget.intentNet,
+      initialCounsel: widget.initialCounsel,
       onScrollRequested: _scrollDown,
     );
   }

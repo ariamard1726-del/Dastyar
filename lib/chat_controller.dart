@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
@@ -7,6 +8,7 @@ import 'chat_models.dart';
 import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
+import 'intent_net.dart';
 import 'legal_counselor.dart';
 import 'settings.dart';
 import 'templates.dart';
@@ -30,6 +32,17 @@ class ChatController extends ChangeNotifier {
   CounselingSession? _counsel;
   final ConversationMemory _memory = ConversationMemory();
 
+  /// موضوع آخرین جلسهٔ مشاوره (برای «ادامهٔ مشاوره» پس از جمع‌بندی).
+  String? _lastCounselTopic;
+
+  /// شبکهٔ عصبی تشخیص نیت (اختیاری). اگر null باشد، مسیر نمادین قدیمی
+  /// بدون هیچ تغییر رفتاری استفاده می‌شود.
+  final IntentNet? _intentNet;
+
+  /// منبع تصادف برای انتخاب قالب‌های متنوع پاسخ (تست‌ها نسخهٔ دانه‌دار
+  /// می‌دهند تا خروجی قطعی بماند).
+  final Random? _rnd;
+
   // پیشنهاد در انتظار تصمیم کاربر
   String? _pendingText;
   List<LegalTemplate> _pendingList = [];
@@ -48,8 +61,12 @@ class ChatController extends ChangeNotifier {
     required this.settings,
     String? loadError,
     DraftSession? initialDraft,
+    IntentNet? intentNet,
+    Random? random,
+    CounselingSession? initialCounsel,
     this.onScrollRequested,
-  }) {
+  })  : _intentNet = intentNet,
+        _rnd = random {
     if (loadError != null && loadError.isNotEmpty) {
       messages.add(ChatMessage(loadError, false, sensitive: true));
     }
@@ -57,6 +74,16 @@ class ChatController extends ChangeNotifier {
       _draft = initialDraft;
       final r = Drafting.resumePrompt(initialDraft);
       messages.add(_botFromReply(r, initialDraft.template));
+    }
+    // بازیابی گفتگوی مشاورهٔ ناتمام از اجرای قبلی برنامه
+    if (initialCounsel != null && !initialCounsel.concluded) {
+      _counsel = initialCounsel;
+      _lastCounselTopic = initialCounsel.topicId;
+      final t = LegalCounselor.pendingTurn(initialCounsel,
+          replies: engine.replies, rnd: _rnd);
+      if (t != null) {
+        messages.add(ChatMessage(t.text, false, chips: t.chips));
+      }
     }
   }
 
@@ -80,10 +107,22 @@ class ChatController extends ChangeNotifier {
   void _resetFlow() {
     _draft = null;
     _counsel = null;
+    _lastCounselTopic = null;
     _memory.clear();
     _pendingText = null;
     _pendingList = [];
     _declined.clear();
+  }
+
+  /// همگام‌سازی نقطهٔ بازیابی مشاورهٔ ناتمام (رمزنگاری‌شده) با وضعیت جلسه.
+  void _syncCounselCheckpoint() {
+    if (!settings.saveDraftProgress || _disposed) return;
+    final s = _counsel;
+    if (s == null || s.concluded) {
+      unawaited(CounselCheckpointStore.clear());
+    } else {
+      unawaited(CounselCheckpointStore.save(s));
+    }
   }
 
   void _detachStream() {
@@ -145,12 +184,47 @@ class ChatController extends ChangeNotifier {
 
     // ادامهٔ گفتگوی تشخیصی و استدلالی دوطرفه (مشاور حقوقی)
     if (_counsel != null) {
-      final turn =
-          LegalCounselor.step(_counsel!, text, engine, repo.templates);
+      // «ادامهٔ مشاوره» پس از جمع‌بندی جلسه → بازگشایی همان موضوع
+      if (_counsel!.concluded && LegalCounselor.wantsResume(text)) {
+        final resumed = LegalCounselor.resumeTopic(
+          _counsel!.topicId,
+          text,
+          engine,
+          repo.templates,
+          replies: engine.replies,
+          rnd: _rnd,
+        );
+        if (resumed != null) {
+          _counsel = resumed.$1;
+          _lastCounselTopic = resumed.$1.topicId;
+          messages.add(ChatMessage(text, true));
+          messages.add(
+            ChatMessage(resumed.$2.text, false, chips: resumed.$2.chips),
+          );
+          _syncCounselCheckpoint();
+          unawaited(_saveSession());
+          _notify();
+          _requestScroll();
+          return;
+        }
+      }
+      // حافظهٔ گفتگو: ارجاع‌های مبهم («ماده بعدی‌اش چی؟») پیش از ورود به
+      // درخت تصمیم با موضوع قبلی بازنویسی می‌شوند (پیام کاربر دست‌نخورده
+      // نمایش داده می‌شود).
+      final turn = LegalCounselor.step(
+        _counsel!,
+        _memory.resolveFollowUp(text),
+        engine,
+        repo.templates,
+        net: _intentNet,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
       if (turn.cancelled) {
         _counsel = null;
         messages.add(ChatMessage(text, true));
         messages.add(ChatMessage(turn.text, false));
+        _syncCounselCheckpoint();
         unawaited(_saveSession());
         _notify();
         _requestScroll();
@@ -158,6 +232,7 @@ class ChatController extends ChangeNotifier {
       }
       if (turn.startTemplate != null) {
         _counsel = null;
+        _syncCounselCheckpoint();
         _startDraft(text, turn.startTemplate!);
         return;
       }
@@ -165,8 +240,14 @@ class ChatController extends ChangeNotifier {
         if (turn.completed && turn.chips.isEmpty) {
           _counsel = null;
         }
+        // حافظهٔ گفتگو: اگر پرسش حقوقی میانهٔ مشاوره با RAG پاسخ گرفت،
+        // موضوعش ثبت می‌شود تا «بعدی‌اش چی؟» به همان قانون ارجاع بدهد.
+        if (turn.ragQuery != null && turn.ragReply != null) {
+          _memory.recordTurn(turn.ragQuery!, turn.ragReply!);
+        }
         messages.add(ChatMessage(text, true));
         messages.add(ChatMessage(turn.text, false, chips: turn.chips));
+        _syncCounselCheckpoint();
         unawaited(_saveSession());
         _notify();
         _requestScroll();
@@ -174,6 +255,7 @@ class ChatController extends ChangeNotifier {
       }
       // اگر مشاوره قبلاً جمع‌بندی شده و کاربر اکنون پرسش جدیدی مطرح کرده است:
       _counsel = null;
+      _syncCounselCheckpoint();
     }
 
     // پاسخ به پیشنهاد یا فهرست انتخاب قالب که قبلاً نمایش داده شده
@@ -185,14 +267,22 @@ class ChatController extends ChangeNotifier {
           text == LegalCounselor.startCounselCmd) {
         _pendingText = null;
         _pendingList = [];
-        final started =
-            LegalCounselor.start(pt ?? text, engine, repo.templates);
+        final started = LegalCounselor.start(
+          pt ?? text,
+          engine,
+          repo.templates,
+          net: _intentNet,
+          replies: engine.replies,
+          rnd: _rnd,
+        );
         if (started != null) {
           _counsel = started.$1;
+          _lastCounselTopic = started.$1.topicId;
           messages.add(ChatMessage(text, true));
           messages.add(
             ChatMessage(started.$2.text, false, chips: started.$2.chips),
           );
+          _syncCounselCheckpoint();
           unawaited(_saveSession());
           _notify();
           _requestScroll();
@@ -258,6 +348,32 @@ class ChatController extends ChangeNotifier {
       _pendingList = [];
       if (picked != null) {
         _startDraft(text, picked);
+        return;
+      }
+    }
+
+    // بازگشایی آخرین مشاوره پس از بسته شدن کامل جلسه («ادامهٔ مشاوره»)
+    if (_counsel == null &&
+        _lastCounselTopic != null &&
+        LegalCounselor.wantsResume(text)) {
+      final resumed = LegalCounselor.resumeTopic(
+        _lastCounselTopic!,
+        text,
+        engine,
+        repo.templates,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
+      if (resumed != null) {
+        _counsel = resumed.$1;
+        messages.add(ChatMessage(text, true));
+        messages.add(
+          ChatMessage(resumed.$2.text, false, chips: resumed.$2.chips),
+        );
+        _syncCounselCheckpoint();
+        unawaited(_saveSession());
+        _notify();
+        _requestScroll();
         return;
       }
     }
@@ -336,18 +452,27 @@ class ChatController extends ChangeNotifier {
     }
 
     // حالت گفتگوی دوطرفه و پرسشگری تشخیصی برای مسائل و مشکلات حقوقی کاربر
-    if (LegalCounselor.shouldStartCounseling(text)) {
+    if (LegalCounselor.shouldStartCounseling(text, net: _intentNet)) {
       final seed = (text == LegalCounselor.startCounselCmd &&
               _memory.lastTopicQuery.isNotEmpty)
           ? _memory.lastTopicQuery
           : text;
-      final started = LegalCounselor.start(seed, engine, repo.templates);
+      final started = LegalCounselor.start(
+        seed,
+        engine,
+        repo.templates,
+        net: _intentNet,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
       if (started != null) {
         _counsel = started.$1;
+        _lastCounselTopic = started.$1.topicId;
         messages.add(ChatMessage(text, true));
         messages.add(
           ChatMessage(started.$2.text, false, chips: started.$2.chips),
         );
+        _syncCounselCheckpoint();
         await _saveSession();
         _notify();
         _requestScroll();
@@ -413,7 +538,9 @@ class ChatController extends ChangeNotifier {
     );
     final mergedChips = <String>[
       ...alts,
-      if (!sensitive && LegalCounselor.detectTopic(resolvedQuery) != null)
+      if (!sensitive &&
+          LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet) !=
+              null)
         LegalCounselor.startCounselCmd,
     ];
     if (mergedChips.isNotEmpty) {
@@ -487,6 +614,16 @@ class ChatController extends ChangeNotifier {
     return DraftCheckpointStore.save(s);
   }
 
+  /// ذخیرهٔ صریح جلسهٔ مشاورهٔ ناتمام به‌صورت رمزنگاری‌شده.
+  Future<bool> saveCounselCheckpoint() async {
+    final s = _counsel;
+    if (s == null || s.concluded) {
+      await CounselCheckpointStore.clear();
+      return false;
+    }
+    return CounselCheckpointStore.save(s);
+  }
+
   /// بازیابی پیش‌نویس ناتمام ذخیره‌شده و نمایش پرسش جاری در گفتگو.
   Future<bool> restoreDraftCheckpoint() async {
     if (_busy || _disposed) return false;
@@ -509,6 +646,7 @@ class ChatController extends ChangeNotifier {
     _resetFlow();
     if (settings.saveDraftProgress) {
       unawaited(DraftCheckpointStore.clear());
+      unawaited(CounselCheckpointStore.clear());
     }
     messages.clear();
     _notify();
@@ -520,6 +658,7 @@ class ChatController extends ChangeNotifier {
     _resetFlow();
     if (settings.saveDraftProgress) {
       unawaited(DraftCheckpointStore.clear());
+      unawaited(CounselCheckpointStore.clear());
     }
     messages
       ..clear()

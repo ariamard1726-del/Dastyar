@@ -1,9 +1,17 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'drafting.dart';
 import 'engine.dart';
+import 'intent_net.dart';
 import 'persian_text.dart';
+import 'privacy.dart';
+import 'replies.dart';
 import 'templates.dart';
 
-/// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (کاملاً نمادین و بدون هیچ مدل زبانی).
+/// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
 class CounselorTurn {
   final String text;
   final List<String> chips;
@@ -11,12 +19,20 @@ class CounselorTurn {
   final bool cancelled;
   final LegalTemplate? startTemplate;
 
+  /// اگر این گام پرسش حقوقیِ میانهٔ مشاوره را با RAG پاسخ داده باشد،
+  /// پرسش و پاسخ موتور دانش اینجا نگه داشته می‌شود تا حافظهٔ گفتگو
+  /// ثبتشان کند و «بعدی‌اش چی؟» بداند آخرین بار دربارهٔ چه حرف زدیم.
+  final String? ragQuery;
+  final EngineReply? ragReply;
+
   const CounselorTurn({
     required this.text,
     this.chips = const [],
     this.completed = false,
     this.cancelled = false,
     this.startTemplate,
+    this.ragQuery,
+    this.ragReply,
   });
 }
 
@@ -31,6 +47,77 @@ class CounselingSession {
     required this.topicId,
     required this.initialMessage,
   });
+
+  Map<String, dynamic> toJson() => {
+        'topicId': topicId,
+        'initialMessage': initialMessage,
+        'facts': Map<String, String>.of(facts),
+        'concluded': concluded,
+      };
+
+  static CounselingSession? fromJson(Map<String, dynamic> j) {
+    try {
+      final s = CounselingSession(
+        topicId: j['topicId'] as String,
+        initialMessage: (j['initialMessage'] as String?) ?? '',
+      );
+      final f = j['facts'];
+      if (f is Map) {
+        f.forEach((k, v) => s.facts[k.toString()] = v.toString());
+      }
+      s.concluded = j['concluded'] == true;
+      return s;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// ذخیره/بازیابی گفتگوی مشاورهٔ ناتمام بین اجراهای برنامه — هم‌راستا با
+/// DraftCheckpointStore (رمزنگاری با PrivacyService تا دادهٔ حساس خام نماند).
+class CounselCheckpointStore {
+  CounselCheckpointStore._();
+
+  static const String _key = 'active_counsel_v1';
+
+  static Future<bool> save(CounselingSession session) async {
+    if (session.concluded) {
+      await clear();
+      return false;
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sealed = await PrivacyService.seal(jsonEncode(session.toJson()));
+      return await prefs.setString(_key, sealed);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<CounselingSession?> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString(_key);
+      if (stored == null || stored.isEmpty) return null;
+      final raw = await PrivacyService.open(stored);
+      if (raw == null || raw.isEmpty) return null;
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return null;
+      final s = CounselingSession.fromJson(decoded);
+      if (s == null || s.concluded) return null;
+      if (!LegalCounselor.knownTopic(s.topicId)) return null;
+      return s;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> clear() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_key);
+    } catch (_) {}
+  }
 }
 
 /// حافظهٔ کوتاه‌مدت گفتگو برای درک پرسش‌های پیگیری («ماده بعدی‌اش؟»، «مهلتش چقدره؟»).
@@ -119,7 +206,13 @@ class _QuestionStep {
   });
 }
 
-/// موتور استدلال نمادین و مشاورهٔ دوطرفهٔ حقوقی (۱۰۰٪ بدون مدل آنلاین یا آفلاین).
+/// موتور مشاورهٔ دوطرفهٔ حقوقی (۱۰۰٪ بدون مدل زبانی آنلاین یا آفلاین).
+///
+/// دو لایهٔ تصمیم‌گیری دارد:
+///   ۱) شبکهٔ عصبی کوچک [IntentNet] (خروجی brain/train_intent.py، کاملاً
+///      آفلاین) که نیت کاربر را از متن پیام تشخیص می‌دهد؛
+///   ۲) مسیر نمادین کلیدواژه‌ای به‌عنوان تور ایمنی — وقتی شبکه بارگذاری
+///      نشده یا امتیازش پایین است — تا رفتار برنامه هرگز بی‌پایه نشود.
 class LegalCounselor {
   LegalCounselor._();
 
@@ -127,10 +220,100 @@ class LegalCounselor {
   static const String cancelCounselCmd = 'پایان مشاوره';
   static const String draftPrefix = 'تنظیم ';
 
+  /// نام فارسی حوزه‌های مشاوره (برای پیام‌های {topic} و بازیابی جلسه).
+  static const Map<String, String> _topicFa = {
+    'cheque': 'چک و دعاوی بانکی',
+    'labor': 'روابط کار و بیمه',
+    'lease': 'اجاره و تخلیهٔ ملک',
+    'family': 'خانواده (مهریه، طلاق، حضانت)',
+    'fraud_cyber': 'کلاهبرداری و جرایم رایانه‌ای',
+    'criminal_harm': 'شکایت کیفری و آسیب',
+    'litigation_defense': 'دفاع در دادرسی و اعتراض به رأی',
+    'debt': 'طلب و بدهی',
+    'general_intake': 'مشاورهٔ حقوقی',
+  };
+
+  static String topicTitleFa(String topicId) =>
+      _topicFa[topicId] ?? 'مشاورهٔ حقوقی';
+
+  static bool knownTopic(String topicId) => _topicFa.containsKey(topicId);
+
+  /// دکمه‌های پذیرش عمومی (general_intake).
+  static const List<String> _intakeChips = [
+    'چک برگشتی یا دفاع در برابر چک',
+    'اخراج از کار، حقوق و بیمه',
+    'اجارهٔ ملک، تخلیه و پول پیش',
+    'مهریه، نفقه، طلاق و حضانت',
+    'کلاهبرداری، فیشینگ و خیانت در امانت',
+    'ابلاغیه، شکایت علیه من یا اعتراض به رأی',
+    'مطالبهٔ طلب، سفته یا اعسار',
+    cancelCounselCmd,
+  ];
+
+  static const List<String> _intakeRepromptChips = [
+    'چک برگشتی یا دفاع در برابر چک',
+    'اخراج از کار، حقوق و بیمه',
+    'اجارهٔ ملک، تخلیه و پول پیش',
+    'مهریه، نفقه، طلاق و حضانت',
+    'ابلاغیه، شکایت علیه من یا اعتراض به رأی',
+    cancelCounselCmd,
+  ];
+
+  static const String _intakeGreetingFallback =
+      'سلام و وقت‌به‌خیر؛ با کمال میل همراه شما هستم تا موضوع را دقیق و مستند به قوانین بررسی کنیم.\n\n'
+      'لطفاً بفرمایید مسئلهٔ حقوقی شما در کدام‌یک از حوزه‌های زیر است؟ (می‌توانید یکی از گزینه‌ها را بزنید یا شرح ماجرا را به زبان خودتان بنویسید.)';
+
+  static const String _intakeRepromptFallback =
+      'برای اینکه دقیق راهنمایی‌تان کنم، لطفاً موضوع اصلی را با یک جمله بفرمایید (مثلاً: «کارفرما اخراجم کرده»، «چک برگشتی دارم»، «مستأجر تخلیه نمی‌کند» یا «ابلاغیهٔ دادگاه برایم آمده»).';
+
+  /// عبارت‌های «ادامهٔ مشاورهٔ قبلی» پس از جمع‌بندی یک جلسه.
+  static const List<String> _resumeMarkers = [
+    'ادامه مشاوره',
+    'ادامهٔ مشاوره',
+    'برگردیم به مشاوره',
+    'مشاوره را ادامه',
+    'همان موضوع قبلی',
+    'همون موضوع قبلی',
+  ];
+
+  static bool wantsResume(String rawText) {
+    final n = _norm(rawText);
+    return n.isNotEmpty && _resumeMarkers.any(n.contains);
+  }
+
   static final RegExp _directArtRe = RegExp(r'(?:ماده|اصل)\s*(?:واحده|\d+)');
   static final RegExp _pureDefRe = RegExp(
     r'^(?:معنی|تعریف|مفهوم)\s+|(?:چیست|چیه|کیست|یعنی چه|یعنی چی)\s*[؟?]*$',
   );
+
+  // ── ابزارهای پاسخ طبیعی: قالب‌های متنوع assets/replies.json بدون LLM ──
+  static String _pick(Replies? r, Random? rnd, String key, String fallback,
+      [Map<String, String> vars = const {}]) {
+    if (r == null || !r.has(key)) {
+      var t = fallback;
+      vars.forEach((k, v) => t = t.replaceAll('{$k}', v));
+      return t;
+    }
+    return r.pick(key, vars: vars, rnd: rnd);
+  }
+
+  /// پرسش یک گام با کلید 'cq_<topic>_<slot>' از replies.json (در صورت وجود).
+  static String _promptFor(
+      String topicId, _QuestionStep s, Replies? replies, Random? rnd) {
+    final key = 'cq_${topicId}_${s.slot}';
+    if (replies != null && replies.has(key)) {
+      return replies.pick(key, rnd: rnd);
+    }
+    return s.prompt;
+  }
+
+  /// بازتاب کوتاه پاسخ کاربر در تصدیق طبیعی (بدون تکرار طوطی‌وار).
+  static String _reflect(String text) {
+    var t = text.trim();
+    if (t.endsWith('؟') || t.endsWith('?')) t = t.substring(0, t.length - 1);
+    if (t.length > 70) t = '${t.substring(0, 70)}…';
+    return t;
+  }
 
   static const List<String> _personalOrProblemCues = [
     'مشاوره', 'راهنمایی کن', 'کمکم کن', 'چه کار کنم', 'چیکار کنم', 'چکار کنم',
@@ -148,7 +331,9 @@ class LegalCounselor {
       PersianText.collapse(PersianText.normalize(s));
 
   /// آیا پیام کاربر شروع صریح یا ضمنی یک گفتگوی مشاوره‌ای دوطرفه است؟
-  static bool shouldStartCounseling(String rawText) {
+  /// تصمیم اصلی با شبکهٔ عصبی [net] است؛ در نبودِ شبکه یا امتیاز پایین،
+  /// قاعدهٔ نمادین کلیدواژه‌ها به‌عنوان تور ایمنی اعمال می‌شود.
+  static bool shouldStartCounseling(String rawText, {IntentNet? net}) {
     final n = _norm(rawText);
     if (n.isEmpty) return false;
     if (rawText.trim() == startCounselCmd ||
@@ -158,6 +343,13 @@ class LegalCounselor {
       return true;
     }
     if (_directArtRe.hasMatch(n)) return false;
+    if (net != null) {
+      final s = net.classify(rawText);
+      if (s.score >= net.topicMin) {
+        if (s.label == 'general_intake') return true;
+        return IntentNet.topicLabels.contains(s.label);
+      }
+    }
     if (_pureDefRe.hasMatch(n) && !_personalOrProblemCues.any(n.contains)) {
       return false;
     }
@@ -165,7 +357,8 @@ class LegalCounselor {
   }
 
   /// تشخیص حوزهٔ حقوقی از متن کاربر.
-  static String? detectTopic(String rawText) {
+  /// اولویت: دستور صریح → شبکهٔ عصبی → آبشار نمادین کلیدواژه‌ها.
+  static String? detectTopic(String rawText, {IntentNet? net}) {
     final n = _norm(rawText);
     if (rawText.trim() == startCounselCmd ||
         n == 'مشاوره' ||
@@ -173,6 +366,14 @@ class LegalCounselor {
         n.contains('مشکل حقوقی دارم') ||
         n.contains('یک سوال حقوقی دارم')) {
       return 'general_intake';
+    }
+    if (net != null) {
+      final s = net.classify(rawText);
+      if (s.score >= net.topicMin) {
+        if (s.label == 'general_intake') return 'general_intake';
+        if (IntentNet.topicLabels.contains(s.label)) return s.label;
+        return null;
+      }
     }
     if (n.contains('چک') || n.contains('صیادی') || n.contains('برگشت خورد')) {
       return 'cheque';
@@ -252,37 +453,113 @@ class LegalCounselor {
     return null;
   }
 
+  /// نکتهٔ موضوع برای دکمهٔ «شروع مشاوره» در پاسخ‌های اطلاعاتی؛ با شبکهٔ
+  /// عصبی حتی وقتی پیام کلیدواژهٔ نمادین ندارد هم حوزهٔ محتمل پیشنهاد می‌شود.
+  static String? detectTopicHint(String rawText, {IntentNet? net}) {
+    final direct = detectTopic(rawText, net: net);
+    if (direct != null) return direct;
+    // پرسش اطلاعاتی (برچسب RAG) → همان آبشار نمادین قبلاً پیشنهاد مشاوره
+    // روی حوزهٔ مرتبط می‌داد؛ آن را حفظ می‌کنیم.
+    final symbolic = detectTopic(rawText);
+    if (symbolic != null) return symbolic;
+    if (net == null) return null;
+    for (final s in net.top(rawText, k: 4)) {
+      if (IntentNet.topicLabels.contains(s.label) && s.score >= 0.25) {
+        return s.label;
+      }
+    }
+    return null;
+  }
+
   /// آغاز جلسهٔ مشاورهٔ دوطرفه بر اساس پیام کاربر.
   static (CounselingSession, CounselorTurn)? start(
     String rawText,
     KnowledgeEngine engine,
-    List<LegalTemplate> templates,
-  ) {
-    final topic = detectTopic(rawText);
+    List<LegalTemplate> templates, {
+    IntentNet? net,
+    Replies? replies,
+    Random? rnd,
+  }) {
+    final topic = detectTopic(rawText, net: net);
     if (topic == null) return null;
     final session = CounselingSession(topicId: topic, initialMessage: rawText);
     if (topic == 'general_intake') {
       return (
         session,
-        const CounselorTurn(
-          text:
-              'سلام و وقت‌به‌خیر؛ با کمال میل همراه شما هستم تا موضوع را دقیق و مستند به قوانین بررسی کنیم.\n\n'
-              'لطفاً بفرمایید مسئلهٔ حقوقی شما در کدام‌یک از حوزه‌های زیر است؟ (می‌توانید یکی از گزینه‌ها را بزنید یا شرح ماجرا را به زبان خودتان بنویسید.)',
-          chips: [
-            'چک برگشتی یا دفاع در برابر چک',
-            'اخراج از کار، حقوق و بیمه',
-            'اجارهٔ ملک، تخلیه و پول پیش',
-            'مهریه، نفقه، طلاق و حضانت',
-            'کلاهبرداری، فیشینگ و خیانت در امانت',
-            'ابلاغیه، شکایت علیه من یا اعتراض به رأی',
-            'مطالبهٔ طلب، سفته یا اعسار',
-            cancelCounselCmd,
-          ],
+        CounselorTurn(
+          text: _pick(replies, rnd, 'counselor_intake_greeting',
+              _intakeGreetingFallback),
+          chips: _intakeChips,
         ),
       );
     }
     _extractAllFacts(session, rawText);
-    return (session, _advance(session, engine, templates, firstTurn: true));
+    return (
+      session,
+      _advance(session, engine, templates,
+          firstTurn: true, replies: replies, rnd: rnd)
+    );
+  }
+
+  /// بازگشایی مشاورهٔ یک موضوع پس از جمع‌بندی جلسهٔ قبلی («ادامهٔ مشاوره»).
+  static (CounselingSession, CounselorTurn)? resumeTopic(
+    String topicId,
+    String initialMessage,
+    KnowledgeEngine engine,
+    List<LegalTemplate> templates, {
+    Replies? replies,
+    Random? rnd,
+  }) {
+    if (!knownTopic(topicId)) return null;
+    final session =
+        CounselingSession(topicId: topicId, initialMessage: initialMessage);
+    if (topicId == 'general_intake') {
+      return (
+        session,
+        CounselorTurn(
+          text: _pick(replies, rnd, 'counsel_resumed',
+              'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
+              {'topic': topicTitleFa(topicId)}),
+          chips: _intakeChips,
+        ),
+      );
+    }
+    _extractAllFacts(session, initialMessage);
+    final turn = _advance(session, engine, templates,
+        firstTurn: true, replies: replies, rnd: rnd);
+    final lead = _pick(replies, rnd, 'counsel_resumed',
+        'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
+        {'topic': topicTitleFa(topicId)});
+    return (
+      session,
+      CounselorTurn(text: '$lead\n\n${turn.text}', chips: turn.chips),
+    );
+  }
+
+  /// پرسش بازِ یک جلسهٔ نیمه‌کاره (برای بازیابی هنگام راه‌اندازی برنامه).
+  static CounselorTurn? pendingTurn(
+    CounselingSession session, {
+    Replies? replies,
+    Random? rnd,
+  }) {
+    if (session.concluded) return null;
+    final note = _pick(replies, rnd, 'counsel_resumed_note',
+        'گفتگوی مشاورهٔ ناتمام دربارهٔ «{topic}» بازیابی شد. می‌توانیم از همان‌جا ادامه دهیم:',
+        {'topic': topicTitleFa(session.topicId)});
+    if (session.topicId == 'general_intake') {
+      return CounselorTurn(
+        text: '$note\n\n$_intakeRepromptFallback',
+        chips: _intakeRepromptChips,
+      );
+    }
+    final steps = _stepsFor(session.topicId);
+    final pending =
+        steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    if (pending == null) return null;
+    return CounselorTurn(
+      text: '$note\n\n${_promptFor(session.topicId, pending, replies, rnd)}',
+      chips: [...pending.options, cancelCounselCmd],
+    );
   }
 
   /// پردازش پاسخ کاربر در میانهٔ جلسهٔ مشاوره.
@@ -290,8 +567,11 @@ class LegalCounselor {
     CounselingSession session,
     String rawText,
     KnowledgeEngine engine,
-    List<LegalTemplate> templates,
-  ) {
+    List<LegalTemplate> templates, {
+    IntentNet? net,
+    Replies? replies,
+    Random? rnd,
+  }) {
     final trimmed = rawText.trim();
     final n = _norm(trimmed);
 
@@ -305,6 +585,17 @@ class LegalCounselor {
             'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
         cancelled: true,
       );
+    }
+    // شبکهٔ عصبی نیت «لغو/انصراف» را حتی از عبارت آزادِ کاربر می‌گیرد.
+    if (net != null) {
+      final s = net.classify(trimmed);
+      if (s.label == 'cancel' && s.score >= net.cancelMin) {
+        return const CounselorTurn(
+          text:
+              'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
+          cancelled: true,
+        );
+      }
     }
 
     // اگر جلسه در مرحلهٔ پایانی بوده و کاربر روی دکمهٔ «تنظیم ...» کلیک کرده است:
@@ -321,42 +612,150 @@ class LegalCounselor {
       return const CounselorTurn(text: '', completed: true);
     }
 
+    // پرسش حقوقی در میانهٔ مشاوره → پاسخ RAG از بانک قوانین + بازگشت خودکار
+    // به پرسش بازِ درخت تصمیم (بدون از دست رفتن وضعیت جلسه).
+    if (_isLegalQuestion(trimmed, net)) {
+      return _ragTurn(session, trimmed, engine, replies, rnd);
+    }
+
     if (session.topicId == 'general_intake') {
-      final detected = _topicFromIntakeChoice(n) ?? detectTopic(trimmed);
+      final detected =
+          _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
       if (detected != null && detected != 'general_intake') {
         session.topicId = detected;
         _extractAllFacts(session, trimmed);
-        return _advance(session, engine, templates, firstTurn: true);
+        return _advance(session, engine, templates,
+            firstTurn: true, replies: replies, rnd: rnd);
       }
-      return const CounselorTurn(
-        text:
-            'برای اینکه دقیق راهنمایی‌تان کنم، لطفاً موضوع اصلی را با یک جمله بفرمایید (مثلاً: «کارفرما اخراجم کرده»، «چک برگشتی دارم»، «مستأجر تخلیه نمی‌کند» یا «ابلاغیهٔ دادگاه برایم آمده»).',
-        chips: [
-          'چک برگشتی یا دفاع در برابر چک',
-          'اخراج از کار، حقوق و بیمه',
-          'اجارهٔ ملک، تخلیه و پول پیش',
-          'مهریه، نفقه، طلاق و حضانت',
-          'ابلاغیه، شکایت علیه من یا اعتراض به رأی',
-          cancelCounselCmd,
-        ],
+      return CounselorTurn(
+        text: _pick(replies, rnd, 'counselor_intake_reprompt',
+            _intakeRepromptFallback),
+        chips: _intakeRepromptChips,
       );
     }
 
     final steps = _stepsFor(session.topicId);
     final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    String? ack;
     if (pendingStep != null) {
       final val = pendingStep.extractor(n);
       if (val != null) {
         session.facts[pendingStep.slot] = val;
+        // تصدیق طبیعیِ پاسخ کاربر (فقط وقتی قالب‌های replies.json فعال‌اند
+        // تا رفتار قطعیِ قدیمی بدون آن‌ها مو به مو حفظ شود).
+        if (replies != null) {
+          ack = _pick(replies, rnd, 'counselor_ack',
+              'باشه، پس «{answer}» — این را یادداشت کردم.',
+              {'answer': _reflect(trimmed)});
+        }
       } else {
         // اگر پاسخ آزاد بود ولی در گزینه‌ها جا نگرفت، متن کاربر را ذخیره و به نزدیک‌ترین حالت نگاشت کن
         session.facts[pendingStep.slot] = trimmed;
+        if (replies != null) {
+          ack = _pick(replies, rnd, 'counselor_ack_generic',
+              'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:');
+        }
       }
       // شاید در همین جمله اطلاعات سؤال‌های بعدی هم گفته شده باشد
       _extractAllFacts(session, trimmed);
     }
 
-    return _advance(session, engine, templates, firstTurn: false);
+    return _advance(session, engine, templates,
+        firstTurn: false, replies: replies, rnd: rnd, ack: ack);
+  }
+
+  // ── پرسش حقوقی در میانهٔ مشاوره (RAG) ────────────────────────────────
+  static final RegExp _questionGlowRe = RegExp(
+    r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید',
+  );
+
+  static bool _lawishCue(String n) =>
+      n.contains('قانون') ||
+      n.contains('ماده') ||
+      n.contains('اصل') ||
+      n.contains('مجازات') ||
+      n.contains('مهلت') ||
+      n.contains('شرایط') ||
+      n.contains('تعریف');
+
+  /// آیا پیام کاربر در میانهٔ مشاوره پرسش حقوقی/قانونی است که باید با
+  /// موتور دانش (RAG) پاسخ داده شود؟ تصمیم اصلی با شبکهٔ عصبی است و
+  /// نشانه‌های پرسشی + کلیدواژه‌ها تور ایمنی‌اند تا پاسخ‌های خبریِ
+  /// خانهٔ پرسش (مثلاً «خودم موجرم») هرگز گفتگو را از ریل خارج نکنند.
+  static bool _isLegalQuestion(String rawText, IntentNet? net) {
+    final n = _norm(rawText);
+    if (_directArtRe.hasMatch(n)) return true;
+    if (net != null) {
+      final s = net.classify(rawText);
+      if (s.score >= net.ragMin) {
+        return IntentNet.ragLabels.contains(s.label) &&
+            _questionGlowRe.hasMatch(n);
+      }
+    }
+    return _questionGlowRe.hasMatch(n) &&
+        (_pureDefRe.hasMatch(n) || _lawishCue(n));
+  }
+
+  static CounselorTurn _ragTurn(
+    CounselingSession session,
+    String rawText,
+    KnowledgeEngine engine,
+    Replies? replies,
+    Random? rnd,
+  ) {
+    final reply = engine.query(rawText, maxAlternatives: 0);
+    final notFound = reply.text.contains('پیدا نکردم') ||
+        reply.text.contains('پیدا نشد') ||
+        reply.text.contains('هنوز در برنامه نیست');
+    final sb = StringBuffer();
+    if (!notFound) {
+      sb.writeln(_pick(replies, rnd, 'counselor_rag_intro',
+          'سؤال خوبی است؛ اجازه بدهید همین را مستقیم از متن رسمی قانون بیاورم:'));
+      sb.writeln();
+      sb.write(reply.text);
+    } else {
+      sb.write(_pick(replies, rnd, 'counselor_rag_miss',
+          'پاسخ دقیقی برای این پرسش در بانک قوانین برنامه پیدا نکردم و بهتر است حدس نزنم. برویم سراغ ادامهٔ بررسی وضعیت خودت:'));
+    }
+
+    if (session.topicId == 'general_intake') {
+      sb.writeln();
+      sb.writeln();
+      sb.write(_pick(replies, rnd, 'counselor_intake_reprompt',
+          _intakeRepromptFallback));
+      return CounselorTurn(
+        text: sb.toString(),
+        chips: _intakeRepromptChips,
+        ragQuery: notFound ? null : rawText,
+        ragReply: notFound ? null : reply,
+      );
+    }
+
+    final steps = _stepsFor(session.topicId);
+    final pending =
+        steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    if (pending != null) {
+      if (!notFound) {
+        sb.writeln();
+        sb.writeln();
+        sb.writeln(_pick(replies, rnd, 'counselor_resume',
+            'حالا برگردیم به وضعیت خودت؛ این پرسش هنوز باز است:'));
+      }
+      sb.writeln();
+      sb.write(_promptFor(session.topicId, pending, replies, rnd));
+      return CounselorTurn(
+        text: sb.toString(),
+        chips: [...pending.options, cancelCounselCmd],
+        ragQuery: notFound ? null : rawText,
+        ragReply: notFound ? null : reply,
+      );
+    }
+    return CounselorTurn(
+      text: sb.toString(),
+      chips: const [cancelCounselCmd],
+      ragQuery: notFound ? null : rawText,
+      ragReply: notFound ? null : reply,
+    );
   }
 
   static LegalTemplate? _matchTemplateChip(
@@ -418,21 +817,29 @@ class LegalCounselor {
     KnowledgeEngine engine,
     List<LegalTemplate> templates, {
     required bool firstTurn,
+    Replies? replies,
+    Random? rnd,
+    String? ack,
   }) {
     final steps = _stepsFor(session.topicId);
     final nextStep =
         steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
 
     if (nextStep != null) {
-      final intro = firstTurn ? '${_empathyIntro(session.topicId)}\n\n' : '';
+      final lead = firstTurn
+          ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n'
+          : (ack == null || ack.isEmpty ? '' : '$ack\n\n');
+      final prompt =
+          _promptFor(session.topicId, nextStep, replies, rnd);
       return CounselorTurn(
-        text: '$intro${nextStep.prompt}',
+        text: '$lead$prompt',
         chips: [...nextStep.options, cancelCounselCmd],
       );
     }
 
     session.concluded = true;
-    return _buildConclusion(session, engine, templates);
+    return _buildConclusion(session, engine, templates,
+        replies: replies, rnd: rnd);
   }
 
   static String _empathyIntro(String topicId) {
@@ -973,8 +1380,10 @@ class LegalCounselor {
   static CounselorTurn _buildConclusion(
     CounselingSession s,
     KnowledgeEngine engine,
-    List<LegalTemplate> templates,
-  ) {
+    List<LegalTemplate> templates, {
+    Replies? replies,
+    Random? rnd,
+  }) {
     final sb = StringBuffer();
     final tplIds = <String>[];
     final refs = <String>[];
@@ -1256,8 +1665,12 @@ class LegalCounselor {
       );
     }
 
+    // مقدمهٔ متنوع برای جمع‌بندی (فقط وقتی قالب‌های replies.json فعال‌اند).
+    final open = replies == null
+        ? ''
+        : '${_pick(replies, rnd, 'counselor_conclusion_open', 'خب، تحلیل نهایی‌ام از وضعیت شما با تکیه بر متن قوانین:')}\n\n';
     return CounselorTurn(
-      text: sb.toString().trim(),
+      text: '$open${sb.toString().trim()}',
       chips: chips,
       completed: true,
     );

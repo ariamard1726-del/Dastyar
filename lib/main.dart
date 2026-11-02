@@ -6,6 +6,8 @@ import 'chat_page.dart';
 import 'drafting.dart';
 import 'engine.dart';
 import 'history.dart';
+import 'intent_net.dart';
+import 'legal_counselor.dart';
 import 'privacy.dart';
 import 'settings.dart';
 import 'templates.dart';
@@ -104,6 +106,12 @@ class _LoaderState extends State<Loader> {
   final HistoryStore _history = HistoryStore();
   late final Assistant _assistant = Assistant(_engine);
   DraftSession? _initialDraft;
+  CounselingSession? _initialCounsel;
+
+  /// شبکهٔ عصبی آفلاین تشخیص نیت؛ پیش از نخستین فریم بارگذاری می‌شود تا
+  /// گفتگو از همان پیام اول هوشمند باشد (در تست‌های ویجتی تزریق‌نشده و
+  /// مسیر نمادین فعال می‌ماند).
+  IntentNet? _intentNet;
   bool _ready = false;
   String? _error;
 
@@ -120,9 +128,11 @@ class _LoaderState extends State<Loader> {
       }),
       _repo.load().catchError((_) {}),
       _history.load().catchError((_) {}),
+      IntentNet.load().then((n) => _intentNet = n),
     ]);
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
       _initialDraft = await DraftCheckpointStore.load(_repo.templates);
+      _initialCounsel = await CounselCheckpointStore.load();
     }
     if (!mounted) return;
     setState(() => _ready = true);
@@ -143,6 +153,8 @@ class _LoaderState extends State<Loader> {
       settings: widget.settings,
       loadError: _error,
       initialDraft: _initialDraft,
+      intentNet: _intentNet,
+      initialCounsel: _initialCounsel,
     );
   }
 }
