@@ -1,6 +1,120 @@
-commit: 782b7ae
-🎉 142 tests passed.
+commit: 9de1b67
+::error::106 tests passed, 6 failed.
+::group::❌ loading test/counselor_nn_rag_test.dart (failed)
+   Failed to load "test/counselor_nn_rag_test.dart":
+   Compilation failed for testPath=test/counselor_nn_rag_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+::group::❌ loading test/pending_offer_test.dart (failed)
+   Failed to load "test/pending_offer_test.dart":
+   Compilation failed for testPath=test/pending_offer_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/counselor_and_laws_test.dart (failed)
+   Failed to load "test/counselor_and_laws_test.dart":
+   Compilation failed for testPath=test/counselor_and_laws_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/intent_net_test.dart (failed)
+   Failed to load "test/intent_net_test.dart":
+   Compilation failed for testPath=test/intent_net_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+::group::❌ loading test/p3_features_test.dart (failed)
+   Failed to load "test/p3_features_test.dart":
+   Compilation failed for testPath=test/p3_features_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+::group::❌ loading test/p2_architecture_test.dart (failed)
+   Failed to load "test/p2_architecture_test.dart":
+   Compilation failed for testPath=test/p2_architecture_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._nb,
+   ^^^
+   lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+   Try removing the package language version or setting the language version to 3.12 or higher.
+   required this._hidden,
+::group::❌ loading test/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+--- خطای کامپایل ---
+lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:33:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:34:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:35:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:36:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:37:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:38:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+Failed to load "test/counselor_nn_rag_test.dart":
+Compilation failed for testPath=test/counselor_nn_rag_test.dart: lib/intent_net.dart:31:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:32:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:33:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:34:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:35:19: Error: The 'private-named-parameters' language feature is disabled for this library.
+lib/intent_net.dart:36:19: Error: The 'private-named-parameters' language feature is disabled for this library.
 --- analyze ---
-2 issues found. (ran in 8.2s)
+10 issues found. (ran in 11.4s)
    info • Local variables should be final. Try making the variable final • lib/engine.dart:422:5 • prefer_final_locals
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
+  error • This requires the 'private-named-parameters' language feature to be enabled. Try updating your pubspec.yaml to set the minimum SDK constraint to 3.12.0 or higher, and running 'pub get' • lib
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/p2_architecture_test.dart:58:11 • close_sinks
