@@ -1,6 +1,7 @@
-commit: 46a29d2
-🎉 167 tests passed.
+commit: f1f2099
+🎉 169 tests passed.
 --- analyze ---
-2 issues found. (ran in 11.4s)
+3 issues found. (ran in 8.5s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:436:5 • prefer_final_locals
-   info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:42:11 • close_sinks
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/core/privacy.dart:45:13 • prefer_const_constructors
+   info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:44:11 • close_sinks
