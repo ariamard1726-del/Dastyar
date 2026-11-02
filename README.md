@@ -4,16 +4,13 @@
 
 ## ساختار
 
-- `lib/main.dart`، `chat_page.dart`، `widgets/chat_bubbles.dart` و صفحه‌های جانبی: رابط کاربری
-- `lib/chat_controller.dart`، `chat_models.dart`: کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن پاسخ
-- `lib/assistant.dart`، `prompt_builder.dart`، `llm.dart`: هماهنگ‌کنندهٔ پاسخ، نگهبان استناد مواد/قوانین و بک‌اندهای مدل زبانی محلی (`OnDeviceChannelLlm`، `LocalLoopbackLlm` محدود به `127.0.0.1` و `AdaptiveLlm`)
-- `lib/router.dart`: تشخیص نیت پرسش (معرفی توانایی‌ها و پیش‌بینی نتیجهٔ دادگاه)
-- `lib/engine.dart`، `models.dart`، `services/conflicts_service.dart`: بارگذاری موازی قوانین، نمایهٔ معکوس BM25F، نگهبان حوزه‌های خارج از پوشش، تشخیص زنجیرهٔ تعارض/ارتباط مواد و بازیابی تک‌مرحله‌ای
-- `lib/persian_text.dart`، `core/text_utils.dart`: لایهٔ متن فارسی (نرمال‌سازی، تبدیل ارقام، برش ایمن یونیکد، اعتبارسنجی کد ملی و شماره تلفن ایران، ایست‌واژه و ریشه‌یابی)
-- `lib/privacy.dart`: رمزنگاری محلی داده‌ها با Android Keystore (`AES-256-GCM`)، کلیپ‌بورد حساس و `FLAG_SECURE`
-- `lib/drafting.dart`، `templates.dart`: پیش‌نویس مرحله‌به‌مرحلهٔ اسناد حقوقی با امکان ذخیرهٔ موقت رمزنگاری‌شدهٔ پیش‌نویس ناتمام (`DraftCheckpointStore`)
-- `assets/laws`: متن قوانین (در ساختار پوشه‌ای دسته‌بندی‌شده به همراه `_meta.json`). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json`، `replies.json`
-- `test`: تست‌های واحد، ویجت و ارزیابی کیفیت بازیابی
+لایه‌بندی `lib/` (وابستگی فقط رو به پایین؛ جزئیات در `docs/ARCHITECTURE.md`):
+
+- `lib/core/`: زیرساخت بدون وابستگی به قابلیت‌ها — `persian_text.dart` (لایهٔ یکتای متن فارسی: نرمال‌سازی، ارقام، برش ایمن یونیکد، اعتبارسنجی کد ملی/تلفن، ایست‌واژه و ریشه‌یابی)، `engine.dart` و `models.dart` (بارگذاری موازی قوانین در Isolate، نمایهٔ معکوس BM25F، بازیابی تک‌مرحله‌ای)، `router.dart` (نیت‌های ثابت پرسش)، `conflicts_service.dart` (زنجیرهٔ تعارض مواد)، `replies.dart` (پاسخ‌های ثابت)، `llm.dart` (بک‌اندهای مدل زبانی محلی: `OnDeviceChannelLlm`، `LocalLoopbackLlm` محدود به `127.0.0.1`، `AdaptiveLlm`)، `privacy.dart` (رمزنگاری محلی با Android Keystore، `AES-256-GCM`، کلیپ‌بورد حساس و `FLAG_SECURE`)، `history.dart` و `config.dart`
+- `lib/domain/`: قابلیت‌های حقوقی — `assistant.dart` و `prompt_builder.dart` (هماهنگ‌کنندهٔ پاسخ و نگهبان استناد مواد/قوانین)، `legal_counselor.dart` (مشاورهٔ گام‌به‌گام با شبکهٔ نیت و RAG)، `intent_net.dart` (شبکهٔ عصبی نیت، آینهٔ پایتون آن در `tools/check.py intent`)، `drafting.dart` و `templates.dart` (پیش‌نویس مرحله‌به‌مرحلهٔ اسناد با ذخیرهٔ موقت رمزنگاری‌شده)، `feedback.dart`، `settings.dart`
+- `lib/ui/`: رابط کاربری — `chat_page.dart`، `chat_controller.dart` و `chat_models.dart` (کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن)، صفحه‌های تنظیمات/تاریخچه/درباره و `widgets/chat_bubbles.dart`
+- `assets/laws`: متن قوانین با `_meta.json` (منبع یکتای متادیتا؛ `laws_catalog.json` و `data_info.json` با `tools/sync_meta.py` از آن مشتق می‌شوند). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json` (منبع یکتای روابط مواد)، `replies.json`
+- `test`: در پنج شاخهٔ `core/`، `engine/`، `drafting/`، `counselor/` و `app/` (نام‌گذاری رفتاری، شامل تست برابری پایتون↔دارت در `test/core/parity_test.dart`)
 - `tools`: ابزارهای پایتون برای اعتبارسنجی یکپارچه (`check.py` با زیردستورهای corpus/assets/meta/intent/parity)، همگام‌سازی متادیتا (`sync_meta.py`)، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار (`setup_release_signing.py`)
 - `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک) به‌همراه مجموعه‌های ارزیابی (`brain/eval/`) و استاندارد طلایی برابری پایتون↔دارت (`parity_expected.json`). اپ فقط `assets/brain/intent_model.json` را می‌خواند.
 

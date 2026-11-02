@@ -59,7 +59,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p brain/reports
-          flutter test test/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+          flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

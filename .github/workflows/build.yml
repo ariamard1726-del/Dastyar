@@ -73,7 +73,7 @@ jobs:
       - name: EVAL numbers
         continue-on-error: true
         run: |
-          flutter test test/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
+          flutter test test/engine/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
 
       - name: Build release APK
         run: flutter build apk --release --build-number=${{ github.run_number }}

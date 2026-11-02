@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'assistant.dart';
-import 'chat_page.dart';
-import 'drafting.dart';
-import 'engine.dart';
-import 'history.dart';
-import 'intent_net.dart';
-import 'legal_counselor.dart';
-import 'privacy.dart';
-import 'settings.dart';
-import 'templates.dart';
+import 'package:dastyar/domain/assistant.dart';
+import 'package:dastyar/ui/chat_page.dart';
+import 'package:dastyar/domain/drafting.dart';
+import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/history.dart';
+import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/legal_counselor.dart';
+import 'package:dastyar/core/privacy.dart';
+import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/domain/templates.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

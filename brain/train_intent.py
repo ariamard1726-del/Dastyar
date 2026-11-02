@@ -3,7 +3,7 @@
 معماری: ویژگی‌های هش‌شدهٔ واژه + n-gram حرفی (همان الگوریتم brain/common.py
 با NB کوچک‌تر) → ورودی L1-نرمال → MLP یک لایهٔ نهان (relu) → softmax.
 وزن‌ها به int8 متقارن کوانتیده و به‌صورت base64 در assets/brain/intent_model.json
-ذخیره می‌شوند تا lib/intent_net.dart بتواند بدون هیچ افزونهٔ بومی (tflite و…)
+ذخیره می‌شوند تا lib/domain/intent_net.dart بتواند بدون هیچ افزونهٔ بومی (tflite و…)
 استنتاج را دقیقاً همین‌جا، آفلاین، اجرا کند.
 
 اجرا:  python3 brain/train_intent.py   (به numpy نیاز دارد)
@@ -64,7 +64,7 @@ def words(s):
 
 
 def feats(text):
-    """دقیقاً هم‌الگوریتم با lib/intent_net.dart — تغییرش = شکستن آینهٔ Dart."""
+    """دقیقاً هم‌الگوریتم با lib/domain/intent_net.dart — تغییرش = شکستن آینهٔ Dart."""
     ids = []
     for w in words(text):
         ids.append(fnv('w:' + w) % NB)
