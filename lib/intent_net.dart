@@ -25,19 +25,29 @@ class IntentScore {
 ///   → لایهٔ نهان relu → softmax.
 /// هیچ LLM، API خارجی یا کتابخانهٔ tflite در کار نیست.
 class IntentNet {
+  // توجه: پارامترهای نام‌دارِ خصوصی (this._x) به Dart 3.12 نیاز دارند و
+  // زبان بسته روی ۳٫۰ است؛ پس با نام عمومی می‌گیریم و در فهرست مقداردهی
+  // به فیلدهای خصوصی نسبت می‌دهیم.
   IntentNet._({
     required this.labels,
     required this.thresholds,
-    required this._nb,
-    required this._hidden,
-    required this._ngramMin,
-    required this._ngramMax,
-    required this._w1,
-    required this._b1,
-    required this._w2,
-    required this._b2,
+    required int nb,
+    required int hidden,
+    required int ngramMin,
+    required int ngramMax,
+    required Float64List w1,
+    required Float64List b1,
+    required Float64List w2,
+    required Float64List b2,
     required this.metrics,
-  });
+  })  : _nb = nb,
+        _hidden = hidden,
+        _ngramMin = ngramMin,
+        _ngramMax = ngramMax,
+        _w1 = w1,
+        _b1 = b1,
+        _w2 = w2,
+        _b2 = b2;
 
   /// برچسب‌های دسته‌ها (مرتب‌شده، همان ترتیب خروجی softmax).
   final List<String> labels;
@@ -104,14 +114,14 @@ class IntentNet {
       metrics: m['metrics'] is Map
           ? Map<String, dynamic>.from(m['metrics'] as Map)
           : const {},
-      _nb: nb,
-      _hidden: hidden,
-      _ngramMin: ngram[0],
-      _ngramMax: ngram[1],
-      _w1: _deq(m['w1'], nb * hidden),
-      _b1: _deq(m['b1'], hidden),
-      _w2: _deq(m['w2'], hidden * labels.length),
-      _b2: _deq(m['b2'], labels.length),
+      nb: nb,
+      hidden: hidden,
+      ngramMin: ngram[0],
+      ngramMax: ngram[1],
+      w1: _deq(m['w1'], nb * hidden),
+      b1: _deq(m['b1'], hidden),
+      w2: _deq(m['w2'], hidden * labels.length),
+      b2: _deq(m['b2'], labels.length),
     );
   }
 
