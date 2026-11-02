@@ -14,8 +14,8 @@
 - `lib/drafting.dart`، `templates.dart`: پیش‌نویس مرحله‌به‌مرحلهٔ اسناد حقوقی با امکان ذخیرهٔ موقت رمزنگاری‌شدهٔ پیش‌نویس ناتمام (`DraftCheckpointStore`)
 - `assets/laws`: متن قوانین (در ساختار پوشه‌ای دسته‌بندی‌شده به همراه `_meta.json`). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json`، `replies.json`
 - `test`: تست‌های واحد، ویجت و ارزیابی کیفیت بازیابی
-- `tools`: ابزارهای پایتون برای اعتبارسنجی، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار
-- `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک). اپ آن‌ها را نمی‌خواند.
+- `tools`: ابزارهای پایتون برای اعتبارسنجی یکپارچه (`check.py` با زیردستورهای corpus/assets/meta/intent/parity)، همگام‌سازی متادیتا (`sync_meta.py`)، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار (`setup_release_signing.py`)
+- `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک) به‌همراه مجموعه‌های ارزیابی (`brain/eval/`) و استاندارد طلایی برابری پایتون↔دارت (`parity_expected.json`). اپ فقط `assets/brain/intent_model.json` را می‌خواند.
 
 ## ساخت و آزمایش
 
@@ -24,8 +24,8 @@
     python tools/go.py "پیام"     # commit، push، انتظار برای تست، چاپ گزارش کوتاه
     python tools/go.py report     # دوباره چاپ گزارش آخر
     bash tools/build.sh           # ساخت APK امضاشده و دانلود (نیاز به gh)
-    python tools/diag.py          # وضعیت git و گزارش تست
-    python tools/diag.py lib/engine.dart:590-640 "g:findArticle"
+    python tools/check.py all     # اعتبارسنجی یکپارچهٔ داده/دارایی/متادیتا/مدل نیت/برابری
+    python tools/doctor.py        # سلامت‌سنجی و تشخیص وضعیت محیط و گزارش تست
 
 Workflowها در `.github/workflows`:
 
@@ -44,4 +44,4 @@ Workflowها در `.github/workflows`:
 
     هدف: (یک جمله)
     اتفاق: (خطای دقیق)
-    خروجی: python tools/diag.py ...
+    خروجی: python tools/doctor.py ...

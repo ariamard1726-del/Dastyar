@@ -395,7 +395,7 @@ if __name__ == '__main__':
     }
     failed = False
     for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_all_laws.txt'):
-        p = os.path.join(ROOT, 'brain', f)
+        p = os.path.join(ROOT, 'brain', 'eval', f)
         if os.path.exists(p):
             r1, r5, mrr = run(e, p, verbose)
             if check_mode and f in thresholds:

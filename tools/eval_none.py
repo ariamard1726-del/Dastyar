@@ -145,7 +145,7 @@ def gate(eng, q):
 
 if __name__ == '__main__':
     eng = Engine()
-    path = os.path.join(ROOT, 'brain', 'eval_none.txt')
+    path = os.path.join(ROOT, 'brain', 'eval', 'eval_none.txt')
     with open(path, encoding='utf-8') as f:
         qs = [l.strip() for l in f if l.strip() and not l.startswith('#')]
     bad = [q for q in qs if gate(eng, q)]

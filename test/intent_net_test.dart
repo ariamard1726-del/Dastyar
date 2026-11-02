@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/intent_net.dart';
 
-/// این تست آینهٔ Dartِ tools/check_intent.py است: همان مدل، همان مجموعهٔ
+/// این تست آینهٔ Dartِ `tools/check.py intent` است: همان مدل، همان مجموعهٔ
 /// آزمون و همان نگهبان‌ها. اگر پیاده‌سازی Dart از ریاضی پایتون (هش FNV-1a،
 /// n-gramها، L1-normalize، relu، softmax، کوانتیزاسیون int8) مو به مو پیروی
 /// نکند، دقت به زمین می‌خورد و تست رد می‌شود.
@@ -51,8 +51,8 @@ void main() {
       expect(net.metrics, isNotEmpty);
     });
 
-    test('دقت روی brain/intent_eval.txt دست‌کم ۰٫۹۰ است (هم‌تراز CI پایتون)', () {
-      final rows = _loadRows('brain/intent_eval.txt');
+    test('دقت روی brain/eval/intent_eval.txt دست‌کم ۰٫۹۰ است (هم‌تراز CI پایتون)', () {
+      final rows = _loadRows('brain/eval/intent_eval.txt');
       expect(rows.length, greaterThanOrEqualTo(140));
       var ok = 0;
       final wrong = <String>[];

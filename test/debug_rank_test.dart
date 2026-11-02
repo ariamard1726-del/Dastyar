@@ -11,7 +11,7 @@ void main() {
   test('DBG rank', () async {
     final e = KnowledgeEngine();
     await e.load();
-    for (final l in File('brain/debug_queries.txt').readAsLinesSync()) {
+    for (final l in File('brain/eval/debug_queries.txt').readAsLinesSync()) {
       final q = l.trim();
       if (q.isEmpty || q.startsWith('#')) continue;
       final res = e.rank(q, k: 6);

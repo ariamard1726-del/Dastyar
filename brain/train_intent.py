@@ -7,7 +7,7 @@
 استنتاج را دقیقاً همین‌جا، آفلاین، اجرا کند.
 
 اجرا:  python3 brain/train_intent.py   (به numpy نیاز دارد)
-ورودی: brain/intent_data.txt (آموزش) و brain/intent_eval.txt (سنجش generalization)
+ورودی: brain/intent_data.txt (آموزش) و brain/eval/intent_eval.txt (سنجش generalization)
 خروجی: assets/brain/intent_model.json + کپی و معیارها در artifacts/brain-model/
 """
 import base64
@@ -171,7 +171,7 @@ def main():
     extra_path = os.path.join(ROOT, 'brain', 'intent_data_extra.txt')
     if os.path.isfile(extra_path):
         train += load_rows(extra_path)
-    evl = load_rows(os.path.join(ROOT, 'brain', 'intent_eval.txt'))
+    evl = load_rows(os.path.join(ROOT, 'brain', 'eval', 'intent_eval.txt'))
     labels = sorted({l for l, _ in train} | {l for l, _ in evl})
     base_n = len(train)
     train = augment(train, rng)

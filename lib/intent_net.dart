@@ -20,7 +20,7 @@ class IntentScore {
 ///
 /// وزن‌ها در assets/brain/intent_model.json قرار دارند (خروجی
 /// brain/train_intent.py، کوانتیدهٔ int8) و استنتاج دقیقاً همان ریاضیِ
-/// tools/check_intent.py است:
+/// `tools/check.py intent` است:
 ///   ویژگی‌های هش‌شدهٔ واژه + n-gram حرفی (FNV-1a) → L1-normalize
 ///   → لایهٔ نهان relu → softmax.
 /// هیچ LLM، API خارجی یا کتابخانهٔ tflite در کار نیست.

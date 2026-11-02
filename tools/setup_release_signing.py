@@ -1,3 +1,9 @@
+"""پیکربندی امضای نسخهٔ انتشار برای ساخت در CI (build.yml).
+
+کلید از Secrets رمزگشایی می‌شود (KEYSTORE_PATH) و این اسکریپت تنظیمات
+امضای release را در android/app/build.gradle تزریق می‌کند.
+(نام قبلی: patch_signing.py)
+"""
 import os
 import re
 import subprocess

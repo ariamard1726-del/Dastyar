@@ -23,7 +23,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          (python tools/check_assets.py && python tools/check_meta.py && python tools/check.py && python tools/doctor.py && python tools/check_intent.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
+          (python tools/check.py all && python tools/doctor.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'

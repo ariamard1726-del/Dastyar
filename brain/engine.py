@@ -3,11 +3,8 @@ import os
 
 
 def get_data_path():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    local_candidate = os.path.join(current_dir, 'data', 'relationships.json')
-    if os.path.isfile(local_candidate):
-        return local_candidate
-    root_dir = os.path.dirname(current_dir)
+    # منبع یکتای دادهٔ روابط: assets/relationships.json (کپی محلی حذف شده است).
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(root_dir, 'assets', 'relationships.json')
 
 

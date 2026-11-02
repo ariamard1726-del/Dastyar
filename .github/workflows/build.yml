@@ -24,9 +24,7 @@ jobs:
 
       - name: Data checks
         run: |
-          python tools/check_assets.py
-          python tools/check_meta.py
-          python tools/check.py
+          python tools/check.py all
           python tools/doctor.py
           python tools/eval_py.py --check
           python tools/eval_none.py --check
@@ -56,7 +54,7 @@ jobs:
               exit 1
             fi
             keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" >/dev/null
-            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/patch_signing.py
+            KEYSTORE_PATH="$RUNNER_TEMP/release.jks" python3 tools/setup_release_signing.py
           elif [ "$ALLOW_DEBUG" = "true" ]; then
             echo "::warning::کلید امضای اصلی تنظیم نشده؛ بنا به درخواست صریح با کلید debug امضا می‌شود."
           else

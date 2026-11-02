@@ -13,7 +13,7 @@ void main() {
     await e.load();
     var n = 0, top1 = 0, top5 = 0;
     var mrr = 0.0;
-    for (final l in File('brain/eval_extra.txt').readAsLinesSync()) {
+    for (final l in File('brain/eval/eval_extra.txt').readAsLinesSync()) {
       final t = l.trim();
       if (t.isEmpty || t.startsWith('#')) continue;
       final r = t.split('|').map((x) => x.trim()).toList();
