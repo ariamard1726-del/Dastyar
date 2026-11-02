@@ -13,10 +13,10 @@ import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 
-/// کنترلر مستقل منطق گفتگو، مدیریت وضعیت پیش‌نویس، پیشنهادهای معوق و استریم پاسخ.
+/// کنترلر مستقل منطق گفتگو، مدیریت وضعیت پیش‌نویس، پیشنهادهای معوق و پاسخ موتور.
 ///
-/// جداسازی این لایه از ویجت‌ها باعث می‌شود ماشین حالت گفتگو، لغو استریم در میانهٔ
-/// تولید و ذخیره‌سازی تاریخچه بدون وابستگی به درخت ویجت قابل تست و نگهداری باشد.
+/// جداسازی این لایه از ویجت‌ها باعث می‌شود ماشین حالت گفتگو، لغو پاسخ در حین
+/// پردازش و ذخیره‌سازی تاریخچه بدون وابستگی به درخت ویجت قابل تست و نگهداری باشد.
 class ChatController extends ChangeNotifier {
   final KnowledgeEngine engine;
   final Assistant assistant;
@@ -135,14 +135,11 @@ class ChatController extends ChangeNotifier {
     }
   }
 
-  /// لغو ایمن پاسخ در حال تولید و آزادسازی فوری اشتراک استریم و مدل زبانی.
+  /// لغو ایمن پاسخ در حال پردازش و آزادسازی فوری اشتراک جریان پاسخ.
   void cancelActiveAsk() {
     if (!_busy) return;
     _askEpoch++;
     _detachStream();
-    try {
-      assistant.llm.cancel();
-    } catch (_) {}
     _busy = false;
     if (messages.isNotEmpty &&
         !messages.last.fromUser &&
@@ -677,11 +674,6 @@ class ChatController extends ChangeNotifier {
     _askDone = null;
     if (done != null && !done.isCompleted) {
       done.complete();
-    }
-    if (_busy) {
-      try {
-        assistant.llm.cancel();
-      } catch (_) {}
     }
     super.dispose();
   }

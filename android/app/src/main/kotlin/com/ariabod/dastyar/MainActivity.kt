@@ -21,7 +21,6 @@ import javax.crypto.spec.GCMParameterSpec
 class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "com.ariabod.dastyar/privacy"
-        private const val LLM_CHANNEL = "com.ariabod.dastyar/llm"
         private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val KEY_ALIAS = "dastyar_local_store_v1"
         private const val PREFIX = "enc1:"
@@ -30,19 +29,6 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LLM_CHANNEL)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "isReady" -> {
-                        val modelsDir = java.io.File(filesDir, "models")
-                        val hasModel = modelsDir.isDirectory &&
-                            (modelsDir.listFiles()?.any { it.isFile && it.extension == "gguf" } == true)
-                        result.success(hasModel)
-                    }
-                    "load", "cancel", "dispose" -> result.success(null)
-                    else -> result.notImplemented()
-                }
-            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 try {

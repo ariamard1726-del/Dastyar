@@ -790,7 +790,7 @@ class KnowledgeEngine {
     return out;
   }
 
-  /// پردازش یکپارچهٔ پرسش با یک‌بار اجرای رتبه‌بندی (پاسخ نهایی + زمینهٔ LLM + پیشنهادهای نزدیک).
+  /// پردازش یکپارچهٔ پرسش با یک‌بار اجرای رتبه‌بندی (پاسخ نهایی + زمینهٔ بازیابی + پیشنهادهای نزدیک).
   EngineReply query(String question, {int maxAlternatives = 3}) {
     final n = normalize(question);
     if (QueryRouter.asksCapabilities(n)) {

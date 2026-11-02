@@ -6,15 +6,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/core/llm.dart';
 import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/ui/chat_page.dart';
 
-class _ControllableLlm extends LlmBackend {
-  StreamController<String>? _controller;
+/// دستیار کنترل‌شده فقط برای تست چرخهٔ حیات اشتراک پاسخ؛ هیچ مدل زبانی‌ای
+/// در کار نیست و لغو با بسته‌شدن اشتراک جریان (رویداد onCancel) دیده می‌شود.
+class _ControllableAssistant extends Assistant {
+  _ControllableAssistant(super.engine);
+
+  StreamController<AssistantTurn>? _controller;
   Completer<void>? _startedSignal;
   bool cancelled = false;
 
@@ -27,27 +30,18 @@ class _ControllableLlm extends LlmBackend {
   void emit(String token) {
     final c = _controller;
     if (c != null && !c.isClosed) {
-      c.add(token);
+      c.add(AssistantTurn(text: token));
     }
   }
 
-  void finish() {
-    unawaited(_controller?.close());
-    _controller = null;
-  }
-
   @override
-  String get name => 'controllable';
-
-  @override
-  Future<bool> isReady() async => true;
-
-  @override
-  Stream<String> generate(
-    String prompt, {
-    LlmOptions options = const LlmOptions(),
+  Stream<AssistantTurn> askWithAlternatives(
+    String question, {
+    int maxAlternatives = 3,
   }) {
-    final c = StreamController<String>();
+    final c = StreamController<AssistantTurn>(
+      onCancel: () => cancelled = true,
+    );
     _controller = c;
     final sig = _startedSignal;
     if (sig != null && !sig.isCompleted) {
@@ -55,12 +49,6 @@ class _ControllableLlm extends LlmBackend {
       sig.complete();
     }
     return c.stream;
-  }
-
-  @override
-  void cancel() {
-    cancelled = true;
-    finish();
   }
 }
 
@@ -78,7 +66,7 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  group('کنترلر مستقل گفتگو و مدیریت چرخهٔ حیات استریم', () {
+  group('کنترلر مستقل گفتگو و مدیریت چرخهٔ حیات پاسخ (بدون مدل زبانی)', () {
     test('ChatController بدون ویجت، پرسش عادی و ذخیرهٔ تاریخچه را مدیریت می‌کند', () async {
       final settings = AppSettings()..saveHistory = true;
       final history = HistoryStore();
@@ -104,75 +92,64 @@ void main() {
       ctrl.dispose();
     });
 
-    test('لغو پاسخ در میانهٔ استریم مدل را متوقف و رویدادهای کهنه را مسدود می‌کند', () async {
-      final llm = _ControllableLlm();
-      final settings = AppSettings()..saveHistory = false;
+    test('لغو پاسخ، اشتراک جریان را می‌بندد و رویدادهای کهنه را مسدود می‌کند', () async {
+      final assistant = _ControllableAssistant(engine);
       final ctrl = ChatController(
         engine: engine,
-        assistant: Assistant(
-          engine,
-          llm: llm,
-          stallTimeout: const Duration(seconds: 2),
-        ),
-        repo: TemplateRepository(),
-        history: HistoryStore(),
-        settings: settings,
-      );
-
-      final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await llm.waitUntilStarted();
-      expect(ctrl.busy, isTrue);
-
-      llm.emit('طبق ماده ۱۰ ');
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
-
-      ctrl.cancelActiveAsk();
-      expect(ctrl.busy, isFalse);
-      expect(llm.cancelled, isTrue);
-
-      await future.timeout(const Duration(seconds: 5));
-      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
-      ctrl.dispose();
-    });
-
-    test('dispose در میانهٔ استریم، مدل را لغو می‌کند و خطا نمی‌اندازد', () async {
-      final llm = _ControllableLlm();
-      final ctrl = ChatController(
-        engine: engine,
-        assistant: Assistant(
-          engine,
-          llm: llm,
-          stallTimeout: const Duration(seconds: 2),
-        ),
+        assistant: assistant,
         repo: TemplateRepository(),
         history: HistoryStore(),
         settings: AppSettings()..saveHistory = false,
       );
 
       final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await llm.waitUntilStarted();
+      await assistant.waitUntilStarted();
+      expect(ctrl.busy, isTrue);
+
+      assistant.emit('طبق ماده ۱۰ ');
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
+
+      ctrl.cancelActiveAsk();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(ctrl.busy, isFalse);
+      expect(assistant.cancelled, isTrue);
+
+      await future.timeout(const Duration(seconds: 5));
+      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
+      ctrl.dispose();
+    });
+
+    test('dispose در میانهٔ پاسخ، اشتراک را لغو می‌کند و خطا نمی‌اندازد', () async {
+      final assistant = _ControllableAssistant(engine);
+      final ctrl = ChatController(
+        engine: engine,
+        assistant: assistant,
+        repo: TemplateRepository(),
+        history: HistoryStore(),
+        settings: AppSettings()..saveHistory = false,
+      );
+
+      final future = ctrl.submit('ماده ۱۰ قانون مدنی');
+      await assistant.waitUntilStarted();
       expect(ctrl.busy, isTrue);
 
       expect(ctrl.dispose, returnsNormally);
-      expect(llm.cancelled, isTrue);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(assistant.cancelled, isTrue);
       await future.timeout(const Duration(seconds: 5));
     });
 
-    testWidgets('دکمهٔ توقف پاسخ در حین استریم نمایش داده می‌شود و کار می‌کند',
+    testWidgets('دکمهٔ توقف پاسخ در حین پردازش نمایش داده می‌شود و کار می‌کند',
         (tester) async {
-      final llm = _ControllableLlm();
+      final assistant = _ControllableAssistant(engine);
       await tester.pumpWidget(
         MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: ChatPage(
               engine: engine,
-              assistant: Assistant(
-                engine,
-                llm: llm,
-                stallTimeout: const Duration(seconds: 2),
-              ),
+              assistant: assistant,
               repo: TemplateRepository(),
               history: HistoryStore(),
               settings: AppSettings()..saveHistory = false,
@@ -190,7 +167,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.stop_rounded));
       await tester.pumpAndSettle();
 
-      expect(llm.cancelled, isTrue);
+      expect(assistant.cancelled, isTrue);
       expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
       expect(find.text('پاسخ متوقف شد.'), findsOneWidget);
     });

@@ -12,7 +12,6 @@ import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
-import 'package:dastyar/core/llm.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 
@@ -91,7 +90,6 @@ void main() {
   group('۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه', () {
     ChatController makeCtrl() {
       final assistant = Assistant(engine);
-      expect(assistant.llm, isA<NoLlm>());
       return ChatController(
         engine: engine,
         assistant: assistant,

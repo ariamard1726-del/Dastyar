@@ -12,7 +12,6 @@ import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legal_facts.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
-import 'package:dastyar/core/llm.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -57,7 +56,6 @@ void main() {
     bool withNet = true,
   }) {
     final assistant = Assistant(engine);
-    expect(assistant.llm, isA<NoLlm>());
     return ChatController(
       engine: engine,
       assistant: assistant,
