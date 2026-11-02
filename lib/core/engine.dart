@@ -14,6 +14,47 @@ import 'package:dastyar/core/conflicts_service.dart';
 
 export 'models.dart';
 
+/// نتیجهٔ مرحلهٔ نخست RAG دومرحله‌ای: یا حوزهای قطعی (فقط همان قوانین
+/// جست‌وجو می‌شوند)، یا نبودِ نشانهٔ حوزه، یا ابهام میان چند حوزه.
+class DomainDecision {
+  /// شناسهٔ حوزهٔ قطعی؛ null یعنی بدون محدودیت حوزهای.
+  final String? id;
+
+  /// شناسه‌های قوانینی که مرحلهٔ دوم فقط در آنها جست‌وجو می‌کند.
+  final Set<String> lawIds;
+
+  /// آیا میان چند حوزه ابهام وجود دارد؟ در این حالت پاسخ با «مطمئن نیستم»
+  /// و سه گزینهٔ برتر نشان داده می‌شود.
+  final bool uncertain;
+
+  /// حوزه‌های نامزد (برای گزارش و تست).
+  final List<String> candidates;
+
+  const DomainDecision.confident(this.id, this.lawIds)
+      : uncertain = false,
+        candidates = const [];
+
+  const DomainDecision.unknown()
+      : id = null,
+        lawIds = const <String>{},
+        uncertain = false,
+        candidates = const [];
+
+  const DomainDecision.uncertain(this.candidates)
+      : id = null,
+        lawIds = const <String>{},
+        uncertain = true;
+}
+
+/// قانونِ تشخیص حوزه: واژه‌های کلیدی با وزن و فهرست قوانین مجاز همان حوزه.
+class _DomainRule {
+  final String id;
+  final Map<String, int> terms;
+  final List<String> lawIds;
+
+  const _DomainRule(this.id, this.terms, this.lawIds);
+}
+
 class KnowledgeEngine {
   /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
   final Replies replies = Replies();
@@ -93,12 +134,99 @@ class KnowledgeEngine {
     ('پناهندگی', ['پناهندگی', 'پناهنده']),
   ];
 
+  // ── مرحلهٔ نخست RAG: تشخیص حوزه پیش از جست‌وجو ──────────────────────────
+  // هر حوزه فقط قانون‌های هم‌خانواده را مجاز می‌کند؛ برای نمونه «چک»
+  // نباید سراغ مادهٔ ۵۴۱ قانون مدنی (مساقات) یا قانون مجازات اسلامی برود.
+  static const List<_DomainRule> _domainRules = [
+    _DomainRule('cheque', {
+      'چک': 1, 'چک بلامحل': 3, 'چک بی محل': 3, 'برگشت': 2, 'برگشتی': 2,
+      'پاس نشد': 2, 'گواهی عدم پرداخت': 3, 'دارنده چک': 3,
+      'صدور چک': 2, 'ظهرنویس': 2, 'محال علیه': 2,
+    }, ['cheque']),
+    _DomainRule('labor', {
+      'کارگر': 2, 'کارفرما': 2, 'اخراج': 2, 'حقوق کار': 3,
+      'دستمزد': 2, 'قرارداد کار': 3, 'مرخصی': 2,
+      'تامین اجتماعی': 3, 'بیمه': 1, 'هیات تشخیص': 2,
+    }, ['labor', 'social_security']),
+    _DomainRule('family', {
+      'طلاق': 3, 'مهریه': 3, 'حضانت': 3, 'نفقه': 3,
+      'ازدواج': 2, 'زوج': 1, 'زوجه': 1, 'خانواده': 1,
+    }, ['family_protection', 'civil', 'child_protection', 'marriage']),
+    _DomainRule('lease', {
+      'مستاجر': 3, 'موجر': 3, 'اجاره': 2, 'تخلیه': 2,
+      'ودیعه': 2, 'رهن': 1,
+    }, ['landlord_tenant', 'civil']),
+    _DomainRule('penal', {
+      'مجازات': 1, 'کلاهبرداری': 2, 'سرقت': 2, 'قتل': 2,
+      'دیه': 2, 'تعزیر': 2, 'قصاص': 2, 'کیفر': 2, 'حبس': 1,
+      'فیشینگ': 2, 'هک': 2, 'رایانه': 1, 'خیانت در امانت': 2,
+    }, ['penal', 'penal_taazirat', 'fraud_intensify', 'cybercrime',
+        'criminal_procedure']),
+    _DomainRule('commerce', {
+      'تجارت': 2, 'شرکت': 1, 'سهام': 2, 'ورشکست': 2,
+      'برات': 2, 'سفته': 2, 'تاجر': 2, 'لایحه اصلاحی': 2,
+    }, ['commerce', 'commerce_1347', 'consumer_protection']),
+    _DomainRule('finance', {
+      'مالیات': 3, 'مالیاتی': 2, 'درآمد': 1, 'معافیت مالیاتی': 3,
+    }, ['direct_taxes']),
+    _DomainRule('procedure', {
+      'دادرسی': 2, 'دادخواست': 2, 'ابلاغ': 2, 'واخواهی': 3,
+      'تجدیدنظر': 2, 'حکم غیابی': 3, 'اجرائیه': 2, 'اعسار': 2,
+      'محکومیت مالی': 3, 'شورای حل اختلاف': 3, 'ثنا': 3,
+    }, ['civil_procedure', 'civil_execution', 'financial_sentences',
+        'dispute_councils']),
+    _DomainRule('property', {
+      'ثبت': 1, 'سند': 1, 'ملک': 2, 'املاک': 2,
+    }, ['registration', 'civil']),
+    _DomainRule('constitution', {
+      'قانون اساسی': 3, 'مجلس': 1,
+    }, ['constitution']),
+  ];
+
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
   final List<String> warnings = [];
 
   int get size => _chunks.length;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
+
+  /// مرحلهٔ نخست RAG دومرحله‌ای: حوزهٔ حقوقی را فقط از متن پرسش تشخیص
+  /// می‌دهد. اگر نام قانون صریحاً آمده باشد، همان نام مقدم است و هیچ
+  /// محدودیت حوزه‌ای اعمال نمی‌شود.
+  DomainDecision detectDomain(String question, {List<CatalogLaw>? mentioned}) {
+    if (mentioned != null && mentioned.isNotEmpty) {
+      return const DomainDecision.unknown();
+    }
+    final words = ' ${_phrase(normalize(question))} ';
+    final scores = <String, int>{};
+    for (final d in _domainRules) {
+      var score = 0;
+      d.terms.forEach((term, weight) {
+        final t = _phrase(term);
+        if (t.isNotEmpty && words.contains(' $t ')) score += weight;
+      });
+      if (score > 0) scores[d.id] = score;
+    }
+    if (scores.isEmpty) return const DomainDecision.unknown();
+
+    final sorted = scores.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top = sorted.first.value;
+    final leaders = sorted
+        .where((e) => e.value == top)
+        .map((e) => e.key)
+        .toList();
+    final second = sorted.length > 1 ? sorted[1].value : 0;
+    // برابری یا اختلاف یک‌واحدی یعنی نمیتوان با اطمینان حوزه را انتخاب کرد.
+    if (leaders.length > 1 || (second > 0 && top - second <= 1)) {
+      return DomainDecision.uncertain([
+        ...leaders,
+        ...sorted.where((e) => e.value != top).map((e) => e.key),
+      ]);
+    }
+    final rule = _domainRules.firstWhere((d) => d.id == sorted.first.key);
+    return DomainDecision.confident(rule.id, rule.lawIds.toSet());
+  }
 
   // لایهٔ متن به persian_text.dart رفته؛ اینجا فقط نام‌های قدیمی نگه داشته شده‌اند.
   static String normalize(String s) => PersianText.normalize(s);
@@ -174,9 +302,9 @@ class KnowledgeEngine {
     }
   }
 
-  /// جمله\u200cهای حقوقی (ادعا/مهلت/مجازات) فقط از `assets/legal_facts.json`
-  /// خوانده می\u200cشوند؛ اگر فایل خراب یا نباشد، هشدار ثبت می\u200cشود و کد به\u200cجای
-  /// حدس زدن، پیام «تأیید نشده» نشان می\u200cدهد.
+  /// جمله‌های حقوقی (ادعا/مهلت/مجازات) فقط از `assets/legal_facts.json`
+  /// خوانده می‌شوند؛ اگر فایل خراب یا نباشد، هشدار ثبت می‌شود و کد به‌جای
+  /// حدس زدن، پیام «تأیید نشده» نشان می‌دهد.
   Future<void> _loadLegalFacts() async {
     try {
       await LegalFacts.instance.load();
@@ -642,6 +770,7 @@ class KnowledgeEngine {
   RankResult _rankInternal(
     String question, {
     List<CatalogLaw>? mentioned,
+    Set<String>? domainIds,
     int k = 3,
   }) {
     if (_chunks.isEmpty) return RankResult([]);
@@ -650,6 +779,16 @@ class KnowledgeEngine {
 
     final laws = mentioned ?? _mentionedLaws(question);
     final ids = laws.where((l) => isLoaded(l.id)).map((l) => l.id).toSet();
+    // مرحلهٔ دوم: اگر حوزهای قطعی تشخیص داده شد، فقط قانون‌های همان حوزه
+    // شانس بازیابی دارند. نام صریح قانون بر تشخیص حوزه مقدم است.
+    final Set<String> allowed;
+    if (ids.isNotEmpty) {
+      allowed = ids;
+    } else if (domainIds != null && domainIds.isNotEmpty) {
+      allowed = domainIds.where((id) => isLoaded(id)).toSet();
+    } else {
+      allowed = <String>{};
+    }
 
     final art = _artQueryRe.firstMatch(q);
     if (art != null) {
@@ -659,7 +798,7 @@ class KnowledgeEngine {
         final found = <Chunk>[];
         for (final idx in titleIndices) {
           final c = _chunks[idx];
-          if (ids.isEmpty || ids.contains(c.lawId)) {
+          if (allowed.isEmpty || allowed.contains(c.lawId)) {
             found.add(c);
           }
         }
@@ -720,7 +859,7 @@ class KnowledgeEngine {
     final hits = <Hit>[];
     for (final idx in candIndices) {
       final c = _chunks[idx];
-      if (ids.isNotEmpty && !ids.contains(c.lawId)) continue;
+      if (allowed.isNotEmpty && !allowed.contains(c.lawId)) continue;
       double s = 0;
       final lenNorm = 1 - _b + _b * c.len / _avgLen;
       terms.forEach((t, w) {
@@ -816,6 +955,8 @@ class KnowledgeEngine {
     }
 
     final mentioned = _mentionedLaws(question);
+    // مرحلهٔ نخست: تشخیص حوزه (فقط وقتی نام قانون صریحاً نیامده باشد).
+    final decision = detectDomain(question, mentioned: mentioned);
     final missing = mentioned.where((l) => !isLoaded(l.id)).toList();
     final loaded = mentioned.where((l) => isLoaded(l.id)).toList();
     final missingNote = missing.isEmpty
@@ -839,19 +980,56 @@ class KnowledgeEngine {
     }
 
     final rankK = maxAlternatives > 0 ? math.max(12, maxAlternatives * 4) : 4;
-    final r = _rankInternal(question, mentioned: mentioned, k: rankK);
+    // مرحلهٔ دوم: جست‌وجو فقط در قوانین حوزهای که مرحلهٔ نخست تعیین کرد.
+    final r = _rankInternal(
+      question,
+      mentioned: mentioned,
+      domainIds: decision.lawIds,
+      k: rankK,
+    );
     final top4 = r.hits.take(4).toList();
     final ctx = top4.where((h) => h.score >= 0.3).toList();
-    final alts = maxAlternatives > 0
-        ? _alternativesFromRank(n, mentioned, r, max: maxAlternatives)
-        : const <String>[];
+    // در حالت ابهام، سه گزینهٔ برتر به‌جای پیشنهاد‌های معمولی نشان داده می‌شود.
+    final options = decision.uncertain ? _topOptions(r.hits) : const <String>[];
+    final alts = decision.uncertain
+        ? options.take(maxAlternatives > 0 ? maxAlternatives : 3).toList()
+        : (maxAlternatives > 0
+            ? _alternativesFromRank(n, mentioned, r, max: maxAlternatives)
+            : const <String>[]);
+
+    // پاسخ نهایی؛ در حالت ابهام جملهٔ «مطمئن نیستم» و سه گزینهٔ برتر افزوده
+    // می‌شود، ولی متن مستند موتور همچنان حفظ می‌گردد.
+    EngineReply reply({
+      required String text,
+      List<Hit> contextHits = const [],
+      List<String> alternatives = const [],
+      List<String> conflictChains = const [],
+    }) {
+      if (!decision.uncertain) {
+        return EngineReply(
+          text: text,
+          contextHits: contextHits,
+          alternatives: alternatives,
+          conflictChains: conflictChains,
+        );
+      }
+      final note = options.isEmpty
+          ? 'مطمئن نیستم منظورتان کدام حوزهٔ حقوقی است.'
+          : 'مطمئن نیستم منظورتان کدام حوزهٔ حقوقی است؛ نزدیک‌ترین گزینه‌ها را ببینید.';
+      return EngineReply(
+        text: '$note\n\n$text',
+        contextHits: contextHits,
+        alternatives: options.take(3).toList(),
+        conflictChains: conflictChains,
+      );
+    }
 
     if (art != null &&
         loaded.isNotEmpty &&
         (top4.isEmpty || top4.first.score < 99)) {
       final kind = art.group(1) == 'اصل' ? 'اصل' : 'ماده';
       final num = _faArticleLabel(art);
-      return EngineReply(
+      return reply(
         text:
             '$kind $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}',
         alternatives: alts,
@@ -859,12 +1037,12 @@ class KnowledgeEngine {
     }
 
     if (top4.isEmpty || top4.first.score < 0.3) {
-      return EngineReply(text: _notFound(), alternatives: alts);
+      return reply(text: _notFound(), alternatives: alts);
     }
 
     if ((art == null || top4.first.score < 99) &&
         coverage(question, top4.first.chunk) < _lowCover) {
-      return EngineReply(
+      return reply(
         text: _notFound(),
         contextHits: ctx,
         alternatives: alts,
@@ -872,7 +1050,7 @@ class KnowledgeEngine {
     }
 
     if (art == null && _hitsUnloadedDomain(n, mentioned, top4.first.chunk)) {
-      return EngineReply(text: _notFound(), alternatives: alts);
+      return reply(text: _notFound(), alternatives: alts);
     }
 
     final topChunk = top4.first.chunk;
@@ -896,7 +1074,7 @@ class KnowledgeEngine {
     }
     if (missingNote.isNotEmpty) res += '\n\n$missingNote';
 
-    return EngineReply(
+    return reply(
       text: res,
       contextHits: ctx,
       alternatives: alts,
@@ -1021,8 +1199,30 @@ class KnowledgeEngine {
     if (_asksLawList(n)) return [];
     final mentioned = _mentionedLaws(question);
     if (mentioned.any((l) => !isLoaded(l.id))) return [];
-    final r = _rankInternal(question, mentioned: mentioned, k: 12);
+    final decision = detectDomain(question, mentioned: mentioned);
+    final r = _rankInternal(
+      question,
+      mentioned: mentioned,
+      domainIds: decision.lawIds,
+      k: 12,
+    );
+    if (decision.uncertain) return _topOptions(r.hits, max: max);
     return _alternativesFromRank(n, mentioned, r, max: max);
+  }
+
+  /// سه گزینهٔ برتر (ماده + قانون) برای نمایش در حالت «مطمئن نیستم».
+  List<String> _topOptions(List<Hit> hits, {int max = 3}) {
+    final out = <String>[];
+    for (final h in hits) {
+      if (h.score < 0.3) break;
+      final c = h.chunk;
+      if (c.source.isEmpty || !_articleTitleRe.hasMatch(c.normTitle)) continue;
+      final label = PersianText.toFaDigits('${c.title} ${c.source}');
+      if (out.contains(label)) continue;
+      out.add(label);
+      if (out.length >= max) break;
+    }
+    return out;
   }
 
   String _notFound() {

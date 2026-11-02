@@ -36,13 +36,13 @@ class PrivacyService {
       res = await channel.invokeMethod<String>('seal', <String, Object?>{
         'text': plain,
       });
-    } catch (e) {
-      throw KeystoreUnavailableException(
-        'کانال Keystore در دسترس نیست یا خطا داد: $e',
+    } catch (_) {
+      throw const KeystoreUnavailableException(
+        'کانال Keystore در دسترس نیست یا خطا داد',
       );
     }
     if (res == null || res.isEmpty || !res.startsWith(nativePrefix)) {
-      throw KeystoreUnavailableException(
+      throw const KeystoreUnavailableException(
         'پاسخ معتبری از Keystore دریافت نشد؛ از ذخیرهٔ داده صرف‌نظر شد.',
       );
     }
