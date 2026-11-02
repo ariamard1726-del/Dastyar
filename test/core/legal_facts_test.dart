@@ -12,6 +12,8 @@ import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/templates.dart';
 
+import '../support/keystore_mock.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -28,6 +30,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    mockKeystore();
   });
 
   group('مأموریت ۱: خروج ادعاهای حقوقی از کد', () {

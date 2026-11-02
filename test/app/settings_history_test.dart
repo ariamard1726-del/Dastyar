@@ -7,11 +7,14 @@ import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/ui/history_page.dart';
 import 'package:dastyar/ui/settings_page.dart';
 
+import '../support/keystore_mock.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    mockKeystore();
   });
 
   group('حالت نمایش (ThemeMode) و جست‌وجو در تاریخچه', () {

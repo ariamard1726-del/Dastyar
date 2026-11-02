@@ -10,26 +10,22 @@ import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/feedback.dart';
 import 'package:dastyar/domain/settings.dart';
 
+import '../support/keystore_mock.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('برش ایمن یونیکد، رمزنگاری محلی، مهاجرت خودکار و کانال حریم خصوصی', () {
+  group('برش ایمن یونیکد و رمزنگاری فقط با Keystore (بدون کلید جایگزین)', () {
     setUp(() {
       SharedPreferences.setMockInitialValues(<String, Object>{});
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(PrivacyService.channel, null);
+      clearKeystoreMock();
     });
 
-    tearDown(() {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(PrivacyService.channel, null);
-    });
+    tearDown(clearKeystoreMock);
 
     test('PersianText.truncate جفت‌های جایگزین (ایموجی) را از وسط نصف نمی‌کند', () {
-      // هر ایموجی 😀 دو واحد UTF-16 دارد اما یک Rune است
-      final text = '${'الف' * 13}😀انتها'; // 39 نویسه + ایموجی در جایگاه 40ام
+      final text = '${'الف' * 13}😀انتها';
       final title = HistoryStore.makeTitle(text);
-      // رشته باید UTF-8 معتبر باشد و jsonEncode روی آن خطا ندهد
       expect(() => utf8.encode(title), returnsNormally);
       expect(title.endsWith('...'), isTrue);
       expect(title, contains('😀'));
@@ -38,17 +34,56 @@ void main() {
       expect(PersianText.truncate(shortEmoji, 2, ellipsis: '…'), '😀😀…');
     });
 
-    test('SHA-256 داخلی با بردار استاندارد NIST مطابقت دارد', () {
-      final digest = PrivacyService.sha256(utf8.encode('abc'));
-      final hex =
-          digest.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-      expect(
-        hex,
-        'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    test('نبود/خطای Keystore ذخیره را متوقف می‌کند و هیچ کلیدی کنار داده نوشته نمی‌شود', () async {
+      clearKeystoreMock(); // معادل MissingPluginException
+      await expectLater(
+        PrivacyService.seal('دادهٔ حساس'),
+        throwsA(isA<KeystoreUnavailableException>()),
       );
+
+      final store = HistoryStore();
+      await store.load();
+      await store.upsert(
+        ChatSession(
+          id: 's1',
+          title: 'پرسش محرمانه',
+          updated: 100,
+          messages: [StoredMsg('متن محرمانهٔ پروندهٔ چک', true)],
+        ),
+      );
+      expect(await FeedbackStore.add('پرسش خصوصی', 'پاسخ', -1), isFalse);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('history_v1'), isNull);
+      expect(prefs.getString('feedback_v1'), isNull);
+      expect(prefs.getString('__dastyar_local_key_v1'), isNull);
+      expect(prefs.getKeys().any((k) => k.contains('key')), isFalse);
+      expect((await FeedbackStore.all()).isEmpty, isTrue);
     });
 
-    test('HistoryStore و FeedbackStore داده‌ها را رمزنگاری می‌کنند و دستکاری را تشخیص می‌دهند', () async {
+    test('خطای صریح کانال Keystore هم ذخیره را متوقف می‌کند', () async {
+      mockKeystore(fail: true);
+      await expectLater(
+        PrivacyService.seal('دادهٔ حساس'),
+        throwsA(isA<KeystoreUnavailableException>()),
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('history_v1'), isNull);
+      expect(prefs.getString('__dastyar_local_key_v1'), isNull);
+    });
+
+    test('داده‌های رمزنگاری جایگزین حذف‌شده قابل‌بازیابی نیستند', () async {
+      mockKeystore();
+      expect(PrivacyService.isEncrypted('encf1:AAAA'), isFalse);
+      expect(await PrivacyService.open('encf1:AAAA'), isNull);
+      expect(PrivacyService.isEncrypted('enc1:AAAA'), isTrue);
+      // بدون کانال بومی، حتی پیام enc1 هم باز نمی‌شود و متن آزاد برنمی‌گردد.
+      clearKeystoreMock();
+      expect(await PrivacyService.open('enc1:AAAA'), isNull);
+    });
+
+    test('با Keystore، HistoryStore و FeedbackStore رمزنگاری و بازیابی می‌شوند', () async {
+      mockKeystore();
       final store = HistoryStore();
       await store.load();
       await store.upsert(
@@ -63,21 +98,23 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final rawHistory = prefs.getString('history_v1')!;
       expect(PrivacyService.isEncrypted(rawHistory), isTrue);
+      expect(rawHistory.startsWith(PrivacyService.nativePrefix), isTrue);
       expect(rawHistory.contains('متن محرمانهٔ پروندهٔ چک'), isFalse);
+      expect(prefs.getString('__dastyar_local_key_v1'), isNull);
 
       final reloaded = HistoryStore();
       await reloaded.load();
       expect(reloaded.sessions.length, 1);
-      expect(reloaded.sessions.first.messages.first.text, 'متن محرمانهٔ پروندهٔ چک');
+      expect(reloaded.sessions.first.messages.first.text,
+          'متن محرمانهٔ پروندهٔ چک');
 
-      // دستکاری متن رمزشده باید توسط برچسب احراز هویت (HMAC) رد شود
-      const flipIdx = PrivacyService.fallbackPrefix.length + 24;
+      const flipIdx = PrivacyService.nativePrefix.length + 1;
       final flippedChar = rawHistory[flipIdx] == 'A' ? 'B' : 'A';
       final tampered =
           '${rawHistory.substring(0, flipIdx)}$flippedChar${rawHistory.substring(flipIdx + 1)}';
-      expect(await PrivacyService.open(tampered), isNull);
+      final original = await PrivacyService.open(rawHistory);
+      expect(await PrivacyService.open(tampered), isNot(original));
 
-      // بررسی رمزنگاری FeedbackStore
       final saved = await FeedbackStore.add('پرسش خصوصی', 'پاسخ آزمایشی', -1);
       expect(saved, isTrue);
       final rawFeedback = prefs.getString('feedback_v1')!;
@@ -89,7 +126,7 @@ void main() {
       expect(entries.first.q, 'پرسش خصوصی');
     });
 
-    test('مهاجرت خودکار داده‌های قدیمیِ رمزنشده در HistoryStore و FeedbackStore', () async {
+    test('مهاجرت داده‌های قدیمیِ رمزنشده فقط با Keystore انجام می‌شود', () async {
       final legacyHistory = jsonEncode([
         {
           'id': 'legacy-1',
@@ -103,22 +140,30 @@ void main() {
       final legacyFeedback = jsonEncode([
         {'q': 'سؤال قدیمی', 'a': 'جواب قدیمی', 'v': 1, 't': 10},
       ]);
-
       SharedPreferences.setMockInitialValues(<String, Object>{
         'history_v1': legacyHistory,
         'feedback_v1': legacyFeedback,
       });
 
+      // بدون Keystore، متن قدیمی خوانده می‌شود ولی دوباره ذخیره نمی‌شود.
+      clearKeystoreMock();
+      final noKeystore = HistoryStore();
+      await noKeystore.load();
+      expect(noKeystore.sessions.length, 1);
+      var prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('history_v1'), legacyHistory);
+
+      // با Keystore، همان داده رمزنگاری و جایگزین می‌شود.
+      mockKeystore();
       final store = HistoryStore();
       await store.load();
       expect(store.sessions.length, 1);
       expect(store.sessions.first.title, 'گفتگوی قدیمی');
-
       final fb = await FeedbackStore.all();
       expect(fb.length, 1);
       expect(fb.first.q, 'سؤال قدیمی');
 
-      final prefs = await SharedPreferences.getInstance();
+      prefs = await SharedPreferences.getInstance();
       expect(PrivacyService.isEncrypted(prefs.getString('history_v1')!), isTrue);
       expect(PrivacyService.isEncrypted(prefs.getString('feedback_v1')!), isTrue);
     });

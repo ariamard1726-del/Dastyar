@@ -12,6 +12,8 @@ import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 
+import '../support/keystore_mock.dart';
+
 List<LegalTemplate> _loadTemplatesSync() {
   final out = <LegalTemplate>[];
   for (final f in Directory('assets/templates').listSync()) {
@@ -38,6 +40,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    mockKeystore();
   });
 
   group('ذخیرهٔ رمزنگاری‌شدهٔ پیش‌نویس ناتمام', () {

@@ -12,6 +12,8 @@ import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/ui/chat_page.dart';
 
+import '../support/keystore_mock.dart';
+
 /// دستیار کنترل‌شده فقط برای تست چرخهٔ حیات اشتراک پاسخ؛ هیچ مدل زبانی‌ای
 /// در کار نیست و لغو با بسته‌شدن اشتراک جریان (رویداد onCancel) دیده می‌شود.
 class _ControllableAssistant extends Assistant {
@@ -64,6 +66,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    mockKeystore();
   });
 
   group('کنترلر مستقل گفتگو و مدیریت چرخهٔ حیات پاسخ (بدون مدل زبانی)', () {

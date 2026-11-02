@@ -16,6 +16,8 @@ import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 
+import '../support/keystore_mock.dart';
+
 List<LegalTemplate> _loadTemplatesSync() {
   final out = <LegalTemplate>[];
   for (final f in Directory('assets/templates').listSync()) {
@@ -48,6 +50,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    mockKeystore();
   });
 
   ChatController makeCtrl({
