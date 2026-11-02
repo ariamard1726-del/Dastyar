@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/legal_facts.dart';
 import 'package:dastyar/domain/assistant.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/core/history.dart';
