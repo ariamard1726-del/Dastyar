@@ -561,12 +561,13 @@ class KnowledgeEngine {
   /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
   Chunk? findArticle(String law, String article) {
     final lawN = _collapse(normalize(law));
-    var want = _canonicalArticleTitle(article);
+    final want = _canonicalArticleTitle(article);
     if (want.isEmpty || lawN.isEmpty) return null;
-    var indices = _byTitle[want];
-    if (indices == null && want.startsWith('ماده ')) {
-      indices = _byTitle['اصل ${want.substring(5)}'];
-    }
+    final primary = _byTitle[want];
+    final indices = primary ??
+        (want.startsWith('ماده ')
+            ? _byTitle['اصل ${want.substring(5)}']
+            : null);
     if (indices == null) return null;
     final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
     for (final idx in indices) {

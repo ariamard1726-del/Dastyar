@@ -52,6 +52,14 @@ class _ControllableAssistant extends Assistant {
     }
     return c.stream;
   }
+
+  /// بستن جریان ساختگی پس از پایان هر تست (بدون آن تحلیل‌گر «Sink بسته
+  /// نشده» گزارش می‌کند).
+  void dispose() {
+    final c = _controller;
+    _controller = null;
+    c?.close();
+  }
 }
 
 void main() {
@@ -121,6 +129,7 @@ void main() {
       await future.timeout(const Duration(seconds: 5));
       expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
       ctrl.dispose();
+      assistant.dispose();
     });
 
     test('dispose در میانهٔ پاسخ، اشتراک را لغو می‌کند و خطا نمی‌اندازد', () async {
@@ -141,6 +150,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(assistant.cancelled, isTrue);
       await future.timeout(const Duration(seconds: 5));
+      assistant.dispose();
     });
 
     testWidgets('دکمهٔ توقف پاسخ در حین پردازش نمایش داده می‌شود و کار می‌کند',
@@ -173,6 +183,7 @@ void main() {
       expect(assistant.cancelled, isTrue);
       expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
       expect(find.text('پاسخ متوقف شد.'), findsOneWidget);
+      assistant.dispose();
     });
   });
 }
