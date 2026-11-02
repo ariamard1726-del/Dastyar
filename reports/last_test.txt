@@ -1,6 +1,15 @@
-commit: da5a6ca
-🎉 168 tests passed.
+commit: babdd2e
+::error::172 tests passed, 1 failed.
+::group::❌ test/core/legal_facts_test.dart: مأموریت ۱: خروج ادعاهای حقوقی از کد تمام بلاک‌های ارجاع‌شده در کد در JSON وجود دارند (failed)
+   Expected: contains 'intro_${session.topicId}'
+   Actual: Set:[
+   'cheque_holder_all_routes',
+   'cheque_holder_limited',
+   'cheque_issuer',
+   'labor_dismissal_overdue',
+   'labor_insurance',
+   'labor_wages',
 --- analyze ---
-2 issues found. (ran in 12.1s)
-   info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:5 • prefer_final_locals
+3 issues found. (ran in 8.6s)
+   info • Local variables should be final. Try making the variable final • lib/core/engine.dart:436:5 • prefer_final_locals
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
