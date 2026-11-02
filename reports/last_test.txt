@@ -1,5 +1,4 @@
-commit: 0628076
+commit: b56f2cc
 🎉 180 tests passed.
 --- analyze ---
-1 issue found. (ran in 7.8s)
-   info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:44:11 • close_sinks
+No issues found! (ran in 9.3s)
