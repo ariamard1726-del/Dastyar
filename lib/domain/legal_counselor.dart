@@ -10,6 +10,7 @@ import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/domain/templates.dart';
+import 'dialogue/dialogue_state.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
 /// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
