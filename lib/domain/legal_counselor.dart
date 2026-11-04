@@ -45,6 +45,10 @@ class CounselingSession {
   final Map<String, String> facts = {};
   bool concluded = false;
 
+/// وضعیت گفتگوی ساخت‌یافته (slotها، شواهد، turnIndex).
+/// اگر null باشد، مسیر قدیمی _QuestionStep استفاده می‌شود.
+DialogueState? dialogueState;
+
   CounselingSession({
     required this.topicId,
     required this.initialMessage,
