@@ -1,6 +1,11 @@
-commit: c839845
+commit: 10d5028
 🎉 168 tests passed.
 --- analyze ---
-2 issues found. (ran in 8.7s)
+7 issues found. (ran in 12.0s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:5 • prefer_final_locals
+  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
+  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
+  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
+  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
+  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
