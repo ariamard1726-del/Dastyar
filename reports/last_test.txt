@@ -1,35 +1,6 @@
-commit: b7b4e30
-::error::168 tests passed, 1 failed.
-::group::❌ loading test/core/retrieval_evidence_test.dart (failed)
-   Failed to load "test/core/retrieval_evidence_test.dart":
-   Compilation failed for testPath=test/core/retrieval_evidence_test.dart: test/core/retrieval_evidence_test.dart:3:8: Error: Error when reading 'lib/domain/dialogue/evidence.dart': No such file or directory
-   import 'package:dastyar/domain/dialogue/evidence.dart';
-   ^
-   test/core/retrieval_evidence_test.dart:18:26: Error: 'EvidenceSet' isn't a type.
-   expect(result, isA<EvidenceSet>());
-   ^^^^^^^^^^^
-   test/core/retrieval_evidence_test.dart:17:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
---- خطای کامپایل ---
-test/core/retrieval_evidence_test.dart:3:8: Error: Error when reading 'lib/domain/dialogue/evidence.dart': No such file or directory
-test/core/retrieval_evidence_test.dart:18:26: Error: 'EvidenceSet' isn't a type.
-test/core/retrieval_evidence_test.dart:17:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:25:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:33:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:40:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-Failed to load "test/core/retrieval_evidence_test.dart":
-Compilation failed for testPath=test/core/retrieval_evidence_test.dart: test/core/retrieval_evidence_test.dart:3:8: Error: Error when reading 'lib/domain/dialogue/evidence.dart': No such file or directory
-test/core/retrieval_evidence_test.dart:18:26: Error: 'EvidenceSet' isn't a type.
-test/core/retrieval_evidence_test.dart:17:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:25:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:33:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
-test/core/retrieval_evidence_test.dart:40:29: Error: The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'.
+commit: 700aeed
+🎉 168 tests passed.
 --- analyze ---
-8 issues found. (ran in 11.3s)
+2 issues found. (ran in 9.7s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:5 • prefer_final_locals
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
-  error • Target of URI doesn't exist: 'package:dastyar/domain/dialogue/evidence.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist • test/core/retrieval
-  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
-  error • The name 'EvidenceSet' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'EvidenceSet' • test/core/retrieval_evidenc
-  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
-  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
-  error • The method 'retrieveWithEvidence' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named 'retrieveWithEvidence' •
