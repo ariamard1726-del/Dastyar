@@ -1,14 +1,19 @@
-commit: b5b4a54
-::error::180 tests passed, 7 failed.
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پرسش قانونی میان جلسه، ماده را از بانک قوانین در پاسخ می‌آورد و جلسه نمی‌شکند (failed)
-   Expected: contains 'ماده 3'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «ماده ۳ قانون روابط موجر و مستأجر چه می‌گوید؟».\n'
+commit: 77778ad
+::error::182 tests passed, 5 failed.
+::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
+   Expected: false
+   Actual: <true>
+   test/counselor/counselor_and_laws_test.dart 114:7   main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استدلال تفکیکی چک تضمینی برای صادرکننده بر پایهٔ مادهٔ ۱۳ قانون صدور چک (failed)
+   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
+   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «بله، گواهی دارم و زیر ۶ ماه است».\n'
    '\n'
-   'امضای دو شاهد شرط صدور دستور تخلیهٔ فوری است.\n'
+   'برای ارائهٔ پاسخ قطعی، نیاز به توضیح بیشتری دارم.\n'
    '\n'
-   'نوع قرارداد اجارهٔ شما چگونه است؟'
-   Which: does not contain 'ماده 3'
-   متن ماده باید در پاسخ بیاید
+   'لطفاً اطلاعات بیشتری بدهید.'
+   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
+   test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
 ::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پاسخ خبریِ خانهٔ پرسش، گفتگو را به RAG نمی‌کشاند (درگاه نشانهٔ پرسش) (failed)
    Expected: contains 'دادخواست صدور حکم تخلیه'
    Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «خودم موجرم و مستأجر مشکل دارد».\n'
@@ -18,15 +23,6 @@ commit: b5b4a54
    'نوع قرارداد اجارهٔ شما چگونه است؟'
    Which: does not contain 'دادخواست صدور حکم تخلیه'
    test/counselor/counselor_nn_rag_test.dart 149:7     main.<fn>.<fn>
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۳. حافظهٔ گفتگو در مشاوره «ماده بعدی‌اش چی میگه؟» در میانهٔ جلسه به مادهٔ بعد همان قانون می‌رود (failed)
-   Expected: contains 'ماده 3'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «ماده ۳ قانون روابط موجر و مستأجر چه می‌گوید؟».\n'
-   '\n'
-   'امضای دو شاهد شرط صدور دستور تخلیهٔ فوری است.\n'
-   '\n'
-   'نوع قرارداد اجارهٔ شما چگونه است؟'
-   Which: does not contain 'ماده 3'
-   test/counselor/counselor_nn_rag_test.dart 177:7     main.<fn>.<fn>
 ::group::❌ test/counselor/counselor_nn_rag_test.dart: ۴. ادامهٔ مشاورهٔ جمع‌بندی‌شده «ادامه مشاوره» جلسهٔ همان موضوع را از نو باز می‌کند (failed)
    Expected: false
    Actual: <true>
@@ -42,22 +38,8 @@ commit: b5b4a54
    'لطفاً اطلاعات بیشتری بدهید.'
    Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
    test/counselor/counselor_nn_rag_test.dart 242:7     main.<fn>.<fn>
-::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
-   Expected: false
-   Actual: <true>
-   test/counselor/counselor_and_laws_test.dart 114:7   main.<fn>.<fn>
-   ::endgroup::
-::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استدلال تفکیکی چک تضمینی برای صادرکننده بر پایهٔ مادهٔ ۱۳ قانون صدور چک (failed)
-   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «بله، گواهی دارم و زیر ۶ ماه است».\n'
-   '\n'
-   'برای ارائهٔ پاسخ قطعی، نیاز به توضیح بیشتری دارم.\n'
-   '\n'
-   'لطفاً اطلاعات بیشتری بدهید.'
-   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
-   test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
 --- analyze ---
-6 issues found. (ran in 7.4s)
+6 issues found. (ran in 9.8s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:65:14 • prefer_const_constru
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:73:12 • prefer_const_constru
