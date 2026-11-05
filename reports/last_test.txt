@@ -1,4 +1,4 @@
-commit: 3a628c0
+commit: dab4f51
 🎉 208 tests passed.
 --- analyze ---
-No issues found! (ran in 8.6s)
+No issues found! (ran in 10.1s)
