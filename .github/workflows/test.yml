@@ -52,7 +52,12 @@ jobs:
           {
             echo "--- analyze ---"
             tail -n 1 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
-            grep -E " (info|warning|error) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 | head -n 30 || true
+            # ANSI color codes are stripped first: without this the bullet-based
+            # grep never matched and the report lost the actual issue text.
+            sed -e 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/analyze.txt" 2>/dev/null \
+              | grep -E "•" \
+              | sed 's#/home/runner/work/Dastyar/Dastyar/##' \
+              | cut -c1-200 | head -n 30 || true
           } >> reports/last_test.txt
       - name: Near-miss report
         if: always()
