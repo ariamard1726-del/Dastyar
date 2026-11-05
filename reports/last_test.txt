@@ -1,45 +1,7 @@
-commit: d61c842
-::error::182 tests passed, 5 failed.
-::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
-   Expected: false
-   Actual: <true>
-   test/counselor/counselor_and_laws_test.dart 114:7   main.<fn>.<fn>
-   ::endgroup::
-::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استدلال تفکیکی چک تضمینی برای صادرکننده بر پایهٔ مادهٔ ۱۳ قانون صدور چک (failed)
-   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «بله، گواهی دارم و زیر ۶ ماه است».\n'
-   '\n'
-   'برای ارائهٔ پاسخ قطعی، نیاز به توضیح بیشتری دارم.\n'
-   '\n'
-   'لطفاً اطلاعات بیشتری بدهید.'
-   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
-   test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پاسخ خبریِ خانهٔ پرسش، گفتگو را به RAG نمی‌کشاند (درگاه نشانهٔ پرسش) (failed)
-   Expected: contains 'دادخواست صدور حکم تخلیه'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «خودم موجرم و مستأجر مشکل دارد».\n'
-   '\n'
-   'امضای دو شاهد شرط صدور دستور تخلیهٔ فوری است.\n'
-   '\n'
-   'نوع قرارداد اجارهٔ شما چگونه است؟'
-   Which: does not contain 'دادخواست صدور حکم تخلیه'
-   test/counselor/counselor_nn_rag_test.dart 149:7     main.<fn>.<fn>
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۴. ادامهٔ مشاورهٔ جمع‌بندی‌شده «ادامه مشاوره» جلسهٔ همان موضوع را از نو باز می‌کند (failed)
-   Expected: false
-   Actual: <true>
-   جلسه جمع‌بندی شده است
-   test/counselor/counselor_nn_rag_test.dart 194:7     main.<fn>.<fn>
-   ::endgroup::
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۵. نقطهٔ بازیابی مشاوره (رمزنگاری‌شده) جلسهٔ ناتمام ذخیره، رمزنگاری و در اجرای بعد بازیابی می‌شود (failed)
-   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
-   Actual: 'بسیار خوب، این نکته را یادداشت کردم. می‌فهمم که گفتید «بله، گواهی دارم و زیر ۶ ماه است».\n'
-   '\n'
-   'برای ارائهٔ پاسخ قطعی، نیاز به توضیح بیشتری دارم.\n'
-   '\n'
-   'لطفاً اطلاعات بیشتری بدهید.'
-   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
-   test/counselor/counselor_nn_rag_test.dart 242:7     main.<fn>.<fn>
+commit: 175bf59
+🎉 187 tests passed.
 --- analyze ---
-4 issues found. (ran in 7.1s)
+4 issues found. (ran in 12.0s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:133:32 • unnecessary_null_checks
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
