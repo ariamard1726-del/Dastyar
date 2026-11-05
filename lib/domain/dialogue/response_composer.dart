@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/dialogue/dialogue_action.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
@@ -38,6 +39,9 @@ class ComposedReply {
 ///   ۴. برای `DisambiguateDomain`، از کاربر می‌خواهد دامنه را انتخاب
 ///      کند.
 ///
+/// [composeAcknowledged] نیز مسیر گفتوگوییِ تکخطِ میان دو اسلات را
+/// میسازد و برخلاف نسخهٔ پایه، rationale و شمارهگذاری ندارد.
+///
 /// **اصل anticedent variation**: انتخاب variant بر اساس
 /// `hash(conversationId, variantFamily)` است. این کار deterministic
 /// است (در دو اجرای مختلف، همان مکالمه → همان variant) و در ۳ turn
@@ -54,7 +58,7 @@ class ResponseComposer {
   ) {
     switch (action) {
       case AskForSlot():
-        return _composeAskForSlot(action, state);
+        return _composeAskForSlotBase(action, state);
       case GiveAnswer():
         return _composeGiveAnswer(action);
       case ExplainConflict():
@@ -66,7 +70,10 @@ class ResponseComposer {
 
   // ── AskForSlot ──────────────────────────────────────────────────
 
-  ComposedReply _composeAskForSlot(AskForSlot action, DialogueState state) {
+  /// نسخهٔ پایه و رسمی پرسش اسلات. رفتارش در Phase 3 دستنخورده ماند؛
+  /// فقط نام آن به [_composeAskForSlotBase] تغییر کرد تا مسیر گفتوگویی
+  /// [composeAcknowledged] از آن متمایز باشد.
+  ComposedReply _composeAskForSlotBase(AskForSlot action, DialogueState state) {
     final schema = DomainSchemaRegistry.forDomain(state.domain);
     final slot = schema?.slotByName(action.slotKey);
 
@@ -104,6 +111,166 @@ class ResponseComposer {
       variantId: _variantIdFor('ack', state),
     );
   }
+
+  // ── Acknowledged slot transition (Phase 3) ─────────────────────
+  //
+  // هدف: به جای «پرش رباتی» از یک اسلات به اسلات بعدی، نخست گفتهٔ
+  // کاربر تأیید شود، سپس با یک اتصال نرم و انسانی سراغ پرسش بعدی برویم.
+  // برخلاف [_composeAskForSlotBase] اینجا خبری از rationale حقوقی،
+  // شمارهگذاری سؤال، تکرار پاراگراف و بلوک دوسطرنی نیست؛ خروجی یک
+  // جملهٔ روان و تکخط است.
+
+  /// قالبهای تأیید همراه با بازتاب گفتهٔ کاربر.
+  static const List<String> _ackTemplates = <String>[
+    'بسیار خب، متوجه شدم {echo} است. {connector} {question}',
+    'خب، پس {echo} را یادداشت کردم. {connector} {question}',
+    'درست است، {echo} — این نکته را در نظر گرفتم. {connector} {question}',
+    'ممنون، با توجه به {echo}، {connector} {question}',
+  ];
+
+  /// وقتی ورودی قابل بازتاب نباشد (خالی یا لاتین) همچنان طبیعی پاسخ میدهیم.
+  static const List<String> _ackNoEchoTemplates = <String>[
+    'بسیار خب، ادامه دهیم. {connector} {question}',
+    'خب، متوجه شدم. {connector} {question}',
+    'درست است، سراغ قدم بعدی برویم. {connector} {question}',
+    'ممنون، همراهتان هستم. {connector} {question}',
+  ];
+
+  static const List<String> _ackConnectors = <String>[
+    'حالا بفرمایید',
+    'حالا لطفاً بگویید',
+    'ادامه دهیم؛ بفرمایید',
+    'برای قدم بعدی بفرمایید',
+  ];
+
+  /// پرسش پیشفرض برای اسلاتهای پرتکرار، وقتی نه سؤال صریحی داده شده
+  /// باشد و نه دامنهای برای مراجعه به [DomainSchemaRegistry].
+  static const Map<String, String> _ackDefaultQuestions = <String, String>{
+    'role': 'نقش شما در این موضوع چیست؟',
+    'nature': 'ماهیت دقیق آن چه بوده است؟',
+    'cert_time': 'چه مدت از آن گذشته است؟',
+    'amount': 'مبلغ آن چقدر است؟',
+    'due_date': 'تاریخ آن چه زمانی بوده است؟',
+    'proof': 'چه مدرکی در دست دارید؟',
+    'time': 'زمان دقیق آن کی بوده است؟',
+    'stage': 'پرونده در چه مرحلهای است؟',
+    'harm_type': 'دقیقاً چه اتفاقی افتاده است؟',
+  };
+
+  static const List<String> _ackFillers = <String>[
+    'بله ', 'بلی ', 'آره ', 'اره ', 'خیر ', 'نه ', 'باشه ', 'اوکی ',
+  ];
+
+  // بلندترینها نخست، تا «شده است» پیش از «است» بریده نشود.
+  static const List<String> _ackCopulas = <String>[
+    ' شده است', ' هستم', ' هست', ' است', ' بود', ' شد',
+  ];
+
+  /// ساخت پاسخ «تأیید گفتهٔ کاربر ← گذار نرم ← پرسش اسلات بعدی».
+  ///
+  /// * [previousInput] همان چیزی است که کاربر همین حالا گفته (مثلاً
+  ///   «چک تضمینی»).
+  /// * [nextSlotKey] کلید اسلاتی است که باید بعداً پرسیده شود
+  ///   (مثلاً `amount`). از آن هم برای پرسش پیشفرض و هم برای بذر
+  ///   تنوع قالبها استفاده میشود.
+  /// * [nextQuestion] در صورت وجود، پرسش آمادهٔ فراخواننده است
+  ///   (مثلاً پیام شمارهدار قدیمی); در غیر این صورت از
+  ///   [DomainSchemaRegistry] یا [_ackDefaultQuestions] گرفته میشود.
+  /// * [state] اختیاری است و فقط برای بذر گفتگو/شمارهٔ دور جهت
+  ///   جلوگیری از تکرار قالبها به کار میرود؛ [turnIndex] جایگزین آن
+  ///   در مسیر قدیمی `LegalCounselor.step` است.
+  ///
+  /// خروجی قطعی (deterministic) است و هیچ وابستگی به مدل زبانی،
+  /// شبکه یا Planner ندارد.
+  ComposedReply composeAcknowledged(
+    String previousInput,
+    String nextSlotKey, {
+    String? nextQuestion,
+    List<String> options = const <String>[],
+    String domain = '',
+    DialogueState? state,
+    int turnIndex = 0,
+  }) {
+    final schema = domain.isEmpty ? null : DomainSchemaRegistry.forDomain(domain);
+    final slot = schema?.slotByName(nextSlotKey);
+    final question = _ackQuestion(nextSlotKey, nextQuestion, slot?.prompt);
+    final echo = _ackEcho(previousInput);
+
+    // بذر پایدار در طول گفتگو + شمارهٔ دور: قالبها میچرخند تا پشت
+    // سر هم تکرار نشوند، ولی برای ورودی یکسان همیشه یک نتیجه بدهند.
+    final seed = '${state?.conversationId ?? domain}|$nextSlotKey';
+    final turn = state?.turnIndex ?? turnIndex;
+    final templateIndex = _ackIndex(seed, turn, _ackTemplates.length);
+    final connectorIndex = _ackIndex(seed, turn + 1, _ackConnectors.length);
+
+    final template = echo.isEmpty
+        ? _ackNoEchoTemplates[templateIndex]
+        : _ackTemplates[templateIndex];
+    final connector = _ackConnectors[connectorIndex];
+
+    final text = PersianText.collapse(template
+        .replaceFirst('{echo}', echo)
+        .replaceFirst('{connector}', connector)
+        .replaceFirst('{question}', question));
+
+    final resolvedOptions = <String>[
+      ...options,
+      if (options.isEmpty) ...(slot?.options ?? const <String>[]),
+    ];
+
+    return ComposedReply(
+      text: text,
+      chips: resolvedOptions.isEmpty ? const <String>['لغو'] : resolvedOptions,
+      variantId: 'ackTransition:${_fnv1a32("$seed|$echo|$question")}',
+    );
+  }
+
+  /// پرسش اسلات بعدی را تمیز میکند: حذف شمارهگذاری آغازین، «لطفاً»
+  /// اضافی، پرانتز/دونقطهٔ انتهایی و خطوط جدید؛ سپس علامت سؤال.
+  static String _ackQuestion(String slotKey, String? explicit, String? schemaPrompt) {
+    final raw = (explicit != null && explicit.trim().isNotEmpty)
+        ? explicit
+        : (schemaPrompt != null && schemaPrompt.trim().isNotEmpty
+            ? schemaPrompt
+            : (_ackDefaultQuestions[slotKey] ?? 'دربارهٔ آن کمی بیشتر توضیح دهید.'));
+
+    var q = PersianText.collapse(PersianText.normalize(raw));
+    q = q.replaceFirst(RegExp(r'^\d+[.)]\s*'), '').trim();
+    q = q.replaceFirst(RegExp(r'^لطفا\s+'), '').trim();
+    q = q.replaceAll(RegExp(r'[؛:،,]+$'), '').trim();
+    if (q.isEmpty) q = 'دربارهٔ آن کمی بیشتر توضیح دهید';
+    if (!q.contains('؟') && !q.contains('?') && !RegExp(r'[.!]$').hasMatch(q)) {
+      q = '$q؟';
+    }
+    // normalize ارقام فارسی را به ASCII تبدیل کرده؛ دوباره فارسیشان کنیم.
+    return PersianText.toFaDigits(q);
+  }
+
+  /// بازتاب کوتاه و تمیز از گفتهٔ کاربر؛ لاتین و متن خالی حذف میشوند
+  /// تا خروجی همچنان کاملاً فارسی و روان بماند.
+  static String _ackEcho(String raw) {
+    var echo = PersianText.phrase(raw);
+    if (echo.isEmpty || _containsLatin(echo)) return '';
+
+    for (final filler in _ackFillers) {
+      if (echo.startsWith(filler)) {
+        echo = echo.substring(filler.length).trim();
+        break;
+      }
+    }
+    for (final copula in _ackCopulas) {
+      if (echo.endsWith(copula)) {
+        echo = echo.substring(0, echo.length - copula.length).trim();
+        break;
+      }
+    }
+    if (echo.isEmpty) return '';
+    return PersianText.toFaDigits(PersianText.truncate(echo, 45, ellipsis: '…'));
+  }
+
+  /// چرخش قطعی قالبها: دو دور پیاپی هرگز قالب یکسانی نمیگیرند.
+  static int _ackIndex(String seed, int turn, int bankSize) =>
+      (_fnv1a32(seed) + turn) % bankSize;
 
   // ── GiveAnswer ──────────────────────────────────────────────────
 

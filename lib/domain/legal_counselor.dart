@@ -13,6 +13,7 @@ import 'package:dastyar/domain/templates.dart';
 
 import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
+import 'dialogue/response_composer.dart';
 import 'dialogue/small_talk_layer.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
@@ -305,13 +306,6 @@ class LegalCounselor {
     return s.prompt;
   }
 
-  static String _reflect(String text) {
-    var t = text.trim();
-    if (t.endsWith('؟') || t.endsWith('?')) t = t.substring(0, t.length - 1);
-    if (t.length > 70) t = '${t.substring(0, 70)}…';
-    return t;
-  }
-
   static const List<String> _personalOrProblemCues = [
     'مشاوره', 'راهنمایی کن', 'کمکم کن', 'چه کار کنم', 'چیکار کنم', 'چکار کنم',
     'مشکل حقوقی', 'از من شکایت', 'علیه من', 'ابلاغیه', 'احضاریه', 'حکم غیابی',
@@ -439,6 +433,7 @@ static CounselorTurn? pendingTurn(
 }
 
 static const SmallTalkLayer _smallTalk = SmallTalkLayer();
+static const ResponseComposer _responseComposer = ResponseComposer();
 
 static CounselorTurn step(
   CounselingSession session,
@@ -542,23 +537,31 @@ static CounselorTurn step(
 
   final steps = _stepsFor(session.topicId);
   final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-  String? ack;
+
+  // Phase 3: به جای پرش رباتی به اسلات بعدی، نخست گفتهٔ کاربر را
+  // طبیعی تأیید میکنیم. منطق Planner دستنخورده میماند (Phase 4)؛
+  // فقط مسیر قدیمی step() → _advance() برای «چطور پرسیدن» سراغ
+  // ResponseComposer.composeAcknowledged میرود.
+  ComposedReply? acknowledged;
   if (pendingStep != null) {
     final val = pendingStep.extractor(n);
-    if (val != null) {
-      session.facts[pendingStep.slot] = val;
-      if (replies != null) {
-        ack = _pick(replies, rnd, 'counselor_ack', 'باشه، پس «{answer}» — این را یادداشت کردم.', {'answer': _reflect(trimmed)});
-      }
-    } else {
-      session.facts[pendingStep.slot] = trimmed;
-      if (replies != null) {
-        ack = _pick(replies, rnd, 'counselor_ack_generic', 'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:');
-      }
-    }
+    session.facts[pendingStep.slot] = val ?? trimmed;
     _extractAllFacts(session, trimmed);
+
+    final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    if (nextStep != null) {
+      acknowledged = _responseComposer.composeAcknowledged(
+        trimmed,
+        nextStep.slot,
+        nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
+        options: nextStep.options,
+        domain: session.topicId,
+        state: session.dialogueState,
+        turnIndex: session.facts.length,
+      );
+    }
   }
-  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, ack: ack);
+  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, acknowledgment: acknowledged);
 }
 static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید');
 
@@ -654,13 +657,21 @@ static CounselorTurn _advance(
   required bool firstTurn,
   Replies? replies,
   Random? rnd,
-  String? ack,
+  ComposedReply? acknowledgment,
 }) {
   final steps = _stepsFor(session.topicId);
   final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
 
   if (nextStep != null) {
-    final lead = firstTurn ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n' : (ack == null || ack.isEmpty ? '' : '$ack\n\n');
+    // پاسخ تأییدشدهٔ Phase 3 خودش پرسش بعدی را دارد؛ نباید بالای آن
+    // نه lead تازهای بگذاریم و نه همان پرسش را دوباره تکرار کنیم.
+    if (acknowledgment != null) {
+      return CounselorTurn(
+        text: acknowledgment.text,
+        chips: [...acknowledgment.chips, cancelCounselCmd],
+      );
+    }
+    final lead = firstTurn ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n' : '';
     final prompt = _promptFor(session.topicId, nextStep, replies, rnd);
     return CounselorTurn(text: '$lead$prompt', chips: [...nextStep.options, cancelCounselCmd]);
   }
