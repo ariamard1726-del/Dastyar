@@ -1,9 +1,107 @@
-commit: 28f8df9
-🎉 187 tests passed.
+commit: 78dac29
+::error::152 tests passed, 6 failed.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
+   Failed to load "test/counselor/counselor_nn_rag_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
+   Failed to load "test/counselor/counselor_and_laws_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/app/chat_controller_test.dart (failed)
+   Failed to load "test/app/chat_controller_test.dart":
+   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/app/chat_bubbles_test.dart (failed)
+   Failed to load "test/app/chat_bubbles_test.dart":
+   Compilation failed for testPath=test/app/chat_bubbles_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
+   Failed to load "test/app/draft_checkpoint_test.dart":
+   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/drafting/pending_offer_test.dart (failed)
+   Failed to load "test/drafting/pending_offer_test.dart":
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+   import 'dialogue/dialogue_integration.dart';
+   ^
+   lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+   DialogueIntegration.initializeState(session);
+   ^^^^^^^^^^^^^^^^^^^
+   lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+--- خطای کامپایل ---
+lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:618:21: Error: Undefined name 'DialogueIntegration'.
+Failed to load "test/counselor/counselor_nn_rag_test.dart":
+Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:618:21: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
+lib/domain/legal_counselor.dart:470:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:513:3: Error: Undefined name 'DialogueIntegration'.
+lib/domain/legal_counselor.dart:618:21: Error: Undefined name 'DialogueIntegration'.
+Failed to load "test/counselor/counselor_and_laws_test.dart":
+Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:15:8: Error: Error when reading 'lib/domain/dialogue/dialogue_integration.dart': No such file or directory
 --- analyze ---
-6 issues found. (ran in 11.3s)
+10 issues found. (ran in 8.5s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:72:14 • prefer_const_constru
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:80:12 • prefer_const_constru
    info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:133:32 • unnecessary_null_checks
+  error • Target of URI doesn't exist: 'dialogue/dialogue_integration.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist • lib/domain/legal_counselor.dar
+  error • Undefined name 'DialogueIntegration'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:470:3 • undefined_identifier
+  error • Undefined name 'DialogueIntegration'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:513:3 • undefined_identifier
+  error • Undefined name 'DialogueIntegration'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:618:21 • undefined_identifier
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
