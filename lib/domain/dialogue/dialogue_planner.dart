@@ -2,7 +2,6 @@ import 'package:dastyar/domain/dialogue/dialogue_action.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
 import 'package:dastyar/domain/dialogue/evidence.dart';
-import 'package:dastyar/domain/dialogue/slot.dart';
 
 /// تصمیم‌گیرندهٔ نوبت بعدی گفتگو.
 ///
