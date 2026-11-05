@@ -12,6 +12,7 @@ import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/domain/templates.dart';
 
 import 'dialogue/dialogue_state.dart';
+import 'dialogue/dialogue_integration.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
 /// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
@@ -318,1238 +319,1245 @@ class LegalCounselor {
   static String _norm(String s) =>
       PersianText.collapse(PersianText.normalize(s));
 
-  static bool shouldStartCounseling(String rawText, {IntentNet? net}) {
-    final n = _norm(rawText);
-    if (n.isEmpty) return false;
-    if (rawText.trim() == startCounselCmd ||
-        rawText.trim() == DraftCmd.offerCounsel ||
-        n == 'مشاوره' ||
-        n == 'مشاوره حقوقی') {
-      return true;
-    }
-    if (_directArtRe.hasMatch(n)) return false;
-    if (net != null) {
-      final s = net.classify(rawText);
-      if (s.score >= net.topicMin) {
-        if (s.label == 'general_intake') return true;
-        return IntentNet.topicLabels.contains(s.label);
-      }
-    }
-    if (_pureDefRe.hasMatch(n) && !_personalOrProblemCues.any(n.contains)) {
-      return false;
-    }
-    return _personalOrProblemCues.any(n.contains);
+static bool shouldStartCounseling(String rawText, {IntentNet? net}) {
+  final n = _norm(rawText);
+  if (n.isEmpty) return false;
+  if (rawText.trim() == startCounselCmd ||
+      rawText.trim() == DraftCmd.offerCounsel ||
+      n == 'مشاوره' ||
+      n == 'مشاوره حقوقی') {
+    return true;
   }
-
-  static String? detectTopic(String rawText, {IntentNet? net}) {
-    final n = _norm(rawText);
-    if (rawText.trim() == startCounselCmd ||
-        n == 'مشاوره' ||
-        n == 'مشاوره حقوقی' ||
-        n.contains('مشکل حقوقی دارم') ||
-        n.contains('یک سوال حقوقی دارم')) {
-      return 'general_intake';
+  if (_directArtRe.hasMatch(n)) return false;
+  if (net != null) {
+    final s = net.classify(rawText);
+    if (s.score >= net.topicMin) {
+      if (s.label == 'general_intake') return true;
+      return IntentNet.topicLabels.contains(s.label);
     }
-    if (net != null) {
-      final s = net.classify(rawText);
-      if (s.score >= net.topicMin) {
-        if (s.label == 'general_intake') return 'general_intake';
-        if (IntentNet.topicLabels.contains(s.label)) return s.label;
-        return null;
-      }
-    }
-    if (n.contains('چک') || n.contains('صیادی') || n.contains('برگشت خورد')) {
-      return 'cheque';
-    }
-    if (n.contains('کارفرما') ||
-        n.contains('اخراج') ||
-        n.contains('سنوات') ||
-        n.contains('حقوق کارگر') ||
-        n.contains('بیمه بیکاری') ||
-        n.contains('رد نکردن بیمه') ||
-        (n.contains('بیمه') && n.contains('کار'))) {
-      return 'labor';
-    }
-    if (n.contains('مستاجر') ||
-        n.contains('موجر') ||
-        n.contains('صاحبخانه') ||
-        n.contains('صاحب خانه') ||
-        n.contains('تخلیه') ||
-        n.contains('پول پیش') ||
-        n.contains('ودیعه اجاره') ||
-        (n.contains('اجاره') &&
-            (n.contains('خانه') || n.contains('ملک') || n.contains('مغازه')))) {
-      return 'lease';
-    }
-    if (n.contains('مهریه') ||
-        n.contains('نفقه') ||
-        n.contains('تمکین') ||
-        n.contains('طلاق') ||
-        n.contains('حضانت') ||
-        n.contains('ملاقات فرزند') ||
-        n.contains('اجرت المثل')) {
-      return 'family';
-    }
-    if (n.contains('فیشینگ') ||
-        n.contains('اینترنتی') ||
-        n.contains('هک') ||
-        n.contains('کلاهبرداری') ||
-        n.contains('امانت') ||
-        n.contains('مال غیر')) {
-      return 'fraud_cyber';
-    }
-    if (n.contains('توهین') ||
-        n.contains('فحاشی') ||
-        n.contains('فحش') ||
-        n.contains('تهدید') ||
-        n.contains('ضرب و جرح') ||
-        n.contains('کتک') ||
-        n.contains('عکس خصوصی') ||
-        n.contains('فیلم خصوصی')) {
-      return 'criminal_harm';
-    }
-    if (n.contains('حکم غیابی') ||
-        n.contains('رای غیابی') ||
-        n.contains('واخواهی') ||
-        n.contains('تجدیدنظر') ||
-        n.contains('اعتراض به رای') ||
-        n.contains('ابلاغیه') ||
-        n.contains('احضاریه') ||
-        n.contains('از من شکایت') ||
-        n.contains('علیه من')) {
-      return 'litigation_defense';
-    }
-    if (n.contains('قرض') ||
-        n.contains('طلب') ||
-        n.contains('بدهی') ||
-        n.contains('بدهکار') ||
-        n.contains('سفته') ||
-        n.contains('اعسار')) {
-      return 'debt';
-    }
-    if (n.contains('مشاوره') ||
-        n.contains('چه کار کنم') ||
-        n.contains('چیکار کنم') ||
-        n.contains('راهنمایی کن')) {
-      return 'general_intake';
-    }
-    return null;
   }
-
-  /// نکتهٔ موضوع برای دکمهٔ «شروع مشاوره» در پاسخ‌های اطلاعاتی؛ با شبکهٔ
-  /// عصبی حتی وقتی پیام کلیدواژهٔ نمادین ندارد هم حوزهٔ محتمل پیشنهاد می‌شود.
-  static String? detectTopicHint(String rawText, {IntentNet? net}) {
-    final direct = detectTopic(rawText, net: net);
-    if (direct != null) return direct;
-    // پرسش اطلاعاتی (برچسب RAG) → همان آبشار نمادین قبلاً پیشنهاد مشاوره
-    // روی حوزهٔ مرتبط می‌داد؛ آن را حفظ می‌کنیم.
-    final symbolic = detectTopic(rawText);
-    if (symbolic != null) return symbolic;
-    if (net == null) return null;
-    for (final s in net.top(rawText, k: 4)) {
-      if (IntentNet.topicLabels.contains(s.label) && s.score >= 0.25) {
-        return s.label;
-      }
-    }
-    return null;
+  if (_pureDefRe.hasMatch(n) && !_personalOrProblemCues.any(n.contains)) {
+    return false;
   }
+  return _personalOrProblemCues.any(n.contains);
+}
 
-  /// آغاز جلسهٔ مشاورهٔ دوطرفه بر اساس پیام کاربر.
-  static (CounselingSession, CounselorTurn)? start(
-    String rawText,
-    KnowledgeEngine engine,
-    List<LegalTemplate> templates, {
-    IntentNet? net,
-    Replies? replies,
-    Random? rnd,
-  }) {
-    final topic = detectTopic(rawText, net: net);
-    if (topic == null) return null;
-    final session = CounselingSession(topicId: topic, initialMessage: rawText);
-    if (topic == 'general_intake') {
-      return (
-        session,
-        CounselorTurn(
-          text: _pick(
-            replies,
-            rnd,
-            'counselor_intake_greeting',
-            _intakeGreetingFallback,
-          ),
-          chips: _intakeChips,
-        ),
-      );
+static String? detectTopic(String rawText, {IntentNet? net}) {
+  final n = _norm(rawText);
+  if (rawText.trim() == startCounselCmd ||
+      n == 'مشاوره' ||
+      n == 'مشاوره حقوقی' ||
+      n.contains('مشکل حقوقی دارم') ||
+      n.contains('یک سوال حقوقی دارم')) {
+    return 'general_intake';
+  }
+  if (net != null) {
+    final s = net.classify(rawText);
+    if (s.score >= net.topicMin) {
+      if (s.label == 'general_intake') return 'general_intake';
+      if (IntentNet.topicLabels.contains(s.label)) return s.label;
+      return null;
     }
-    _extractAllFacts(session, rawText);
+  }
+  if (n.contains('چک') || n.contains('صیادی') || n.contains('برگشت خورد')) {
+    return 'cheque';
+  }
+  if (n.contains('کارفرما') ||
+      n.contains('اخراج') ||
+      n.contains('سنوات') ||
+      n.contains('حقوق کارگر') ||
+      n.contains('بیمه بیکاری') ||
+      n.contains('رد نکردن بیمه') ||
+      (n.contains('بیمه') && n.contains('کار'))) {
+    return 'labor';
+  }
+  if (n.contains('مستاجر') ||
+      n.contains('موجر') ||
+      n.contains('صاحبخانه') ||
+      n.contains('صاحب خانه') ||
+      n.contains('تخلیه') ||
+      n.contains('پول پیش') ||
+      n.contains('ودیعه اجاره') ||
+      (n.contains('اجاره') &&
+          (n.contains('خانه') || n.contains('ملک') || n.contains('مغازه')))) {
+    return 'lease';
+  }
+  if (n.contains('مهریه') ||
+      n.contains('نفقه') ||
+      n.contains('تمکین') ||
+      n.contains('طلاق') ||
+      n.contains('حضانت') ||
+      n.contains('ملاقات فرزند') ||
+      n.contains('اجرت المثل')) {
+    return 'family';
+  }
+  if (n.contains('فیشینگ') ||
+      n.contains('اینترنتی') ||
+      n.contains('هک') ||
+      n.contains('کلاهبرداری') ||
+      n.contains('امانت') ||
+      n.contains('مال غیر')) {
+    return 'fraud_cyber';
+  }
+  if (n.contains('توهین') ||
+      n.contains('فحاشی') ||
+      n.contains('فحش') ||
+      n.contains('تهدید') ||
+      n.contains('ضرب و جرح') ||
+      n.contains('کتک') ||
+      n.contains('عکس خصوصی') ||
+      n.contains('فیلم خصوصی')) {
+    return 'criminal_harm';
+  }
+  if (n.contains('حکم غیابی') ||
+      n.contains('رای غیابی') ||
+      n.contains('واخواهی') ||
+      n.contains('تجدیدنظر') ||
+      n.contains('اعتراض به رای') ||
+      n.contains('ابلاغیه') ||
+      n.contains('احضاریه') ||
+      n.contains('از من شکایت') ||
+      n.contains('علیه من')) {
+    return 'litigation_defense';
+  }
+  if (n.contains('قرض') ||
+      n.contains('طلب') ||
+      n.contains('بدهی') ||
+      n.contains('بدهکار') ||
+      n.contains('سفته') ||
+      n.contains('اعسار')) {
+    return 'debt';
+  }
+  if (n.contains('مشاوره') ||
+      n.contains('چه کار کنم') ||
+      n.contains('چیکار کنم') ||
+      n.contains('راهنمایی کن')) {
+    return 'general_intake';
+  }
+  return null;
+}
+
+/// نکتهٔ موضوع برای دکمهٔ «شروع مشاوره» در پاسخ‌های اطلاعاتی؛ با شبکهٔ
+/// عصبی حتی وقتی پیام کلیدواژهٔ نمادین ندارد هم حوزهٔ محتمل پیشنهاد می‌شود.
+static String? detectTopicHint(String rawText, {IntentNet? net}) {
+  final direct = detectTopic(rawText, net: net);
+  if (direct != null) return direct;
+  // پرسش اطلاعاتی (برچسب RAG) → همان آبشار نمادین قبلاً پیشنهاد مشاوره
+  // روی حوزهٔ مرتبط می‌داد؛ آن را حفظ می‌کنیم.
+  final symbolic = detectTopic(rawText);
+  if (symbolic != null) return symbolic;
+  if (net == null) return null;
+  for (final s in net.top(rawText, k: 4)) {
+    if (IntentNet.topicLabels.contains(s.label) && s.score >= 0.25) {
+      return s.label;
+    }
+  }
+  return null;
+}
+
+/// آغاز جلسهٔ مشاورهٔ دوطرفه بر اساس پیام کاربر.
+static (CounselingSession, CounselorTurn)? start(
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  final topic = detectTopic(rawText, net: net);
+  if (topic == null) return null;
+  final session = CounselingSession(topicId: topic, initialMessage: rawText);
+  DialogueIntegration.initializeState(session);
+  if (topic == 'general_intake') {
     return (
       session,
-      _advance(
-        session,
-        engine,
-        templates,
-        firstTurn: true,
-        replies: replies,
-        rnd: rnd,
+      CounselorTurn(
+        text: _pick(
+          replies,
+          rnd,
+          'counselor_intake_greeting',
+          _intakeGreetingFallback,
+        ),
+        chips: _intakeChips,
       ),
     );
   }
-
-  /// بازگشایی مشاورهٔ یک موضوع پس از جمع‌بندی جلسهٔ قبلی («ادامهٔ مشاوره»).
-  static (CounselingSession, CounselorTurn)? resumeTopic(
-    String topicId,
-    String initialMessage,
-    KnowledgeEngine engine,
-    List<LegalTemplate> templates, {
-    Replies? replies,
-    Random? rnd,
-  }) {
-    if (!knownTopic(topicId)) return null;
-    final session = CounselingSession(
-      topicId: topicId,
-      initialMessage: initialMessage,
-    );
-    if (topicId == 'general_intake') {
-      return (
-        session,
-        CounselorTurn(
-          text: _pick(
-            replies,
-            rnd,
-            'counsel_resumed',
-            'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
-            {'topic': topicTitleFa(topicId)},
-          ),
-          chips: _intakeChips,
-        ),
-      );
-    }
-    _extractAllFacts(session, initialMessage);
-    final turn = _advance(
+  _extractAllFacts(session, rawText);
+  return (
+    session,
+    _advance(
       session,
       engine,
       templates,
       firstTurn: true,
       replies: replies,
       rnd: rnd,
-    );
-    final lead = _pick(
-      replies,
-      rnd,
-      'counsel_resumed',
-      'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
-      {'topic': topicTitleFa(topicId)},
-    );
+    ),
+  );
+}
+
+/// بازگشایی مشاورهٔ یک موضوع پس از جمع‌بندی جلسهٔ قبلی («ادامهٔ مشاوره»).
+static (CounselingSession, CounselorTurn)? resumeTopic(
+  String topicId,
+  String initialMessage,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  if (!knownTopic(topicId)) return null;
+  final session = CounselingSession(
+    topicId: topicId,
+    initialMessage: initialMessage,
+  );
+  DialogueIntegration.initializeState(session);
+  if (topicId == 'general_intake') {
     return (
       session,
-      CounselorTurn(text: '$lead\n\n${turn.text}', chips: turn.chips),
+      CounselorTurn(
+        text: _pick(
+          replies,
+          rnd,
+          'counsel_resumed',
+          'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
+          {'topic': topicTitleFa(topicId)},
+        ),
+        chips: _intakeChips,
+      ),
     );
   }
+  _extractAllFacts(session, initialMessage);
+  final turn = _advance(
+    session,
+    engine,
+    templates,
+    firstTurn: true,
+    replies: replies,
+    rnd: rnd,
+  );
+  final lead = _pick(
+    replies,
+    rnd,
+    'counsel_resumed',
+    'باشه، برگردیم سر موضوع «{topic}». از اول با چند سؤال کوتاه وضعیت را روشن می‌کنیم:',
+    {'topic': topicTitleFa(topicId)},
+  );
+  return (
+    session,
+    CounselorTurn(text: '$lead\n\n${turn.text}', chips: turn.chips),
+  );
+}
 
-  /// پرسش بازِ یک جلسهٔ نیمه‌کاره (برای بازیابی هنگام راه‌اندازی برنامه).
-  static CounselorTurn? pendingTurn(
-    CounselingSession session, {
-    Replies? replies,
-    Random? rnd,
-  }) {
-    if (session.concluded) return null;
-    final note = _pick(
-      replies,
-      rnd,
-      'counsel_resumed_note',
-      'گفتگوی مشاورهٔ ناتمام دربارهٔ «{topic}» بازیابی شد. می‌توانیم از همان‌جا ادامه دهیم:',
-      {'topic': topicTitleFa(session.topicId)},
-    );
-    if (session.topicId == 'general_intake') {
-      return CounselorTurn(
-        text: '$note\n\n$_intakeRepromptFallback',
-        chips: _intakeRepromptChips,
-      );
-    }
-    final steps = _stepsFor(session.topicId);
-    final pending = steps
-        .where((s) => !session.facts.containsKey(s.slot))
-        .firstOrNull;
-    if (pending == null) return null;
+/// پرسش بازِ یک جلسهٔ نیمه‌کاره (برای بازیابی هنگام راه‌اندازی برنامه).
+static CounselorTurn? pendingTurn(
+  CounselingSession session, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  if (session.concluded) return null;
+  final note = _pick(
+    replies,
+    rnd,
+    'counsel_resumed_note',
+    'گفتگوی مشاورهٔ ناتمام دربارهٔ «{topic}» بازیابی شد. می‌توانیم از همان‌جا ادامه دهیم:',
+    {'topic': topicTitleFa(session.topicId)},
+  );
+  if (session.topicId == 'general_intake') {
     return CounselorTurn(
-      text: '$note\n\n${_promptFor(session.topicId, pending, replies, rnd)}',
-      chips: [...pending.options, cancelCounselCmd],
+      text: '$note\n\n$_intakeRepromptFallback',
+      chips: _intakeRepromptChips,
     );
   }
+  final steps = _stepsFor(session.topicId);
+  final pending = steps
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+  if (pending == null) return null;
+  return CounselorTurn(
+    text: '$note\n\n${_promptFor(session.topicId, pending, replies, rnd)}',
+    chips: [...pending.options, cancelCounselCmd],
+  );
+}
 
-  /// پردازش پاسخ کاربر در میانهٔ جلسهٔ مشاوره.
-  static CounselorTurn step(
-    CounselingSession session,
-    String rawText,
-    KnowledgeEngine engine,
-    List<LegalTemplate> templates, {
-    IntentNet? net,
-    Replies? replies,
-    Random? rnd,
-  }) {
-    final trimmed = rawText.trim();
-    final n = _norm(trimmed);
+/// پردازش پاسخ کاربر در میانهٔ جلسهٔ مشاوره.
+static CounselorTurn step(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  final trimmed = rawText.trim();
+  final n = _norm(trimmed);
 
-    if (trimmed == cancelCounselCmd ||
-        trimmed == DraftCmd.cancel ||
-        n == 'انصراف' ||
-        n == 'پایان مشاوره' ||
-        n == 'لغو') {
+  if (trimmed == cancelCounselCmd ||
+      trimmed == DraftCmd.cancel ||
+      n == 'انصراف' ||
+      n == 'پایان مشاوره' ||
+      n == 'لغو') {
+    return const CounselorTurn(
+      text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
+      cancelled: true,
+    );
+  }
+  // شبکهٔ عصبی نیت «لغو/انصراف» را حتی از عبارت آزادِ کاربر می‌گیرد.
+  if (net != null) {
+    final s = net.classify(trimmed);
+    if (s.label == 'cancel' && s.score >= net.cancelMin) {
       return const CounselorTurn(
         text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
         cancelled: true,
       );
     }
-    // شبکهٔ عصبی نیت «لغو/انصراف» را حتی از عبارت آزادِ کاربر می‌گیرد.
-    if (net != null) {
-      final s = net.classify(trimmed);
-      if (s.label == 'cancel' && s.score >= net.cancelMin) {
-        return const CounselorTurn(
-          text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
-          cancelled: true,
-        );
-      }
-    }
+  }
 
-    // اگر جلسه در مرحلهٔ پایانی بوده و کاربر روی دکمهٔ «تنظیم ...» کلیک کرده است:
-    if (session.concluded) {
-      final picked = _matchTemplateChip(trimmed, templates);
-      if (picked != null) {
-        return CounselorTurn(text: '', completed: true, startTemplate: picked);
-      }
-      // اگر بعد از جمع‌بندی سؤال جدیدی پرسید، جلسه تمام شود تا موتور عادی جواب دهد
-      return const CounselorTurn(text: '', completed: true);
-    }
+  // ── Phase 2.4: ادغام Planner و Composer برای ۳ دامنه اول ──
+  if (session.topicId != 'general_intake' && !session.concluded) {
+    final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
+    if (newTurn != null) return newTurn;
+  }
 
-    // پرسش حقوقی در میانهٔ مشاوره → پاسخ RAG از بانک قوانین + بازگشت خودکار
-    // به پرسش بازِ درخت تصمیم (بدون از دست رفتن وضعیت جلسه).
-    if (_isLegalQuestion(trimmed, net)) {
-      return _ragTurn(session, trimmed, engine, replies, rnd);
+  // اگر جلسه در مرحلهٔ پایانی بوده و کاربر روی دکمهٔ «تنظیم ...» کلیک کرده است:
+  if (session.concluded) {
+    final picked = _matchTemplateChip(trimmed, templates);
+    if (picked != null) {
+      return CounselorTurn(text: '', completed: true, startTemplate: picked);
     }
+    // اگر بعد از جمع‌بندی سؤال جدیدی پرسید، جلسه تمام شود تا موتور عادی جواب دهد
+    return const CounselorTurn(text: '', completed: true);
+  }
 
-    if (session.topicId == 'general_intake') {
-      final detected =
-          _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
-      if (detected != null && detected != 'general_intake') {
-        session.topicId = detected;
-        _extractAllFacts(session, trimmed);
-        return _advance(
-          session,
-          engine,
-          templates,
-          firstTurn: true,
-          replies: replies,
-          rnd: rnd,
-        );
-      }
-      return CounselorTurn(
-        text: _pick(
-          replies,
-          rnd,
-          'counselor_intake_reprompt',
-          _intakeRepromptFallback,
-        ),
-        chips: _intakeRepromptChips,
-      );
-    }
+  // پرسش حقوقی در میانهٔ مشاوره → پاسخ RAG از بانک قوانین + بازگشت خودکار
+  // به پرسش بازِ درخت تصمیم (بدون از دست رفتن وضعیت جلسه).
+  if (_isLegalQuestion(trimmed, net)) {
+    return _ragTurn(session, trimmed, engine, replies, rnd);
+  }
 
-    final steps = _stepsFor(session.topicId);
-    final pendingStep = steps
-        .where((s) => !session.facts.containsKey(s.slot))
-        .firstOrNull;
-    String? ack;
-    if (pendingStep != null) {
-      final val = pendingStep.extractor(n);
-      if (val != null) {
-        session.facts[pendingStep.slot] = val;
-        // تصدیق طبیعیِ پاسخ کاربر (فقط وقتی قالب‌های replies.json فعال‌اند
-        // تا رفتار قطعیِ قدیمی بدون آن‌ها مو به مو حفظ شود).
-        if (replies != null) {
-          ack = _pick(
-            replies,
-            rnd,
-            'counselor_ack',
-            'باشه، پس «{answer}» — این را یادداشت کردم.',
-            {'answer': _reflect(trimmed)},
-          );
-        }
-      } else {
-        // اگر پاسخ آزاد بود ولی در گزینه‌ها جا نگرفت، متن کاربر را ذخیره و به نزدیک‌ترین حالت نگاشت کن
-        session.facts[pendingStep.slot] = trimmed;
-        if (replies != null) {
-          ack = _pick(
-            replies,
-            rnd,
-            'counselor_ack_generic',
-            'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:',
-          );
-        }
-      }
-      // شاید در همین جمله اطلاعات سؤال‌های بعدی هم گفته شده باشد
+  if (session.topicId == 'general_intake') {
+    final detected =
+        _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
+    if (detected != null && detected != 'general_intake') {
+      session.topicId = detected;
       _extractAllFacts(session, trimmed);
-    }
-
-    return _advance(
-      session,
-      engine,
-      templates,
-      firstTurn: false,
-      replies: replies,
-      rnd: rnd,
-      ack: ack,
-    );
-  }
-
-  // ── پرسش حقوقی در میانهٔ مشاوره (RAG) ────────────────────────────────
-  static final RegExp _questionGlowRe = RegExp(
-    r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید',
-  );
-
-  static bool _lawishCue(String n) =>
-      n.contains('قانون') ||
-      n.contains('ماده') ||
-      n.contains('اصل') ||
-      n.contains('مجازات') ||
-      n.contains('مهلت') ||
-      n.contains('شرایط') ||
-      n.contains('تعریف');
-
-  /// آیا پیام کاربر در میانهٔ مشاوره پرسش حقوقی/قانونی است که باید با
-  /// موتور دانش (RAG) پاسخ داده شود؟ تصمیم اصلی با شبکهٔ عصبی است و
-  /// نشانه‌های پرسشی + کلیدواژه‌ها تور ایمنی‌اند تا پاسخ‌های خبریِ
-  /// خانهٔ پرسش (مثلاً «خودم موجرم») هرگز گفتگو را از ریل خارج نکنند.
-  static bool _isLegalQuestion(String rawText, IntentNet? net) {
-    final n = _norm(rawText);
-    if (_directArtRe.hasMatch(n)) return true;
-    if (net != null) {
-      final s = net.classify(rawText);
-      if (s.score >= net.ragMin) {
-        return IntentNet.ragLabels.contains(s.label) &&
-            _questionGlowRe.hasMatch(n);
-      }
-    }
-    return _questionGlowRe.hasMatch(n) &&
-        (_pureDefRe.hasMatch(n) || _lawishCue(n));
-  }
-
-  static CounselorTurn _ragTurn(
-    CounselingSession session,
-    String rawText,
-    KnowledgeEngine engine,
-    Replies? replies,
-    Random? rnd,
-  ) {
-    final reply = engine.query(rawText, maxAlternatives: 0);
-    final notFound =
-        reply.text.contains('پیدا نکردم') ||
-        reply.text.contains('پیدا نشد') ||
-        reply.text.contains('هنوز در برنامه نیست');
-    final sb = StringBuffer();
-    if (!notFound) {
-      sb.writeln(
-        _pick(
-          replies,
-          rnd,
-          'counselor_rag_intro',
-          'سؤال خوبی است؛ اجازه بدهید همین را مستقیم از متن رسمی قانون بیاورم:',
-        ),
-      );
-      sb.writeln();
-      sb.write(reply.text);
-    } else {
-      sb.write(
-        _pick(
-          replies,
-          rnd,
-          'counselor_rag_miss',
-          'پاسخ دقیقی برای این پرسش در بانک قوانین برنامه پیدا نکردم و بهتر است حدس نزنم. برویم سراغ ادامهٔ بررسی وضعیت خودت:',
-        ),
-      );
-    }
-
-    if (session.topicId == 'general_intake') {
-      sb.writeln();
-      sb.writeln();
-      sb.write(
-        _pick(
-          replies,
-          rnd,
-          'counselor_intake_reprompt',
-          _intakeRepromptFallback,
-        ),
-      );
-      return CounselorTurn(
-        text: sb.toString(),
-        chips: _intakeRepromptChips,
-        ragQuery: notFound ? null : rawText,
-        ragReply: notFound ? null : reply,
-      );
-    }
-
-    final steps = _stepsFor(session.topicId);
-    final pending = steps
-        .where((s) => !session.facts.containsKey(s.slot))
-        .firstOrNull;
-    if (pending != null) {
-      if (!notFound) {
-        sb.writeln();
-        sb.writeln();
-        sb.writeln(
-          _pick(
-            replies,
-            rnd,
-            'counselor_resume',
-            'حالا برگردیم به وضعیت خودت؛ این پرسش هنوز باز است:',
-          ),
-        );
-      }
-      sb.writeln();
-      sb.write(_promptFor(session.topicId, pending, replies, rnd));
-      return CounselorTurn(
-        text: sb.toString(),
-        chips: [...pending.options, cancelCounselCmd],
-        ragQuery: notFound ? null : rawText,
-        ragReply: notFound ? null : reply,
+      return _advance(
+        session,
+        engine,
+        templates,
+        firstTurn: true,
+        replies: replies,
+        rnd: rnd,
       );
     }
     return CounselorTurn(
+      text: _pick(
+        replies,
+        rnd,
+        'counselor_intake_reprompt',
+        _intakeRepromptFallback,
+      ),
+      chips: _intakeRepromptChips,
+    );
+  }
+
+  final steps = _stepsFor(session.topicId);
+  final pendingStep = steps
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+  String? ack;
+  if (pendingStep != null) {
+    final val = pendingStep.extractor(n);
+    if (val != null) {
+      session.facts[pendingStep.slot] = val;
+      // تصدیق طبیعیِ پاسخ کاربر (فقط وقتی قالب‌های replies.json فعال‌اند
+      // تا رفتار قطعیِ قدیمی بدون آن‌ها مو به مو حفظ شود).
+      if (replies != null) {
+        ack = _pick(
+          replies,
+          rnd,
+          'counselor_ack',
+          'باشه، پس «{answer}» — این را یادداشت کردم.',
+          {'answer': _reflect(trimmed)},
+        );
+      }
+    } else {
+      // اگر پاسخ آزاد بود ولی در گزینه‌ها جا نگرفت، متن کاربر را ذخیره و به نزدیک‌ترین حالت نگاشت کن
+      session.facts[pendingStep.slot] = trimmed;
+      if (replies != null) {
+        ack = _pick(
+          replies,
+          rnd,
+          'counselor_ack_generic',
+          'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:',
+        );
+      }
+    }
+    // شاید در همین جمله اطلاعات سؤال‌های بعدی هم گفته شده باشد
+    _extractAllFacts(session, trimmed);
+  }
+
+  return _advance(
+    session,
+    engine,
+    templates,
+    firstTurn: false,
+    replies: replies,
+    rnd: rnd,
+    ack: ack,
+  );
+}
+
+// ── پرسش حقوقی در میانهٔ مشاوره (RAG) ────────────────────────────────
+static final RegExp _questionGlowRe = RegExp(
+  r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید',
+);
+
+static bool _lawishCue(String n) =>
+    n.contains('قانون') ||
+    n.contains('ماده') ||
+    n.contains('اصل') ||
+    n.contains('مجازات') ||
+    n.contains('مهلت') ||
+    n.contains('شرایط') ||
+    n.contains('تعریف');
+
+/// آیا پیام کاربر در میانهٔ مشاوره پرسش حقوقی/قانونی است که باید با
+/// موتور دانش (RAG) پاسخ داده شود؟ تصمیم اصلی با شبکهٔ عصبی است و
+/// نشانه‌های پرسشی + کلیدواژه‌ها تور ایمنی‌اند تا پاسخ‌های خبریِ
+/// خانهٔ پرسش (مثلاً «خودم موجرم») هرگز گفتگو را از ریل خارج نکنند.
+static bool _isLegalQuestion(String rawText, IntentNet? net) {
+  final n = _norm(rawText);
+  if (_directArtRe.hasMatch(n)) return true;
+  if (net != null) {
+    final s = net.classify(rawText);
+    if (s.score >= net.ragMin) {
+      return IntentNet.ragLabels.contains(s.label) &&
+          _questionGlowRe.hasMatch(n);
+    }
+  }
+  return _questionGlowRe.hasMatch(n) &&
+      (_pureDefRe.hasMatch(n) || _lawishCue(n));
+}
+
+static CounselorTurn _ragTurn(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  Replies? replies,
+  Random? rnd,
+) {
+  final reply = engine.query(rawText, maxAlternatives: 0);
+  final notFound = reply.text.contains('پیدا نکردم') ||
+      reply.text.contains('پیدا نشد') ||
+      reply.text.contains('هنوز در برنامه نیست');
+  final sb = StringBuffer();
+  if (!notFound) {
+    sb.writeln(
+      _pick(
+        replies,
+        rnd,
+        'counselor_rag_intro',
+        'سؤال خوبی است؛ اجازه بدهید همین را مستقیم از متن رسمی قانون بیاورم:',
+      ),
+    );
+    sb.writeln();
+    sb.write(reply.text);
+  } else {
+    sb.write(
+      _pick(
+        replies,
+        rnd,
+        'counselor_rag_miss',
+        'پاسخ دقیقی برای این پرسش در بانک قوانین برنامه پیدا نکردم و بهتر است حدس نزنم. برویم سراغ ادامهٔ بررسی وضعیت خودت:',
+      ),
+    );
+  }
+
+  if (session.topicId == 'general_intake') {
+    sb.writeln();
+    sb.writeln();
+    sb.write(
+      _pick(
+        replies,
+        rnd,
+        'counselor_intake_reprompt',
+        _intakeRepromptFallback,
+      ),
+    );
+    return CounselorTurn(
       text: sb.toString(),
-      chips: const [cancelCounselCmd],
+      chips: _intakeRepromptChips,
       ragQuery: notFound ? null : rawText,
       ragReply: notFound ? null : reply,
     );
   }
 
-  static LegalTemplate? _matchTemplateChip(
-    String text,
-    List<LegalTemplate> templates,
-  ) {
-    final cleaned = text.startsWith(draftPrefix)
-        ? text.substring(draftPrefix.length).trim()
-        : text.trim();
-    final cn = _norm(cleaned);
-    for (final t in templates) {
-      final tn = _norm(t.title);
-      if (cn == tn || cn.contains(tn) || tn.contains(cn)) {
-        return t;
-      }
-    }
-    return null;
-  }
-
-  static String? _topicFromIntakeChoice(String n) {
-    if (n.contains('چک')) return 'cheque';
-    if (n.contains('کار') || n.contains('بیمه')) return 'labor';
-    if (n.contains('اجاره') || n.contains('تخلیه') || n.contains('پول پیش')) {
-      return 'lease';
-    }
-    if (n.contains('مهریه') ||
-        n.contains('نفقه') ||
-        n.contains('طلاق') ||
-        n.contains('حضانت')) {
-      return 'family';
-    }
-    if (n.contains('کلاهبرداری') ||
-        n.contains('فیشینگ') ||
-        n.contains('امانت')) {
-      return 'fraud_cyber';
-    }
-    if (n.contains('ابلاغیه') ||
-        n.contains('اعتراض به رای') ||
-        n.contains('شکایت علیه من')) {
-      return 'litigation_defense';
-    }
-    if (n.contains('طلب') || n.contains('سفته') || n.contains('اعسار')) {
-      return 'debt';
-    }
-    return null;
-  }
-
-  static void _extractAllFacts(CounselingSession s, String rawText) {
-    final n = _norm(rawText);
-    for (final step in _stepsFor(s.topicId)) {
-      if (s.facts.containsKey(step.slot)) continue;
-      final v = step.extractor(n);
-      if (v != null) s.facts[step.slot] = v;
-    }
-  }
-
-  static CounselorTurn _advance(
-    CounselingSession session,
-    KnowledgeEngine engine,
-    List<LegalTemplate> templates, {
-    required bool firstTurn,
-    Replies? replies,
-    Random? rnd,
-    String? ack,
-  }) {
-    final steps = _stepsFor(session.topicId);
-    final nextStep = steps
-        .where((s) => !session.facts.containsKey(s.slot))
-        .firstOrNull;
-
-    if (nextStep != null) {
-      final lead = firstTurn
-          ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n'
-          : (ack == null || ack.isEmpty ? '' : '$ack\n\n');
-      final prompt = _promptFor(session.topicId, nextStep, replies, rnd);
-      return CounselorTurn(
-        text: '$lead$prompt',
-        chips: [...nextStep.options, cancelCounselCmd],
+  final steps = _stepsFor(session.topicId);
+  final pending = steps
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+  if (pending != null) {
+    if (!notFound) {
+      sb.writeln();
+      sb.writeln();
+      sb.writeln(
+        _pick(
+          replies,
+          rnd,
+          'counselor_resume',
+          'حالا برگردیم به وضعیت خودت؛ این پرسش هنوز باز است:',
+        ),
       );
     }
+    sb.writeln();
+    sb.write(_promptFor(session.topicId, pending, replies, rnd));
+    return CounselorTurn(
+      text: sb.toString(),
+      chips: [...pending.options, cancelCounselCmd],
+      ragQuery: notFound ? null : rawText,
+      ragReply: notFound ? null : reply,
+    );
+  }
+  return CounselorTurn(
+    text: sb.toString(),
+    chips: const [cancelCounselCmd],
+    ragQuery: notFound ? null : rawText,
+    ragReply: notFound ? null : reply,
+  );
+}
 
-    session.concluded = true;
-    return _buildConclusion(
-      session,
-      engine,
-      templates,
-      replies: replies,
-      rnd: rnd,
+static LegalTemplate? _matchTemplateChip(
+  String text,
+  List<LegalTemplate> templates,
+) {
+  final cleaned = text.startsWith(draftPrefix)
+      ? text.substring(draftPrefix.length).trim()
+      : text.trim();
+  final cn = _norm(cleaned);
+  for (final t in templates) {
+    final tn = _norm(t.title);
+    if (cn == tn || cn.contains(tn) || tn.contains(cn)) {
+      return t;
+    }
+  }
+  return null;
+}
+
+static String? _topicFromIntakeChoice(String n) {
+  if (n.contains('چک')) return 'cheque';
+  if (n.contains('کار') || n.contains('بیمه')) return 'labor';
+  if (n.contains('اجاره') || n.contains('تخلیه') || n.contains('پول پیش')) {
+    return 'lease';
+  }
+  if (n.contains('مهریه') ||
+      n.contains('نفقه') ||
+      n.contains('طلاق') ||
+      n.contains('حضانت')) {
+    return 'family';
+  }
+  if (n.contains('کلاهبرداری') ||
+      n.contains('فیشینگ') ||
+      n.contains('امانت')) {
+    return 'fraud_cyber';
+  }
+  if (n.contains('ابلاغیه') ||
+      n.contains('اعتراض به رای') ||
+      n.contains('شکایت علیه من')) {
+    return 'litigation_defense';
+  }
+  if (n.contains('طلب') || n.contains('سفته') || n.contains('اعسار')) {
+    return 'debt';
+  }
+  return null;
+}
+
+static void _extractAllFacts(CounselingSession s, String rawText) {
+  final n = _norm(rawText);
+  for (final step in _stepsFor(s.topicId)) {
+    if (s.facts.containsKey(step.slot)) continue;
+    final v = step.extractor(n);
+    if (v != null) s.facts[step.slot] = v;
+  }
+}
+
+static CounselorTurn _advance(
+  CounselingSession session,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  required bool firstTurn,
+  Replies? replies,
+  Random? rnd,
+  String? ack,
+}) {
+  final steps = _stepsFor(session.topicId);
+  final nextStep = steps
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+
+  if (nextStep != null) {
+    final lead = firstTurn
+        ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n'
+        : (ack == null || ack.isEmpty ? '' : '$ack\n\n');
+    final prompt = _promptFor(session.topicId, nextStep, replies, rnd);
+    return CounselorTurn(
+      text: '$lead$prompt',
+      chips: [...nextStep.options, cancelCounselCmd],
     );
   }
 
-  static String _empathyIntro(String topicId) {
-    switch (topicId) {
-      case 'cheque':
-        return 'متوجه موضوع چک شما شدم. در دعاوی چک، تفاوت ظریفی بین مسیر «کیفری»، «اجرائیهٔ مستقیم ثبت/دادگاه» و «دعوای حقوقی» وجود دارد؛ اجازه بدهید با دو سؤال کوتاه وضعیت دقیق شما را مشخص کنم.';
-      case 'labor':
-        return 'پیگیری حقوق کارگری و بیمه کاملاً حق قانونی شماست و مهلت‌های مهمی دارد. برای اینکه دقیق‌ترین مسیر را پیشنهاد دهم، لطفاً این مورد را مشخص کنید:';
-      case 'lease':
-        return 'اختلافات موجر و مستأجر بسته به نوع قرارداد و امضای شهود، مسیر قضایی کاملاً متفاوتی (فوری یا عادی) دارند. بیایید گام‌به‌گام بررسی کنیم:';
-      case 'family':
-        return 'مسائل خانواده نیازمند دقت و آرامش است تا حقوق قانونی شما به بهترین شکل حفظ شود. برای ارائهٔ تحلیل دقیق، لطفاً بفرمایید:';
-      case 'fraud_cyber':
-        return 'متأسفم که چنین اتفاقی افتاده است. در جرایم مالی و اینترنتی، تشخیص درست عنوان اتهامی (کلاهبرداری، جرم رایانه‌ای یا خیانت در امانت) از رد شدن شکایت در دادسرا جلوگیری می‌کند.';
-      case 'criminal_harm':
-        return 'حفظ امنیت و حیثیت شما مورد حمایت کامل قانون است. برای اینکه ببینیم بهترین ادله و عنوان شکایت چیست، لطفاً بفرمایید:';
-      case 'litigation_defense':
-        return 'نگران نباشید؛ دریافت ابلاغیه یا صدور رأی به معنای پایان کار نیست و قانون به شما فرصت دفاع و اعتراض داده است. زمان در اینجا بسیار مهم است:';
-      case 'debt':
-      default:
-        return 'بسیار خوب؛ بیایید وضعیت طلب یا بدهی و مدارک شما را دقیق بررسی کنیم تا بهترین اقدام قانونی مشخص شود:';
-    }
+  session.concluded = true;
+  return _buildConclusion(
+    session,
+    engine,
+    templates,
+    replies: replies,
+    rnd: rnd,
+  );
+}
+
+static String _empathyIntro(String topicId) {
+  switch (topicId) {
+    case 'cheque':
+      return 'متوجه موضوع چک شما شدم. در دعاوی چک، تفاوت ظریفی بین مسیر «کیفری»، «اجرائیهٔ مستقیم ثبت/دادگاه» و «دعوای حقوقی» وجود دارد؛ اجازه بدهید با دو سؤال کوتاه وضعیت دقیق شما را مشخص کنم.';
+    case 'labor':
+      return 'پیگیری حقوق کارگری و بیمه کاملاً حق قانونی شماست و مهلت‌های مهمی دارد. برای اینکه دقیق‌ترین مسیر را پیشنهاد دهم، لطفاً این مورد را مشخص کنید:';
+    case 'lease':
+      return 'اختلافات موجر و مستأجر بسته به نوع قرارداد و امضای شهود، مسیر قضایی کاملاً متفاوتی (فوری یا عادی) دارند. بیایید گام‌به‌گام بررسی کنیم:';
+    case 'family':
+      return 'مسائل خانواده نیازمند دقت و آرامش است تا حقوق قانونی شما به بهترین شکل حفظ شود. برای ارائهٔ تحلیل دقیق، لطفاً بفرمایید:';
+    case 'fraud_cyber':
+      return 'متأسفم که چنین اتفاقی افتاده است. در جرایم مالی و اینترنتی، تشخیص درست عنوان اتهامی (کلاهبرداری، جرم رایانه‌ای یا خیانت در امانت) از رد شدن شکایت در دادسرا جلوگیری می‌کند.';
+    case 'criminal_harm':
+      return 'حفظ امنیت و حیثیت شما مورد حمایت کامل قانون است. برای اینکه ببینیم بهترین ادله و عنوان شکایت چیست، لطفاً بفرمایید:';
+    case 'litigation_defense':
+      return 'نگران نباشید؛ دریافت ابلاغیه یا صدور رأی به معنای پایان کار نیست و قانون به شما فرصت دفاع و اعتراض داده است. زمان در اینجا بسیار مهم است:';
+    case 'debt':
+    default:
+      return 'بسیار خوب؛ بیایید وضعیت طلب یا بدهی و مدارک شما را دقیق بررسی کنیم تا بهترین اقدام قانونی مشخص شود:';
   }
+}
 
-  // -------------------- درخت‌های پرسشگری تشخیصی --------------------
+// -------------------- درخت‌های پرسشگری تشخیصی --------------------
 
-  static List<_QuestionStep> _stepsFor(String topicId) {
-    switch (topicId) {
-      case 'cheque':
-        return [
-          _QuestionStep(
-            slot: 'role',
-            prompt: '۱. نقش شما در مورد این چک چیست؟ (دارندهٔ چک هستید و می‌خواهید وجهش را بگیرید، یا صادرکننده/ضامن هستید که علیه‌تان اقدام شده است؟)',
-            options: const [
-              'دارندهٔ چک هستم (طلبکار)',
-              'صادرکننده یا ضامن چک هستم',
-            ],
-            extractor: (n) {
-              if (n.contains('دارنده') ||
-                  n.contains('طلبکار') ||
-                  n.contains('چکم برگشت') ||
-                  n.contains('چک برگشتی دارم') ||
-                  n.contains('پولم را بگیرم')) {
-                return 'holder';
-              }
-              if (n.contains('صادرکننده') ||
-                  n.contains('ضامن') ||
-                  n.contains('چک دادم') ||
-                  n.contains('چک کشیدم') ||
-                  n.contains('بابت ضمانت داده بودم')) {
-                return 'issuer';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'nature',
-            prompt: '۲. آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین، امانت، معاملهٔ مشروط و سفیدامضا بوده است؟\n(این نکته طبق مادهٔ ۱۳ قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است.)',
-            options: const [
-              'بابت بدهی قطعی و تاریخ روز',
-              'بابت تضمین، امانت، مشروط یا وعده‌دار',
-            ],
-            extractor: (n) {
-              if (n.contains('تضمین') ||
-                  n.contains('ضمانت') ||
-                  n.contains('امانت') ||
-                  n.contains('مشروط') ||
-                  n.contains('سفید') ||
-                  n.contains('وعده')) {
-                return 'conditional';
-              }
-              if (n.contains('بدهی قطعی') || n.contains('تاریخ روز')) {
-                return 'unconditional';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'cert_time',
-            prompt: '۳. آیا گواهی عدم پرداخت از بانک دریافت شده و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟',
-            options: const [
-              'بله، گواهی دارم و زیر ۶ ماه است',
-              'بیش از ۶ ماه گذشته است',
-              'هنوز برگشت نزده‌ام / گواهی ندارم',
-            ],
-            extractor: (n) {
-              if (n.contains('هنوز برگشت نزده') || n.contains('گواهی ندارم')) {
-                return 'no_cert';
-              }
-              if (n.contains('بیش از 6 ماه') ||
-                  n.contains('بیشتر از 6 ماه') ||
-                  n.contains('یک سال گذشته')) {
-                return 'over_6m';
-              }
-              if (n.contains('زیر 6 ماه') || n.contains('گواهی دارم')) {
-                return 'under_6m';
-              }
-              return null;
-            },
-          ),
-        ];
+static List<_QuestionStep> _stepsFor(String topicId) {
+  switch (topicId) {
+    case 'cheque':
+      return [
+        _QuestionStep(
+          slot: 'role',
+          prompt: '۱. نقش شما در مورد این چک چیست؟ (دارندهٔ چک هستید و می‌خواهید وجهش را بگیرید، یا صادرکننده/ضامن هستید که علیه‌تان اقدام شده است؟)',
+          options: const [
+            'دارندهٔ چک هستم (طلبکار)',
+            'صادرکننده یا ضامن چک هستم',
+          ],
+          extractor: (n) {
+            if (n.contains('دارنده') ||
+                n.contains('طلبکار') ||
+                n.contains('چکم برگشت') ||
+                n.contains('چک برگشتی دارم') ||
+                n.contains('پولم را بگیرم')) {
+              return 'holder';
+            }
+            if (n.contains('صادرکننده') ||
+                n.contains('ضامن') ||
+                n.contains('چک دادم') ||
+                n.contains('چک کشیدم') ||
+                n.contains('بابت ضمانت داده بودم')) {
+              return 'issuer';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'nature',
+          prompt: '۲. آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین، امانت، معاملهٔ مشروط و سفیدامضا بوده است؟\n(این نکته طبق مادهٔ ۱۳ قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است.)',
+          options: const [
+            'بابت بدهی قطعی و تاریخ روز',
+            'بابت تضمین، امانت، مشروط یا وعده‌دار',
+          ],
+          extractor: (n) {
+            if (n.contains('تضمین') ||
+                n.contains('ضمانت') ||
+                n.contains('امانت') ||
+                n.contains('مشروط') ||
+                n.contains('سفید') ||
+                n.contains('وعده')) {
+              return 'conditional';
+            }
+            if (n.contains('بدهی قطعی') || n.contains('تاریخ روز')) {
+              return 'unconditional';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'cert_time',
+          prompt: '۳. آیا گواهی عدم پرداخت از بانک دریافت شده و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟',
+          options: const [
+            'بله، گواهی دارم و زیر ۶ ماه است',
+            'بیش از ۶ ماه گذشته است',
+            'هنوز برگشت نزده‌ام / گواهی ندارم',
+          ],
+          extractor: (n) {
+            if (n.contains('هنوز برگشت نزده') || n.contains('گواهی ندارم')) {
+              return 'no_cert';
+            }
+            if (n.contains('بیش از 6 ماه') ||
+                n.contains('بیشتر از 6 ماه') ||
+                n.contains('یک سال گذشته')) {
+              return 'over_6m';
+            }
+            if (n.contains('زیر 6 ماه') || n.contains('گواهی دارم')) {
+              return 'under_6m';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'labor':
-        return [
-          _QuestionStep(
-            slot: 'issue',
-            prompt: '۱. مشکل اصلی شما با کارفرما کدام مورد است؟',
-            options: const [
-              'اخراج یا عدم تمدید و بازگشت به کار',
-              'عدم پرداخت حقوق، عیدی یا سنوات',
-              'رد نکردن حق بیمهٔ تأمین اجتماعی',
-            ],
-            extractor: (n) {
-              if (n.contains('اخراج') || n.contains('بازگشت به کار')) {
-                return 'dismissal';
-              }
-              if (n.contains('بیمه') && !n.contains('حقوق')) {
-                return 'insurance';
-              }
-              if (n.contains('حقوق') ||
-                  n.contains('سنوات') ||
-                  n.contains('عیدی')) {
-                return 'wages';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'proof',
-            prompt: '۲. چه مدرکی برای اثبات رابطهٔ کاری دارید؟ (قرارداد کتبی، فیش واریز حقوق، لیست بیمه یا پیامک و شهادت همکاران؟)',
-            options: const [
-              'قرارداد کتبی یا سابقهٔ بیمه دارم',
-              'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم',
-              'هیچ مدرک کتبی یا بانکی ندارم',
-            ],
-            extractor: (n) {
-              if (n.contains('کتبی') || n.contains('سابقه بیمه')) {
-                return 'written';
-              }
-              if (n.contains('شفاهی') || n.contains('واریزی')) {
-                return 'bank_sms';
-              }
-              if (n.contains('هیچ مدرک')) {
-                return 'none';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'time',
-            prompt: '۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟ اگر اخراج شده‌اید، آیا کمتر از ۳۰ روز از تاریخ اخراج گذشته است؟',
-            options: const [
-              'کمتر از ۳۰ روز از اخراج گذشته است',
-              'بیش از ۳۰ روز از قطع همکاری گذشته',
-              'هنوز در کارگاه مشغول به کارم',
-            ],
-            extractor: (n) {
-              if (n.contains('کمتر از 30') || n.contains('هفته پیش اخراج')) {
-                return 'under_30d';
-              }
-              if (n.contains('بیش از 30') || n.contains('چند ماه پیش')) {
-                return 'over_30d';
-              }
-              if (n.contains('مشغول به کار')) {
-                return 'active';
-              }
-              return null;
-            },
-          ),
-        ];
+    case 'labor':
+      return [
+        _QuestionStep(
+          slot: 'issue',
+          prompt: '۱. مشکل اصلی شما با کارفرما کدام مورد است؟',
+          options: const [
+            'اخراج یا عدم تمدید و بازگشت به کار',
+            'عدم پرداخت حقوق، عیدی یا سنوات',
+            'رد نکردن حق بیمهٔ تأمین اجتماعی',
+          ],
+          extractor: (n) {
+            if (n.contains('اخراج') || n.contains('بازگشت به کار')) {
+              return 'dismissal';
+            }
+            if (n.contains('بیمه') && !n.contains('حقوق')) {
+              return 'insurance';
+            }
+            if (n.contains('حقوق') ||
+                n.contains('سنوات') ||
+                n.contains('عیدی')) {
+              return 'wages';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'proof',
+          prompt: '۲. چه مدرکی برای اثبات رابطهٔ کاری دارید؟ (قرارداد کتبی، فیش واریز حقوق، لیست بیمه یا پیامک و شهادت همکاران؟)',
+          options: const [
+            'قرارداد کتبی یا سابقهٔ بیمه دارم',
+            'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم',
+            'هیچ مدرک کتبی یا بانکی ندارم',
+          ],
+          extractor: (n) {
+            if (n.contains('کتبی') || n.contains('سابقه بیمه')) {
+              return 'written';
+            }
+            if (n.contains('شفاهی') || n.contains('واریزی')) {
+              return 'bank_sms';
+            }
+            if (n.contains('هیچ مدرک')) {
+              return 'none';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'time',
+          prompt: '۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟ اگر اخراج شده‌اید، آیا کمتر از ۳۰ روز از تاریخ اخراج گذشته است؟',
+          options: const [
+            'کمتر از ۳۰ روز از اخراج گذشته است',
+            'بیش از ۳۰ روز از قطع همکاری گذشته',
+            'هنوز در کارگاه مشغول به کارم',
+          ],
+          extractor: (n) {
+            if (n.contains('کمتر از 30') || n.contains('هفته پیش اخراج')) {
+              return 'under_30d';
+            }
+            if (n.contains('بیش از 30') || n.contains('چند ماه پیش')) {
+              return 'over_30d';
+            }
+            if (n.contains('مشغول به کار')) {
+              return 'active';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'lease':
-        return [
-          _QuestionStep(
-            slot: 'role',
-            prompt: '۱. در این رابطهٔ اجاره، شما موجر (مالک) هستید یا مستأجر؟',
-            options: const ['موجر (مالک) هستم', 'مستأجر هستم'],
-            extractor: (n) {
-              if (n.contains('مستاجرم') ||
-                  n.contains('مستاجر من') ||
-                  n.contains('مالک هستم') ||
-                  n.contains('موجر هستم')) {
-                return 'landlord';
-              }
-              if (n.contains('صاحبخانه') ||
-                  n.contains('صاحب خانه') ||
-                  n.contains('مستاجر هستم') ||
-                  n.contains('پول پیشم')) {
-                return 'tenant';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'expired',
-            prompt: '۲. آیا مدت قرارداد اجاره به پایان رسیده است؟',
-            options: const [
-              'بله، مدت قرارداد تمام شده است',
-              'خیر، هنوز در میانهٔ مدت قرارداد هستیم',
-            ],
-            extractor: (n) {
-              if (n.contains('تمام شده') ||
-                  n.contains('منقضی شده') ||
-                  n.contains('پایان رسیده')) {
-                return 'yes';
-              }
-              if (n.contains('میانه مدت') || n.contains('تمام نشده')) {
-                return 'no';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'witnesses',
-            prompt: '۳. نوع قرارداد اجارهٔ شما چگونه است؟ (سند رسمی، قرارداد عادی با امضای دو شاهد/کد رهگیری، یا دست‌نویس بدون دو شاهد؟)',
-            options: const [
-              'قرارداد کتبی با امضای دو شاهد یا سند رسمی',
-              'قرارداد عادی بدون امضای دو شاهد یا شفاهی',
-            ],
-            extractor: (n) {
-              if (n.contains('دو شاهد') ||
-                  n.contains('رسمی') ||
-                  n.contains('کد رهگیری')) {
-                return 'two_witnesses';
-              }
-              if (n.contains('بدون امضای دو شاهد') ||
-                  n.contains('بدون شاهد') ||
-                  n.contains('شفاهی')) {
-                return 'no_witnesses';
-              }
-              return null;
-            },
-          ),
-        ];
+    case 'lease':
+      return [
+        _QuestionStep(
+          slot: 'role',
+          prompt: '۱. در این رابطهٔ اجاره، شما موجر (مالک) هستید یا مستأجر؟',
+          options: const ['موجر (مالک) هستم', 'مستأجر هستم'],
+          extractor: (n) {
+            if (n.contains('مستاجرم') ||
+                n.contains('مستاجر من') ||
+                n.contains('مالک هستم') ||
+                n.contains('موجر هستم')) {
+              return 'landlord';
+            }
+            if (n.contains('صاحبخانه') ||
+                n.contains('صاحب خانه') ||
+                n.contains('مستاجر هستم') ||
+                n.contains('پول پیشم')) {
+              return 'tenant';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'expired',
+          prompt: '۲. آیا مدت قرارداد اجاره به پایان رسیده است؟',
+          options: const [
+            'بله، مدت قرارداد تمام شده است',
+            'خیر، هنوز در میانهٔ مدت قرارداد هستیم',
+          ],
+          extractor: (n) {
+            if (n.contains('تمام شده') ||
+                n.contains('منقضی شده') ||
+                n.contains('پایان رسیده')) {
+              return 'yes';
+            }
+            if (n.contains('میانه مدت') || n.contains('تمام نشده')) {
+              return 'no';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'witnesses',
+          prompt: '۳. نوع قرارداد اجارهٔ شما چگونه است؟ (سند رسمی، قرارداد عادی با امضای دو شاهد/کد رهگیری، یا دست‌نویس بدون دو شاهد؟)',
+          options: const [
+            'قرارداد کتبی با امضای دو شاهد یا سند رسمی',
+            'قرارداد عادی بدون امضای دو شاهد یا شفاهی',
+          ],
+          extractor: (n) {
+            if (n.contains('دو شاهد') ||
+                n.contains('رسمی') ||
+                n.contains('کد رهگیری')) {
+              return 'two_witnesses';
+            }
+            if (n.contains('بدون امضای دو شاهد') ||
+                n.contains('بدون شاهد') ||
+                n.contains('شفاهی')) {
+              return 'no_witnesses';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'family':
-        return [
-          _QuestionStep(
-            slot: 'subtopic',
-            prompt: '۱. موضوع اصلی پرونده یا پرسش خانوادگی شما کدام است؟',
-            options: const [
-              'مطالبه یا تقسیط مهریه',
-              'نفقه و تمکین',
-              'درخواست طلاق',
-              'حضانت و ملاقات فرزند',
-            ],
-            extractor: (n) {
-              if (n.contains('مهریه')) return 'mehrieh';
-              if (n.contains('نفقه') || n.contains('تمکین')) return 'nafaqeh';
-              if (n.contains('حضانت') || n.contains('ملاقات')) return 'custody';
-              if (n.contains('طلاق')) return 'divorce';
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'side',
-            prompt: '۲. شما از طرف زوجه (خانم) پیگیر موضوع هستید یا زوج (آقا)؟',
-            options: const ['زوجه (خانم) هستم', 'زوج (آقا) هستم'],
-            extractor: (n) {
-              if (n.contains('زوجه') ||
-                  n.contains('شوهرم') ||
-                  n.contains('خانم هستم')) {
-                return 'wife';
-              }
-              if (n.contains('زوج هستم') ||
-                  n.contains('آقا هستم') ||
-                  n.contains('خانمم') ||
-                  n.contains('مهریه را اجرا گذاشته')) {
-                return 'husband';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'detail',
-            prompt: '۳. کدام وضعیت به شرایط فعلی شما نزدیک‌تر است؟',
-            options: const [
-              'توافق نداریم و طرف مقابل همکاری نمی‌کند',
-              'حکم یا اجرائیه صادر شده و بحث توان مالی/اعسار مطرح است',
-              'زمینهٔ توافق بین زوجین وجود دارد',
-            ],
-            extractor: (n) {
-              if (n.contains('توان مالی') ||
-                  n.contains('اعسار') ||
-                  n.contains('اجرا گذاشته')) {
-                return 'enforcement_insolvency';
-              }
-              if (n.contains('توافق داریم') || n.contains('توافقی')) {
-                return 'mutual';
-              }
-              if (n.contains('توافق نداریم') || n.contains('همکاری نمی')) {
-                return 'contested';
-              }
-              return null;
-            },
-          ),
-        ];
+    case 'family':
+      return [
+        _QuestionStep(
+          slot: 'subtopic',
+          prompt: '۱. موضوع اصلی پرونده یا پرسش خانوادگی شما کدام است؟',
+          options: const [
+            'مطالبه یا تقسیط مهریه',
+            'نفقه و تمکین',
+            'درخواست طلاق',
+            'حضانت و ملاقات فرزند',
+          ],
+          extractor: (n) {
+            if (n.contains('مهریه')) return 'mehrieh';
+            if (n.contains('نفقه') || n.contains('تمکین')) return 'nafaqeh';
+            if (n.contains('حضانت') || n.contains('ملاقات')) return 'custody';
+            if (n.contains('طلاق')) return 'divorce';
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'side',
+          prompt: '۲. شما از طرف زوجه (خانم) پیگیر موضوع هستید یا زوج (آقا)؟',
+          options: const ['زوجه (خانم) هستم', 'زوج (آقا) هستم'],
+          extractor: (n) {
+            if (n.contains('زوجه') ||
+                n.contains('شوهرم') ||
+                n.contains('خانم هستم')) {
+              return 'wife';
+            }
+            if (n.contains('زوج هستم') ||
+                n.contains('آقا هستم') ||
+                n.contains('خانمم') ||
+                n.contains('مهریه را اجرا گذاشته')) {
+              return 'husband';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'detail',
+          prompt: '۳. کدام وضعیت به شرایط فعلی شما نزدیک‌تر است؟',
+          options: const [
+            'توافق نداریم و طرف مقابل همکاری نمی‌کند',
+            'حکم یا اجرائیه صادر شده و بحث توان مالی/اعسار مطرح است',
+            'زمینهٔ توافق بین زوجین وجود دارد',
+          ],
+          extractor: (n) {
+            if (n.contains('توان مالی') ||
+                n.contains('اعسار') ||
+                n.contains('اجرا گذاشته')) {
+              return 'enforcement_insolvency';
+            }
+            if (n.contains('توافق داریم') || n.contains('توافقی')) {
+              return 'mutual';
+            }
+            if (n.contains('توافق نداریم') || n.contains('همکاری نمی')) {
+              return 'contested';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'fraud_cyber':
-        return [
-          _QuestionStep(
-            slot: 'kind',
-            prompt: '۱. نحوهٔ از دست رفتن مال یا وقوع جرم دقیقاً به چه شکلی بوده است؟',
-            options: const [
-              'برداشت اینترنتی، لینک جعلی (فیشینگ) یا هک',
-              'فریب با مانور متقلبانه و صحنه‌سازی (کلاهبرداری)',
-              'مالی را به امانت دادم و پس نمی‌دهد',
-              'ملک یا مال مرا بدون اجازه به دیگری فروخته است',
-            ],
-            extractor: (n) {
-              if (n.contains('فیشینگ') ||
-                  n.contains('اینترنتی') ||
-                  n.contains('هک') ||
-                  n.contains('لینک')) {
-                return 'cyber';
-              }
-              if (n.contains('امانت')) return 'trust_breach';
-              if (n.contains('مال غیر') || n.contains('بدون اجازه فروخته')) {
-                return 'unauthorized_sale';
-              }
-              if (n.contains('مانور') || n.contains('صحنه سازی')) {
-                return 'classic_fraud';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'evidence',
-            prompt: '۲. چه مستنداتی در دست دارید؟ (رسید بانکی و شماره حساب مقصد، قرارداد/رسید امانت، پیامک‌ها یا شاهد؟)',
-            options: const [
-              'گردش حساب بانکی، اسکرین‌شات یا رسید کتبی دارم',
-              'فقط شاهد یا مکالمهٔ شفاهی دارم',
-            ],
-            extractor: (n) {
-              if (n.contains('گردش حساب') ||
-                  n.contains('رسید') ||
-                  n.contains('اسکرین')) {
-                return 'strong';
-              }
-              if (n.contains('فقط شاهد') || n.contains('شفاهی')) {
-                return 'weak';
-              }
-              return null;
-            },
-          ),
-        ];
+    case 'fraud_cyber':
+      return [
+        _QuestionStep(
+          slot: 'kind',
+          prompt: '۱. نحوهٔ از دست رفتن مال یا وقوع جرم دقیقاً به چه شکلی بوده است؟',
+          options: const [
+            'برداشت اینترنتی، لینک جعلی (فیشینگ) یا هک',
+            'فریب با مانور متقلبانه و صحنه‌سازی (کلاهبرداری)',
+            'مالی را به امانت دادم و پس نمی‌دهد',
+            'ملک یا مال مرا بدون اجازه به دیگری فروخته است',
+          ],
+          extractor: (n) {
+            if (n.contains('فیشینگ') ||
+                n.contains('اینترنتی') ||
+                n.contains('هک') ||
+                n.contains('لینک')) {
+              return 'cyber';
+            }
+            if (n.contains('امانت')) return 'trust_breach';
+            if (n.contains('مال غیر') || n.contains('بدون اجازه فروخته')) {
+              return 'unauthorized_sale';
+            }
+            if (n.contains('مانور') || n.contains('صحنه سازی')) {
+              return 'classic_fraud';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'evidence',
+          prompt: '۲. چه مستنداتی در دست دارید؟ (رسید بانکی و شماره حساب مقصد، قرارداد/رسید امانت، پیامک‌ها یا شاهد؟)',
+          options: const [
+            'گردش حساب بانکی، اسکرین‌شات یا رسید کتبی دارم',
+            'فقط شاهد یا مکالمهٔ شفاهی دارم',
+          ],
+          extractor: (n) {
+            if (n.contains('گردش حساب') ||
+                n.contains('رسید') ||
+                n.contains('اسکرین')) {
+              return 'strong';
+            }
+            if (n.contains('فقط شاهد') || n.contains('شفاهی')) {
+              return 'weak';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'criminal_harm':
-        return [
-          _QuestionStep(
-            slot: 'harm_type',
-            prompt: '۱. چه رفتاری علیه شما رخ داده است؟',
-            options: const [
-              'ضرب و جرح و آسیب بدنی',
-              'تهدید یا اخاذی',
-              'توهین، فحاشی یا افترا',
-              'انتشار عکس/فیلم خصوصی در فضای مجازی',
-            ],
-            extractor: (n) {
-              if (n.contains('ضرب') || n.contains('کتک')) return 'assault';
-              if (n.contains('عکس خصوصی') || n.contains('فیلم خصوصی')) {
-                return 'private_media';
-              }
-              if (n.contains('تهدید') || n.contains('اخاذی')) return 'threat';
-              if (n.contains('توهین') ||
-                  n.contains('فحاشی') ||
-                  n.contains('افترا')) {
-                return 'insult';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'proof',
-            prompt: '۲. آیا مدرکی مانند گواهی پزشکی قانونی، گزارش پلیس ۱۱۰، شهادت شهود یا پیامک و صدای ضبط‌شده دارید؟',
-            options: const [
-              'گواهی پزشکی قانونی / گزارش پلیس / پیامک دارم',
-              'فقط شاهد دارم',
-              'فعلاً مدرکی جمع‌آوری نکرده‌ام',
-            ],
-            extractor: (n) {
-              if (n.contains('پزشکی قانونی') ||
-                  n.contains('پلیس') ||
-                  n.contains('پیامک')) {
-                return 'documented';
-              }
-              if (n.contains('شاهد')) return 'witness';
-              if (n.contains('فعلا مدرکی')) return 'none';
-              return null;
-            },
-          ),
-        ];
+    case 'criminal_harm':
+      return [
+        _QuestionStep(
+          slot: 'harm_type',
+          prompt: '۱. چه رفتاری علیه شما رخ داده است؟',
+          options: const [
+            'ضرب و جرح و آسیب بدنی',
+            'تهدید یا اخاذی',
+            'توهین، فحاشی یا افترا',
+            'انتشار عکس/فیلم خصوصی در فضای مجازی',
+          ],
+          extractor: (n) {
+            if (n.contains('ضرب') || n.contains('کتک')) return 'assault';
+            if (n.contains('عکس خصوصی') || n.contains('فیلم خصوصی')) {
+              return 'private_media';
+            }
+            if (n.contains('تهدید') || n.contains('اخاذی')) return 'threat';
+            if (n.contains('توهین') ||
+                n.contains('فحاشی') ||
+                n.contains('افترا')) {
+              return 'insult';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'proof',
+          prompt: '۲. آیا مدرکی مانند گواهی پزشکی قانونی، گزارش پلیس ۱۱۰، شهادت شهود یا پیامک و صدای ضبط‌شده دارید؟',
+          options: const [
+            'گواهی پزشکی قانونی / گزارش پلیس / پیامک دارم',
+            'فقط شاهد دارم',
+            'فعلاً مدرکی جمع‌آوری نکرده‌ام',
+          ],
+          extractor: (n) {
+            if (n.contains('پزشکی قانونی') ||
+                n.contains('پلیس') ||
+                n.contains('پیامک')) {
+              return 'documented';
+            }
+            if (n.contains('شاهد')) return 'witness';
+            if (n.contains('فعلا مدرکی')) return 'none';
+            return null;
+          },
+        ),
+      ];
 
-      case 'litigation_defense':
-        return [
-          _QuestionStep(
-            slot: 'stage',
-            prompt: '۱. ابلاغیه‌ای که در سامانهٔ ثنا دریافت کرده‌اید مربوط به کدام مرحله است؟',
-            options: const [
-              'ابلاغ وقت رسیدگی یا احضاریه (پرونده در جریان است)',
-              'حکم غیابی صادر شده است (در جلسات شرکت نکرده‌ام)',
-              'رأی حضوری بدوی صادر شده و می‌خواهم اعتراض کنم',
-            ],
-            extractor: (n) {
-              if (n.contains('غیابی')) return 'default_judgment';
-              if (n.contains('حضوری بدوی') || n.contains('تجدیدنظر')) {
-                return 'appeal';
-              }
-              if (n.contains('وقت رسیدگی') || n.contains('احضاریه')) {
-                return 'first_hearing';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'deadline',
-            prompt: '۲. چند روز از تاریخ درج ابلاغیه در سامانهٔ ثنا گذشته است؟ (برای مقیمان ایران مهلت واخواهی و تجدیدنظر ۲۰ روز است.)',
-            options: const [
-              'کمتر از ۲۰ روز گذشته است (مهلت دارم)',
-              'بیش از ۲۰ روز گذشته ولی عذر موجه (بیماری/عدم اطلاع واقعی) دارم',
-              'بیش از ۲۰ روز گذشته و رأی به اجرا رفته است',
-            ],
-            extractor: (n) {
-              if (n.contains('کمتر از 20') || n.contains('مهلت دارم')) {
-                return 'within_20d';
-              }
-              if (n.contains('عذر موجه')) return 'excused_late';
-              if (n.contains('به اجرا رفته') || n.contains('بیش از 20')) {
-                return 'late';
-              }
-              return null;
-            },
-          ),
-        ];
+    case 'litigation_defense':
+      return [
+        _QuestionStep(
+          slot: 'stage',
+          prompt: '۱. ابلاغیه‌ای که در سامانهٔ ثنا دریافت کرده‌اید مربوط به کدام مرحله است؟',
+          options: const [
+            'ابلاغ وقت رسیدگی یا احضاریه (پرونده در جریان است)',
+            'حکم غیابی صادر شده است (در جلسات شرکت نکرده‌ام)',
+            'رأی حضوری بدوی صادر شده و می‌خواهم اعتراض کنم',
+          ],
+          extractor: (n) {
+            if (n.contains('غیابی')) return 'default_judgment';
+            if (n.contains('حضوری بدوی') || n.contains('تجدیدنظر')) {
+              return 'appeal';
+            }
+            if (n.contains('وقت رسیدگی') || n.contains('احضاریه')) {
+              return 'first_hearing';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'deadline',
+          prompt: '۲. چند روز از تاریخ درج ابلاغیه در سامانهٔ ثنا گذشته است؟ (برای مقیمان ایران مهلت واخواهی و تجدیدنظر ۲۰ روز است.)',
+          options: const [
+            'کمتر از ۲۰ روز گذشته است (مهلت دارم)',
+            'بیش از ۲۰ روز گذشته ولی عذر موجه (بیماری/عدم اطلاع واقعی) دارم',
+            'بیش از ۲۰ روز گذشته و رأی به اجرا رفته است',
+          ],
+          extractor: (n) {
+            if (n.contains('کمتر از 20') || n.contains('مهلت دارم')) {
+              return 'within_20d';
+            }
+            if (n.contains('عذر موجه')) return 'excused_late';
+            if (n.contains('به اجرا رفته') || n.contains('بیش از 20')) {
+              return 'late';
+            }
+            return null;
+          },
+        ),
+      ];
 
-      case 'debt':
-      default:
-        return [
-          _QuestionStep(
-            slot: 'role',
-            prompt: '۱. شما طلبکار هستید که می‌خواهید پولتان را مطالبه کنید، یا بدهکار/خوانده هستید که علیه‌تان مطالبه شده است؟',
-            options: const [
-              'طلبکار هستم و می‌خواهم پولم را بگیرم',
-              'بدهکار هستم و توان پرداخت یکجای بدهی را ندارم',
-            ],
-            extractor: (n) {
-              if (n.contains('بدهکار هستم') ||
-                  n.contains('توان پرداخت') ||
-                  n.contains('اعسار')) {
-                return 'debtor';
-              }
-              if (n.contains('طلبکار') ||
-                  n.contains('قرض دادم') ||
-                  n.contains('پولم را بگیرم')) {
-                return 'creditor';
-              }
-              return null;
-            },
-          ),
-          _QuestionStep(
-            slot: 'doc',
-            prompt: '۲. چه مدرکی بابت این بدهی/طلب وجود دارد؟',
-            options: const [
-              'رسید کتبی، قرارداد یا سفته',
-              'فیش واریز بانکی و پیامک‌های اقرار به بدهی',
-              'فقط شهادت شهود (شفاهی)',
-            ],
-            extractor: (n) {
-              if (n.contains('رسید کتبی') ||
-                  n.contains('سفته') ||
-                  n.contains('قرارداد')) {
-                return 'written';
-              }
-              if (n.contains('فیش') || n.contains('واریز')) {
-                return 'bank';
-              }
-              if (n.contains('شفاهی') || n.contains('شهادت')) {
-                return 'oral';
-              }
-              return null;
-            },
-          ),
-        ];
-    }
+    case 'debt':
+    default:
+      return [
+        _QuestionStep(
+          slot: 'role',
+          prompt: '۱. شما طلبکار هستید که می‌خواهید پولتان را مطالبه کنید، یا بدهکار/خوانده هستید که علیه‌تان مطالبه شده است؟',
+          options: const [
+            'طلبکار هستم و می‌خواهم پولم را بگیرم',
+            'بدهکار هستم و توان پرداخت یکجای بدهی را ندارم',
+          ],
+          extractor: (n) {
+            if (n.contains('بدهکار هستم') ||
+                n.contains('توان پرداخت') ||
+                n.contains('اعسار')) {
+              return 'debtor';
+            }
+            if (n.contains('طلبکار') ||
+                n.contains('قرض دادم') ||
+                n.contains('پولم را بگیرم')) {
+              return 'creditor';
+            }
+            return null;
+          },
+        ),
+        _QuestionStep(
+          slot: 'doc',
+          prompt: '۲. چه مدرکی بابت این بدهی/طلب وجود دارد؟',
+          options: const [
+            'رسید کتبی، قرارداد یا سفته',
+            'فیش واریز بانکی و پیامک‌های اقرار به بدهی',
+            'فقط شهادت شهود (شفاهی)',
+          ],
+          extractor: (n) {
+            if (n.contains('رسید کتبی') ||
+                n.contains('سفته') ||
+                n.contains('قرارداد')) {
+              return 'written';
+            }
+            if (n.contains('فیش') || n.contains('واریز')) {
+              return 'bank';
+            }
+            if (n.contains('شفاهی') || n.contains('شهادت')) {
+              return 'oral';
+            }
+            return null;
+          },
+        ),
+      ];
   }
+}
 
-  // -------------------- استنتاج منطقی و جمع‌بندی مستند به قانون --------------------
+// -------------------- استنتاج منطقی و جمع‌بندی مستند به قانون --------------------
 
-  static String _citeSnippet(
-    KnowledgeEngine engine,
-    String lawId,
-    String article,
-  ) {
-    final c = engine.findArticle(lawId, article);
-    if (c == null) return '';
-    final clean = c.body.trim();
-    final excerpt = clean.length > 260
-        ? '${clean.substring(0, 257)}...'
-        : clean;
-    return PersianText.toFaDigits('• ${c.title} ${c.source}: «$excerpt»');
-  }
+static String _citeSnippet(
+  KnowledgeEngine engine,
+  String lawId,
+  String article,
+) {
+  final c = engine.findArticle(lawId, article);
+  if (c == null) return '';
+  final clean = c.body.trim();
+  final excerpt = clean.length > 260
+      ? '${clean.substring(0, 257)}...'
+      : clean;
+  return PersianText.toFaDigits('• ${c.title} ${c.source}: «$excerpt»');
+}
 
-  static List<String> _templateChipsForIds(
-    List<String> ids,
-    List<LegalTemplate> templates,
-  ) {
-    final out = <String>[];
-    for (final id in ids) {
-      for (final t in templates) {
-        if (t.id == id) {
-          out.add('$draftPrefix${t.title}');
-          break;
-        }
+static List<String> _templateChipsForIds(
+  List<String> ids,
+  List<LegalTemplate> templates,
+) {
+  final out = <String>[];
+  for (final id in ids) {
+    for (final t in templates) {
+      if (t.id == id) {
+        out.add('$draftPrefix${t.title}');
+        break;
       }
     }
-    return out;
+  }
+  return out;
+}
+
+static CounselorTurn _buildConclusion(
+  CounselingSession s,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  final sb = StringBuffer();
+  final tplIds = <String>[];
+  final refs = <String>[];
+
+  void addRef(String lawId, String art) {
+    final sn = _citeSnippet(engine, lawId, art);
+    if (sn.isNotEmpty) refs.add(sn);
   }
 
-  static CounselorTurn _buildConclusion(
-    CounselingSession s,
-    KnowledgeEngine engine,
-    List<LegalTemplate> templates, {
-    Replies? replies,
-    Random? rnd,
-  }) {
-    final sb = StringBuffer();
-    final tplIds = <String>[];
-    final refs = <String>[];
-
-    void addRef(String lawId, String art) {
-      final sn = _citeSnippet(engine, lawId, art);
-      if (sn.isNotEmpty) refs.add(sn);
-    }
-
-    switch (s.topicId) {
-      case 'cheque':
-        final isIssuer = s.facts['role'] == 'issuer';
-        final isCond = s.facts['nature'] == 'conditional';
-        final time = s.facts['cert_time'] ?? 'under_6m';
-        sb.writeln('📋 تحلیل و استدلال حقوقی وضعیت چک شما:');
-        sb.writeln();
-        if (!isIssuer) {
-          if (!isCond && time == 'under_6m') {
-            sb.writeln(
-              '۱. به دلیل اینکه چک بابت بدهی قطعی و به تاریخ روز صادر شده و زیر ۶ ماه از تاریخ صدور و گواهی عدم پرداخت گذشته است، هر سه مسیر قانونی پیش روی شما باز است:\n'
-              '• سریع‌ترین مسیر: درخواست «صدور اجرائیهٔ مستقیم چک» از دادگاه حقوقی (طبق مادهٔ ۲۳ اصلاحی قانون صدور چک) بدون نیاز به نوبت دادرسی طولانی، به شرطی که در متن چک شرطی ذکر نشده باشد.\n'
-              '• مسیر کیفری: ثبت «شکوائیهٔ صدور چک بلامحل» (طبق مواد ۷ و ۱۱ قانون صدور چک).\n'
-              '• مسیر حقوقی: ثبت «دادخواست مطالبهٔ وجه چک» همراه با درخواست قرار تأمین خواسته (توقیف فوری اموال بدون تودیع خسارت احتمالی) و خسارت تأخیر تأدیه از تاریخ چک.',
-            );
-            addRef('cheque', '23');
-            addRef('cheque', '11');
-            tplIds.addAll([
-              'cheque_execution',
-              'cheque_complaint',
-              'demand_money',
-            ]);
-          } else {
-            sb.writeln(
-              '۱. با توجه به اینکه چک جنبهٔ تضمینی/مشروط/وعده‌دار داشته یا مهلت ۶ ماههٔ شکایت کیفری منقضی شده است، طبق مواد ۱۱ و ۱۳ قانون صدور چک **تعقیب کیفری مسموع نیست** (در صورت طرح شکایت کیفری، قرار منع تعقیب صادر می‌شود).\n'
-              '۲. اما اصل طلب شما کاملاً پابرجاست! بهترین اقدام، طرح «دادخواست حقوقی مطالبهٔ وجه» (و در صورت بدون شرط بودن ظاهر چک، درخواست اجرائیهٔ مادهٔ ۲۳) به همراه تقاضای تأمین خواسته برای توقیف حساب‌های صادرکننده است.',
-            );
-            addRef('cheque', '13');
-            addRef('cheque', '23');
-            tplIds.addAll([
-              'demand_money',
-              'cheque_execution',
-              'formal_notice',
-            ]);
-          }
+  switch (s.topicId) {
+    case 'cheque':
+      final isIssuer = s.facts['role'] == 'issuer';
+      final isCond = s.facts['nature'] == 'conditional';
+      final time = s.facts['cert_time'] ?? 'under_6m';
+      sb.writeln('📋 تحلیل و استدلال حقوقی وضعیت چک شما:');
+      sb.writeln();
+      if (!isIssuer) {
+        if (!isCond && time == 'under_6m') {
+          sb.writeln(
+            '۱. به دلیل اینکه چک بابت بدهی قطعی و به تاریخ روز صادر شده و زیر ۶ ماه از تاریخ صدور و گواهی عدم پرداخت گذشته است، هر سه مسیر قانونی پیش روی شما باز است:\n'
+            '• سریع‌ترین مسیر: درخواست «صدور اجرائیهٔ مستقیم چک» از دادگاه حقوقی (طبق مادهٔ ۲۳ اصلاحی قانون صدور چک) بدون نیاز به نوبت دادرسی طولانی، به شرطی که در متن چک شرطی ذکر نشده باشد.\n'
+            '• مسیر کیفری: ثبت «شکوائیهٔ صدور چک بلامحل» (طبق مواد ۷ و ۱۱ قانون صدور چک).\n'
+            '• مسیر حقوقی: ثبت «دادخواست مطالبهٔ وجه چک» همراه با درخواست قرار تأمین خواسته (توقیف فوری اموال بدون تودیع خسارت احتمالی) و خسارت تأخیر تأدیه از تاریخ چک.',
+          );
+          addRef('cheque', '23');
+          addRef('cheque', '11');
+          tplIds.addAll([
+            'cheque_execution',
+            'cheque_complaint',
+            'demand_money',
+          ]);
         } else {
           sb.writeln(
-            '۱. از آنجا که شما صادرکننده یا ضامن چک هستید:\n'
-            '• اگر چک بابت تضمین انجام تعهد، امانت، سفیدامضا یا وعده‌دار بوده است، به استناد **مادهٔ ۱۳ قانون صدور چک** جرم کیفری صدور چک بلامحل محقق نمی‌شود و در دادسرا می‌توانید با استشهادیه، قرارداد پایه یا رسید، «لایحهٔ دفاعیه» بدهید و قرار منع تعقیب بگیرید.\n'
-            '• اگر دعوای حقوقی یا اجرائیه علیه شما ثبت شده و توان پرداخت یکجای مبلغ را ندارید، ظرف ۳۰ روز از ابلاغ اجرائیه دادخواست «اعسار و تقسیط محکوم‌به» ثبت کنید تا از جلب و مسدودی بیشتر جلوگیری شود.',
+            '۱. با توجه به اینکه چک جنبهٔ تضمینی/مشروط/وعده‌دار داشته یا مهلت ۶ ماههٔ شکایت کیفری منقضی شده است، طبق مواد ۱۱ و ۱۳ قانون صدور چک **تعقیب کیفری مسموع نیست** (در صورت طرح شکایت کیفری، قرار منع تعقیب صادر می‌شود).\n'
+            '۲. اما اصل طلب شما کاملاً پابرجاست! بهترین اقدام، طرح «دادخواست حقوقی مطالبهٔ وجه» (و در صورت بدون شرط بودن ظاهر چک، درخواست اجرائیهٔ مادهٔ ۲۳) به همراه تقاضای تأمین خواسته برای توقیف حساب‌های صادرکننده است.',
           );
           addRef('cheque', '13');
-          addRef('financial_sentences', '3');
-          tplIds.addAll(['defense_brief', 'insolvency']);
+          addRef('cheque', '23');
+          tplIds.addAll([
+            'demand_money',
+            'cheque_execution',
+            'formal_notice',
+          ]);
         }
-        break;
+      } else {
+        sb.writeln(
+          '۱. از آنجا که شما صادرکننده یا ضامن چک هستید:\n'
+          '• اگر چک بابت تضمین انجام تعهد، امانت، سفیدامضا یا وعده‌دار بوده است، به استناد **مادهٔ ۱۳ قانون صدور چک** جرم کیفری صدور چک بلامحل محقق نمی‌شود و در دادسرا می‌توانید با استشهادیه، قرارداد پایه یا رسید، «لایحهٔ دفاعیه» بدهید و قرار منع تعقیب بگیرید.\n'
+          '• اگر دعوای حقوقی یا اجرائیه علیه شما ثبت شده و توان پرداخت یکجای مبلغ را ندارید، ظرف ۳۰ روز از ابلاغ اجرائیه دادخواست «اعسار و تقسیط محکوم‌به» ثبت کنید تا از جلب و مسدودی بیشتر جلوگیری شود.',
+        );
+        addRef('cheque', '13');
+        addRef('financial_sentences', '3');
+        tplIds.addAll(['defense_brief', 'insolvency']);
+      }
+      break;
 
-      case 'labor':
-        final issue = s.facts['issue'] ?? 'wages';
-        final time = s.facts['time'] ?? 'under_30d';
-        sb.writeln('📋 تحلیل و استدلال حقوقی روابط کار و بیمه:');
-        sb.writeln();
-        if (issue == 'dismissal') {
+    case 'labor':
+      final issue = s.facts['issue'] ?? 'wages';
+      final time = s.facts['time'] ?? 'under_30d';
+      sb.writeln('📋 تحلیل و استدلال حقوقی روابط کار و بیمه:');
+      sb.writeln();
+      if (issue == 'dismissal') {
+        sb.writeln(
+          time == 'under_30d'
+              ? '۱. نکتهٔ حیاتی: طبق مادهٔ ۱۵۷ قانون کار و آیین‌نامهٔ دادرسی کار، برای شکایت از اخراج غیرموجه و درخواست «بازگشت به کار + دریافت حقوق ایام بلاتکلیفی» مهلت بسیار مهمی دارید؛ همین هفته در سامانهٔ جامع روابط کار ثبت‌نام و دادخواست بدوی به «هیأت تشخیص ادارهٔ کار» ثبت کنید.'
+              : '۱. اگر بیش از مهلت قانونی از اخراج گذشته و عذر موجهی نباشد، ممکن است خواستهٔ بازگشت به کار با ایراد مواجه شود، اما **اصل مطالبات مزدی، سنوات پایان کار، عیدی و مرخصی ذخیره‌شده مشمول مرور زمان نمی‌شود** و همیشه قابل مطالبه است.',
+        );
+        addRef('labor', '27');
+        addRef('labor', '157');
+      } else if (issue == 'insurance') {
+        sb.writeln(
+          '۱. به موجب **مادهٔ ۱۴۸ قانون کار** و **مادهٔ ۲۸ قانون تأمین اجتماعی**، بیمه کردن کارگر از روز اول کار یک تکلیف آمره است و حتی توافق کتبی کارگر مبنی بر نداشتن بیمه **باطل و بی‌اثر** است.\n'
+          '۲. ابتدا در ادارهٔ کار دادخواست الزام کارفرما به واریز حق بیمهٔ ایام کارکرد بدهید؛ با رأی قطعی هیأت تشخیص، شعبهٔ تأمین اجتماعی کارفرما را ملزم به پرداخت اصل حق بیمه و جرایم و ثبت سابقهٔ شما می‌کند.',
+        );
+        addRef('labor', '148');
+        addRef('social_security', '28');
+      } else {
+        sb.writeln(
+          '۱. کارفرما مکلف است مزد، فوق‌العادهٔ اضافه‌کاری، عیدی و سنوات پایان خدمت (معادل یک ماه آخرین حقوق به ازای هر سال سابقه طبق مادهٔ ۲۴ قانون کار) را به‌طور کامل بپردازد.\n'
+          '۲. حتی بدون قرارداد کتبی، طبق مادهٔ ۷ قانون کار قرارداد شفاهی نیز معتبر است و با پرینت واریزی‌های بانکی، پیامک‌ها و شهادت همکاران در هیأت تشخیص ادارهٔ کار اثبات می‌شود.',
+        );
+        addRef('labor', '7');
+        addRef('labor', '24');
+      }
+      tplIds.addAll(['formal_notice', 'defense_brief']);
+      break;
+
+    case 'lease':
+      final isLandlord = s.facts['role'] == 'landlord';
+      final expired = s.facts['expired'] != 'no';
+      final twoWit = s.facts['witnesses'] == 'two_witnesses';
+      sb.writeln('📋 تحلیل و استدلال حقوقی رابطهٔ استیجاری:');
+      sb.writeln();
+      if (isLandlord) {
+        if (expired && twoWit) {
           sb.writeln(
-            time == 'under_30d'
-                ? '۱. نکتهٔ حیاتی: طبق مادهٔ ۱۵۷ قانون کار و آیین‌نامهٔ دادرسی کار، برای شکایت از اخراج غیرموجه و درخواست «بازگشت به کار + دریافت حقوق ایام بلاتکلیفی» مهلت بسیار مهمی دارید؛ همین هفته در سامانهٔ جامع روابط کار ثبت‌نام و دادخواست بدوی به «هیأت تشخیص ادارهٔ کار» ثبت کنید.'
-                : '۱. اگر بیش از مهلت قانونی از اخراج گذشته و عذر موجهی نباشد، ممکن است خواستهٔ بازگشت به کار با ایراد مواجه شود، اما **اصل مطالبات مزدی، سنوات پایان کار، عیدی و مرخصی ذخیره‌شده مشمول مرور زمان نمی‌شود** و همیشه قابل مطالبه است.',
+            '۱. خبر خوب حقوقی: چون مدت اجاره منقضی شده و قرارداد کتبی با امضای دو شاهد (یا سند رسمی) دارید، مشمول **مادهٔ ۳ قانون روابط موجر و مستأجر مصوب ۱۳۷۶** هستید و نیازی به دادرسی طولانی ندارید!\n'
+            '۲. می‌توانید از طریق دفتر خدمات قضایی درخواست «دستور تخلیهٔ فوری» از دادگاه صلح / شورای حل اختلاف بخواهید؛ مرجع قضایی با تودیع مبلغ ودیعه (پول پیش) از سوی شما به حساب سپردهٔ دادگستری، ظرف یک هفته دستور تخلیه صادر می‌کند.',
           );
-          addRef('labor', '27');
-          addRef('labor', '157');
-        } else if (issue == 'insurance') {
-          sb.writeln(
-            '۱. به موجب **مادهٔ ۱۴۸ قانون کار** و **مادهٔ ۲۸ قانون تأمین اجتماعی**، بیمه کردن کارگر از روز اول کار یک تکلیف آمره است و حتی توافق کتبی کارگر مبنی بر نداشتن بیمه **باطل و بی‌اثر** است.\n'
-            '۲. ابتدا در ادارهٔ کار دادخواست الزام کارفرما به واریز حق بیمهٔ ایام کارکرد بدهید؛ با رأی قطعی هیأت تشخیص، شعبهٔ تأمین اجتماعی کارفرما را ملزم به پرداخت اصل حق بیمه و جرایم و ثبت سابقهٔ شما می‌کند.',
-          );
-          addRef('labor', '148');
-          addRef('social_security', '28');
+          addRef('landlord_tenant', '3');
         } else {
           sb.writeln(
-            '۱. کارفرما مکلف است مزد، فوق‌العادهٔ اضافه‌کاری، عیدی و سنوات پایان خدمت (معادل یک ماه آخرین حقوق به ازای هر سال سابقه طبق مادهٔ ۲۴ قانون کار) را به‌طور کامل بپردازد.\n'
-            '۲. حتی بدون قرارداد کتبی، طبق مادهٔ ۷ قانون کار قرارداد شفاهی نیز معتبر است و با پرینت واریزی‌های بانکی، پیامک‌ها و شهادت همکاران در هیأت تشخیص ادارهٔ کار اثبات می‌شود.',
+            '۱. از آنجا که یا مدت قرارداد هنوز منقضی نشده یا قرارداد فاقد امضای دو شاهد است، شرایط صدور «دستور تخلیهٔ فوری» مادهٔ ۳ فراهم نیست.\n'
+            '۲. مسیر درست قانونی، ارسال یک «اظهارنامهٔ رسمی» و سپس ثبت «دادخواست صدور حکم تخلیه» در دادگاه صلح به استناد انقضای مدت (مادهٔ ۴۹۴ قانون مدنی) یا تخلف از شروط قرارداد است.',
           );
-          addRef('labor', '7');
-          addRef('labor', '24');
+          addRef('landlord_tenant', '2');
+          addRef('civil', '494');
         }
-        tplIds.addAll(['formal_notice', 'defense_brief']);
-        break;
-
-      case 'lease':
-        final isLandlord = s.facts['role'] == 'landlord';
-        final expired = s.facts['expired'] != 'no';
-        final twoWit = s.facts['witnesses'] == 'two_witnesses';
-        sb.writeln('📋 تحلیل و استدلال حقوقی رابطهٔ استیجاری:');
-        sb.writeln();
-        if (isLandlord) {
-          if (expired && twoWit) {
-            sb.writeln(
-              '۱. خبر خوب حقوقی: چون مدت اجاره منقضی شده و قرارداد کتبی با امضای دو شاهد (یا سند رسمی) دارید، مشمول **مادهٔ ۳ قانون روابط موجر و مستأجر مصوب ۱۳۷۶** هستید و نیازی به دادرسی طولانی ندارید!\n'
-              '۲. می‌توانید از طریق دفتر خدمات قضایی درخواست «دستور تخلیهٔ فوری» از دادگاه صلح / شورای حل اختلاف بخواهید؛ مرجع قضایی با تودیع مبلغ ودیعه (پول پیش) از سوی شما به حساب سپردهٔ دادگستری، ظرف یک هفته دستور تخلیه صادر می‌کند.',
-            );
-            addRef('landlord_tenant', '3');
-          } else {
-            sb.writeln(
-              '۱. از آنجا که یا مدت قرارداد هنوز منقضی نشده یا قرارداد فاقد امضای دو شاهد است، شرایط صدور «دستور تخلیهٔ فوری» مادهٔ ۳ فراهم نیست.\n'
-              '۲. مسیر درست قانونی، ارسال یک «اظهارنامهٔ رسمی» و سپس ثبت «دادخواست صدور حکم تخلیه» در دادگاه صلح به استناد انقضای مدت (مادهٔ ۴۹۴ قانون مدنی) یا تخلف از شروط قرارداد است.',
-            );
-            addRef('landlord_tenant', '2');
-            addRef('civil', '494');
-          }
-          tplIds.addAll(['formal_notice', 'demand_money']);
-        } else {
-          sb.writeln(
-            '۱. به عنوان مستأجر، طبق مادهٔ ۴ قانون روابط موجر و مستأجر ۱۳۷۶، تخلیهٔ ملک منوط به استرداد هم‌زمان مبلغ قرض‌الحسنه (ودیعه / پول پیش) به شماست.\n'
-            '۲. اگر مدت قرارداد تمام شده و مالک پول پیش را پس نمی‌دهد: اولاً بلافاصله یک «اظهارنامهٔ رسمی» مبنی بر آمادگی تحویل کلید در قبال دریافت ودیعه بفرستید (تا به شما اجرت‌المثل ایام تصرف تعلق نگیرد) و ثانیاً «دادخواست مطالبهٔ وجه ودیعه» همراه با تأمین خواسته ثبت کنید.',
-          );
-          addRef('landlord_tenant', '4');
-          addRef('civil_procedure', '156');
-          tplIds.addAll(['formal_notice', 'demand_money']);
-        }
-        break;
+        tplIds.addAll(['formal_notice', 'demand_money']);
+      } else {
+        sb.writeln(
+          '۱. به عنوان مستأجر، طبق مادهٔ ۴ قانون روابط موجر و مستأجر ۱۳۷۶، تخلیهٔ ملک منوط به استرداد هم‌زمان مبلغ قرض‌الحسنه (ودیعه / پول پیش) به شماست.\n'
+          '۲. اگر مدت قرارداد تمام شده و مالک پول پیش را پس نمی‌دهد: اولاً بلافاصله یک «اظهارنامهٔ رسمی» مبنی بر آمادگی تحویل کلید در قبال دریافت ودیعه بفرستید (تا به شما اجرت‌المثل ایام تصرف تعلق نگیرد) و ثانیاً «دادخواست مطالبهٔ وجه ودیعه» همراه با تأمین خواسته ثبت کنید.',
+        );
+        addRef('landlord_tenant', '4');
+        addRef('civil_procedure', '156');
+        tplIds.addAll(['formal_notice', 'demand_money']);
+      }
+      break;
 
       case 'family':
         final sub = s.facts['subtopic'] ?? 'mehrieh';
