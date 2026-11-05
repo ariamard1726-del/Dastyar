@@ -478,8 +478,12 @@ static CounselorTurn step(
   }
 
   final bool activeContext = session.topicId != 'general_intake';
-  final smallTalkTurn = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
-  if (smallTalkTurn != null) return smallTalkTurn;
+  // لایهٔ گفتگوی کوتاه کاملاً جاست: پیش از planner/RAG/مدل زبانی، پیام
+  // غیرحقوقی را با پاسخی ثابت میگیرد و هیچ تحلیل حقوقی انجام نمیدهد.
+  final smallTalk = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
+  if (smallTalk != null) {
+    return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
+  }
 
   if (activeContext) {
     final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
