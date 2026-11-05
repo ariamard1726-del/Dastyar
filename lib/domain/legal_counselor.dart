@@ -447,6 +447,7 @@ static CounselorTurn step(
   final trimmed = rawText.trim();
   final n = _norm(trimmed);
 
+  // Terminal commands always win, regardless of the current planner state.
   if (trimmed.isEmpty) {
     return const CounselorTurn(text: 'بفرمایید، در خدمتم. موضوع حقوقی‌تان را بنویسید.', chips: SmallTalkLayer.defaultIntakeChips);
   }
@@ -458,6 +459,15 @@ static CounselorTurn step(
     final s = net.classify(trimmed);
     if (s.label == 'cancel' && s.score >= net.cancelMin) {
       return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
+    }
+  }
+
+  // A conclusion can offer a draft chip. Route that chip before reopening
+  // the concluded session or interpreting its title as a slot answer.
+  if (trimmed.startsWith(draftPrefix)) {
+    final template = _matchTemplateChip(trimmed, templates);
+    if (template != null) {
+      return CounselorTurn(text: '', startTemplate: template);
     }
   }
 
@@ -480,93 +490,421 @@ static CounselorTurn step(
     return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
   }
 
-  if (activeContext) {
-    final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
-    if (newTurn != null) {
-      CounselorSessionState.clearStalls(session);
-      return newTurn;
-    }
-  }
-
-  final int tokenCount = n.split(' ').length;
-  final bool isShortAnswer = tokenCount <= 4 || n == 'بله' || n == 'خیر';
-  final bool isRagEligible = tokenCount >= 5 && _isLegalQuestion(trimmed, net);
-
-  if (!isShortAnswer && isRagEligible) {
+  // Legal questions are answered without mutating the pending slot. Simple
+  // declarative answers (amounts, dates, choices, ...) never cross this gate.
+  if (_ragEligible(session, trimmed, net: net)) {
     return _ragTurn(session, trimmed, engine, replies, rnd);
   }
 
-  final ds = session.dialogueState;
-  final bool plannerActive = ds != null && ds.slots.isNotEmpty;
-
-  if (activeContext && plannerActive) {
-    for (final e in ds.slots.entries) {
-      final value = e.value.value?.trim();
-      if (value != null && value.isNotEmpty) {
-        session.facts.putIfAbsent(e.key, () => value);
-      }
-    }
-    final stalls = CounselorSessionState.bumpStallCount(session);
-
-    if (stalls <= 2) {
-      return const CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: ['ادامه بحث', 'سؤال جدید دارم']);
-    }
-
-    if (!CounselorSessionState.conclusionShown(session)) {
-      CounselorSessionState.markConclusionShown(session);
-      final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
-      return CounselorTurn(text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ' + c.text, chips: c.chips, completed: c.completed, cancelled: c.cancelled, startTemplate: c.startTemplate, ragQuery: c.ragQuery, ragReply: c.ragReply);
-    }
-    return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
+  if (!activeContext) {
+    return _handleGeneralIntake(
+      session,
+      trimmed,
+      engine,
+      templates,
+      net: net,
+      replies: replies,
+      rnd: rnd,
+    );
   }
 
-  if (session.topicId == 'general_intake') {
-    final detected = _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
-    if (detected != null && detected != 'general_intake') {
-      session.topicId = detected;
-      _extractAllFacts(session, trimmed);
-      return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
-    }
-    final attempts = CounselorSessionState.bumpIntakeAttempts(session);
-    if (attempts == 1) {
-      return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
-    } else {
-      return const CounselorTurn(text: 'لطفاً در یک جمله ساده بنویسید چه اتفاقی افتاده است تا راهنمایی‌تان کنم.', chips: []);
-    }
-  }
-
-  final steps = _stepsFor(session.topicId);
-  final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-
-  // Phase 3: به جای پرش رباتی به اسلات بعدی، نخست گفتهٔ کاربر را
-  // طبیعی تأیید میکنیم. منطق Planner دستنخورده میماند (Phase 4)؛
-  // فقط مسیر قدیمی step() → _advance() برای «چطور پرسیدن» سراغ
-  // ResponseComposer.composeAcknowledged میرود.
-  ComposedReply? acknowledged;
-  if (pendingStep != null) {
-    final val = pendingStep.extractor(n);
-    session.facts[pendingStep.slot] = val ?? trimmed;
-    _extractAllFacts(session, trimmed);
-
-    final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-    if (nextStep != null) {
-      acknowledged = _responseComposer.composeAcknowledged(
-        trimmed,
-        nextStep.slot,
-        nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
-        options: nextStep.options,
-        domain: session.topicId,
-        state: session.dialogueState,
-        turnIndex: session.facts.length,
-      );
-    }
-  }
-  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, acknowledgment: acknowledged);
+  return _handleDomainStep(
+    session,
+    trimmed,
+    engine,
+    templates,
+    net: net,
+    replies: replies,
+    rnd: rnd,
+  );
 }
-static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید');
+
+/// Route an initial/uncategorized legal issue into a concrete counseling
+/// domain. Unknown input stays in intake and receives a varied reprompt.
+static CounselorTurn _handleGeneralIntake(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  final n = _norm(rawText);
+  final detected = _topicFromIntakeChoice(n) ?? detectTopic(rawText, net: net);
+  if (detected != null && detected != 'general_intake') {
+    session.topicId = detected;
+    session.dialogueState = null;
+    session.facts.clear();
+    CounselorSessionState.reset(session);
+
+    // Extract first, then initialize the planner so its SlotValues and the
+    // legacy facts describe the same initial state.
+    _extractAllFacts(session, rawText);
+    DialogueIntegration.initializeState(session);
+    return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
+  }
+
+  final attempts = CounselorSessionState.bumpIntakeAttempts(session);
+  if (attempts == 1) {
+    return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
+  }
+  return const CounselorTurn(text: 'لطفاً در یک جمله ساده بنویسید چه اتفاقی افتاده است تا راهنمایی‌تان کنم.', chips: []);
+}
+
+/// Process one turn in a concrete legal domain. A planner result is not a
+/// stall merely because [DialogueIntegration.tryStep] returns null: null also
+/// means "all slots are ready; let the rich legacy conclusion answer".
+static CounselorTurn _handleDomainStep(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  // Sync restored/existing slots before taking the progress snapshot; only
+  // values extracted from this user turn should count as forward progress.
+  _syncPlannerFacts(session);
+  final factsBefore = Map<String, String>.of(session.facts);
+  final plannerTurn = DialogueIntegration.tryStep(session, rawText, engine);
+  _syncPlannerFacts(session);
+
+  if (plannerTurn != null) {
+    CounselorSessionState.clearStalls(session);
+    return plannerTurn;
+  }
+
+  if (_factsChanged(factsBefore, session.facts)) {
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  final pending = _pendingStep(session);
+  if (pending == null) {
+    CounselorSessionState.clearStalls(session);
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final n = _norm(rawText);
+  final value = pending.extractor(n);
+  if (value != null) {
+    session.facts[pending.slot] = value;
+    _extractAllFacts(session, rawText);
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  // Keep the legacy ability to accept an on-topic narrative as additional
+  // detail. In contrast, refusals and unrelated text must never be persisted
+  // as if they were valid answers to the pending slot.
+  if (_isTopicalNarrative(session, rawText, pending, net: net)) {
+    session.facts[pending.slot] = rawText.trim();
+    _extractAllFacts(session, rawText);
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  return _plannerStallTurn(
+    session,
+    engine,
+    templates,
+    replies: replies,
+    rnd: rnd,
+  );
+}
+
+static _QuestionStep? _pendingStep(CounselingSession session) {
+  return _stepsFor(session.topicId)
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+}
+
+static void _syncPlannerFacts(CounselingSession session) {
+  final slots = session.dialogueState?.slots;
+  if (slots == null) return;
+  for (final entry in slots.entries) {
+    final value = entry.value.value?.trim();
+    if (value != null && value.isNotEmpty) {
+      session.facts[entry.key] = value;
+    }
+  }
+}
+
+static bool _factsChanged(
+  Map<String, String> before,
+  Map<String, String> after,
+) {
+  if (before.length != after.length) return true;
+  for (final entry in after.entries) {
+    if (before[entry.key] != entry.value) return true;
+  }
+  return false;
+}
+
+static CounselorTurn _advanceAfterAnswer(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  final nextStep = _pendingStep(session);
+  if (nextStep == null) {
+    // No acknowledgement is fabricated after the final slot; go directly to
+    // the conclusion and mark the session concluded in exactly one place.
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final acknowledged = _responseComposer.composeAcknowledged(
+    rawText,
+    nextStep.slot,
+    nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
+    options: nextStep.options,
+    domain: session.topicId,
+    state: session.dialogueState,
+    turnIndex: session.facts.length,
+  );
+  return _advance(
+    session,
+    engine,
+    templates,
+    firstTurn: false,
+    replies: replies,
+    rnd: rnd,
+    acknowledgment: acknowledged,
+  );
+}
+
+static final RegExp _refusalRe = RegExp(
+  r'(?:نمی\s*خواهم|نمیخواهم).*(?:جواب|پاسخ|بگویم|بگم)|(?:(?:جواب|پاسخ)\s*(?:نمی\s*دهم|ندارم))',
+);
+
+/// Whether free-form text is still about the active legal domain. This is
+/// deliberately narrower than the old "store every non-empty answer" rule.
+static bool _isTopicalNarrative(
+  CounselingSession session,
+  String rawText,
+  _QuestionStep pending, {
+  IntentNet? net,
+}) {
+  final n = _norm(rawText);
+  if (n.isEmpty || _refusalRe.hasMatch(n)) return false;
+
+  final detected = detectTopic(rawText) ?? detectTopic(rawText, net: net);
+  if (detected != null) return detected == session.topicId;
+
+  const slotCues = <String, List<String>>{
+    'cheque.nature': ['بدهی', 'تضمین', 'ضمانت', 'امانت', 'سفید', 'وعده'],
+    'cheque.cert_time': ['گواهی', 'بانک', 'برگشت', 'ماه'],
+    'labor.proof': ['مدرک', 'قرارداد', 'حقوق', 'بیمه', 'واریز', 'پیامک'],
+    'labor.time': ['اخراج', 'روز', 'ماه', 'کارگاه'],
+    'lease.witnesses': ['قرارداد', 'شاهد', 'سند', 'رهگیری'],
+    'family.side': ['زوج', 'شوهر', 'خانم', 'آقا'],
+    'family.detail': ['توافق', 'اجرا', 'اعسار', 'توان مالی'],
+    'fraud_cyber.evidence': ['رسید', 'بانک', 'اسکرین', 'شاهد', 'سند'],
+    'criminal_harm.proof': ['مدرک', 'پزشکی', 'پلیس', 'شاهد', 'پیامک'],
+    'litigation_defense.deadline': ['روز', 'ابلاغ', 'ثنا', 'عذر', 'اجرا'],
+    'debt.doc': ['رسید', 'سفته', 'قرارداد', 'فیش', 'واریز', 'شهادت'],
+  };
+  final cues = slotCues['${session.topicId}.${pending.slot}'];
+  return cues != null && cues.any(n.contains);
+}
+
+static const Map<String, List<String>> _stallPrompts = <String, List<String>>{
+  'cheque.role': [
+    'شما دارندهٔ چک هستید یا صادرکننده/ضامن؟',
+    'نقش شما دربارهٔ این چک کدام است: دارنده یا صادرکننده/ضامن؟',
+  ],
+  'cheque.nature': [
+    'این چک برای بدهی قطعی بوده یا تضمین/امانت/شرط؟',
+    'ماهیت چک کدام است: بدهی قطعی یا تضمینی و مشروط؟',
+  ],
+  'cheque.cert_time': [
+    'گواهی عدم پرداخت دارید و هنوز در مهلت شش‌ماهه هستید؟',
+    'وضعیت گواهی عدم پرداخت و مهلت شش‌ماههٔ شما کدام گزینه است؟',
+  ],
+  'labor.issue': [
+    'مشکل اصلی با کارفرما اخراج است، مطالبات مزدی یا بیمه؟',
+    'کدام موضوع کاری برایتان پیش آمده: اخراج، حقوق و سنوات یا بیمه؟',
+  ],
+  'labor.proof': [
+    'برای اثبات رابطهٔ کاری چه مدرکی دارید؟',
+    'قرارداد، واریز بانکی، پیامک یا مدرک دیگری از کار دارید؟',
+  ],
+  'labor.time': [
+    'چند روز از اخراج یا قطع همکاری گذشته است؟',
+    'هنوز مشغول کارید یا کمتر/بیشتر از سی روز از اخراج گذشته است؟',
+  ],
+  'lease.role': [
+    'در این قرارداد موجر هستید یا مستأجر؟',
+    'نقش شما در اجاره کدام است: مالک/موجر یا مستأجر؟',
+  ],
+  'lease.expired': [
+    'مدت قرارداد اجاره تمام شده یا هنوز ادامه دارد؟',
+    'قرارداد از نظر زمانی منقضی شده است یا در میانهٔ مدت هستید؟',
+  ],
+  'lease.witnesses': [
+    'قرارداد رسمی است، دو شاهد دارد یا بدون دو شاهد/شفاهی است؟',
+    'نوع قرارداد و وضعیت امضای دو شاهد کدام گزینه است؟',
+  ],
+  'family.subtopic': [
+    'موضوع شما مهریه است، نفقه، طلاق یا حضانت؟',
+    'کدام مسئلهٔ خانوادگی را پیگیری می‌کنید: مهریه، نفقه، طلاق یا حضانت؟',
+  ],
+  'family.side': [
+    'از سمت زوجه پیگیر موضوع هستید یا زوج؟',
+    'نقش شما در این موضوع خانوادگی زوجه است یا زوج؟',
+  ],
+  'family.detail': [
+    'بین شما توافق هست، اختلاف، یا حکم و اجرائیه در میان است؟',
+    'وضعیت فعلی کدام است: توافق، اختلاف یا مرحلهٔ اجرا و توان مالی؟',
+  ],
+  'fraud_cyber.kind': [
+    'مال با فیشینگ/هک، فریب کلاهبردارانه یا از مسیر امانت از دست رفته است؟',
+    'شکل وقوع جرم کدام بوده: اینترنتی، کلاهبرداری، امانت یا فروش مال غیر؟',
+  ],
+  'fraud_cyber.evidence': [
+    'رسید بانکی، اسکرین‌شات، سند یا شاهد دارید؟',
+    'کدام مستندات بانکی، کتبی یا شفاهی در دست دارید؟',
+  ],
+  'criminal_harm.harm_type': [
+    'رفتار طرف مقابل ضرب، تهدید، توهین یا انتشار تصویر خصوصی بوده است؟',
+    'کدام آسیب رخ داده: ضرب و جرح، تهدید، توهین یا انتشار عکس/فیلم؟',
+  ],
+  'criminal_harm.proof': [
+    'گواهی پزشکی، گزارش پلیس، پیامک یا شاهد دارید؟',
+    'برای اثبات موضوع چه مدرک یا شاهدی در دست دارید؟',
+  ],
+  'litigation_defense.stage': [
+    'ابلاغیه برای احضار است، حکم غیابی یا رأی حضوری بدوی؟',
+    'پرونده در کدام مرحله است: احضاریه، حکم غیابی یا اعتراض به رأی بدوی؟',
+  ],
+  'litigation_defense.deadline': [
+    'از ابلاغ کمتر از بیست روز گذشته یا بیشتر؟',
+    'وضعیت مهلت بیست‌روزه و عذر موجه شما کدام گزینه است؟',
+  ],
+  'debt.role': [
+    'طلبکار هستید یا بدهکار/خوانده؟',
+    'نقش شما در این بدهی کدام است: طلبکار یا بدهکار؟',
+  ],
+  'debt.doc': [
+    'سند کتبی، فیش بانکی یا شاهد برای این طلب/بدهی دارید؟',
+    'مدرک این بدهی کدام است: رسید و سفته، واریز بانکی یا شهادت؟',
+  ],
+};
+
+/// Handle an irrelevant answer, an unclear answer, or a refusal without
+/// repeating the exact same prompt. Two varied re-asks are attempted; the
+/// existing best-effort conclusion remains the final escape hatch.
+static CounselorTurn _plannerStallTurn(
+  CounselingSession session,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  final pending = _pendingStep(session);
+  if (pending == null) {
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final stalls = CounselorSessionState.bumpStallCount(session);
+  if (stalls <= 2) {
+    final opening = stalls == 1
+        ? 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، هنوز باید به سؤال قبلی پاسخ روشنی برسد؛ بگذارید آن را ساده‌تر بپرسم:'
+        : 'باشه، اشکالی ندارد اگر پاسخ کامل را نمی‌دانید. فقط نزدیک‌ترین گزینه را انتخاب کنید یا چند کلمه بگویید:';
+    final prompts = _stallPrompts['${session.topicId}.${pending.slot}'];
+    final prompt = prompts == null
+        ? _promptFor(session.topicId, pending, replies, rnd)
+        : prompts[stalls - 1];
+    return CounselorTurn(
+      text: '$opening\n\n$prompt',
+      chips: [...pending.options, cancelCounselCmd],
+    );
+  }
+
+  if (!CounselorSessionState.conclusionShown(session)) {
+    CounselorSessionState.markConclusionShown(session);
+    final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
+    return CounselorTurn(
+      text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ${c.text}',
+      chips: c.chips,
+      completed: c.completed,
+      cancelled: c.cancelled,
+      startTemplate: c.startTemplate,
+      ragQuery: c.ragQuery,
+      ragReply: c.ragReply,
+    );
+  }
+  return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
+}
+
+/// A semantic gate between slot filling and legal-article retrieval. Direct
+/// article references and explicit legal-consequence questions are eligible;
+/// declarative slot values, including amounts, are not.
+static bool _ragEligible(
+  CounselingSession session,
+  String rawText, {
+  IntentNet? net,
+}) {
+  final n = _norm(rawText);
+  if (n.isEmpty) return false;
+  if (_directArtRe.hasMatch(n)) return true;
+  if (!_questionGlowRe.hasMatch(n)) return false;
+
+  final hasLegalCue = _lawishCue(n);
+  final tokenCount = n.split(' ').where((token) => token.isNotEmpty).length;
+  if (tokenCount <= 4 && !hasLegalCue) return false;
+
+  // A short answer phrased with «آیا» can still be a slot value. Strong legal
+  // cues override this guard when the user is genuinely asking for the law.
+  final pending = _pendingStep(session);
+  if (!hasLegalCue && pending != null && pending.extractor(n) != null) {
+    return false;
+  }
+
+  return _isLegalQuestion(rawText, net);
+}
+
+static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید|میگه|میگوید|می گوید');
 
 static bool _lawishCue(String n) =>
-    n.contains('قانون') || n.contains('ماده') || n.contains('اصل') || n.contains('مجازات') || n.contains('مهلت') || n.contains('شرایط') || n.contains('تعریف');
+    n.contains('قانون') ||
+    n.contains('ماده') ||
+    n.contains('اصل') ||
+    n.contains('مجازات') ||
+    n.contains('مهلت') ||
+    n.contains('شرایط') ||
+    n.contains('تعریف') ||
+    n.contains('ضمانت اجرا') ||
+    n.contains('عواقب') ||
+    n.contains('پیامد') ||
+    n.contains('مسئولیت') ||
+    n.contains('حکم');
 
 static bool _isLegalQuestion(String rawText, IntentNet? net) {
   final n = _norm(rawText);
