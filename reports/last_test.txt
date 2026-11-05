@@ -1,4 +1,4 @@
-commit: dab4f51
+commit: f37de34
 🎉 208 tests passed.
 --- analyze ---
-No issues found! (ran in 10.1s)
+No issues found! (ran in 8.9s)
