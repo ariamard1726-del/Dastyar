@@ -178,16 +178,26 @@ class ResponseComposer {
   String _buildEcho(DialogueState state) {
     if (state.matchedSpans.isNotEmpty) {
       final first = state.matchedSpans.values.first;
-      if (first.trim().isNotEmpty) {
+      if (first.trim().isNotEmpty && !_containsLatin(first)) {
         return 'می‌فهمم که گفتید «${first.trim()}».';
       }
     }
     final last = state.lastUserUtterance.trim();
-    if (last.isEmpty) return '';
+    if (last.isEmpty || _containsLatin(last)) return '';
     if (last.length > 50) {
       return 'می‌فهمم که گفتید «${last.substring(0, 50)}…».';
     }
     return 'می‌فهمم که گفتید «$last».';
+  }
+
+  /// آیا متن شامل حروف لاتین است؟ (برای Persian-only guard)
+  static bool _containsLatin(String s) {
+    for (final rune in s.runes) {
+      if ((rune >= 0x41 && rune <= 0x5A) || (rune >= 0x61 && rune <= 0x7A)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// انتخاب acknowledgment از bank بر اساس hash.
