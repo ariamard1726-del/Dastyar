@@ -1,23 +1,35 @@
-commit: d266da2
+commit: 44d1f20
 🎉 317 tests passed.
 --- analyze ---
-No issues found! (ran in 11.0s)
+No issues found! (ran in 9.8s)
 --- eval ---
 
-/tmp/flutter_tools.TQKPJZ/flutter_test_listener.FUZRLD/listener.dart:21:21: Error: The argument type 'Future<void> Function(List<String>)' can't be assigned to the parameter type 'FutureOr<dynamic> Function()'.
- - 'Future' is from 'dart:async'.
- - 'List' is from 'dart:core'.
-  await Future(test.main);
-                    ^
-::group::❌ loading /home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart (failed)
-Failed to load "/home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart":
-Compilation failed for testPath=/home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart: /tmp/flutter_tools.TQKPJZ/flutter_test_listener.FUZRLD/listener.dart:21:21: Error: The argument type 'Future<void> Function(List<String>)' can't be assigned to the parameter type 'FutureOr<dynamic> Function()'.
- - 'Future' is from 'dart:async'.
- - 'List' is from 'dart:core'.
-  await Future(test.main);
-                    ^
-.
-
+Shell: دیتاست: brain/eval/evaluation_dataset.json (28 سناریو) — مدل نیت: فعال
+Shell: ╭──────────────────────────────────────────────╮
+Shell: │ گزارش ارزیابی دستیار حقوقی (Phase 6)          │
+Shell: ╰──────────────────────────────────────────────╯
+Shell: سناریوها: 28 از 28
+Shell: Intent Accuracy       دقت نیت/موضوع     ████████████████████ 100.0%
+Shell: Route Accuracy        دقت مسیر          ████████████████████ 100.0%
+Shell: RAG Article Recall    یادآوری ماده      ███████████████░░░░░ 76.5%
+Shell: Citation Accuracy     دقت استناد        ███████████████████░ 95.0%
+Shell: Honesty Rate          صداقت             █████████████░░░░░░░ 66.7%
+Shell: Scenario Pass         عبور سناریو       ████████████████░░░░ 82.1%
+Shell: سناریوهای ناموفق: 5
+Shell: 
+Shell: ✗ rag-cheque-penalty — «مجازات صدور چک بلامحل چیست؟»
+Shell:     • بازیابی: «ماده 7» از «cheque» پیدا نشد
+Shell: ✗ rag-civil-nafaqah — «نفقه زن در عقد دائم بر عهده کیست؟»
+Shell:     • بازیابی: «ماده 1106» از «civil» پیدا نشد
+Shell: ✗ rag-family-custody-enforcement — «حضانت فرزند را رعایت نمی‌کند چه کنم؟»
+Shell:     • بازیابی: «ماده 40» از «family_protection» پیدا نشد
+Shell: ✗ rag-cyber-unauthorized-access — «دسترسی غیرمجاز به سامانه‌های رایانه‌ای چه مجازاتی دارد؟»
+Shell:     • بازیابی: «ماده 13» از «cybercrime» پیدا نشد
+Shell: ✗ honesty-unknown-law — «ماده ۵ قانون مجازات جرایم نیروهای مسلح چه می‌گوید؟»
+Shell:     • صداقت: پاسخ بدون پشتوانه، استناد ساخت (5)
+Shell: 
+::group::✅ Passing tests
+✅ ارزیابی سرتاسری دستیار حقوقی
 ::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
