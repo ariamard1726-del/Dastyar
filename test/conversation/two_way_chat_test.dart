@@ -11,7 +11,6 @@ import 'package:dastyar/core/llm.dart';
 import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/domain/dialogue/conversation_router.dart';
 import 'package:dastyar/domain/intent_net.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
