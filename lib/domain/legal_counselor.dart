@@ -84,6 +84,84 @@ class CounselingSession {
   }
 }
 
+/// حالت پویای هر نشست مشاوره که با [Expando] به خودِ شیءِ نشست متصل میشود.
+///
+/// `LegalCounselor` کلاسی کاملاً ایستا است (سازندهٔ خصوصی و بدون نمونه)،
+/// بنابراین «نمونهٔ مشاور» در عمل همان [CounselingSession] فعالِ هر گفتگوست.
+/// برتری [Expando] بر یک `Map` ایستا:
+///  * کلیدها به صورت ضعیف (weak) نگه داشته میشوند؛ نشستهای بستهشده نشت
+///    حافظه نمیدهند و نیازی به پاکسازی دستی کلیدها نیست؛
+///  * هر نشست وضعیت مستقل خود را دارد؛ نشست تازهساخته / بازیافتشده از
+///    `fromJson` شمارندههای نشست قبلی را به ارث نمیبرد؛
+///  * این حالت پویا هرگز وارد `toJson` و ذخیرهسازی `SharedPreferences`
+///    نمیشود، پس قرارداد ذخیرهسازی دستنخورده میماند.
+class CounselorSessionState {
+  CounselorSessionState._();
+
+  static final Expando<int> _intakeAttempts = Expando<int>('intakeAttempts');
+  static final Expando<int> _stallCount = Expando<int>('stallCount');
+  static final Expando<bool> _conclusionShown = Expando<bool>('conclusionShown');
+  static final Expando<Map<String, Object>> _properties =
+      Expando<Map<String, Object>>('properties');
+
+  static int intakeAttempts(CounselingSession s) => _intakeAttempts[s] ?? 0;
+
+  static int bumpIntakeAttempts(CounselingSession s) {
+    final next = intakeAttempts(s) + 1;
+    _intakeAttempts[s] = next;
+    return next;
+  }
+
+  static int stallCount(CounselingSession s) => _stallCount[s] ?? 0;
+
+  static int bumpStallCount(CounselingSession s) {
+    final next = stallCount(s) + 1;
+    _stallCount[s] = next;
+    return next;
+  }
+
+  static bool conclusionShown(CounselingSession s) => _conclusionShown[s] ?? false;
+
+  static void markConclusionShown(CounselingSession s) =>
+      _conclusionShown[s] = true;
+
+  /// خواندن یک ویژگی دلخواه و typed از همان نشست.
+  static T? property<T extends Object>(CounselingSession s, String key) {
+    final value = _properties[s]?[key];
+    return value is T ? value : null;
+  }
+
+  /// نوشتن یک ویژگی دلخواه (پویا) روی همان نشست، بدون تغییر مدل داده.
+  static void setProperty<T extends Object>(
+    CounselingSession s,
+    String key,
+    T value,
+  ) {
+    final props = _properties[s] ?? <String, Object>{};
+    props[key] = value;
+    _properties[s] = props;
+  }
+
+  static void clearProperty(CounselingSession s, String key) {
+    _properties[s]?.remove(key);
+  }
+
+  /// پاک کردن همهٔ شمارندهها و ویژگیها (شروع دوبارهٔ همان نشست).
+  static void reset(CounselingSession s) {
+    _intakeAttempts[s] = null;
+    _stallCount[s] = null;
+    _conclusionShown[s] = null;
+    _properties[s] = null;
+  }
+
+  /// فقط شمارندهٔ «گیر کردن planner» صفر میشود؛ شمارندهٔ پذیرش اولیه و
+  /// ویژگیهای دلخواه دستنخورده میمانند.
+  static void clearStalls(CounselingSession s) {
+    _stallCount[s] = null;
+    _conclusionShown[s] = null;
+  }
+}
+
 class CounselCheckpointStore {
   CounselCheckpointStore._();
 
@@ -361,9 +439,6 @@ static CounselorTurn? pendingTurn(
 }
 
 static const SmallTalkLayer _smallTalk = SmallTalkLayer();
-static final Expando<int> _intakeAttempts = Expando<int>('intake');
-static final Expando<int> _stallCount = Expando<int>('stall');
-static final Expando<bool> _conclusionShown = Expando<bool>('conclusion');
 
 static CounselorTurn step(
   CounselingSession session,
@@ -399,9 +474,7 @@ static CounselorTurn step(
 
   if (session.concluded) {
     session.concluded = false;
-    _intakeAttempts[session] = null;
-    _stallCount[session] = null;
-    _conclusionShown[session] = null;
+    CounselorSessionState.reset(session);
   }
 
   final bool activeContext = session.topicId != 'general_intake';
@@ -411,8 +484,7 @@ static CounselorTurn step(
   if (activeContext) {
     final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
     if (newTurn != null) {
-      _stallCount[session] = null;
-      _conclusionShown[session] = null;
+      CounselorSessionState.clearStalls(session);
       return newTurn;
     }
   }
@@ -430,19 +502,19 @@ static CounselorTurn step(
 
   if (activeContext && plannerActive) {
     for (final e in ds.slots.entries) {
-      if (e.value.value.trim().isNotEmpty) {
-        session.facts.putIfAbsent(e.key, () => e.value.value.trim());
+      final value = e.value.value?.trim();
+      if (value != null && value.isNotEmpty) {
+        session.facts.putIfAbsent(e.key, () => value);
       }
     }
-    final stalls = (_stallCount[session] ?? 0) + 1;
-    _stallCount[session] = stalls;
-    
+    final stalls = CounselorSessionState.bumpStallCount(session);
+
     if (stalls <= 2) {
-      return CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: const ['ادامه بحث', 'سؤال جدید دارم']);
+      return const CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: ['ادامه بحث', 'سؤال جدید دارم']);
     }
-    
-    if (_conclusionShown[session] != true) {
-      _conclusionShown[session] = true;
+
+    if (!CounselorSessionState.conclusionShown(session)) {
+      CounselorSessionState.markConclusionShown(session);
       final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
       return CounselorTurn(text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ' + c.text, chips: c.chips, completed: c.completed, cancelled: c.cancelled, startTemplate: c.startTemplate, ragQuery: c.ragQuery, ragReply: c.ragReply);
     }
@@ -456,8 +528,7 @@ static CounselorTurn step(
       _extractAllFacts(session, trimmed);
       return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
     }
-    final attempts = (_intakeAttempts[session] ?? 0) + 1;
-    _intakeAttempts[session] = attempts;
+    final attempts = CounselorSessionState.bumpIntakeAttempts(session);
     if (attempts == 1) {
       return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
     } else {
