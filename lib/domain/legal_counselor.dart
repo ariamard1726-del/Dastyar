@@ -454,7 +454,6 @@ static String? detectTopicHint(String rawText, {IntentNet? net}) {
   }
   return null;
 }
-
 /// آغاز جلسهٔ مشاورهٔ دوطرفه بر اساس پیام کاربر.
 static (CounselingSession, CounselorTurn)? start(
   String rawText,
@@ -613,12 +612,6 @@ static CounselorTurn step(
     }
   }
 
-  // ── Phase 2.4: ادغام Planner و Composer برای ۳ دامنه اول ──
-  if (session.topicId != 'general_intake' && !session.concluded) {
-    final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
-    if (newTurn != null) return newTurn;
-  }
-
   // اگر جلسه در مرحلهٔ پایانی بوده و کاربر روی دکمهٔ «تنظیم ...» کلیک کرده است:
   if (session.concluded) {
     final picked = _matchTemplateChip(trimmed, templates);
@@ -629,10 +622,21 @@ static CounselorTurn step(
     return const CounselorTurn(text: '', completed: true);
   }
 
-  // پرسش حقوقی در میانهٔ مشاوره → پاسخ RAG از بانک قوانین + بازگشت خودکار
-  // به پرسش بازِ درخت تصمیم (بدون از دست رفتن وضعیت جلسه).
+  // ── RAG در میانهٔ مشاوره ─────────────────────────────────────
+  // ⚠️ اول RAG، بعد Planner. اگر کاربر پرسش حقوقی/قانونی پرسید
+  // باید پاسخ از بانک قوانین بیاید (تست‌های موجود این را انتظار دارند).
   if (_isLegalQuestion(trimmed, net)) {
     return _ragTurn(session, trimmed, engine, replies, rnd);
+  }
+
+  // ── Phase 2.4: ادغام Planner و Composer ─────────────────────
+  // بعد از RAG (که نیاز به استناد قانونی دارد)، اگر کاربر به سؤال
+  // planner پاسخ داد، آن را پردازش کن. اگر planner درخواست اسلات
+  // جدید داد، سؤال جدید برمی‌گرداند. در غیر این صورت (GiveAnswer و...)
+  // fallback به مسیر legacy که _buildConclusion غنی‌تری دارد.
+  if (session.topicId != 'general_intake') {
+    final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
+    if (newTurn != null) return newTurn;
   }
 
   if (session.topicId == 'general_intake') {
@@ -670,8 +674,6 @@ static CounselorTurn step(
     final val = pendingStep.extractor(n);
     if (val != null) {
       session.facts[pendingStep.slot] = val;
-      // تصدیق طبیعیِ پاسخ کاربر (فقط وقتی قالب‌های replies.json فعال‌اند
-      // تا رفتار قطعیِ قدیمی بدون آن‌ها مو به مو حفظ شود).
       if (replies != null) {
         ack = _pick(
           replies,
@@ -682,7 +684,6 @@ static CounselorTurn step(
         );
       }
     } else {
-      // اگر پاسخ آزاد بود ولی در گزینه‌ها جا نگرفت، متن کاربر را ذخیره و به نزدیک‌ترین حالت نگاشت کن
       session.facts[pendingStep.slot] = trimmed;
       if (replies != null) {
         ack = _pick(
@@ -693,7 +694,6 @@ static CounselorTurn step(
         );
       }
     }
-    // شاید در همین جمله اطلاعات سؤال‌های بعدی هم گفته شده باشد
     _extractAllFacts(session, trimmed);
   }
 
@@ -707,7 +707,6 @@ static CounselorTurn step(
     ack: ack,
   );
 }
-
 // ── پرسش حقوقی در میانهٔ مشاوره (RAG) ────────────────────────────────
 static final RegExp _questionGlowRe = RegExp(
   r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید',
@@ -1211,7 +1210,6 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
       ];
-
     case 'fraud_cyber':
       return [
         _QuestionStep(
