@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/domain/dialogue/conversation_router.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -303,6 +304,12 @@ class Drafting {
     final n = KnowledgeEngine.normalize(text).trim();
     if (n.length < 6) return const IntentResult(null, []);
     if (_definitional.any((w) => n.contains(w))) {
+      return const IntentResult(null, []);
+    }
+    // پرسش حقوقی اول باید پاسخ بگیرد؛ پیشنهاد «می‌خواهی متنش را بسازم؟»
+    // بعد از پاسخ می‌آید، نه به‌جای آن.
+    if (ConversationRouter.looksLikeLegalQuestion(text) &&
+        !_imperatives.any(n.contains)) {
       return const IntentResult(null, []);
     }
     var best = 0;

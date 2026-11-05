@@ -162,8 +162,12 @@ void main() {
       final t = ctrl.messages.last.text;
       expect(t, contains('چک'));
       expect(t, isNot(contains('پیدا نکردم')));
-      expect(t, contains('یک جمله'),
-          reason: 'پس از RAG باید کارت پذیرش دوباره پرسیده شود');
+      // پاسخ، پاسخ است: پس از RAG در پذیرش عمومی دیگر کارت «موضوع شما کدام
+      // دسته است؟» به انتهای پاسخ چسبانده نمی‌شود (فاز ۶٫۵).
+      expect(t, isNot(contains('کدام دسته')),
+          reason: 'پاسخ نباید با درخواست انتخاب موضوع قطع شود');
+      expect(t, isNot(contains('موضوع اصلی را با یک جمله')),
+          reason: 'پاسخ نباید با تکرار پرسش پذیرش قطع شود');
       ctrl.dispose();
     });
   });

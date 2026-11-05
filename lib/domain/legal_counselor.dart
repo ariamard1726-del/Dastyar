@@ -12,6 +12,7 @@ import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/domain/templates.dart';
 
+import 'dialogue/conversation_router.dart';
 import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
 import 'dialogue/response_composer.dart';
@@ -372,6 +373,13 @@ class LegalCounselor {
       return true;
     }
     if (_directArtRe.hasMatch(n)) return false;
+
+    // پرسش صرفاً اطلاعاتی («مهلت واخواهی چقدر است؟»، «مجازات جعل چیست؟»)
+    // باید از متن قانون پاسخ بگیرد، نه اینکه به مصاحبهٔ گام‌به‌گام تبدیل شود.
+    // اما شرح پروندهٔ شخصی («چک دادم … چه کار کنم؟») همان مسیر مشاوره را
+    // می‌رود که برای آن ساخته شده است.
+    if (ConversationRouter.isInformationalQuestion(rawText)) return false;
+
     if (net != null) {
       final s = net.classify(rawText);
       if (s.score >= net.topicMin) {
@@ -1110,9 +1118,16 @@ static CounselorTurn _plannerStallTurn(
   return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
 }
 
-/// A semantic gate between slot filling and legal-article retrieval. Direct
-/// article references and explicit legal-consequence questions are eligible;
-/// declarative slot values, including amounts, are not.
+/// دروازهٔ میان «پر کردن اسلات» و «پاسخ از بانک قوانین».
+///
+/// قاعدهٔ تازه (فاز ۶٫۵): اگر کاربر **سؤال** می‌پرسد و جمله **رنگ حقوقی**
+/// دارد، همیشه پاسخ می‌گیرد — حتی اگر پرسش کوتاه باشد («اجاره چیست؟»).
+/// پیش‌تر یک قاعدهٔ «حداکثر ۴ واژه بدون نشانهٔ صریح» این پرسش‌ها را رد
+/// می‌کرد و ربات به‌جای جواب، کارت انتخاب موضوع نشان می‌داد.
+///
+/// پاسخ‌های کوتاه به اسلات‌ها («بله»، «۱۰۰ سکه»، «قرارداد کتبی دارم») هنوز
+/// هرگز به RAG نمی‌روند؛ تنها استثنا وقتی است که همان پیام شکل پرسشی هم
+/// داشته باشد («گواهی دارم، مهلتش چقدر است؟»).
 static bool _ragEligible(
   CounselingSession session,
   String rawText, {
@@ -1121,17 +1136,20 @@ static bool _ragEligible(
   final n = _norm(rawText);
   if (n.isEmpty) return false;
   if (_directArtRe.hasMatch(n)) return true;
-  if (!_questionGlowRe.hasMatch(n)) return false;
 
-  final hasLegalCue = _lawishCue(n);
-  final tokenCount = n.split(' ').where((token) => token.isNotEmpty).length;
-  if (tokenCount <= 4 && !hasLegalCue) return false;
+  final question = ConversationRouter.isQuestion(rawText);
+  final legal = _lawishCue(n) || ConversationRouter.hasLegalTerm(rawText);
 
-  // A short answer phrased with «آیا» can still be a slot value. Strong legal
-  // cues override this guard when the user is genuinely asking for the law.
+  // پاسخ اسلات، نه پرسش: مسیر عادی مشاوره ادامه پیدا می‌کند.
   final pending = _pendingStep(session);
-  if (!hasLegalCue && pending != null && pending.extractor(n) != null) {
+  if (!question && pending != null && pending.extractor(n) != null) {
     return false;
+  }
+
+  if (question && legal) return true;
+  if (!question) {
+    // سازگاری با جمله‌های پرسشی بدون علامت («قانون چک چه می‌گوید»).
+    return _questionGlowRe.hasMatch(n) && legal;
   }
 
   return _isLegalQuestion(rawText, net);
@@ -1173,36 +1191,98 @@ static CounselorTurn _ragTurn(
   Random? rnd,
 ) {
   final reply = engine.query(rawText, maxAlternatives: 0);
-  final notFound = reply.text.contains('پیدا نکردم') || reply.text.contains('پیدا نشد') || reply.text.contains('هنوز در برنامه نیست');
-  final sb = StringBuffer();
+  final notFound = reply.text.contains('پیدا نکردم') ||
+      reply.text.contains('پیدا نشد') ||
+      reply.text.contains('هنوز در برنامه نیست');
+
   if (!notFound) {
-    sb.writeln(_pick(replies, rnd, 'counselor_rag_intro', 'سؤال خوبی است؛ اجازه بدهید همین را مستقیم از متن رسمی قانون بیاورم:'));
-    sb.writeln();
-    sb.write(reply.text);
-  } else {
-    sb.write(_pick(replies, rnd, 'counselor_rag_miss', 'پاسخ دقیقی برای این پرسش در بانک قوانین برنامه پیدا نکردم و بهتر است حدس نزنم. برویم سراغ ادامهٔ بررسی وضعیت خودت:'));
+    final sb = StringBuffer()
+      ..writeln(_pick(replies, rnd, 'counselor_rag_intro',
+          'سؤال خوبی است؛ اجازه بدهید همین را مستقیم از متن رسمی قانون بیاورم:'))
+      ..writeln()
+      ..write(reply.text);
+
+    if (session.topicId == 'general_intake') {
+      // پاسخ، پاسخ است: دیگر کارت «موضوع شما کدام دسته است؟» را به انتهای
+      // آن نمی‌چسبانیم؛ کاربر تازه سؤال پرسیده و جوابش را گرفته است.
+      return CounselorTurn(
+        text: sb.toString(),
+        chips: const <String>[],
+        ragQuery: rawText,
+        ragReply: reply,
+      );
+    }
+
+    final steps = _stepsFor(session.topicId);
+    final pendingSlot =
+        steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    if (pendingSlot != null && !session.concluded) {
+      sb
+        ..writeln()
+        ..writeln()
+        ..writeln(_pick(replies, rnd, 'counselor_resume',
+            'حالا برگردیم به وضعیت خودت؛ این پرسش هنوز باز است:'));
+      sb.write(_promptFor(session.topicId, pendingSlot, replies, rnd));
+      return CounselorTurn(
+        text: sb.toString(),
+        chips: <String>[...pendingSlot.options, cancelCounselCmd],
+        ragQuery: rawText,
+        ragReply: reply,
+      );
+    }
+    return CounselorTurn(
+      text: sb.toString(),
+      chips: const <String>[cancelCounselCmd],
+      ragQuery: rawText,
+      ragReply: reply,
+    );
   }
 
+  // «پیدا نکردم» نباید بن‌بست باشد. نزدیک‌ترین مواد را به شکل چیپ پیشنهاد
+  // می‌دهیم (هر چیپ یک پرسش معتبر است) و یک پرسش روشن‌کننده می‌پرسیم.
+  final nearby = ConversationRouter.nearbyArticleChips(engine, rawText);
+  final fb = StringBuffer()
+    ..write(_pick(replies, rnd, 'rag_miss_lead',
+        'برای این پرسش، مادهٔ صریحی در بانک قوانین برنامه پیدا نکردم و نمی‌خواهم بدون سند پاسخ بدهم.'));
+  if (nearby.isNotEmpty) {
+    fb
+      ..writeln()
+      ..writeln()
+      ..writeln(_pick(replies, rnd, 'rag_near',
+          'اما نزدیک‌ترین مواد به این موضوع این‌ها هستند (یکی را بزن تا متنش را بخوانم):'));
+    for (final label in nearby) {
+      fb.writeln('• ${PersianText.toFaDigits(label)}');
+    }
+  }
+  fb
+    ..writeln()
+    ..writeln(_pick(replies, rnd, 'rag_clarify',
+        'اگر موضوع را با یک جملهٔ روشن بگویی (مثلاً «چک برگشتی دارم» یا «مستأجر تخلیه نمی‌کند»)، دقیق‌تر راهنمایی می‌کنم.'));
+
   if (session.topicId == 'general_intake') {
-    sb.writeln();
-    sb.writeln();
-    sb.write(_pick(replies, rnd, 'counselor_intake_reprompt', _intakeRepromptFallback));
-    return CounselorTurn(text: sb.toString(), chips: _intakeRepromptChips, ragQuery: notFound ? null : rawText, ragReply: notFound ? null : reply);
+    return CounselorTurn(
+      text: fb.toString(),
+      chips: nearby.take(3).toList(),
+    );
   }
 
   final steps = _stepsFor(session.topicId);
-  final pending = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-  if (pending != null) {
-    if (!notFound) {
-      sb.writeln();
-      sb.writeln();
-      sb.writeln(_pick(replies, rnd, 'counselor_resume', 'حالا برگردیم به وضعیت خودت؛ این پرسش هنوز باز است:'));
-    }
-    sb.writeln();
-    sb.write(_promptFor(session.topicId, pending, replies, rnd));
-    return CounselorTurn(text: sb.toString(), chips: [...pending.options, cancelCounselCmd], ragQuery: notFound ? null : rawText, ragReply: notFound ? null : reply);
+  final pendingSlot =
+      steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+  if (pendingSlot != null && !session.concluded) {
+    fb
+      ..writeln()
+      ..write(_promptFor(session.topicId, pendingSlot, replies, rnd));
+    return CounselorTurn(
+      text: fb.toString(),
+      chips: <String>[
+        ...pendingSlot.options,
+        ...nearby.take(2),
+        cancelCounselCmd,
+      ],
+    );
   }
-  return CounselorTurn(text: sb.toString(), chips: const [cancelCounselCmd], ragQuery: notFound ? null : rawText, ragReply: notFound ? null : reply);
+  return CounselorTurn(text: fb.toString(), chips: nearby.take(3).toList());
 }
 
 static LegalTemplate? _matchTemplateChip(String text, List<LegalTemplate> templates) {

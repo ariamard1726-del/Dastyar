@@ -8,7 +8,9 @@ import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/dialogue/conversation_router.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -557,16 +559,22 @@ class ChatController extends ChangeNotifier {
     }
 
     if (_disposed || myEpoch != _askEpoch) return;
-    _memory.recordTurn(
-      resolvedQuery,
-      engine.query(resolvedQuery, maxAlternatives: 0),
-    );
+    final engineReply = engine.query(resolvedQuery, maxAlternatives: 0);
+    _memory.recordTurn(resolvedQuery, engineReply);
+    final topicHint =
+        sensitive ? null : LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet);
+
+    // «پیدا نکردم» بن‌بست نیست: نزدیک‌ترین مواد را به شکل چیپ می‌دهیم و یک
+    // پرسش روشن‌کننده می‌پرسیم تا گفتگو مثل یک چت انسانی ادامه پیدا کند.
+    if (_isNotFoundAnswer(bot.text)) {
+      bot.text = _conversationalMissText(resolvedQuery);
+    }
     final mergedChips = <String>[
+      if (_isNotFoundAnswer(engineReply.text))
+        ...ConversationRouter.nearbyArticleChips(engine, resolvedQuery)
+            .take(3),
       ...alts,
-      if (!sensitive &&
-          LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet) !=
-              null)
-        LegalCounselor.startCounselCmd,
+      if (topicHint != null) LegalCounselor.startCounselCmd,
     ];
     if (mergedChips.isNotEmpty) {
       bot.chips = mergedChips;
@@ -575,6 +583,31 @@ class ChatController extends ChangeNotifier {
     if (_disposed || myEpoch != _askEpoch) return;
     _busy = false;
     _notify();
+  }
+
+  static final RegExp _missRe =
+      RegExp(r'پیدا نکردم|پیدا نشد|هنوز در برنامه نیست');
+
+  bool _isNotFoundAnswer(String text) =>
+      text.trim().length < 400 && _missRe.hasMatch(text);
+
+  /// پاسخ محاوره‌ای جای «پیدا نکردم»: نزدیک‌ترین مواد + یک پرسش روشن‌کننده.
+  String _conversationalMissText(String query) {
+    final nearby = ConversationRouter.nearbyArticleChips(engine, query);
+    final sb = StringBuffer(engine.replies.get('rag_miss_lead'));
+    if (nearby.isNotEmpty) {
+      sb
+        ..writeln()
+        ..writeln()
+        ..writeln(engine.replies.get('rag_near'));
+      for (final label in nearby) {
+        sb.writeln('• ${PersianText.toFaDigits(label)}');
+      }
+    }
+    sb
+      ..writeln()
+      ..writeln(engine.replies.get('rag_clarify'));
+    return sb.toString();
   }
 
   ChatMessage _botFromReply(DraftReply r, LegalTemplate t) {
