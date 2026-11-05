@@ -1,6 +1,20 @@
-commit: 1a0fe54
-🎉 179 tests passed.
+commit: 2b76c3f
+🎉 187 tests passed.
 --- analyze ---
-2 issues found. (ran in 11.8s)
+16 issues found. (ran in 8.5s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:135:36 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:199:35 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:247:35 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:293:36 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:335:40 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:371:42 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:401:47 • prefer_const_con
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/domain_slot_schemas.dart:430:34 • prefer_const_con
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:78:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:79:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:80:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:81:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:82:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/domain/dialogue/slot_extractor_test.dart:83:7 • avoid_print
