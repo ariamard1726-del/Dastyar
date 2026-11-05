@@ -254,7 +254,7 @@ class ChatController extends ChangeNotifier {
     if (turn.startTemplate != null) {
       _counsel = null;
       _syncCounselCheckpoint();
-      _startDraft(text, turn.startTemplate!);
+      _startDraft(text, turn.startTemplate);
       return true;
     }
 

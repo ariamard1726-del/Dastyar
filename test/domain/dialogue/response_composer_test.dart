@@ -43,7 +43,7 @@ void main() {
   group('ResponseComposer — AskForSlot', () {
     test('returns text, chips and variantId', () {
       final state = makeState();
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'برای تعیین مسیر حقوقی',
         options: const ['دارنده', 'صادرکننده'],
@@ -56,7 +56,7 @@ void main() {
 
     test('echoes lastUserUtterance when Persian', () {
       final state = makeState(lastUserUtterance: 'چکم برگشت خورده');
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'دلیل آزمایشی',
         options: const ['دارنده'],
@@ -67,7 +67,7 @@ void main() {
 
     test('does NOT echo when utterance contains Latin chars', () {
       final state = makeState(lastUserUtterance: 'cheque bounced');
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'دلیل آزمایشی',
         options: const [],
@@ -78,7 +78,7 @@ void main() {
 
     test('output is Persian-only (no Latin chars)', () {
       final state = makeState(lastUserUtterance: 'چک برگشتی دارم');
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'برای تعیین مسیر',
         options: const ['دارنده'],
@@ -89,7 +89,7 @@ void main() {
 
     test('chips include لغو when options empty', () {
       final state = makeState();
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'amount',
         rationale: 'دلیل آزمایشی',
         options: const [],
@@ -102,7 +102,7 @@ void main() {
   group('ResponseComposer — determinism', () {
     test('same state + action → same variantId and text', () {
       final state = makeState(conversationId: 'abc123');
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'دلیل آزمایشی',
         options: const [],
@@ -114,7 +114,7 @@ void main() {
     });
 
     test('different conversationId → different variantId', () {
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'دلیل آزمایشی',
         options: const [],
@@ -135,7 +135,7 @@ void main() {
 
   group('ResponseComposer — anti-repetition', () {
     test('acknowledgment differs across 3 consecutive turns', () {
-      final action = AskForSlot(
+      final action = const AskForSlot(
         slotKey: 'role',
         rationale: 'دلیل آزمایشی',
         options: const [],
@@ -155,7 +155,7 @@ void main() {
   group('ResponseComposer — ExplainConflict', () {
     test('produces Persian text with conflict message', () {
       final state = makeState();
-      final action = ExplainConflict(
+      final action = const ExplainConflict(
         alternatives: const ['ماده ۱ قانون مدنی', 'ماده ۲ قانون مدنی'],
         rationale: 'تعارض بین شواهد',
       );
@@ -169,7 +169,7 @@ void main() {
   group('ResponseComposer — DisambiguateDomain', () {
     test('produces Persian chips for known domains', () {
       final state = makeState();
-      final action = DisambiguateDomain(
+      final action = const DisambiguateDomain(
         candidates: const ['cheque', 'labor', 'lease'],
       );
       final reply = composer.compose(action, state, EvidenceSet.empty());
@@ -183,7 +183,7 @@ void main() {
   group('ResponseComposer — GiveAnswer', () {
     test('joins conclusions into Persian text', () {
       final state = makeState();
-      final action = GiveAnswer(conclusions: const ['نتیجه اول', 'نتیجه دوم']);
+      final action = const GiveAnswer(conclusions: const ['نتیجه اول', 'نتیجه دوم']);
       final reply = composer.compose(action, state, EvidenceSet.empty());
       expect(reply.text, contains('نتیجه اول'));
       expect(reply.text, contains('نتیجه دوم'));

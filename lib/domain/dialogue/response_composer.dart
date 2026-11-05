@@ -130,7 +130,7 @@ class ResponseComposer {
         'پاسخ قطعی بدهم.');
     sb.write('\n\n');
     if (action.rationale != null && action.rationale!.isNotEmpty) {
-      sb.write(action.rationale!);
+      sb.write(action.rationale);
       sb.write('\n\n');
     }
     if (action.alternatives.isNotEmpty) {

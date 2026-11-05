@@ -419,7 +419,7 @@ static String _faArticleLabel(RegExpMatch m) {
 /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
 Chunk? findArticle(String law, String article) {
   final lawN = _collapse(normalize(law));
-  var want = _canonicalArticleTitle(article);
+  final want = _canonicalArticleTitle(article);
   if (want.isEmpty || lawN.isEmpty) return null;
   var indices = _byTitle[want];
   if (indices == null && want.startsWith('ماده ')) {

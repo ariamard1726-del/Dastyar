@@ -91,7 +91,7 @@ void main() {
     const extractor = SlotExtractor();
 
     test('empty text returns empty map', () {
-      final schema = DomainSchemaRegistry.forDomain('cheque')!;
+      final schema = DomainSchemaRegistry.forDomain('cheque');
       final result = extractor.extract('', schema);
       expect(result, isEmpty);
     });
@@ -101,7 +101,7 @@ void main() {
     });
 
     test('amount extraction from Persian digits', () {
-      final schema = DomainSchemaRegistry.forDomain('cheque')!;
+      final schema = DomainSchemaRegistry.forDomain('cheque');
       final result = extractor.extract('چک به مبلغ ۱۰۰۰ تومان', schema);
       expect(result['amount'], isNotNull);
     });

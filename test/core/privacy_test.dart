@@ -61,7 +61,7 @@ void main() {
       );
 
       final prefs = await SharedPreferences.getInstance();
-      final rawHistory = prefs.getString('history_v1')!;
+      final rawHistory = prefs.getString('history_v1');
       expect(PrivacyService.isEncrypted(rawHistory), isTrue);
       expect(rawHistory.contains('متن محرمانهٔ پروندهٔ چک'), isFalse);
 
@@ -80,7 +80,7 @@ void main() {
       // بررسی رمزنگاری FeedbackStore
       final saved = await FeedbackStore.add('پرسش خصوصی', 'پاسخ آزمایشی', -1);
       expect(saved, isTrue);
-      final rawFeedback = prefs.getString('feedback_v1')!;
+      final rawFeedback = prefs.getString('feedback_v1');
       expect(PrivacyService.isEncrypted(rawFeedback), isTrue);
       expect(rawFeedback.contains('پرسش خصوصی'), isFalse);
 
