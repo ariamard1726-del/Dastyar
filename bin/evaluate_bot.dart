@@ -262,8 +262,13 @@ List<String> _argsFromEnvironment() {
   return raw.trim().split(RegExp(r'\s+'));
 }
 
-Future<void> main(List<String> args) async {
-  final effective = args.isNotEmpty ? args : _argsFromEnvironment();
+/// `main` عمداً بدون پارامتر است: `flutter test` فایل را به‌عنوان یک فایل تست
+/// بارگذاری می‌کند و امضای `main(List<String>)` باعث خطای کامپایل می‌شود
+/// («The argument type 'Future<void> Function(List<String>)' can't be
+/// assigned...») و کل ارزیابی هرگز اجرا نمی‌شد. گزینه‌ها از `EVAL_ARGS`
+/// خوانده می‌شوند؛ برای اجرای مستقل هم همان متغیر محیطی کافی است.
+Future<void> main() async {
+  final effective = _argsFromEnvironment();
 
   if (Platform.environment['FLUTTER_TEST'] == 'true') {
     // زیر flutter test باید یک test ثبت شود، وگرنه رانر «No tests ran» می‌دهد.
