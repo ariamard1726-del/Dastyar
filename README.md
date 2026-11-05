@@ -6,11 +6,11 @@
 
 لایه‌بندی `lib/` (وابستگی فقط رو به پایین؛ جزئیات در `docs/ARCHITECTURE.md`):
 
-- `lib/core/`: زیرساخت بدون وابستگی به قابلیت‌ها — `persian_text.dart` (لایهٔ یکتای متن فارسی: نرمال‌سازی، ارقام، برش ایمن یونیکد، اعتبارسنجی کد ملی/تلفن، ایست‌واژه و ریشه‌یابی)، `engine.dart` و `models.dart` (بارگذاری موازی قوانین در Isolate، نمایهٔ معکوس BM25F، بازیابی تک‌مرحله‌ای)، `router.dart` (نیت‌های ثابت پرسش)، `conflicts_service.dart` (زنجیرهٔ تعارض مواد)، `replies.dart` (پاسخ‌های ثابت)، `llm.dart` (بک‌اندهای مدل زبانی محلی: `OnDeviceChannelLlm`، `LocalLoopbackLlm` محدود به `127.0.0.1`، `AdaptiveLlm`)، `privacy.dart` (رمزنگاری محلی با Android Keystore، `AES-256-GCM`، کلیپ‌بورد حساس و `FLAG_SECURE`)، `history.dart` و `config.dart`
-- `lib/domain/`: قابلیت‌های حقوقی — `assistant.dart` و `prompt_builder.dart` (هماهنگ‌کنندهٔ پاسخ و نگهبان استناد مواد/قوانین)، `legal_counselor.dart` (مشاورهٔ گام‌به‌گام با شبکهٔ نیت و RAG)، `intent_net.dart` (شبکهٔ عصبی نیت، آینهٔ پایتون آن در `tools/check.py intent`)، `drafting.dart` و `templates.dart` (پیش‌نویس مرحله‌به‌مرحلهٔ اسناد با ذخیرهٔ موقت رمزنگاری‌شده)، `feedback.dart`، `settings.dart`
+- `lib/core/`: زیرساخت بدون وابستگی به قابلیت‌ها — `persian_text.dart` (لایهٔ یکتای متن فارسی: نرمال‌سازی، ارقام، برش ایمن یونیکد، اعتبارسنجی کد ملی/تلفن، ایست‌واژه و ریشه‌یابی)، `engine.dart` و `models.dart` (بارگذاری موازی قوانین در Isolate، نمایهٔ معکوس BM25F، بازیابی تک‌مرحله‌ای)، `router.dart` (نیت‌های ثابت پرسش)، `conflicts_service.dart` (زنجیرهٔ تعارض مواد)، `replies.dart` (پاسخ‌های ثابت)، `llm.dart` (بک‌اندهای مدل زبانی محلی: `OnDeviceChannelLlm`، `LocalLoopbackLlm` محدود به `127.0.0.1`، `AdaptiveLlm`)، `privacy.dart` (رمزنگاری محلی با Android Keystore، `AES-256-GCM`، کلیپ‌بورد حساس و `FLAG_SECURE`)، `debug_logger.dart` (ردِ مرحله‌به‌مرحلهٔ هر نوبت برای عیب‌یابی)، `history.dart` و `config.dart`
+- `lib/domain/`: قابلیت‌های حقوقی — `assistant.dart` و `prompt_builder.dart` (هماهنگ‌کنندهٔ پاسخ و نگهبان استناد مواد/قوانین)، `legal_counselor.dart` (مشاورهٔ گام‌به‌گام با شبکهٔ نیت و RAG)، `intent_net.dart` (شبکهٔ عصبی نیت، آینهٔ پایتون آن در `tools/check.py intent`)، `drafting.dart` و `templates.dart` (پیش‌نویس مرحله‌به‌مرحلهٔ اسناد با ذخیرهٔ موقت رمزنگاری‌شده)، `feedback.dart`، `settings.dart`، `evaluation/` (دیتاست طلایی، هارنس ارزیابی و گزارش دقت)
 - `lib/ui/`: رابط کاربری — `chat_page.dart`، `chat_controller.dart` و `chat_models.dart` (کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن)، صفحه‌های تنظیمات/تاریخچه/درباره و `widgets/chat_bubbles.dart`
 - `assets/laws`: متن قوانین با `_meta.json` (منبع یکتای متادیتا؛ `laws_catalog.json` و `data_info.json` با `tools/sync_meta.py` از آن مشتق می‌شوند). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json` (منبع یکتای روابط مواد)، `replies.json`
-- `test`: در پنج شاخهٔ `core/`، `engine/`، `drafting/`، `counselor/` و `app/` (نام‌گذاری رفتاری، شامل تست برابری پایتون↔دارت در `test/core/parity_test.dart`)
+- `test`: در شاخه‌های `core/`، `engine/`، `drafting/`، `counselor/`، `app/` و `evaluation/` (نام‌گذاری رفتاری، شامل تست برابری پایتون↔دارت در `test/core/parity_test.dart`)
 - `tools`: ابزارهای پایتون برای اعتبارسنجی یکپارچه (`check.py` با زیردستورهای corpus/assets/meta/intent/parity)، همگام‌سازی متادیتا (`sync_meta.py`)، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار (`setup_release_signing.py`)
 - `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک) به‌همراه مجموعه‌های ارزیابی (`brain/eval/`) و استاندارد طلایی برابری پایتون↔دارت (`parity_expected.json`). اپ فقط `assets/brain/intent_model.json` را می‌خواند.
 
@@ -28,7 +28,23 @@ Workflowها در `.github/workflows`:
 
 - `build.yml`: ساخت APK (دستی). با کلید اصلی امضا می‌شود و کلید فقط در Secrets نگهداری می‌شود.
 - `test.yml`: بررسی داده‌ها، `flutter analyze` و `flutter test` روی هر push
+- `evaluate.yml`: ارزیابی سرتاسری روی دیتاست طلایی (دستی؛ گزارش دقت + ردِ دیباگ را artifact می‌کند)
 - `embed.yml` و `train.yml`: آزمایش‌های دستی آفلاین
+
+## ارزیابی (Phase 6)
+
+تست واحد می‌گوید هر قطعه سالم است؛ ارزیابی می‌گوید پاسخ به کاربر واقعی درست است.
+
+    flutter test bin/evaluate_bot.dart                    # گزارش دقت روی ۲۸ سناریوی طلایی
+    EVAL_ARGS="--verbose --json out/eval.json" \
+      flutter test bin/evaluate_bot.dart                  # + جزئیات شکست‌ها و گزارش ماشین‌خوان
+    EVAL_STRICT=1 EVAL_ARGS="--strict" \
+      flutter test bin/evaluate_bot.dart                  # دروازهٔ آستانه‌ها
+
+معیارها: دقت نیت/موضوع، دقت مسیر تصمیم، یادآوری مادهٔ قانونی، دقت استناد و
+صداقت هنگام نبودِ دانش. جزئیات، قاعده‌های ضدتوهم و یافته‌های بازیابی در
+`docs/PHASE6_EVALUATION.md`. مشاهده‌پذیری هر نوبت با `DebugLogger` انجام می‌شود
+(پیش‌فرض خاموش؛ `DebugLogger.instance.enabled = true`).
 
 ## قواعد
 

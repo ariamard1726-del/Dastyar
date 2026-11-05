@@ -9,8 +9,8 @@
 
 | لایه | نقش | فایل‌ها |
 |---|---|---|
-| `lib/core/` | زیرساخت بدون شناخت از قابلیت‌ها | `persian_text` (لایهٔ یکتای متن فارسی)، `engine` + `models` (نمایهٔ BM25F و بازیابی)، `router` (نیت‌های ثابت)، `conflicts_service`، `replies`، `llm` (بک‌اندهای محلی)، `privacy`، `history`، `config` |
-| `lib/domain/` | قابلیت‌های حقوقی | `assistant` + `prompt_builder` (تولید و راستی‌آزمایی استناد)، `legal_counselor` (مشاورهٔ گام‌به‌گام)، `intent_net` (شبکهٔ نیت)، `drafting` + `templates` (پیش‌نویس اسناد)، `feedback`، `settings` |
+| `lib/core/` | زیرساخت بدون شناخت از قابلیت‌ها | `persian_text` (لایهٔ یکتای متن فارسی)، `engine` + `models` (نمایهٔ BM25F و بازیابی)، `router` (نیت‌های ثابت)، `conflicts_service`، `replies`، `llm` (بک‌اندهای محلی)، `privacy`، `debug_logger` (ردِ مرحله‌به‌مرحلهٔ نوبت)، `history`، `config` |
+| `lib/domain/` | قابلیت‌های حقوقی | `assistant` + `prompt_builder` (تولید و راستی‌آزمایی استناد)، `legal_counselor` (مشاورهٔ گام‌به‌گام)، `intent_net` (شبکهٔ نیت)، `drafting` + `templates` (پیش‌نویس اسناد)، `evaluation/` (دیتاست طلایی + هارنس + گزارش)، `feedback`، `settings` |
 | `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles` |
 
 مسئولیت‌های هم‌پوشان قدیمی روشن شد: **router** فقط نیت‌های ثابتِ سطح موتور (معرفی توانایی‌ها،

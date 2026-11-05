@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/domain/drafting.dart';
+import 'package:dastyar/core/debug_logger.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/core/persian_text.dart';
@@ -37,6 +38,50 @@ class CounselorTurn {
     this.startTemplate,
     this.ragQuery,
     this.ragReply,
+  });
+}
+
+/// مسیرهایی که [LegalCounselor.step] می‌تواند برای یک پیام انتخاب کند.
+///
+/// این enum فقط برای مشاهده‌پذیری (ابزار ارزیابی و صفحهٔ دیباگ) است و هیچ
+/// رفتاری را تغییر نمی‌دهد؛ هر مقدار دقیقاً همان نقطهٔ بازگشتِ مربوط در
+/// `step` را توصیف می‌کند.
+enum CounselorRoute {
+  /// پیام خالی.
+  empty,
+
+  /// فرمان پایان/انصراف مشاوره.
+  cancel,
+
+  /// انتخاب یک قالبِ تنظیم سند از میان چیپ‌های پاسخ.
+  template,
+
+  /// خداحافظی.
+  goodbye,
+
+  /// لایهٔ گفتگوی کوتاه (غیرحقوقی).
+  smallTalk,
+
+  /// پاسخ به پرسش حقوقی از بانک قوانین (RAG).
+  rag,
+
+  /// مرحلهٔ پذیرش اولیه (هنوز دامنهٔ حقوقی مشخص نیست).
+  intake,
+
+  /// گام بعدیِ مشاورهٔ موضوعی (پرسش/جمع‌بندی).
+  domain,
+}
+
+/// نتیجهٔ یک نوبتِ مشاوره به‌همراه ردِ دیباگِ همان نوبت.
+class TracedCounselorTurn {
+  final CounselorTurn turn;
+  final TurnTrace trace;
+  final CounselorRoute? route;
+
+  const TracedCounselorTurn({
+    required this.turn,
+    required this.trace,
+    this.route,
   });
 }
 
@@ -444,22 +489,26 @@ static CounselorTurn step(
   IntentNet? net,
   Replies? replies,
   Random? rnd,
+  void Function(CounselorRoute route)? onRoute,
 }) {
   final trimmed = rawText.trim();
   final n = _norm(trimmed);
 
   // Terminal commands always win, regardless of the current planner state.
   if (trimmed.isEmpty) {
-    return const CounselorTurn(text: 'بفرمایید، در خدمتم. موضوع حقوقی‌تان را بنویسید.', chips: SmallTalkLayer.defaultIntakeChips);
+    return _routed(onRoute, CounselorRoute.empty,
+        const CounselorTurn(text: 'بفرمایید، در خدمتم. موضوع حقوقی‌تان را بنویسید.', chips: SmallTalkLayer.defaultIntakeChips));
   }
 
   if (trimmed == cancelCounselCmd || trimmed == DraftCmd.cancel || n == 'انصراف' || n == 'پایان مشاوره' || n == 'لغو') {
-    return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
+    return _routed(onRoute, CounselorRoute.cancel,
+        const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
   }
   if (net != null) {
     final s = net.classify(trimmed);
     if (s.label == 'cancel' && s.score >= net.cancelMin) {
-      return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
+      return _routed(onRoute, CounselorRoute.cancel,
+          const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
     }
   }
 
@@ -468,14 +517,15 @@ static CounselorTurn step(
   if (trimmed.startsWith(draftPrefix)) {
     final template = _matchTemplateChip(trimmed, templates);
     if (template != null) {
-      return CounselorTurn(text: '', startTemplate: template);
+      return _routed(onRoute, CounselorRoute.template, CounselorTurn(text: '', startTemplate: template));
     }
   }
 
   final isGoodbye = PersianText.wordRe(['خداحافظ', 'خدانگهدار', 'بدرود', 'فعلا']).hasMatch(n);
   if (isGoodbye) {
     session.concluded = true;
-    return const CounselorTurn(text: 'خداحافظ. هر وقت به راهنمایی حقوقی نیاز داشتید، همین‌جا در خدمتم.', completed: true);
+    return _routed(onRoute, CounselorRoute.goodbye,
+        const CounselorTurn(text: 'خداحافظ. هر وقت به راهنمایی حقوقی نیاز داشتید، همین‌جا در خدمتم.', completed: true));
   }
 
   if (session.concluded) {
@@ -488,17 +538,35 @@ static CounselorTurn step(
   // غیرحقوقی را با پاسخی ثابت میگیرد و هیچ تحلیل حقوقی انجام نمیدهد.
   final smallTalk = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
   if (smallTalk != null) {
-    return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
+    return _routed(onRoute, CounselorRoute.smallTalk, CounselorTurn(text: smallTalk.text, chips: smallTalk.chips));
   }
 
   // Legal questions are answered without mutating the pending slot. Simple
   // declarative answers (amounts, dates, choices, ...) never cross this gate.
   if (_ragEligible(session, trimmed, net: net)) {
-    return _ragTurn(session, trimmed, engine, replies, rnd);
+    return _routed(onRoute, CounselorRoute.rag, _ragTurn(session, trimmed, engine, replies, rnd));
   }
 
   if (!activeContext) {
-    return _handleGeneralIntake(
+    return _routed(
+      onRoute,
+      CounselorRoute.intake,
+      _handleGeneralIntake(
+        session,
+        trimmed,
+        engine,
+        templates,
+        net: net,
+        replies: replies,
+        rnd: rnd,
+      ),
+    );
+  }
+
+  return _routed(
+    onRoute,
+    CounselorRoute.domain,
+    _handleDomainStep(
       session,
       trimmed,
       engine,
@@ -506,18 +574,163 @@ static CounselorTurn step(
       net: net,
       replies: replies,
       rnd: rnd,
+    ),
+  );
+}
+
+/// اجرای پاسخ و سپس گزارشِ مسیر انتخاب‌شده به شنوندهٔ اختیاری.
+///
+/// دلیل وجود این کمک‌تابع: `step` نقطه‌های بازگشتِ متعددی دارد و همهٔ آن‌ها
+/// باید مسیر خود را گزارش کنند؛ بدون آن، ابزار ارزیابی نمی‌تواند بگوید
+/// «چرا» یک پیام به RAG نرفت یا رفت.
+static CounselorTurn _routed(
+  void Function(CounselorRoute route)? onRoute,
+  CounselorRoute route,
+  CounselorTurn turn,
+) {
+  if (onRoute != null) {
+    try {
+      onRoute(route);
+    } catch (_) {
+      // گزارش مسیر هرگز نباید پاسخ کاربر را خراب کند.
+    }
+  }
+  return turn;
+}
+
+/// اجرای یک نوبتِ مشاوره همراه با ثبت کاملِ ردِ دیباگ.
+///
+/// این تابع پوستهٔ نازکی روی [step] است و **هیچ رفتاری را تغییر نمی‌دهد**:
+/// همان پاسخ و همان تغییرِ نشست را برمی‌گرداند، اما در کنارش
+/// [TracedCounselorTurn.trace] را پر می‌کند تا ابزار ارزیابی بتواند ببیند
+/// نیت چه بود، چه اسلات‌هایی پر شد، چه ماده‌هایی بازیابی شد و چه مسیری
+/// انتخاب شد. اگر لاگر خاموش باشد، هزینهٔ این wrapper عملاً صفر است.
+static TracedCounselorTurn stepTraced(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+  DebugLogger? logger,
+}) {
+  final log = logger ?? DebugLogger.instance;
+  final trace = log.start(rawText);
+
+  // مسیر انتخاب‌شده مستقل از روشن‌بودن لاگر ثبت می‌شود؛ ابزار ارزیابی به آن
+  // نیاز دارد، حتی وقتی هیچ ردی ذخیره نمی‌شود.
+  CounselorRoute? route;
+
+  if (!trace.enabled) {
+    final plain = step(
+      session,
+      rawText,
+      engine,
+      templates,
+      net: net,
+      replies: replies,
+      rnd: rnd,
+      onRoute: (r) => route = r,
     );
+    return TracedCounselorTurn(turn: plain, trace: trace, route: route);
   }
 
-  return _handleDomainStep(
-    session,
-    trimmed,
-    engine,
-    templates,
-    net: net,
-    replies: replies,
-    rnd: rnd,
-  );
+  try {
+    log.record(trace, TurnStage.input, 'پیام کاربر', <String, Object?>{
+      'text': rawText,
+      'topic': session.topicId,
+      'concluded': session.concluded,
+      'facts': Map<String, String>.of(session.facts),
+    });
+    log.record(
+      trace,
+      TurnStage.input,
+      'متن یکدست‌شده',
+      PersianText.collapse(PersianText.normalize(rawText)),
+    );
+
+    final topScores = net == null ? const <IntentScore>[] : net.top(rawText, k: 3);
+    log.record(trace, TurnStage.intent, 'طبقه‌بندی نیت', <String, Object?>{
+      'model': net == null ? 'none' : 'intent_net',
+      'label': topScores.isEmpty ? null : topScores.first.label,
+      'score': topScores.isEmpty ? null : topScores.first.score,
+      'top': topScores.map((s) => s.toString()).toList(),
+      'topic': detectTopic(rawText, net: net) ?? detectTopic(rawText),
+      'starts_counseling': shouldStartCounseling(rawText, net: net),
+      'rag_eligible': _ragEligible(session, rawText, net: net),
+    });
+
+    final factsBefore = Map<String, String>.of(session.facts);
+    final filledBefore = <String>[];
+    final slotsBefore = session.dialogueState?.slots;
+    if (slotsBefore != null) {
+      slotsBefore.forEach((key, value) {
+        final v = value.value;
+        if (v != null && v.isNotEmpty) filledBefore.add(key);
+      });
+    }
+
+    final turn = step(
+      session,
+      rawText,
+      engine,
+      templates,
+      net: net,
+      replies: replies,
+      rnd: rnd,
+      onRoute: (r) => route = r,
+    );
+
+    final extracted = <String, String>{};
+    session.facts.forEach((key, value) {
+      if (factsBefore[key] != value) extracted[key] = value;
+    });
+    final requiredSlots = Slots.coreFor(session.topicId);
+    log.record(trace, TurnStage.slots, 'اسلات‌های استخراج‌شده', <String, Object?>{
+      'topic': session.topicId,
+      'extracted': extracted,
+      'filled_before': filledBefore,
+      'facts': Map<String, String>.of(session.facts),
+      'required': requiredSlots,
+      'missing': requiredSlots.where((k) => !session.facts.containsKey(k)).toList(),
+    });
+
+    final hits = turn.ragReply?.contextHits ?? const <Hit>[];
+    log.record(trace, TurnStage.retrieval, 'مواد بازیابی‌شده', <String, Object?>{
+      'query': turn.ragQuery,
+      'count': hits.length,
+      'hits': hits
+          .map((h) => <String, Object?>{
+                'law': h.chunk.lawId,
+                'article': h.chunk.title,
+                'source': h.chunk.source,
+                'score': h.score,
+              })
+          .toList(),
+    });
+
+    log.record(trace, TurnStage.intent, 'مسیر انتخاب‌شده', <String, Object?>{
+      'route': route?.name ?? 'unknown',
+    });
+    log.record(trace, TurnStage.response, 'پاسخ نهایی', <String, Object?>{
+      'text': turn.text,
+      'chips': turn.chips,
+      'completed': turn.completed,
+      'cancelled': turn.cancelled,
+      'concluded': session.concluded,
+    });
+
+    return TracedCounselorTurn(turn: turn, trace: trace, route: route);
+  } catch (e, st) {
+    log.record(trace, TurnStage.error, 'خطا در پردازش نوبت', <String, Object?>{
+      'error': e.toString(),
+      'stack': st.toString(),
+    });
+    rethrow;
+  } finally {
+    log.finish(trace);
+  }
 }
 
 /// Route an initial/uncategorized legal issue into a concrete counseling
