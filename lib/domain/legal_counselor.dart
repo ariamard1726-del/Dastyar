@@ -13,6 +13,7 @@ import 'package:dastyar/domain/templates.dart';
 
 import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
+import 'dialogue/small_talk_layer.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
 /// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
@@ -580,6 +581,12 @@ class LegalCounselor {
   }
 
   /// پردازش پاسخ کاربر در میانهٔ جلسهٔ مشاوره.
+
+  static const SmallTalkLayer _smallTalk = SmallTalkLayer();
+  static final Expando<int> _intakeAttempts = Expando<int>('intake');
+  static final Expando<int> _stallCount = Expando<int>('stall');
+  static final Expando<bool> _conclusionShown = Expando<bool>('conclusion');
+
   static CounselorTurn step(
     CounselingSession session,
     String rawText,
@@ -592,121 +599,138 @@ class LegalCounselor {
     final trimmed = rawText.trim();
     final n = _norm(trimmed);
 
-    if (trimmed == cancelCounselCmd ||
-        trimmed == DraftCmd.cancel ||
-        n == 'انصراف' ||
-        n == 'پایان مشاوره' ||
-        n == 'لغو') {
+    if (trimmed.isEmpty) {
       return const CounselorTurn(
-        text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
-        cancelled: true,
+        text: 'بفرمایید، در خدمتم. موضوع حقوقی‌تان را بنویسید.',
+        chips: SmallTalkLayer.defaultIntakeChips,
       );
     }
-    // شبکهٔ عصبی نیت «لغو/انصراف» را حتی از عبارت آزادِ کاربر می‌گیرد.
+
+    if (trimmed == cancelCounselCmd || trimmed == DraftCmd.cancel || n == 'انصراف' || n == 'پایان مشاوره' || n == 'لغو') {
+      return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
+    }
     if (net != null) {
       final s = net.classify(trimmed);
       if (s.label == 'cancel' && s.score >= net.cancelMin) {
-        return const CounselorTurn(
-          text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
-          cancelled: true,
-        );
+        return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
       }
     }
 
-    // اگر جلسه در مرحلهٔ پایانی بوده و کاربر روی دکمهٔ «تنظیم ...» کلیک کرده است:
+    final isGoodbye = PersianText.wordRe(['خداحافظ', 'خدانگهدار', 'بدرود', 'فعلا']).hasMatch(n);
+    if (isGoodbye) {
+      session.concluded = true;
+      return const CounselorTurn(text: 'خداحافظ. هر وقت به راهنمایی حقوقی نیاز داشتید، همین‌جا در خدمتم.', completed: true);
+    }
+
     if (session.concluded) {
-      final picked = _matchTemplateChip(trimmed, templates);
-      if (picked != null) {
-        return CounselorTurn(text: '', completed: true, startTemplate: picked);
-      }
-      // اگر بعد از جمع‌بندی سؤال جدیدی پرسید، جلسه تمام شود تا موتور عادی جواب دهد
-      return const CounselorTurn(text: '', completed: true);
+      session.concluded = false;
+      _intakeAttempts[session] = null;
+      _stallCount[session] = null;
+      _conclusionShown[session] = null;
     }
 
-    // ── RAG در میانهٔ مشاوره ─────────────────────────────────────
-    // ⚠️ اول RAG، بعد Planner. اگر کاربر پرسش حقوقی/قانونی پرسید
-    // باید پاسخ از بانک قوانین بیاید (تست‌های موجود این را انتظار دارند).
-    if (_isLegalQuestion(trimmed, net)) {
+    final bool activeContext = session.topicId != 'general_intake';
+    final smallTalkTurn = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
+    if (smallTalkTurn != null) return smallTalkTurn;
+
+    if (activeContext) {
+      final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
+      if (newTurn != null) {
+        _stallCount[session] = null;
+        _conclusionShown[session] = null;
+        return newTurn;
+      }
+    }
+
+    final int tokenCount = n.split(' ').length;
+    final bool isShortAnswer = tokenCount <= 4 || n == 'بله' || n == 'خیر';
+    final bool isRagEligible = tokenCount >= 5 && _isLegalQuestion(trimmed, net);
+    
+    if (!isShortAnswer && isRagEligible) {
       return _ragTurn(session, trimmed, engine, replies, rnd);
     }
 
-    // ── Phase 2.4: ادغام Planner و Composer ─────────────────────
-    // بعد از RAG (که نیاز به استناد قانونی دارد)، اگر کاربر به سؤال
-    // planner پاسخ داد، آن را پردازش کن. اگر planner درخواست اسلات
-    // جدید داد، سؤال جدید برمی‌گرداند. در غیر این صورت (GiveAnswer و...)
-    // fallback به مسیر legacy که _buildConclusion غنی‌تری دارد.
-    if (session.topicId != 'general_intake') {
-      final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
-      if (newTurn != null) return newTurn;
+    final ds = session.dialogueState;
+    final bool plannerActive = ds != null && ds.slots.isNotEmpty;
+    
+    if (activeContext && plannerActive) {
+      for (final e in ds.slots.entries) {
+        if (e.value.value.trim().isNotEmpty) {
+          session.facts.putIfAbsent(e.key, () => e.value.value.trim());
+        }
+      }
+      
+      final stalls = (_stallCount[session] ?? 0) + 1;
+      _stallCount[session] = stalls;
+      
+      if (stalls <= 2) {
+        return CounselorTurn(
+          text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.',
+          chips: const ['ادامه بحث', 'سؤال جدید دارم'],
+        );
+      }
+      
+      if (_conclusionShown[session] != true) {
+        _conclusionShown[session] = true;
+        final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
+        return CounselorTurn(
+          text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
+
+${c.text}',
+          chips: c.chips,
+          completed: c.completed,
+          cancelled: c.cancelled,
+          startTemplate: c.startTemplate,
+          ragQuery: c.ragQuery,
+          ragReply: c.ragReply,
+        );
+      }
+      return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
     }
 
     if (session.topicId == 'general_intake') {
-      final detected =
-          _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
+      final detected = _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
       if (detected != null && detected != 'general_intake') {
         session.topicId = detected;
         _extractAllFacts(session, trimmed);
-        return _advance(
-          session,
-          engine,
-          templates,
-          firstTurn: true,
-          replies: replies,
-          rnd: rnd,
+        return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
+      }
+      
+      final attempts = (_intakeAttempts[session] ?? 0) + 1;
+      _intakeAttempts[session] = attempts;
+      if (attempts == 1) {
+        return const CounselorTurn(
+          text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟',
+          chips: SmallTalkLayer.defaultIntakeChips,
+        );
+      } else {
+        return const CounselorTurn(
+          text: 'لطفاً در یک جمله ساده بنویسید چه اتفاقی افتاده است تا راهنمایی‌تان کنم.',
+          chips: [],
         );
       }
-      return CounselorTurn(
-        text: _pick(
-          replies,
-          rnd,
-          'counselor_intake_reprompt',
-          _intakeRepromptFallback,
-        ),
-        chips: _intakeRepromptChips,
-      );
     }
 
     final steps = _stepsFor(session.topicId);
-    final pendingStep = steps
-        .where((s) => !session.facts.containsKey(s.slot))
-        .firstOrNull;
+    final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
     String? ack;
     if (pendingStep != null) {
       final val = pendingStep.extractor(n);
       if (val != null) {
         session.facts[pendingStep.slot] = val;
         if (replies != null) {
-          ack = _pick(
-            replies,
-            rnd,
-            'counselor_ack',
-            'باشه، پس «{answer}» — این را یادداشت کردم.',
-            {'answer': _reflect(trimmed)},
-          );
+          ack = _pick(replies, rnd, 'counselor_ack', 'باشه، پس «{answer}» — این را یادداشت کردم.', {'answer': _reflect(trimmed)});
         }
       } else {
         session.facts[pendingStep.slot] = trimmed;
         if (replies != null) {
-          ack = _pick(
-            replies,
-            rnd,
-            'counselor_ack_generic',
-            'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:',
-          );
+          ack = _pick(replies, rnd, 'counselor_ack_generic', 'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:');
         }
       }
       _extractAllFacts(session, trimmed);
     }
 
-    return _advance(
-      session,
-      engine,
-      templates,
-      firstTurn: false,
-      replies: replies,
-      rnd: rnd,
-      ack: ack,
-    );
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, ack: ack);
   }
 
   // ── پرسش حقوقی در میانهٔ مشاوره (RAG) ────────────────────────────────

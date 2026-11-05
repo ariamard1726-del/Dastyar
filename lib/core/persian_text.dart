@@ -189,4 +189,12 @@ class PersianText {
   /// بررسی صحت قالب شماره تلفن همراه یا ثابت ایران.
   static bool isValidIranianPhone(String raw) =>
       normalizeIranianPhone(raw) != null;
+
+  static RegExp wordRe(Iterable<String> words) {
+    const letters = r'\u0621-\u06CC';
+    const suffixes = 'ها|های|ام|ات|اش|مان|تان|شان|ان|م|ت|ش|ی|ای';
+    return RegExp(
+      '(?<![$letters])(?:${words.join('|')})(?:$suffixes)?(?![$letters])',
+    );
+  }
 }
