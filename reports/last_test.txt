@@ -1,20 +1,5 @@
-commit: 1575881
-::error::229 tests passed, 7 failed.
-::group::❌ loading test/domain/dialogue/response_composer_test.dart (failed)
-   Failed to load "test/domain/dialogue/response_composer_test.dart":
-   Compilation failed for testPath=test/domain/dialogue/response_composer_test.dart: test/domain/dialogue/response_composer_test.dart:365:36: Error: Method not found: 'greaterThanOrEqual'.
-   expect(texts.toSet().length, greaterThanOrEqual(3));
-   ^^^^^^^^^^^^^^^^^^
-   test/domain/dialogue/response_composer_test.dart:378:28: Error: Method not found: 'greaterThanOrEqual'.
-   expect(texts.length, greaterThanOrEqual(3));
-   ^^^^^^^^^^^^^^^^^^
-   .
-::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پاسخ خبریِ خانهٔ پرسش، گفتگو را به RAG نمی‌کشاند (درگاه نشانهٔ پرسش) (failed)
-   Expected: contains 'دادخواست صدور حکم تخلیه'
-   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
-   Which: does not contain 'دادخواست صدور حکم تخلیه'
-   test/counselor/counselor_nn_rag_test.dart 149:7     main.<fn>.<fn>
-   ::endgroup::
+commit: 2d37e35
+::error::264 tests passed, 6 failed.
 ::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
    Expected: false
    Actual: <true>
@@ -32,6 +17,12 @@ commit: 1575881
    Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
    test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
    ::endgroup::
+::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پاسخ خبریِ خانهٔ پرسش، گفتگو را به RAG نمی‌کشاند (درگاه نشانهٔ پرسش) (failed)
+   Expected: contains 'دادخواست صدور حکم تخلیه'
+   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
+   Which: does not contain 'دادخواست صدور حکم تخلیه'
+   test/counselor/counselor_nn_rag_test.dart 149:7     main.<fn>.<fn>
+   ::endgroup::
 ::group::❌ test/counselor/counselor_nn_rag_test.dart: ۴. ادامهٔ مشاورهٔ جمع‌بندی‌شده «ادامه مشاوره» جلسهٔ همان موضوع را از نو باز می‌کند (failed)
    Expected: false
    Actual: <true>
@@ -44,13 +35,5 @@ commit: 1575881
    Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
    test/counselor/counselor_nn_rag_test.dart 242:7     main.<fn>.<fn>
    ::endgroup::
---- خطای کامپایل ---
-test/domain/dialogue/response_composer_test.dart:365:36: Error: Method not found: 'greaterThanOrEqual'.
-test/domain/dialogue/response_composer_test.dart:378:28: Error: Method not found: 'greaterThanOrEqual'.
-Failed to load "test/domain/dialogue/response_composer_test.dart":
-Compilation failed for testPath=test/domain/dialogue/response_composer_test.dart: test/domain/dialogue/response_composer_test.dart:365:36: Error: Method not found: 'greaterThanOrEqual'.
-test/domain/dialogue/response_composer_test.dart:378:28: Error: Method not found: 'greaterThanOrEqual'.
 --- analyze ---
-3 issues found. (ran in 15.2s)
-  error • The function 'greaterThanOrEqual' isn't defined. Try importing the library that defines 'greaterThanOrEqual', correcting the name to the name of an existing function, or defining a function 
-  error • The function 'greaterThanOrEqual' isn't defined. Try importing the library that defines 'greaterThanOrEqual', correcting the name to the name of an existing function, or defining a function 
+1 issue found. (ran in 9.7s)
