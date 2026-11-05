@@ -47,7 +47,7 @@ void main() {
       expect(session.dialogueState, isNotNull);
       expect(session.dialogueState!.domain, 'labor');
       expect(session.facts['issue'], 'dismissal');
-      expect(turn.text, contains('مدرک'));
+      expect(turn.text, contains('رابطهٔ کاری'));
       expect(turn.completed, isFalse);
       expect(session.concluded, isFalse);
     });
