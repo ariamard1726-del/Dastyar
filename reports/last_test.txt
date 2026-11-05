@@ -1,4 +1,4 @@
-commit: 10e628b
+commit: b5b4a54
 ::error::180 tests passed, 7 failed.
 ::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پرسش قانونی میان جلسه، ماده را از بانک قوانین در پاسخ می‌آورد و جلسه نمی‌شکند (failed)
    Expected: contains 'ماده 3'
@@ -57,7 +57,7 @@ commit: 10e628b
    Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
    test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
 --- analyze ---
-6 issues found. (ran in 11.8s)
+6 issues found. (ran in 7.4s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:65:14 • prefer_const_constru
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:73:12 • prefer_const_constru
