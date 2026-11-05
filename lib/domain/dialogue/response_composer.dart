@@ -5,6 +5,7 @@ import 'package:dastyar/domain/dialogue/dialogue_action.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
 import 'package:dastyar/domain/dialogue/evidence.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 
 /// خروجی Composer: متن فارسی + chips دکمه‌ها + variantId برای تست.
 ///
@@ -146,15 +147,15 @@ class ResponseComposer {
   /// پرسش پیشفرض برای اسلاتهای پرتکرار، وقتی نه سؤال صریحی داده شده
   /// باشد و نه دامنهای برای مراجعه به [DomainSchemaRegistry].
   static const Map<String, String> _ackDefaultQuestions = <String, String>{
-    'role': 'نقش شما در این موضوع چیست؟',
-    'nature': 'ماهیت دقیق آن چه بوده است؟',
-    'cert_time': 'چه مدت از آن گذشته است؟',
-    'amount': 'مبلغ آن چقدر است؟',
-    'due_date': 'تاریخ آن چه زمانی بوده است؟',
-    'proof': 'چه مدرکی در دست دارید؟',
-    'time': 'زمان دقیق آن کی بوده است؟',
-    'stage': 'پرونده در چه مرحلهای است؟',
-    'harm_type': 'دقیقاً چه اتفاقی افتاده است؟',
+    Slots.role: 'نقش شما در این موضوع چیست؟',
+    Slots.nature: 'ماهیت دقیق آن چه بوده است؟',
+    Slots.certTime: 'چه مدت از آن گذشته است؟',
+    Slots.amount: 'مبلغ آن چقدر است؟',
+    Slots.dueDate: 'تاریخ آن چه زمانی بوده است؟',
+    Slots.proof: 'چه مدرکی در دست دارید؟',
+    Slots.time: 'زمان دقیق آن کی بوده است؟',
+    Slots.stage: 'پرونده در چه مرحلهای است؟',
+    Slots.harmType: 'دقیقاً چه اتفاقی افتاده است؟',
   };
 
   static const List<String> _ackFillers = <String>[

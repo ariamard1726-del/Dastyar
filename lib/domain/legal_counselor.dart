@@ -15,6 +15,7 @@ import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
 import 'dialogue/response_composer.dart';
 import 'dialogue/small_talk_layer.dart';
+import 'dialogue/slots.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
 /// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
@@ -717,104 +718,137 @@ static bool _isTopicalNarrative(
   final detected = detectTopic(rawText) ?? detectTopic(rawText, net: net);
   if (detected != null) return detected == session.topicId;
 
-  const slotCues = <String, List<String>>{
-    'cheque.nature': ['بدهی', 'تضمین', 'ضمانت', 'امانت', 'سفید', 'وعده'],
-    'cheque.cert_time': ['گواهی', 'بانک', 'برگشت', 'ماه'],
-    'labor.proof': ['مدرک', 'قرارداد', 'حقوق', 'بیمه', 'واریز', 'پیامک'],
-    'labor.time': ['اخراج', 'روز', 'ماه', 'کارگاه'],
-    'lease.witnesses': ['قرارداد', 'شاهد', 'سند', 'رهگیری'],
-    'family.side': ['زوج', 'شوهر', 'خانم', 'آقا'],
-    'family.detail': ['توافق', 'اجرا', 'اعسار', 'توان مالی'],
-    'fraud_cyber.evidence': ['رسید', 'بانک', 'اسکرین', 'شاهد', 'سند'],
-    'criminal_harm.proof': ['مدرک', 'پزشکی', 'پلیس', 'شاهد', 'پیامک'],
-    'litigation_defense.deadline': ['روز', 'ابلاغ', 'ثنا', 'عذر', 'اجرا'],
-    'debt.doc': ['رسید', 'سفته', 'قرارداد', 'فیش', 'واریز', 'شهادت'],
+  const slotCues = <String, Map<String, List<String>>>{
+    'cheque': <String, List<String>>{
+      Slots.nature: ['بدهی', 'تضمین', 'ضمانت', 'امانت', 'سفید', 'وعده'],
+      Slots.certTime: ['گواهی', 'بانک', 'برگشت', 'ماه'],
+    },
+    'labor': <String, List<String>>{
+      Slots.proof: ['مدرک', 'قرارداد', 'حقوق', 'بیمه', 'واریز', 'پیامک'],
+      Slots.time: ['اخراج', 'روز', 'ماه', 'کارگاه'],
+    },
+    'lease': <String, List<String>>{
+      Slots.witnesses: ['قرارداد', 'شاهد', 'سند', 'رهگیری'],
+    },
+    'family': <String, List<String>>{
+      Slots.side: ['زوج', 'شوهر', 'خانم', 'آقا'],
+      Slots.detail: ['توافق', 'اجرا', 'اعسار', 'توان مالی'],
+    },
+    'fraud_cyber': <String, List<String>>{
+      Slots.evidence: ['رسید', 'بانک', 'اسکرین', 'شاهد', 'سند'],
+    },
+    'criminal_harm': <String, List<String>>{
+      Slots.proof: ['مدرک', 'پزشکی', 'پلیس', 'شاهد', 'پیامک'],
+    },
+    'litigation_defense': <String, List<String>>{
+      Slots.deadline: ['روز', 'ابلاغ', 'ثنا', 'عذر', 'اجرا'],
+    },
+    'debt': <String, List<String>>{
+      Slots.doc: ['رسید', 'سفته', 'قرارداد', 'فیش', 'واریز', 'شهادت'],
+    },
   };
-  final cues = slotCues['${session.topicId}.${pending.slot}'];
+  final cues = slotCues[session.topicId]?[pending.slot];
   return cues != null && cues.any(n.contains);
 }
 
-static const Map<String, List<String>> _stallPrompts = <String, List<String>>{
-  'cheque.role': [
-    'شما دارندهٔ چک هستید یا صادرکننده/ضامن؟',
-    'نقش شما دربارهٔ این چک کدام است: دارنده یا صادرکننده/ضامن؟',
-  ],
-  'cheque.nature': [
-    'این چک برای بدهی قطعی بوده یا تضمین/امانت/شرط؟',
-    'ماهیت چک کدام است: بدهی قطعی یا تضمینی و مشروط؟',
-  ],
-  'cheque.cert_time': [
-    'گواهی عدم پرداخت دارید و هنوز در مهلت شش‌ماهه هستید؟',
-    'وضعیت گواهی عدم پرداخت و مهلت شش‌ماههٔ شما کدام گزینه است؟',
-  ],
-  'labor.issue': [
-    'مشکل اصلی با کارفرما اخراج است، مطالبات مزدی یا بیمه؟',
-    'کدام موضوع کاری برایتان پیش آمده: اخراج، حقوق و سنوات یا بیمه؟',
-  ],
-  'labor.proof': [
-    'برای اثبات رابطهٔ کاری چه مدرکی دارید؟',
-    'قرارداد، واریز بانکی، پیامک یا مدرک دیگری از کار دارید؟',
-  ],
-  'labor.time': [
-    'چند روز از اخراج یا قطع همکاری گذشته است؟',
-    'هنوز مشغول کارید یا کمتر/بیشتر از سی روز از اخراج گذشته است؟',
-  ],
-  'lease.role': [
-    'در این قرارداد موجر هستید یا مستأجر؟',
-    'نقش شما در اجاره کدام است: مالک/موجر یا مستأجر؟',
-  ],
-  'lease.expired': [
-    'مدت قرارداد اجاره تمام شده یا هنوز ادامه دارد؟',
-    'قرارداد از نظر زمانی منقضی شده است یا در میانهٔ مدت هستید؟',
-  ],
-  'lease.witnesses': [
-    'قرارداد رسمی است، دو شاهد دارد یا بدون دو شاهد/شفاهی است؟',
-    'نوع قرارداد و وضعیت امضای دو شاهد کدام گزینه است؟',
-  ],
-  'family.subtopic': [
-    'موضوع شما مهریه است، نفقه، طلاق یا حضانت؟',
-    'کدام مسئلهٔ خانوادگی را پیگیری می‌کنید: مهریه، نفقه، طلاق یا حضانت؟',
-  ],
-  'family.side': [
-    'از سمت زوجه پیگیر موضوع هستید یا زوج؟',
-    'نقش شما در این موضوع خانوادگی زوجه است یا زوج؟',
-  ],
-  'family.detail': [
-    'بین شما توافق هست، اختلاف، یا حکم و اجرائیه در میان است؟',
-    'وضعیت فعلی کدام است: توافق، اختلاف یا مرحلهٔ اجرا و توان مالی؟',
-  ],
-  'fraud_cyber.kind': [
-    'مال با فیشینگ/هک، فریب کلاهبردارانه یا از مسیر امانت از دست رفته است؟',
-    'شکل وقوع جرم کدام بوده: اینترنتی، کلاهبرداری، امانت یا فروش مال غیر؟',
-  ],
-  'fraud_cyber.evidence': [
-    'رسید بانکی، اسکرین‌شات، سند یا شاهد دارید؟',
-    'کدام مستندات بانکی، کتبی یا شفاهی در دست دارید؟',
-  ],
-  'criminal_harm.harm_type': [
-    'رفتار طرف مقابل ضرب، تهدید، توهین یا انتشار تصویر خصوصی بوده است؟',
-    'کدام آسیب رخ داده: ضرب و جرح، تهدید، توهین یا انتشار عکس/فیلم؟',
-  ],
-  'criminal_harm.proof': [
-    'گواهی پزشکی، گزارش پلیس، پیامک یا شاهد دارید؟',
-    'برای اثبات موضوع چه مدرک یا شاهدی در دست دارید؟',
-  ],
-  'litigation_defense.stage': [
-    'ابلاغیه برای احضار است، حکم غیابی یا رأی حضوری بدوی؟',
-    'پرونده در کدام مرحله است: احضاریه، حکم غیابی یا اعتراض به رأی بدوی؟',
-  ],
-  'litigation_defense.deadline': [
-    'از ابلاغ کمتر از بیست روز گذشته یا بیشتر؟',
-    'وضعیت مهلت بیست‌روزه و عذر موجه شما کدام گزینه است؟',
-  ],
-  'debt.role': [
-    'طلبکار هستید یا بدهکار/خوانده؟',
-    'نقش شما در این بدهی کدام است: طلبکار یا بدهکار؟',
-  ],
-  'debt.doc': [
-    'سند کتبی، فیش بانکی یا شاهد برای این طلب/بدهی دارید؟',
-    'مدرک این بدهی کدام است: رسید و سفته، واریز بانکی یا شهادت؟',
-  ],
+static const Map<String, Map<String, List<String>>> _stallPrompts =
+    <String, Map<String, List<String>>>{
+  'cheque': <String, List<String>>{
+    Slots.role: [
+      'شما دارندهٔ چک هستید یا صادرکننده/ضامن؟',
+      'نقش شما دربارهٔ این چک کدام است: دارنده یا صادرکننده/ضامن؟',
+    ],
+    Slots.nature: [
+      'این چک برای بدهی قطعی بوده یا تضمین/امانت/شرط؟',
+      'ماهیت چک کدام است: بدهی قطعی یا تضمینی و مشروط؟',
+    ],
+    Slots.certTime: [
+      'گواهی عدم پرداخت دارید و هنوز در مهلت شش‌ماهه هستید؟',
+      'وضعیت گواهی عدم پرداخت و مهلت شش‌ماههٔ شما کدام گزینه است؟',
+    ],
+  },
+  'labor': <String, List<String>>{
+    Slots.issue: [
+      'مشکل اصلی با کارفرما اخراج است، مطالبات مزدی یا بیمه؟',
+      'کدام موضوع کاری برایتان پیش آمده: اخراج، حقوق و سنوات یا بیمه؟',
+    ],
+    Slots.proof: [
+      'برای اثبات رابطهٔ کاری چه مدرکی دارید؟',
+      'قرارداد، واریز بانکی، پیامک یا مدرک دیگری از کار دارید؟',
+    ],
+    Slots.time: [
+      'چند روز از اخراج یا قطع همکاری گذشته است؟',
+      'هنوز مشغول کارید یا کمتر/بیشتر از سی روز از اخراج گذشته است؟',
+    ],
+  },
+  'lease': <String, List<String>>{
+    Slots.role: [
+      'در این قرارداد موجر هستید یا مستأجر؟',
+      'نقش شما در اجاره کدام است: مالک/موجر یا مستأجر؟',
+    ],
+    Slots.expired: [
+      'مدت قرارداد اجاره تمام شده یا هنوز ادامه دارد؟',
+      'قرارداد از نظر زمانی منقضی شده است یا در میانهٔ مدت هستید؟',
+    ],
+    Slots.witnesses: [
+      'قرارداد رسمی است، دو شاهد دارد یا بدون دو شاهد/شفاهی است؟',
+      'نوع قرارداد و وضعیت امضای دو شاهد کدام گزینه است؟',
+    ],
+  },
+  'family': <String, List<String>>{
+    Slots.subtopic: [
+      'موضوع شما مهریه است، نفقه، طلاق یا حضانت؟',
+      'کدام مسئلهٔ خانوادگی را پیگیری می‌کنید: مهریه، نفقه، طلاق یا حضانت؟',
+    ],
+    Slots.side: [
+      'از سمت زوجه پیگیر موضوع هستید یا زوج؟',
+      'نقش شما در این موضوع خانوادگی زوجه است یا زوج؟',
+    ],
+    Slots.detail: [
+      'بین شما توافق هست، اختلاف، یا حکم و اجرائیه در میان است؟',
+      'وضعیت فعلی کدام است: توافق، اختلاف یا مرحلهٔ اجرا و توان مالی؟',
+    ],
+  },
+  'fraud_cyber': <String, List<String>>{
+    Slots.kind: [
+      'مال با فیشینگ/هک، فریب کلاهبردارانه یا از مسیر امانت از دست رفته است؟',
+      'شکل وقوع جرم کدام بوده: اینترنتی، کلاهبرداری، امانت یا فروش مال غیر؟',
+    ],
+    Slots.evidence: [
+      'رسید بانکی، اسکرین‌شات، سند یا شاهد دارید؟',
+      'کدام مستندات بانکی، کتبی یا شفاهی در دست دارید؟',
+    ],
+  },
+  'criminal_harm': <String, List<String>>{
+    Slots.harmType: [
+      'رفتار طرف مقابل ضرب، تهدید، توهین یا انتشار تصویر خصوصی بوده است؟',
+      'کدام آسیب رخ داده: ضرب و جرح، تهدید، توهین یا انتشار عکس/فیلم؟',
+    ],
+    Slots.proof: [
+      'گواهی پزشکی، گزارش پلیس، پیامک یا شاهد دارید؟',
+      'برای اثبات موضوع چه مدرک یا شاهدی در دست دارید؟',
+    ],
+  },
+  'litigation_defense': <String, List<String>>{
+    Slots.stage: [
+      'ابلاغیه برای احضار است، حکم غیابی یا رأی حضوری بدوی؟',
+      'پرونده در کدام مرحله است: احضاریه، حکم غیابی یا اعتراض به رأی بدوی؟',
+    ],
+    Slots.deadline: [
+      'از ابلاغ کمتر از بیست روز گذشته یا بیشتر؟',
+      'وضعیت مهلت بیست‌روزه و عذر موجه شما کدام گزینه است؟',
+    ],
+  },
+  'debt': <String, List<String>>{
+    Slots.role: [
+      'طلبکار هستید یا بدهکار/خوانده؟',
+      'نقش شما در این بدهی کدام است: طلبکار یا بدهکار؟',
+    ],
+    Slots.doc: [
+      'سند کتبی، فیش بانکی یا شاهد برای این طلب/بدهی دارید؟',
+      'مدرک این بدهی کدام است: رسید و سفته، واریز بانکی یا شهادت؟',
+    ],
+  },
 };
 
 /// Handle an irrelevant answer, an unclear answer, or a refusal without
@@ -837,7 +871,7 @@ static CounselorTurn _plannerStallTurn(
     final opening = stalls == 1
         ? 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، هنوز باید به سؤال قبلی پاسخ روشنی برسد؛ بگذارید آن را ساده‌تر بپرسم:'
         : 'باشه، اشکالی ندارد اگر پاسخ کامل را نمی‌دانید. فقط نزدیک‌ترین گزینه را انتخاب کنید یا چند کلمه بگویید:';
-    final prompts = _stallPrompts['${session.topicId}.${pending.slot}'];
+    final prompts = _stallPrompts[session.topicId]?[pending.slot];
     final prompt = prompts == null
         ? _promptFor(session.topicId, pending, replies, rnd)
         : prompts[stalls - 1];
@@ -1031,12 +1065,35 @@ static String _empathyIntro(String topicId) {
     default: return 'بسیار خوب؛ بیایید وضعیت طلب یا بدهی و مدارک شما را دقیق بررسی کنیم تا بهترین اقدام قانونی مشخص شود:';
   }
 }
+/// Adapt the legacy question definitions to the same canonical core contract
+/// used by [DomainSchema] and [DialoguePlanner]. Fail fast on a missing,
+/// duplicated, or unexpected definition instead of deadlocking the dialogue.
 static List<_QuestionStep> _stepsFor(String topicId) {
+  final coreKeys = Slots.coreFor(topicId);
+  if (coreKeys.isEmpty) return const <_QuestionStep>[];
+
+  final defined = _definedStepsFor(topicId);
+  final bySlot = <String, _QuestionStep>{
+    for (final step in defined) step.slot: step,
+  };
+  if (defined.length != coreKeys.length || bySlot.length != coreKeys.length) {
+    throw StateError('Core slot definitions do not match domain "$topicId"');
+  }
+
+  return List<_QuestionStep>.unmodifiable(
+    coreKeys.map(
+      (key) => bySlot[key] ??
+          (throw StateError('Missing legacy slot "$key" in "$topicId"')),
+    ),
+  );
+}
+
+static List<_QuestionStep> _definedStepsFor(String topicId) {
   switch (topicId) {
     case 'cheque':
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. نقش شما در مورد این چک چیست؟ (دارندهٔ چک هستید و می‌خواهید وجهش را بگیرید، یا صادرکننده/ضامن هستید که علیه‌تان اقدام شده است؟)',
           options: const ['دارندهٔ چک هستم (طلبکار)', 'صادرکننده یا ضامن چک هستم'],
           extractor: (n) {
@@ -1046,7 +1103,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'nature',
+          slot: Slots.nature,
           prompt: '۲. آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین، امانت، معاملهٔ مشروط و سفیدامضا بوده است؟\n(این نکته طبق مادهٔ ۱۳ قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است.)',
           options: const ['بابت بدهی قطعی و تاریخ روز', 'بابت تضمین، امانت، مشروط یا وعده‌دار'],
           extractor: (n) {
@@ -1056,7 +1113,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'cert_time',
+          slot: Slots.certTime,
           prompt: '۳. آیا گواهی عدم پرداخت از بانک دریافت شده و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟',
           options: const ['بله، گواهی دارم و زیر ۶ ماه است', 'بیش از ۶ ماه گذشته است', 'هنوز برگشت نزده‌ام / گواهی ندارم'],
           extractor: (n) {
@@ -1071,7 +1128,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'labor':
       return [
         _QuestionStep(
-          slot: 'issue',
+          slot: Slots.issue,
           prompt: '۱. مشکل اصلی شما با کارفرما کدام مورد است؟',
           options: const ['اخراج یا عدم تمدید و بازگشت به کار', 'عدم پرداخت حقوق، عیدی یا سنوات', 'رد نکردن حق بیمهٔ تأمین اجتماعی'],
           extractor: (n) {
@@ -1082,7 +1139,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'proof',
+          slot: Slots.proof,
           prompt: '۲. چه مدرکی برای اثبات رابطهٔ کاری دارید؟ (قرارداد کتبی، فیش واریز حقوق، لیست بیمه یا پیامک و شهادت همکاران؟)',
           options: const ['قرارداد کتبی یا سابقهٔ بیمه دارم', 'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم', 'هیچ مدرک کتبی یا بانکی ندارم'],
           extractor: (n) {
@@ -1093,7 +1150,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'time',
+          slot: Slots.time,
           prompt: '۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟ اگر اخراج شده‌اید، آیا کمتر از ۳۰ روز از تاریخ اخراج گذشته است؟',
           options: const ['کمتر از ۳۰ روز از اخراج گذشته است', 'بیش از ۳۰ روز از قطع همکاری گذشته', 'هنوز در کارگاه مشغول به کارم'],
           extractor: (n) {
@@ -1108,7 +1165,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'lease':
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. در این رابطهٔ اجاره، شما موجر (مالک) هستید یا مستأجر؟',
           options: const ['موجر (مالک) هستم', 'مستأجر هستم'],
           extractor: (n) {
@@ -1118,7 +1175,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'expired',
+          slot: Slots.expired,
           prompt: '۲. آیا مدت قرارداد اجاره به پایان رسیده است؟',
           options: const ['بله، مدت قرارداد تمام شده است', 'خیر، هنوز در میانهٔ مدت قرارداد هستیم'],
           extractor: (n) {
@@ -1128,7 +1185,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'witnesses',
+          slot: Slots.witnesses,
           prompt: '۳. نوع قرارداد اجارهٔ شما چگونه است؟ (سند رسمی، قرارداد عادی با امضای دو شاهد/کد رهگیری، یا دست‌نویس بدون دو شاهد؟)',
           options: const ['قرارداد کتبی با امضای دو شاهد یا سند رسمی', 'قرارداد عادی بدون امضای دو شاهد یا شفاهی'],
           extractor: (n) {
@@ -1142,7 +1199,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'family':
       return [
         _QuestionStep(
-          slot: 'subtopic',
+          slot: Slots.subtopic,
           prompt: '۱. موضوع اصلی پرونده یا پرسش خانوادگی شما کدام است؟',
           options: const ['مطالبه یا تقسیط مهریه', 'نفقه و تمکین', 'درخواست طلاق', 'حضانت و ملاقات فرزند'],
           extractor: (n) {
@@ -1154,7 +1211,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'side',
+          slot: Slots.side,
           prompt: '۲. شما از طرف زوجه (خانم) پیگیر موضوع هستید یا زوج (آقا)؟',
           options: const ['زوجه (خانم) هستم', 'زوج (آقا) هستم'],
           extractor: (n) {
@@ -1164,7 +1221,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'detail',
+          slot: Slots.detail,
           prompt: '۳. کدام وضعیت به شرایط فعلی شما نزدیک‌تر است؟',
           options: const ['توافق نداریم و طرف مقابل همکاری نمی‌کند', 'حکم یا اجرائیه صادر شده و بحث توان مالی/اعسار مطرح است', 'زمینهٔ توافق بین زوجین وجود دارد'],
           extractor: (n) {
@@ -1179,7 +1236,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'fraud_cyber':
       return [
         _QuestionStep(
-          slot: 'kind',
+          slot: Slots.kind,
           prompt: '۱. نحوهٔ از دست رفتن مال یا وقوع جرم دقیقاً به چه شکلی بوده است؟',
           options: const ['برداشت اینترنتی، لینک جعلی (فیشینگ) یا هک', 'فریب با مانور متقلبانه و صحنه‌سازی (کلاهبرداری)', 'مالی را به امانت دادم و پس نمی‌دهد', 'ملک یا مال مرا بدون اجازه به دیگری فروخته است'],
           extractor: (n) {
@@ -1191,7 +1248,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'evidence',
+          slot: Slots.evidence,
           prompt: '۲. چه مستنداتی در دست دارید؟ (رسید بانکی و شماره حساب مقصد، قرارداد/رسید امانت، پیامک‌ها یا شاهد؟)',
           options: const ['گردش حساب بانکی، اسکرین‌شات یا رسید کتبی دارم', 'فقط شاهد یا مکالمهٔ شفاهی دارم'],
           extractor: (n) {
@@ -1205,7 +1262,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'criminal_harm':
       return [
         _QuestionStep(
-          slot: 'harm_type',
+          slot: Slots.harmType,
           prompt: '۱. چه رفتاری علیه شما رخ داده است؟',
           options: const ['ضرب و جرح و آسیب بدنی', 'تهدید یا اخاذی', 'توهین، فحاشی یا افترا', 'انتشار عکس/فیلم خصوصی در فضای مجازی'],
           extractor: (n) {
@@ -1217,7 +1274,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'proof',
+          slot: Slots.proof,
           prompt: '۲. آیا مدرکی مانند گواهی پزشکی قانونی، گزارش پلیس ۱۱۰، شهادت شهود یا پیامک و صدای ضبط‌شده دارید؟',
           options: const ['گواهی پزشکی قانونی / گزارش پلیس / پیامک دارم', 'فقط شاهد دارم', 'فعلاً مدرکی جمع‌آوری نکرده‌ام'],
           extractor: (n) {
@@ -1232,7 +1289,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'litigation_defense':
       return [
         _QuestionStep(
-          slot: 'stage',
+          slot: Slots.stage,
           prompt: '۱. ابلاغیه‌ای که در سامانهٔ ثنا دریافت کرده‌اید مربوط به کدام مرحله است؟',
           options: const ['ابلاغ وقت رسیدگی یا احضاریه (پرونده در جریان است)', 'حکم غیابی صادر شده است (در جلسات شرکت نکرده‌ام)', 'رأی حضوری بدوی صادر شده و می‌خواهم اعتراض کنم'],
           extractor: (n) {
@@ -1243,7 +1300,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'deadline',
+          slot: Slots.deadline,
           prompt: '۲. چند روز از تاریخ درج ابلاغیه در سامانهٔ ثنا گذشته است؟ (برای مقیمان ایران مهلت واخواهی و تجدیدنظر ۲۰ روز است.)',
           options: const ['کمتر از ۲۰ روز گذشته است (مهلت دارم)', 'بیش از ۲۰ روز گذشته ولی عذر موجه (بیماری/عدم اطلاع واقعی) دارم', 'بیش از ۲۰ روز گذشته و رأی به اجرا رفته است'],
           extractor: (n) {
@@ -1259,7 +1316,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     default:
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. شما طلبکار هستید که می‌خواهید پولتان را مطالبه کنید، یا بدهکار/خوانده هستید که علیه‌تان مطالبه شده است؟',
           options: const ['طلبکار هستم و می‌خواهم پولم را بگیرم', 'بدهکار هستم و توان پرداخت یکجای بدهی را ندارم'],
           extractor: (n) {
@@ -1269,7 +1326,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'doc',
+          slot: Slots.doc,
           prompt: '۲. چه مدرکی بابت این بدهی/طلب وجود دارد؟',
           options: const ['رسید کتبی، قرارداد یا سفته', 'فیش واریز بانکی و پیامک‌های اقرار به بدهی', 'فقط شهادت شهود (شفاهی)'],
           extractor: (n) {
@@ -1321,9 +1378,9 @@ static List<_QuestionStep> _stepsFor(String topicId) {
 
     switch (s.topicId) {
       case 'cheque':
-        final isIssuer = s.facts['role'] == 'issuer';
-        final isCond = s.facts['nature'] == 'conditional';
-        final time = s.facts['cert_time'] ?? 'under_6m';
+        final isIssuer = s.facts[Slots.role] == 'issuer';
+        final isCond = s.facts[Slots.nature] == 'conditional';
+        final time = s.facts[Slots.certTime] ?? 'under_6m';
         sb.writeln('📋 تحلیل و استدلال حقوقی وضعیت چک شما:');
         sb.writeln();
         if (!isIssuer) {
@@ -1359,8 +1416,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'labor':
-        final issue = s.facts['issue'] ?? 'wages';
-        final time = s.facts['time'] ?? 'under_30d';
+        final issue = s.facts[Slots.issue] ?? 'wages';
+        final time = s.facts[Slots.time] ?? 'under_30d';
         sb.writeln('📋 تحلیل و استدلال حقوقی روابط کار و بیمه:');
         sb.writeln();
         if (issue == 'dismissal') {
@@ -1390,9 +1447,9 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'lease':
-        final isLandlord = s.facts['role'] == 'landlord';
-        final expired = s.facts['expired'] != 'no';
-        final twoWit = s.facts['witnesses'] == 'two_witnesses';
+        final isLandlord = s.facts[Slots.role] == 'landlord';
+        final expired = s.facts[Slots.expired] != 'no';
+        final twoWit = s.facts[Slots.witnesses] == 'two_witnesses';
         sb.writeln('📋 تحلیل و استدلال حقوقی رابطهٔ استیجاری:');
         sb.writeln();
         if (isLandlord) {
@@ -1423,8 +1480,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'family':
-        final sub = s.facts['subtopic'] ?? 'mehrieh';
-        final isWife = s.facts['side'] != 'husband';
+        final sub = s.facts[Slots.subtopic] ?? 'mehrieh';
+        final isWife = s.facts[Slots.side] != 'husband';
         sb.writeln('📋 تحلیل و استدلال حقوقی خانواده:');
         sb.writeln();
         if (sub == 'mehrieh') {
@@ -1466,7 +1523,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'fraud_cyber':
-        final kind = s.facts['kind'] ?? 'classic_fraud';
+        final kind = s.facts[Slots.kind] ?? 'classic_fraud';
         sb.writeln('📋 تحلیل و استدلال کیفری جرم مالی / اینترنتی:');
         sb.writeln();
         if (kind == 'cyber') {
@@ -1494,7 +1551,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'criminal_harm':
-        final harm = s.facts['harm_type'] ?? 'insult';
+        final harm = s.facts[Slots.harmType] ?? 'insult';
         sb.writeln('📋 تحلیل و استدلال کیفری:');
         sb.writeln();
         if (harm == 'assault') {
@@ -1523,8 +1580,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'litigation_defense':
-        final stage = s.facts['stage'] ?? 'first_hearing';
-        final dl = s.facts['deadline'] ?? 'within_20d';
+        final stage = s.facts[Slots.stage] ?? 'first_hearing';
+        final dl = s.facts[Slots.deadline] ?? 'within_20d';
         sb.writeln('📋 تحلیل آیین دادرسی و راهبرد دفاعی شما:');
         sb.writeln();
         if (stage == 'default_judgment') {
@@ -1552,7 +1609,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
 
       case 'debt':
       default:
-        final isDebtor = s.facts['role'] == 'debtor';
+        final isDebtor = s.facts[Slots.role] == 'debtor';
         sb.writeln('📋 تحلیل و استدلال حقوقی مطالبات و دیون:');
         sb.writeln();
         if (!isDebtor) {

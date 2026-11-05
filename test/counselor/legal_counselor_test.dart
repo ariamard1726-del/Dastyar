@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/templates.dart';
 
@@ -34,6 +35,15 @@ void main() {
       templates,
       replies: engine.replies,
     );
+  }
+
+  void expectCoreSlotsSynchronized(CounselingSession session) {
+    final state = session.dialogueState!;
+    for (final key in Slots.coreFor(session.topicId)) {
+      expect(session.facts[key], isNotNull, reason: 'Missing fact: $key');
+      expect(state.slots[key]?.value, session.facts[key],
+          reason: 'Planner/counselor mismatch for $key');
+    }
   }
 
   group('Phase 4 — general intake', () {
@@ -178,6 +188,56 @@ void main() {
       expect(turn.text, contains('دو شاهد'));
       expect(session.facts.containsKey('witnesses'), isFalse);
       expect(session.concluded, isFalse);
+    });
+  });
+
+  group('Phase 5 — canonical slot integration', () {
+    test('cheque flow stays synchronized from greeting to conclusion', () {
+      final (session, _) = startCounseling('مشاوره');
+
+      final greeting = step(session, 'سلام');
+      expect(greeting.text, contains('سلام'));
+      expect(session.topicId, 'general_intake');
+
+      step(session, 'چک برگشتی دارم');
+      expect(session.topicId, 'cheque');
+      expect(session.facts[Slots.role], 'holder');
+      expect(session.dialogueState!.slots[Slots.role]?.value, 'holder');
+
+      step(session, 'بابت بدهی قطعی و تاریخ روز');
+      expect(session.facts[Slots.nature], 'unconditional');
+      expect(
+        session.dialogueState!.slots[Slots.nature]?.value,
+        'unconditional',
+      );
+
+      final conclusion = step(session, 'بله، گواهی دارم و زیر ۶ ماه است');
+
+      expect(conclusion.completed, isTrue);
+      expect(session.concluded, isTrue);
+      expect(session.facts[Slots.certTime], 'under_6m');
+      expectCoreSlotsSynchronized(session);
+    });
+
+    test('labor flow stays synchronized from greeting to conclusion', () {
+      final (session, _) = startCounseling('مشاوره');
+
+      step(session, 'سلام');
+      step(session, 'کارفرما اخراجم کرده');
+      expect(session.topicId, 'labor');
+      expect(session.facts[Slots.issue], 'dismissal');
+
+      step(session, 'قرارداد کتبی دارم');
+      expect(session.facts[Slots.proof], 'written');
+      expect(session.dialogueState!.slots[Slots.proof]?.value, 'written');
+
+      final conclusion = step(session, 'کمتر از ۳۰ روز از اخراج گذشته است');
+
+      expect(conclusion.completed, isTrue);
+      expect(session.concluded, isTrue);
+      expect(session.facts[Slots.time], 'under_30d');
+      expectCoreSlotsSynchronized(session);
+      expect(conclusion.text, contains('بازگشت به کار'));
     });
   });
 }

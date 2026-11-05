@@ -1,3 +1,5 @@
+import 'slots.dart';
+
 /// تعریف دامنه‌ها و اسلات‌های موردنیاز برای استخراج از متن کاربر.
 
 enum SlotType {
@@ -12,7 +14,6 @@ enum SlotType {
 class SlotSpec {
   final String name;
   final SlotType type;
-  final bool isRequired;
   final int priority;
   final String rationale;
   final Map<String, List<String>>? valueKeywords;
@@ -22,7 +23,6 @@ class SlotSpec {
   const SlotSpec({
     required this.name,
     required this.type,
-    this.isRequired = true,
     this.priority = 1,
     this.rationale = '',
     this.valueKeywords,
@@ -42,8 +42,17 @@ class DomainSchema {
     required this.slots,
   });
 
-  List<SlotSpec> get requiredSlots =>
-      slots.where((s) => s.isRequired).toList();
+  /// Required specs in the canonical planner order. A missing declaration is
+  /// a programmer error and fails fast instead of silently deadlocking a chat.
+  List<SlotSpec> get requiredSlots {
+    final byName = <String, SlotSpec>{for (final spec in slots) spec.name: spec};
+    return List<SlotSpec>.unmodifiable(
+      Slots.coreFor(domainId).map(
+        (name) => byName[name] ??
+            (throw StateError('Missing slot "$name" in domain "$domainId"')),
+      ),
+    );
+  }
 
   List<SlotSpec> get prioritizedSlots =>
       [...slots]..sort((a, b) => a.priority.compareTo(b.priority));
@@ -84,7 +93,7 @@ final DomainSchema _chequeSchema = const DomainSchema(
   titleFa: 'چک و دعاوی بانکی',
   slots: [
     SlotSpec(
-      name: 'role',
+      name: Slots.role,
       type: SlotType.category,
       priority: 1,
       rationale: 'نقش کاربر تعیین می‌کند چه مسیر حقوقی (کیفری، اجرائیه، حقوقی) برایش باز است.',
@@ -96,7 +105,7 @@ final DomainSchema _chequeSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'nature',
+      name: Slots.nature,
       type: SlotType.category,
       priority: 2,
       rationale: 'طبق مادهٔ ۱۳ قانون صدور چک، چک تضمینی/مشروط امکان شکایت کیفری را محدود می‌کند.',
@@ -108,7 +117,7 @@ final DomainSchema _chequeSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'cert_time',
+      name: Slots.certTime,
       type: SlotType.category,
       priority: 3,
       rationale: 'مهلت ۶ ماههٔ شکایت کیفری از تاریخ گواهی عدم پرداخت، مسیر را تعیین می‌کند.',
@@ -121,17 +130,15 @@ final DomainSchema _chequeSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'amount',
+      name: Slots.amount,
       type: SlotType.amount,
-      isRequired: false,
       priority: 4,
       rationale: 'مبلغ چک برای محاسبهٔ خسارت تأخیر تأدیه و تعیین صلاحیت دادگاه لازم است.',
       prompt: 'مبلغ چک چقدر است؟ (به تومان یا ریال)',
     ),
     SlotSpec(
-      name: 'due_date',
+      name: Slots.dueDate,
       type: SlotType.date,
-      isRequired: false,
       priority: 5,
       rationale: 'تاریخ سررسید چک مبدأ محاسبهٔ مهلت‌ها و خسارت است.',
       prompt: 'تاریخ سررسید چک چه زمانی بوده است؟ (مثلاً ۱۴۰۳/۰۵/۱۲)',
@@ -144,7 +151,7 @@ final DomainSchema _laborSchema = const DomainSchema(
   titleFa: 'روابط کار و بیمه',
   slots: [
     SlotSpec(
-      name: 'issue',
+      name: Slots.issue,
       type: SlotType.category,
       priority: 1,
       rationale: 'نوع مشکل (اخراج/حقوق/بیمه) مسیر شکایت در هیأت تشخیص را تعیین می‌کند.',
@@ -157,7 +164,7 @@ final DomainSchema _laborSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'proof',
+      name: Slots.proof,
       type: SlotType.category,
       priority: 2,
       rationale: 'نوع مدرک تعیین می‌کند رابطهٔ کاری در هیأت تشخیص چگونه اثبات شود.',
@@ -170,7 +177,7 @@ final DomainSchema _laborSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'time',
+      name: Slots.time,
       type: SlotType.category,
       priority: 3,
       rationale: 'مهلت شکایت از اخراج (۳۰ روز) و مهلت مطالبهٔ حقوق، حیاتی است.',
@@ -183,9 +190,8 @@ final DomainSchema _laborSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'amount',
+      name: Slots.amount,
       type: SlotType.amount,
-      isRequired: false,
       priority: 4,
       rationale: 'مبلغ حقوق معوقه برای تعیین خواسته در دادخواست ضروری است.',
       prompt: 'مبلغ حقوق معوقه تقریباً چقدر است؟',
@@ -198,7 +204,7 @@ final DomainSchema _leaseSchema = const DomainSchema(
   titleFa: 'اجاره و تخلیهٔ ملک',
   slots: [
     SlotSpec(
-      name: 'role',
+      name: Slots.role,
       type: SlotType.category,
       priority: 1,
       rationale: 'موجر یا مستأجر بودن، مسیر تخلیه یا مطالبهٔ ودیعه را تعیین می‌کند.',
@@ -210,7 +216,7 @@ final DomainSchema _leaseSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'expired',
+      name: Slots.expired,
       type: SlotType.category,
       priority: 2,
       rationale: 'با انقضای مدت، دستور تخلیهٔ فوری (مادهٔ ۳ قانون ۱۳۷۶) در دسترس است.',
@@ -222,7 +228,7 @@ final DomainSchema _leaseSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'witnesses',
+      name: Slots.witnesses,
       type: SlotType.category,
       priority: 3,
       rationale: 'امضای دو شاهد شرط صدور دستور تخلیهٔ فوری است.',
@@ -234,9 +240,8 @@ final DomainSchema _leaseSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'deposit_amount',
+      name: Slots.depositAmount,
       type: SlotType.amount,
-      isRequired: false,
       priority: 4,
       rationale: 'مبلغ ودیعه برای محاسبهٔ اجرت‌المثل و مطالبهٔ حقوقی لازم است.',
       prompt: 'مبلغ ودیعه (پول پیش) تقریباً چقدر است؟',
@@ -249,7 +254,7 @@ final DomainSchema _familySchema = const DomainSchema(
   titleFa: 'خانواده (مهریه، طلاق، حضانت)',
   slots: [
     SlotSpec(
-      name: 'subtopic',
+      name: Slots.subtopic,
       type: SlotType.category,
       priority: 1,
       rationale: 'نوع موضوع (مهریه/نفقه/حضانت/طلاق) مسیر حقوقی را تعیین می‌کند.',
@@ -263,7 +268,7 @@ final DomainSchema _familySchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'side',
+      name: Slots.side,
       type: SlotType.category,
       priority: 2,
       rationale: 'زوجه یا زوج بودن، خواسته‌ها و اختیارات قانونی را متفاوت می‌کند.',
@@ -275,7 +280,7 @@ final DomainSchema _familySchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'detail',
+      name: Slots.detail,
       type: SlotType.category,
       priority: 3,
       rationale: 'توافق، تعارض یا اجرائیه، مسیر بعدی (توافقی یا دادگاه) را تعیین می‌کند.',
@@ -295,7 +300,7 @@ final DomainSchema _fraudCyberSchema = const DomainSchema(
   titleFa: 'کلاهبرداری و جرایم رایانه‌ای',
   slots: [
     SlotSpec(
-      name: 'kind',
+      name: Slots.kind,
       type: SlotType.category,
       priority: 1,
       rationale: 'عنوان اتهامی (کلاهبرداری، جرم رایانه‌ای، خیانت در امانت) تعیین‌کنندهٔ مسیر است.',
@@ -309,7 +314,7 @@ final DomainSchema _fraudCyberSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'evidence',
+      name: Slots.evidence,
       type: SlotType.category,
       priority: 2,
       rationale: 'وجود مدارک بانکی/کتبی امکان تعقیب سریع‌تر از طریق پلیس فتا را فراهم می‌کند.',
@@ -321,9 +326,8 @@ final DomainSchema _fraudCyberSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'amount',
+      name: Slots.amount,
       type: SlotType.amount,
-      isRequired: false,
       priority: 3,
       rationale: 'مبلغ زیان برای تعیین عنوان و میزان مجازات مؤثر است.',
       prompt: 'مبلغ زیان تقریباً چقدر است؟',
@@ -336,7 +340,7 @@ final DomainSchema _criminalHarmSchema = const DomainSchema(
   titleFa: 'شکایت کیفری و آسیب',
   slots: [
     SlotSpec(
-      name: 'harm_type',
+      name: Slots.harmType,
       type: SlotType.category,
       priority: 1,
       rationale: 'نوع رفتار (ضرب/تهدید/توهین/انتشار تصویر) عنوان اتهامی را تعیین می‌کند.',
@@ -350,7 +354,7 @@ final DomainSchema _criminalHarmSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'proof',
+      name: Slots.proof,
       type: SlotType.category,
       priority: 2,
       rationale: 'وجود گواهی پزشکی یا گزارش پلیس روند اثبات را تسریع می‌کند.',
@@ -370,7 +374,7 @@ final DomainSchema _litigationDefenseSchema = const DomainSchema(
   titleFa: 'دفاع در دادرسی و اعتراض به رأی',
   slots: [
     SlotSpec(
-      name: 'stage',
+      name: Slots.stage,
       type: SlotType.category,
       priority: 1,
       rationale: 'نوع ابلاغیه (احضاریه/غیابی/بدوی) تعیین می‌کند کدام مهلت و کدام لایحه لازم است.',
@@ -383,7 +387,7 @@ final DomainSchema _litigationDefenseSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'deadline',
+      name: Slots.deadline,
       type: SlotType.category,
       priority: 2,
       rationale: 'مهلت ۲۰ روزهٔ واخواهی/تجدیدنظر برای حفظ حق دفاع حیاتی است.',
@@ -403,7 +407,7 @@ final DomainSchema _debtSchema = const DomainSchema(
   titleFa: 'طلب و بدهی',
   slots: [
     SlotSpec(
-      name: 'role',
+      name: Slots.role,
       type: SlotType.category,
       priority: 1,
       rationale: 'طلبکار یا بدهکار بودن، مسیر (مطالبه یا اعسار) را تعیین می‌کند.',
@@ -415,7 +419,7 @@ final DomainSchema _debtSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'doc',
+      name: Slots.doc,
       type: SlotType.category,
       priority: 2,
       rationale: 'نوع سند (کتبی/بانکی/شفاهی) تعیین‌کنندهٔ نحوهٔ اثبات در دادگاه است.',
@@ -428,9 +432,8 @@ final DomainSchema _debtSchema = const DomainSchema(
       },
     ),
     SlotSpec(
-      name: 'amount',
+      name: Slots.amount,
       type: SlotType.amount,
-      isRequired: false,
       priority: 3,
       rationale: 'مبلغ بدهی برای تعیین خواسته در دادخواست و نصاب صلاحیت لازم است.',
       prompt: 'مبلغ بدهی تقریباً چقدر است؟',

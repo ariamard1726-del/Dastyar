@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
 import 'package:dastyar/domain/dialogue/slot_extractor.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 
 void main() {
   group('DomainSchemaRegistry', () {
@@ -19,6 +20,23 @@ void main() {
 
     test('forDomain returns null for unknown domain', () {
       expect(DomainSchemaRegistry.forDomain('unknown'), isNull);
+    });
+
+    test('every schema matches the canonical slot contract', () {
+      for (final domain in DomainSchemaRegistry.allDomainIds) {
+        final schema = DomainSchemaRegistry.forDomain(domain)!;
+        final names = schema.slots.map((slot) => slot.name).toList();
+
+        expect(names.toSet().length, names.length,
+            reason: '$domain must not contain duplicate slot keys');
+        expect(names.every(Slots.all.contains), isTrue,
+            reason: '$domain contains an undeclared slot key');
+        expect(
+          schema.requiredSlots.map((slot) => slot.name).toList(),
+          Slots.coreFor(domain),
+          reason: '$domain required slots must match Slots.coreByDomain',
+        );
+      }
     });
   });
 

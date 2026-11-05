@@ -4,6 +4,7 @@ import 'package:dastyar/domain/dialogue/dialogue_planner.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/evidence.dart';
 import 'package:dastyar/domain/dialogue/slot.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 
 DialogueState freshChequeState({
   Map<String, SlotValue> slots = const {},
@@ -95,6 +96,21 @@ void main() {
       final action = planner.plan(state, EvidenceSet.empty());
       expect(action, isA<AskForSlot>());
       expect((action as AskForSlot).slotKey, 'issue');
+    });
+
+    test('every fresh domain asks the first canonical core slot', () {
+      for (final entry in Slots.coreByDomain.entries) {
+        final state = DialogueState.fresh(
+          domain: entry.key,
+          topicId: entry.key,
+          initialMessage: 'شروع گفتگو',
+        );
+        final action = planner.plan(state, EvidenceSet.empty());
+
+        expect(action, isA<AskForSlot>(), reason: entry.key);
+        expect((action as AskForSlot).slotKey, entry.value.first,
+            reason: entry.key);
+      }
     });
   });
 

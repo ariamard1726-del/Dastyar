@@ -2,6 +2,7 @@ import 'package:dastyar/domain/dialogue/dialogue_action.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
 import 'package:dastyar/domain/dialogue/evidence.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 
 /// تصمیم‌گیرندهٔ نوبت بعدی گفتگو.
 ///
@@ -66,7 +67,7 @@ class DialoguePlanner {
 
     // ۵. همه پر شده ولی شواهد کافی نیست — hint برای شفاف‌سازی
     return const AskForSlot(
-      slotKey: 'clarification',
+      slotKey: Slots.clarification,
       rationale: 'برای ارائهٔ پاسخ قطعی، نیاز به توضیح بیشتری دارم.',
       options: [],
       hint: 'شواهد کافی نیست؛ کاربر را به شفاف‌سازی هدایت کن.',
@@ -77,10 +78,10 @@ class DialoguePlanner {
   /// به ترتیب priority.
   ///
   /// **⚠️ نکتهٔ مهم**: اسلات‌های اختیاری (`amount`, `due_date`,
-  /// `deposit_amount`) در Phase 2.4 پرسیده نمی‌شوند.
+  /// `deposit_amount`) در Phase 2.4 پرسیده نمی‌شوند. فهرست اجباری‌ها و
+  /// ترتیب آن‌ها مستقیماً از قرارداد یکتای [Slots.coreByDomain] می‌آید.
   SlotSpec? _findNextMissingSlot(DomainSchema schema, DialogueState state) {
-    for (final spec in schema.prioritizedSlots) {
-      if (!spec.isRequired) continue;
+    for (final spec in schema.requiredSlots) {
       if (spec.prompt.isEmpty) continue;
       if (state.hasReliableSlot(spec.name)) continue;
       return spec;
