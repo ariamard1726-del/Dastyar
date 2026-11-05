@@ -1,7 +1,7 @@
-commit: 175bf59
+commit: ff67fba
 🎉 187 tests passed.
 --- analyze ---
-4 issues found. (ran in 12.0s)
+4 issues found. (ran in 11.5s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:133:32 • unnecessary_null_checks
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
