@@ -1,7 +1,23 @@
-commit: ff67fba
-🎉 187 tests passed.
+commit: 6975e46
+::error::207 tests passed, 1 failed.
+::group::❌ test/domain/dialogue/response_composer_test.dart: ResponseComposer — AskForSlot does NOT echo when utterance contains Latin chars (failed)
+   Expected: false
+   Actual: <true>
+   test/domain/dialogue/response_composer_test.dart 76:7  main.<fn>.<fn>
+   ::endgroup::
 --- analyze ---
-4 issues found. (ran in 11.5s)
+15 issues found. (ran in 11.6s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:133:32 • unnecessary_null_checks
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:46:22 • prefer_const_
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:59:22 • prefer_const_
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:70:22 • prefer_const_
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:81:22 • prefer_const_
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:92:22 • prefer_const_
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:105:22 • prefer_const
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:117:22 • prefer_const
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:138:22 • prefer_const
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:158:22 • prefer_const
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:172:22 • prefer_const
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:186:22 • prefer_const
