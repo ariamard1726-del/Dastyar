@@ -674,9 +674,7 @@ class LegalCounselor {
         _conclusionShown[session] = true;
         final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
         return CounselorTurn(
-          text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-
-${c.text}',
+          text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ' + c.text,
           chips: c.chips,
           completed: c.completed,
           cancelled: c.cancelled,
