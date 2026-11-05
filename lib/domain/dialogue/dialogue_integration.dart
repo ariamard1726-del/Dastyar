@@ -12,7 +12,16 @@ import 'package:dastyar/domain/legal_counselor.dart';
 class DialogueIntegration {
   DialogueIntegration._();
 
-  static const Set<String> supportedDomains = {'cheque', 'labor', 'lease'};
+  static const Set<String> supportedDomains = {
+    'cheque',
+    'labor',
+    'lease',
+    'family',
+    'fraud_cyber',
+    'criminal_harm',
+    'litigation_defense',
+    'debt',
+  };
 
   static const DialoguePlanner _planner = DialoguePlanner();
   static const ResponseComposer _composer = ResponseComposer();
