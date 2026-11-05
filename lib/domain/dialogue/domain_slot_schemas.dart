@@ -57,6 +57,14 @@ class SlotSpec {
   /// تطبیق برنده است).
   final Map<String, List<String>>? valueKeywords;
 
+  /// متن سؤال فارسی که Composer به کاربر نشان می‌دهد. اگر خالی باشد،
+  /// Planner به legacy `_QuestionStep` fallback می‌کند.
+  final String prompt;
+
+  /// گزینه‌های فارسی برای chips دکمه‌های چت.
+  /// اگر خالی باشد، سؤال بدون دکمه نمایش داده می‌شود.
+  final List<String> options;
+
   const SlotSpec({
     required this.name,
     required this.type,
@@ -64,6 +72,8 @@ class SlotSpec {
     this.priority = 1,
     this.rationale = '',
     this.valueKeywords,
+    this.prompt = '',
+    this.options = const [],
   });
 }
 
@@ -85,7 +95,8 @@ class DomainSchema {
   });
 
   /// اسلات‌های اجباری (برای planner).
-  List<SlotSpec> get requiredSlots => slots.where((s) => s.isRequired).toList();
+  List<SlotSpec> get requiredSlots =>
+      slots.where((s) => s.isRequired).toList();
 
   /// اسلات‌ها به ترتیب اولویت (بالاترین اولویت اول).
   List<SlotSpec> get prioritizedSlots =>
@@ -135,27 +146,17 @@ class DomainSchemaRegistry {
 final DomainSchema _chequeSchema = const DomainSchema(
   domainId: 'cheque',
   titleFa: 'چک و دعاوی بانکی',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'role',
       type: SlotType.category,
       priority: 1,
       rationale: 'نقش کاربر تعیین می‌کند چه مسیر حقوقی (کیفری، اجرائیه، حقوقی) برایش باز است.',
+      prompt: 'نقش شما در مورد این چک چیست؟ (دارنده هستید یا صادرکننده/ضامن)',
+      options: ['دارندهٔ چک هستم (طلبکار)', 'صادرکننده یا ضامن چک هستم'],
       valueKeywords: {
-        'holder': [
-          'دارنده',
-          'طلبکار',
-          'چکم برگشت',
-          'چک برگشتی دارم',
-          'پولم را بگیرم',
-        ],
-        'issuer': [
-          'صادرکننده',
-          'ضامن',
-          'چک دادم',
-          'چک کشیدم',
-          'بابت ضمانت داده بودم',
-        ],
+        'holder': ['دارنده', 'طلبکار', 'چکم برگشت', 'چک برگشتی دارم', 'پولم را بگیرم'],
+        'issuer': ['صادرکننده', 'ضامن', 'چک دادم', 'چک کشیدم', 'بابت ضمانت داده بودم'],
       },
     ),
     SlotSpec(
@@ -163,6 +164,8 @@ final DomainSchema _chequeSchema = const DomainSchema(
       type: SlotType.category,
       priority: 2,
       rationale: 'طبق مادهٔ ۱۳ قانون صدور چک، چک تضمینی/مشروط امکان شکایت کیفری را محدود می‌کند.',
+      prompt: 'آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین/امانت/مشروط/سفیدامضا بوده است؟',
+      options: ['بابت بدهی قطعی و تاریخ روز', 'بابت تضمین، امانت، مشروط یا وعده‌دار'],
       valueKeywords: {
         'conditional': ['تضمین', 'ضمانت', 'امانت', 'مشروط', 'سفید', 'وعده'],
         'unconditional': ['بدهی قطعی', 'تاریخ روز'],
@@ -173,6 +176,8 @@ final DomainSchema _chequeSchema = const DomainSchema(
       type: SlotType.category,
       priority: 3,
       rationale: 'مهلت ۶ ماههٔ شکایت کیفری از تاریخ گواهی عدم پرداخت، مسیر را تعیین می‌کند.',
+      prompt: 'آیا گواهی عدم پرداخت از بانک گرفته‌اید و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟',
+      options: ['بله، گواهی دارم و زیر ۶ ماه است', 'بیش از ۶ ماه گذشته است', 'هنوز برگشت نزده‌ام / گواهی ندارم'],
       valueKeywords: {
         'no_cert': ['هنوز برگشت نزده', 'گواهی ندارم'],
         'over_6m': ['بیش از ۶ ماه', 'بیشتر از ۶ ماه', 'یک سال گذشته'],
@@ -185,6 +190,7 @@ final DomainSchema _chequeSchema = const DomainSchema(
       isRequired: false,
       priority: 4,
       rationale: 'مبلغ چک برای محاسبهٔ خسارت تأخیر تأدیه و تعیین صلاحیت دادگاه لازم است.',
+      prompt: 'مبلغ چک چقدر است؟ (به تومان یا ریال)',
     ),
     SlotSpec(
       name: 'due_date',
@@ -192,6 +198,7 @@ final DomainSchema _chequeSchema = const DomainSchema(
       isRequired: false,
       priority: 5,
       rationale: 'تاریخ سررسید چک مبدأ محاسبهٔ مهلت‌ها و خسارت است.',
+      prompt: 'تاریخ سررسید چک چه زمانی بوده است؟ (مثلاً ۱۴۰۳/۰۵/۱۲)',
     ),
   ],
 );
@@ -199,12 +206,14 @@ final DomainSchema _chequeSchema = const DomainSchema(
 final DomainSchema _laborSchema = const DomainSchema(
   domainId: 'labor',
   titleFa: 'روابط کار و بیمه',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'issue',
       type: SlotType.category,
       priority: 1,
       rationale: 'نوع مشکل (اخراج/حقوق/بیمه) مسیر شکایت در هیأت تشخیص را تعیین می‌کند.',
+      prompt: 'مشکل اصلی شما با کارفرما کدام مورد است؟',
+      options: ['اخراج یا عدم تمدید و بازگشت به کار', 'عدم پرداخت حقوق، عیدی یا سنوات', 'رد نکردن حق بیمهٔ تأمین اجتماعی'],
       valueKeywords: {
         'dismissal': ['اخراج', 'بازگشت به کار'],
         'insurance': ['بیمه', 'رد نکردن'],
@@ -215,8 +224,9 @@ final DomainSchema _laborSchema = const DomainSchema(
       name: 'proof',
       type: SlotType.category,
       priority: 2,
-      rationale:
-          'نوع مدرک تعیین می‌کند رابطهٔ کاری در هیأت تشخیص چگونه اثبات شود.',
+      rationale: 'نوع مدرک تعیین می‌کند رابطهٔ کاری در هیأت تشخیص چگونه اثبات شود.',
+      prompt: 'چه مدرکی برای اثبات رابطهٔ کاری دارید؟ (قرارداد کتبی، فیش واریز حقوق، لیست بیمه یا پیامک/شهادت)',
+      options: ['قرارداد کتبی یا سابقهٔ بیمه دارم', 'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم', 'هیچ مدرک کتبی یا بانکی ندارم'],
       valueKeywords: {
         'written': ['قرارداد کتبی', 'سابقه بیمه', 'کتبی'],
         'bank_sms': ['شفاهی', 'واریزی', 'پیامک'],
@@ -228,6 +238,8 @@ final DomainSchema _laborSchema = const DomainSchema(
       type: SlotType.category,
       priority: 3,
       rationale: 'مهلت شکایت از اخراج (۳۰ روز) و مهلت مطالبهٔ حقوق، حیاتی است.',
+      prompt: 'اگر اخراج شده‌اید، چند روز از تاریخ اخراج گذشته است؟',
+      options: ['کمتر از ۳۰ روز', 'بیش از ۳۰ روز', 'هنوز در کارگاه مشغول به کارم'],
       valueKeywords: {
         'under_30d': ['کمتر از ۳۰', 'هفته پیش اخراج', 'تازه اخراج'],
         'over_30d': ['بیش از ۳۰', 'چند ماه پیش', 'ماه پیش اخراج'],
@@ -240,6 +252,7 @@ final DomainSchema _laborSchema = const DomainSchema(
       isRequired: false,
       priority: 4,
       rationale: 'مبلغ حقوق معوقه برای تعیین خواسته در دادخواست ضروری است.',
+      prompt: 'مبلغ حقوق معوقه تقریباً چقدر است؟',
     ),
   ],
 );
@@ -247,13 +260,14 @@ final DomainSchema _laborSchema = const DomainSchema(
 final DomainSchema _leaseSchema = const DomainSchema(
   domainId: 'lease',
   titleFa: 'اجاره و تخلیهٔ ملک',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'role',
       type: SlotType.category,
       priority: 1,
-      rationale:
-          'موجر یا مستأجر بودن، مسیر تخلیه یا مطالبهٔ ودیعه را تعیین می‌کند.',
+      rationale: 'موجر یا مستأجر بودن، مسیر تخلیه یا مطالبهٔ ودیعه را تعیین می‌کند.',
+      prompt: 'در این رابطهٔ اجاره، شما موجر (مالک) هستید یا مستأجر؟',
+      options: ['موجر (مالک) هستم', 'مستأجر هستم'],
       valueKeywords: {
         'landlord': ['مستاجر من', 'مالک هستم', 'موجر هستم', 'مستاجرم'],
         'tenant': ['مستاجر هستم', 'صاحبخانه', 'صاحب خانه', 'پول پیشم'],
@@ -263,8 +277,9 @@ final DomainSchema _leaseSchema = const DomainSchema(
       name: 'expired',
       type: SlotType.category,
       priority: 2,
-      rationale:
-          'با انقضای مدت، دستور تخلیهٔ فوری (مادهٔ ۳ قانون ۱۳۷۶) در دسترس است.',
+      rationale: 'با انقضای مدت، دستور تخلیهٔ فوری (مادهٔ ۳ قانون ۱۳۷۶) در دسترس است.',
+      prompt: 'آیا مدت قرارداد اجاره به پایان رسیده است؟',
+      options: ['بله، مدت قرارداد تمام شده', 'خیر، هنوز در میانهٔ مدت هستیم'],
       valueKeywords: {
         'yes': ['تمام شده', 'منقضی شده', 'پایان رسیده'],
         'no': ['میانه مدت', 'تمام نشده', 'هنوز تمام نشده'],
@@ -275,6 +290,8 @@ final DomainSchema _leaseSchema = const DomainSchema(
       type: SlotType.category,
       priority: 3,
       rationale: 'امضای دو شاهد شرط صدور دستور تخلیهٔ فوری است.',
+      prompt: 'نوع قرارداد اجارهٔ شما چگونه است؟',
+      options: ['قرارداد کتبی با امضای دو شاهد یا سند رسمی', 'قرارداد عادی بدون امضای دو شاهد یا شفاهی'],
       valueKeywords: {
         'two_witnesses': ['دو شاهد', 'رسمی', 'کد رهگیری'],
         'no_witnesses': ['بدون امضای دو شاهد', 'بدون شاهد', 'شفاهی'],
@@ -286,20 +303,19 @@ final DomainSchema _leaseSchema = const DomainSchema(
       isRequired: false,
       priority: 4,
       rationale: 'مبلغ ودیعه برای محاسبهٔ اجرت‌المثل و مطالبهٔ حقوقی لازم است.',
+      prompt: 'مبلغ ودیعه (پول پیش) تقریباً چقدر است؟',
     ),
   ],
 );
-
 final DomainSchema _familySchema = const DomainSchema(
   domainId: 'family',
   titleFa: 'خانواده (مهریه، طلاق، حضانت)',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'subtopic',
       type: SlotType.category,
       priority: 1,
-      rationale:
-          'نوع موضوع (مهریه/نفقه/حضانت/طلاق) مسیر حقوقی را تعیین می‌کند.',
+      rationale: 'نوع موضوع (مهریه/نفقه/حضانت/طلاق) مسیر حقوقی را تعیین می‌کند.',
       valueKeywords: {
         'mehrieh': ['مهریه'],
         'nafaqeh': ['نفقه', 'تمکین'],
@@ -311,8 +327,7 @@ final DomainSchema _familySchema = const DomainSchema(
       name: 'side',
       type: SlotType.category,
       priority: 2,
-      rationale:
-          'زوجه یا زوج بودن، خواسته‌ها و اختیارات قانونی را متفاوت می‌کند.',
+      rationale: 'زوجه یا زوج بودن، خواسته‌ها و اختیارات قانونی را متفاوت می‌کند.',
       valueKeywords: {
         'wife': ['زوجه', 'شوهرم', 'خانم هستم'],
         'husband': ['زوج هستم', 'آقا هستم', 'خانمم', 'مهریه را اجرا گذاشته'],
@@ -335,7 +350,7 @@ final DomainSchema _familySchema = const DomainSchema(
 final DomainSchema _fraudCyberSchema = const DomainSchema(
   domainId: 'fraud_cyber',
   titleFa: 'کلاهبرداری و جرایم رایانه‌ای',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'kind',
       type: SlotType.category,
@@ -371,7 +386,7 @@ final DomainSchema _fraudCyberSchema = const DomainSchema(
 final DomainSchema _criminalHarmSchema = const DomainSchema(
   domainId: 'criminal_harm',
   titleFa: 'شکایت کیفری و آسیب',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'harm_type',
       type: SlotType.category,
@@ -401,7 +416,7 @@ final DomainSchema _criminalHarmSchema = const DomainSchema(
 final DomainSchema _litigationDefenseSchema = const DomainSchema(
   domainId: 'litigation_defense',
   titleFa: 'دفاع در دادرسی و اعتراض به رأی',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'stage',
       type: SlotType.category,
@@ -430,13 +445,12 @@ final DomainSchema _litigationDefenseSchema = const DomainSchema(
 final DomainSchema _debtSchema = const DomainSchema(
   domainId: 'debt',
   titleFa: 'طلب و بدهی',
-  slots: const [
+  slots: [
     SlotSpec(
       name: 'role',
       type: SlotType.category,
       priority: 1,
-      rationale:
-          'طلبکار یا بدهکار بودن، مسیر (مطالبه یا اعسار) را تعیین می‌کند.',
+      rationale: 'طلبکار یا بدهکار بودن، مسیر (مطالبه یا اعسار) را تعیین می‌کند.',
       valueKeywords: {
         'debtor': ['بدهکار هستم', 'توان پرداخت', 'اعسار'],
         'creditor': ['طلبکار', 'قرض دادم', 'پولم را بگیرم'],
@@ -446,8 +460,7 @@ final DomainSchema _debtSchema = const DomainSchema(
       name: 'doc',
       type: SlotType.category,
       priority: 2,
-      rationale:
-          'نوع سند (کتبی/بانکی/شفاهی) تعیین‌کنندهٔ نحوهٔ اثبات در دادگاه است.',
+      rationale: 'نوع سند (کتبی/بانکی/شفاهی) تعیین‌کنندهٔ نحوهٔ اثبات در دادگاه است.',
       valueKeywords: {
         'written': ['رسید کتبی', 'سفته', 'قرارداد'],
         'bank': ['فیش', 'واریز'],
@@ -459,8 +472,7 @@ final DomainSchema _debtSchema = const DomainSchema(
       type: SlotType.amount,
       isRequired: false,
       priority: 3,
-      rationale:
-          'مبلغ بدهی برای تعیین خواسته در دادخواست و نصاب صلاحیت لازم است.',
+      rationale: 'مبلغ بدهی برای تعیین خواسته در دادخواست و نصاب صلاحیت لازم است.',
     ),
   ],
 );
