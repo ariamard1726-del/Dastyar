@@ -105,18 +105,18 @@ void main() {
         'ناراحتم', 'کلافهام', 'نگرانم',
       ];
       for (final s in samples) {
-        final r = route(s);
-        expect(r?.intent, SmallTalkIntent.distress, reason: s);
-        expect(r!.text, anyOf(contains('درکتان'), contains('عجله'), contains('حق دارید')));
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.distress, reason: s);
+        expect(r.text, anyOf(contains('درکتان'), contains('عجله'), contains('حق دارید')));
       }
     });
 
     test('ناسزا بدون قضاوت و بدون پاسخ حقوقی', () {
       const samples = <String>['لعنتی', 'احمق', 'بیشرف', 'خفه شو', 'کثافت'];
       for (final s in samples) {
-        final r = route(s);
-        expect(r?.intent, SmallTalkIntent.profanity, reason: s);
-        expect(r!.text, contains('ناراحت'));
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.profanity, reason: s);
+        expect(r.text, contains('ناراحت'));
       }
     });
 
@@ -127,9 +127,9 @@ void main() {
         'فوتبال امروز چی شد', 'what is the weather',
       ];
       for (final s in samples) {
-        final r = route(s);
-        expect(r?.intent, SmallTalkIntent.offTopic, reason: s);
-        expect(r!.text, anyOf(contains('حدس نمیزنم'), contains('تخصص من خارج')));
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.offTopic, reason: s);
+        expect(r.text, anyOf(contains('حدس نمیزنم'), contains('تخصص من خارج')));
       }
     });
 
@@ -142,9 +142,9 @@ void main() {
 
   group('زمینهٔ گفتگو و جداسازی', () {
     test('پاسخها بسته به زمینهٔ حقوقی فعال متفاوت و چیپها متناسباند', () {
-      final fresh = route('سلام');
-      final active = route('سلام', active: true);
-      expect(fresh!.text, isNot(active!.text));
+      final fresh = route('سلام')!;
+      final active = route('سلام', active: true)!;
+      expect(fresh.text, isNot(active.text));
       expect(fresh.chips, SmallTalkLayer.defaultIntakeChips);
       expect(active.chips, SmallTalkLayer.activeSessionChips);
       expect(active.text, contains('همان'));
@@ -161,12 +161,11 @@ void main() {
         'هوا چطوره', 'الان چکار کنم', 'خداحافظ',
       ];
       for (final s in samples) {
-        final r = route(s);
-        expect(r, isNotNull, reason: s);
+        final r = route(s)!;
         for (final forbidden in <String>[
           'ماده ', 'قانون ', 'دادگاه', 'چک ', 'بانک قوانین'
         ]) {
-          expect(r!.text, isNot(contains(forbidden)),
+          expect(r.text, isNot(contains(forbidden)),
               reason: 'پاسخ «$s» نباید $forbidden داشته باشد');
         }
         expect(r.text.length, lessThan(260), reason: 'پاسخ باید کوتاه باشد');
@@ -174,9 +173,9 @@ void main() {
     });
 
     test('تابع خالص و پایدار است', () {
-      final a = route('سلام');
-      final b = route('سلام');
-      expect(a!.intent, b!.intent);
+      final a = route('سلام')!;
+      final b = route('سلام')!;
+      expect(a.intent, b.intent);
       expect(a.text, b.text);
       expect(a.chips, b.chips);
     });
