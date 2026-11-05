@@ -1,6 +1,9 @@
-commit: aa39c53
+commit: 6d6bb7e
 🎉 187 tests passed.
 --- analyze ---
-2 issues found. (ran in 12.4s)
+6 issues found. (ran in 12.0s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:72:14 • prefer_const_constru
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:80:12 • prefer_const_constru
+   info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:132:32 • unnecessary_null_checks
    info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
