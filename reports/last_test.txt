@@ -1,4 +1,5 @@
-commit: a4c3b6c
+commit: 9903d08
 🎉 317 tests passed.
 --- analyze ---
-1 issue found. (ran in 8.3s)
+1 issue found. (ran in 11.4s)
+warning • Unused import: 'package:dastyar/domain/legal_counselor.dart'. Try removing the import directive • test/conversation/two_way_chat_test.dart:14:8 • unused_import
