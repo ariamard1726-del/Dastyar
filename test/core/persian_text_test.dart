@@ -63,4 +63,72 @@ void main() {
     expect(PersianText.isValidIranianPhone('۰۲۱-۸۸۷۷۶۶۵۵'), isTrue);
     expect(PersianText.isValidIranianPhone('12345'), isFalse);
   });
+
+  // ── Phase 1: مرز واژهٔ فارسی ────────────────────────────────────────
+  group('wordRe', () {
+    test('مرز واژه: «چک» فقط به عنوان واژهٔ مستقل/صرفشده', () {
+      final re = PersianText.wordRe(['چک']);
+      expect(re.hasMatch('چک برگشتی دارم'), isTrue);
+      expect(re.hasMatch('چک!'), isTrue);
+      expect(re.hasMatch('چکها'), isTrue);
+      expect(re.hasMatch('چکم'), isTrue);
+      expect(re.hasMatch('چکشان'), isTrue);
+      // باگ اصلی: «چک» نباید در «چکار» یا واژهٔ مرکب دیده شود.
+      expect(re.hasMatch('چکار کنم'), isFalse);
+      expect(re.hasMatch('چكار كنم'), isFalse);
+      expect(re.hasMatch('چکباز'), isFalse);
+    });
+
+    test('یکدستسازی نویسهها: اشکال عربی هم تطبیق میکنند', () {
+      final re = PersianText.wordRe(['چک', 'مدنی']);
+      expect(re.hasMatch('چك برگشتى دارم'), isTrue); // ك / ي
+      expect(re.hasMatch('مدنى'), isTrue); // ى
+      expect(PersianText.wordRe(['نامه']).hasMatch('نامة'), isTrue); // ة
+      expect(PersianText.wordRe(['چک']).hasMatch('چكار'), isFalse);
+    });
+
+    test('یکدستسازی ارقام فارسی، عربی و لاتین', () {
+      final re = PersianText.wordRe(['ماده ۱۰']);
+      expect(re.hasMatch('ماده 10 قانون مدنی'), isTrue);
+      expect(re.hasMatch('ماده ۱۰ قانون مدنی'), isTrue);
+      expect(re.hasMatch('ماده ١٠ قانون مدنی'), isTrue);
+      expect(re.hasMatch('ماده ۱۱ قانون مدنی'), isFalse);
+    });
+
+    test('اصلاح فاصلهها و نیمفاصلهها در عبارتهای چندواژهای', () {
+      final re = PersianText.wordRe(['صبح بخیر']);
+      expect(re.hasMatch('صبح بخیر'), isTrue);
+      expect(re.hasMatch('صبح  بخیر'), isTrue);
+      expect(re.hasMatch('صبح\u200Cبخیر'), isTrue);
+      expect(re.hasMatch('صبح\nبخیر'), isTrue);
+      expect(re.hasMatch('صبح\u200Cبخير'), isTrue); // نیمفاصله + ي عربی
+      expect(re.hasMatch('صبحبخیر'), isFalse);
+    });
+
+    test('پسوندها از بلند به کوتاه بررسی میشوند', () {
+      final re = PersianText.wordRe(['کتاب']);
+      expect(re.hasMatch('کتابهایی'), isTrue);
+      expect(re.hasMatch('کتابترین'), isTrue);
+      expect(re.hasMatch('کتابها'), isTrue);
+      expect(re.hasMatch('کتابباز'), isFalse);
+    });
+
+    test('نویسههای ویژهٔ RegExp گریز داده میشوند', () {
+      final re = PersianText.wordRe(['C++', 'ماده (۱)']);
+      expect(re.hasMatch('C++ چیست'), isTrue);
+      expect(re.hasMatch('c++ چیست'), isTrue);
+      expect(re.hasMatch('CCC'), isFalse);
+      expect(re.hasMatch('ماده (1) قانون مدنی'), isTrue);
+      expect(re.hasMatch('ماده 1 قانون مدنی'), isFalse);
+    });
+
+    test('ورودی خالی / تکراری / تهی ایمن است', () {
+      final never = PersianText.wordRe(<String>[]);
+      expect(never.hasMatch(''), isFalse);
+      expect(never.hasMatch('چک'), isFalse);
+      final re = PersianText.wordRe(['', '  ', 'چک', 'چك', ' چک ']);
+      expect(re.hasMatch('چک برگشتی'), isTrue);
+      expect(re.hasMatch('چکار'), isFalse);
+    });
+  });
 }
