@@ -75,12 +75,12 @@ void main() {
       final precision =
           correctlyFound / (correctlyFound + extraSlots + wrongValues);
 
-      print('Total expected: $totalExpected');
-      print('Correctly found: $correctlyFound');
-      print('Extra slots: $extraSlots');
-      print('Wrong values: $wrongValues');
-      print('Recall: $recall');
-      print('Precision: $precision');
+      printOnFailure('Total expected: $totalExpected');
+      printOnFailure('Correctly found: $correctlyFound');
+      printOnFailure('Extra slots: $extraSlots');
+      printOnFailure('Wrong values: $wrongValues');
+      printOnFailure('Recall: $recall');
+      printOnFailure('Precision: $precision');
 
       expect(recall, greaterThanOrEqualTo(0.85));
       expect(precision, greaterThanOrEqualTo(0.90));

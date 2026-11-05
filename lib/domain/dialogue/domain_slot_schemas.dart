@@ -132,7 +132,7 @@ class DomainSchemaRegistry {
 
 // ── تعریف ۸ دامنه ──
 
-final DomainSchema _chequeSchema = DomainSchema(
+final DomainSchema _chequeSchema = const DomainSchema(
   domainId: 'cheque',
   titleFa: 'چک و دعاوی بانکی',
   slots: const [
@@ -196,7 +196,7 @@ final DomainSchema _chequeSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _laborSchema = DomainSchema(
+final DomainSchema _laborSchema = const DomainSchema(
   domainId: 'labor',
   titleFa: 'روابط کار و بیمه',
   slots: const [
@@ -244,7 +244,7 @@ final DomainSchema _laborSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _leaseSchema = DomainSchema(
+final DomainSchema _leaseSchema = const DomainSchema(
   domainId: 'lease',
   titleFa: 'اجاره و تخلیهٔ ملک',
   slots: const [
@@ -290,7 +290,7 @@ final DomainSchema _leaseSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _familySchema = DomainSchema(
+final DomainSchema _familySchema = const DomainSchema(
   domainId: 'family',
   titleFa: 'خانواده (مهریه، طلاق، حضانت)',
   slots: const [
@@ -332,7 +332,7 @@ final DomainSchema _familySchema = DomainSchema(
   ],
 );
 
-final DomainSchema _fraudCyberSchema = DomainSchema(
+final DomainSchema _fraudCyberSchema = const DomainSchema(
   domainId: 'fraud_cyber',
   titleFa: 'کلاهبرداری و جرایم رایانه‌ای',
   slots: const [
@@ -368,7 +368,7 @@ final DomainSchema _fraudCyberSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _criminalHarmSchema = DomainSchema(
+final DomainSchema _criminalHarmSchema = const DomainSchema(
   domainId: 'criminal_harm',
   titleFa: 'شکایت کیفری و آسیب',
   slots: const [
@@ -398,7 +398,7 @@ final DomainSchema _criminalHarmSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _litigationDefenseSchema = DomainSchema(
+final DomainSchema _litigationDefenseSchema = const DomainSchema(
   domainId: 'litigation_defense',
   titleFa: 'دفاع در دادرسی و اعتراض به رأی',
   slots: const [
@@ -427,7 +427,7 @@ final DomainSchema _litigationDefenseSchema = DomainSchema(
   ],
 );
 
-final DomainSchema _debtSchema = DomainSchema(
+final DomainSchema _debtSchema = const DomainSchema(
   domainId: 'debt',
   titleFa: 'طلب و بدهی',
   slots: const [
