@@ -34,7 +34,8 @@ class DialoguePlanner {
             .map((e) => e.articleId)
             .where((id) => id.isNotEmpty)
             .toList(),
-        rationale: 'بین شواهد موجود تعارض هست؛ نمی‌توانم بدون '
+        rationale:
+            'بین شواهد موجود تعارض هست؛ نمی‌توانم بدون '
             'انتخاب شما پاسخ قطعی بدهم.',
       );
     }
@@ -42,9 +43,7 @@ class DialoguePlanner {
     // ۲. دامنه نامشخص
     final schema = DomainSchemaRegistry.forDomain(state.domain);
     if (schema == null) {
-      return DisambiguateDomain(
-        candidates: DomainSchemaRegistry.allDomainIds,
-      );
+      return DisambiguateDomain(candidates: DomainSchemaRegistry.allDomainIds);
     }
 
     // ۳. اولین اسلات پرنشدهٔ اجباری با prompt غیرخالی (طبق priority)
