@@ -11,24 +11,17 @@ import 'package:dastyar/domain/dialogue/slot.dart';
 /// نمی‌کند (تولید متن کار `ResponseComposer` است).
 ///
 /// تصمیم‌گیری به ترتیب اولویت:
-///   ۱. اگر تعارض بین شواهد هست → `ExplainConflict` (نمی‌توان
-///      با اطمینان پاسخ داد، باید کاربر تصمیم بگیرد).
-///   ۲. اگر دامنه مشخص نیست → `DisambiguateDomain` (کاربر باید
-///      دامنه را انتخاب کند).
-///   ۳. اگر اسلات پرنشده‌ای با prompt غیرخالی هست → `AskForSlot`
-///      (طبق `priority` اسلات).
-///   ۴. اگر همه اسلات‌های الزامی پر شده و شواهد کافی است →
-///      `GiveAnswer`.
-///   ۵. در غیر این صورت (شواهد ناکافی) → `AskForSlot` با hint
-///      مناسب برای شفاف‌سازی.
+///   ۱. تعارض بین شواهد → `ExplainConflict`
+///   ۲. دامنه نامشخص → `DisambiguateDomain`
+///   ۳. اولین اسلات **اجباری** پرنشده با prompt غیرخالی → `AskForSlot`
+///   ۴. همهٔ اسلات‌های اجباری پر شده + شواهد کافی → `GiveAnswer`
+///   ۵. شواهد ناکافی → `AskForSlot` با hint شفاف‌سازی
 ///
-/// **تصمیم به `null` برنمی‌گرداند** — اگر هیچ‌کدام از شرایط
-/// برقرار نبود، یک `AskForSlot` پیش‌فرض برمی‌گرداند. این تضمین
-/// می‌کند که `LegalCounselor.step` هرگز به حالت بی‌تصمیم نمی‌افتد.
+/// **تصمیم به `null` برنمی‌گرداند** — تضمین می‌کند `LegalCounselor.step`
+/// هرگز در حالت بی‌تصمیم نمی‌ماند.
 ///
-/// **`state` را تغییر نمی‌دهد** — `DialogueState` immutable است
-/// و planner فقط می‌خواند. تغییر state وظیفهٔ `LegalCounselor.step`
-/// است.
+/// **`state` را تغییر نمی‌دهد** — `DialogueState` immutable است و
+/// planner فقط می‌خواند. تغییر state وظیفهٔ `LegalCounselor.step` است.
 class DialoguePlanner {
   const DialoguePlanner();
 
@@ -54,7 +47,7 @@ class DialoguePlanner {
       );
     }
 
-    // ۳. اولین اسلات پرنشده با prompt غیرخالی (طبق priority)
+    // ۳. اولین اسلات پرنشدهٔ اجباری با prompt غیرخالی (طبق priority)
     final missing = _findNextMissingSlot(schema, state);
     if (missing != null) {
       return AskForSlot(
@@ -85,9 +78,18 @@ class DialoguePlanner {
     );
   }
 
-  /// پیدا کردن اولین اسلات پرنشده با prompt غیرخالی، به ترتیب priority.
+  /// پیدا کردن اولین اسلات پرنشدهٔ **اجباری** با prompt غیرخالی،
+  /// به ترتیب priority.
+  ///
+  /// **⚠️ نکتهٔ مهم**: اسلات‌های اختیاری (`amount`, `due_date`,
+  /// `deposit_amount`) در Phase 2.4 پرسیده نمی‌شوند. آن‌ها فقط
+  /// برای تکمیل context در Phase 2.5+ استفاده می‌شوند. این تصمیم
+  /// برای جلوگیری از شکستن تست‌های موجود در Phase 2.4 گرفته شد
+  /// (تست‌های چک انتظار دارند مستقیم به conclusion بروند، نه
+  /// پرسیدن amount).
   SlotSpec? _findNextMissingSlot(DomainSchema schema, DialogueState state) {
     for (final spec in schema.prioritizedSlots) {
+      if (!spec.isRequired) continue;
       if (spec.prompt.isEmpty) continue;
       if (state.hasReliableSlot(spec.name)) continue;
       return spec;
