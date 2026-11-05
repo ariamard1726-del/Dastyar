@@ -65,8 +65,8 @@ class ChatController extends ChangeNotifier {
     Random? random,
     CounselingSession? initialCounsel,
     this.onScrollRequested,
-  })  : _intentNet = intentNet,
-        _rnd = random {
+  }) : _intentNet = intentNet,
+       _rnd = random {
     if (loadError != null && loadError.isNotEmpty) {
       messages.add(ChatMessage(loadError, false, sensitive: true));
     }
@@ -79,8 +79,11 @@ class ChatController extends ChangeNotifier {
     if (initialCounsel != null && !initialCounsel.concluded) {
       _counsel = initialCounsel;
       _lastCounselTopic = initialCounsel.topicId;
-      final t = LegalCounselor.pendingTurn(initialCounsel,
-          replies: engine.replies, rnd: _rnd);
+      final t = LegalCounselor.pendingTurn(
+        initialCounsel,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
       if (t != null) {
         messages.add(ChatMessage(t.text, false, chips: t.chips));
       }
@@ -181,183 +184,28 @@ class ChatController extends ChangeNotifier {
       _draftStep(text);
       return;
     }
-
-    // ادامهٔ گفتگوی تشخیصی و استدلالی دوطرفه (مشاور حقوقی)
     if (_counsel != null) {
-      // «ادامهٔ مشاوره» پس از جمع‌بندی جلسه → بازگشایی همان موضوع
-      if (_counsel!.concluded && LegalCounselor.wantsResume(text)) {
-        final resumed = LegalCounselor.resumeTopic(
-          _counsel!.topicId,
-          text,
-          engine,
-          repo.templates,
-          replies: engine.replies,
-          rnd: _rnd,
-        );
-        if (resumed != null) {
-          _counsel = resumed.$1;
-          _lastCounselTopic = resumed.$1.topicId;
-          messages.add(ChatMessage(text, true));
-          messages.add(
-            ChatMessage(resumed.$2.text, false, chips: resumed.$2.chips),
-          );
-          _syncCounselCheckpoint();
-          unawaited(_saveSession());
-          _notify();
-          _requestScroll();
-          return;
-        }
-      }
-      // حافظهٔ گفتگو: ارجاع‌های مبهم («ماده بعدی‌اش چی؟») پیش از ورود به
-      // درخت تصمیم با موضوع قبلی بازنویسی می‌شوند (پیام کاربر دست‌نخورده
-      // نمایش داده می‌شود).
-      final turn = LegalCounselor.step(
-        _counsel!,
-        _memory.resolveFollowUp(text),
-        engine,
-        repo.templates,
-        net: _intentNet,
-        replies: engine.replies,
-        rnd: _rnd,
-      );
-      if (turn.cancelled) {
-        _counsel = null;
-        messages.add(ChatMessage(text, true));
-        messages.add(ChatMessage(turn.text, false));
-        _syncCounselCheckpoint();
-        unawaited(_saveSession());
-        _notify();
-        _requestScroll();
-        return;
-      }
-      if (turn.startTemplate != null) {
-        _counsel = null;
-        _syncCounselCheckpoint();
-        _startDraft(text, turn.startTemplate!);
-        return;
-      }
-      if (turn.text.isNotEmpty) {
-        if (turn.completed && turn.chips.isEmpty) {
-          _counsel = null;
-        }
-        // حافظهٔ گفتگو: اگر پرسش حقوقی میانهٔ مشاوره با RAG پاسخ گرفت،
-        // موضوعش ثبت می‌شود تا «بعدی‌اش چی؟» به همان قانون ارجاع بدهد.
-        if (turn.ragQuery != null && turn.ragReply != null) {
-          _memory.recordTurn(turn.ragQuery!, turn.ragReply!);
-        }
-        messages.add(ChatMessage(text, true));
-        messages.add(ChatMessage(turn.text, false, chips: turn.chips));
-        _syncCounselCheckpoint();
-        unawaited(_saveSession());
-        _notify();
-        _requestScroll();
-        return;
-      }
-      // اگر مشاوره قبلاً جمع‌بندی شده و کاربر اکنون پرسش جدیدی مطرح کرده است:
-      _counsel = null;
-      _syncCounselCheckpoint();
+      if (_handleActiveCounsel(text)) return;
     }
-
-    // پاسخ به پیشنهاد یا فهرست انتخاب قالب که قبلاً نمایش داده شده
     if (_pendingList.isNotEmpty) {
-      final pt = _pendingText;
-      final list = _pendingList;
-
-      if (text == DraftCmd.offerCounsel ||
-          text == LegalCounselor.startCounselCmd) {
-        _pendingText = null;
-        _pendingList = [];
-        final started = LegalCounselor.start(
-          pt ?? text,
-          engine,
-          repo.templates,
-          net: _intentNet,
-          replies: engine.replies,
-          rnd: _rnd,
-        );
-        if (started != null) {
-          _counsel = started.$1;
-          _lastCounselTopic = started.$1.topicId;
-          messages.add(ChatMessage(text, true));
-          messages.add(
-            ChatMessage(started.$2.text, false, chips: started.$2.chips),
-          );
-          _syncCounselCheckpoint();
-          unawaited(_saveSession());
-          _notify();
-          _requestScroll();
-          return;
-        }
-      }
-
-      final isDecline = text == DraftCmd.offerNo ||
-          text == DraftCmd.cancel ||
-          Drafting.isNo(text);
-      if (isDecline) {
-        _pendingText = null;
-        _pendingList = [];
-        if (pt != null) {
-          for (final t in list) {
-            _declined.add(t.id);
-          }
-          messages.add(ChatMessage(text, true, sensitive: true));
-          _notify();
-          await _ask(pt, addUser: false, sensitive: true);
-        } else {
-          messages.add(ChatMessage(text, true, sensitive: true));
-          messages.add(
-            ChatMessage(
-              'تهیهٔ متن لغو شد. هر سؤالی دارید بپرسید.',
-              false,
-              sensitive: true,
-            ),
-          );
-          _notify();
-          _requestScroll();
-        }
-        return;
-      }
-
-      final isAccept = text == DraftCmd.offerYes || Drafting.isYes(text);
-      if (isAccept) {
-        if (list.length == 1) {
-          _pendingText = null;
-          _pendingList = [];
-          _startDraft(text, list.first);
-          return;
-        }
-        messages.add(ChatMessage(text, true, sensitive: true));
-        messages.add(
-          ChatMessage(
-            'لطفاً مشخص کنید کدام‌یک از این قالب‌ها را آماده کنم:',
-            false,
-            sensitive: true,
-            chips: [
-              ...list.map((t) => t.title),
-              if (pt != null) DraftCmd.offerNo else DraftCmd.cancel,
-            ],
-          ),
-        );
-        _notify();
-        _requestScroll();
-        return;
-      }
-
-      final picked = Drafting.pickChoice(text, list);
-      _pendingText = null;
-      _pendingList = [];
-      if (picked != null) {
-        _startDraft(text, picked);
-        return;
-      }
+      if (await _handlePendingList(text)) return;
     }
+    if (_handleResumeCounsel(text)) return;
+    if (_handleExplicitDraft(text)) return;
+    if (_handleImplicitDraftSuggestion(text)) return;
+    if (await _handleStartCounsel(text)) return;
 
-    // بازگشایی آخرین مشاوره پس از بسته شدن کامل جلسه («ادامهٔ مشاوره»)
-    if (_counsel == null &&
-        _lastCounselTopic != null &&
-        LegalCounselor.wantsResume(text)) {
+    await _ask(text);
+  }
+
+  bool _handleActiveCounsel(String text) {
+    final counsel = _counsel;
+    if (counsel == null) return false;
+
+    // «ادامهٔ مشاوره» پس از جمع‌بندی جلسه → بازگشایی همان موضوع
+    if (counsel.concluded && LegalCounselor.wantsResume(text)) {
       final resumed = LegalCounselor.resumeTopic(
-        _lastCounselTopic!,
+        counsel.topicId,
         text,
         engine,
         repo.templates,
@@ -366,6 +214,7 @@ class ChatController extends ChangeNotifier {
       );
       if (resumed != null) {
         _counsel = resumed.$1;
+        _lastCounselTopic = resumed.$1.topicId;
         messages.add(ChatMessage(text, true));
         messages.add(
           ChatMessage(resumed.$2.text, false, chips: resumed.$2.chips),
@@ -374,16 +223,191 @@ class ChatController extends ChangeNotifier {
         unawaited(_saveSession());
         _notify();
         _requestScroll();
-        return;
+        return true;
       }
     }
 
-    // درخواست صریح تهیهٔ متن
+    // حافظهٔ گفتگو: ارجاع‌های مبهم («ماده بعدی‌اش چی؟») پیش از ورود به
+    // درخت تصمیم با موضوع قبلی بازنویسی می‌شوند (پیام کاربر دست‌نخورده
+    // نمایش داده می‌شود).
+    final turn = LegalCounselor.step(
+      counsel,
+      _memory.resolveFollowUp(text),
+      engine,
+      repo.templates,
+      net: _intentNet,
+      replies: engine.replies,
+      rnd: _rnd,
+    );
+
+    if (turn.cancelled) {
+      _counsel = null;
+      messages.add(ChatMessage(text, true));
+      messages.add(ChatMessage(turn.text, false));
+      _syncCounselCheckpoint();
+      unawaited(_saveSession());
+      _notify();
+      _requestScroll();
+      return true;
+    }
+
+    if (turn.startTemplate != null) {
+      _counsel = null;
+      _syncCounselCheckpoint();
+      _startDraft(text, turn.startTemplate!);
+      return true;
+    }
+
+    if (turn.text.isNotEmpty) {
+      if (turn.completed && turn.chips.isEmpty) {
+        _counsel = null;
+      }
+      // حافظهٔ گفتگو: اگر پرسش حقوقی میانهٔ مشاوره با RAG پاسخ گرفت،
+      // موضوعش ثبت می‌شود تا «بعدی‌اش چی؟» به همان قانون ارجاع بدهد.
+      if (turn.ragQuery != null && turn.ragReply != null) {
+        _memory.recordTurn(turn.ragQuery!, turn.ragReply!);
+      }
+      messages.add(ChatMessage(text, true));
+      messages.add(ChatMessage(turn.text, false, chips: turn.chips));
+      _syncCounselCheckpoint();
+      unawaited(_saveSession());
+      _notify();
+      _requestScroll();
+      return true;
+    }
+
+    // اگر مشاوره قبلاً جمع‌بندی شده و کاربر اکنون پرسش جدیدی مطرح کرده است:
+    _counsel = null;
+    _syncCounselCheckpoint();
+    return false;
+  }
+
+  Future<bool> _handlePendingList(String text) async {
+    final pt = _pendingText;
+    final list = _pendingList;
+
+    if (text == DraftCmd.offerCounsel ||
+        text == LegalCounselor.startCounselCmd) {
+      _pendingText = null;
+      _pendingList = [];
+      final started = LegalCounselor.start(
+        pt ?? text,
+        engine,
+        repo.templates,
+        net: _intentNet,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
+      if (started != null) {
+        _counsel = started.$1;
+        _lastCounselTopic = started.$1.topicId;
+        messages.add(ChatMessage(text, true));
+        messages.add(
+          ChatMessage(started.$2.text, false, chips: started.$2.chips),
+        );
+        _syncCounselCheckpoint();
+        unawaited(_saveSession());
+        _notify();
+        _requestScroll();
+        return true;
+      }
+    }
+
+    final isDecline =
+        text == DraftCmd.offerNo ||
+        text == DraftCmd.cancel ||
+        Drafting.isNo(text);
+    if (isDecline) {
+      _pendingText = null;
+      _pendingList = [];
+      if (pt != null) {
+        for (final t in list) {
+          _declined.add(t.id);
+        }
+        messages.add(ChatMessage(text, true, sensitive: true));
+        _notify();
+        await _ask(pt, addUser: false, sensitive: true);
+      } else {
+        messages.add(ChatMessage(text, true, sensitive: true));
+        messages.add(
+          ChatMessage(
+            'تهیهٔ متن لغو شد. هر سؤالی دارید بپرسید.',
+            false,
+            sensitive: true,
+          ),
+        );
+        _notify();
+        _requestScroll();
+      }
+      return true;
+    }
+
+    final isAccept = text == DraftCmd.offerYes || Drafting.isYes(text);
+    if (isAccept) {
+      if (list.length == 1) {
+        _pendingText = null;
+        _pendingList = [];
+        _startDraft(text, list.first);
+        return true;
+      }
+      messages.add(ChatMessage(text, true, sensitive: true));
+      messages.add(
+        ChatMessage(
+          'لطفاً مشخص کنید کدام‌یک از این قالب‌ها را آماده کنم:',
+          false,
+          sensitive: true,
+          chips: [
+            ...list.map((t) => t.title),
+            if (pt != null) DraftCmd.offerNo else DraftCmd.cancel,
+          ],
+        ),
+      );
+      _notify();
+      _requestScroll();
+      return true;
+    }
+
+    final picked = Drafting.pickChoice(text, list);
+    _pendingText = null;
+    _pendingList = [];
+    if (picked != null) {
+      _startDraft(text, picked);
+      return true;
+    }
+    return false;
+  }
+
+  bool _handleResumeCounsel(String text) {
+    if (_counsel != null) return false;
+    if (_lastCounselTopic == null) return false;
+    if (!LegalCounselor.wantsResume(text)) return false;
+
+    final resumed = LegalCounselor.resumeTopic(
+      _lastCounselTopic!,
+      text,
+      engine,
+      repo.templates,
+      replies: engine.replies,
+      rnd: _rnd,
+    );
+    if (resumed == null) return false;
+
+    _counsel = resumed.$1;
+    messages.add(ChatMessage(text, true));
+    messages.add(ChatMessage(resumed.$2.text, false, chips: resumed.$2.chips));
+    _syncCounselCheckpoint();
+    unawaited(_saveSession());
+    _notify();
+    _requestScroll();
+    return true;
+  }
+
+  bool _handleExplicitDraft(String text) {
     final intent = Drafting.detect(text, repo.templates);
     final directTpl = intent.template;
     if (directTpl != null) {
       _startDraft(text, directTpl);
-      return;
+      return true;
     }
     if (intent.choices.isNotEmpty) {
       _pendingText = null;
@@ -394,20 +418,20 @@ class ChatController extends ChangeNotifier {
           Drafting.chooseText,
           false,
           sensitive: true,
-          chips: [
-            ...intent.choices.map((t) => t.title),
-            DraftCmd.cancel,
-          ],
+          chips: [...intent.choices.map((t) => t.title), DraftCmd.cancel],
         ),
       );
       _notify();
       _requestScroll();
-      return;
+      return true;
     }
+    return false;
+  }
 
-    // توصیف وضعیت بدون درخواست صریح: فقط پیشنهاد
-    final avail =
-        repo.templates.where((t) => !_declined.contains(t.id)).toList();
+  bool _handleImplicitDraftSuggestion(String text) {
+    final avail = repo.templates
+        .where((t) => !_declined.contains(t.id))
+        .toList();
     final sug = Drafting.suggest(text, avail);
     final sugTpl = sug.template;
     if (sugTpl != null) {
@@ -428,7 +452,7 @@ class ChatController extends ChangeNotifier {
       );
       _notify();
       _requestScroll();
-      return;
+      return true;
     }
     if (sug.choices.isNotEmpty) {
       _pendingText = text;
@@ -448,39 +472,38 @@ class ChatController extends ChangeNotifier {
       );
       _notify();
       _requestScroll();
-      return;
+      return true;
     }
+    return false;
+  }
 
-    // حالت گفتگوی دوطرفه و پرسشگری تشخیصی برای مسائل و مشکلات حقوقی کاربر
-    if (LegalCounselor.shouldStartCounseling(text, net: _intentNet)) {
-      final seed = (text == LegalCounselor.startCounselCmd &&
-              _memory.lastTopicQuery.isNotEmpty)
-          ? _memory.lastTopicQuery
-          : text;
-      final started = LegalCounselor.start(
-        seed,
-        engine,
-        repo.templates,
-        net: _intentNet,
-        replies: engine.replies,
-        rnd: _rnd,
-      );
-      if (started != null) {
-        _counsel = started.$1;
-        _lastCounselTopic = started.$1.topicId;
-        messages.add(ChatMessage(text, true));
-        messages.add(
-          ChatMessage(started.$2.text, false, chips: started.$2.chips),
-        );
-        _syncCounselCheckpoint();
-        await _saveSession();
-        _notify();
-        _requestScroll();
-        return;
-      }
+  Future<bool> _handleStartCounsel(String text) async {
+    if (!LegalCounselor.shouldStartCounseling(text, net: _intentNet)) {
+      return false;
     }
-
-    await _ask(text);
+    final seed =
+        (text == LegalCounselor.startCounselCmd &&
+            _memory.lastTopicQuery.isNotEmpty)
+        ? _memory.lastTopicQuery
+        : text;
+    final started = LegalCounselor.start(
+      seed,
+      engine,
+      repo.templates,
+      net: _intentNet,
+      replies: engine.replies,
+      rnd: _rnd,
+    );
+    if (started == null) return false;
+    _counsel = started.$1;
+    _lastCounselTopic = started.$1.topicId;
+    messages.add(ChatMessage(text, true));
+    messages.add(ChatMessage(started.$2.text, false, chips: started.$2.chips));
+    _syncCounselCheckpoint();
+    await _saveSession();
+    _notify();
+    _requestScroll();
+    return true;
   }
 
   Future<void> _ask(
@@ -501,27 +524,29 @@ class ChatController extends ChangeNotifier {
     _askDone = done;
     var alts = const <String>[];
 
-    _sub = assistant.askWithAlternatives(resolvedQuery).listen(
-      (turn) {
-        if (_disposed || myEpoch != _askEpoch) return;
-        alts = turn.alternatives;
-        bot.text = turn.text;
-        bot.conflictChains = turn.conflictChains;
-        _notify();
-        _requestScroll();
-      },
-      onError: (_) {
-        if (!_disposed && myEpoch == _askEpoch) {
-          bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
-          _notify();
-        }
-        if (!done.isCompleted) done.complete();
-      },
-      onDone: () {
-        if (!done.isCompleted) done.complete();
-      },
-      cancelOnError: true,
-    );
+    _sub = assistant
+        .askWithAlternatives(resolvedQuery)
+        .listen(
+          (turn) {
+            if (_disposed || myEpoch != _askEpoch) return;
+            alts = turn.alternatives;
+            bot.text = turn.text;
+            bot.conflictChains = turn.conflictChains;
+            _notify();
+            _requestScroll();
+          },
+          onError: (_) {
+            if (!_disposed && myEpoch == _askEpoch) {
+              bot.text = 'در پردازش این پرسش خطایی رخ داد. دوباره تلاش کنید.';
+              _notify();
+            }
+            if (!done.isCompleted) done.complete();
+          },
+          onDone: () {
+            if (!done.isCompleted) done.complete();
+          },
+          cancelOnError: true,
+        );
 
     await done.future;
     if (identical(_askDone, done)) _askDone = null;

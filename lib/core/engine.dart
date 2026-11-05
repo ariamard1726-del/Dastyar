@@ -10,6 +10,7 @@ import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/core/router.dart';
 import 'package:dastyar/core/conflicts_service.dart';
+import 'package:dastyar/domain/dialogue/evidence.dart';
 
 export 'models.dart';
 
@@ -117,514 +118,512 @@ class KnowledgeEngine {
         n.startsWith('ملغا') ||
         n.startsWith('حذف شد');
   }
-
-  Future<void> _loadCatalog() async {
-    try {
-      final t = await rootBundle.loadString('assets/laws_catalog.json');
-      final m = jsonDecode(t) as Map<String, dynamic>;
-      final cats = (m['categories'] ?? {}) as Map<String, dynamic>;
-      cats.forEach((k, v) => categoryNames[k] = v.toString());
-      for (final e in (m['laws'] ?? []) as List) {
-        final l = e as Map<String, dynamic>;
-        catalog.add(CatalogLaw(
-          l['id'].toString(),
-          l['title'].toString(),
-          (l['category'] ?? '').toString(),
-          (l['priority'] ?? 3) as int,
-          ((l['aliases'] ?? []) as List).map((x) => x.toString()).toList(),
-        ));
-      }
-    } catch (e) {
-      warnings.add('laws_catalog.json: $e');
-    }
-  }
-
-  Future<void> _loadMeta() async {
-    try {
-      final t = await rootBundle.loadString('assets/laws/_meta.json');
-      final m = jsonDecode(t) as Map<String, dynamic>;
-      m.forEach((k, v) {
-        if (v is Map<String, dynamic>) meta[k] = v;
-      });
-    } catch (e) {
-      warnings.add('_meta.json: $e');
-    }
-  }
-
-  Future<void> _loadReplies() async {
-    try {
-      final t = await rootBundle.loadString('assets/replies.json');
-      final m = jsonDecode(t) as Map<String, dynamic>;
-      replies.setOverridesRaw(m);
-    } catch (e) {
-      warnings.add('replies.json: $e');
-    }
-  }
-
-  Future<void> _loadRelationships() async {
-    try {
-      final t = await rootBundle.loadString('assets/relationships.json');
-      final m = jsonDecode(t);
-      if (m is Map<String, dynamic>) {
-        _relationships = m;
-      }
-    } catch (e) {
-      warnings.add('relationships.json: $e');
-    }
-  }
-
-  Future<List<String>?> _loadKnowledgeChunk() async {
-    try {
-      final text = await rootBundle.loadString('assets/knowledge.txt');
-      return ['knowledge', 'دانش عمومی', text];
-    } catch (e) {
-      warnings.add('assets/knowledge.txt: $e');
-      return null;
-    }
-  }
-
-  Future<void> load() async {
-    _chunks.clear();
-    _idf.clear();
-    _postings.clear();
-    _byTitle.clear();
-    _lawCounts.clear();
-    catalog.clear();
-    categoryNames.clear();
-    meta.clear();
-    _relationships = const {};
-    warnings.clear();
-
-    final knowledgeFuture = _loadKnowledgeChunk();
-    await Future.wait<void>([
-      _loadCatalog(),
-      _loadMeta(),
-      _loadReplies(),
-      _loadSynonyms(),
-      _loadRelationships(),
-      knowledgeFuture,
-    ]);
-
-    final raw = <List<String>>[];
-    final knowledgeRaw = await knowledgeFuture;
-    if (knowledgeRaw != null) {
-      raw.add(knowledgeRaw);
-    }
-
-    final entries = meta.entries.toList();
-    final loadedLaws = await Future.wait<List<String>?>(
-      entries.map((entry) async {
-        final lawId = entry.key;
-        final path = entry.value['path'];
-        if (path is! String || path.isEmpty) return null;
-        final fullPath = 'assets/laws/$path';
-        try {
-          final text = await rootBundle.loadString(fullPath);
-          final fallbackTitle = (entry.value['title'] ?? '').toString().trim();
-          return [lawId, fallbackTitle, text];
-        } catch (e) {
-          warnings.add('$fullPath: $e');
-          return null;
-        }
-      }),
-    );
-
-    for (final item in loadedLaws) {
-      if (item != null) raw.add(item);
-    }
-
-    _Built built;
-    try {
-      built = await _buildAsync(raw);
-    } catch (_) {
-      built = _build(raw); // اگر Isolate شکست خورد، روی همین رشته
-    }
-    _chunks
-      ..clear()
-      ..addAll(built.chunks);
-    _lawCounts
-      ..clear()
-      ..addAll(built.lawCounts);
-    _idf
-      ..clear()
-      ..addAll(built.idf);
-    _postings
-      ..clear()
-      ..addAll(built.postings);
-    _byTitle
-      ..clear()
-      ..addAll(built.byTitle);
-    _avgLen = built.avgLen;
-    _maxIdf = built.maxIdf;
-    _vocab = built.vocab;
-  }
-
-  static Future<_Built> _buildAsync(List<List<String>> raw) =>
-      Isolate.run(() => _build(raw));
-
-  static _Built _build(List<List<String>> raw) {
-    final chunks = <Chunk>[];
-    final counts = <String, int>{};
-    for (final r in raw) {
-      _parseInto(r[2], r[1], r[0], chunks, counts);
-    }
-    final df = <String, int>{};
-    final postings = <String, List<int>>{};
-    final byTitle = <String, List<int>>{};
-    var totalLen = 0;
-    for (var i = 0; i < chunks.length; i++) {
-      final c = chunks[i];
-      totalLen += c.len;
-      byTitle.putIfAbsent(c.normTitle, () => <int>[]).add(i);
-      final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
-      for (final t in seen) {
-        df[t] = (df[t] ?? 0) + 1;
-        postings.putIfAbsent(t, () => <int>[]).add(i);
-      }
-    }
-    final n = chunks.length;
-    final avg = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
-    final idf = <String, double>{};
-    var maxIdf = 1.0;
-    df.forEach((t, d) {
-      final v = math.log((n + 1) / (d + 1)) + 1.0;
-      idf[t] = v;
-      if (v > maxIdf) maxIdf = v;
-    });
-    final vocab = df.keys.toList()..sort();
-    return _Built(chunks, counts, idf, postings, byTitle, avg, maxIdf, vocab);
-  }
-
-  static void _parseInto(
-    String text,
-    String defaultSource,
-    String lawId,
-    List<Chunk> out,
-    Map<String, int> counts,
-  ) {
-    var source = defaultSource;
-    var chapter = '';
-    final parts = text.replaceAll('\r', '').split(_paraSplitRe);
-    for (final p in parts) {
-      final lines = p.trim().split('\n');
-      if (lines.isEmpty || lines.first.trim().isEmpty) continue;
-      final first = lines.first.trim();
-      if (first.startsWith('##')) {
-        chapter = first.replaceFirst(_hashPrefixRe, '').trim();
-        continue;
-      }
-      if (first.startsWith('#')) {
-        source = first.replaceFirst(_hashPrefixRe, '').trim();
-        chapter = '';
-        continue;
-      }
-      final body = lines.length > 1 ? lines.sublist(1).join('\n').trim() : first;
-      final tfT = <String, int>{};
-      final tfB = <String, int>{};
-      final tfC = <String, int>{};
-      var len = 0;
-      for (final t in tokenizeIndex(first)) {
-        tfT[t] = (tfT[t] ?? 0) + 1;
-        len++;
-      }
-      for (final t in tokenizeIndex(body)) {
-        tfB[t] = (tfB[t] ?? 0) + 1;
-        len++;
-      }
-      for (final t in tokenizeIndex(chapter)) {
-        tfC[t] = (tfC[t] ?? 0) + 1;
-        len++;
-      }
-      for (final t in tokenizeIndex(source)) {
-        tfC[t] = (tfC[t] ?? 0) + 1;
-        len++;
-      }
-      out.add(Chunk(
-        lawId,
-        source,
-        chapter,
-        first,
-        body,
-        body != first && _isObsolete(body),
-        tfT,
-        tfB,
-        tfC,
-        len,
+Future<void> _loadCatalog() async {
+  try {
+    final t = await rootBundle.loadString('assets/laws_catalog.json');
+    final m = jsonDecode(t) as Map<String, dynamic>;
+    final cats = (m['categories'] ?? {}) as Map<String, dynamic>;
+    cats.forEach((k, v) => categoryNames[k] = v.toString());
+    for (final e in (m['laws'] ?? []) as List) {
+      final l = e as Map<String, dynamic>;
+      catalog.add(CatalogLaw(
+        l['id'].toString(),
+        l['title'].toString(),
+        (l['category'] ?? '').toString(),
+        (l['priority'] ?? 3) as int,
+        ((l['aliases'] ?? []) as List).map((x) => x.toString()).toList(),
       ));
-      counts[lawId] = (counts[lawId] ?? 0) + 1;
     }
+  } catch (e) {
+    warnings.add('laws_catalog.json: $e');
   }
+}
 
-  final List<List<String>> _syn = [];
+Future<void> _loadMeta() async {
+  try {
+    final t = await rootBundle.loadString('assets/laws/_meta.json');
+    final m = jsonDecode(t) as Map<String, dynamic>;
+    m.forEach((k, v) {
+      if (v is Map<String, dynamic>) meta[k] = v;
+    });
+  } catch (e) {
+    warnings.add('_meta.json: $e');
+  }
+}
 
-  static String _phrase(String s) => PersianText.phrase(s);
+Future<void> _loadReplies() async {
+  try {
+    final t = await rootBundle.loadString('assets/replies.json');
+    final m = jsonDecode(t) as Map<String, dynamic>;
+    replies.setOverridesRaw(m);
+  } catch (e) {
+    warnings.add('replies.json: $e');
+  }
+}
 
-  Future<void> _loadSynonyms() async {
-    _syn.clear();
-    try {
-      final t = await rootBundle.loadString('assets/synonyms.txt');
-      for (final line in t.split('\n')) {
-        final l = line.trim();
-        if (l.isEmpty || l.startsWith('#')) continue;
-        final i = l.indexOf('|');
-        if (i < 0) continue;
-        final k = _phrase(l.substring(0, i));
-        final v = l.substring(i + 1).trim();
-        if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
-      }
-    } catch (e) {
-      warnings.add('synonyms.txt: $e');
+Future<void> _loadRelationships() async {
+  try {
+    final t = await rootBundle.loadString('assets/relationships.json');
+    final m = jsonDecode(t);
+    if (m is Map<String, dynamic>) {
+      _relationships = m;
     }
+  } catch (e) {
+    warnings.add('relationships.json: $e');
   }
+}
 
-  /// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
-  List<String> _expand(String question) {
-    final n = ' ${_phrase(question)} ';
-    final out = <String>[];
-    for (final r in _syn) {
-      if (n.contains(' ${r[0]} ')) out.addAll(tokenizeIndex(r[1]));
-    }
-    return out;
-  }
-
-  static String _canonicalArticleTitle(String rawArticle) {
-    var a = _collapse(normalize(rawArticle));
-    if (a.isEmpty) return '';
-    if (!a.startsWith('ماده ') && !a.startsWith('اصل ')) a = 'ماده $a';
-    return _collapse(a);
-  }
-
-  static String _wantedArticleFromMatch(RegExpMatch m) {
-    final kind = m.group(1) == 'اصل' ? 'اصل' : 'ماده';
-    if (m.group(2) != null) return '$kind واحده';
-    final num = m.group(3)!;
-    final mk = m.group(4) != null
-        ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر')
-        : '';
-    return '$kind $num$mk';
-  }
-
-  static String _faArticleLabel(RegExpMatch m) {
-    if (m.group(2) != null) return 'واحده';
-    final num = PersianText.toFaDigits(m.group(3)!);
-    final mk = m.group(4) != null
-        ? (m.group(5) != null
-            ? ' مکرر ${PersianText.toFaDigits(m.group(5)!)}'
-            : ' مکرر')
-        : '';
-    return '$num$mk';
-  }
-
-  /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
-  /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
-  Chunk? findArticle(String law, String article) {
-    final lawN = _collapse(normalize(law));
-    var want = _canonicalArticleTitle(article);
-    if (want.isEmpty || lawN.isEmpty) return null;
-    var indices = _byTitle[want];
-    if (indices == null && want.startsWith('ماده ')) {
-      indices = _byTitle['اصل ${want.substring(5)}'];
-    }
-    if (indices == null) return null;
-    final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
-    for (final idx in indices) {
-      final c = _chunks[idx];
-      if (c.lawId == lawN || mentionedIds.contains(c.lawId)) return c;
-      final s = c.normSource;
-      if (s.isEmpty) continue;
-      if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
-    }
+Future<List<String>?> _loadKnowledgeChunk() async {
+  try {
+    final text = await rootBundle.loadString('assets/knowledge.txt');
+    return ['knowledge', 'دانش عمومی', text];
+  } catch (e) {
+    warnings.add('assets/knowledge.txt: $e');
     return null;
   }
+}
 
-  /// قوانین فهرست که نام یا نام رایجشان در متن آمده است.
-  List<CatalogLaw> mentionedLaws(String q) => _mentionedLaws(q);
+Future<void> load() async {
+  _chunks.clear();
+  _idf.clear();
+  _postings.clear();
+  _byTitle.clear();
+  _lawCounts.clear();
+  catalog.clear();
+  categoryNames.clear();
+  meta.clear();
+  _relationships = const {};
+  warnings.clear();
 
-  List<CatalogLaw> _mentionedLaws(String q) {
-    final n = _collapse(normalize(q));
-    final matched = <CatalogLaw>[];
+  final knowledgeFuture = _loadKnowledgeChunk();
+  await Future.wait<void>([
+    _loadCatalog(),
+    _loadMeta(),
+    _loadReplies(),
+    _loadSynonyms(),
+    _loadRelationships(),
+    knowledgeFuture,
+  ]);
 
-    for (final l in catalog) {
-      var hit = false;
-      for (final name in [l.title, ...l.aliases]) {
-        final full = _collapse(normalize(name));
-        if (full.isEmpty) continue;
-
-        final isLawName =
-            full.startsWith('قانون ') || full.startsWith('لایحه ');
-        if (!isLawName) continue;
-
-        if (n.contains(full)) {
-          hit = true;
-          break;
-        }
-
-        final short =
-            full.startsWith('قانون ') ? full.substring(6).trim() : '';
-        if (short.length >= 5 && n.contains('قانون $short')) {
-          hit = true;
-          break;
-        }
-      }
-      if (hit) matched.add(l);
-    }
-
-    if (matched.length < 2) return matched;
-
-    final matchedNames = <String, String>{};
-    for (final l in matched) {
-      for (final name in [l.title, ...l.aliases]) {
-        final full = _collapse(normalize(name));
-        if (full.isNotEmpty && n.contains(full)) {
-          matchedNames[l.id] = full;
-          break;
-        }
-      }
-    }
-
-    return matched.where((law) {
-      final ownName = matchedNames[law.id];
-      if (ownName == null) return true;
-
-      for (final other in matched) {
-        if (other.id == law.id) continue;
-        final otherName = matchedNames[other.id];
-        if (otherName != null &&
-            otherName.length > ownName.length &&
-            otherName.contains(ownName)) {
-          return false;
-        }
-      }
-      return true;
-    }).toList();
+  final raw = <List<String>>[];
+  final knowledgeRaw = await knowledgeFuture;
+  if (knowledgeRaw != null) {
+    raw.add(knowledgeRaw);
   }
 
-  List<CatalogLaw> _loadedLaws() =>
-      catalog.where((l) => isLoaded(l.id)).toList();
+  final entries = meta.entries.toList();
+  final loadedLaws = await Future.wait<List<String>?>(
+    entries.map((entry) async {
+      final lawId = entry.key;
+      final path = entry.value['path'];
+      if (path is! String || path.isEmpty) return null;
+      final fullPath = 'assets/laws/$path';
+      try {
+        final text = await rootBundle.loadString(fullPath);
+        final fallbackTitle = (entry.value['title'] ?? '').toString().trim();
+        return [lawId, fallbackTitle, text];
+      } catch (e) {
+        warnings.add('$fullPath: $e');
+        return null;
+      }
+    }),
+  );
 
-  bool _asksLawList(String n) {
-    return n.contains('چه قوانین') ||
-        n.contains('کدام قوانین') ||
-        n.contains('فهرست قوانین') ||
-        n.contains('قوانین موجود') ||
-        n.contains('چه قانون');
+  for (final item in loadedLaws) {
+    if (item != null) raw.add(item);
   }
 
-  String _lawListText() {
-    final loaded = _loadedLaws();
-    if (loaded.isEmpty) return replies.get('no_laws');
-    final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
-    for (final l in loaded) {
-      final n = _lawCounts[l.id] ?? 0;
-      sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
-    }
-    final rest = catalog.length - loaded.length;
-    if (rest > 0) {
-      sb.write(
-        '\n\n${PersianText.toFaDigits(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
-      );
-    }
-    return sb.toString();
+  _Built built;
+  try {
+    built = await _buildAsync(raw);
+  } catch (_) {
+    built = _build(raw); // اگر Isolate شکست خورد، روی همین رشته
   }
+  _chunks
+    ..clear()
+    ..addAll(built.chunks);
+  _lawCounts
+    ..clear()
+    ..addAll(built.lawCounts);
+  _idf
+    ..clear()
+    ..addAll(built.idf);
+  _postings
+    ..clear()
+    ..addAll(built.postings);
+  _byTitle
+    ..clear()
+    ..addAll(built.byTitle);
+  _avgLen = built.avgLen;
+  _maxIdf = built.maxIdf;
+  _vocab = built.vocab;
+}
 
-  String format(Chunk c) {
-    final sb = StringBuffer();
-    sb.write(c.title);
-    if (c.body != c.title) sb.write('\n${c.body}');
-    if (c.obsolete) {
-      sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');
+static Future<_Built> _buildAsync(List<List<String>> raw) =>
+    Isolate.run(() => _build(raw));
+
+static _Built _build(List<List<String>> raw) {
+  final chunks = <Chunk>[];
+  final counts = <String, int>{};
+  for (final r in raw) {
+    _parseInto(r[2], r[1], r[0], chunks, counts);
+  }
+  final df = <String, int>{};
+  final postings = <String, List<int>>{};
+  final byTitle = <String, List<int>>{};
+  var totalLen = 0;
+  for (var i = 0; i < chunks.length; i++) {
+    final c = chunks[i];
+    totalLen += c.len;
+    byTitle.putIfAbsent(c.normTitle, () => <int>[]).add(i);
+    final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
+    for (final t in seen) {
+      df[t] = (df[t] ?? 0) + 1;
+      postings.putIfAbsent(t, () => <int>[]).add(i);
     }
-    if (c.source.isNotEmpty) {
-      sb.write('\n\nمنبع: ${c.source}');
-      if (c.chapter.isNotEmpty) sb.write(' — ${c.chapter}');
-      final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
-      if (date.isNotEmpty) {
-        sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
+  }
+  final n = chunks.length;
+  final avg = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
+  final idf = <String, double>{};
+  var maxIdf = 1.0;
+  df.forEach((t, d) {
+    final v = math.log((n + 1) / (d + 1)) + 1.0;
+    idf[t] = v;
+    if (v > maxIdf) maxIdf = v;
+  });
+  final vocab = df.keys.toList()..sort();
+  return _Built(chunks, counts, idf, postings, byTitle, avg, maxIdf, vocab);
+}
+
+static void _parseInto(
+  String text,
+  String defaultSource,
+  String lawId,
+  List<Chunk> out,
+  Map<String, int> counts,
+) {
+  var source = defaultSource;
+  var chapter = '';
+  final parts = text.replaceAll('\r', '').split(_paraSplitRe);
+  for (final p in parts) {
+    final lines = p.trim().split('\n');
+    if (lines.isEmpty || lines.first.trim().isEmpty) continue;
+    final first = lines.first.trim();
+    if (first.startsWith('##')) {
+      chapter = first.replaceFirst(_hashPrefixRe, '').trim();
+      continue;
+    }
+    if (first.startsWith('#')) {
+      source = first.replaceFirst(_hashPrefixRe, '').trim();
+      chapter = '';
+      continue;
+    }
+    final body = lines.length > 1 ? lines.sublist(1).join('\n').trim() : first;
+    final tfT = <String, int>{};
+    final tfB = <String, int>{};
+    final tfC = <String, int>{};
+    var len = 0;
+    for (final t in tokenizeIndex(first)) {
+      tfT[t] = (tfT[t] ?? 0) + 1;
+      len++;
+    }
+    for (final t in tokenizeIndex(body)) {
+      tfB[t] = (tfB[t] ?? 0) + 1;
+      len++;
+    }
+    for (final t in tokenizeIndex(chapter)) {
+      tfC[t] = (tfC[t] ?? 0) + 1;
+      len++;
+    }
+    for (final t in tokenizeIndex(source)) {
+      tfC[t] = (tfC[t] ?? 0) + 1;
+      len++;
+    }
+    out.add(Chunk(
+      lawId,
+      source,
+      chapter,
+      first,
+      body,
+      body != first && _isObsolete(body),
+      tfT,
+      tfB,
+      tfC,
+      len,
+    ));
+    counts[lawId] = (counts[lawId] ?? 0) + 1;
+  }
+}
+
+final List<List<String>> _syn = [];
+
+static String _phrase(String s) => PersianText.phrase(s);
+
+Future<void> _loadSynonyms() async {
+  _syn.clear();
+  try {
+    final t = await rootBundle.loadString('assets/synonyms.txt');
+    for (final line in t.split('\n')) {
+      final l = line.trim();
+      if (l.isEmpty || l.startsWith('#')) continue;
+      final i = l.indexOf('|');
+      if (i < 0) continue;
+      final k = _phrase(l.substring(0, i));
+      final v = l.substring(i + 1).trim();
+      if (k.isNotEmpty && v.isNotEmpty) _syn.add([k, v]);
+    }
+  } catch (e) {
+    warnings.add('synonyms.txt: $e');
+  }
+}
+
+/// واژه‌های قانونیِ معادلِ عبارت‌های عامیانهٔ پرسش.
+List<String> _expand(String question) {
+  final n = ' ${_phrase(question)} ';
+  final out = <String>[];
+  for (final r in _syn) {
+    if (n.contains(' ${r[0]} ')) out.addAll(tokenizeIndex(r[1]));
+  }
+  return out;
+}
+
+static String _canonicalArticleTitle(String rawArticle) {
+  var a = _collapse(normalize(rawArticle));
+  if (a.isEmpty) return '';
+  if (!a.startsWith('ماده ') && !a.startsWith('اصل ')) a = 'ماده $a';
+  return _collapse(a);
+}
+
+static String _wantedArticleFromMatch(RegExpMatch m) {
+  final kind = m.group(1) == 'اصل' ? 'اصل' : 'ماده';
+  if (m.group(2) != null) return '$kind واحده';
+  final num = m.group(3)!;
+  final mk = m.group(4) != null
+      ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر')
+      : '';
+  return '$kind $num$mk';
+}
+
+static String _faArticleLabel(RegExpMatch m) {
+  if (m.group(2) != null) return 'واحده';
+  final num = PersianText.toFaDigits(m.group(3)!);
+  final mk = m.group(4) != null
+      ? (m.group(5) != null
+          ? ' مکرر ${PersianText.toFaDigits(m.group(5)!)}'
+          : ' مکرر')
+      : '';
+  return '$num$mk';
+}
+
+/// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
+/// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
+Chunk? findArticle(String law, String article) {
+  final lawN = _collapse(normalize(law));
+  final want = _canonicalArticleTitle(article);
+  if (want.isEmpty || lawN.isEmpty) return null;
+  var indices = _byTitle[want];
+  if (indices == null && want.startsWith('ماده ')) {
+    indices = _byTitle['اصل ${want.substring(5)}'];
+  }
+  if (indices == null) return null;
+  final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
+  for (final idx in indices) {
+    final c = _chunks[idx];
+    if (c.lawId == lawN || mentionedIds.contains(c.lawId)) return c;
+    final s = c.normSource;
+    if (s.isEmpty) continue;
+    if (s == lawN || s.contains(lawN) || lawN.contains(s)) return c;
+  }
+  return null;
+}
+
+/// قوانین فهرست که نام یا نام رایجشان در متن آمده است.
+List<CatalogLaw> mentionedLaws(String q) => _mentionedLaws(q);
+
+List<CatalogLaw> _mentionedLaws(String q) {
+  final n = _collapse(normalize(q));
+  final matched = <CatalogLaw>[];
+
+  for (final l in catalog) {
+    var hit = false;
+    for (final name in [l.title, ...l.aliases]) {
+      final full = _collapse(normalize(name));
+      if (full.isEmpty) continue;
+
+      final isLawName =
+          full.startsWith('قانون ') || full.startsWith('لایحه ');
+      if (!isLawName) continue;
+
+      if (n.contains(full)) {
+        hit = true;
+        break;
+      }
+
+      final short =
+          full.startsWith('قانون ') ? full.substring(6).trim() : '';
+      if (short.length >= 5 && n.contains('قانون $short')) {
+        hit = true;
+        break;
       }
     }
-    return sb.toString();
+    if (hit) matched.add(l);
   }
 
-  /// چه کسری از وزن واژه‌های پرسش در این ماده (یا با کمک مترادف‌ها) پیدا می‌شود.
-  /// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
-  double coverage(String question, Chunk c) {
-    final qt = tokenizeIndex(question).toSet().toList();
-    if (qt.isEmpty || _idf.isEmpty) return 0.0;
-    bool has(String t) =>
-        c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
-    var den = 0.0;
-    var got = 0.0;
-    final covered = <String>{};
-    for (final t in qt) {
-      den += _idf[t] ?? _maxIdf;
-      if (has(t)) {
+  if (matched.length < 2) return matched;
+
+  final matchedNames = <String, String>{};
+  for (final l in matched) {
+    for (final name in [l.title, ...l.aliases]) {
+      final full = _collapse(normalize(name));
+      if (full.isNotEmpty && n.contains(full)) {
+        matchedNames[l.id] = full;
+        break;
+      }
+    }
+  }
+
+  return matched.where((law) {
+    final ownName = matchedNames[law.id];
+    if (ownName == null) return true;
+
+    for (final other in matched) {
+      if (other.id == law.id) continue;
+      final otherName = matchedNames[other.id];
+      if (otherName != null &&
+          otherName.length > ownName.length &&
+          otherName.contains(ownName)) {
+        return false;
+      }
+    }
+    return true;
+  }).toList();
+}
+
+List<CatalogLaw> _loadedLaws() =>
+    catalog.where((l) => isLoaded(l.id)).toList();
+
+bool _asksLawList(String n) {
+  return n.contains('چه قوانین') ||
+      n.contains('کدام قوانین') ||
+      n.contains('فهرست قوانین') ||
+      n.contains('قوانین موجود') ||
+      n.contains('چه قانون');
+}
+
+String _lawListText() {
+  final loaded = _loadedLaws();
+  if (loaded.isEmpty) return replies.get('no_laws');
+  final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
+  for (final l in loaded) {
+    final n = _lawCounts[l.id] ?? 0;
+    sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
+  }
+  final rest = catalog.length - loaded.length;
+  if (rest > 0) {
+    sb.write(
+      '\n\n${PersianText.toFaDigits(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
+    );
+  }
+  return sb.toString();
+}
+
+String format(Chunk c) {
+  final sb = StringBuffer();
+  sb.write(c.title);
+  if (c.body != c.title) sb.write('\n${c.body}');
+  if (c.obsolete) {
+    sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');
+  }
+  if (c.source.isNotEmpty) {
+    sb.write('\n\nمنبع: ${c.source}');
+    if (c.chapter.isNotEmpty) sb.write(' — ${c.chapter}');
+    final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
+    if (date.isNotEmpty) {
+      sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
+    }
+  }
+  return sb.toString();
+}
+
+/// چه کسری از وزن واژه‌های پرسش در این ماده (یا با کمک مترادف‌ها) پیدا می‌شود.
+/// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
+double coverage(String question, Chunk c) {
+  final qt = tokenizeIndex(question).toSet().toList();
+  if (qt.isEmpty || _idf.isEmpty) return 0.0;
+  bool has(String t) =>
+      c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
+  var den = 0.0;
+  var got = 0.0;
+  final covered = <String>{};
+  for (final t in qt) {
+    den += _idf[t] ?? _maxIdf;
+    if (has(t)) {
+      covered.add(t);
+      got += _idf[t] ?? _maxIdf;
+    } else if (!_idf.containsKey(t) && t.length >= 3) {
+      var pref = false;
+      for (final m in [c.tfT, c.tfB, c.tfC]) {
+        for (final v in m.keys) {
+          if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
+            pref = true;
+            break;
+          }
+        }
+        if (pref) break;
+      }
+      if (pref) {
+        covered.add(t);
+        got += 0.5 * _maxIdf;
+      }
+    }
+  }
+  final n = ' ${_phrase(question)} ';
+  for (final r in _syn) {
+    if (!n.contains(' ${r[0]} ')) continue;
+    if (!tokenizeIndex(r[1]).any(has)) continue;
+    for (final t in tokenizeIndex(r[0])) {
+      if (qt.contains(t) && !covered.contains(t)) {
         covered.add(t);
         got += _idf[t] ?? _maxIdf;
-      } else if (!_idf.containsKey(t) && t.length >= 3) {
-        var pref = false;
-        for (final m in [c.tfT, c.tfB, c.tfC]) {
-          for (final v in m.keys) {
-            if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
-              pref = true;
-              break;
-            }
-          }
-          if (pref) break;
-        }
-        if (pref) {
-          covered.add(t);
-          got += 0.5 * _maxIdf;
-        }
       }
     }
-    final n = ' ${_phrase(question)} ';
-    for (final r in _syn) {
-      if (!n.contains(' ${r[0]} ')) continue;
-      if (!tokenizeIndex(r[1]).any(has)) continue;
-      for (final t in tokenizeIndex(r[0])) {
-        if (qt.contains(t) && !covered.contains(t)) {
-          covered.add(t);
-          got += _idf[t] ?? _maxIdf;
-        }
-      }
-    }
-    return den > 0 ? got / den : 0.0;
   }
+  return den > 0 ? got / den : 0.0;
+}
 
-  static int _lowerBound(List<String> sorted, String target) {
-    var lo = 0;
-    var hi = sorted.length;
-    while (lo < hi) {
-      final mid = (lo + hi) >> 1;
-      if (sorted[mid].compareTo(target) < 0) {
-        lo = mid + 1;
-      } else {
-        hi = mid;
-      }
-    }
-    return lo;
-  }
-
-  /// گسترش پیشوند در زمان O(log V + |t| + matches) به‌جای پیمایش خطی کل واژگان.
-  void _addPrefixTerms(String t, Map<String, double> terms) {
-    for (var len = 3; len < t.length; len++) {
-      final sub = t.substring(0, len);
-      if (_idf.containsKey(sub)) {
-        terms[sub] = math.max(terms[sub] ?? 0, 0.5);
-      }
-    }
-    var i = _lowerBound(_vocab, t);
-    while (i < _vocab.length && _vocab[i].startsWith(t)) {
-      final v = _vocab[i];
-      terms[v] = math.max(terms[v] ?? 0, 0.5);
-      i++;
+static int _lowerBound(List<String> sorted, String target) {
+  var lo = 0;
+  var hi = sorted.length;
+  while (lo < hi) {
+    final mid = (lo + hi) >> 1;
+    if (sorted[mid].compareTo(target) < 0) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
     }
   }
+  return lo;
+}
 
-  RankResult rank(String question, {int k = 3}) {
-    return _rankInternal(question, k: k);
+/// گسترش پیشوند در زمان O(log V + |t| + matches) به‌جای پیمایش خطی کل واژگان.
+void _addPrefixTerms(String t, Map<String, double> terms) {
+  for (var len = 3; len < t.length; len++) {
+    final sub = t.substring(0, len);
+    if (_idf.containsKey(sub)) {
+      terms[sub] = math.max(terms[sub] ?? 0, 0.5);
+    }
   }
+  var i = _lowerBound(_vocab, t);
+  while (i < _vocab.length && _vocab[i].startsWith(t)) {
+    final v = _vocab[i];
+    terms[v] = math.max(terms[v] ?? 0, 0.5);
+    i++;
+  }
+}
 
+RankResult rank(String question, {int k = 3}) {
+  return _rankInternal(question, k: k);
+}
   RankResult _rankInternal(
     String question, {
     List<CatalogLaw>? mentioned,
@@ -969,6 +968,48 @@ class KnowledgeEngine {
         .where((chain) => chain.contains('->'))
         .map(PersianText.toFaDigits)
         .toList();
+  }
+
+  /// نسخه‌ی ساخت‌یافته‌ی rank که برای planner در Phase 2 استفاده می‌شود.
+  ///
+  /// مواد منسوخ را فیلتر می‌کند تا EvidenceSet تنها شامل شواهد معتبر باشد.
+  /// Coverage بر اساس بهترین نتیجه محاسبه می‌شود. برای Phase 0.4، فیلد
+  /// `conflicts` خالی است و تشخیص تعارض معنادار به Phase 2 موکول می‌شود
+  /// (چون conflictChainsFor زنجیره‌های ارجاع متقابل است، نه لزوماً
+  /// تعارض واقعی بین مواد). planner در Phase 2 می‌تواند از
+  /// conflictChainsFor مستقیماً استفاده کند اگر بخواهد.
+  ///
+  /// این متد **بدون تغییر** در `rank`، `query`، `coverage` یا
+  /// `conflictChainsFor` کار می‌کند — فقط آن‌ها را در یک بسته‌ی
+  /// ساخت‌یافته جمع می‌کند.
+  EvidenceSet retrieveWithEvidence(String question, {int k = 3}) {
+    final rankResult = rank(question, k: k);
+    final filtered =
+        rankResult.hits.where((h) => !h.chunk.obsolete).toList();
+
+    final items = <Evidence>[];
+    for (var i = 0; i < filtered.length; i++) {
+      final h = filtered[i];
+      final articleId = h.chunk.source.isNotEmpty
+          ? '${h.chunk.source} — ${h.chunk.title}'
+          : h.chunk.title;
+      items.add(Evidence(
+        articleId: articleId,
+        text: h.chunk.body,
+        rank: i + 1,
+        score: h.score,
+        matchedSlots: const [],
+      ));
+    }
+
+    final top = filtered.isEmpty ? null : filtered.first;
+    final cov = top == null ? 0.0 : coverage(question, top.chunk);
+
+    return EvidenceSet(
+      items: items,
+      conflicts: const [],
+      coverage: cov,
+    );
   }
 
   String answer(String question) => query(question, maxAlternatives: 0).text;

@@ -47,6 +47,7 @@ class _ControllableLlm extends LlmBackend {
     String prompt, {
     LlmOptions options = const LlmOptions(),
   }) {
+    // ignore: close_sinks
     final c = StreamController<String>();
     _controller = c;
     final sig = _startedSignal;
