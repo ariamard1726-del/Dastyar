@@ -1,85 +1,77 @@
-commit: 35697fc
+commit: 16cfd48
 ::error::173 tests passed, 6 failed.
 ::group::❌ loading test/drafting/pending_offer_test.dart (failed)
    Failed to load "test/drafting/pending_offer_test.dart":
-   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 ::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
    Failed to load "test/counselor/counselor_and_laws_test.dart":
-   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 ::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
    Failed to load "test/counselor/counselor_nn_rag_test.dart":
-   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 ::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
    Failed to load "test/app/draft_checkpoint_test.dart":
-   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 ::group::❌ loading test/app/chat_bubbles_test.dart (failed)
    Failed to load "test/app/chat_bubbles_test.dart":
-   Compilation failed for testPath=test/app/chat_bubbles_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/app/chat_bubbles_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 ::group::❌ loading test/app/chat_controller_test.dart (failed)
    Failed to load "test/app/chat_controller_test.dart":
-   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-   text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم:
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-   ${c.text}',
-   ^^
-   lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
+   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   if (e.value.value.trim().isNotEmpty) {
+   ^^^^
+   lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
 --- خطای کامپایل ---
-lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
-lib/domain/legal_counselor.dart:679:1: Error: Undefined name '$'.
-lib/domain/legal_counselor.dart:679:2: Error: Expected ',' before this.
-lib/domain/legal_counselor.dart:679:10: Error: Expected ',' before this.
-lib/domain/legal_counselor.dart:680:11: Error: Expected ',' before this.
-lib/domain/legal_counselor.dart:676:29: Error: Too many positional arguments: 0 allowed, but 3 found.
 lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
 lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
 Failed to load "test/drafting/pending_offer_test.dart":
-Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:677:17: Error: String starting with ' must end with '.
-lib/domain/legal_counselor.dart:679:10: Error: String starting with ' must end with '.
-lib/domain/legal_counselor.dart:679:1: Error: Expected ',' before this.
-lib/domain/legal_counselor.dart:679:1: Error: Undefined name '$'.
+Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+Failed to load "test/counselor/counselor_and_laws_test.dart":
+Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+Failed to load "test/counselor/counselor_nn_rag_test.dart":
+Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
 --- analyze ---
-12 issues found. (ran in 13.0s)
+4 issues found. (ran in 11.7s)
   error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
   error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/legal_counselor.dart:667:16 • prefer_const_constructors
-  error • Unterminated string literal • lib/domain/legal_counselor.dart:677:58 • unterminated_string_literal
-  error • Expected to find ',' • lib/domain/legal_counselor.dart:679:1 • expected_token
-  error • Too many positional arguments: 0 expected, but 3 found. Try removing the extra arguments • lib/domain/legal_counselor.dart:679:1 • extra_positional_arguments
-  error • Undefined name '$'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:679:1 • undefined_identifier
-  error • Expected to find ',' • lib/domain/legal_counselor.dart:679:2 • expected_token
-  error • Expected to find ',' • lib/domain/legal_counselor.dart:679:10 • expected_token
-  error • Unterminated string literal • lib/domain/legal_counselor.dart:679:11 • unterminated_string_literal
-  error • Expected to find ',' • lib/domain/legal_counselor.dart:680:11 • expected_token
