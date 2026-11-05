@@ -1,18 +1,134 @@
-commit: ca82e28
-🎉 208 tests passed.
+commit: cedbd76
+::error::144 tests passed, 8 failed.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
+   Failed to load "test/counselor/counselor_nn_rag_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+   final LegalTemplate? startTemplate;
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
+   Failed to load "test/counselor/counselor_and_laws_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+   final LegalTemplate? startTemplate;
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/core/privacy_test.dart (failed)
+   Failed to load "test/core/privacy_test.dart":
+   Compilation failed for testPath=test/core/privacy_test.dart: test/core/privacy_test.dart:65:41: Error: The argument type 'String?' can't be assigned to the parameter type 'String'.
+   expect(PrivacyService.isEncrypted(rawHistory), isTrue);
+   ^
+   test/core/privacy_test.dart:66:25: Error: Method 'contains' cannot be called on 'String?' because it is potentially null.
+   Try calling using ?. instead.
+   expect(rawHistory.contains('متن محرمانهٔ پروندهٔ چک'), isFalse);
+   ^^^^^^^^
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/app/chat_controller_test.dart (failed)
+   Failed to load "test/app/chat_controller_test.dart":
+   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+   final LegalTemplate? startTemplate;
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
+   Failed to load "test/app/draft_checkpoint_test.dart":
+   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+   final LegalTemplate? startTemplate;
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/drafting/pending_offer_test.dart (failed)
+   Failed to load "test/drafting/pending_offer_test.dart":
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+   - 'LegalTemplate' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   _startDraft(text, turn.startTemplate);
+   ^
+   lib/domain/legal_counselor.dart:24:24: Context: 'startTemplate' refers to a public property so it couldn't be promoted.
+   See http://dart.dev/go/non-promo-public-field
+   final LegalTemplate? startTemplate;
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/drafting/logic_test.dart (failed)
+   Failed to load "test/drafting/logic_test.dart":
+   Compilation failed for testPath=test/drafting/logic_test.dart: test/drafting/logic_test.dart:124:21: Error: Property 'type' cannot be accessed on 'TemplateField?' because it is potentially null.
+   - 'TemplateField' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+   Try accessing using ?. instead.
+   switch (f.type) {
+   ^^^^
+   test/drafting/logic_test.dart:126:21: Error: Property 'options' cannot be accessed on 'TemplateField?' because it is potentially null.
+   - 'TemplateField' is from 'package:dastyar/domain/templates.dart' ('lib/domain/templates.dart').
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/domain/dialogue/slot_extractor_test.dart (failed)
+   Failed to load "test/domain/dialogue/slot_extractor_test.dart":
+   Compilation failed for testPath=test/domain/dialogue/slot_extractor_test.dart: test/domain/dialogue/slot_extractor_test.dart:95:44: Error: The argument type 'DomainSchema?' can't be assigned to the parameter type 'DomainSchema'.
+   - 'DomainSchema' is from 'package:dastyar/domain/dialogue/domain_slot_schemas.dart' ('lib/domain/dialogue/domain_slot_schemas.dart').
+   final result = extractor.extract('', schema);
+   ^
+   test/domain/dialogue/slot_extractor_test.dart:105:65: Error: The argument type 'DomainSchema?' can't be assigned to the parameter type 'DomainSchema'.
+   - 'DomainSchema' is from 'package:dastyar/domain/dialogue/domain_slot_schemas.dart' ('lib/domain/dialogue/domain_slot_schemas.dart').
+   final result = extractor.extract('چک به مبلغ ۱۰۰۰ تومان', schema);
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+--- خطای کامپایل ---
+lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+Failed to load "test/counselor/counselor_nn_rag_test.dart":
+Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+Failed to load "test/counselor/counselor_and_laws_test.dart":
+Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/ui/chat_controller.dart:257:30: Error: The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.
+test/core/privacy_test.dart:65:41: Error: The argument type 'String?' can't be assigned to the parameter type 'String'.
+test/core/privacy_test.dart:66:25: Error: Method 'contains' cannot be called on 'String?' because it is potentially null.
+test/core/privacy_test.dart:75:37: Error: Operator '[]' cannot be called on 'String?' because it is potentially null.
+test/core/privacy_test.dart:77:25: Error: Method 'substring' cannot be called on 'String?' because it is potentially null.
+test/core/privacy_test.dart:77:72: Error: Method 'substring' cannot be called on 'String?' because it is potentially null.
+test/core/privacy_test.dart:84:41: Error: The argument type 'String?' can't be assigned to the parameter type 'String'.
+test/core/privacy_test.dart:85:26: Error: Method 'contains' cannot be called on 'String?' because it is potentially null.
+Failed to load "test/core/privacy_test.dart":
+Compilation failed for testPath=test/core/privacy_test.dart: test/core/privacy_test.dart:65:41: Error: The argument type 'String?' can't be assigned to the parameter type 'String'.
 --- analyze ---
-15 issues found. (ran in 11.5s)
-   info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
-   info • Unnecessary use of a null check ('!'). Try removing the null check • lib/domain/dialogue/response_composer.dart:133:32 • unnecessary_null_checks
-   info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/app/chat_controller_test.dart:50:11 • close_sinks
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:46:22 • prefer_const_
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:59:22 • prefer_const_
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:70:22 • prefer_const_
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:81:22 • prefer_const_
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:92:22 • prefer_const_
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:105:22 • prefer_const
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:117:22 • prefer_const
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:138:22 • prefer_const
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:158:22 • prefer_const
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:172:22 • prefer_const
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/domain/dialogue/response_composer_test.dart:186:22 • prefer_const
+13 issues found. (ran in 11.3s)
+  error • The argument type 'LegalTemplate?' can't be assigned to the parameter type 'LegalTemplate'.  • lib/ui/chat_controller.dart:257:25 • argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • test/core/privacy_test.dart:65:41 • argument_type_not_assignable
+  error • The method 'contains' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • test/core
+  error • The method '[]' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • test/core/priva
+  error • The method 'substring' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • test/cor
+  error • The method 'substring' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • test/cor
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • test/core/privacy_test.dart:84:41 • argument_type_not_assignable
+  error • The method 'contains' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • test/core
+  error • The argument type 'DomainSchema?' can't be assigned to the parameter type 'DomainSchema'.  • test/domain/dialogue/slot_extractor_test.dart:95:44 • argument_type_not_assignable
+  error • The argument type 'DomainSchema?' can't be assigned to the parameter type 'DomainSchema'.  • test/domain/dialogue/slot_extractor_test.dart:105:65 • argument_type_not_assignable
+  error • The property 'type' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • test/dra
+  error • The property 'options' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • test/
