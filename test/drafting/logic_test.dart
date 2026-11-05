@@ -119,7 +119,7 @@ void main() {
         DraftReply? r;
         var guard = 0;
         while (!s.done && guard++ < 80) {
-          final f = s.current;
+          final f = s.current!;
           String v;
           switch (f.type) {
             case 'choice':
