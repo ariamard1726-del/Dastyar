@@ -41,6 +41,15 @@ jobs:
         run: |
           set -o pipefail
           flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Golden dataset evaluation
+        id: eval
+        continue-on-error: true
+        env:
+          EVAL_ARGS: --verbose
+        run: |
+          mkdir -p out
+          set -o pipefail
+          flutter test bin/evaluate_bot.dart 2>&1 | tee "$RUNNER_TEMP/eval_full.txt"
       - name: Short report
         if: always()
         env:
@@ -59,6 +68,13 @@ jobs:
               | sed 's#/home/runner/work/Dastyar/Dastyar/##' \
               | cut -c1-200 | head -n 30 || true
           } >> reports/last_test.txt
+      - name: Append eval console
+        if: always()
+        run: |
+          {
+            echo "--- eval ---"
+            sed -e 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/eval_full.txt" 2>/dev/null | tail -n 80 || true
+          } >> reports/last_test.txt
       - name: Near-miss report
         if: always()
         continue-on-error: true
@@ -73,7 +89,7 @@ jobs:
             reports/last_test.txt
             brain/reports/near_miss.txt
       - name: Fail if anything failed
-        if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
+        if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure' || steps.eval.outcome == 'failure'
         run: exit 1
 
   commit-reports:
