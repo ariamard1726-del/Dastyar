@@ -1,4 +1,4 @@
-commit: 5525ede
+commit: c3e2a80
 ::error::218 tests passed, 6 failed.
 ::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
    Expected: false
@@ -36,4 +36,4 @@ commit: 5525ede
    test/counselor/counselor_nn_rag_test.dart 242:7     main.<fn>.<fn>
    ::endgroup::
 --- analyze ---
-1 issue found. (ran in 10.9s)
+1 issue found. (ran in 9.5s)
