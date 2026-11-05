@@ -160,14 +160,15 @@ void main() {
         'سلام', 'خوبی', 'ممنون', 'حالم بده', 'لعنتی',
         'هوا چطوره', 'الان چکار کنم', 'خداحافظ',
       ];
+      // الگوی دقیق استناد: «ماده ۱۳» / «اصل ۲۲» بله، ولی «آماده بودید»
+      // یا «اصل ماجرا» خیر (بررسی رشتهای ساده روی «ماده » مثبت کاذب میداد).
+      final citationRe = RegExp(
+        r'ماده\s*\d|اصل\s*\d|قانون|دادگاه|بانک قوانین|چک برگشتی',
+      );
       for (final s in samples) {
         final r = route(s)!;
-        for (final forbidden in <String>[
-          'ماده ', 'قانون ', 'دادگاه', 'چک ', 'بانک قوانین'
-        ]) {
-          expect(r.text, isNot(contains(forbidden)),
-              reason: 'پاسخ «$s» نباید $forbidden داشته باشد');
-        }
+        expect(citationRe.hasMatch(r.text), isFalse,
+            reason: 'پاسخ «$s» نباید استناد حقوقی داشته باشد: ${r.text}');
         expect(r.text.length, lessThan(260), reason: 'پاسخ باید کوتاه باشد');
       }
     });
