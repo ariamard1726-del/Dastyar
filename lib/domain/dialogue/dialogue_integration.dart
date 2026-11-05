@@ -9,10 +9,6 @@ import 'package:dastyar/domain/dialogue/slot_extractor.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 
 /// لایهٔ ادغام `DialoguePlanner` و `ResponseComposer` در `LegalCounselor`.
-///
-/// این کلاس مسئولیت «پل زدن» بین `CounselingSession` (که
-/// `LegalCounselor` استفاده می‌کند) و `DialogueState`/`EvidenceSet`
-/// (که Phase 2 معرفی کرد) را دارد.
 class DialogueIntegration {
   DialogueIntegration._();
 
@@ -40,9 +36,31 @@ class DialogueIntegration {
       initialMessage: session.initialMessage,
     );
 
+    // ۱. استخراج از پیام اولیه
     final extracted = _extractor.extract(session.initialMessage, schema);
-    if (extracted.isNotEmpty) {
-      state = state.copyWith(slots: extracted);
+    final slots = <String, SlotValue>{};
+    for (final entry in extracted.entries) {
+      slots[entry.key] = entry.value;
+      // sync به facts هم برای اطمینان
+      final v = entry.value.value;
+      if (v != null && v.isNotEmpty) {
+        session.facts[entry.key] = v;
+      }
+    }
+
+    // ۲. اگر facts از قبل مقداری داشت (مثلاً از resume)، آن‌ها را هم به slots اضافه کن
+    for (final entry in session.facts.entries) {
+      if (slots.containsKey(entry.key)) continue;
+      if (entry.value.isEmpty) continue;
+      slots[entry.key] = SlotValue.inferred(
+        value: entry.value,
+        confidence: 0.9,
+        sourceTurn: 0,
+      );
+    }
+
+    if (slots.isNotEmpty) {
+      state = state.copyWith(slots: slots);
     }
 
     session.dialogueState = state;
@@ -50,16 +68,13 @@ class DialogueIntegration {
 
   /// تلاش برای پردازش پاسخ کاربر با planner/composer جدید.
   ///
-  /// **⚠️ تصمیم Phase 2.4**: فقط `AskForSlot` را به‌عنوان پاسخ برمی‌گرداند.
-  /// سایر `DialogueAction`ها (GiveAnswer, ExplainConflict,
-  /// DisambiguateDomain) → `null` برمی‌گردد تا `LegalCounselor` به
-  /// مسیر legacy برود (چون `_buildConclusion` استنادات قانونی غنی‌تری
-  /// دارد و تست‌های موجود آن را انتظار دارند).
-  ///
-  /// **⚠️ sync به `session.facts`**: علاوه بر `dialogueState`،
-  /// `session.facts` هم به‌روز می‌شود. این کار تضمین می‌کند که
-  /// `_buildConclusion` (که از `session.facts` می‌خواند) داده‌های
-  /// استخراج‌شده را ببیند.
+  /// **⚠️ اصلاح Phase 2.4.2**:
+  ///   - فقط وقتی non-null برمی‌گرداند که واقعاً یک اسلات استخراج شده باشد
+  ///     و planner یک `AskForSlot` واقعی (نه clarification) درخواست کند.
+  ///   - در غیر این صورت `null` برمی‌گرداند تا `LegalCounselor` به مسیر
+  ///     legacy برود (RAG، conclusion، template match، ...).
+  ///   - همیشه `session.facts` را با `newState.slots` sync می‌کند تا
+  ///     `_buildConclusion` و `_advance` legacy هم داده‌های جدید را ببینند.
   static CounselorTurn? tryStep(
     CounselingSession session,
     String text,
@@ -78,13 +93,19 @@ class DialogueIntegration {
       turnIndex: state.turnIndex,
     );
 
-    // ۲. ادغام با اسلات‌های موجود
+    // ۲. اگر هیچ اسلات جدیدی استخراج نشد، به legacy بده
+    //    (این متن ممکن است سؤال حقوقی، لغو، یا نامرتبط باشد)
+    if (extracted.isEmpty) {
+      return null;
+    }
+
+    // ۳. ادغام با اسلات‌های موجود
     final mergedSlots = <String, SlotValue>{...state.slots, ...extracted};
 
-    // ۳. بازیابی شواهد
+    // ۴. بازیابی شواهد
     final evidence = engine.retrieveWithEvidence(text, k: 3);
 
-    // ۴. ساخت state جدید
+    // ۵. ساخت state جدید
     var newState = state.copyWith(
       slots: mergedSlots,
       evidence: evidence,
@@ -92,7 +113,7 @@ class DialogueIntegration {
       lastUserUtterance: text,
     );
 
-    // ۵. sync به session.facts (برای _buildConclusion و _advance legacy)
+    // ۶. sync همهٔ اسلات‌ها به session.facts (نه فقط جدید)
     for (final entry in mergedSlots.entries) {
       final v = entry.value.value;
       if (v != null && v.isNotEmpty) {
@@ -100,22 +121,25 @@ class DialogueIntegration {
       }
     }
 
-    // ۶. تصمیم‌گیری
+    // ۷. تصمیم‌گیری
     final action = _planner.plan(newState, evidence);
 
-    // ۷. فقط AskForSlot را در Phase 2.4 پشتیبانی می‌کنیم.
-    //    GiveAnswer/ExplainConflict/DisambiguateDomain → fallback
-    if (action is! AskForSlot) {
+    // ۸. فقط AskForSlot واقعی (نه clarification) را پاسخ می‌دهیم.
+    //    GiveAnswer/ExplainConflict/DisambiguateDomain/clarification → null
+    //    تا legacy از _buildConclusion استفاده کند.
+    if (action is! AskForSlot || action.slotKey == 'clarification') {
       session.dialogueState = newState;
       return null;
     }
 
+    // ۹. به‌روزرسانی pendingSlot
     newState = newState.copyWith(
       pendingSlot: action.slotKey,
       askedSlots: {...newState.askedSlots, action.slotKey},
     );
     session.dialogueState = newState;
 
+    // ۱۰. ساخت متن با Composer
     final reply = _composer.compose(action, newState, evidence);
     return CounselorTurn(
       text: reply.text,
