@@ -1,7 +1,7 @@
-commit: 09a5deb
+commit: 28f8df9
 🎉 187 tests passed.
 --- analyze ---
-6 issues found. (ran in 12.5s)
+6 issues found. (ran in 11.3s)
    info • Local variables should be final. Try making the variable final • lib/core/engine.dart:422:3 • prefer_final_locals
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:72:14 • prefer_const_constru
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/dialogue/dialogue_planner.dart:80:12 • prefer_const_constru
