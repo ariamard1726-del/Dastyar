@@ -50,8 +50,16 @@ class DialogueIntegration {
 
   /// تلاش برای پردازش پاسخ کاربر با planner/composer جدید.
   ///
-  /// اگر `session.dialogueState == null` یا domain پشتیبانی نشود،
-  /// `null` برمی‌گرداند تا `LegalCounselor` به مسیر legacy برود.
+  /// **⚠️ تصمیم Phase 2.4**: فقط `AskForSlot` را به‌عنوان پاسخ برمی‌گرداند.
+  /// سایر `DialogueAction`ها (GiveAnswer, ExplainConflict,
+  /// DisambiguateDomain) → `null` برمی‌گردد تا `LegalCounselor` به
+  /// مسیر legacy برود (چون `_buildConclusion` استنادات قانونی غنی‌تری
+  /// دارد و تست‌های موجود آن را انتظار دارند).
+  ///
+  /// **⚠️ sync به `session.facts`**: علاوه بر `dialogueState`،
+  /// `session.facts` هم به‌روز می‌شود. این کار تضمین می‌کند که
+  /// `_buildConclusion` (که از `session.facts` می‌خواند) داده‌های
+  /// استخراج‌شده را ببیند.
   static CounselorTurn? tryStep(
     CounselingSession session,
     String text,
@@ -63,7 +71,7 @@ class DialogueIntegration {
     final schema = DomainSchemaRegistry.forDomain(session.topicId);
     if (schema == null) return null;
 
-    // ۱. استخراج اسلات‌های جدید از متن کاربر
+    // ۱. استخراج اسلات‌های جدید
     final extracted = _extractor.extract(
       text,
       schema,
@@ -84,30 +92,35 @@ class DialogueIntegration {
       lastUserUtterance: text,
     );
 
-    // ۵. تصمیم‌گیری
+    // ۵. sync به session.facts (برای _buildConclusion و _advance legacy)
+    for (final entry in mergedSlots.entries) {
+      final v = entry.value.value;
+      if (v != null && v.isNotEmpty) {
+        session.facts[entry.key] = v;
+      }
+    }
+
+    // ۶. تصمیم‌گیری
     final action = _planner.plan(newState, evidence);
 
-    // ۶. به‌روزرسانی state بر اساس تصمیم
-    if (action is AskForSlot) {
-      newState = newState.copyWith(
-        pendingSlot: action.slotKey,
-        askedSlots: {...newState.askedSlots, action.slotKey},
-      );
-    } else if (action is GiveAnswer) {
-      newState = newState.copyWith(clearPendingSlot: true);
-      session.concluded = true;
-    } else {
-      newState = newState.copyWith(clearPendingSlot: true);
+    // ۷. فقط AskForSlot را در Phase 2.4 پشتیبانی می‌کنیم.
+    //    GiveAnswer/ExplainConflict/DisambiguateDomain → fallback
+    if (action is! AskForSlot) {
+      session.dialogueState = newState;
+      return null;
     }
+
+    newState = newState.copyWith(
+      pendingSlot: action.slotKey,
+      askedSlots: {...newState.askedSlots, action.slotKey},
+    );
     session.dialogueState = newState;
 
-    // ۷. ساخت متن طبیعی
     final reply = _composer.compose(action, newState, evidence);
-
     return CounselorTurn(
       text: reply.text,
       chips: reply.chips,
-      completed: action is GiveAnswer,
+      completed: false,
     );
   }
 }
