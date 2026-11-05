@@ -362,7 +362,7 @@ void main() {
           state: makeState(turnIndex: i),
         ).text);
       }
-      expect(texts.toSet().length, greaterThanOrEqual(3));
+      expect(texts.toSet().length >= 3, isTrue);
       for (var i = 1; i < texts.length; i++) {
         expect(texts[i], isNot(equals(texts[i - 1])));
       }
@@ -375,7 +375,7 @@ void main() {
           'چک تضمینی', 'amount', turnIndex: i,
         ).text);
       }
-      expect(texts.length, greaterThanOrEqual(3));
+      expect(texts.length >= 3, isTrue);
     });
 
     test('compose() still uses the renamed base (structured block)', () {
