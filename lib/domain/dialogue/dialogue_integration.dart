@@ -6,6 +6,7 @@ import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
 import 'package:dastyar/domain/dialogue/response_composer.dart';
 import 'package:dastyar/domain/dialogue/slot.dart';
 import 'package:dastyar/domain/dialogue/slot_extractor.dart';
+import 'package:dastyar/domain/dialogue/slots.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 
 /// لایهٔ ادغام `DialoguePlanner` و `ResponseComposer` در `LegalCounselor`.
@@ -136,7 +137,7 @@ class DialogueIntegration {
     // ۸. فقط AskForSlot واقعی (نه clarification) را پاسخ می‌دهیم.
     //    GiveAnswer/ExplainConflict/DisambiguateDomain/clarification → null
     //    تا legacy از _buildConclusion استفاده کند.
-    if (action is! AskForSlot || action.slotKey == 'clarification') {
+    if (action is! AskForSlot || action.slotKey == Slots.clarification) {
       session.dialogueState = newState;
       return null;
     }
