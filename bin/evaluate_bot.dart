@@ -17,7 +17,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart'
-    show TestWidgetsFlutterBinding, expect, test;
+    show TestWidgetsFlutterBinding, expect, isNot, test;
 
 import 'package:dastyar/core/debug_logger.dart';
 import 'package:dastyar/core/engine.dart';

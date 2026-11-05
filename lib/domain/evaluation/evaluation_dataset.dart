@@ -233,7 +233,12 @@ class EvaluationDataset {
       if (s.expectsNoCitation && s.expectedArticles.isNotEmpty) {
         problems.add('${s.id}: نمی‌تواند هم مادهٔ انتظاررفته داشته باشد هم no_citation');
       }
-      if (s.expectedArticles.isEmpty && !s.expectsNoCitation && !s.expectsRagMiss) {
+      final measurable = s.expectedArticles.isNotEmpty ||
+          s.expectedTopic != null ||
+          s.expectedRoute != null ||
+          s.expectsNoCitation ||
+          s.expectsRagMiss;
+      if (!measurable) {
         problems.add('${s.id}: هیچ انتظار قابل‌سنجشی ندارد');
       }
       for (final a in s.expectedArticles) {

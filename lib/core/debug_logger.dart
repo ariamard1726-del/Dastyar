@@ -332,7 +332,14 @@ class DebugLogger {
   }
 
   static final RegExp _emailRe = RegExp(r'[\w.+-]+@[\w-]+\.[\w.-]+');
-  static final RegExp _iranPhoneRe = RegExp(r'0\d{2}[\s-]?\d{3}[\s-]?\d{4}');
+
+  /// شمارهٔ همراه ایران (۱۱ رقم، پیشوند ۰۹) با یا بدون جداکننده.
+  static final RegExp _mobileRe = RegExp(r'09\d{2}[\s-]?\d{3}[\s-]?\d{4}');
+
+  /// شمارهٔ ثابت با کد شهرِ جدا شده: ۰۲۱-۸۸۷۷۶۶۵۵.
+  static final RegExp _landlineRe = RegExp(r'0\d{2}[\s-]\d{3}[\s-]?\d{4}');
+
+  /// هر عددِ ۸ رقم یا بلندتر (کد ملی، شماره حساب، مبلغِ دقیق).
   static final RegExp _longDigitRe = RegExp(r'\d{8,}');
 
   /// ماسک‌کردن دادهٔ شخصی پیش از ثبت در لاگ.
@@ -340,7 +347,8 @@ class DebugLogger {
     if (input.isEmpty) return input;
     return input
         .replaceAll(_emailRe, '«ایمیل»')
-        .replaceAll(_iranPhoneRe, '«تلفن»')
+        .replaceAll(_mobileRe, '«تلفن»')
+        .replaceAll(_landlineRe, '«تلفن»')
         .replaceAll(_longDigitRe, '«عدد»');
   }
 }

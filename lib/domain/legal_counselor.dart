@@ -618,6 +618,10 @@ static TracedCounselorTurn stepTraced(
   final log = logger ?? DebugLogger.instance;
   final trace = log.start(rawText);
 
+  // مسیر انتخاب‌شده مستقل از روشن‌بودن لاگر ثبت می‌شود؛ ابزار ارزیابی به آن
+  // نیاز دارد، حتی وقتی هیچ ردی ذخیره نمی‌شود.
+  CounselorRoute? route;
+
   if (!trace.enabled) {
     final plain = step(
       session,
@@ -627,11 +631,11 @@ static TracedCounselorTurn stepTraced(
       net: net,
       replies: replies,
       rnd: rnd,
+      onRoute: (r) => route = r,
     );
-    return TracedCounselorTurn(turn: plain, trace: trace);
+    return TracedCounselorTurn(turn: plain, trace: trace, route: route);
   }
 
-  CounselorRoute? route;
   try {
     log.record(trace, TurnStage.input, 'پیام کاربر', <String, Object?>{
       'text': rawText,

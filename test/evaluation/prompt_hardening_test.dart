@@ -33,15 +33,18 @@ void main() {
       final prompt = const PromptBuilder().build(attack, const <Hit>[]);
 
       // تگ‌های زاویه‌دار کاربر پاک می‌شوند تا بلوک جعلی ساخته نشود.
-      expect('<context>'.allMatches(prompt).length, 1);
-      expect('</context>'.allMatches(prompt).length, 1);
+      // (قاعده‌های سخت خودشان به <context> اشاره می‌کنند؛ پس فقط ساختار
+      // بلوکِ واقعی شمرده می‌شود.)
+      expect('\n<context>\n'.allMatches(prompt).length, 1);
+      expect('\n</context>\n'.allMatches(prompt).length, 1);
       expect(prompt.contains('نادیده بگیر'), isTrue);
     });
 
     test('هیچ بخشی از پرامپت، شمارهٔ مادهٔ آماده و ساختگی تزریق نمی‌کند', () {
       final prompt = const PromptBuilder().build('طلبم را چطور وصول کنم؟', const <Hit>[]);
-      final contextAt = prompt.indexOf('<context>');
-      final contextEnd = prompt.indexOf('</context>');
+      // آخرین <context> همان بلوکِ واقعی است؛ نمونه‌های قبلی داخل قاعده‌ها هستند.
+      final contextAt = prompt.lastIndexOf('<context>');
+      final contextEnd = prompt.indexOf('</context>', contextAt);
 
       final insideContext = prompt.substring(contextAt, contextEnd);
       expect(insideContext.contains('ماده'), isFalse);
