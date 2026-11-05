@@ -58,7 +58,7 @@ void main() {
       final state = makeState(lastUserUtterance: 'چکم برگشت خورده');
       final action = AskForSlot(
         slotKey: 'role',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const ['دارنده'],
       );
       final reply = composer.compose(action, state, EvidenceSet.empty());
@@ -69,7 +69,7 @@ void main() {
       final state = makeState(lastUserUtterance: 'cheque bounced');
       final action = AskForSlot(
         slotKey: 'role',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const [],
       );
       final reply = composer.compose(action, state, EvidenceSet.empty());
@@ -91,7 +91,7 @@ void main() {
       final state = makeState();
       final action = AskForSlot(
         slotKey: 'amount',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const [],
       );
       final reply = composer.compose(action, state, EvidenceSet.empty());
@@ -104,7 +104,7 @@ void main() {
       final state = makeState(conversationId: 'abc123');
       final action = AskForSlot(
         slotKey: 'role',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const [],
       );
       final r1 = composer.compose(action, state, EvidenceSet.empty());
@@ -116,7 +116,7 @@ void main() {
     test('different conversationId → different variantId', () {
       final action = AskForSlot(
         slotKey: 'role',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const [],
       );
       final r1 = composer.compose(
@@ -137,7 +137,7 @@ void main() {
     test('acknowledgment differs across 3 consecutive turns', () {
       final action = AskForSlot(
         slotKey: 'role',
-        rationale: 'r',
+        rationale: 'دلیل آزمایشی',
         options: const [],
       );
       final acks = <String>{};
