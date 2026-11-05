@@ -1,4 +1,23 @@
-commit: 8db331a
+commit: d266da2
 🎉 317 tests passed.
 --- analyze ---
-No issues found! (ran in 12.3s)
+No issues found! (ran in 11.0s)
+--- eval ---
+
+/tmp/flutter_tools.TQKPJZ/flutter_test_listener.FUZRLD/listener.dart:21:21: Error: The argument type 'Future<void> Function(List<String>)' can't be assigned to the parameter type 'FutureOr<dynamic> Function()'.
+ - 'Future' is from 'dart:async'.
+ - 'List' is from 'dart:core'.
+  await Future(test.main);
+                    ^
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart (failed)
+Failed to load "/home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart":
+Compilation failed for testPath=/home/runner/work/Dastyar/Dastyar/bin/evaluate_bot.dart: /tmp/flutter_tools.TQKPJZ/flutter_test_listener.FUZRLD/listener.dart:21:21: Error: The argument type 'Future<void> Function(List<String>)' can't be assigned to the parameter type 'FutureOr<dynamic> Function()'.
+ - 'Future' is from 'dart:async'.
+ - 'List' is from 'dart:core'.
+  await Future(test.main);
+                    ^
+.
+
+::endgroup::
+
+::error::0 tests passed, 1 failed.
