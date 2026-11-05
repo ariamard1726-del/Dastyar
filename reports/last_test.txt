@@ -1,77 +1,39 @@
-commit: 89f16dd
-::error::173 tests passed, 6 failed.
-::group::❌ loading test/drafting/pending_offer_test.dart (failed)
-   Failed to load "test/drafting/pending_offer_test.dart":
-   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
-::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
-   Failed to load "test/counselor/counselor_and_laws_test.dart":
-   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
-::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
-   Failed to load "test/counselor/counselor_nn_rag_test.dart":
-   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
-::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
-   Failed to load "test/app/draft_checkpoint_test.dart":
-   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
-::group::❌ loading test/app/chat_bubbles_test.dart (failed)
-   Failed to load "test/app/chat_bubbles_test.dart":
-   Compilation failed for testPath=test/app/chat_bubbles_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
-::group::❌ loading test/app/chat_controller_test.dart (failed)
-   Failed to load "test/app/chat_controller_test.dart":
-   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   if (e.value.value.trim().isNotEmpty) {
-   ^^^^
-   lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-   Try calling using ?. instead.
-   session.facts.putIfAbsent(e.key, () => e.value.value.trim());
---- خطای کامپایل ---
-lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-Failed to load "test/drafting/pending_offer_test.dart":
-Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-Failed to load "test/counselor/counselor_and_laws_test.dart":
-Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-Failed to load "test/counselor/counselor_nn_rag_test.dart":
-Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:433:25: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
-lib/domain/legal_counselor.dart:434:62: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+commit: 2d37e35
+::error::264 tests passed, 6 failed.
+::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استخراج هوشمند اطلاعات اولیه بدون تکرار سؤال زاید در دعوای اجاره و تخلیه (failed)
+   Expected: false
+   Actual: <true>
+   test/counselor/counselor_and_laws_test.dart 114:7   main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه جریان دفاع در برابر حکم غیابی و انتقال یک‌ضرب به فرم تنظیم «لایحهٔ دفاعیه» (failed)
+   Expected: contains 'واخواهی'
+   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
+   Which: does not contain 'واخواهی'
+   test/counselor/counselor_and_laws_test.dart 132:7   main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_and_laws_test.dart: ۲. گفتگوی دوطرفه، استدلال تشخیصی بدون مدل زبانی و تنظیم لایحه/اظهارنامه استدلال تفکیکی چک تضمینی برای صادرکننده بر پایهٔ مادهٔ ۱۳ قانون صدور چک (failed)
+   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
+   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
+   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
+   test/counselor/counselor_and_laws_test.dart 152:7   main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_nn_rag_test.dart: ۲. RAG در میانهٔ مشاوره پاسخ خبریِ خانهٔ پرسش، گفتگو را به RAG نمی‌کشاند (درگاه نشانهٔ پرسش) (failed)
+   Expected: contains 'دادخواست صدور حکم تخلیه'
+   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
+   Which: does not contain 'دادخواست صدور حکم تخلیه'
+   test/counselor/counselor_nn_rag_test.dart 149:7     main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_nn_rag_test.dart: ۴. ادامهٔ مشاورهٔ جمع‌بندی‌شده «ادامه مشاوره» جلسهٔ همان موضوع را از نو باز می‌کند (failed)
+   Expected: false
+   Actual: <true>
+   جلسه جمع‌بندی شده است
+   test/counselor/counselor_nn_rag_test.dart 194:7     main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/counselor/counselor_nn_rag_test.dart: ۵. نقطهٔ بازیابی مشاوره (رمزنگاری‌شده) جلسهٔ ناتمام ذخیره، رمزنگاری و در اجرای بعد بازیابی می‌شود (failed)
+   Expected: contains 'مادهٔ ۱۳ قانون صدور چک'
+   Actual: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.'
+   Which: does not contain 'مادهٔ ۱۳ قانون صدور چک'
+   test/counselor/counselor_nn_rag_test.dart 242:7     main.<fn>.<fn>
+   ::endgroup::
 --- analyze ---
-4 issues found. (ran in 8.4s)
-  error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
-  error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/legal_counselor.dart:441:14 • prefer_const_constructors
+1 issue found. (ran in 9.7s)
