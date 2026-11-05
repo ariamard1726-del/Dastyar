@@ -23,7 +23,8 @@ class ComposedReply {
   });
 
   @override
-  String toString() => 'ComposedReply(len: ${text.length}, chips: ${chips.length})';
+  String toString() =>
+      'ComposedReply(len: ${text.length}, chips: ${chips.length})';
 }
 
 /// ساخت پاسخ طبیعی فارسی از یک `DialogueAction` و وضعیت جاری.
@@ -200,7 +201,13 @@ class ResponseComposer {
     return bank[v];
   }
 
-  /// محاسبهٔ index variant با hash(convId, family, turnIndex).
+  /// محاسبهٔ index variant با hash(convId, family) و permutation + turnIndex.
+  ///
+  /// برای تضمین عدم تکرار در ۳ نوبت متوالی، از یک permutation با
+  /// seed ثابت (بر اساس hash) استفاده می‌کنیم. سپس با استفاده از
+  /// turnIndex (که در هر نوبت یک واحد افزایش می‌یابد)، یک index
+  /// جدید برمی‌گردانیم. چون perm یک bijection است، سه turn متوالی
+  /// به سه variant متفاوت نگاشت می‌شوند.
   int _variantIndexFor(
     String family,
     DialogueState state,
@@ -208,7 +215,16 @@ class ResponseComposer {
   ) {
     final input = '${state.conversationId}|$family';
     final h = _fnv1a32(input);
-    return h % bankSize;
+    final indices = List<int>.generate(bankSize, (i) => i);
+    var seed = h;
+    for (var i = bankSize - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) & 0xFFFFFFFF;
+      final j = seed % (i + 1);
+      final tmp = indices[i];
+      indices[i] = indices[j];
+      indices[j] = tmp;
+    }
+    return indices[state.turnIndex % bankSize];
   }
 
   String? _variantIdFor(String family, DialogueState state) {
