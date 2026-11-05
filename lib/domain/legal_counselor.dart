@@ -15,6 +15,7 @@ import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
 import 'dialogue/response_composer.dart';
 import 'dialogue/small_talk_layer.dart';
+import 'dialogue/slots.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
 /// پاسخ یک گام از مشاورهٔ دوطرفهٔ حقوقی (بدون هیچ مدل زبانی).
@@ -447,6 +448,7 @@ static CounselorTurn step(
   final trimmed = rawText.trim();
   final n = _norm(trimmed);
 
+  // Terminal commands always win, regardless of the current planner state.
   if (trimmed.isEmpty) {
     return const CounselorTurn(text: 'بفرمایید، در خدمتم. موضوع حقوقی‌تان را بنویسید.', chips: SmallTalkLayer.defaultIntakeChips);
   }
@@ -458,6 +460,15 @@ static CounselorTurn step(
     final s = net.classify(trimmed);
     if (s.label == 'cancel' && s.score >= net.cancelMin) {
       return const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true);
+    }
+  }
+
+  // A conclusion can offer a draft chip. Route that chip before reopening
+  // the concluded session or interpreting its title as a slot answer.
+  if (trimmed.startsWith(draftPrefix)) {
+    final template = _matchTemplateChip(trimmed, templates);
+    if (template != null) {
+      return CounselorTurn(text: '', startTemplate: template);
     }
   }
 
@@ -480,93 +491,454 @@ static CounselorTurn step(
     return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
   }
 
-  if (activeContext) {
-    final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
-    if (newTurn != null) {
-      CounselorSessionState.clearStalls(session);
-      return newTurn;
-    }
-  }
-
-  final int tokenCount = n.split(' ').length;
-  final bool isShortAnswer = tokenCount <= 4 || n == 'بله' || n == 'خیر';
-  final bool isRagEligible = tokenCount >= 5 && _isLegalQuestion(trimmed, net);
-
-  if (!isShortAnswer && isRagEligible) {
+  // Legal questions are answered without mutating the pending slot. Simple
+  // declarative answers (amounts, dates, choices, ...) never cross this gate.
+  if (_ragEligible(session, trimmed, net: net)) {
     return _ragTurn(session, trimmed, engine, replies, rnd);
   }
 
-  final ds = session.dialogueState;
-  final bool plannerActive = ds != null && ds.slots.isNotEmpty;
-
-  if (activeContext && plannerActive) {
-    for (final e in ds.slots.entries) {
-      final value = e.value.value?.trim();
-      if (value != null && value.isNotEmpty) {
-        session.facts.putIfAbsent(e.key, () => value);
-      }
-    }
-    final stalls = CounselorSessionState.bumpStallCount(session);
-
-    if (stalls <= 2) {
-      return const CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: ['ادامه بحث', 'سؤال جدید دارم']);
-    }
-
-    if (!CounselorSessionState.conclusionShown(session)) {
-      CounselorSessionState.markConclusionShown(session);
-      final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
-      return CounselorTurn(text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ' + c.text, chips: c.chips, completed: c.completed, cancelled: c.cancelled, startTemplate: c.startTemplate, ragQuery: c.ragQuery, ragReply: c.ragReply);
-    }
-    return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
+  if (!activeContext) {
+    return _handleGeneralIntake(
+      session,
+      trimmed,
+      engine,
+      templates,
+      net: net,
+      replies: replies,
+      rnd: rnd,
+    );
   }
 
-  if (session.topicId == 'general_intake') {
-    final detected = _topicFromIntakeChoice(n) ?? detectTopic(trimmed, net: net);
-    if (detected != null && detected != 'general_intake') {
-      session.topicId = detected;
-      _extractAllFacts(session, trimmed);
-      return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
-    }
-    final attempts = CounselorSessionState.bumpIntakeAttempts(session);
-    if (attempts == 1) {
-      return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
-    } else {
-      return const CounselorTurn(text: 'لطفاً در یک جمله ساده بنویسید چه اتفاقی افتاده است تا راهنمایی‌تان کنم.', chips: []);
-    }
-  }
-
-  final steps = _stepsFor(session.topicId);
-  final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-
-  // Phase 3: به جای پرش رباتی به اسلات بعدی، نخست گفتهٔ کاربر را
-  // طبیعی تأیید میکنیم. منطق Planner دستنخورده میماند (Phase 4)؛
-  // فقط مسیر قدیمی step() → _advance() برای «چطور پرسیدن» سراغ
-  // ResponseComposer.composeAcknowledged میرود.
-  ComposedReply? acknowledged;
-  if (pendingStep != null) {
-    final val = pendingStep.extractor(n);
-    session.facts[pendingStep.slot] = val ?? trimmed;
-    _extractAllFacts(session, trimmed);
-
-    final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-    if (nextStep != null) {
-      acknowledged = _responseComposer.composeAcknowledged(
-        trimmed,
-        nextStep.slot,
-        nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
-        options: nextStep.options,
-        domain: session.topicId,
-        state: session.dialogueState,
-        turnIndex: session.facts.length,
-      );
-    }
-  }
-  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, acknowledgment: acknowledged);
+  return _handleDomainStep(
+    session,
+    trimmed,
+    engine,
+    templates,
+    net: net,
+    replies: replies,
+    rnd: rnd,
+  );
 }
-static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید');
+
+/// Route an initial/uncategorized legal issue into a concrete counseling
+/// domain. Unknown input stays in intake and receives a varied reprompt.
+static CounselorTurn _handleGeneralIntake(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  final n = _norm(rawText);
+  final detected = _topicFromIntakeChoice(n) ?? detectTopic(rawText, net: net);
+  if (detected != null && detected != 'general_intake') {
+    session.topicId = detected;
+    session.dialogueState = null;
+    session.facts.clear();
+    CounselorSessionState.reset(session);
+
+    // Extract first, then initialize the planner so its SlotValues and the
+    // legacy facts describe the same initial state.
+    _extractAllFacts(session, rawText);
+    DialogueIntegration.initializeState(session);
+    return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
+  }
+
+  final attempts = CounselorSessionState.bumpIntakeAttempts(session);
+  if (attempts == 1) {
+    return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
+  }
+  return const CounselorTurn(text: 'لطفاً در یک جمله ساده بنویسید چه اتفاقی افتاده است تا راهنمایی‌تان کنم.', chips: []);
+}
+
+/// Process one turn in a concrete legal domain. A planner result is not a
+/// stall merely because [DialogueIntegration.tryStep] returns null: null also
+/// means "all slots are ready; let the rich legacy conclusion answer".
+static CounselorTurn _handleDomainStep(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  IntentNet? net,
+  Replies? replies,
+  Random? rnd,
+}) {
+  // Sync restored/existing slots before taking the progress snapshot; only
+  // values extracted from this user turn should count as forward progress.
+  _syncPlannerFacts(session);
+  final factsBefore = Map<String, String>.of(session.facts);
+  final plannerTurn = DialogueIntegration.tryStep(session, rawText, engine);
+  _syncPlannerFacts(session);
+
+  if (plannerTurn != null) {
+    CounselorSessionState.clearStalls(session);
+    return plannerTurn;
+  }
+
+  if (_factsChanged(factsBefore, session.facts)) {
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  final pending = _pendingStep(session);
+  if (pending == null) {
+    CounselorSessionState.clearStalls(session);
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final n = _norm(rawText);
+  final value = pending.extractor(n);
+  if (value != null) {
+    session.facts[pending.slot] = value;
+    _extractAllFacts(session, rawText);
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  // Keep the legacy ability to accept an on-topic narrative as additional
+  // detail. In contrast, refusals and unrelated text must never be persisted
+  // as if they were valid answers to the pending slot.
+  if (_isTopicalNarrative(session, rawText, pending, net: net)) {
+    session.facts[pending.slot] = rawText.trim();
+    _extractAllFacts(session, rawText);
+    CounselorSessionState.clearStalls(session);
+    return _advanceAfterAnswer(
+      session,
+      rawText,
+      engine,
+      templates,
+      replies: replies,
+      rnd: rnd,
+    );
+  }
+
+  return _plannerStallTurn(
+    session,
+    engine,
+    templates,
+    replies: replies,
+    rnd: rnd,
+  );
+}
+
+static _QuestionStep? _pendingStep(CounselingSession session) {
+  return _stepsFor(session.topicId)
+      .where((s) => !session.facts.containsKey(s.slot))
+      .firstOrNull;
+}
+
+static void _syncPlannerFacts(CounselingSession session) {
+  final slots = session.dialogueState?.slots;
+  if (slots == null) return;
+  for (final entry in slots.entries) {
+    final value = entry.value.value?.trim();
+    if (value != null && value.isNotEmpty) {
+      session.facts[entry.key] = value;
+    }
+  }
+}
+
+static bool _factsChanged(
+  Map<String, String> before,
+  Map<String, String> after,
+) {
+  if (before.length != after.length) return true;
+  for (final entry in after.entries) {
+    if (before[entry.key] != entry.value) return true;
+  }
+  return false;
+}
+
+static CounselorTurn _advanceAfterAnswer(
+  CounselingSession session,
+  String rawText,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  final nextStep = _pendingStep(session);
+  if (nextStep == null) {
+    // No acknowledgement is fabricated after the final slot; go directly to
+    // the conclusion and mark the session concluded in exactly one place.
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final acknowledged = _responseComposer.composeAcknowledged(
+    rawText,
+    nextStep.slot,
+    nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
+    options: nextStep.options,
+    domain: session.topicId,
+    state: session.dialogueState,
+    turnIndex: session.facts.length,
+  );
+  return _advance(
+    session,
+    engine,
+    templates,
+    firstTurn: false,
+    replies: replies,
+    rnd: rnd,
+    acknowledgment: acknowledged,
+  );
+}
+
+static final RegExp _refusalRe = RegExp(
+  r'(?:نمی\s*خواهم|نمیخواهم).*(?:جواب|پاسخ|بگویم|بگم)|(?:(?:جواب|پاسخ)\s*(?:نمی\s*دهم|ندارم))',
+);
+
+/// Whether free-form text is still about the active legal domain. This is
+/// deliberately narrower than the old "store every non-empty answer" rule.
+static bool _isTopicalNarrative(
+  CounselingSession session,
+  String rawText,
+  _QuestionStep pending, {
+  IntentNet? net,
+}) {
+  final n = _norm(rawText);
+  if (n.isEmpty || _refusalRe.hasMatch(n)) return false;
+
+  final detected = detectTopic(rawText) ?? detectTopic(rawText, net: net);
+  if (detected != null) return detected == session.topicId;
+
+  const slotCues = <String, Map<String, List<String>>>{
+    'cheque': <String, List<String>>{
+      Slots.nature: ['بدهی', 'تضمین', 'ضمانت', 'امانت', 'سفید', 'وعده'],
+      Slots.certTime: ['گواهی', 'بانک', 'برگشت', 'ماه'],
+    },
+    'labor': <String, List<String>>{
+      Slots.proof: ['مدرک', 'قرارداد', 'حقوق', 'بیمه', 'واریز', 'پیامک'],
+      Slots.time: ['اخراج', 'روز', 'ماه', 'کارگاه'],
+    },
+    'lease': <String, List<String>>{
+      Slots.witnesses: ['قرارداد', 'شاهد', 'سند', 'رهگیری'],
+    },
+    'family': <String, List<String>>{
+      Slots.side: ['زوج', 'شوهر', 'خانم', 'آقا'],
+      Slots.detail: ['توافق', 'اجرا', 'اعسار', 'توان مالی'],
+    },
+    'fraud_cyber': <String, List<String>>{
+      Slots.evidence: ['رسید', 'بانک', 'اسکرین', 'شاهد', 'سند'],
+    },
+    'criminal_harm': <String, List<String>>{
+      Slots.proof: ['مدرک', 'پزشکی', 'پلیس', 'شاهد', 'پیامک'],
+    },
+    'litigation_defense': <String, List<String>>{
+      Slots.deadline: ['روز', 'ابلاغ', 'ثنا', 'عذر', 'اجرا'],
+    },
+    'debt': <String, List<String>>{
+      Slots.doc: ['رسید', 'سفته', 'قرارداد', 'فیش', 'واریز', 'شهادت'],
+    },
+  };
+  final cues = slotCues[session.topicId]?[pending.slot];
+  return cues != null && cues.any(n.contains);
+}
+
+static const Map<String, Map<String, List<String>>> _stallPrompts =
+    <String, Map<String, List<String>>>{
+  'cheque': <String, List<String>>{
+    Slots.role: [
+      'شما دارندهٔ چک هستید یا صادرکننده/ضامن؟',
+      'نقش شما دربارهٔ این چک کدام است: دارنده یا صادرکننده/ضامن؟',
+    ],
+    Slots.nature: [
+      'این چک برای بدهی قطعی بوده یا تضمین/امانت/شرط؟',
+      'ماهیت چک کدام است: بدهی قطعی یا تضمینی و مشروط؟',
+    ],
+    Slots.certTime: [
+      'گواهی عدم پرداخت دارید و هنوز در مهلت شش‌ماهه هستید؟',
+      'وضعیت گواهی عدم پرداخت و مهلت شش‌ماههٔ شما کدام گزینه است؟',
+    ],
+  },
+  'labor': <String, List<String>>{
+    Slots.issue: [
+      'مشکل اصلی با کارفرما اخراج است، مطالبات مزدی یا بیمه؟',
+      'کدام موضوع کاری برایتان پیش آمده: اخراج، حقوق و سنوات یا بیمه؟',
+    ],
+    Slots.proof: [
+      'برای اثبات رابطهٔ کاری چه مدرکی دارید؟',
+      'قرارداد، واریز بانکی، پیامک یا مدرک دیگری از کار دارید؟',
+    ],
+    Slots.time: [
+      'چند روز از اخراج یا قطع همکاری گذشته است؟',
+      'هنوز مشغول کارید یا کمتر/بیشتر از سی روز از اخراج گذشته است؟',
+    ],
+  },
+  'lease': <String, List<String>>{
+    Slots.role: [
+      'در این قرارداد موجر هستید یا مستأجر؟',
+      'نقش شما در اجاره کدام است: مالک/موجر یا مستأجر؟',
+    ],
+    Slots.expired: [
+      'مدت قرارداد اجاره تمام شده یا هنوز ادامه دارد؟',
+      'قرارداد از نظر زمانی منقضی شده است یا در میانهٔ مدت هستید؟',
+    ],
+    Slots.witnesses: [
+      'قرارداد رسمی است، دو شاهد دارد یا بدون دو شاهد/شفاهی است؟',
+      'نوع قرارداد و وضعیت امضای دو شاهد کدام گزینه است؟',
+    ],
+  },
+  'family': <String, List<String>>{
+    Slots.subtopic: [
+      'موضوع شما مهریه است، نفقه، طلاق یا حضانت؟',
+      'کدام مسئلهٔ خانوادگی را پیگیری می‌کنید: مهریه، نفقه، طلاق یا حضانت؟',
+    ],
+    Slots.side: [
+      'از سمت زوجه پیگیر موضوع هستید یا زوج؟',
+      'نقش شما در این موضوع خانوادگی زوجه است یا زوج؟',
+    ],
+    Slots.detail: [
+      'بین شما توافق هست، اختلاف، یا حکم و اجرائیه در میان است؟',
+      'وضعیت فعلی کدام است: توافق، اختلاف یا مرحلهٔ اجرا و توان مالی؟',
+    ],
+  },
+  'fraud_cyber': <String, List<String>>{
+    Slots.kind: [
+      'مال با فیشینگ/هک، فریب کلاهبردارانه یا از مسیر امانت از دست رفته است؟',
+      'شکل وقوع جرم کدام بوده: اینترنتی، کلاهبرداری، امانت یا فروش مال غیر؟',
+    ],
+    Slots.evidence: [
+      'رسید بانکی، اسکرین‌شات، سند یا شاهد دارید؟',
+      'کدام مستندات بانکی، کتبی یا شفاهی در دست دارید؟',
+    ],
+  },
+  'criminal_harm': <String, List<String>>{
+    Slots.harmType: [
+      'رفتار طرف مقابل ضرب، تهدید، توهین یا انتشار تصویر خصوصی بوده است؟',
+      'کدام آسیب رخ داده: ضرب و جرح، تهدید، توهین یا انتشار عکس/فیلم؟',
+    ],
+    Slots.proof: [
+      'گواهی پزشکی، گزارش پلیس، پیامک یا شاهد دارید؟',
+      'برای اثبات موضوع چه مدرک یا شاهدی در دست دارید؟',
+    ],
+  },
+  'litigation_defense': <String, List<String>>{
+    Slots.stage: [
+      'ابلاغیه برای احضار است، حکم غیابی یا رأی حضوری بدوی؟',
+      'پرونده در کدام مرحله است: احضاریه، حکم غیابی یا اعتراض به رأی بدوی؟',
+    ],
+    Slots.deadline: [
+      'از ابلاغ کمتر از بیست روز گذشته یا بیشتر؟',
+      'وضعیت مهلت بیست‌روزه و عذر موجه شما کدام گزینه است؟',
+    ],
+  },
+  'debt': <String, List<String>>{
+    Slots.role: [
+      'طلبکار هستید یا بدهکار/خوانده؟',
+      'نقش شما در این بدهی کدام است: طلبکار یا بدهکار؟',
+    ],
+    Slots.doc: [
+      'سند کتبی، فیش بانکی یا شاهد برای این طلب/بدهی دارید؟',
+      'مدرک این بدهی کدام است: رسید و سفته، واریز بانکی یا شهادت؟',
+    ],
+  },
+};
+
+/// Handle an irrelevant answer, an unclear answer, or a refusal without
+/// repeating the exact same prompt. Two varied re-asks are attempted; the
+/// existing best-effort conclusion remains the final escape hatch.
+static CounselorTurn _plannerStallTurn(
+  CounselingSession session,
+  KnowledgeEngine engine,
+  List<LegalTemplate> templates, {
+  Replies? replies,
+  Random? rnd,
+}) {
+  final pending = _pendingStep(session);
+  if (pending == null) {
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
+  final stalls = CounselorSessionState.bumpStallCount(session);
+  if (stalls <= 2) {
+    final opening = stalls == 1
+        ? 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، هنوز باید به سؤال قبلی پاسخ روشنی برسد؛ بگذارید آن را ساده‌تر بپرسم:'
+        : 'باشه، اشکالی ندارد اگر پاسخ کامل را نمی‌دانید. فقط نزدیک‌ترین گزینه را انتخاب کنید یا چند کلمه بگویید:';
+    final prompts = _stallPrompts[session.topicId]?[pending.slot];
+    final prompt = prompts == null
+        ? _promptFor(session.topicId, pending, replies, rnd)
+        : prompts[stalls - 1];
+    return CounselorTurn(
+      text: '$opening\n\n$prompt',
+      chips: [...pending.options, cancelCounselCmd],
+    );
+  }
+
+  if (!CounselorSessionState.conclusionShown(session)) {
+    CounselorSessionState.markConclusionShown(session);
+    final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
+    return CounselorTurn(
+      text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ${c.text}',
+      chips: c.chips,
+      completed: c.completed,
+      cancelled: c.cancelled,
+      startTemplate: c.startTemplate,
+      ragQuery: c.ragQuery,
+      ragReply: c.ragReply,
+    );
+  }
+  return const CounselorTurn(text: 'جمع‌بندی را خدمتتان ارائه کردم. اگر مدرک جدیدی دارید بفرمایید.');
+}
+
+/// A semantic gate between slot filling and legal-article retrieval. Direct
+/// article references and explicit legal-consequence questions are eligible;
+/// declarative slot values, including amounts, are not.
+static bool _ragEligible(
+  CounselingSession session,
+  String rawText, {
+  IntentNet? net,
+}) {
+  final n = _norm(rawText);
+  if (n.isEmpty) return false;
+  if (_directArtRe.hasMatch(n)) return true;
+  if (!_questionGlowRe.hasMatch(n)) return false;
+
+  final hasLegalCue = _lawishCue(n);
+  final tokenCount = n.split(' ').where((token) => token.isNotEmpty).length;
+  if (tokenCount <= 4 && !hasLegalCue) return false;
+
+  // A short answer phrased with «آیا» can still be a slot value. Strong legal
+  // cues override this guard when the user is genuinely asking for the law.
+  final pending = _pendingStep(session);
+  if (!hasLegalCue && pending != null && pending.extractor(n) != null) {
+    return false;
+  }
+
+  return _isLegalQuestion(rawText, net);
+}
+
+static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید|میگه|میگوید|می گوید');
 
 static bool _lawishCue(String n) =>
-    n.contains('قانون') || n.contains('ماده') || n.contains('اصل') || n.contains('مجازات') || n.contains('مهلت') || n.contains('شرایط') || n.contains('تعریف');
+    n.contains('قانون') ||
+    n.contains('ماده') ||
+    n.contains('اصل') ||
+    n.contains('مجازات') ||
+    n.contains('مهلت') ||
+    n.contains('شرایط') ||
+    n.contains('تعریف') ||
+    n.contains('ضمانت اجرا') ||
+    n.contains('عواقب') ||
+    n.contains('پیامد') ||
+    n.contains('مسئولیت') ||
+    n.contains('حکم');
 
 static bool _isLegalQuestion(String rawText, IntentNet? net) {
   final n = _norm(rawText);
@@ -693,12 +1065,35 @@ static String _empathyIntro(String topicId) {
     default: return 'بسیار خوب؛ بیایید وضعیت طلب یا بدهی و مدارک شما را دقیق بررسی کنیم تا بهترین اقدام قانونی مشخص شود:';
   }
 }
+/// Adapt the legacy question definitions to the same canonical core contract
+/// used by [DomainSchema] and [DialoguePlanner]. Fail fast on a missing,
+/// duplicated, or unexpected definition instead of deadlocking the dialogue.
 static List<_QuestionStep> _stepsFor(String topicId) {
+  final coreKeys = Slots.coreFor(topicId);
+  if (coreKeys.isEmpty) return const <_QuestionStep>[];
+
+  final defined = _definedStepsFor(topicId);
+  final bySlot = <String, _QuestionStep>{
+    for (final step in defined) step.slot: step,
+  };
+  if (defined.length != coreKeys.length || bySlot.length != coreKeys.length) {
+    throw StateError('Core slot definitions do not match domain "$topicId"');
+  }
+
+  return List<_QuestionStep>.unmodifiable(
+    coreKeys.map(
+      (key) => bySlot[key] ??
+          (throw StateError('Missing legacy slot "$key" in "$topicId"')),
+    ),
+  );
+}
+
+static List<_QuestionStep> _definedStepsFor(String topicId) {
   switch (topicId) {
     case 'cheque':
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. نقش شما در مورد این چک چیست؟ (دارندهٔ چک هستید و می‌خواهید وجهش را بگیرید، یا صادرکننده/ضامن هستید که علیه‌تان اقدام شده است؟)',
           options: const ['دارندهٔ چک هستم (طلبکار)', 'صادرکننده یا ضامن چک هستم'],
           extractor: (n) {
@@ -708,7 +1103,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'nature',
+          slot: Slots.nature,
           prompt: '۲. آیا چک بابت بدهی قطعی و به تاریخ روز صادر شده، یا بابت تضمین، امانت، معاملهٔ مشروط و سفیدامضا بوده است؟\n(این نکته طبق مادهٔ ۱۳ قانون صدور چک تعیین‌کنندهٔ امکان شکایت کیفری است.)',
           options: const ['بابت بدهی قطعی و تاریخ روز', 'بابت تضمین، امانت، مشروط یا وعده‌دار'],
           extractor: (n) {
@@ -718,7 +1113,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'cert_time',
+          slot: Slots.certTime,
           prompt: '۳. آیا گواهی عدم پرداخت از بانک دریافت شده و کمتر از ۶ ماه از تاریخ چک و گواهی گذشته است؟',
           options: const ['بله، گواهی دارم و زیر ۶ ماه است', 'بیش از ۶ ماه گذشته است', 'هنوز برگشت نزده‌ام / گواهی ندارم'],
           extractor: (n) {
@@ -733,7 +1128,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'labor':
       return [
         _QuestionStep(
-          slot: 'issue',
+          slot: Slots.issue,
           prompt: '۱. مشکل اصلی شما با کارفرما کدام مورد است؟',
           options: const ['اخراج یا عدم تمدید و بازگشت به کار', 'عدم پرداخت حقوق، عیدی یا سنوات', 'رد نکردن حق بیمهٔ تأمین اجتماعی'],
           extractor: (n) {
@@ -744,7 +1139,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'proof',
+          slot: Slots.proof,
           prompt: '۲. چه مدرکی برای اثبات رابطهٔ کاری دارید؟ (قرارداد کتبی، فیش واریز حقوق، لیست بیمه یا پیامک و شهادت همکاران؟)',
           options: const ['قرارداد کتبی یا سابقهٔ بیمه دارم', 'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم', 'هیچ مدرک کتبی یا بانکی ندارم'],
           extractor: (n) {
@@ -755,7 +1150,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'time',
+          slot: Slots.time,
           prompt: '۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟ اگر اخراج شده‌اید، آیا کمتر از ۳۰ روز از تاریخ اخراج گذشته است؟',
           options: const ['کمتر از ۳۰ روز از اخراج گذشته است', 'بیش از ۳۰ روز از قطع همکاری گذشته', 'هنوز در کارگاه مشغول به کارم'],
           extractor: (n) {
@@ -770,7 +1165,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'lease':
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. در این رابطهٔ اجاره، شما موجر (مالک) هستید یا مستأجر؟',
           options: const ['موجر (مالک) هستم', 'مستأجر هستم'],
           extractor: (n) {
@@ -780,7 +1175,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'expired',
+          slot: Slots.expired,
           prompt: '۲. آیا مدت قرارداد اجاره به پایان رسیده است؟',
           options: const ['بله، مدت قرارداد تمام شده است', 'خیر، هنوز در میانهٔ مدت قرارداد هستیم'],
           extractor: (n) {
@@ -790,7 +1185,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'witnesses',
+          slot: Slots.witnesses,
           prompt: '۳. نوع قرارداد اجارهٔ شما چگونه است؟ (سند رسمی، قرارداد عادی با امضای دو شاهد/کد رهگیری، یا دست‌نویس بدون دو شاهد؟)',
           options: const ['قرارداد کتبی با امضای دو شاهد یا سند رسمی', 'قرارداد عادی بدون امضای دو شاهد یا شفاهی'],
           extractor: (n) {
@@ -804,7 +1199,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'family':
       return [
         _QuestionStep(
-          slot: 'subtopic',
+          slot: Slots.subtopic,
           prompt: '۱. موضوع اصلی پرونده یا پرسش خانوادگی شما کدام است؟',
           options: const ['مطالبه یا تقسیط مهریه', 'نفقه و تمکین', 'درخواست طلاق', 'حضانت و ملاقات فرزند'],
           extractor: (n) {
@@ -816,7 +1211,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'side',
+          slot: Slots.side,
           prompt: '۲. شما از طرف زوجه (خانم) پیگیر موضوع هستید یا زوج (آقا)؟',
           options: const ['زوجه (خانم) هستم', 'زوج (آقا) هستم'],
           extractor: (n) {
@@ -826,7 +1221,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'detail',
+          slot: Slots.detail,
           prompt: '۳. کدام وضعیت به شرایط فعلی شما نزدیک‌تر است؟',
           options: const ['توافق نداریم و طرف مقابل همکاری نمی‌کند', 'حکم یا اجرائیه صادر شده و بحث توان مالی/اعسار مطرح است', 'زمینهٔ توافق بین زوجین وجود دارد'],
           extractor: (n) {
@@ -841,7 +1236,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'fraud_cyber':
       return [
         _QuestionStep(
-          slot: 'kind',
+          slot: Slots.kind,
           prompt: '۱. نحوهٔ از دست رفتن مال یا وقوع جرم دقیقاً به چه شکلی بوده است؟',
           options: const ['برداشت اینترنتی، لینک جعلی (فیشینگ) یا هک', 'فریب با مانور متقلبانه و صحنه‌سازی (کلاهبرداری)', 'مالی را به امانت دادم و پس نمی‌دهد', 'ملک یا مال مرا بدون اجازه به دیگری فروخته است'],
           extractor: (n) {
@@ -853,7 +1248,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'evidence',
+          slot: Slots.evidence,
           prompt: '۲. چه مستنداتی در دست دارید؟ (رسید بانکی و شماره حساب مقصد، قرارداد/رسید امانت، پیامک‌ها یا شاهد؟)',
           options: const ['گردش حساب بانکی، اسکرین‌شات یا رسید کتبی دارم', 'فقط شاهد یا مکالمهٔ شفاهی دارم'],
           extractor: (n) {
@@ -867,7 +1262,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'criminal_harm':
       return [
         _QuestionStep(
-          slot: 'harm_type',
+          slot: Slots.harmType,
           prompt: '۱. چه رفتاری علیه شما رخ داده است؟',
           options: const ['ضرب و جرح و آسیب بدنی', 'تهدید یا اخاذی', 'توهین، فحاشی یا افترا', 'انتشار عکس/فیلم خصوصی در فضای مجازی'],
           extractor: (n) {
@@ -879,7 +1274,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'proof',
+          slot: Slots.proof,
           prompt: '۲. آیا مدرکی مانند گواهی پزشکی قانونی، گزارش پلیس ۱۱۰، شهادت شهود یا پیامک و صدای ضبط‌شده دارید؟',
           options: const ['گواهی پزشکی قانونی / گزارش پلیس / پیامک دارم', 'فقط شاهد دارم', 'فعلاً مدرکی جمع‌آوری نکرده‌ام'],
           extractor: (n) {
@@ -894,7 +1289,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     case 'litigation_defense':
       return [
         _QuestionStep(
-          slot: 'stage',
+          slot: Slots.stage,
           prompt: '۱. ابلاغیه‌ای که در سامانهٔ ثنا دریافت کرده‌اید مربوط به کدام مرحله است؟',
           options: const ['ابلاغ وقت رسیدگی یا احضاریه (پرونده در جریان است)', 'حکم غیابی صادر شده است (در جلسات شرکت نکرده‌ام)', 'رأی حضوری بدوی صادر شده و می‌خواهم اعتراض کنم'],
           extractor: (n) {
@@ -905,7 +1300,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'deadline',
+          slot: Slots.deadline,
           prompt: '۲. چند روز از تاریخ درج ابلاغیه در سامانهٔ ثنا گذشته است؟ (برای مقیمان ایران مهلت واخواهی و تجدیدنظر ۲۰ روز است.)',
           options: const ['کمتر از ۲۰ روز گذشته است (مهلت دارم)', 'بیش از ۲۰ روز گذشته ولی عذر موجه (بیماری/عدم اطلاع واقعی) دارم', 'بیش از ۲۰ روز گذشته و رأی به اجرا رفته است'],
           extractor: (n) {
@@ -921,7 +1316,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
     default:
       return [
         _QuestionStep(
-          slot: 'role',
+          slot: Slots.role,
           prompt: '۱. شما طلبکار هستید که می‌خواهید پولتان را مطالبه کنید، یا بدهکار/خوانده هستید که علیه‌تان مطالبه شده است؟',
           options: const ['طلبکار هستم و می‌خواهم پولم را بگیرم', 'بدهکار هستم و توان پرداخت یکجای بدهی را ندارم'],
           extractor: (n) {
@@ -931,7 +1326,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
           },
         ),
         _QuestionStep(
-          slot: 'doc',
+          slot: Slots.doc,
           prompt: '۲. چه مدرکی بابت این بدهی/طلب وجود دارد؟',
           options: const ['رسید کتبی، قرارداد یا سفته', 'فیش واریز بانکی و پیامک‌های اقرار به بدهی', 'فقط شهادت شهود (شفاهی)'],
           extractor: (n) {
@@ -983,9 +1378,9 @@ static List<_QuestionStep> _stepsFor(String topicId) {
 
     switch (s.topicId) {
       case 'cheque':
-        final isIssuer = s.facts['role'] == 'issuer';
-        final isCond = s.facts['nature'] == 'conditional';
-        final time = s.facts['cert_time'] ?? 'under_6m';
+        final isIssuer = s.facts[Slots.role] == 'issuer';
+        final isCond = s.facts[Slots.nature] == 'conditional';
+        final time = s.facts[Slots.certTime] ?? 'under_6m';
         sb.writeln('📋 تحلیل و استدلال حقوقی وضعیت چک شما:');
         sb.writeln();
         if (!isIssuer) {
@@ -1021,8 +1416,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'labor':
-        final issue = s.facts['issue'] ?? 'wages';
-        final time = s.facts['time'] ?? 'under_30d';
+        final issue = s.facts[Slots.issue] ?? 'wages';
+        final time = s.facts[Slots.time] ?? 'under_30d';
         sb.writeln('📋 تحلیل و استدلال حقوقی روابط کار و بیمه:');
         sb.writeln();
         if (issue == 'dismissal') {
@@ -1052,9 +1447,9 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'lease':
-        final isLandlord = s.facts['role'] == 'landlord';
-        final expired = s.facts['expired'] != 'no';
-        final twoWit = s.facts['witnesses'] == 'two_witnesses';
+        final isLandlord = s.facts[Slots.role] == 'landlord';
+        final expired = s.facts[Slots.expired] != 'no';
+        final twoWit = s.facts[Slots.witnesses] == 'two_witnesses';
         sb.writeln('📋 تحلیل و استدلال حقوقی رابطهٔ استیجاری:');
         sb.writeln();
         if (isLandlord) {
@@ -1085,8 +1480,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'family':
-        final sub = s.facts['subtopic'] ?? 'mehrieh';
-        final isWife = s.facts['side'] != 'husband';
+        final sub = s.facts[Slots.subtopic] ?? 'mehrieh';
+        final isWife = s.facts[Slots.side] != 'husband';
         sb.writeln('📋 تحلیل و استدلال حقوقی خانواده:');
         sb.writeln();
         if (sub == 'mehrieh') {
@@ -1128,7 +1523,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'fraud_cyber':
-        final kind = s.facts['kind'] ?? 'classic_fraud';
+        final kind = s.facts[Slots.kind] ?? 'classic_fraud';
         sb.writeln('📋 تحلیل و استدلال کیفری جرم مالی / اینترنتی:');
         sb.writeln();
         if (kind == 'cyber') {
@@ -1156,7 +1551,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'criminal_harm':
-        final harm = s.facts['harm_type'] ?? 'insult';
+        final harm = s.facts[Slots.harmType] ?? 'insult';
         sb.writeln('📋 تحلیل و استدلال کیفری:');
         sb.writeln();
         if (harm == 'assault') {
@@ -1185,8 +1580,8 @@ static List<_QuestionStep> _stepsFor(String topicId) {
         break;
 
       case 'litigation_defense':
-        final stage = s.facts['stage'] ?? 'first_hearing';
-        final dl = s.facts['deadline'] ?? 'within_20d';
+        final stage = s.facts[Slots.stage] ?? 'first_hearing';
+        final dl = s.facts[Slots.deadline] ?? 'within_20d';
         sb.writeln('📋 تحلیل آیین دادرسی و راهبرد دفاعی شما:');
         sb.writeln();
         if (stage == 'default_judgment') {
@@ -1214,7 +1609,7 @@ static List<_QuestionStep> _stepsFor(String topicId) {
 
       case 'debt':
       default:
-        final isDebtor = s.facts['role'] == 'debtor';
+        final isDebtor = s.facts[Slots.role] == 'debtor';
         sb.writeln('📋 تحلیل و استدلال حقوقی مطالبات و دیون:');
         sb.writeln();
         if (!isDebtor) {
