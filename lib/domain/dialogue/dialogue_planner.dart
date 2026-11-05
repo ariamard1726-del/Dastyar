@@ -30,7 +30,8 @@ class DialoguePlanner {
       // ignore: prefer_const_constructors
       return ExplainConflict(
         alternatives: alternatives,
-        rationale: 'بین شواهد موجود تعارض هست؛ نمی‌توانم بدون '
+        rationale:
+            'بین شواهد موجود تعارض هست؛ نمی‌توانم بدون '
             'انتخاب شما پاسخ قطعی بدهم.',
       );
     }
@@ -39,9 +40,7 @@ class DialoguePlanner {
     final schema = DomainSchemaRegistry.forDomain(state.domain);
     if (schema == null) {
       // ignore: prefer_const_constructors
-      return DisambiguateDomain(
-        candidates: DomainSchemaRegistry.allDomainIds,
-      );
+      return DisambiguateDomain(candidates: DomainSchemaRegistry.allDomainIds);
     }
 
     // ۳. اولین اسلات پرنشدهٔ اجباری با prompt غیرخالی (طبق priority)
