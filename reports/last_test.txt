@@ -1,12 +1,4 @@
-commit: a4b4338
-::error::278 tests passed, 1 failed.
-::group::❌ test/counselor/legal_counselor_test.dart: Phase 4 — general intake routes a new legal issue and initializes its planner state (failed)
-   Expected: contains 'مدرک'
-   Actual: 'حقوق کارگر و سابقهٔ بیمه شوخی‌بردار نیست و مهلت‌های قانونی دارد. بیا دقیق پیش برویم؛ اول این را بگو:\n'
-   '\n'
-   '۲. مدارک رابطهٔ کاری‌تان چیست؟ (هر چیزی مثل قرارداد، واریزی بانکی، لیست بیمه یا شهادت همکاران به کار می‌آید.)'
-   Which: does not contain 'مدرک'
-   test/counselor/legal_counselor_test.dart 50:7       main.<fn>.<fn>
-   ::endgroup::
+commit: e533693
+🎉 279 tests passed.
 --- analyze ---
-No issues found! (ran in 9.8s)
+No issues found! (ran in 10.6s)
