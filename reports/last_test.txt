@@ -1,4 +1,4 @@
-commit: 16cfd48
+commit: 46626bf
 ::error::173 tests passed, 6 failed.
 ::group::❌ loading test/drafting/pending_offer_test.dart (failed)
    Failed to load "test/drafting/pending_offer_test.dart":
@@ -71,7 +71,7 @@ Failed to load "test/counselor/counselor_nn_rag_test.dart":
 Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:658:27: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
 lib/domain/legal_counselor.dart:659:64: Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
 --- analyze ---
-4 issues found. (ran in 11.7s)
+4 issues found. (ran in 10.2s)
   error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
   error • The method 'trim' can't be unconditionally invoked because the receiver can be 'null'. Try making the call conditional (using '?.') or adding a null check to the target ('!') • lib/domain/le
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/domain/legal_counselor.dart:667:16 • prefer_const_constructors
