@@ -5,15 +5,21 @@ class SmallTalkLayer {
   const SmallTalkLayer();
 
   static const List<String> defaultIntakeChips = <String>[
-    'چک برگشتی', 'اختلاف کاری', 'اجاره و ملک', 'خانواده و مهریه', 
-    'کلاهبرداری', 'نزاع و ضرب و جرح', 'دعوای حقوقی', 'بدهی و مطالبه',
+    'چک برگشتی',
+    'اختلاف کاری',
+    'اجاره و ملک',
+    'خانواده و مهریه',
+    'کلاهبرداری',
+    'نزاع و ضرب و جرح',
+    'دعوای حقوقی',
+    'بدهی و مطالبه',
   ];
 
   static const List<String> activeSessionChips = <String>[
-    'ادامه بررسی پرونده', 'سؤال جدید دارم',
+    'ادامه بررسی پرونده',
+    'سؤال جدید دارم',
   ];
 
-  // محافظ کلمات حقوقی (اگر کلمه حقوقی در متن بود، SmallTalk آن را نمی‌بلعد)
   static final RegExp _legalWords = PersianText.wordRe([
     'چک', 'سفته', 'برات', 'اجاره', 'موجر', 'مستاجر', 'مهریه', 'نفقه', 
     'طلاق', 'حضانت', 'کارفرما', 'اخراج', 'کلاهبرداری', 'ضرب', 'جرح', 
@@ -46,16 +52,12 @@ class SmallTalkLayer {
   ]);
 
   CounselorTurn? tryHandle(String rawText, {required bool hasActiveLegalContext}) {
-    final t = PersianText.phrase(rawText); // نرمال‌سازی با تابع پروژه شما
+    final t = PersianText.phrase(rawText);
     if (t.isEmpty) return null;
 
-    // ۱. کلمات حقوقی همیشه در اولویت هستند و SmallTalk آن‌ها را رد می‌کند
     if (_legalWords.hasMatch(t)) return null;
-    
-    // ۲. پاسخ‌های کوتاه (بله/خیر) مربوط به پلنر است
     if (t.length <= 4) return null;
 
-    // ۳. تشخیص نیت
     if (_greetingRe.hasMatch(t)) return _buildTurn(_reply('greeting', hasActiveLegalContext));
     if (_howAreYouRe.hasMatch(t)) return _buildTurn(_reply('howAreYou', hasActiveLegalContext));
     if (_thanksRe.hasMatch(t)) return _buildTurn(_reply('thanks', hasActiveLegalContext));
