@@ -13,6 +13,7 @@ import 'package:dastyar/domain/templates.dart';
 
 import 'dialogue/dialogue_state.dart';
 import 'dialogue/dialogue_integration.dart';
+import 'dialogue/response_composer.dart';
 import 'dialogue/small_talk_layer.dart';
 export 'dialogue/conversation_memory.dart' show ConversationMemory;
 
@@ -81,6 +82,84 @@ class CounselingSession {
     } catch (_) {
       return null;
     }
+  }
+}
+
+/// حالت پویای هر نشست مشاوره که با [Expando] به خودِ شیءِ نشست متصل میشود.
+///
+/// `LegalCounselor` کلاسی کاملاً ایستا است (سازندهٔ خصوصی و بدون نمونه)،
+/// بنابراین «نمونهٔ مشاور» در عمل همان [CounselingSession] فعالِ هر گفتگوست.
+/// برتری [Expando] بر یک `Map` ایستا:
+///  * کلیدها به صورت ضعیف (weak) نگه داشته میشوند؛ نشستهای بستهشده نشت
+///    حافظه نمیدهند و نیازی به پاکسازی دستی کلیدها نیست؛
+///  * هر نشست وضعیت مستقل خود را دارد؛ نشست تازهساخته / بازیافتشده از
+///    `fromJson` شمارندههای نشست قبلی را به ارث نمیبرد؛
+///  * این حالت پویا هرگز وارد `toJson` و ذخیرهسازی `SharedPreferences`
+///    نمیشود، پس قرارداد ذخیرهسازی دستنخورده میماند.
+class CounselorSessionState {
+  CounselorSessionState._();
+
+  static final Expando<int> _intakeAttempts = Expando<int>('intakeAttempts');
+  static final Expando<int> _stallCount = Expando<int>('stallCount');
+  static final Expando<bool> _conclusionShown = Expando<bool>('conclusionShown');
+  static final Expando<Map<String, Object>> _properties =
+      Expando<Map<String, Object>>('properties');
+
+  static int intakeAttempts(CounselingSession s) => _intakeAttempts[s] ?? 0;
+
+  static int bumpIntakeAttempts(CounselingSession s) {
+    final next = intakeAttempts(s) + 1;
+    _intakeAttempts[s] = next;
+    return next;
+  }
+
+  static int stallCount(CounselingSession s) => _stallCount[s] ?? 0;
+
+  static int bumpStallCount(CounselingSession s) {
+    final next = stallCount(s) + 1;
+    _stallCount[s] = next;
+    return next;
+  }
+
+  static bool conclusionShown(CounselingSession s) => _conclusionShown[s] ?? false;
+
+  static void markConclusionShown(CounselingSession s) =>
+      _conclusionShown[s] = true;
+
+  /// خواندن یک ویژگی دلخواه و typed از همان نشست.
+  static T? property<T extends Object>(CounselingSession s, String key) {
+    final value = _properties[s]?[key];
+    return value is T ? value : null;
+  }
+
+  /// نوشتن یک ویژگی دلخواه (پویا) روی همان نشست، بدون تغییر مدل داده.
+  static void setProperty<T extends Object>(
+    CounselingSession s,
+    String key,
+    T value,
+  ) {
+    final props = _properties[s] ?? <String, Object>{};
+    props[key] = value;
+    _properties[s] = props;
+  }
+
+  static void clearProperty(CounselingSession s, String key) {
+    _properties[s]?.remove(key);
+  }
+
+  /// پاک کردن همهٔ شمارندهها و ویژگیها (شروع دوبارهٔ همان نشست).
+  static void reset(CounselingSession s) {
+    _intakeAttempts[s] = null;
+    _stallCount[s] = null;
+    _conclusionShown[s] = null;
+    _properties[s] = null;
+  }
+
+  /// فقط شمارندهٔ «گیر کردن planner» صفر میشود؛ شمارندهٔ پذیرش اولیه و
+  /// ویژگیهای دلخواه دستنخورده میمانند.
+  static void clearStalls(CounselingSession s) {
+    _stallCount[s] = null;
+    _conclusionShown[s] = null;
   }
 }
 
@@ -227,13 +306,6 @@ class LegalCounselor {
     return s.prompt;
   }
 
-  static String _reflect(String text) {
-    var t = text.trim();
-    if (t.endsWith('؟') || t.endsWith('?')) t = t.substring(0, t.length - 1);
-    if (t.length > 70) t = '${t.substring(0, 70)}…';
-    return t;
-  }
-
   static const List<String> _personalOrProblemCues = [
     'مشاوره', 'راهنمایی کن', 'کمکم کن', 'چه کار کنم', 'چیکار کنم', 'چکار کنم',
     'مشکل حقوقی', 'از من شکایت', 'علیه من', 'ابلاغیه', 'احضاریه', 'حکم غیابی',
@@ -361,9 +433,7 @@ static CounselorTurn? pendingTurn(
 }
 
 static const SmallTalkLayer _smallTalk = SmallTalkLayer();
-static final Expando<int> _intakeAttempts = Expando<int>('intake');
-static final Expando<int> _stallCount = Expando<int>('stall');
-static final Expando<bool> _conclusionShown = Expando<bool>('conclusion');
+static const ResponseComposer _responseComposer = ResponseComposer();
 
 static CounselorTurn step(
   CounselingSession session,
@@ -399,20 +469,21 @@ static CounselorTurn step(
 
   if (session.concluded) {
     session.concluded = false;
-    _intakeAttempts[session] = null;
-    _stallCount[session] = null;
-    _conclusionShown[session] = null;
+    CounselorSessionState.reset(session);
   }
 
   final bool activeContext = session.topicId != 'general_intake';
-  final smallTalkTurn = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
-  if (smallTalkTurn != null) return smallTalkTurn;
+  // لایهٔ گفتگوی کوتاه کاملاً جاست: پیش از planner/RAG/مدل زبانی، پیام
+  // غیرحقوقی را با پاسخی ثابت میگیرد و هیچ تحلیل حقوقی انجام نمیدهد.
+  final smallTalk = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
+  if (smallTalk != null) {
+    return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
+  }
 
   if (activeContext) {
     final newTurn = DialogueIntegration.tryStep(session, trimmed, engine);
     if (newTurn != null) {
-      _stallCount[session] = null;
-      _conclusionShown[session] = null;
+      CounselorSessionState.clearStalls(session);
       return newTurn;
     }
   }
@@ -430,19 +501,19 @@ static CounselorTurn step(
 
   if (activeContext && plannerActive) {
     for (final e in ds.slots.entries) {
-      if (e.value.value.trim().isNotEmpty) {
-        session.facts.putIfAbsent(e.key, () => e.value.value.trim());
+      final value = e.value.value?.trim();
+      if (value != null && value.isNotEmpty) {
+        session.facts.putIfAbsent(e.key, () => value);
       }
     }
-    final stalls = (_stallCount[session] ?? 0) + 1;
-    _stallCount[session] = stalls;
-    
+    final stalls = CounselorSessionState.bumpStallCount(session);
+
     if (stalls <= 2) {
-      return CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: const ['ادامه بحث', 'سؤال جدید دارم']);
+      return const CounselorTurn(text: 'متوجه شدم. برای اینکه دقیق‌تر راهنمایی کنم، لطفاً به سؤال قبلی پاسخ دهید یا کمی بیشتر توضیح دهید.', chips: ['ادامه بحث', 'سؤال جدید دارم']);
     }
-    
-    if (_conclusionShown[session] != true) {
-      _conclusionShown[session] = true;
+
+    if (!CounselorSessionState.conclusionShown(session)) {
+      CounselorSessionState.markConclusionShown(session);
       final c = _buildConclusion(session, engine, templates, replies: replies, rnd: rnd);
       return CounselorTurn(text: 'خب، بر اساس همین اطلاعات جمع‌بندی می‌کنم: ' + c.text, chips: c.chips, completed: c.completed, cancelled: c.cancelled, startTemplate: c.startTemplate, ragQuery: c.ragQuery, ragReply: c.ragReply);
     }
@@ -456,8 +527,7 @@ static CounselorTurn step(
       _extractAllFacts(session, trimmed);
       return _advance(session, engine, templates, firstTurn: true, replies: replies, rnd: rnd);
     }
-    final attempts = (_intakeAttempts[session] ?? 0) + 1;
-    _intakeAttempts[session] = attempts;
+    final attempts = CounselorSessionState.bumpIntakeAttempts(session);
     if (attempts == 1) {
       return const CounselorTurn(text: 'متوجه شدم. برای اینکه بهتر کمک کنم، موضوع شما به کدام دسته نزدیک‌تر است؟', chips: SmallTalkLayer.defaultIntakeChips);
     } else {
@@ -467,23 +537,31 @@ static CounselorTurn step(
 
   final steps = _stepsFor(session.topicId);
   final pendingStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
-  String? ack;
+
+  // Phase 3: به جای پرش رباتی به اسلات بعدی، نخست گفتهٔ کاربر را
+  // طبیعی تأیید میکنیم. منطق Planner دستنخورده میماند (Phase 4)؛
+  // فقط مسیر قدیمی step() → _advance() برای «چطور پرسیدن» سراغ
+  // ResponseComposer.composeAcknowledged میرود.
+  ComposedReply? acknowledged;
   if (pendingStep != null) {
     final val = pendingStep.extractor(n);
-    if (val != null) {
-      session.facts[pendingStep.slot] = val;
-      if (replies != null) {
-        ack = _pick(replies, rnd, 'counselor_ack', 'باشه، پس «{answer}» — این را یادداشت کردم.', {'answer': _reflect(trimmed)});
-      }
-    } else {
-      session.facts[pendingStep.slot] = trimmed;
-      if (replies != null) {
-        ack = _pick(replies, rnd, 'counselor_ack_generic', 'خب، این نکته را هم در نظر می‌گیرم. حالا بفرمایید:');
-      }
-    }
+    session.facts[pendingStep.slot] = val ?? trimmed;
     _extractAllFacts(session, trimmed);
+
+    final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
+    if (nextStep != null) {
+      acknowledged = _responseComposer.composeAcknowledged(
+        trimmed,
+        nextStep.slot,
+        nextQuestion: _promptFor(session.topicId, nextStep, replies, rnd),
+        options: nextStep.options,
+        domain: session.topicId,
+        state: session.dialogueState,
+        turnIndex: session.facts.length,
+      );
+    }
   }
-  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, ack: ack);
+  return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd, acknowledgment: acknowledged);
 }
 static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید');
 
@@ -579,13 +657,21 @@ static CounselorTurn _advance(
   required bool firstTurn,
   Replies? replies,
   Random? rnd,
-  String? ack,
+  ComposedReply? acknowledgment,
 }) {
   final steps = _stepsFor(session.topicId);
   final nextStep = steps.where((s) => !session.facts.containsKey(s.slot)).firstOrNull;
 
   if (nextStep != null) {
-    final lead = firstTurn ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n' : (ack == null || ack.isEmpty ? '' : '$ack\n\n');
+    // پاسخ تأییدشدهٔ Phase 3 خودش پرسش بعدی را دارد؛ نباید بالای آن
+    // نه lead تازهای بگذاریم و نه همان پرسش را دوباره تکرار کنیم.
+    if (acknowledgment != null) {
+      return CounselorTurn(
+        text: acknowledgment.text,
+        chips: [...acknowledgment.chips, cancelCounselCmd],
+      );
+    }
+    final lead = firstTurn ? '${_pick(replies, rnd, 'ci_${session.topicId}', _empathyIntro(session.topicId))}\n\n' : '';
     final prompt = _promptFor(session.topicId, nextStep, replies, rnd);
     return CounselorTurn(text: '$lead$prompt', chips: [...nextStep.options, cancelCounselCmd]);
   }

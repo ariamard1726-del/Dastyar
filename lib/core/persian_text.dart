@@ -139,12 +139,78 @@ class PersianText {
 
   static bool isValidIranianPhone(String raw) => normalizeIranianPhone(raw) != null;
 
-  // ⬇️⬇️ این تابع جدید برای جلوگیری از باگ «چک» در «چکار» اضافه شده است ⬇️⬇️
+  // ── مرز واژهٔ فارسی ──────────────────────────────────────────────────
+  /// حروفی که مرز واژه را میسازند؛ `\b` فقط لاتین را میشناسد.
+  static const String _wordLetters = r'\u0621-\u06CC';
+
+  /// فاصلهٔ منعطف میان تکواژها: فاصله، نیمفاصله، پیوند مجازی و کشیدگی.
+  static const String _wordGap = r'[\s\u200C\u200D\u0640]+';
+
+  /// پسوندهای رایج فارسی، بلند به کوتاه تا «های» توسط «ها» بلعیده نشود.
+  static const List<String> _wordSuffixes = <String>[
+    'ترین', 'هایی', 'های', 'شان', 'تان', 'مان', 'اش', 'ات', 'ام',
+    'ها', 'تر', 'ان', 'ای', 'م', 'ت', 'ش', 'ی',
+  ];
+
+  /// نویسههای یکدستشده توسط [normalize] به همراه شکلهای عربیشان، تا الگو
+  /// حتی روی متن خام (نرمتنشده) هم درست کار کند.
+  static const Map<String, String> _wordCharVariants = <String, String>{
+    'ی': r'[\u06CC\u064A\u0649]', // ی / ي / ى
+    'ک': r'[\u06A9\u0643]', // ک / ك
+    'ه': r'[\u0647\u0629\u06C0]', // ه / ة / ۀ
+    'ا': r'[\u0627\u0623\u0625\u0671]', // ا / أ / إ / ٱ
+  };
+
+  static String _wordCharPattern(String ch) {
+    final variants = _wordCharVariants[ch];
+    if (variants != null) return variants;
+    if (ch.length == 1) {
+      final code = ch.codeUnitAt(0);
+      if (code >= 48 && code <= 57) {
+        final d = code - 48;
+        // رقم لاتین، فارسی و عربی همارز یکدیگرند.
+        return '[$d${String.fromCharCode(0x06F0 + d)}${String.fromCharCode(0x0660 + d)}]';
+      }
+    }
+    // گریز نویسههای ویژهٔ RegExp تا ورودی همیشه متن ساده باشد.
+    return RegExp.escape(ch);
+  }
+
+  /// تبدیل یک واژه/عبارت [normalize]شده به الگوی RegExp.
+  static String _wordPattern(String normalized) => normalized
+      .split(' ')
+      .map((token) => token.runes
+          .map((r) => _wordCharPattern(String.fromCharCode(r)))
+          .join())
+      .join(_wordGap);
+
+  /// الگوی «مرز واژهٔ فارسی» برای تشخیص دقیق واژهها و عبارتها.
+  ///
+  /// * یکدستسازی نویسهها (ي/ى ← ی، ك ← ک، ة/ۀ ← ه، أ/إ/ٱ ← ا)، تبدیل
+  ///   ارقام فارسی/عربی، حذف اعراب/کشیدگی و اصلاح فاصلهها و نیمفاصلهها.
+  /// * ورودیها با [RegExp.escape] گریز میشوند تا نویسههای ویژهٔ RegExp
+  ///   هرگز به عنوان الگو تفسیر نشوند.
+  /// * مرزها به جای `\b` با حروف فارسی تعریف شدهاند: «چک» در «چکار»
+  ///   تطبیق نمیکند، ولی «چک»، «چکها»، «چکام» و «چک برگشتی» آری.
+  /// * برای [words] خالی، الگویی برمیگرداند که هیچگاه تطبیق نمیکند.
   static RegExp wordRe(Iterable<String> words) {
-    const letters = r'\u0621-\u06CC';
-    const suffixes = 'ها|های|ام|ات|اش|مان|تان|شان|ان|م|ت|ش|ی|ای';
+    final alternatives = <String>[];
+    final seen = <String>{};
+    for (final raw in words) {
+      final normalized = collapse(normalize(raw));
+      if (normalized.isEmpty || !seen.add(normalized)) continue;
+      alternatives.add(_wordPattern(normalized));
+    }
+    if (alternatives.isEmpty) return RegExp(r'(?!)');
+
+    final suffixes = _wordSuffixes
+        .map((s) => _wordPattern(collapse(normalize(s))))
+        .join('|');
     return RegExp(
-      '(?<![$letters])(?:${words.join('|')})(?:$suffixes)?(?![$letters])',
+      '(?<![${_wordLetters}])(?:${alternatives.join('|')})(?:$suffixes)?(?![${_wordLetters}])',
+      // [normalize] متن لاتین را هم کوچک میکند؛ الگو باید بیاعتنا به حالت
+      // حروف باشد تا «C++» و «c++» هر دو تطبیق کنند.
+      caseSensitive: false,
     );
   }
 }
