@@ -34,10 +34,10 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "isReady" -> {
-                        val modelsDir = java.io.File(filesDir, "models")
-                        val hasModel = modelsDir.isDirectory &&
-                            (modelsDir.listFiles()?.any { it.isFile && it.extension == "gguf" } == true)
-                        result.success(hasModel)
+                        // موتور استنتاج بومی هنوز پیادهسازی نشده است؛ صادقانه
+                        // false برگردانده میشود تا لایهٔ Dart هرگز بک‌اند
+                        // ناتوان را فعال انتخاب نکند.
+                        result.success(false)
                     }
                     "load", "cancel", "dispose" -> result.success(null)
                     else -> result.notImplemented()
@@ -127,7 +127,9 @@ class MainActivity : FlutterActivity() {
     private fun copyToClipboard(text: String, sensitive: Boolean) {
         val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("dastyar", text)
-        if (sensitive && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        // ClipDescription.setExtras از API 26 (اندروید ۸) به بعد وجود دارد؛
+        // گارد N (API 24) روی اندروید ۷.x منجر به NoSuchMethodError میشد.
+        if (sensitive && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val extras = PersistableBundle().apply {
                 putBoolean(EXTRA_IS_SENSITIVE, true)
             }

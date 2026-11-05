@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
@@ -191,6 +193,232 @@ void main() {
       expect(route('صبح\u200Cبخیر')?.intent, SmallTalkIntent.greeting);
       expect(route('سَلام')?.intent, SmallTalkIntent.greeting);
       expect(SmallTalkLayer.hasLegalSignal('چك برگشتى'), isTrue);
+    });
+  });
+
+  group('نیت‌های گفتگوی انسانی جدید', () {
+    test('هویت: «تو کی هستی» و «اسمت چیه»', () {
+      const samples = <String>['تو کی هستی؟', 'اسمت چیه', 'خودت را معرفی کن'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.identity, reason: s);
+        expect(r.text, contains('دستیار'));
+        expect(r.text, contains('آفلاین'));
+      }
+    });
+
+    test('قابلیت‌ها: «چه کارهایی میتوانی بکنی»', () {
+      const samples = <String>[
+        'چه کارهایی میتوانی بکنی؟', 'به چه دردی میخوری؟', 'چه امکاناتی داری',
+      ];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.capabilities, reason: s);
+        expect(r.text, anyOf(contains('جست‌وجو'), contains('جستوجو')));
+        expect(r.text, contains('پیش‌نویس'));
+      }
+    });
+
+    test('پرسش ربات بودن، صادقانه و بدون ادعا', () {
+      const samples = <String>['تو ربات هستی؟', 'هوش مصنوعی هستی؟', 'تو انسان هستی؟'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.botQuestion, reason: s);
+        expect(r.text, contains('انسان نیستم'));
+      }
+    });
+
+    test('تشویق: «عالی بودی» و «دمت گرم»', () {
+      const samples = <String>['عالی بودی', 'دمت گرم', 'آفرین'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.praise, reason: s);
+        expect(r.text, contains('خوشحالم'));
+      }
+    });
+
+    test('پوزش کاربر با پاسخ آسانگیر', () {
+      const samples = <String>['ببخشید', 'معذرت میخواهم', 'شرمنده'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.userApology, reason: s);
+        expect(r.text, contains('اشکالی ندارد'));
+      }
+    });
+
+    test('پیام حقوقی حتی با پوزش، به جریان حقوقی میرود', () {
+      expect(route('ببخشید، چک من برگشت خورده'), isNull);
+      expect(route('معذرت، مهریه‌ام را می‌خواهم'), isNull);
+    });
+
+    test('پاسخ‌های جدید کوتاه و بدون استناد حقوقی‌اند', () {
+      const samples = <String>[
+        'تو کی هستی', 'چه کارهایی میتوانی بکنی', 'تو ربات هستی',
+        'عالی بودی', 'ببخشید',
+      ];
+      final citationRe = RegExp(
+        r'ماده\s*\d|اصل\s*\d|قانون|دادگاه|بانک قوانین|چک برگشتی',
+      );
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(citationRe.hasMatch(r.text), isFalse,
+            reason: 'پاسخ «$s» نباید استناد حقوقی داشته باشد: ${r.text}');
+        expect(r.text.length, lessThan(260), reason: 'پاسخ باید کوتاه باشد');
+      }
+    });
+  });
+
+  group('تنوع پاسخ‌ها با Random', () {
+    test('بدون rnd قطعی است و با rnd از میان گزینه‌ها انتخاب میکند', () {
+      // بدون rnd: همیشه نسخهٔ مرجع.
+      final a = layer.tryHandle('خداحافظ');
+      final b = layer.tryHandle('خداحافظ');
+      expect(a!.text, b!.text);
+
+      // با rnd قطعیِ ۰ همان نسخهٔ مرجع؛ با seedهای مختلف دیده شدن همهٔ
+      // گزینه‌ها حداقل یک‌بار بررسی میشود.
+      final seen = <String>{};
+      for (var seed = 0; seed < 200; seed++) {
+        final r = layer.tryHandle(
+          'خداحافظ',
+          rnd: Random(seed),
+        );
+        seen.add(r!.text);
+      }
+      expect(seen.length, greaterThanOrEqualTo(2));
+      expect(seen, contains(a.text));
+    });
+
+    test('LegalCounselor.step بدون rnd همان پاسخ مرجع را میدهد', () {
+      final s = _intakeSession();
+      final turn = LegalCounselor.step(s, 'تو کی هستی؟', engine, templates);
+      expect(turn.text, contains('دستیار حقوقی آفلاین'));
+      expect(turn.ragQuery, isNull);
+    });
+  });
+
+  group('نیت‌های جدید موج دوم (سناریوهای گفتگوی انسانی)', () {
+    test('سردرگمی کاربر با پاسخ ساده و عذرخواهی', () {
+      const samples = <String>['نفهمیدم', 'واضح بگو', 'گیج شدم', 'سر در نمیارم'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.confusion, reason: s);
+        expect(r.text, anyOf(contains('ساده'), contains('ساده‌تر')));
+      }
+    });
+
+    test('درخواست تکرار', () {
+      const samples = <String>['دوباره بگو', 'تکرار کن', 'دوباره توضیح بده'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.repeatRequest, reason: s);
+        expect(r.text, isNotEmpty);
+      }
+    });
+
+    test('انتقاد با پاسخ فروتن و پیشنهاد جبران', () {
+      const samples = <String>['به دردی نمیخوری', 'کمک نکردی', 'اشتباه جواب دادی'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.criticism, reason: s);
+        expect(r.text, anyOf(contains('ببخشید'), contains('عذر')));
+      }
+    });
+
+    test('اظهار محبت با پاسخ گرم', () {
+      const samples = <String>['دوستت دارم', 'عاشقتم', 'رفیق خوبی هستی'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.affection, reason: s);
+        expect(r.text, contains('ممنونم'));
+      }
+    });
+
+    test('نگرانی حریم خصوصی با پاسخ آسودهای', () {
+      const samples = <String>[
+        'امن هستی؟', 'اطلاعات من کجا میره', 'حریم خصوصی چیست تو',
+        'ذخیره میشه؟',
+      ];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.privacyConcern, reason: s);
+        expect(r.text, anyOf(contains('گوشی'), contains('دستگاه')));
+      }
+    });
+
+    test('پرسش زبان: فقط فارسی', () {
+      const samples = <String>['انگلیسی بلدی؟', 'زبان دیگه بلدی؟', 'فارسی بلدی'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.languageQuestion, reason: s);
+        expect(r.text, contains('فارسی'));
+      }
+    });
+
+    test('پاسخ مثبت کاربر به «چطوری؟» ادامهٔ گفتگو را باز میکند', () {
+      const samples = <String>['خوبم', 'من خوبم', 'بد نیستم'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.fineAnswer, reason: s);
+        expect(r.text, contains('خوشحالم'));
+      }
+    });
+
+    test('پرسش سن و خواب و غذا به botQuestion میرود', () {
+      const samples = <String>['چند سالته؟', 'میخوابی؟', 'غذا میخوری؟'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.botQuestion, reason: s);
+        expect(r.text, contains('انسان نیستم'));
+      }
+    });
+
+    test('پاسخ‌های جدید کوتاه و بدون استناد حقوقی‌اند', () {
+      const samples = <String>[
+        'نفهمیدم', 'دوباره بگو', 'به دردی نمیخوری', 'دوستت دارم',
+        'امن هستی', 'انگلیسی بلدی', 'خوبم',
+      ];
+      final citationRe = RegExp(
+        r'ماده\s*\d|اصل\s*\d|قانون|دادگاه|بانک قوانین|چک برگشتی',
+      );
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(citationRe.hasMatch(r.text), isFalse,
+            reason: 'پاسخ «$s» نباید استناد حقوقی داشته باشد: ${r.text}');
+        expect(r.text.length, lessThan(260), reason: 'پاسخ باید کوتاه باشد');
+      }
+    });
+
+    test('پیام حقوقی حتی با لحن سردرگم یا انتقادی، به جریان حقوقی میرود', () {
+      expect(route('نفهمیدم چک را چطور واخواهی کنم'), isNull);
+      expect(route('کمک نکردی، شکایت من را میخواهم'), isNull);
+    });
+  });
+
+  group('پیامهای ترکیبی', () {
+    test('«سلام خوبی؟» هر دو بخش را تصدیق میکند', () {
+      const samples = <String>['سلام خوبی؟', 'سلام چطوری', 'سلام، حالت چطوره'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.howAreYou, reason: s);
+        expect(r.text, startsWith('سلام'));
+        expect(r.text, contains('شما چطورید'));
+      }
+    });
+
+    test('«ممنون خداحافظ» تشکر را هم پاسخ میگیرد', () {
+      const samples = <String>['ممنون خداحافظ', 'مرسی خدانگهدار'];
+      for (final s in samples) {
+        final r = route(s)!;
+        expect(r.intent, SmallTalkIntent.farewell, reason: s);
+        expect(r.text, contains('خواهش میکنم'));
+      }
+    });
+
+    test('سلام خالص همچنان greeting است', () {
+      final r = route('سلام')!;
+      expect(r.intent, SmallTalkIntent.greeting);
+      expect(r.text, contains('دستیار'));
     });
   });
 

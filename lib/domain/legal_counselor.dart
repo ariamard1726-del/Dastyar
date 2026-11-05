@@ -486,7 +486,7 @@ static CounselorTurn step(
   final bool activeContext = session.topicId != 'general_intake';
   // لایهٔ گفتگوی کوتاه کاملاً جاست: پیش از planner/RAG/مدل زبانی، پیام
   // غیرحقوقی را با پاسخی ثابت میگیرد و هیچ تحلیل حقوقی انجام نمیدهد.
-  final smallTalk = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext);
+  final smallTalk = _smallTalk.tryHandle(trimmed, hasActiveLegalContext: activeContext, rnd: rnd);
   if (smallTalk != null) {
     return CounselorTurn(text: smallTalk.text, chips: smallTalk.chips);
   }

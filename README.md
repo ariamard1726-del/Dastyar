@@ -10,7 +10,7 @@
 - `lib/domain/`: قابلیت‌های حقوقی — `assistant.dart` و `prompt_builder.dart` (هماهنگ‌کنندهٔ پاسخ و نگهبان استناد مواد/قوانین)، `legal_counselor.dart` (مشاورهٔ گام‌به‌گام با شبکهٔ نیت و RAG)، `intent_net.dart` (شبکهٔ عصبی نیت، آینهٔ پایتون آن در `tools/check.py intent`)، `drafting.dart` و `templates.dart` (پیش‌نویس مرحله‌به‌مرحلهٔ اسناد با ذخیرهٔ موقت رمزنگاری‌شده)، `feedback.dart`، `settings.dart`
 - `lib/ui/`: رابط کاربری — `chat_page.dart`، `chat_controller.dart` و `chat_models.dart` (کنترلر مستقل وضعیت گفتگو، پیشنهاد قالب، استریم و لغو ایمن)، صفحه‌های تنظیمات/تاریخچه/درباره و `widgets/chat_bubbles.dart`
 - `assets/laws`: متن قوانین با `_meta.json` (منبع یکتای متادیتا؛ `laws_catalog.json` و `data_info.json` با `tools/sync_meta.py` از آن مشتق می‌شوند). `assets/templates`: قالب‌ها. `assets/synonyms.txt`، `relationships.json` (منبع یکتای روابط مواد)، `replies.json`
-- `test`: در پنج شاخهٔ `core/`، `engine/`، `drafting/`، `counselor/` و `app/` (نام‌گذاری رفتاری، شامل تست برابری پایتون↔دارت در `test/core/parity_test.dart`)
+- `test`: در شش شاخهٔ `core/`، `domain/`، `engine/`، `drafting/`، `counselor/` و `app/` (نام‌گذاری رفتاری، شامل تست برابری پایتون↔دارت در `test/core/parity_test.dart`)
 - `tools`: ابزارهای پایتون برای اعتبارسنجی یکپارچه (`check.py` با زیردستورهای corpus/assets/meta/intent/parity)، همگام‌سازی متادیتا (`sync_meta.py`)، سلامت‌سنجی (`doctor.py`)، ارزیابی آفلاین (`eval_py.py`) و امضای نسخهٔ انتشار (`setup_release_signing.py`)
 - `brain`: آزمایش‌های آفلاین (embedding و مدل کوچک) به‌همراه مجموعه‌های ارزیابی (`brain/eval/`) و استاندارد طلایی برابری پایتون↔دارت (`parity_expected.json`). اپ فقط `assets/brain/intent_model.json` را می‌خواند.
 
