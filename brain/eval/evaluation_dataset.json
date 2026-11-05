@@ -1,0 +1,289 @@
+{
+  "version": 1,
+  "description": "سناریوهای طلاییِ ارزیابی دستیار حقوقی دستیار (Phase 6). هر سناریو یک پرسش واقعی فارسی، مسیر انتظاررفتهٔ تصمیم، و ماده(های) قانونیِ درست را توصیف می‌کند. این فایل «حقیقت مرجع» است و ابزار bin/evaluate_bot.dart آن را می‌خواند.",
+  "scenarios": [
+    {
+      "id": "rag-cheque-penalty",
+      "query": "مجازات صدور چک بلامحل چیست؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "cheque", "article": "ماده 7" }]
+      },
+      "tags": ["cheque", "rag", "penal"],
+      "note": "ماده ۷ قانون صدور چک (اصلاحی ۱۴۰۳) مجازات‌های درجه‌بندی‌شدهٔ چک بلامحل را تعیین می‌کند."
+    },
+    {
+      "id": "rag-cheque-white-signed",
+      "query": "چک سفید امضا چه حکمی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "cheque", "article": "ماده 13" }]
+      },
+      "tags": ["cheque", "rag"],
+      "note": "بند «الف» ماده ۱۳ قانون صدور چک: چک سفید امضا از موارد عدم تعقیب کیفری است."
+    },
+    {
+      "id": "rag-civil-lease-definition",
+      "query": "اجاره چیست؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil", "article": "ماده 466" }]
+      },
+      "tags": ["lease", "rag", "definition"],
+      "note": "تعریف قانونی عقد اجاره در ماده ۴۶۶ قانون مدنی."
+    },
+    {
+      "id": "rag-civil-contract-validity",
+      "query": "شرایط صحت معامله چیست؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil", "article": "ماده 190" }]
+      },
+      "tags": ["civil", "rag", "contract"],
+      "note": "ماده ۱۹۰ قانون مدنی: قصد و رضا، اهلیت، موضوع معین، مشروعیت جهت."
+    },
+    {
+      "id": "rag-civil-nafaqah",
+      "query": "نفقه زن در عقد دائم بر عهده کیست؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil", "article": "ماده 1106" }]
+      },
+      "tags": ["family", "rag"],
+      "note": "ماده ۱۱۰۶ قانون مدنی: در عقد دائم نفقه زن بر عهده شوهر است."
+    },
+    {
+      "id": "rag-civil-mahr-ownership",
+      "query": "آیا به محض عقد، زن مالک مهریه می‌شود؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil", "article": "ماده 1082" }]
+      },
+      "tags": ["family", "rag", "mahr"],
+      "note": "ماده ۱۰۸۲ قانون مدنی: به مجرد عقد، زن مالک مهر می‌شود."
+    },
+    {
+      "id": "rag-procedure-wakhat-deadline",
+      "query": "مهلت واخواهی از حکم غیابی چقدر است؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil_procedure", "article": "ماده 306" }]
+      },
+      "tags": ["procedure", "rag", "deadline"],
+      "note": "ماده ۳۰۶ قانون آیین دادرسی مدنی: بیست روز برای مقیم ایران و دو ماه برای مقیم خارج."
+    },
+    {
+      "id": "rag-procedure-appeal-deadline",
+      "query": "مهلت درخواست تجدیدنظر چند روز است؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "civil_procedure", "article": "ماده 336" }]
+      },
+      "tags": ["procedure", "rag", "deadline"],
+      "note": "ماده ۳۳۶ قانون آیین دادرسی مدنی: بیست روز از تاریخ ابلاغ یا انقضای مدت واخواهی."
+    },
+    {
+      "id": "rag-labor-overtime",
+      "query": "اضافه‌کاری اجباری چه شرایطی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "labor", "article": "ماده 60" }]
+      },
+      "tags": ["labor", "rag"],
+      "note": "ماده ۶۰ قانون کار: ارجاع کار اضافی با تشخیص کارفرما و پرداخت اضافه‌کاری، تنها در اوضاع و احوال استثنایی."
+    },
+    {
+      "id": "rag-family-mahr-110-coins",
+      "query": "مهریه بیش از صد و ده سکه چه حکمی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "family_protection", "article": "ماده 22" }]
+      },
+      "tags": ["family", "rag", "mahr"],
+      "note": "ماده ۲۲ قانون حمایت خانواده: آستانهٔ ۱۱۰ سکه و مقررات اجرای محکومیت‌های مالی."
+    },
+    {
+      "id": "rag-family-custody-enforcement",
+      "query": "حضانت فرزند را رعایت نمی‌کند چه کنم؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "family_protection", "article": "ماده 40" }]
+      },
+      "tags": ["family", "rag", "custody"],
+      "note": "ماده ۴۰ قانون حمایت خانواده: استنکاف از اجرای حکم حضانت و ضمانت اجرای آن."
+    },
+    {
+      "id": "rag-cyber-unauthorized-access",
+      "query": "دسترسی غیرمجاز به سامانه‌های رایانه‌ای چه مجازاتی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "cybercrime", "article": "ماده 13" }]
+      },
+      "tags": ["cyber", "rag", "penal"],
+      "note": "ماده ۱۳ قانون جرایم رایانه‌ای (ماده ۷۴۱ سابق): دسترسی غیرمجاز به سامانه‌ها."
+    },
+    {
+      "id": "rag-cyber-private-video",
+      "query": "انتشار فیلم خصوصی بدون رضایت چه مجازاتی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "cybercrime", "article": "ماده 17" }]
+      },
+      "tags": ["cyber", "rag", "privacy"],
+      "note": "ماده ۱۷ قانون جرایم رایانه‌ای: انتشار صوت و تصویر خصوصی بدون رضایت."
+    },
+    {
+      "id": "rag-fraud-penalty",
+      "query": "کلاهبرداری چه مجازاتی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "fraud_intensify", "article": "ماده 1" }]
+      },
+      "tags": ["fraud", "rag", "penal"],
+      "note": "ماده ۱ قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری."
+    },
+    {
+      "id": "rag-insult-penalty",
+      "query": "توهین به افراد چه مجازاتی دارد؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "penal_taazirat", "article": "ماده 608" }]
+      },
+      "tags": ["penal", "rag"],
+      "note": "ماده ۶۰۸ کتاب تعزیرات: توهین به افراد از قبیل فحاشی و الفاظ رکیک."
+    },
+    {
+      "id": "rag-insolvency-proof",
+      "query": "اعسار چگونه اثبات می‌شود؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "financial_sentences", "article": "ماده 7" }]
+      },
+      "tags": ["debt", "rag"],
+      "note": "ماده ۷ قانون نحوه اجرای محکومیت‌های مالی: بار اثبات اعسار بر عهدهٔ مدیون است."
+    },
+    {
+      "id": "rag-lease-eviction",
+      "query": "اگر مستأجر تخلیه نکند چه کنیم؟",
+      "entry": "question",
+      "expected": {
+        "route": "rag",
+        "articles": [{ "law": "landlord_tenant", "article": "ماده 3" }]
+      },
+      "tags": ["lease", "rag"],
+      "note": "ماده ۳ قانون روابط موجر و مستأجر ۱۳۷۶: تخلیه پس از انقضای مدت اجاره."
+    },
+    {
+      "id": "counsel-cheque-bounced",
+      "query": "چک برگشتی دارم، نمی‌دانم چه کار کنم",
+      "entry": "counseling",
+      "expected": { "topic": "cheque", "route": "counseling" },
+      "follow_ups": ["دارندهٔ چک هستم", "چک بابت بدهی قطعی بوده"],
+      "tags": ["cheque", "counseling"],
+      "note": "کاربر با موضوع شخصی وارد مشاورهٔ گام‌به‌گام چک می‌شود."
+    },
+    {
+      "id": "counsel-labor-dismissal",
+      "query": "کارفرما بدون دلیل اخراجم کرده",
+      "entry": "counseling",
+      "expected": { "topic": "labor", "route": "counseling" },
+      "follow_ups": ["قرارداد کتبی دارم", "کمتر از یک ماه گذشته"],
+      "tags": ["labor", "counseling"],
+      "note": "اخراج بدون دلیل موجه؛ مسیر هیأت تشخیص/حل اختلاف."
+    },
+    {
+      "id": "counsel-lease-eviction",
+      "query": "موجر می‌خواهد من را از خانه بیرون کند",
+      "entry": "counseling",
+      "expected": { "topic": "lease", "route": "counseling" },
+      "follow_ups": ["مستأجر هستم", "مدت قرارداد تمام شده"],
+      "tags": ["lease", "counseling"],
+      "note": "اختلاف موجر و مستأجر و شرایط تخلیه."
+    },
+    {
+      "id": "counsel-family-mahr",
+      "query": "مهریه‌ام را نمی‌دهند",
+      "entry": "counseling",
+      "expected": { "topic": "family", "route": "counseling" },
+      "follow_ups": ["همسرم است", "مهریه‌ام صد سکه است"],
+      "tags": ["family", "counseling", "mahr"],
+      "note": "مطالبهٔ مهریه در مسیر خانواده."
+    },
+    {
+      "id": "counsel-fraud-cyber",
+      "query": "کلاهبرداری اینترنتی شدم",
+      "entry": "counseling",
+      "expected": { "topic": "fraud_cyber", "route": "counseling" },
+      "follow_ups": ["فیشینگ بوده", "گردش حساب دارم"],
+      "tags": ["fraud", "counseling"],
+      "note": "کلاهبرداری رایانه‌ای و مدارک لازم."
+    },
+    {
+      "id": "counsel-criminal-harm",
+      "query": "دیشب من را زده‌اند و ضرب و جرح شدم",
+      "entry": "counseling",
+      "expected": { "topic": "criminal_harm", "route": "counseling" },
+      "follow_ups": ["گواهی پزشکی قانونی دارم", "شاهد دارم"],
+      "tags": ["criminal", "counseling"],
+      "note": "ضرب و جرح و مسیر طرح شکایت کیفری."
+    },
+    {
+      "id": "counsel-litigation-notice",
+      "query": "ابلاغیه دادگاه برای من آمده",
+      "entry": "counseling",
+      "expected": { "topic": "litigation_defense", "route": "counseling" },
+      "follow_ups": ["اولین جلسهٔ رسیدگی است", "کمتر از بیست روز گذشته"],
+      "tags": ["procedure", "counseling"],
+      "note": "ابلاغیه و مهلت‌های دفاع."
+    },
+    {
+      "id": "counsel-debt-promissory-note",
+      "query": "سفته دارم و طرف مقابل پول نمی‌دهد",
+      "entry": "counseling",
+      "expected": { "topic": "debt", "route": "counseling" },
+      "follow_ups": ["طلبکار هستم", "سفتهٔ کتبی دارم"],
+      "tags": ["debt", "counseling"],
+      "note": "وصول مطالبات از طریق سفته."
+    },
+    {
+      "id": "honesty-greeting",
+      "query": "سلام، وقت بخیر",
+      "entry": "question",
+      "expected": { "route": "smallTalk", "no_citation": true },
+      "tags": ["honesty", "smalltalk"],
+      "note": "سلامِ خالی نباید هیچ تحلیل حقوقی یا استناد قانونی تولید کند."
+    },
+    {
+      "id": "honesty-unknown-law",
+      "query": "ماده ۵ قانون مجازات جرایم نیروهای مسلح چه می‌گوید؟",
+      "entry": "question",
+      "expected": { "route": "rag", "no_citation": true, "rag_miss": true },
+      "tags": ["honesty", "rag", "missing-law"],
+      "note": "متن این قانون در برنامه نیست؛ پاسخ باید صریحاً «پیدا نکردم» باشد و ماده نسازد."
+    },
+    {
+      "id": "honesty-offtopic-price",
+      "query": "قیمت دلار امروز چنده؟",
+      "entry": "question",
+      "expected": { "no_citation": true },
+      "tags": ["honesty", "offtopic"],
+      "note": "پرسش غیرحقوقی؛ پاسخ نباید استناد یا مادهٔ ساختگی داشته باشد."
+    }
+  ]
+}
