@@ -192,7 +192,7 @@ void main() {
       ctrl.dispose();
     });
 
-    testWidgets('دکمهٔ «مشاورهٔ حقوقی گام‌به‌گام» در صفحهٔ آغازین گفتگوی دوطرفه را فعال می‌کند',
+    testWidgets('پیشنهاد «مشاورهٔ حقوقی گام‌به‌گام» هنگام نوشتن، گفتگوی دوطرفه را فعال می‌کند',
         (tester) async {
       final settings = AppSettings()..saveHistory = false;
       await tester.pumpWidget(
@@ -210,7 +210,13 @@ void main() {
         ),
       );
 
+      // صفحهٔ آغازین فقط معرفی است؛ دکمه‌ای ندارد.
+      expect(find.text(LegalCounselor.startCounselCmd), findsNothing);
+      await tester.enterText(find.byType(TextField), 'کارفرما حقوقم را نداده');
+      await tester.pump();
       expect(find.text(LegalCounselor.startCounselCmd), findsOneWidget);
+      await tester.ensureVisible(find.text(LegalCounselor.startCounselCmd));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(LegalCounselor.startCounselCmd));
       await tester.pumpAndSettle();
 

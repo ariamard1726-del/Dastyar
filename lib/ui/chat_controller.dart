@@ -20,6 +20,7 @@ import 'package:dastyar/domain/search/retrieval_pipeline.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
+import 'package:dastyar/domain/lawyer/phrase_variator.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -80,6 +81,9 @@ class ChatController extends ChangeNotifier {
   /// همدلی متناسب با حال کاربر (شمارنده‌دار برای تنوع قطعی).
   final DynamicResponseComposer _composer = DynamicResponseComposer();
 
+  /// چرخش قطعی جمله‌های آغاز/پایان پاسخ تا پاسخ‌ها کلیشه‌ای و تکراری نشوند.
+  final PhraseVariator _phrases;
+
   StreamSubscription<AssistantTurn>? _sub;
   Completer<void>? _askDone;
   int _askEpoch = 0;
@@ -97,8 +101,10 @@ class ChatController extends ChangeNotifier {
     Random? random,
     CounselingSession? initialCounsel,
     this.onScrollRequested,
+    int phraseSeed = 0,
   }) : _intentNet = intentNet,
-       _rnd = random {
+       _rnd = random,
+       _phrases = PhraseVariator(seed: phraseSeed) {
     if (loadError != null && loadError.isNotEmpty) {
       messages.add(ChatMessage(loadError, false, sensitive: true));
     }
@@ -313,6 +319,7 @@ class ChatController extends ChangeNotifier {
       includeDisclaimer: !_disclaimerShown,
       counselChip: LegalCounselor.startCounselCmd,
       rnd: _rnd,
+      variator: _phrases,
     );
     _disclaimerShown = true;
     _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
@@ -938,6 +945,7 @@ class ChatController extends ChangeNotifier {
       empathy: empathy,
       notFoundOverride: notFoundOverride,
       bridge: bridge,
+      variator: _phrases,
     );
     if (framed != null) bot.text = framed;
     if (wasNotFound && alts.isEmpty) alts = LawyerVoice.notFoundChips;
@@ -1090,7 +1098,9 @@ class ChatController extends ChangeNotifier {
     }
     messages
       ..clear()
-      ..addAll(s.messages.map((m) => ChatMessage(m.text, m.fromUser)));
+      ..addAll(
+        s.messages.map((m) => ChatMessage(m.text, m.fromUser, revealed: true)),
+      );
     _notify();
     _requestScroll();
   }

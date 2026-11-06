@@ -17,6 +17,10 @@ class ChatMessage {
   List<String> chips;
   List<String> conflictChains;
 
+  /// آیا نمایش تدریجی (حالت تایپ) این پیام تمام شده است؟ پیام‌های بازیابی‌شده
+  /// از تاریخچه از ابتدا `true` هستند تا دوباره تایپ نشوند.
+  bool revealed;
+
   ChatMessage(
     this.text,
     this.fromUser, {
@@ -30,5 +34,6 @@ class ChatMessage {
     this.lawRefsTotal = 0,
     this.chips = const [],
     this.conflictChains = const [],
+    this.revealed = false,
   });
 }

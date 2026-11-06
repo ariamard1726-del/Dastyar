@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/domain/feedback.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
+import 'package:dastyar/domain/input_suggestions.dart';
 import 'package:dastyar/domain/templates.dart';
 
 class UserMessageBubble extends StatelessWidget {
@@ -37,11 +38,17 @@ class UserMessageBubble extends StatelessWidget {
   }
 }
 
-class BotMessageView extends StatelessWidget {
+class BotMessageView extends StatefulWidget {
   final ChatMessage message;
   final String question;
   final ValueChanged<String> onCopy;
   final ValueChanged<String> onShare;
+
+  /// در هر گام نمایش تدریجی صدا زده می‌شود (برای پایین‌بردن فهرست).
+  final VoidCallback? onRevealTick;
+
+  /// وقتی نمایش تدریجی تمام شد صدا زده می‌شود.
+  final VoidCallback? onRevealed;
 
   const BotMessageView({
     super.key,
@@ -49,11 +56,28 @@ class BotMessageView extends StatelessWidget {
     required this.question,
     required this.onCopy,
     required this.onShare,
+    this.onRevealTick,
+    this.onRevealed,
   });
 
   @override
+  State<BotMessageView> createState() => _BotMessageViewState();
+}
+
+class _BotMessageViewState extends State<BotMessageView> {
+  void _revealed() {
+    if (mounted) setState(() {});
+    widget.onRevealed?.call();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final canAct = !message.sensitive && message.text != '...';
+    final message = widget.message;
+    final onCopy = widget.onCopy;
+    final onShare = widget.onShare;
+    final question = widget.question;
+    final done = message.revealed || MediaQuery.disableAnimationsOf(context);
+    final canAct = !message.sensitive && message.text != '...' && done;
     final cs = Theme.of(context).colorScheme;
     return Semantics(
       label: 'پاسخ دستیار',
@@ -62,11 +86,15 @@ class BotMessageView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SelectableText(
-              message.text,
+            RevealText(
+              message: message,
               style: const TextStyle(fontSize: 16, height: 1.9),
+              onTick: widget.onRevealTick,
+              onRevealed: _revealed,
             ),
-            if (message.conflictChains.isNotEmpty && message.text != '...') ...[
+            if (message.conflictChains.isNotEmpty &&
+                message.text != '...' &&
+                done) ...[
               const SizedBox(height: 8),
               Container(
                 width: double.infinity,
@@ -238,15 +266,10 @@ class DraftDocumentCard extends StatelessWidget {
   }
 }
 
+/// صفحهٔ آغازین: فقط معرفی کوتاه برنامه. پیشنهادها هنگام نوشتن، بالای کادر
+/// پیام و متناسب با موضوع نمایش داده می‌شوند.
 class ChatEmptyState extends StatelessWidget {
-  final List<LegalTemplate> templates;
-  final ValueChanged<String> onSelectTemplate;
-
-  const ChatEmptyState({
-    super.key,
-    required this.templates,
-    required this.onSelectTemplate,
-  });
+  const ChatEmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -270,27 +293,6 @@ class ChatEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, height: 1.7),
             ),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              onPressed: () =>
-                  onSelectTemplate(LegalCounselor.startCounselCmd),
-              icon: const Icon(Icons.forum_outlined, size: 20),
-              label: const Text(LegalCounselor.startCounselCmd),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final t in templates)
-                  ActionChip(
-                    avatar: const Icon(Icons.description_outlined, size: 18),
-                    label: Text(t.title),
-                    onPressed: () => onSelectTemplate(t.title),
-                  ),
-              ],
-            ),
           ],
         ),
       ),
@@ -298,35 +300,275 @@ class ChatEmptyState extends StatelessWidget {
   }
 }
 
-class ChatChipsBar extends StatelessWidget {
+/// ردیف پیشنهادها بالای کادر نوشتن (مثل چت‌بات‌های امروزی).
+///
+/// هنگام نوشتن، پیشنهادهای متناسب با موضوع متن ([InputSuggestions]) و در غیر
+/// این صورت گزینه‌های آخرین پاسخ دستیار را نشان می‌دهد. تا وقتی پاسخ در حال
+/// نوشته‌شدن است پنهان می‌ماند.
+class SuggestionBar extends StatelessWidget {
+  final TextEditingController controller;
   final bool busy;
+  final bool isDrafting;
   final List<ChatMessage> messages;
-  final ValueChanged<String> onSelectChip;
+  final List<LegalTemplate> templates;
+  final ValueChanged<String> onSelect;
 
-  const ChatChipsBar({
+  const SuggestionBar({
     super.key,
+    required this.controller,
     required this.busy,
+    required this.isDrafting,
     required this.messages,
-    required this.onSelectChip,
+    required this.templates,
+    required this.onSelect,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (busy || messages.isEmpty) return const SizedBox.shrink();
-    final last = messages.last;
-    if (last.fromUser || last.chips.isEmpty) return const SizedBox.shrink();
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 150),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 6,
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        if (busy) return const SizedBox.shrink();
+        final items = <InputSuggestion>[];
+        final typed = value.text.trim();
+        if (typed.isNotEmpty && !isDrafting) {
+          items.addAll(InputSuggestions.forTyping(typed, templates: templates));
+        } else if (typed.isEmpty && messages.isNotEmpty) {
+          final last = messages.last;
+          final settled = last.revealed ||
+              last.isDoc ||
+              MediaQuery.disableAnimationsOf(context);
+          if (!last.fromUser && settled) {
+            items.addAll(
+              last.chips.map((c) => InputSuggestion(c, SuggestionKind.question)),
+            );
+          }
+        }
+        if (items.isEmpty) return const SizedBox.shrink();
+        return SizedBox(
+          height: 48,
+          child: SingleChildScrollView(
+            key: const ValueKey('suggestion-bar'),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            child: Row(
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  ActionChip(
+                    avatar: switch (items[i].kind) {
+                      SuggestionKind.template =>
+                        const Icon(Icons.description_outlined, size: 18),
+                      SuggestionKind.counsel =>
+                        const Icon(Icons.forum_outlined, size: 18),
+                      SuggestionKind.question => null,
+                    },
+                    label: Text(items[i].text),
+                    onPressed: () => onSelect(items[i].text),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// متن پاسخ دستیار که مثل نوشتن یک انسان، تدریجی نمایش داده می‌شود.
+///
+/// از [AnimationController] (نه Timer) استفاده می‌کند تا در آزمون‌ها با
+/// `pumpAndSettle` به پایان برسد. اگر متن در حین نمایش تغییر کند (جریان
+/// پاسخ)، از بخش مشترک قبلی ادامه می‌دهد.
+class RevealText extends StatefulWidget {
+  final ChatMessage message;
+  final TextStyle style;
+  final VoidCallback? onTick;
+  final VoidCallback? onRevealed;
+
+  /// زمان نمایش هر نویسه.
+  static const int msPerChar = 12;
+  static const int minMs = 150;
+  static const int maxMs = 1800;
+
+  const RevealText({
+    super.key,
+    required this.message,
+    required this.style,
+    this.onTick,
+    this.onRevealed,
+  });
+
+  @override
+  State<RevealText> createState() => _RevealTextState();
+}
+
+class _RevealTextState extends State<RevealText>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _anim;
+  int _from = 0;
+  String _text = '';
+  bool _animatedHere = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(vsync: this)
+      ..addListener(_onTick)
+      ..addStatusListener(_onStatus);
+    _text = widget.message.text;
+    if (!widget.message.revealed) _start(0);
+  }
+
+  @override
+  void didUpdateWidget(covariant RevealText old) {
+    super.didUpdateWidget(old);
+    final next = widget.message.text;
+    if (next == _text) return;
+    final shown = _visible();
+    _text = next;
+    if (widget.message.revealed && !_animatedHere) return;
+    widget.message.revealed = false;
+    _start(_commonPrefix(shown, next));
+  }
+
+  int _commonPrefix(String a, String b) {
+    final n = a.length < b.length ? a.length : b.length;
+    var i = 0;
+    while (i < n && a.codeUnitAt(i) == b.codeUnitAt(i)) {
+      i++;
+    }
+    return i;
+  }
+
+  void _start(int from) {
+    if (_text == '...') {
+      _anim.stop();
+      return;
+    }
+    _from = from.clamp(0, _text.length);
+    final remaining = _text.length - _from;
+    if (remaining <= 0) {
+      _finish();
+      return;
+    }
+    final ms = (remaining * RevealText.msPerChar)
+        .clamp(RevealText.minMs, RevealText.maxMs);
+    _animatedHere = true;
+    _anim.duration = Duration(milliseconds: ms);
+    _anim.forward(from: 0);
+  }
+
+  void _onTick() {
+    // فقط در گام‌های انیمیشن (نه در میانهٔ ساخت ویجت) فهرست را جابه‌جا کن.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.transientCallbacks) {
+      widget.onTick?.call();
+    }
+  }
+
+  void _onStatus(AnimationStatus s) {
+    if (s == AnimationStatus.completed) _finish();
+  }
+
+  void _finish() {
+    if (widget.message.revealed) return;
+    widget.message.revealed = true;
+    // ممکن است در میانهٔ ساخت ویجت باشیم؛ به‌روزرسانی به فریم بعد می‌رود.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {});
+      widget.onRevealed?.call();
+    });
+  }
+
+  String _visible() {
+    if (widget.message.revealed || _text == '...') return _text;
+    final n = _from + ((_text.length - _from) * _anim.value).round();
+    return _text.substring(0, n.clamp(0, _text.length));
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_text == '...') return const TypingDots();
+    if (widget.message.revealed || MediaQuery.disableAnimationsOf(context)) {
+      if (!widget.message.revealed) _finish();
+      return SelectableText(_text, style: widget.style);
+    }
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (context, _) => Text(_visible(), style: widget.style),
+    );
+  }
+}
+
+/// سه نقطهٔ «در حال نوشتن…».
+class TypingDots extends StatefulWidget {
+  const TypingDots({super.key});
+
+  @override
+  State<TypingDots> createState() => _TypingDotsState();
+}
+
+class _TypingDotsState extends State<TypingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _c.stop();
+    } else if (!_c.isAnimating) {
+      _c.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Semantics(
+      label: 'در حال نوشتن پاسخ',
+      child: SizedBox(
+        height: 30,
+        child: AnimatedBuilder(
+          animation: _c,
+          builder: (context, _) => Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              for (final c in last.chips)
-                ActionChip(label: Text(c), onPressed: () => onSelectChip(c)),
+              for (var i = 0; i < 3; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Opacity(
+                    opacity: 0.3 +
+                        0.7 *
+                            (1 - (((_c.value * 3) - i).abs().clamp(0.0, 1.0))),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

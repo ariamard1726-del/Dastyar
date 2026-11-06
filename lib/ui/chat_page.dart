@@ -73,6 +73,8 @@ class _ChatPageState extends State<ChatPage> {
       // پاسخ‌های کوچک (سلام، همدلی، ...) با هر بار اجرای اپ از میان
       // گزینه‌های موجود تصادفی انتخاب می‌شوند تا گفتگو یکنواخت نباشد.
       random: Random(),
+      // نقطهٔ شروع چرخش عبارت‌ها با هر اجرا فرق می‌کند؛ درون یک اجرا قطعی است.
+      phraseSeed: DateTime.now().millisecondsSinceEpoch % 9973,
     );
   }
 
@@ -101,6 +103,17 @@ class _ChatPageState extends State<ChatPage> {
         );
       }
     });
+  }
+
+  /// پایین‌بردن فوری فهرست در حین نمایش تدریجی پاسخ (بدون انیمیشن تا
+  /// با گام‌های نمایش تداخل نکند).
+  void _jumpDown() {
+    if (!_scroll.hasClients) return;
+    final pos = _scroll.position;
+    if (!pos.hasContentDimensions) return;
+    if (pos.maxScrollExtent - pos.pixels < 400) {
+      _scroll.jumpTo(pos.maxScrollExtent);
+    }
   }
 
   Future<void> _openHistory() async {
@@ -183,10 +196,7 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                   child: msgs.isEmpty
-                      ? ChatEmptyState(
-                          templates: widget.repo.templates,
-                          onSelectTemplate: _submit,
-                        )
+                      ? const ChatEmptyState()
                       : ListView.builder(
                           controller: _scroll,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -212,14 +222,21 @@ class _ChatPageState extends State<ChatPage> {
                               question: question,
                               onCopy: _copy,
                               onShare: (t) => _share(t),
+                              onRevealTick: _jumpDown,
+                              onRevealed: () {
+                                if (mounted) setState(() {});
+                              },
                             );
                           },
                         ),
                 ),
-                ChatChipsBar(
+                SuggestionBar(
+                  controller: _ctrl,
                   busy: _chat.busy,
+                  isDrafting: _chat.isDrafting,
                   messages: msgs,
-                  onSelectChip: _submit,
+                  templates: widget.repo.templates,
+                  onSelect: _submit,
                 ),
                 ChatInputBar(
                   controller: _ctrl,
