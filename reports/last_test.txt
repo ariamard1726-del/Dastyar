@@ -1,4 +1,4 @@
-commit: 5971a56
+commit: 6b56156
 ::error::276 tests passed, 11 failed.
 ::group::❌ loading test/drafting/pending_offer_test.dart (failed)
    Failed to load "test/drafting/pending_offer_test.dart":
@@ -112,7 +112,7 @@ lib/ui/chat_page.dart:22:9: Error: 'Assistant' isn't a type.
 lib/ui/chat_controller.dart:22:9: Error: 'Assistant' isn't a type.
 lib/ui/chat_controller.dart:51:22: Error: 'AssistantTurn' isn't a type.
 --- analyze ---
-71 issues found. (ran in 12.3s)
+71 issues found. (ran in 12.4s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
