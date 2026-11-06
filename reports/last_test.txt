@@ -1,7 +1,7 @@
-commit: 78db33e
-🎉 305 tests passed.
+commit: c98356f
+🎉 316 tests passed.
 --- analyze ---
-39 issues found. (ran in 11.6s)
+39 issues found. (ran in 11.3s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
