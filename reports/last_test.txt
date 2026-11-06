@@ -1,4 +1,122 @@
-commit: 04df93a
-🎉 305 tests passed.
+commit: 8d6c349
+::error::171 tests passed, 10 failed.
+::group::❌ loading test/drafting/pending_offer_test.dart (failed)
+   Failed to load "test/drafting/pending_offer_test.dart":
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/domain/dialogue/small_talk_layer_test.dart (failed)
+   Failed to load "test/domain/dialogue/small_talk_layer_test.dart":
+   Compilation failed for testPath=test/domain/dialogue/small_talk_layer_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/domain/dialogue/response_composer_test.dart (failed)
+   Failed to load "test/domain/dialogue/response_composer_test.dart":
+   Compilation failed for testPath=test/domain/dialogue/response_composer_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/counselor/counselor_session_state_test.dart (failed)
+   Failed to load "test/counselor/counselor_session_state_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_session_state_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/counselor/legal_counselor_test.dart (failed)
+   Failed to load "test/counselor/legal_counselor_test.dart":
+   Compilation failed for testPath=test/counselor/legal_counselor_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
+   Failed to load "test/counselor/counselor_and_laws_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
+   Failed to load "test/counselor/counselor_nn_rag_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
+   Failed to load "test/app/draft_checkpoint_test.dart":
+   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/app/chat_bubbles_test.dart (failed)
+   Failed to load "test/app/chat_bubbles_test.dart":
+   Compilation failed for testPath=test/app/chat_bubbles_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+::group::❌ loading test/app/chat_controller_test.dart (failed)
+   Failed to load "test/app/chat_controller_test.dart":
+   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+   import 'package:dastyar/core/debug_logger.dart';
+   ^
+   lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+   final TurnTrace trace;
+   ^^^^^^^^^
+   lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+--- خطای کامپایل ---
+lib/domain/legal_counselor.dart:7:8: Error: Error when reading 'lib/core/debug_logger.dart': No such file or directory
+lib/domain/legal_counselor.dart:78:9: Error: Type 'TurnTrace' not found.
+lib/domain/legal_counselor.dart:616:3: Error: Type 'DebugLogger' not found.
+lib/domain/legal_counselor.dart:78:9: Error: 'TurnTrace' isn't a type.
+lib/domain/legal_counselor.dart:616:3: Error: 'DebugLogger' isn't a type.
+lib/domain/legal_counselor.dart:618:25: Error: Undefined name 'DebugLogger'.
+lib/domain/legal_counselor.dart:640:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:648:7: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:654:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:690:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:700:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:713:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:716:23: Error: Undefined name 'TurnStage'.
+lib/domain/legal_counselor.dart:726:23: Error: Undefined name 'TurnStage'.
+Failed to load "test/drafting/pending_offer_test.dart":
 --- analyze ---
-No issues found! (ran in 11.1s)
+12 issues found. (ran in 11.8s)
+  error • Target of URI doesn't exist: 'package:dastyar/core/debug_logger.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist • lib/domain/legal_counselor
+  error • Undefined class 'TurnTrace'. Try changing the name to the name of an existing class, or creating a class with the name 'TurnTrace' • lib/domain/legal_counselor.dart:78:9 • undefined_class
+  error • Undefined class 'DebugLogger'. Try changing the name to the name of an existing class, or creating a class with the name 'DebugLogger' • lib/domain/legal_counselor.dart:616:3 • undefined_cla
+  error • Undefined name 'DebugLogger'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:618:25 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:640:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:648:7 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:654:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:690:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:700:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:713:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:716:23 • undefined_identifier
+  error • Undefined name 'TurnStage'. Try correcting the name to one that is defined, or defining the name • lib/domain/legal_counselor.dart:726:23 • undefined_identifier
