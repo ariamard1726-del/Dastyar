@@ -1125,7 +1125,10 @@ static bool _ragEligible(
 
   final hasLegalCue = _lawishCue(n);
   final tokenCount = n.split(' ').where((token) => token.isNotEmpty).length;
-  if (tokenCount <= 4 && !hasLegalCue) return false;
+  // پرسش‌های کوتاهِ تعریفی («اجاره چیست؟») حتی با کمتر از پنج واژه، پرسشِ
+  // مستقیمِ حقوقی‌اند؛ گاردِ طول برای این‌ها اعمال نمی‌شود.
+  final pureDef = _pureDefRe.hasMatch(n);
+  if (tokenCount <= 4 && !hasLegalCue && !pureDef) return false;
 
   // A short answer phrased with «آیا» can still be a slot value. Strong legal
   // cues override this guard when the user is genuinely asking for the law.
@@ -1137,7 +1140,7 @@ static bool _ragEligible(
   return _isLegalQuestion(rawText, net);
 }
 
-static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید|میگه|میگوید|می گوید');
+static final RegExp _questionGlowRe = RegExp(r'[؟?]|چیست|چیه|چقدر|چطور|چگونه|کجا|آیا|یعنی|چرا|کدام|کیست|چه می‌گوید|میگه|میگوید|می گوید|چه کنم|چه کنیم|چه کنيد|چکار کنم|چکار کنیم');
 
 static bool _lawishCue(String n) =>
     n.contains('قانون') ||
@@ -1151,18 +1154,31 @@ static bool _lawishCue(String n) =>
     n.contains('عواقب') ||
     n.contains('پیامد') ||
     n.contains('مسئولیت') ||
-    n.contains('حکم');
+    n.contains('حکم') ||
+    // الگوی «طرفِ مقابل تعهد/حکم را اجرا نمی‌کند» پرسشِ پیامد حقوقی است،
+    // نه شروعِ مشاوره؛ کاربر می‌خواهد ضمانت اجرا را بداند.
+    n.contains('رعایت نمی کند') ||
+    n.contains('اجرا نمی کند');
 
 static bool _isLegalQuestion(String rawText, IntentNet? net) {
   final n = _norm(rawText);
   if (_directArtRe.hasMatch(n)) return true;
+
+  // نشانه‌های مستقیمِ پرسشِ حقوقی (واوِ پرسش + نشانهٔ حقوقی یا الگوی تعریف)
+  // کافی‌اند؛ مدل نیت حق ندارد آن‌ها را وتو کند. تجربهٔ ارزیابی نشان داد
+  // که مدل، پرسش‌های مهلتی مانند «مهلت تجدیدنظر چند روز است؟» را با اطمینانِ
+  // بالا به برچسبِ موضوع (counsel) می‌دهد و پرسش از مسیر RAG خارج می‌شد.
+  final glow = _questionGlowRe.hasMatch(n);
+  final strongCue = _pureDefRe.hasMatch(n) || _lawishCue(n);
+  if (glow && strongCue) return true;
+
   if (net != null) {
     final s = net.classify(rawText);
     if (s.score >= net.ragMin) {
-      return IntentNet.ragLabels.contains(s.label) && _questionGlowRe.hasMatch(n);
+      return IntentNet.ragLabels.contains(s.label) && glow;
     }
   }
-  return _questionGlowRe.hasMatch(n) && (_pureDefRe.hasMatch(n) || _lawishCue(n));
+  return glow && strongCue;
 }
 
 static CounselorTurn _ragTurn(

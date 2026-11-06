@@ -847,20 +847,41 @@ RankResult rank(String question, {int k = 3}) {
       return EngineReply(text: _notFound(), alternatives: alts);
     }
 
-    if ((art == null || top4.first.score < 99) &&
-        coverage(question, top4.first.chunk) < _lowCover) {
-      return EngineReply(
-        text: _notFound(),
-        contextHits: ctx,
-        alternatives: alts,
-      );
+    // صریح‌بودنِ پرسش (درخواست مستقیم ماده) از مسیرِ انتخابِ زیر عبور می‌کند:
+    final explicit = art != null && top4.first.score >= 99;
+
+    // انتخاب مادهٔ پاسخ: رتبهٔ نخستِ BM25F مبناست؛ اما گاهی مادهٔ هم‌جنسِ
+    // نادرست (مثلاً نفقهٔ عقد موقت در برابر دائم) رتبهٔ نخست می‌گیرد. اگر
+    // مادهٔ دیگری از برترین‌ها پوششِ پرسش را به‌مراتب (حاشیهٔ ۰٫۲۵) بهتر
+    // بدهد، همان پاسخ می‌دهد. اگر هیچ ماده‌ای به آستانهٔ پوشش نرسد، صادقانه
+    // «پیدا نکردم» گفته می‌شود.
+    final topCov = explicit ? 1.0 : coverage(question, top4.first.chunk);
+    var bestCov = topCov;
+    Hit bestHit = top4.first;
+    if (!explicit) {
+      for (final h in top4.skip(1)) {
+        final c = coverage(question, h.chunk);
+        if (c > bestCov) {
+          bestCov = c;
+          bestHit = h;
+        }
+      }
+      if (bestCov < _lowCover) {
+        return EngineReply(
+          text: _notFound(),
+          contextHits: ctx,
+          alternatives: alts,
+        );
+      }
+      // بدون برتریِ محسوس، رتبهٔ نخست پاسخ می‌دهد.
+      if (bestCov < topCov + 0.25) bestHit = top4.first;
     }
 
-    if (art == null && _hitsUnloadedDomain(n, mentioned, top4.first.chunk)) {
+    if (art == null && _hitsUnloadedDomain(n, mentioned, bestHit.chunk)) {
       return EngineReply(text: _notFound(), alternatives: alts);
     }
 
-    final topChunk = top4.first.chunk;
+    final topChunk = bestHit.chunk;
     var res = format(topChunk);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (top4.length > 1) {
@@ -868,7 +889,7 @@ RankResult rank(String question, {int k = 3}) {
       if (b < 99) {
         final others = top4
             .skip(1)
-            .where((h) => h.score >= 0.3 && h.score >= b * 0.5)
+            .where((h) => h.score >= 0.3 && h.score >= b * 0.5 && h != bestHit)
             .take(2)
             .toList();
         if (others.isNotEmpty) {
