@@ -8,6 +8,15 @@ import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/router.dart' show HybridIntentRouter, RoutingSource;
+import 'package:dastyar/domain/dialogue/conversation_memory.dart'
+    show DialogueStateManager;
+import 'package:dastyar/domain/dialogue/dialogue_planner.dart'
+    show ClarificationKind, ClarificationPrompt, ClarificationPromptGenerator;
+import 'package:dastyar/domain/dialogue/response_composer.dart'
+    show DynamicResponseComposer, UserMood;
+import 'package:dastyar/domain/search/retrieval_pipeline.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
@@ -53,6 +62,23 @@ class ChatController extends ChangeNotifier {
   /// یادآوری «جای وکیل را نمی‌گیرد» فقط یک‌بار در هر گفتگو نمایش داده می‌شود.
   bool _disclaimerShown = false;
   static const SmallTalkLayer _smallTalk = SmallTalkLayer();
+
+  /// مسیریاب ترکیبی (عبارت قطعی + کلیدواژهٔ وزن‌دار + شبکهٔ عصبی) برای
+  /// انتخاب قالب سند در پیشنهاد ضمنی.
+  final HybridIntentRouter _router = HybridIntentRouter();
+
+  /// پرسش شفاف‌سازی «۱ یا ۲» وقتی دو قالب تقریباً هم‌وزن‌اند (شمارنده‌دار،
+  /// بدون Random).
+  final ClarificationPromptGenerator _clarifier =
+      ClarificationPromptGenerator();
+  ClarificationPrompt? _pendingClarification;
+
+  /// اسلات‌هایی که کاربر در گفتگو گفته (مبلغ، تاریخ، مدرک، …)؛ هنگام
+  /// تکمیل پیش‌نویس، به‌صورت دکمهٔ پیشنهادی همان فیلد نشان داده می‌شوند.
+  final DialogueStateManager _slots = DialogueStateManager();
+
+  /// همدلی متناسب با حال کاربر (شمارنده‌دار برای تنوع قطعی).
+  final DynamicResponseComposer _composer = DynamicResponseComposer();
 
   StreamSubscription<AssistantTurn>? _sub;
   Completer<void>? _askDone;
@@ -121,6 +147,9 @@ class ChatController extends ChangeNotifier {
     _pendingText = null;
     _pendingList = [];
     _declined.clear();
+    _pendingClarification = null;
+    _slots.reset();
+    _slots.setIntent(null);
   }
 
   /// همگام‌سازی نقطهٔ بازیابی مشاورهٔ ناتمام (رمزنگاری‌شده) با وضعیت جلسه.
@@ -190,6 +219,7 @@ class ChatController extends ChangeNotifier {
       _draftStep(text);
       return;
     }
+    _slots.extractAndUpdate(text);
     if (_counsel != null) {
       if (_handleActiveCounsel(text)) return;
     }
@@ -199,6 +229,7 @@ class ChatController extends ChangeNotifier {
     if (_handleResumeCounsel(text)) return;
     if (_handleExplicitDraft(text)) return;
     if (_handleSmallTalk(text)) return;
+    if (_handleStrictCriminalPhrase(text)) return;
     if (await _handleLawyerGuide(text)) return;
     if (_handleImplicitDraftSuggestion(text)) return;
     if (await _handleStartCounsel(text)) return;
@@ -380,6 +411,20 @@ class ChatController extends ChangeNotifier {
   }
 
   Future<bool> _handlePendingList(String text) async {
+    final clar = _pendingClarification;
+    _pendingClarification = null;
+    if (clar != null) {
+      final chosen = clar.resolveChoice(text);
+      if (chosen != null) {
+        final tpl = _templateFor(chosen);
+        if (tpl != null) {
+          _pendingText = null;
+          _pendingList = [];
+          _startDraft(text, tpl);
+          return true;
+        }
+      }
+    }
     final pt = _pendingText;
     final list = _pendingList;
 
@@ -539,19 +584,152 @@ class ChatController extends ChangeNotifier {
     return false;
   }
 
+  /// برچسب‌های موضوعی شبکهٔ قصد → شناسهٔ قالب سندِ متناظر (برای ورودی
+  /// احتمالاتیِ مسیریاب ترکیبی). موضوعی که قالب مستقیم ندارد «none» است.
+  static const Map<String, String> _topicToTemplateIntent = {
+    'debt': 'demand_money',
+    'cheque': 'demand_money',
+    'criminal_harm': 'complaint',
+    'fraud_cyber': 'complaint',
+    'litigation_defense': 'defense_brief',
+  };
+
+  LegalTemplate? _templateFor(String intent) {
+    for (final t in repo.templates) {
+      if (t.id == intent) return t;
+    }
+    return null;
+  }
+
+  /// توزیع احتمال شبکهٔ عصبی در فضای قصدهای قالب؛ بدون شبکه null.
+  Map<String, double>? _templateIntentProbs(String text) {
+    final net = _intentNet;
+    if (net == null) return null;
+    final out = <String, double>{};
+    for (final s in net.top(text, k: 16)) {
+      final key =
+          _topicToTemplateIntent[s.label] ?? HybridIntentRouter.noneIntent;
+      out[key] = (out[key] ?? 0) + s.score;
+    }
+    return out;
+  }
+
+  /// متن پیشنهاد قالب، به‌همراه یادآوری اطلاعاتی که کاربر تا اینجا گفته.
+  String _offerTextWithSlots(LegalTemplate t) {
+    final base = Drafting.offerText(t);
+    final noted = <String>[
+      for (final e in _slots.slots.entries)
+        if (e.value.raw != 'none' &&
+            e.value.raw != 'unknown' &&
+            _fieldForSlot(t, e.key) != null)
+          '${DialogueStateManager.slotLabels[e.key] ?? e.key}: ${e.value.display}',
+    ];
+    if (noted.isEmpty) return base;
+    return '$base\n\nاین موارد را از صحبت شما یادداشت کردم و هنگام تکمیل متن '
+        'به‌صورت پیشنهاد نشان می‌دهم: ${noted.join('، ')}.';
+  }
+
+  /// فیلد قالب متناظر با یک اسلات گفتگو (اگر قالب چنین فیلدی داشته باشد).
+  static const Map<String, List<String>> _slotFields = {
+    DialogueStateManager.amount: ['amount'],
+    DialogueStateManager.date: ['cheque_date', 'event_date'],
+    DialogueStateManager.incidentType: ['charge'],
+    DialogueStateManager.proof: ['evidence'],
+    DialogueStateManager.incomeStatus: ['income_state'],
+  };
+
+  TemplateField? _fieldForSlot(LegalTemplate t, String slot) {
+    final ids = _slotFields[slot] ?? const <String>[];
+    for (final f in t.fields) {
+      if (ids.contains(f.id)) return f;
+    }
+    return null;
+  }
+
+  /// مقدار پیشنهادی برای فیلد جاری پیش‌نویس از اسلات‌های گفتگو.
+  String? _slotSuggestionFor(DraftSession s) {
+    final f = s.current;
+    if (f == null || s.values.containsKey(f.id)) return null;
+    for (final e in _slotFields.entries) {
+      if (!e.value.contains(f.id)) continue;
+      final v = _slots.slot(e.key);
+      if (v == null || v.raw == 'none' || v.raw == 'unknown') return null;
+      if (f.type == 'number') {
+        // فیلدهای مبلغ قالب‌ها به ریال‌اند؛ اسلات مبلغ به تومان ذخیره می‌شود.
+        final toman = v.value;
+        if (toman == null || toman <= 0) return null;
+        final rial = (toman * 10).round();
+        return PersianText.toFaDigits(rial.toString());
+      }
+      if (f.type == 'choice' || f.type == 'check') return null;
+      return v.display;
+    }
+    return null;
+  }
+
+  void _offerTemplate(String text, LegalTemplate t) {
+    _pendingText = text;
+    _pendingList = [t];
+    messages.add(ChatMessage(text, true, sensitive: true));
+    messages.add(
+      ChatMessage(
+        _offerTextWithSlots(t),
+        false,
+        sensitive: true,
+        chips: const [
+          DraftCmd.offerYes,
+          DraftCmd.offerCounsel,
+          DraftCmd.offerNo,
+        ],
+      ),
+    );
+    _notify();
+    _requestScroll();
+  }
+
+  /// عبارت‌های قطعیِ کیفری (مثل «سرقت چک» یا «جعل امضا») حتی پیش از
+  /// راهنماهای عمومی بررسی می‌شوند تا مثلاً سرقت چک با چک برگشتی یا
+  /// موضوع دیگری اشتباه نشود.
+  bool _handleStrictCriminalPhrase(String text) {
+    final strict = _router.matchStrict(text);
+    if (strict == null || strict.intent != 'complaint') return false;
+    if (_declined.contains(strict.intent)) return false;
+    final t = _templateFor(strict.intent);
+    if (t == null) return false;
+    _slots.setIntent(t.id);
+    _offerTemplate(text, t);
+    return true;
+  }
+
   bool _handleImplicitDraftSuggestion(String text) {
     final avail = repo.templates
         .where((t) => !_declined.contains(t.id))
         .toList();
+    final availIds = {for (final t in avail) t.id};
+    final decision = _router.route(
+      text,
+      networkProbabilities: _templateIntentProbs(text),
+    );
+
+    // ۱. عبارت قطعی (مثل «سرقت چک» → شکایت کیفری) بر حدس‌های دیگر مقدم است.
+    if (decision.source == RoutingSource.strictPhrase &&
+        availIds.contains(decision.intent)) {
+      final t = _templateFor(decision.intent)!;
+      _slots.setIntent(t.id);
+      _offerTemplate(text, t);
+      return true;
+    }
+
     final sug = Drafting.suggest(text, avail);
     final sugTpl = sug.template;
     if (sugTpl != null) {
+      _slots.setIntent(sugTpl.id);
       _pendingText = text;
       _pendingList = [sugTpl];
       messages.add(ChatMessage(text, true, sensitive: true));
       messages.add(
         ChatMessage(
-          Drafting.offerText(sugTpl),
+          _offerTextWithSlots(sugTpl),
           false,
           sensitive: true,
           chips: const [
@@ -584,6 +762,47 @@ class ChatController extends ChangeNotifier {
       _notify();
       _requestScroll();
       return true;
+    }
+
+    // ۲. دو قالب تقریباً هم‌وزن: به‌جای حدس، پرسش شفاف‌سازی «۱ یا ۲».
+    // فقط برای روایت (نه پرسش) و با شاهد کلیدواژه‌ای کافی.
+    if (!LawyerVoice.isQuestion(text) &&
+        decision.keywordScores.totalEvidence >=
+            _router.config.minKeywordEvidence) {
+      final probs = {
+        for (final e in decision.probabilities.entries)
+          if (availIds.contains(e.key)) e.key: e.value,
+      };
+      final clar = _clarifier.next(text, probs);
+      if (clar != null &&
+          clar.kind == ClarificationKind.choice &&
+          clar.options.length == 2) {
+        final tpls = [
+          for (final o in clar.options)
+            if (_templateFor(o) != null) _templateFor(o)!,
+        ];
+        if (tpls.length == 2) {
+          _pendingText = text;
+          _pendingList = tpls;
+          _pendingClarification = clar;
+          messages.add(ChatMessage(text, true, sensitive: true));
+          messages.add(
+            ChatMessage(
+              clar.text,
+              false,
+              sensitive: true,
+              chips: [
+                ...tpls.map((t) => t.title),
+                DraftCmd.offerCounsel,
+                DraftCmd.offerNo,
+              ],
+            ),
+          );
+          _notify();
+          _requestScroll();
+          return true;
+        }
+      }
     }
     return false;
   }
@@ -674,22 +893,57 @@ class ChatController extends ChangeNotifier {
     _memory.recordTurn(resolvedQuery, baseReply);
     // لحن وکیل: متن ماده دست‌نخورده می‌ماند، اما با مقدمه و جمع‌بندی انسانی
     // ارائه می‌شود؛ و «پیدا نکردم» به پاسخی صادقانه و راهگشا تبدیل می‌شود.
+    final userText = query ?? text;
+    final notFoundRaw = engine.replies.get('not_found');
+    final wasNotFound = bot.text.trim() == notFoundRaw.trim();
+
+    // همدلی متناسب با حال کاربر (نگران/عصبانی).
+    var mood = DynamicResponseComposer.detectMood(userText);
+    if (mood == UserMood.neutral && LawyerVoice.expressesDistress(userText)) {
+      mood = UserMood.anxious;
+    }
+    final empathy = _composer.empathyFor(mood);
+
+    // افت تدریجی: شباهت = بیشترین پوشش واژه‌های پرسش در مواد بازیابی‌شده.
+    String? notFoundOverride;
+    String? bridge;
+    final topicHint =
+        LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet);
+    if (wasNotFound) {
+      notFoundOverride = RetrievalPipeline.handleLowConfidenceRetrieval(
+        userText,
+        similarity: _retrievalSimilarity(resolvedQuery, baseReply),
+        candidateTopic: topicHint,
+      );
+    } else if (baseReply.contextHits.isNotEmpty &&
+        !LawyerVoice.isDirectArticleRef(userText)) {
+      final sim = _retrievalSimilarity(resolvedQuery, baseReply);
+      if (sim >= RetrievalPipeline.refuseBelow &&
+          sim < RetrievalPipeline.bridgeBelow) {
+        bridge = RetrievalPipeline.handleLowConfidenceRetrieval(
+          userText,
+          similarity: sim,
+          candidateTopic: topicHint,
+        );
+      }
+    }
+
     final framed = LawyerVoice.frameEngineAnswer(
-      query ?? text,
+      userText,
       baseReply,
       bot.text,
-      notFoundRaw: engine.replies.get('not_found'),
+      notFoundRaw: notFoundRaw,
       greeted: greeted,
       rnd: _rnd,
+      empathy: empathy,
+      notFoundOverride: notFoundOverride,
+      bridge: bridge,
     );
-    final wasNotFound = bot.text.trim() == engine.replies.get('not_found').trim();
     if (framed != null) bot.text = framed;
     if (wasNotFound && alts.isEmpty) alts = LawyerVoice.notFoundChips;
     final mergedChips = <String>[
       ...alts,
-      if (!sensitive &&
-          LegalCounselor.detectTopicHint(resolvedQuery, net: _intentNet) !=
-              null)
+      if (!sensitive && topicHint != null)
         LegalCounselor.startCounselCmd,
     ];
     if (mergedChips.isNotEmpty) {
@@ -699,6 +953,26 @@ class ChatController extends ChangeNotifier {
     if (_disposed || myEpoch != _askEpoch) return;
     _busy = false;
     _notify();
+  }
+
+  /// شباهت بازیابی در بازهٔ ۰ تا ۱: بیشترین پوشش واژه‌های پرسش در چند
+  /// مادهٔ برتر. بدون ماده NaN (یعنی «اطلاعات مطمئن نیست»).
+  double _retrievalSimilarity(String question, EngineReply reply) {
+    if (reply.contextHits.isEmpty) return double.nan;
+    var best = 0.0;
+    for (final h in reply.contextHits.take(4)) {
+      final c = engine.coverage(question, h.chunk);
+      if (c > best) best = c;
+    }
+    return best;
+  }
+
+  /// افزودن دکمهٔ «مقدار پیشنهادی» از اسلات‌های گفتگو به پرسش فیلد جاری.
+  DraftReply _withSlotChip(DraftReply r, DraftSession s) {
+    if (r.ended || r.isDocument) return r;
+    final v = _slotSuggestionFor(s);
+    if (v == null || r.chips.contains(v)) return r;
+    return DraftReply(r.text, chips: [v, ...r.chips], note: r.note);
   }
 
   ChatMessage _botFromReply(DraftReply r, LegalTemplate t) {
@@ -722,7 +996,8 @@ class ChatController extends ChangeNotifier {
 
   void _startDraft(String userText, LegalTemplate t) {
     final s = DraftSession(t);
-    final r = Drafting.start(s);
+    if (_slots.intent != t.id) _slots.setIntent(t.id);
+    final r = _withSlotChip(Drafting.start(s), s);
     _draft = r.ended ? null : s;
     messages.add(ChatMessage(userText, true, sensitive: true));
     messages.add(_botFromReply(r, t));
@@ -734,10 +1009,14 @@ class ChatController extends ChangeNotifier {
   void _draftStep(String text) {
     final s = _draft;
     if (s == null) return;
-    final r = Drafting.answer(s, text);
+    final r = _withSlotChip(Drafting.answer(s, text), s);
     messages.add(ChatMessage(text, true, sensitive: true));
     messages.add(_botFromReply(r, s.template));
-    if (r.ended) _draft = null;
+    if (r.ended) {
+      _draft = null;
+      _slots.reset();
+      _slots.setIntent(null);
+    }
     _syncDraftCheckpoint();
     _notify();
     _requestScroll();

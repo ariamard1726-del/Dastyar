@@ -131,7 +131,10 @@ void main() {
     test('وقتی پاسخی پیدا نشود، صادقانه می‌گوید و حدس نمی‌زند', () async {
       final ctrl = makeCtrl();
       await ctrl.submit('قانون پرتاب فضاپیما به مریخ با موتور یونی');
-      expect(ctrl.messages.last.text, contains(LawyerVoice.notFoundText));
+      final t = ctrl.messages.last.text;
+      expect(t, contains('اطلاعات دقیق و مطمئنی در منابع من نیست'));
+      expect(t, contains('معاضدت کانون وکلا'));
+      expect(t, isNot(contains('ماده')));
       ctrl.dispose();
     });
   });

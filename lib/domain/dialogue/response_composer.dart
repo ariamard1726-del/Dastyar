@@ -529,6 +529,15 @@ class DynamicResponseComposer {
           },
       };
 
+  /// فقط جملهٔ همدلی متناسب با حال کاربر (برای قاب‌بندی پاسخ‌های دیگر،
+  /// مثل پاسخ موتور جست‌وجو). برای حال «خنثی» رشتهٔ خالی برمی‌گرداند و
+  /// شمارنده را جلو نمی‌برد؛ در غیر این صورت شمارنده یک واحد جلو می‌رود تا
+  /// پیام‌های پیاپی تکراری نباشند.
+  String empathyFor(UserMood mood) {
+    if (mood == UserMood.neutral) return '';
+    return _empathy(mood, _counter++);
+  }
+
   static String _transition(int v) => switch (v % 3) {
         0 => 'طبق متن قانون:',
         1 => 'مبنای قانونی موضوع شما این است:',

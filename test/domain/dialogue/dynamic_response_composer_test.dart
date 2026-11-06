@@ -81,4 +81,23 @@ void main() {
       expect(out, isNot(contains('❓')));
     });
   });
+
+  group('empathyFor (قاب‌بندی پاسخ‌های دیگر)', () {
+    test('خنثی: رشتهٔ خالی و شمارنده ثابت', () {
+      final c = DynamicResponseComposer();
+      expect(c.empathyFor(UserMood.neutral), '');
+      expect(c.counter, 0);
+    });
+
+    test('نگران/عصبانی: جملهٔ همدلی با تنوع شمارنده‌ای و قطعی', () {
+      final a = DynamicResponseComposer();
+      final b = DynamicResponseComposer();
+      final first = a.empathyFor(UserMood.anxious);
+      final second = a.empathyFor(UserMood.anxious);
+      expect(first, isNotEmpty);
+      expect(second, isNot(first));
+      expect(b.empathyFor(UserMood.anxious), first);
+      expect(a.empathyFor(UserMood.angry), contains('بجاست'));
+    });
+  });
 }
