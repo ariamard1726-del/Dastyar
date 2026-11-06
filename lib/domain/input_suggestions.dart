@@ -128,6 +128,10 @@ class InputSuggestions {
     'appeal': 'litigation_defense',
     'summons': 'litigation_defense',
     'legal_aid': 'litigation_defense',
+    'theft': 'criminal_harm',
+    'juvenile_detention': 'litigation_defense',
+    'presale_delivery': 'contract',
+    'defect_purchase': 'consumer',
   };
 
   static List<String> get _corpus => [
