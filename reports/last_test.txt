@@ -1,7 +1,11 @@
-commit: 7d2c4e5
-🎉 316 tests passed.
+commit: 7dc4f47
+::error::316 tests passed, 1 failed.
+::group::❌ test/evaluation/evaluation_harness_test.dart: (setUpAll) (failed)
+   PathNotFoundException: Cannot open file, path = 'brain/eval/evaluation_dataset.json' (OS Error: No such file or directory, errno = 2)
+   test/evaluation/evaluation_harness_test.dart 30:43  main.<fn>
+   ::endgroup::
 --- analyze ---
-39 issues found. (ran in 10.7s)
+39 issues found. (ran in 8.2s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
