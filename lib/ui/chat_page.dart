@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:dastyar/core/llama_backend.dart';
+import 'package:dastyar/core/model_store.dart';
+import 'package:dastyar/domain/lawyer/llm_writer.dart';
 import 'package:dastyar/ui/about_page.dart';
 import 'package:dastyar/ui/app_drawer.dart';
 import 'package:dastyar/domain/assistant.dart';
@@ -34,6 +37,11 @@ class ChatPage extends StatefulWidget {
   /// گفتگوی مشاورهٔ ناتمام بازیابی‌شده از اجرای قبلی.
   final CounselingSession? initialCounsel;
 
+  /// مدیریت مدل اختیاری (اگر `null` باشد، بخش مدل در تنظیمات نشان داده نمی‌شود).
+  final ModelStore? models;
+  final LlamaLlm? llama;
+  final LlmWriter? writer;
+
   const ChatPage({
     super.key,
     required this.engine,
@@ -41,6 +49,9 @@ class ChatPage extends StatefulWidget {
     required this.repo,
     required this.history,
     required this.settings,
+    this.models,
+    this.llama,
+    this.writer,
     this.loadError,
     this.initialDraft,
     this.intentNet,
@@ -70,6 +81,7 @@ class _ChatPageState extends State<ChatPage> {
       intentNet: widget.intentNet,
       initialCounsel: widget.initialCounsel,
       onScrollRequested: _scrollDown,
+      writer: widget.writer,
       // پاسخ‌های کوچک (سلام، همدلی، ...) با هر بار اجرای اپ از میان
       // گزینه‌های موجود تصادفی انتخاب می‌شوند تا گفتگو یکنواخت نباشد.
       random: Random(),
@@ -131,6 +143,8 @@ class _ChatPageState extends State<ChatPage> {
         builder: (_) => SettingsPage(
           settings: widget.settings,
           history: widget.history,
+          models: widget.models,
+          llama: widget.llama,
         ),
       ),
     );

@@ -22,6 +22,7 @@ import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
 import 'package:dastyar/domain/lawyer/case_facts.dart';
 import 'package:dastyar/domain/lawyer/case_reasoner.dart';
+import 'package:dastyar/domain/lawyer/llm_writer.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/lawyer/phrase_variator.dart';
@@ -112,6 +113,10 @@ class ChatController extends ChangeNotifier {
   int _askEpoch = 0;
   bool _disposed = false;
 
+  /// نویسندهٔ اختیاری (مدل زبانی نصب‌شده روی گوشی). فقط جملهٔ آغازین را
+  /// انسانی‌تر می‌کند؛ محتوای حقوقی همیشه از موتور قطعی است.
+  final LlmWriter? writer;
+
   ChatController({
     required this.engine,
     required this.assistant,
@@ -125,6 +130,7 @@ class ChatController extends ChangeNotifier {
     CounselingSession? initialCounsel,
     this.onScrollRequested,
     int phraseSeed = 0,
+    this.writer,
   }) : _intentNet = intentNet,
        _rnd = random,
        _phrases = PhraseVariator(seed: phraseSeed) {
@@ -640,13 +646,48 @@ class ChatController extends ChangeNotifier {
     _pendingNeeds = const [];
     _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
     messages.add(ChatMessage(text, true, sensitive: personal));
-    messages.add(
-      ChatMessage(reply.text, false, sensitive: personal, chips: reply.chips),
-    );
+    final bot =
+        ChatMessage(reply.text, false, sensitive: personal, chips: reply.chips);
+    messages.add(bot);
     await _saveSession();
     _notify();
     _requestScroll();
+    if (personal) {
+      unawaited(_personalize(bot, core, guide.title, replaceFirst: true));
+    }
     return true;
+  }
+
+  /// اگر کاربر مدل را نصب و روشن کرده باشد، جملهٔ آغازین پاسخ با جزئیات خود
+  /// کاربر بازنویسی می‌شود. پاسخ قطعی بی‌درنگ نمایش داده شده است؛ اگر مدل
+  /// آماده نباشد، دیر کند یا متن ناامن بنویسد، همان پاسخ دست‌نخورده می‌ماند.
+  Future<void> _personalize(
+    ChatMessage bot,
+    String userText,
+    String topic, {
+    bool replaceFirst = false,
+  }) async {
+    final w = writer;
+    if (w == null || !settings.useLocalLlm) return;
+    final opener = await w.personalOpener(userText, topic);
+    if (opener == null || _disposed || !messages.contains(bot)) return;
+    final original = bot.text;
+    final cut = original.indexOf('\n\n');
+    final first = cut > 0 ? original.substring(0, cut) : '';
+    // فقط پاراگراف همدلی جایگزین می‌شود، هرگز بخشی که محتوای حقوقی دارد.
+    final canReplace = replaceFirst &&
+        cut > 0 &&
+        !first.contains('ماده') &&
+        !first.contains('قانون') &&
+        !RegExp(r'[0-9۰-۹]').hasMatch(first);
+    final greeting = cut > 0 && RegExp(r'^(سلام|درود)').hasMatch(first);
+    bot.text = greeting
+        ? '$first\n\n$opener${original.substring(cut)}'
+        : canReplace
+            ? '$opener${original.substring(cut)}'
+            : '$opener\n\n$original';
+    unawaited(_saveSession());
+    _notify();
   }
 
   bool _handleActiveCounsel(String text) {
