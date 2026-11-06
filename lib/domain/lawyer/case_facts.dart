@@ -26,6 +26,16 @@ class CaseFlag {
   static const String minor = 'minor';
   static const String coinsOver110 = 'coins_over_110';
   static const String injured = 'injured';
+  static const String stillWorking = 'still_working';
+  static const String otherAtFault = 'other_at_fault';
+  static const String selfAtFault = 'self_at_fault';
+  static const String hasInsurance = 'has_insurance';
+  static const String certificateIssued = 'certificate_issued';
+  static const String hasChildren = 'has_children';
+  static const String officialMarriage = 'official_marriage';
+
+  /// پیشوند وضعیت منفی‌شده: `!fired` یعنی کاربر صریحاً گفته اخراج نشده.
+  static const String not = '!';
 }
 
 class CaseFacts {
@@ -93,8 +103,91 @@ class CaseFacts {
       children: o.children ?? children,
       ages: u(ages, o.ages),
       coins: o.coins ?? coins,
-      flags: {...flags, ...o.flags},
+      flags: _mergeFlags(flags, o.flags),
     );
+  }
+
+  /// گفتهٔ تازه بر گفتهٔ قبلی مقدم است: «!fired» تازه، «fired» قبلی را
+  /// برمی‌دارد و برعکس.
+  static Set<String> _mergeFlags(Set<String> old, Set<String> fresh) {
+    final out = {...old};
+    for (final f in fresh) {
+      final opposite =
+          f.startsWith(CaseFlag.not) ? f.substring(1) : '${CaseFlag.not}$f';
+      out.remove(opposite);
+      out.add(f);
+    }
+    return out;
+  }
+
+  /// آیا کاربر صریحاً این وضعیت را نفی کرده است؟
+  bool denies(String flag) => flags.contains('${CaseFlag.not}$flag');
+
+  /// آیا وضعیت (مثبت یا منفی) معلوم است؟
+  bool knows(String flag) => has(flag) || denies(flag);
+
+  /// همین واقعیت‌ها با یک وضعیت مثبت/منفی تازه (برای پاسخ «بله/نه»).
+  CaseFacts withFlag(String flag, bool value) => merge(CaseFacts(
+        flags: {value ? flag : '${CaseFlag.not}$flag'},
+      ));
+
+  /// مبلغ نخست به تومان (تقریبی)؛ اگر واحد گفته نشده، تومان فرض می‌شود.
+  /// `null` یعنی مبلغی گفته نشده یا قابل تبدیل نیست (مثل سکه).
+  int? get firstAmountToman {
+    for (final a in amounts) {
+      final v = parseToman(a);
+      if (v != null) return v;
+    }
+    return null;
+  }
+
+  static const Map<String, int> _wordNums = {
+    'یک': 1, 'یه': 1, 'دو': 2, 'سه': 3, 'چهار': 4, 'پنج': 5, 'شش': 6,
+    'شیش': 6, 'هفت': 7, 'هشت': 8, 'نه': 9, 'ده': 10, 'یازده': 11,
+    'دوازده': 12, 'پانزده': 15, 'بیست': 20, 'سی': 30, 'چهل': 40,
+    'پنجاه': 50, 'شصت': 60, 'هفتاد': 70, 'هشتاد': 80, 'نود': 90, 'صد': 100,
+    'دویست': 200, 'سیصد': 300, 'چهارصد': 400, 'پانصد': 500, 'پونصد': 500,
+    'ششصد': 600, 'هفتصد': 700, 'هشتصد': 800, 'نهصد': 900,
+  };
+
+  static int? parseToman(String raw) {
+    final s = PersianText.phrase(raw);
+    if (s.contains('سکه')) return null;
+    final parts = s.split(' ');
+    var num = 0;
+    var gotNum = false;
+    var mult = 1;
+    var rial = false;
+    var i = 0;
+    final digits = <String>[];
+    while (i < parts.length && RegExp(r'^\d+$').hasMatch(parts[i])) {
+      digits.add(parts[i]);
+      i++;
+    }
+    if (digits.isNotEmpty) {
+      num = int.tryParse(digits.join()) ?? 0;
+      gotNum = true;
+    }
+    for (; i < parts.length; i++) {
+      final w = parts[i];
+      final n = _wordNums[w];
+      if (n != null && !gotNum) {
+        num += n;
+      } else if (n != null) {
+        num += n;
+      } else if (w == 'میلیارد') {
+        mult = 1000000000;
+      } else if (w == 'میلیون') {
+        mult = 1000000;
+      } else if (w == 'هزار') {
+        mult = 1000;
+      } else if (w == 'ریال') {
+        rial = true;
+      }
+    }
+    if (num <= 0) return null;
+    final v = num * mult;
+    return rial ? v ~/ 10 : v;
   }
 
   // ───────────────────────── واژگان ─────────────────────────
@@ -107,7 +200,7 @@ class CaseFacts {
   static final RegExp _amountRe = RegExp(
     '(?:^| )((?:\\d+(?: \\d{3})*|(?:$_numWords)(?: و (?:$_numWords))*) '
     '(?:(?:میلیارد|میلیون|هزار)(?: (?:تومان|تومن|ریال))?|تومان|تومن|ریال))'
-    '(?= |\$)',
+    '(?:ی)?(?= |\$)',
   );
 
   static final RegExp _coinRe =
@@ -295,6 +388,47 @@ class CaseFacts {
       'قرارداد نداشتیم',
       'قراردادی نداشتیم',
     ],
+    CaseFlag.stillWorking: [
+      'هنوز سر کارم',
+      'هنوز سرکارم',
+      'هنوز کار میکنم',
+      'هنوز کار می کنم',
+      'هنوز مشغولم',
+      'اخراجم نکرده',
+      'اخراجم نکرد',
+    ],
+    CaseFlag.otherAtFault: [
+      'مقصر اون',
+      'مقصر او',
+      'مقصر طرف',
+      'طرف مقابل مقصر',
+      'طرف مقصر',
+      'مقصرش اون',
+      'اون مقصر',
+      'او مقصر',
+      'تقصیر اون',
+      'تقصیر طرف',
+    ],
+    CaseFlag.selfAtFault: [
+      'من مقصر',
+      'مقصر من',
+      'مقصر خودم',
+      'تقصیر من',
+      'تقصیر خودم',
+    ],
+    CaseFlag.hasInsurance: ['بیمه داره', 'بیمه دارد', 'بیمه داشت', 'بیمه هست'],
+    CaseFlag.certificateIssued: [
+      'گواهی عدم پرداخت گرفتم',
+      'گواهی عدم پرداخت دارم',
+      'برگشت زدم',
+      'برگشت زدیم',
+      'برگشتش زدم',
+      'گواهی گرفتم',
+      'برگشت خورده',
+      'برگشت خورد',
+    ],
+    CaseFlag.hasChildren: ['بچه دارم', 'فرزند دارم', 'بچه داریم', 'فرزند داریم', 'بچمون', 'بچه هام', 'بچه‌هام'],
+    CaseFlag.officialMarriage: ['عقدنامه', 'سند ازدواج', 'ازدواج رسمی', 'محضر'],
     CaseFlag.injured: [
       'زخمی',
       'مصدوم',
@@ -302,6 +436,47 @@ class CaseFacts {
       'آسیب دید',
       'بیمارستان',
       'شکستگی',
+    ],
+  };
+
+  /// نشانه‌هایی که وضعیت را صریحاً نفی می‌کنند («اخراجم نکرده»). اگر یکی از
+  /// این‌ها دیده شود، وضعیت مثبت برداشته و `!وضعیت` ثبت می‌شود.
+  static const Map<String, List<String>> _negFlagCues = {
+    CaseFlag.fired: [
+      'اخراجم نکرد',
+      'اخراجم نکرده',
+      'اخراج نشدم',
+      'اخراج نکرده',
+      'بیرونم نکرده',
+      'هنوز سر کارم',
+      'هنوز سرکارم',
+      'هنوز کار میکنم',
+      'هنوز کار می کنم',
+      'هنوز مشغولم',
+    ],
+    CaseFlag.contractEnded: [
+      'تموم نشده',
+      'تمام نشده',
+      'هنوز تموم',
+      'هنوز تمام',
+      'وسط قرارداد',
+      'میانه قرارداد',
+    ],
+    CaseFlag.noInsurance: ['بیمه داره', 'بیمه دارد', 'بیمه داشت', 'بیمه هست'],
+    CaseFlag.injured: [
+      'کسی آسیب ندید',
+      'آسیب ندیدم',
+      'کسی صدمه ندید',
+      'فقط خسارت مالی',
+      'فقط مالی',
+    ],
+    CaseFlag.certificateIssued: [
+      'گواهی عدم پرداخت نگرفتم',
+      'گواهی نگرفتم',
+      'هنوز برگشت نزدم',
+      'برگشت نزدم',
+      'هنوز بانک نرفتم',
+      'گواهی عدم پرداخت ندارم',
     ],
   };
 
@@ -316,6 +491,21 @@ class CaseFacts {
     CaseFlag.noEvidence: 'فعلاً مدرک کتبی ندارید',
     CaseFlag.noWrittenContract: 'قرارداد کتبی ندارید',
     CaseFlag.injured: 'آسیب جسمی وارد شده',
+    CaseFlag.stillWorking: 'هنوز سر کار هستید',
+    CaseFlag.otherAtFault: 'مقصر، طرف مقابل است',
+    CaseFlag.selfAtFault: 'خودتان را مقصر می‌دانید',
+    CaseFlag.hasInsurance: 'بیمه وجود دارد',
+    CaseFlag.certificateIssued: 'گواهی عدم پرداخت صادر شده',
+  };
+
+  static const Map<String, String> deniedLabel = {
+    CaseFlag.contractEnded: 'مدت قرارداد هنوز تمام نشده',
+    CaseFlag.fired: 'اخراج نشده‌اید',
+    CaseFlag.injured: 'کسی آسیب جسمی ندیده',
+    CaseFlag.certificateIssued: 'هنوز گواهی عدم پرداخت نگرفته‌اید',
+    CaseFlag.hasChildren: 'فرزندی ندارید',
+    CaseFlag.otherAtFault: 'مقصر بودن طرف مقابل معلوم نیست',
+    CaseFlag.hasInsurance: 'بیمه وجود ندارد',
   };
 
   // ───────────────────────── استخراج ─────────────────────────
@@ -382,6 +572,15 @@ class CaseFacts {
         flags.add(flag);
       }
     });
+    _negFlagCues.forEach((flag, cues) {
+      if (cues.any((c) => p.contains(' ${PersianText.phrase(c)}'))) {
+        flags.remove(flag);
+        flags.add('${CaseFlag.not}$flag');
+      }
+    });
+    if (flags.contains('${CaseFlag.not}${CaseFlag.noInsurance}')) {
+      flags.remove('${CaseFlag.not}${CaseFlag.noInsurance}');
+    }
     if (flags.contains(CaseFlag.contractEnded) &&
         !RegExp(r' (قرارداد|اجاره|مدت|اجاره نامه|قراردادم|قراردادمون) ')
             .hasMatch(p) &&
@@ -394,6 +593,7 @@ class CaseFacts {
       flags.add(CaseFlag.minor);
     }
     if (coins != null && coins > 110) flags.add(CaseFlag.coinsOver110);
+    if (children != null && children > 0) flags.add(CaseFlag.hasChildren);
 
     final evidence = <String>[];
     for (final (key, cues) in _evidence) {
@@ -460,6 +660,11 @@ class CaseFacts {
     for (final f in [
       CaseFlag.contractEnded,
       CaseFlag.fired,
+      CaseFlag.stillWorking,
+      CaseFlag.certificateIssued,
+      CaseFlag.otherAtFault,
+      CaseFlag.selfAtFault,
+      CaseFlag.hasInsurance,
       CaseFlag.noInsurance,
       CaseFlag.refusesPay,
       CaseFlag.unreachable,
@@ -472,6 +677,11 @@ class CaseFacts {
       final l = flagLabel[f];
       if (flags.contains(f) && l != null) out.add(l);
     }
+    deniedLabel.forEach((f, l) {
+      if (denies(f) && !(f == CaseFlag.fired && has(CaseFlag.stillWorking))) {
+        out.add(l);
+      }
+    });
     return out;
   }
 

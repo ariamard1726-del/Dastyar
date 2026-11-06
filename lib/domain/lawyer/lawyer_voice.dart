@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/lawyer/case_facts.dart';
+import 'package:dastyar/domain/lawyer/case_reasoner.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/lawyer/phrase_variator.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -58,6 +59,18 @@ class LawyerVoice {
 
   static bool counselTopicFits(LegalGuide guide, String topicId) =>
       _guideTopic[guide.id] == topicId;
+
+  /// راهنمای اصلی متناظر با موضوع یک جلسهٔ مشاوره (برای ادامهٔ گفتگو پس از
+  /// جمع‌بندی)، یا `null`.
+  static LegalGuide? guideForCounselTopic(String topicId) {
+    for (final e in _guideTopic.entries) {
+      if (e.value != topicId) continue;
+      for (final g in legalGuides) {
+        if (g.id == e.key) return g;
+      }
+    }
+    return null;
+  }
 
   LawyerVoice._();
 
@@ -653,6 +666,8 @@ class LawyerVoice {
     }
 
     sb.write('\n\n');
+    // پرسش اول، پرسش دست‌نوشتهٔ راهنماست؛ پرسش‌های بعدی از نیازهای پرونده
+    // ([CaseReasoner.nextQuestion]) ساخته می‌شود.
     sb.write(_fa(g.followUp));
     if (includeDisclaimer) {
       sb.write('\n\n');
@@ -690,6 +705,7 @@ class LawyerVoice {
     List<LegalTemplate> templates = const [],
     String counselChip = '',
     PhraseVariator? variator,
+    Set<String> skipNeeds = const {},
   }) {
     final v = variator;
     final sb = StringBuffer();
@@ -723,7 +739,17 @@ class LawyerVoice {
     }
     final tChips = templateChips(g, templates);
     sb.write('\n\n');
-    if (tChips.isNotEmpty) {
+    final next =
+        CaseReasoner.nextQuestion(g, allFacts, v: v, skip: skipNeeds);
+    if (next != null) {
+      sb.write(_fa(next.$1));
+    } else if (CaseReasoner.needsFor(g).isNotEmpty) {
+      sb.write(CaseReasoner.chance(g, allFacts, skip: skipNeeds).text);
+      sb.write('\n\n');
+      sb.write(
+        'اگر بپرسید «حالا چیکار کنم؟»، «کجا شکایت کنم؟» یا «اگه انکار کنه چی؟»، دقیق برای همین پرونده جواب می‌دهم.',
+      );
+    } else if (tChips.isNotEmpty) {
       sb.write(
         'اگر بخواهید، با همین اطلاعات پیش‌نویس «${tChips.first}» را با هم آماده می‌کنیم؛ یا با چند پرسش کوتاه، وضعیت پرونده را دقیق‌تر می‌سنجیم.',
       );

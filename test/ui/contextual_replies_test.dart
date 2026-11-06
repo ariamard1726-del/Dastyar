@@ -121,4 +121,44 @@ void main() {
     expect(m.chips, isNotEmpty);
     expect(m.chips.first, isNot(startsWith('ماده')));
   });
+
+  test('پرسش‌های وابسته به پرونده با توجه به جزئیات جواب می‌گیرند', () async {
+    final c = make();
+    await say(c, 'صاحبخونه ودیعه منو پس نمیده');
+    await say(c, '۳۰۰ میلیون');
+    final where = await say(c, 'کجا باید شکایت کنم؟');
+    expect(where.text, contains('دادگاه'));
+    expect(where.text, contains('۳۰۰ میلیون تومان'));
+    final now = await say(c, 'حالا چیکار کنم؟');
+    expect(now.text, contains('۱.'));
+    expect(now.text, isNot(contains('پیدا نکردم')));
+    final deny = await say(c, 'اگه انکار کنه چی؟');
+    expect(deny.text, contains('بار اثبات'));
+  });
+
+  test('«بله»/«نه»/«نمی‌دانم» به پرسش پرونده', () async {
+    final c = make();
+    await say(c, 'صاحبخونه ودیعه منو پس نمیده');
+    final q = await say(c, '۳۰۰ میلیون');
+    expect(q.text, contains('مدت قرارداد اجاره تمام شده است؟'));
+    final yes = await say(c, 'آره');
+    expect(yes.text, contains('مدت قرارداد تمام شده'));
+    final dk = await say(c, 'نمیدونم');
+    expect(dk.text, contains('اشکالی ندارد'));
+    expect(dk.text, contains('ارزیابی'));
+  });
+
+  test('پس از جمع‌بندی مشاوره، «حق با منه؟» تحلیل را تکرار نمی‌کند', () async {
+    final c = make();
+    final first = await say(c, 'شوهرم نفقه نمیده');
+    final again = await say(c, 'حق با منه؟');
+    expect(again.text, isNot(first.text));
+    expect(again.text, contains('ارزیابی'));
+  });
+
+  test('نفی: «اخراجم نکرده» اخراج ثبت نمی‌شود', () async {
+    final c = make();
+    final m = await say(c, 'کارفرما دو ماهه حقوقمو نمیده ولی اخراجم نکرده');
+    expect(m.text, isNot(contains('اخراج شده‌اید')));
+  });
 }
