@@ -541,6 +541,26 @@ static CounselorTurn step(
     return _routed(onRoute, CounselorRoute.smallTalk, CounselorTurn(text: smallTalk.text, chips: smallTalk.chips));
   }
 
+  // تصحیح مسیر: کاربر صریح می‌گوید موضوعِ در جریان اشتباه بوده (مثل
+  // «مشکل من مربوط به چک نیست»). به‌جای ادامه‌دادن همان گفتگو، نشست به
+  // intake عمومی برمی‌گردد و با گرمی پرسش اصلی پرسیده می‌شود.
+  if (activeContext && _isTopicCorrection(n)) {
+    session.topicId = 'general_intake';
+    session.facts.clear();
+    session.dialogueState = null;
+    session.concluded = false;
+    CounselorSessionState.reset(session);
+    return _routed(
+      onRoute,
+      CounselorRoute.intake,
+      const CounselorTurn(
+        text: 'ببخشید، اشتباه از من بود؛ موضوع را درست متوجه نشدم. '
+            'خودتان بفرمایید مشکل اصلی‌تان چیست.',
+        chips: SmallTalkLayer.defaultIntakeChips,
+      ),
+    );
+  }
+
   // Legal questions are answered without mutating the pending slot. Simple
   // declarative answers (amounts, dates, choices, ...) never cross this gate.
   if (_ragEligible(session, trimmed, net: net)) {
@@ -745,7 +765,11 @@ static CounselorTurn _handleGeneralIntake(
   Random? rnd,
 }) {
   final n = _norm(rawText);
-  final detected = _topicFromIntakeChoice(n) ?? detectTopic(rawText, net: net);
+  // اگر کاربر صریحاً موضوع را رد می‌کند («مربوط به چک نیست»)، هیچ موضوعی
+  // از روی واژه‌های درون جمله حدس زده نمی‌شود؛ در عوض دوباره پرسیده می‌شود.
+  final detected = _isTopicCorrection(n)
+      ? null
+      : (_topicFromIntakeChoice(n) ?? detectTopic(rawText, net: net));
   if (detected != null && detected != 'general_intake') {
     session.topicId = detected;
     session.dialogueState = null;
@@ -1230,6 +1254,21 @@ static LegalTemplate? _matchTemplateChip(String text, List<LegalTemplate> templa
   }
   return null;
 }
+
+/// الگوی «تصحیح مسیر»: کاربر می‌گوید موضوعِ انتخاب‌شده درست نبوده یا
+/// دستیار سوءبرداشت کرده است (مثل «مشکل من مربوط به چک نیست» یا
+/// «اشتباه گرفتی، منظورم مهریه بود»). ورودی باید نرمال‌شده باشد.
+static final RegExp _topicCorrectionRe = RegExp(
+  '(?:اشتباه (?:گرفتی|فهمیدی|برداشت کردی|متوجه شدی)'
+  '|متوجه نشدی'
+  '|سوء ?برداشت'
+  '|منظورم .{0,40}? نبود'
+  '|موضوع (?:دیگه|دیگری|اشتباه)'
+  '|(?:مربوط به|درباره|در مورد|راجع به) .{0,30}? (?:نیست|نبود))',
+);
+
+/// تشخیص اینکه پیام کاربر تصحیح مسیر است یا نه.
+static bool _isTopicCorrection(String n) => _topicCorrectionRe.hasMatch(n);
 
 static String? _topicFromIntakeChoice(String n) {
   if (n.contains('چک')) return 'cheque';

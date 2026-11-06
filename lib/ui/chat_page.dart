@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -68,6 +70,9 @@ class _ChatPageState extends State<ChatPage> {
       intentNet: widget.intentNet,
       initialCounsel: widget.initialCounsel,
       onScrollRequested: _scrollDown,
+      // پاسخ‌های کوچک (سلام، همدلی، ...) با هر بار اجرای اپ از میان
+      // گزینه‌های موجود تصادفی انتخاب می‌شوند تا گفتگو یکنواخت نباشد.
+      random: Random(),
     );
   }
 

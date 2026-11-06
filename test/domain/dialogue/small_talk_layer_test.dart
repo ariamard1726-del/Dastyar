@@ -131,7 +131,7 @@ void main() {
       for (final s in samples) {
         final r = route(s)!;
         expect(r.intent, SmallTalkIntent.offTopic, reason: s);
-        expect(r.text, anyOf(contains('حدس نمیزنم'), contains('تخصص من خارج')));
+        expect(r.text, anyOf(contains('حدس نمی‌زنم'), contains('حدس نمیزنم'), contains('تخصص من خارج')));
       }
     });
 
@@ -411,7 +411,7 @@ void main() {
       for (final s in samples) {
         final r = route(s)!;
         expect(r.intent, SmallTalkIntent.farewell, reason: s);
-        expect(r.text, contains('خواهش میکنم'));
+        expect(r.text, anyOf(contains('خواهش می‌کنم'), contains('خواهش میکنم')));
       }
     });
 
@@ -444,7 +444,7 @@ void main() {
     test('پرسش نامرتبط در جلسهٔ عمومی RAG را فعال نمیکند', () {
       final s = _intakeSession();
       final turn = LegalCounselor.step(s, 'هوا چطوره؟', engine, templates);
-      expect(turn.text, contains('حدس نمیزنم'));
+      expect(turn.text, anyOf(contains('حدس نمی‌زنم'), contains('حدس نمیزنم')));
       expect(turn.ragQuery, isNull);
       expect(turn.ragReply, isNull);
       expect(s.topicId, 'general_intake');
