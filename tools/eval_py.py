@@ -121,6 +121,12 @@ class Engine:
                 if k and v:
                     self.syn.append((k, v))
 
+        self.topics = {'specialistPenalty': 1.0, 'specialist': {}, 'topics': []}
+        tp = os.path.join(assets_dir, 'brain', 'law_topics.json')
+        if os.path.isfile(tp):
+            with open(tp, encoding='utf-8') as f:
+                self.topics = json.load(f)
+
         df = {}
         self.postings = {}
         self.by_title = {}
@@ -240,9 +246,11 @@ class Engine:
             terms[v] = max(terms.get(v, 0.0), 0.5)
             idx += 1
 
-    def _promote_definitions(self, question, hits):
+    def _promote_definitions(self, question, hits, factors=None):
         if not hits or not DEF_Q_RE.search(normalize(question)):
             return hits
+        factors = factors or {}
+        boosted = {l for l, f in factors.items() if f > 1.0}
         toks = [t for t in tok(question) if t not in DEF_WORDS]
         if len(toks) >= 2 and toks[0] in DEF_META_PREFIXES:
             toks = toks[1:]
@@ -257,6 +265,11 @@ class Engine:
             for h in hits:
                 c = h[0]
                 if c['law'] == 'knowledge' or c['obs']:
+                    continue
+                # تعریفِ قانونِ نامرتبط با موضوع پرسش جلو نمی‌آید.
+                if factors.get(c['law'], 1.0) < 1.0:
+                    continue
+                if boosted and c['law'] not in boosted:
                     continue
                 body = CLEAN_BODY_RE.sub('', collapse(normalize(c['body'])), count=1)
                 p = term if body.startswith(term) else (
@@ -280,6 +293,24 @@ class Engine:
         for h in hits:
             if id(h[0]) not in picked_ids:
                 out.append(h)
+        return out
+
+    def law_factors(self, question):
+        """ضریب موضوعی هر قانون (آینهٔ KnowledgeEngine.lawFactors)."""
+        n = f' {phrase(question)} '
+
+        def hit(sigs):
+            return any(f' {phrase(s)}' in n for s in sigs)
+
+        out = {}
+        pen = float(self.topics.get('specialistPenalty', 1.0))
+        for law, sigs in self.topics.get('specialist', {}).items():
+            if not hit(sigs):
+                out[law] = pen
+        for t in self.topics.get('topics', []):
+            if hit(t.get('signals', [])):
+                for law, w in t.get('laws', {}).items():
+                    out[law] = out.get(law, 1.0) * float(w)
         return out
 
     def rank(self, question, k=60):
@@ -328,6 +359,7 @@ class Engine:
         if not cand_set:
             return []
 
+        factors = {} if ids else self.law_factors(question)
         hits = []
         for idx in sorted(cand_set):
             c = self.chunks[idx]
@@ -345,10 +377,11 @@ class Engine:
             s /= total if total > 0 else 1.0
             if c['obs']:
                 s *= 0.1
+            s *= factors.get(c['law'], 1.0)
             hits.append((c, s))
 
         hits.sort(key=lambda h: -h[1])
-        return self._promote_definitions(question, hits)[:k]
+        return self._promote_definitions(question, hits, factors)[:k]
 
 
 def run(eng, path, verbose):
@@ -383,6 +416,32 @@ def run(eng, path, verbose):
     return (r1 / n, r5 / n, mrr / n)
 
 
+def run_laws(eng, path, verbose):
+    """سنجش در سطح قانون: آیا top-1 در یکی از قانون‌های مجاز پرسش است."""
+    rows = []
+    with open(path, encoding='utf-8') as f:
+        for l in f:
+            l = l.strip()
+            if l and not l.startswith('#'):
+                rows.append([x.strip() for x in l.split('|')])
+    ok = 0
+    bad = []
+    for q, laws in rows:
+        allowed = {x.strip() for x in laws.split(',') if x.strip()}
+        hits = eng.rank(q, k=1)
+        got = hits[0][0]['law'] if hits else None
+        if got in allowed:
+            ok += 1
+        else:
+            bad.append((got, q))
+    n = len(rows)
+    print('%s: n=%d law@1 %.2f' % (os.path.basename(path), n, ok / n))
+    if verbose:
+        for got, q in bad:
+            print('  got %s | %s' % (got, q))
+    return ok / n
+
+
 if __name__ == '__main__':
     e = Engine()
     verbose = '-v' in sys.argv
@@ -406,5 +465,11 @@ if __name__ == '__main__':
                         f'min ({min_r1:.2f}, {min_r5:.2f}, {min_mrr:.3f})'
                     )
                     failed = True
+    p = os.path.join(ROOT, 'brain', 'eval', 'eval_everyday_laws.txt')
+    if os.path.exists(p):
+        acc = run_laws(e, p, verbose)
+        if check_mode and acc < 0.90:
+            print(f'FAIL eval_everyday_laws.txt: law@1 {acc:.2f} < 0.90')
+            failed = True
     if failed:
         sys.exit(1)

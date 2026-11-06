@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/config.dart';
+import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/replies.dart';
@@ -161,6 +162,21 @@ Future<void> _loadReplies() async {
   }
 }
 
+LawTopicPrior _lawPrior = LawTopicPrior.empty;
+
+/// ضریب موضوعی قانون‌ها برای یک پرسش (برای آزمون و عیب‌یابی).
+Map<String, double> lawFactors(String question) => _lawPrior.factors(question);
+
+Future<void> _loadLawTopics() async {
+  _lawPrior = LawTopicPrior.empty;
+  try {
+    final t = await rootBundle.loadString('assets/brain/law_topics.json');
+    _lawPrior = LawTopicPrior.fromJson(jsonDecode(t));
+  } catch (e) {
+    warnings.add('law_topics.json: $e');
+  }
+}
+
 Future<void> _loadRelationships() async {
   try {
     final t = await rootBundle.loadString('assets/relationships.json');
@@ -202,6 +218,7 @@ Future<void> load() async {
     _loadReplies(),
     _loadSynonyms(),
     _loadRelationships(),
+    _loadLawTopics(),
     knowledgeFuture,
   ]);
 
@@ -702,6 +719,9 @@ RankResult rank(String question, {int k = 3}) {
     if (candSet.isEmpty) return RankResult([]);
     final candIndices = candSet.toList()..sort();
 
+    // ضریب موضوعی قانون‌ها؛ وقتی کاربر نام قانون را آورده، بی‌اثر است.
+    final factors =
+        ids.isEmpty ? _lawPrior.factors(question) : const <String, double>{};
     final hits = <Hit>[];
     for (final idx in candIndices) {
       final c = _chunks[idx];
@@ -720,10 +740,13 @@ RankResult rank(String question, {int k = 3}) {
       if (s <= 0) continue;
       s = s / (total > 0 ? total : 1.0);
       if (c.obsolete) s *= 0.1;
+      s *= factors[c.lawId] ?? 1.0;
       hits.add(Hit(c, s));
     }
     hits.sort((a, b) => b.score.compareTo(a.score));
-    return RankResult(_promoteDefinitions(question, hits).take(k).toList());
+    return RankResult(
+      _promoteDefinitions(question, hits, factors).take(k).toList(),
+    );
   }
 
   static String _cleanBody(String body) =>
@@ -732,8 +755,16 @@ RankResult rank(String question, {int k = 3}) {
   /// اگر پرسش از نوع «X چیست» بود، تا دو مادهٔ منسوخ‌نشده‌ای که متنشان با
   /// همان واژه شروع می‌شود و حالت تعریفی دارد («عقدی است…»، «عبارت است…»)
   /// به ابتدای فهرست می‌آیند. دانش عمومی و ماده‌های منسوخ هیچ‌وقت نمی‌آیند.
-  List<Hit> _promoteDefinitions(String question, List<Hit> hits) {
+  List<Hit> _promoteDefinitions(
+    String question,
+    List<Hit> hits, [
+    Map<String, double> factors = const {},
+  ]) {
     if (hits.isEmpty || !_defQ.hasMatch(normalize(question))) return hits;
+    final boosted = {
+      for (final e in factors.entries)
+        if (e.value > 1.0) e.key,
+    };
     var toks =
         tokenizeIndex(question).where((t) => !_defWords.contains(t)).toList();
     if (toks.length >= 2 && _defMetaPrefixes.contains(toks.first)) {
@@ -749,6 +780,9 @@ RankResult rank(String question, {int k = 3}) {
       for (final h in hits) {
         final c = h.chunk;
         if (c.lawId == 'knowledge' || c.obsolete) continue;
+        // تعریفِ قانونِ نامرتبط با موضوع پرسش جلو نمی‌آید.
+        if ((factors[c.lawId] ?? 1.0) < 1.0) continue;
+        if (boosted.isNotEmpty && !boosted.contains(c.lawId)) continue;
         final body = _cleanBody(c.body);
         final p = body.startsWith(term)
             ? term
