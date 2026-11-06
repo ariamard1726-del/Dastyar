@@ -340,6 +340,11 @@ class LawyerVoice {
   static const String notFoundText =
       'صادقانه بگویم، در قوانینی که در اختیار دارم متنی پیدا نکردم که دقیقاً به این پرسش پاسخ دهد، و نمی‌خواهم با حدس و گمان راهنمایی‌تان کنم.\n\nاگر کمی بیشتر توضیح دهید، بهتر می‌توانم کمک کنم: موضوع به کدام حوزه مربوط است (چک و طلب، اجاره، کار، خانواده، ارث یا کیفری)، چه اتفاقی افتاده و طرف مقابل کیست؟';
 
+  /// جملهٔ پیوند «پاسخ پل» به نزدیک‌ترین ماده.
+  static const String bridgeLeadIn =
+      'تا آن موقع، نزدیک‌ترین متنی که در منابع پیدا کردم این است؛ ممکن است '
+      'دقیقاً پاسخ وضعیت شما نباشد:';
+
   static const List<String> notFoundChips = [
     'چک برگشتی دارم',
     'مشکل اجاره دارم',
@@ -359,14 +364,22 @@ class LawyerVoice {
     required String notFoundRaw,
     bool greeted = false,
     Random? rnd,
+    String? empathy,
+    String? notFoundOverride,
+    String? bridge,
   }) {
     final shown = shownText.trim();
     if (shown.isEmpty) return null;
+    final emp = empathy?.trim() ?? '';
     if (shown == notFoundRaw.trim()) {
       final lead = greeted ? '${_pick(_greetingOpeners, rnd)} ' : '';
-      final distress =
-          expressesDistress(userText) ? 'متوجه نگرانی‌تان هستم. ' : '';
-      return '$lead$distress$notFoundText';
+      final distress = emp.isNotEmpty
+          ? '$emp\n\n'
+          : (expressesDistress(userText) ? 'متوجه نگرانی‌تان هستم. ' : '');
+      final body = (notFoundOverride?.trim().isNotEmpty ?? false)
+          ? notFoundOverride!.trim()
+          : notFoundText;
+      return '$lead$distress$body';
     }
     if (reply.contextHits.isEmpty) return null;
     // ارجاع مستقیم به ماده: کاربر متن را خواسته؛ فقط یک جمع‌بندی کوتاه.
@@ -374,7 +387,22 @@ class LawyerVoice {
       return '$shown\n\nاگر دربارهٔ معنا یا کاربرد این ماده در وضعیت خودتان سؤالی دارید، بپرسید تا به زبان ساده توضیح بدهم.';
     }
     final sb = StringBuffer();
-    if (expressesDistress(userText)) {
+    final br = bridge?.trim() ?? '';
+    if (br.isNotEmpty) {
+      // شباهت متوسط: اول برداشت و پرسش جزئیات، بعد نزدیک‌ترین ماده با
+      // صراحت دربارهٔ اینکه ممکن است دقیقاً پاسخ وضعیت شما نباشد.
+      if (greeted) sb.write('${_pick(_greetingOpeners, rnd)} ');
+      if (emp.isNotEmpty) sb.write('$emp\n\n');
+      sb.write(br);
+      sb.write('\n\n');
+      sb.write(bridgeLeadIn);
+      sb.write('\n\n');
+      sb.write(shown);
+      return sb.toString();
+    }
+    if (emp.isNotEmpty) {
+      sb.write('$emp\n\n');
+    } else if (expressesDistress(userText)) {
       sb.write('متوجه نگرانی‌تان هستم و کمک می‌کنم موضوع روشن شود. ');
     }
     sb.write(_engineOpener(userText, greeted, rnd));
