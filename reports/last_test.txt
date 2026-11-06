@@ -1,11 +1,28 @@
-commit: 7dc4f47
-::error::316 tests passed, 1 failed.
+commit: ee33d99
+::error::316 tests passed, 2 failed.
+::group::❌ loading test/evaluation/prompt_hardening_test.dart (failed)
+   Failed to load "test/evaluation/prompt_hardening_test.dart":
+   Compilation failed for testPath=test/evaluation/prompt_hardening_test.dart: test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
+   expect(PromptBuilder.hardRules.length, greaterThanOrEqualTo(5));
+   ^^^^^^^^^
+   test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
+   for (final rule in PromptBuilder.hardRules) {
+   ^^^^^^^^^
+   test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
 ::group::❌ test/evaluation/evaluation_harness_test.dart: (setUpAll) (failed)
    PathNotFoundException: Cannot open file, path = 'brain/eval/evaluation_dataset.json' (OS Error: No such file or directory, errno = 2)
    test/evaluation/evaluation_harness_test.dart 30:43  main.<fn>
    ::endgroup::
+--- خطای کامپایل ---
+test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
+test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
+test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
+Failed to load "test/evaluation/prompt_hardening_test.dart":
+Compilation failed for testPath=test/evaluation/prompt_hardening_test.dart: test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
+test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
+test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
 --- analyze ---
-39 issues found. (ran in 8.2s)
+42 issues found. (ran in 12.1s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
