@@ -26,8 +26,13 @@ void main() {
     await engine.load();
     final repo = TemplateRepository();
     await repo.load();
-    final file = File(Platform.environment['AUDIT_IN'] ?? 'test/audit/conversations.txt');
-    final convs = file.readAsStringSync().split(RegExp(r'\n\s*\n'));
+    final inputs = (Platform.environment['AUDIT_IN'] ??
+            'test/audit/conversations.txt,test/audit/conversations_followup.txt')
+        .split(',');
+    final convs = [
+      for (final p in inputs)
+        ...File(p.trim()).readAsStringSync().split(RegExp(r'\n\s*\n')),
+    ];
     final out = StringBuffer();
     var n = 0;
     for (final c in convs) {

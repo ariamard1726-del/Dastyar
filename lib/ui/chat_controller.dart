@@ -21,6 +21,7 @@ import 'package:dastyar/domain/input_suggestions.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
 import 'package:dastyar/domain/lawyer/case_facts.dart';
+import 'package:dastyar/domain/lawyer/case_reasoner.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/lawyer/phrase_variator.dart';
@@ -71,6 +72,16 @@ class ChatController extends ChangeNotifier {
   /// در همان پرونده فهمیده شوند، نه به‌عنوان پرسش تازه.
   LegalGuide? _lastGuide;
   CaseFacts _facts = CaseFacts.empty;
+
+  /// پرسش‌هایی از پرونده که در آخرین پاسخ از کاربر پرسیده شد (برای فهم
+  /// «بله»، «نه»، «نمی‌دانم»).
+  List<CaseNeed> _pendingNeeds = const [];
+
+  /// پرسش‌هایی که کاربر گفت جوابشان را نمی‌داند (دوباره پرسیده نمی‌شوند).
+  final Set<String> _skippedNeeds = {};
+
+  /// دکمه‌های آخرین پاسخ (برای نمایش دوباره پس از پاسخ به پرسش میانی).
+  List<String> _prevChips = const [];
 
   static const String continueCaseChip = 'ادامه بررسی پرونده';
   static const String newQuestionChip = 'سؤال جدید دارم';
@@ -163,6 +174,8 @@ class ChatController extends ChangeNotifier {
     _lastCounselTopic = null;
     _lastGuide = null;
     _facts = CaseFacts.empty;
+    _pendingNeeds = const [];
+    _skippedNeeds.clear();
     _memory.clear();
     _pendingText = null;
     _pendingList = [];
@@ -231,6 +244,9 @@ class ChatController extends ChangeNotifier {
   Future<void> submit(String rawText) async {
     final text = rawText.trim();
     if (text.isEmpty || _busy || _disposed) return;
+    _prevChips = messages.isNotEmpty && !messages.last.fromUser
+        ? List<String>.of(messages.last.chips)
+        : const [];
     for (final m in messages) {
       m.chips = const [];
     }
@@ -261,6 +277,7 @@ class ChatController extends ChangeNotifier {
     if (_handleResumeCounsel(text)) return;
     if (_handleExplicitDraft(text)) return;
     if (_handleSessionChip(text)) return;
+    if (_handleCaseReasoning(text)) return;
     if (_handleSmallTalk(text)) return;
     if (_handleStrictCriminalPhrase(text)) return;
     if (await _handleLawyerGuide(text)) return;
@@ -306,6 +323,8 @@ class ChatController extends ChangeNotifier {
     if (text == newQuestionChip) {
       _lastGuide = null;
       _facts = CaseFacts.empty;
+      _pendingNeeds = const [];
+      _skippedNeeds.clear();
       _reply(
         text,
         'حتماً؛ بفرمایید. موضوع تازه را به زبان خودتان بنویسید یا یکی از موضوع‌های پایین را انتخاب کنید.',
@@ -374,9 +393,125 @@ class ChatController extends ChangeNotifier {
       templates: repo.templates,
       counselChip: LegalCounselor.startCounselCmd,
       variator: _phrases,
+      skipNeeds: _skippedNeeds,
     );
+    _setPendingNeeds(g);
     _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
     _reply(text, reply.text, chips: reply.chips, sensitive: true);
+    return true;
+  }
+
+  void _setPendingNeeds(LegalGuide g) {
+    _pendingNeeds = CaseReasoner.missingNeeds(g, _facts, skip: _skippedNeeds)
+        .take(2)
+        .toList();
+  }
+
+  /// پرسش‌های وابسته به پرونده («حالا چیکار کنم؟»، «کجا شکایت کنم؟»،
+  /// «شانس دارم؟»، «اگه انکار کنه چی؟») و پاسخ‌های کوتاه به پرسش‌های ما
+  /// («بله»، «نه»، «نمی‌دانم»)، با توجه به همهٔ چیزهایی که کاربر گفته.
+  bool _handleCaseReasoning(String text) {
+    var g = _lastGuide;
+    if (g == null) return false;
+    final (_, core) = LawyerVoice.splitLeadingGreeting(text);
+    if (LawyerVoice.isDirectArticleRef(core)) return false;
+    final kind = CaseReasoner.classify(core);
+    if (kind == null) return false;
+    // پرسشی که موضوع دیگری را نام می‌برد («کجا برای مهریه شکایت کنم؟»).
+    final named = LawyerVoice.matchGuide(core);
+    if (named != null && named.id != g.id) {
+      if (!LawyerVoice.sameFamily(g.id, named.id)) return false;
+      g = named;
+      _lastGuide = named;
+    }
+    final fresh = CaseFacts.extract(core);
+    _facts = _facts.merge(fresh);
+
+    if (CaseReasoner.isQuestionKind(kind)) {
+      final a = CaseReasoner.answer(kind, g, _facts, v: _phrases);
+      final sb = StringBuffer(a.text);
+      final next =
+          CaseReasoner.nextQuestion(g, _facts, v: _phrases, skip: _skippedNeeds);
+      if (next != null && kind != FollowUpKind.chance) {
+        sb.write('\n\n${PersianText.toFaDigits(next.$1)}');
+      }
+      _setPendingNeeds(g);
+      _reply(text, sb.toString(), sensitive: true, chips: [
+        ...LawyerVoice.templateChips(g, repo.templates),
+        LegalCounselor.startCounselCmd,
+      ]);
+      return true;
+    }
+
+    if (_pendingList.isNotEmpty) return false;
+    if (_pendingNeeds.isEmpty) {
+      // «بله» به پیشنهادی که دکمه‌هایش روی صفحه است: می‌پرسیم کدام.
+      final options = [
+        for (final c in _prevChips)
+          if (c != continueCaseChip && c != newQuestionChip) c,
+      ];
+      if (kind == FollowUpKind.yes && options.isNotEmpty) {
+        _reply(
+          text,
+          'حتماً. کدام‌یک را انجام دهیم؟ یکی از گزینه‌های زیر را انتخاب کنید؛ یا اگر پرسشی مثل «کجا شکایت کنم؟» یا «حالا چیکار کنم؟» دارید، بپرسید.',
+          chips: options,
+        );
+        return true;
+      }
+      if (kind == FollowUpKind.no) {
+        _reply(
+          text,
+          'باشه. اگر جزئیات دیگری از «${g.title}» هست بگویید، یا بپرسید قدم بعدی چیست، کجا باید مراجعه کنید یا اگر طرف مقابل انکار کند چه می‌شود.',
+          chips: [
+            ...LawyerVoice.templateChips(g, repo.templates),
+            newQuestionChip,
+          ],
+        );
+        return true;
+      }
+      return false;
+    }
+    final need = _pendingNeeds.first;
+    final sb = StringBuffer();
+    if (kind == FollowUpKind.dontKnow) {
+      _skippedNeeds.add(need.key);
+      sb.write(need.howToFind.isNotEmpty
+          ? 'اشکالی ندارد. ${need.howToFind}'
+          : 'اشکالی ندارد؛ هر وقت معلوم شد بگویید. فعلاً با همین اطلاعات جلو می‌رویم.');
+    } else if (need.isYesNo) {
+      _facts = _facts.withFlag(need.key, kind == FollowUpKind.yes);
+      final label = kind == FollowUpKind.yes
+          ? CaseFacts.flagLabel[need.key]
+          : CaseFacts.deniedLabel[need.key];
+      sb.write(label == null ? 'بسیار خب، یادداشت کردم.' : 'بسیار خب، یادداشت کردم: $label.');
+    } else if (kind == FollowUpKind.no && need.key == 'evidence') {
+      _facts = _facts.withFlag(CaseFlag.noEvidence, true);
+      sb.write('بسیار خب؛ پس فعلاً مدرکی در دست ندارید. این به معنی بسته بودن راه نیست؛ پیام‌ها، پرینت حساب یا کسی که در جریان بوده هم می‌تواند دلیل باشد.');
+    } else {
+      // «بله» به پرسشی که جوابش عدد یا توضیح است.
+      sb.write('لطفاً کمی دقیق‌تر بگویید: ${need.question}');
+      _reply(text, sb.toString(), sensitive: true);
+      return true;
+    }
+    final notes = LawyerVoice.notesFor(g, core, _facts);
+    for (final n in notes.take(2)) {
+      sb.write('\n• ${PersianText.toFaDigits(n)}');
+    }
+    final next =
+        CaseReasoner.nextQuestion(g, _facts, v: _phrases, skip: _skippedNeeds);
+    sb.write('\n\n');
+    if (next != null) {
+      sb.write(PersianText.toFaDigits(next.$1));
+    } else {
+      sb.write(CaseReasoner.chance(g, _facts, skip: _skippedNeeds).text);
+      sb.write(
+          '\n\nاگر بخواهید، می‌گویم قدم‌به‌قدم چه کنید یا کجا باید مراجعه کنید.');
+    }
+    _setPendingNeeds(g);
+    _reply(text, sb.toString(), sensitive: true, chips: [
+      ...LawyerVoice.templateChips(g, repo.templates),
+      LegalCounselor.startCounselCmd,
+    ]);
     return true;
   }
 
@@ -434,7 +569,9 @@ class ChatController extends ChangeNotifier {
     final prev = _lastGuide;
     if (prev == null || !LawyerVoice.sameFamily(prev.id, guide.id)) {
       _facts = CaseFacts.empty;
+      _skippedNeeds.clear();
     }
+    _pendingNeeds = const [];
     _lastGuide = guide;
     _facts = _facts.merge(CaseFacts.extract(core));
     final personal = LawyerVoice.isPersonal(core) ||
@@ -499,6 +636,8 @@ class ChatController extends ChangeNotifier {
               : null,
     );
     _disclaimerShown = true;
+    // پرسش راهنما دست‌نوشته است، نه از نیازهای پرونده.
+    _pendingNeeds = const [];
     _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
     messages.add(ChatMessage(text, true, sensitive: personal));
     messages.add(
@@ -513,6 +652,37 @@ class ChatController extends ChangeNotifier {
   bool _handleActiveCounsel(String text) {
     final counsel = _counsel;
     if (counsel == null) return false;
+    _facts = _facts.merge(CaseFacts.extract(text));
+
+    // پس از جمع‌بندی جلسه، پیام تازه (جز «ادامهٔ مشاوره») نباید دوباره همان
+    // جمع‌بندی را تکرار کند؛ گفتگو با همان پرونده ادامه می‌یابد.
+    if (counsel.concluded && !LegalCounselor.wantsResume(text)) {
+      _counsel = null;
+      _lastGuide ??= LawyerVoice.guideForCounselTopic(counsel.topicId);
+      _syncCounselCheckpoint();
+      return false;
+    }
+
+    // پرسش میانی («کجا باید شکایت کنم؟») در وسط مشاوره: جواب می‌دهیم و
+    // همان پرسش قبلی مشاوره سر جایش می‌ماند.
+    if (!counsel.concluded) {
+      final kind = CaseReasoner.classify(text);
+      final g = _lastGuide ?? LawyerVoice.guideForCounselTopic(counsel.topicId);
+      if (kind != null && g != null && CaseReasoner.isQuestionKind(kind)) {
+        _lastGuide = g;
+        final a = CaseReasoner.answer(kind, g, _facts, v: _phrases);
+        final hasPrev = _prevChips.isNotEmpty;
+        _reply(
+          text,
+          hasPrev
+              ? '${a.text}\n\nبرای ادامهٔ بررسی، به پرسش قبلی هم جواب دهید.'
+              : a.text,
+          sensitive: true,
+          chips: _prevChips,
+        );
+        return true;
+      }
+    }
 
     // «ادامهٔ مشاوره» پس از جمع‌بندی جلسه → بازگشایی همان موضوع
     if (counsel.concluded && LegalCounselor.wantsResume(text)) {

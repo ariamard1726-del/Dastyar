@@ -124,10 +124,10 @@ class ResponseComposer {
 
   /// قالبهای تأیید همراه با بازتاب گفتهٔ کاربر.
   static const List<String> _ackTemplates = <String>[
-    'بسیار خب، متوجه شدم {echo} است. {connector} {question}',
-    'خب، پس {echo} را یادداشت کردم. {connector} {question}',
-    'درست است، {echo} — این نکته را در نظر گرفتم. {connector} {question}',
-    'ممنون، با توجه به {echo}، {connector} {question}',
+    'بسیار خب، «{echo}» را یادداشت کردم. {connector} {question}',
+    'خب، پس «{echo}»؛ این را در نظر گرفتم. {connector} {question}',
+    'ممنون که گفتید «{echo}». {connector} {question}',
+    'درست است، «{echo}»؛ این نکته را در نظر گرفتم. {connector} {question}',
   ];
 
   /// وقتی ورودی قابل بازتاب نباشد (خالی یا لاتین) همچنان طبیعی پاسخ میدهیم.
