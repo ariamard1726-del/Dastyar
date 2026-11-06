@@ -1,0 +1,44 @@
+# پرسش‌های روزمرهٔ کاربران؛ سنجش در سطح قانون (top-1 باید یکی از قانون‌های مجاز باشد). پرسش|قانون۱,قانون۲
+شرایط فسخ قرارداد اجاره خانه چیست؟|landlord_tenant,civil
+صاحبخانه ودیعه من را پس نمی‌دهد|landlord_tenant,civil
+مستاجر اجاره نمی‌دهد چطور تخلیه کنم|landlord_tenant,civil
+مدت اجاره تمام شده و مستاجر خانه را خالی نمی‌کند|landlord_tenant,civil
+صاحبخانه می‌خواهد وسط قرارداد بیرونم کند|landlord_tenant,civil
+سرقفلی مغازه چه حکمی دارد|landlord_tenant
+کارفرما حقوقم را نداده|labor
+اخراج شدم بدون دلیل|labor
+سنوات پایان کار چطور حساب می‌شود|labor
+کارفرما عیدی نمی‌دهد|labor
+ساعت کار قانونی در هفته چقدر است|labor
+مرخصی سالانه کارگر چند روز است|labor
+کارفرما بیمه‌ام را رد نکرده|social_security,labor
+مستمری بازنشستگی چطور محاسبه می‌شود|social_security
+مهریه را چطور بگیرم|family_protection,civil
+طلاق توافقی چه شرایطی دارد|family_protection,civil
+شوهرم نفقه نمی‌دهد|civil,family_protection,penal_taazirat
+حضانت بچه بعد از طلاق با کیست|civil,family_protection
+زن بدون اجازه شوهر می‌تواند از کشور خارج شود|civil,family_protection
+چک برگشتی دارم چه کنم|cheque
+مجازات صدور چک بی‌محل چیست|cheque
+کسی کلاهبرداری اینترنتی کرده|cybercrime,fraud_intensify
+مجازات کلاهبرداری چیست|fraud_intensify
+مجازات سرقت چیست|penal_taazirat,penal
+توهین و فحاشی چه مجازاتی دارد|penal_taazirat
+تهدید کردن جرم است|penal_taazirat
+دیه شکستن دست چقدر است|penal
+مالیات اجاره خانه چقدر است|direct_taxes
+مالیات بر ارث چطور حساب می‌شود|direct_taxes
+ارث به چه کسانی می‌رسد|civil
+وصیت بیشتر از یک سوم مال نافذ است|civil
+خریدار پول خانه را کامل نداده می‌توانم معامله را فسخ کنم|civil
+جنس معیوب خریدم فروشنده پس نمی‌گیرد|consumer_protection,civil
+مهلت تجدیدنظر چند روز است|civil_procedure,criminal_procedure
+تصادف کردم و طرف مقابل خسارت می‌خواهد|civil_liability,penal
+کسی دیوار خانه‌ام را خراب کرده خسارت می‌خواهم|civil_liability,civil
+ورشکستگی شرکت چه حکمی دارد|commerce
+سفته را چطور به اجرا بگذارم|commerce
+توانایی پرداخت بدهی ندارم اعسار چطور است|financial_sentences
+طلبکار می‌خواهد زندانم کند|financial_sentences
+شورای حل اختلاف به چه دعاوی رسیدگی می‌کند|dispute_councils
+سند خانه به نامم نیست چطور سند بگیرم|registration,civil
+هک کردن حساب اینستاگرام جرم است|cybercrime
