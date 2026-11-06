@@ -69,7 +69,7 @@ static _Options parse(List<String> args) {
 final o = _Options();
 String? valueOf(int i, String flag) {
 if (i + 1 >= args.length) {
-throw FormatException('مقدار $`flag داده نشده است');
+throw FormatException('مقدار $flag داده نشده است');
 }
 return args[i + 1];
 } 
@@ -112,14 +112,14 @@ o.strict = true;
 } else if (a == '-h' || a == '--help') {
 o.help = true;
 } else if (a.startsWith('-')) {
-throw FormatException('گزینهٔ ناشناخته: `$a');
+throw FormatException('گزینهٔ ناشناخته: $a');
 }
 }
 return o;
 }
 } 
 
-List<LegalTemplate> loadTemplates() {
+List<LegalTemplate> _loadTemplates() {
 final dir = Directory('assets/templates');
 if (!dir.existsSync()) return const <LegalTemplate>[];
 final out = <LegalTemplate>[];
@@ -130,7 +130,7 @@ final json = jsonDecode(f.readAsStringSync());
 if (json is Map<String, dynamic>) {
 out.add(LegalTemplate.fromJson(json));
 }
-} catch () {
+} catch (_) {
 // قالب خراب نباید ارزیابی را متوقف کند.
 }
 }
@@ -138,14 +138,14 @@ out.sort((a, b) => a.id.compareTo(b.id));
 return out;
 } 
 
-IntentNet? loadIntentNet() {
+IntentNet? _loadIntentNet() {
 try {
 final file = File('assets/brain/intent_model.json');
 if (!file.existsSync()) return null;
 final json = jsonDecode(file.readAsStringSync());
 if (json is! Map<String, dynamic>) return null;
 return IntentNet.fromJson(json);
-} catch () {
+} catch (_) {
 return null;
 }
 } 
@@ -156,7 +156,7 @@ final _Options options;
 try {
 options = _Options.parse(args);
 } on FormatException catch (e) {
-stderr.writeln('خطا در گزینه‌ها: $`{e.message}');
+stderr.writeln('خطا در گزینه‌ها: ${e.message}');
 stderr.writeln(_usage);
 return 2;
 }
@@ -181,7 +181,7 @@ final problems = dataset.validate(knownLawIds: knownLaws);
 if (problems.isNotEmpty) {
 stderr.writeln('ایرادهای دیتاست:');
 for (final p in problems) {
-stderr.writeln(' • `$p');
+stderr.writeln(' • $p');
 }
 return 2;
 } 
@@ -195,9 +195,7 @@ sinks: options.trace
 : const <DebugSink>[],
 ); 
 
-stdout.writeln('دیتاست: 
-
-{dataset.length} سناریو) — مدل نیت: $`{net == null ? 'غیرفعال' : 'فعال'}'); 
+stdout.writeln('دیتاست: ${dataset.length} سناریو) — مدل نیت: ${net == null ? 'غیرفعال' : 'فعال'}');
 
 final harness = EvaluationHarness(
 engine,
@@ -216,7 +214,7 @@ out.parent.createSync(recursive: true);
 out.writeAsStringSync(
 const JsonEncoder.withIndent(' ').convert(report.toJson()),
 );
-stdout.writeln('گزارش JSON: `$jsonPath');
+stdout.writeln('گزارش JSON: $jsonPath');
 } 
 
 final tracesPath = options.tracesPath;
@@ -224,7 +222,7 @@ if (tracesPath != null) {
 final out = File(tracesPath);
 out.parent.createSync(recursive: true);
 out.writeAsStringSync(logger.exportJson());
-stdout.writeln('ردِ دیباگ: $`tracesPath');
+stdout.writeln('ردِ دیباگ: $tracesPath');
 } 
 
 final ok = report.meets(
@@ -237,7 +235,7 @@ minHonesty: options.minHonesty,
 if (!options.strict) return 0;
 if (!ok) {
 stderr.writeln(
-'آستانه‌ها برآورده نشد: intent>=${options.minIntent} ' 'route&gt;=${options.minRoute} articles>=${options.minArticles} ' 'citation&gt;=${options.minCitation} honesty>=`${options.minHonesty}',
+'آستانه‌ها برآورده نشد: intent>=${options.minIntent} ' 'route>=${options.minRoute} articles>=${options.minArticles} ' 'citation>=${options.minCitation} honesty>=${options.minHonesty}',
 );
 return 1;
 }
@@ -254,8 +252,10 @@ if (raw == null || raw.trim().isEmpty) return const <String>[];
 return raw.trim().split(RegExp(r'\s+'));
 } 
 
-Future<void> main(List<String> args) async {
-final effective = args.isNotEmpty ? args : _argsFromEnvironment(); 
+Future<void> main() async {
+// زیر flutter test آرگومان‌های خط فرمان به main نمی‌رسند؛ گزینه‌ها از
+// EVAL_ARGS خوانده می‌شوند (نگاه کنید به _argsFromEnvironment).
+final effective = _argsFromEnvironment();
 
 if (Platform.environment['FLUTTER_TEST'] == 'true') {
 // زیر flutter test باید یک test ثبت شود، وگرنه رانر «No tests ran» می‌دهد.

@@ -166,7 +166,7 @@ class EvaluationHarness {
 
     if (scenario.expectedTopic != null && topic != scenario.expectedTopic) {
       failures.add(
-        'موضوع: انتظار «${scenario.expectedTopic}» ولی «${topic ?? 'نامشخص'}» تشخیص داده شد',
+        'موضوع: انتظار «${scenario.expectedTopic}» ولی «$topic» تشخیص داده شد',
       );
     }
     if (scenario.expectedRoute != null && route != scenario.expectedRoute) {
