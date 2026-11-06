@@ -867,6 +867,24 @@ static CounselorTurn _handleDomainStep(
     );
   }
 
+  // پاسخ کاربر به پرسش فعلی نبود، ولی شاید جواب پرسش دیگری از همین پرونده
+  // باشد (مثلاً «قراردادمون عادیه» وقتی پرسیده‌ایم «مدت تمام شده؟»). آن را
+  // یادداشت می‌کنیم تا دوباره پرسیده نشود.
+  final before = session.facts.length;
+  _extractAllFacts(session, rawText);
+  if (session.facts.length > before) {
+    final next = _pendingStep(session);
+    if (next != null) {
+      return CounselorTurn(
+        text:
+            'ممنون، این را هم یادداشت کردم. حالا برگردیم به پرسشی که هنوز مانده:\n\n${_promptFor(session.topicId, next, replies, rnd)}',
+        chips: [...next.options, cancelCounselCmd],
+      );
+    }
+    CounselorSessionState.clearStalls(session);
+    return _advance(session, engine, templates, firstTurn: false, replies: replies, rnd: rnd);
+  }
+
   return _plannerStallTurn(
     session,
     engine,
@@ -1414,7 +1432,7 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           options: const ['قرارداد کتبی یا سابقهٔ بیمه دارم', 'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم', 'هیچ مدرک کتبی یا بانکی ندارم'],
           extractor: (n) {
             if (n.contains('کتبی') || n.contains('سابقه بیمه')) return 'written';
-            if (n.contains('شفاهی') || n.contains('واریزی') || n.contains('واریز') || n.contains('پیامک') || n.contains('واتساپ') || n.contains('فیش')) return 'bank_sms';
+            if (n.contains('شفاهی') || n.contains('قرارداد ندارم') || n.contains('قراردادی ندارم') || n.contains('واریزی') || n.contains('واریز') || n.contains('پیامک') || n.contains('واتساپ') || n.contains('فیش')) return 'bank_sms';
             if (n.contains('هیچ مدرک') || n.contains('مدرکی ندارم') || n.contains('هیچی ندارم')) return 'none';
             return null;
           },
@@ -1424,8 +1442,8 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           prompt: '۳. در حال حاضر مشغول به کار هستید یا قطع همکاری شده؟ اگر اخراج شده‌اید، آیا کمتر از ۳۰ روز از تاریخ اخراج گذشته است؟',
           options: const ['کمتر از ۳۰ روز از اخراج گذشته است', 'بیش از ۳۰ روز از قطع همکاری گذشته', 'هنوز در کارگاه مشغول به کارم'],
           extractor: (n) {
-            if (n.contains('کمتر از 30') || n.contains('هفته پیش اخراج')) return 'under_30d';
-            if (n.contains('بیش از 30') || n.contains('چند ماه پیش')) return 'over_30d';
+            if (n.contains('کمتر از 30') || n.contains('هفته پیش') || n.contains('دیروز') || n.contains('امروز') || n.contains('چند روز پیش') || RegExp(r'(?:^| )(?:\d+|یک|یه|دو|سه|چند) روز (?:پیش|قبل)').hasMatch(n)) return 'under_30d';
+            if (n.contains('بیش از 30') || n.contains('ماه پیش') || n.contains('ماه قبل') || n.contains('سال پیش') || n.contains('سال قبل')) return 'over_30d';
             if (n.contains('مشغول به کار')) return 'active';
             return null;
           },
@@ -1449,7 +1467,8 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           prompt: '۲. آیا مدت قرارداد اجاره به پایان رسیده است؟',
           options: const ['بله، مدت قرارداد تمام شده است', 'خیر، هنوز در میانهٔ مدت قرارداد هستیم'],
           extractor: (n) {
-            if (n.contains('تمام شده') || n.contains('منقضی شده') || n.contains('پایان رسیده')) return 'yes';
+            if (n.contains('تمام نشده') || n.contains('تموم نشده') || n.contains('میانه مدت')) return 'no';
+            if (n.contains('تمام شده') || n.contains('منقضی شده') || n.contains('پایان رسیده') || n.contains('تموم شده') || n.contains('تموم شد') || n.contains('تمام شد') || n.contains('سر رسیده') || n.contains('سررسید شده')) return 'yes';
             if (n.contains('میانه مدت') || n.contains('تمام نشده')) return 'no';
             return null;
           },
@@ -1460,7 +1479,9 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           options: const ['قرارداد کتبی با امضای دو شاهد یا سند رسمی', 'قرارداد عادی بدون امضای دو شاهد یا شفاهی'],
           extractor: (n) {
             if (n.contains('دو شاهد') || n.contains('رسمی') || n.contains('کد رهگیری')) return 'two_witnesses';
-            if (n.contains('بدون امضای دو شاهد') || n.contains('بدون شاهد') || n.contains('شفاهی')) return 'no_witnesses';
+            if (n.contains('بدون امضای دو شاهد') || n.contains('بدون شاهد') || n.contains('شفاهی') || n.contains('قرارداد ندارم') || n.contains('قراردادی ندارم')) return 'no_witnesses';
+            if (n.contains('بنگاه') && n.contains('کد رهگیری')) return 'two_witnesses';
+            if (n.contains('عادی') && !n.contains('بنگاه')) return 'no_witnesses';
             return null;
           },
         ),
@@ -1497,7 +1518,7 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           extractor: (n) {
             if (n.contains('توان مالی') || n.contains('اعسار') || n.contains('اجرا گذاشته')) return 'enforcement_insolvency';
             if (n.contains('توافق داریم') || n.contains('توافقی')) return 'mutual';
-            if (n.contains('توافق نداریم') || n.contains('همکاری نمی')) return 'contested';
+            if (n.contains('توافق نداریم') || n.contains('همکاری نمی') || n.contains('نمیده') || n.contains('نمی دهد') || n.contains('نمی‌دهد') || n.contains('قهر کرده') || n.contains('رفته خونه') || n.contains('ترک کرده') || n.contains('زیر بار نمیره')) return 'contested';
             return null;
           },
         ),

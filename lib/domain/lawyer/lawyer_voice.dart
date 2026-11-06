@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/domain/lawyer/case_facts.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/lawyer/phrase_variator.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -85,10 +86,26 @@ class LawyerVoice {
 
   /// مناسب‌ترین راهنما برای پیام کاربر، یا `null`.
   static LegalGuide? matchGuide(String rawText) {
-    if (rawText.trim().isEmpty || isDirectArticleRef(rawText)) return null;
+    final all = matchGuides(rawText);
+    return all.isEmpty ? null : all.first;
+  }
+
+  /// پیشوند دکمه‌ای که کاربر را به یک موضوع دیگرِ همان ماجرا می‌برد.
+  static const String topicChipPrefix = 'دربارهٔ ';
+
+  /// همهٔ راهنماهای منطبق، به ترتیب امتیاز (بهترین اول). عنوان دقیق یک
+  /// راهنما (یا «دربارهٔ <عنوان>») مستقیماً همان راهنما را برمی‌گرداند.
+  static List<LegalGuide> matchGuides(String rawText) {
+    if (rawText.trim().isEmpty || isDirectArticleRef(rawText)) return const [];
     final p = _phrase(rawText);
-    LegalGuide? best;
-    var bestScore = 0;
+    final bare = PersianText.phrase(rawText);
+    for (final g in legalGuides) {
+      final t = PersianText.phrase(g.title);
+      if (bare == t || bare == PersianText.phrase('$topicChipPrefix${g.title}')) {
+        return [g];
+      }
+    }
+    final scored = <(LegalGuide, int)>[];
     for (final g in legalGuides) {
       if (_normExcludes[g.id]!.any((e) => e.isNotEmpty && p.contains(e))) {
         continue;
@@ -102,13 +119,175 @@ class LawyerVoice {
       }
       if (score == 0) continue;
       score += g.priority;
-      if (score > bestScore) {
-        bestScore = score;
-        best = g;
-      }
+      scored.add((g, score));
     }
+    // مرتب‌سازی پایدار: در تساوی، ترتیب تعریف حفظ می‌شود (قطعی).
+    final idx = {for (var i = 0; i < legalGuides.length; i++) legalGuides[i].id: i};
+    scored.sort((a, b) {
+      final c = b.$2.compareTo(a.$2);
+      return c != 0 ? c : idx[a.$1.id]!.compareTo(idx[b.$1.id]!);
+    });
+    return [for (final x in scored) x.$1];
+  }
+
+  /// موضوع‌های دیگری از همان ماجرا (برای پیام‌های چندمسئله‌ای)؛ فقط
+  /// راهنماهای هم‌خانواده و حداکثر دو مورد.
+  static List<LegalGuide> relatedIssues(LegalGuide main, String rawText) {
+    final fam = _family(main.id);
+    final out = <LegalGuide>[];
+    for (final g in matchGuides(rawText)) {
+      if (g.id == main.id || out.length >= 2) continue;
+      if (fam != null && _family(g.id) == fam) out.add(g);
+    }
+    return out;
+  }
+
+  static String? _family(String id) => _guideFamily[id];
+
+  /// آیا دو راهنما به یک ماجرا (یک خانوادهٔ موضوعی) تعلق دارند؟
+  static bool sameFamily(String a, String b) =>
+      a == b || (_family(a) != null && _family(a) == _family(b));
+
+  static final RegExp _lawOverviewRe = RegExp(
+    r'^(?:(?:درباره|در مورد|راجع به|از) )?(?:قانون|ق) (.+?) (?:بگو|بگین|بگید|توضیح بده|توضیح بدین|توضیح بدید|چی میدونی|چیه|چیست|رو بگو|را توضیح بده)$',
+  );
+
+  /// شناسهٔ قانونی که کاربر کلی دربارهٔ آن پرسیده («دربارهٔ قانون کار بگو»).
+  static String? lawOverviewId(String rawText, Map<String, Map<String, dynamic>> meta) {
+    final m = _lawOverviewRe.firstMatch(PersianText.phrase(rawText));
+    if (m == null) return null;
+    final name = m.group(1)!.trim();
+    if (name.isEmpty || RegExp(r'\d').hasMatch(name)) return null;
+    String? best;
+    var bestLen = 1 << 30;
+    meta.forEach((id, v) {
+      final title = PersianText.phrase('${v['title'] ?? ''}');
+      if (title == 'قانون $name' ||
+          title.startsWith('قانون $name ') ||
+          (title.startsWith('قانون ') && title.endsWith(' $name')) ||
+          title == name) {
+        if (title.length < bestLen) {
+          bestLen = title.length;
+          best = id;
+        }
+      }
+    });
     return best;
   }
+
+  /// موضوع پرسش‌های پیشنهادی برای هر قانون.
+  static const Map<String, String> lawTopic = {
+    'labor': 'labor',
+    'social_security': 'labor',
+    'landlord_tenant': 'lease',
+    'cheque': 'cheque',
+    'family_protection': 'family',
+    'marriage': 'family',
+    'penal_taazirat': 'criminal_harm',
+    'cybercrime': 'fraud_cyber',
+    'fraud_intensify': 'fraud_cyber',
+    'civil_procedure': 'litigation_defense',
+    'criminal_procedure': 'litigation_defense',
+    'financial_sentences': 'debt',
+    'consumer_protection': 'consumer',
+    'civil_liability': 'accident',
+  };
+
+  static const Map<String, String> _guideFamily = {
+    'dismissal': 'labor',
+    'unpaid_wages': 'labor',
+    'labor_insurance': 'labor',
+    'deposit_return': 'lease',
+    'eviction': 'lease',
+    'mahrieh': 'family',
+    'nafaqeh': 'family',
+    'custody': 'family',
+    'divorce': 'family',
+    'tamkin': 'family',
+    'cheque_bounced': 'cheque',
+    'cheque_issuer': 'cheque',
+    'cheque_guarantee': 'cheque',
+    'accident': 'accident',
+    'diyeh': 'accident',
+    'assault': 'harm',
+    'insult_threat': 'harm',
+    'defamation': 'harm',
+  };
+
+  static bool _cueHit(String p, CaseFacts facts, List<String> group) {
+    for (final c in group) {
+      if (c.startsWith('@')) {
+        if (!facts.has(c.substring(1))) return false;
+      } else {
+        final t = PersianText.phrase(c);
+        if (t.isEmpty || !p.contains(t)) return false;
+      }
+    }
+    return true;
+  }
+
+  /// نکته‌های شرطی راهنما که با جزئیات پیام کاربر جور درمی‌آیند.
+  static List<String> notesFor(LegalGuide g, String rawText, [CaseFacts? f]) {
+    final facts = f ?? CaseFacts.extract(rawText);
+    final p = _phrase(rawText);
+    return [
+      for (final n in g.notes)
+        if (n.cues.any((grp) => _cueHit(p, facts, grp))) n.text,
+    ];
+  }
+
+  static const List<String> _notesHeads = [
+    'با توجه به آنچه گفتید:',
+    'با جزئیاتی که گفتید، این نکته‌ها مخصوص وضعیت شماست:',
+    'دربارهٔ شرایط خاص شما:',
+  ];
+
+  static const List<String> _factsHeads = [
+    CaseFacts.summaryHead,
+    'این جزئیات را از توضیح شما برداشتم:',
+    'برای اینکه دوباره نپرسم، این‌ها را از پیام شما یادداشت کردم:',
+  ];
+
+  static const List<String> _multiHeads = [
+    'در ماجرای شما بیش از یک موضوع حقوقی هست:',
+    'در توضیح شما چند مسئلهٔ جدا از هم دیده می‌شود:',
+  ];
+
+  /// بلوک «یادداشت‌ها + نکته‌های شرطی + موضوع‌های دیگر» برای پیام شخصی.
+  static String personalizedBlock(
+    LegalGuide g,
+    String rawText, {
+    PhraseVariator? v,
+    CaseFacts? facts,
+    bool includeFacts = true,
+  }) {
+    final f = facts ?? CaseFacts.extract(rawText);
+    final parts = <String>[];
+    if (includeFacts && f.summaryLines().length >= 2) {
+      parts.add(f.render(
+        head: v == null ? CaseFacts.summaryHead : v.pick('facts', _factsHeads),
+      ));
+    }
+    final notes = notesFor(g, rawText, f);
+    if (notes.isNotEmpty) {
+      final h = v == null ? _notesHeads.first : v.pick('notes', _notesHeads);
+      parts.add('$h\n${notes.map((n) => '• ${_fa(n)}').join('\n')}');
+    }
+    final rel = relatedIssues(g, rawText);
+    if (rel.isNotEmpty) {
+      final all = [g, ...rel].map((x) => '«${x.title}»').join('، ');
+      final h = v == null ? _multiHeads.first : v.pick('multi', _multiHeads);
+      parts.add(
+        '$h $all. در این پاسخ روی «${g.title}» تمرکز کرده‌ام؛ برای بقیه، دکمه‌های پایین را بزنید تا جداگانه بررسی کنیم.',
+      );
+    }
+    return parts.join('\n\n');
+  }
+
+  /// دکمه‌های موضوع‌های دیگرِ همان ماجرا.
+  static List<String> relatedChips(LegalGuide g, String rawText) => [
+        for (final r in relatedIssues(g, rawText)) '$topicChipPrefix${r.title}',
+      ];
 
   static LegalGuide? guideById(String id) {
     for (final g in legalGuides) {
@@ -206,6 +385,23 @@ class LawyerVoice {
     'کنم',
     'بکنم',
     'بدم',
+    'تهدیدم',
+    'عکسامو',
+    'عکسهامو',
+    'عکسام',
+    'آبرومو',
+    'گوشیمو',
+    'پولمو',
+    'حقوقمو',
+    'ماشینمو',
+    'خونمو',
+    'خونه ما',
+    'خانه ما',
+    'خونمون',
+    'زندانم',
+    'شکایتم',
+    'ازمون',
+    'بهمون',
   ].map(PersianText.phrase).toList();
 
   /// آیا پیام دربارهٔ وضعیت شخصی خود کاربر است (نه یک پرسش کلی)؟
@@ -384,10 +580,14 @@ class LawyerVoice {
     String counselChip = '',
     Random? rnd,
     PhraseVariator? variator,
+    CaseFacts? knownFacts,
   }) {
     final v = variator;
     final sb = StringBuffer();
-    final empathetic = expressesDistress(rawText) || isPersonal(rawText);
+    final empathetic = (knownFacts?.isNotEmpty ?? false) ||
+        expressesDistress(rawText) ||
+        isPersonal(rawText) ||
+        CaseFacts.extract(rawText).counterparties.isNotEmpty;
     if (greeted) {
       sb.write('${_pick(_greetingOpeners, rnd, v: v, key: 'greet')} ');
     }
@@ -398,6 +598,21 @@ class LawyerVoice {
     );
     sb.write('\n\n');
     sb.write(_fa(g.answer));
+
+    final personal = isPersonal(rawText) ||
+        expressesDistress(rawText) ||
+        (knownFacts?.isNotEmpty ?? false);
+    final block = personalizedBlock(
+      g,
+      rawText,
+      v: v,
+      facts: knownFacts,
+      includeFacts: personal,
+    );
+    if (block.isNotEmpty) {
+      sb.write('\n\n');
+      sb.write(block);
+    }
 
     if (g.steps.isNotEmpty) {
       sb.write('\n\n');
@@ -445,19 +660,121 @@ class LawyerVoice {
     }
 
     final chips = <String>[
+      ...relatedChips(g, rawText),
       if (counselChip.isNotEmpty) counselChip,
       ...templateChips(g, templates),
     ];
     return LawyerReply(text: sb.toString(), chips: chips, guide: g);
   }
 
+  static const List<String> _followUpOpeners = [
+    'ممنون که این جزئیات را گفتید؛ همین‌ها تصویر پرونده را روشن‌تر می‌کند.',
+    'خوب شد گفتید؛ این اطلاعات در مسیر پرونده شما اهمیت دارد.',
+    'این توضیح خیلی به کار می‌آید؛ بگذارید آن را در کنار بقیهٔ ماجرا ببینیم.',
+  ];
+
+  static const List<String> _followUpNext = [
+    'قدم بعدی که پیشنهاد می‌کنم:',
+    'با این اطلاعات، کار بعدی این است:',
+    'از اینجا به بعد، این‌طور پیش برویم:',
+  ];
+
+  /// پاسخ به پیامی که در ادامهٔ یک راهنما، جزئیات تازه‌ای از ماجرا می‌دهد
+  /// (مثل «پیام واتساپ دارم و یه شاهد»). جزئیات تأیید و در پرونده جمع
+  /// می‌شود، ارزش مدارک گفته می‌شود و قدم بعدی پیشنهاد می‌شود.
+  static LawyerReply composeFollowUp(
+    LegalGuide g,
+    String rawText, {
+    required CaseFacts newFacts,
+    required CaseFacts allFacts,
+    List<LegalTemplate> templates = const [],
+    String counselChip = '',
+    PhraseVariator? variator,
+  }) {
+    final v = variator;
+    final sb = StringBuffer();
+    sb.write(v == null
+        ? _followUpOpeners.first
+        : v.pick('followup.open', _followUpOpeners));
+    final facts = allFacts.render(
+      head: 'تا اینجا این‌ها را از ماجرای «${g.title}» یادداشت کرده‌ام:',
+    );
+    if (facts.isNotEmpty) {
+      sb.write('\n\n');
+      sb.write(_fa(facts));
+    }
+    final notes = <String>[
+      ...newFacts.evidenceNotes(),
+      ...notesFor(g, rawText, allFacts),
+    ];
+    if (notes.isNotEmpty) {
+      sb.write('\n\n');
+      sb.write(v == null ? _notesHeads.first : v.pick('notes', _notesHeads));
+      for (final n in notes) {
+        sb.write('\n• ${_fa(n)}');
+      }
+    }
+    if (g.steps.isNotEmpty) {
+      // اگر کاربر مدرک گفته، قدم «جمع‌آوری مدرک» را رد می‌کنیم.
+      final idx = newFacts.evidence.isNotEmpty && g.steps.length > 1 ? 1 : 0;
+      sb.write('\n\n');
+      sb.write(v == null ? _followUpNext.first : v.pick('followup.next', _followUpNext));
+      sb.write(' ${_fa(g.steps[idx])}');
+    }
+    final tChips = templateChips(g, templates);
+    sb.write('\n\n');
+    if (tChips.isNotEmpty) {
+      sb.write(
+        'اگر بخواهید، با همین اطلاعات پیش‌نویس «${tChips.first}» را با هم آماده می‌کنیم؛ یا با چند پرسش کوتاه، وضعیت پرونده را دقیق‌تر می‌سنجیم.',
+      );
+    } else {
+      sb.write(
+        'اگر بخواهید، با چند پرسش کوتاه وضعیت پرونده را دقیق‌تر می‌سنجیم؛ یا هر جزئیات دیگری هست بگویید.',
+      );
+    }
+    return LawyerReply(
+      text: sb.toString(),
+      chips: [
+        ...tChips,
+        if (counselChip.isNotEmpty) counselChip,
+      ],
+      guide: g,
+    );
+  }
+
+  static const List<String> clarifyTexts = [
+    'حتماً، در خدمتم. برای اینکه دقیق راهنمایی‌تان کنم، ماجرا را به زبان خودتان کمی بیشتر توضیح دهید:\n• چه اتفاقی افتاده است؟\n• طرف مقابل کیست (کارفرما، صاحبخانه، همسر، بدهکار، …)؟\n• از کی شروع شده؟\n• چه مدرکی دارید (قرارداد، رسید، پیام، شاهد)؟\n\nیا اگر موضوع یکی از این‌هاست، روی آن بزنید.',
+    'با کمال میل. هر چه دقیق‌تر بگویید، جواب من هم دقیق‌تر و به کارتر می‌شود. کافی است بنویسید:\n• چه پیش آمده و با چه کسی؟\n• چه زمانی؟\n• چه مدرکی در دست دارید؟\n\nاگر موضوع را در فهرست پایین می‌بینید، همان را انتخاب کنید.',
+  ];
+
+  static final RegExp _vagueRe = RegExp(
+    r'^(?:سلام )?(?:یه|یک|چند)? ?(?:سوال|سئوال|سؤال|مشکل|پرسش|مسئله|مساله)(?: حقوقی)? ?(?:داشتم|دارم|هست|پیش اومده|پیش آمده)?(?: از شما| ازتون| ازت)?$'
+    r'|^(?:من )?(?:حقوق من|حقوقم|حق من|حقم) (?:چیه|چیست|چی هست)$'
+    r'|^(?:من )?چه حقی دارم$'
+    r'|^(?:کمک|مشاوره|راهنمایی) (?:حقوقی )?(?:میخوام|می خوام|می خواهم|لازم دارم)$'
+    r'|^(?:میشه|می شه|می شود) (?:کمکم کنی|کمکم کنید|راهنماییم کنی|راهنماییم کنید)$',
+  );
+
+  /// پیام کلی و مبهمی مثل «یه سوال حقوقی داشتم» یا «حقوق من چیه؟».
+  static bool isVagueIntake(String rawText) =>
+      _vagueRe.hasMatch(PersianText.phrase(rawText));
+
   /// مقدمهٔ همدلانه و خلاصهٔ اولیه برای وقتی که مشاورهٔ گام‌به‌گام شروع
   /// می‌شود؛ تا کاربر پیش از پرسش‌ها، تصویری از وضعیت خودش داشته باشد.
-  static String counselPreface(LegalGuide g, String rawText) {
+  static String counselPreface(
+    LegalGuide g,
+    String rawText, {
+    PhraseVariator? variator,
+  }) {
     final sb = StringBuffer();
     sb.write(g.empathy);
     sb.write('\n\n');
     sb.write(_fa(g.brief));
+    final block = personalizedBlock(g, rawText, v: variator);
+    if (block.isNotEmpty) {
+      sb.write('\n\n');
+      sb.write(block);
+    }
     return sb.toString();
   }
 

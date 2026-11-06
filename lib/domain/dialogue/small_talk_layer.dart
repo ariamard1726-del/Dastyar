@@ -141,7 +141,13 @@ class SmallTalkLayer {
     'کلافه ام', 'کلافهام', 'داغونم', 'استرس دارم', 'نگرانم',
     'طاقتم تموم شده', 'دیگه تحمل ندارم', 'نمیدونم چی بگم',
     'بغضم گرفته', 'عصبانی ام', 'عصبانیم', 'دلم گرفته',
-    'حوصله ندارم', 'خیلی ناراحتم',
+    'حوصله ندارم', 'خیلی ناراحتم', 'ترسیدم', 'خیلی ترسیدم',
+    'میترسم', 'می ترسم', 'ترس دارم', 'وحشت کردم', 'نگرانشم',
+    'خیلی نگرانم', 'دلشوره دارم',
+  ]);
+
+  static final RegExp _fearRe = PersianText.wordRe(<String>[
+    'ترسیدم', 'خیلی ترسیدم', 'میترسم', 'می ترسم', 'ترس دارم', 'وحشت کردم',
   ]);
 
   static final RegExp _profanityRe = PersianText.wordRe(<String>[
@@ -301,11 +307,30 @@ class SmallTalkLayer {
         intent == SmallTalkIntent.howAreYou && _greetingRe.hasMatch(phrase);
     final bool withThanks =
         intent == SmallTalkIntent.farewell && _thanksRe.hasMatch(phrase);
+    // «مرسی، خیلی ترسیدم»: هم تشکر و هم ترس باید دیده شود.
+    final bool distressThanks =
+        intent == SmallTalkIntent.distress && _thanksRe.hasMatch(phrase);
+    var text = _replyFor(intent, hasActiveLegalContext, rnd,
+        withGreeting: withGreeting, withThanks: withThanks);
+    if (intent == SmallTalkIntent.distress && _fearRe.hasMatch(phrase)) {
+      text = _pick(
+        hasActiveLegalContext
+            ? const <String>[
+                'ترسیدن در این شرایط کاملاً طبیعی است؛ ولی تنها نیستید و قانون برای همین موقعیت راه گذاشته است. قدم‌ها را یکی‌یکی و آرام برمی‌داریم؛ هر وقت آماده بودید ادامه می‌دهیم.',
+                'می‌فهمم که ترسیده‌اید؛ هر کس جای شما بود همین حس را داشت. خبر خوب این است که مسیر قانونی روشن است و با هم قدم‌به‌قدم پیش می‌رویم.',
+              ]
+            : const <String>[
+                'ترسیدن کاملاً طبیعی است؛ ولی تنها نیستید. هر وقت آماده بودید، ماجرا را آرام برایم تعریف کنید تا با هم ببینیم قانون چه راهی برایتان گذاشته.',
+                'می‌فهمم که ترسیده‌اید. نفس عمیقی بکشید؛ بگویید چه پیش آمده تا با هم قدم‌به‌قدم بررسی کنیم.',
+              ],
+        rnd,
+      );
+    }
+    if (distressThanks) text = 'خواهش می‌کنم، وظیفه است. $text';
 
     return SmallTalkReply(
       intent: intent,
-      text: _replyFor(intent, hasActiveLegalContext, rnd,
-          withGreeting: withGreeting, withThanks: withThanks),
+      text: text,
       chips: hasActiveLegalContext ? activeSessionChips : defaultIntakeChips,
     );
   }

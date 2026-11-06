@@ -17,9 +17,12 @@ import 'package:dastyar/domain/dialogue/dialogue_planner.dart'
 import 'package:dastyar/domain/dialogue/response_composer.dart'
     show DynamicResponseComposer, UserMood;
 import 'package:dastyar/domain/search/retrieval_pipeline.dart';
+import 'package:dastyar/domain/input_suggestions.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
+import 'package:dastyar/domain/lawyer/case_facts.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
+import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/lawyer/phrase_variator.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
@@ -62,6 +65,15 @@ class ChatController extends ChangeNotifier {
 
   /// یادآوری «جای وکیل را نمی‌گیرد» فقط یک‌بار در هر گفتگو نمایش داده می‌شود.
   bool _disclaimerShown = false;
+
+  /// آخرین راهنمای حقوقی که در این گفتگو پاسخ داده شد و جزئیاتی که کاربر
+  /// تا اینجا از ماجرایش گفته؛ تا پیام‌های بعدی (مثل «پیام واتساپ دارم»)
+  /// در همان پرونده فهمیده شوند، نه به‌عنوان پرسش تازه.
+  LegalGuide? _lastGuide;
+  CaseFacts _facts = CaseFacts.empty;
+
+  static const String continueCaseChip = 'ادامه بررسی پرونده';
+  static const String newQuestionChip = 'سؤال جدید دارم';
   static const SmallTalkLayer _smallTalk = SmallTalkLayer();
 
   /// مسیریاب ترکیبی (عبارت قطعی + کلیدواژهٔ وزن‌دار + شبکهٔ عصبی) برای
@@ -149,6 +161,8 @@ class ChatController extends ChangeNotifier {
     _draft = null;
     _counsel = null;
     _lastCounselTopic = null;
+    _lastGuide = null;
+    _facts = CaseFacts.empty;
     _memory.clear();
     _pendingText = null;
     _pendingList = [];
@@ -226,6 +240,18 @@ class ChatController extends ChangeNotifier {
       return;
     }
     _slots.extractAndUpdate(text);
+    // دکمهٔ «دربارهٔ <موضوع>» (موضوع دیگرِ همان ماجرا) مشاورهٔ جاری را
+    // می‌بندد و مستقیم به راهنمای آن موضوع می‌رود.
+    if (text.startsWith(LawyerVoice.topicChipPrefix) &&
+        LawyerVoice.matchGuides(text).length == 1 &&
+        PersianText.phrase(text) ==
+            PersianText.phrase(
+              '${LawyerVoice.topicChipPrefix}${LawyerVoice.matchGuide(text)!.title}',
+            )) {
+      _counsel = null;
+      _syncCounselCheckpoint();
+      if (await _handleLawyerGuide(text)) return;
+    }
     if (_counsel != null) {
       if (_handleActiveCounsel(text)) return;
     }
@@ -234,11 +260,15 @@ class ChatController extends ChangeNotifier {
     }
     if (_handleResumeCounsel(text)) return;
     if (_handleExplicitDraft(text)) return;
+    if (_handleSessionChip(text)) return;
     if (_handleSmallTalk(text)) return;
     if (_handleStrictCriminalPhrase(text)) return;
     if (await _handleLawyerGuide(text)) return;
+    if (_handleGuideFollowUp(text)) return;
     if (_handleImplicitDraftSuggestion(text)) return;
     if (await _handleStartCounsel(text)) return;
+    if (_handleVagueIntake(text)) return;
+    if (_handleLawOverview(text)) return;
 
     final (greeted, core) = LawyerVoice.splitLeadingGreeting(text);
     await _ask(text, query: greeted ? core : null, greeted: greeted);
@@ -247,13 +277,145 @@ class ChatController extends ChangeNotifier {
   /// احوال‌پرسی، تشکر، خداحافظی و ابراز ناراحتیِ بدون موضوع حقوقی: پاسخ
   /// گرم و انسانی، به‌جای جست‌وجوی بی‌ربط در متن قوانین.
   bool _handleSmallTalk(String text) {
-    final reply = _smallTalk.tryHandle(text, rnd: _rnd);
+    final reply = _smallTalk.tryHandle(
+      text,
+      hasActiveLegalContext: _lastGuide != null || _counsel != null,
+      rnd: _rnd,
+    );
     if (reply == null) return false;
     messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(reply.text, false, chips: reply.chips));
     unawaited(_saveSession());
     _notify();
     _requestScroll();
+    return true;
+  }
+
+  void _reply(String userText, String botText,
+      {List<String> chips = const [], bool sensitive = false}) {
+    messages.add(ChatMessage(userText, true, sensitive: sensitive));
+    messages.add(ChatMessage(botText, false, sensitive: sensitive, chips: chips));
+    unawaited(_saveSession());
+    _notify();
+    _requestScroll();
+  }
+
+  /// دکمه‌های «ادامه بررسی پرونده» و «سؤال جدید دارم» که پس از گپ کوتاه
+  /// در میانهٔ یک پرونده نشان داده می‌شوند.
+  bool _handleSessionChip(String text) {
+    if (text == newQuestionChip) {
+      _lastGuide = null;
+      _facts = CaseFacts.empty;
+      _reply(
+        text,
+        'حتماً؛ بفرمایید. موضوع تازه را به زبان خودتان بنویسید یا یکی از موضوع‌های پایین را انتخاب کنید.',
+        chips: LawyerVoice.notFoundChips,
+      );
+      return true;
+    }
+    if (text != continueCaseChip) return false;
+    final g = _lastGuide;
+    if (g == null) {
+      // مشاورهٔ فعال خودش پیام بعدی را می‌گیرد؛ اینجا فقط حالت بی‌پرونده.
+      _reply(
+        text,
+        'پرونده‌ای که نیمه‌کاره مانده باشد پیدا نکردم. ماجرا را بنویسید تا از همان‌جا شروع کنیم.',
+        chips: LawyerVoice.notFoundChips,
+      );
+      return true;
+    }
+    final facts = _facts.render(
+      head: 'تا اینجا این‌ها را از ماجرای «${g.title}» یادداشت کرده‌ام:',
+    );
+    final sb = StringBuffer('حتماً؛ برمی‌گردیم سراغ «${g.title}».');
+    if (facts.isNotEmpty) sb.write('\n\n${PersianText.toFaDigits(facts)}');
+    sb.write('\n\n${PersianText.toFaDigits(g.followUp)}');
+    _reply(
+      text,
+      sb.toString(),
+      sensitive: true,
+      chips: [
+        LegalCounselor.startCounselCmd,
+        ...LawyerVoice.templateChips(g, repo.templates),
+      ],
+    );
+    return true;
+  }
+
+  /// پیامی که در ادامهٔ راهنمای قبلی، جزئیات تازه می‌دهد (مدرک، مبلغ، زمان،
+  /// طرف مقابل، …) و خودش پرسش یا موضوع تازه‌ای نیست.
+  bool _handleGuideFollowUp(String text) {
+    final g = _lastGuide;
+    if (g == null) return false;
+    final (_, core) = LawyerVoice.splitLeadingGreeting(text);
+    if (LawyerVoice.isDirectArticleRef(core)) return false;
+    if (core.contains('؟') || core.contains('?')) return false;
+    final fresh = CaseFacts.extract(core);
+    if (fresh.isEmpty) return false;
+    // فقط طرف مقابلِ تازه (بدون مدرک، مبلغ یا زمان) نشانهٔ ماجرای دیگری است.
+    final onlyNewParty = fresh.evidence.isEmpty &&
+        fresh.amounts.isEmpty &&
+        fresh.durations.isEmpty &&
+        fresh.flags.isEmpty &&
+        fresh.counterparties.any((c) => !_facts.counterparties.contains(c));
+    if (onlyNewParty) return false;
+    final topic = LegalCounselor.detectTopic(core);
+    if (topic != null &&
+        topic != 'general_intake' &&
+        !LawyerVoice.counselTopicFits(g, topic)) {
+      return false;
+    }
+    _facts = _facts.merge(fresh);
+    final reply = LawyerVoice.composeFollowUp(
+      g,
+      core,
+      newFacts: fresh,
+      allFacts: _facts,
+      templates: repo.templates,
+      counselChip: LegalCounselor.startCounselCmd,
+      variator: _phrases,
+    );
+    _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
+    _reply(text, reply.text, chips: reply.chips, sensitive: true);
+    return true;
+  }
+
+  /// «دربارهٔ قانون کار بگو»: به‌جای یک مادهٔ تصادفی، معرفی کوتاه قانون و
+  /// پرسش‌های رایج آن.
+  bool _handleLawOverview(String text) {
+    final id = LawyerVoice.lawOverviewId(text, engine.meta);
+    if (id == null) return false;
+    final m = engine.meta[id] ?? const <String, dynamic>{};
+    final title = '${m['title'] ?? id}';
+    final count = engine.lawCounts[id] ?? 0;
+    final amended = '${m['amended'] ?? ''}'.trim();
+    final sb = StringBuffer('متن کامل «$title» در برنامه هست');
+    if (count > 0) sb.write(' (${PersianText.toFaDigits('$count')} ماده');
+    if (count > 0 && amended.isNotEmpty) {
+      sb.write('، آخرین اصلاح ثبت‌شده: $amended');
+    }
+    if (count > 0) sb.write(')');
+    sb.write('.\n\n');
+    sb.write(
+      'این قانون مفصل است و خواندن ماده‌به‌ماده‌اش کمک زیادی نمی‌کند. بهتر است بگویید چه موضوعی برایتان پیش آمده یا دربارهٔ کدام حق یا تکلیف سؤال دارید تا دقیقاً همان ماده‌ها را با توضیح ساده بیاورم. اگر شمارهٔ ماده را می‌دانید، مثلاً بنویسید «ماده ۱۰ $title».',
+    );
+    final topic = LawyerVoice.lawTopic[id];
+    final chips = topic == null
+        ? LawyerVoice.notFoundChips
+        : (InputSuggestions.topicQuestions[topic] ?? LawyerVoice.notFoundChips);
+    _reply(text, sb.toString(), chips: chips);
+    return true;
+  }
+
+  /// «یه سوال حقوقی داشتم»، «حقوق من چیه؟»: به‌جای «پیدا نکردم»، مثل یک
+  /// وکیل جزئیات را می‌پرسیم.
+  bool _handleVagueIntake(String text) {
+    if (!LawyerVoice.isVagueIntake(text)) return false;
+    _reply(
+      text,
+      _phrases.pick('clarify', LawyerVoice.clarifyTexts),
+      chips: LawyerVoice.notFoundChips,
+    );
     return true;
   }
 
@@ -269,6 +431,12 @@ class ChatController extends ChangeNotifier {
     final (greeted, core) = LawyerVoice.splitLeadingGreeting(text);
     final guide = LawyerVoice.matchGuide(core);
     if (guide == null) return false;
+    final prev = _lastGuide;
+    if (prev == null || !LawyerVoice.sameFamily(prev.id, guide.id)) {
+      _facts = CaseFacts.empty;
+    }
+    _lastGuide = guide;
+    _facts = _facts.merge(CaseFacts.extract(core));
     final personal = LawyerVoice.isPersonal(core) ||
         LegalCounselor.shouldStartCounseling(core, net: _intentNet);
 
@@ -291,14 +459,18 @@ class ChatController extends ChangeNotifier {
           LawyerVoice.counselTopicFits(guide, started.$1.topicId)) {
         _counsel = started.$1;
         _lastCounselTopic = started.$1.topicId;
-        final preface = LawyerVoice.counselPreface(guide, core);
+        final preface =
+            LawyerVoice.counselPreface(guide, core, variator: _phrases);
         messages.add(ChatMessage(text, true, sensitive: true));
         messages.add(
           ChatMessage(
             '$preface\n\n${started.$2.text}',
             false,
             sensitive: true,
-            chips: started.$2.chips,
+            chips: [
+              ...started.$2.chips,
+              ...LawyerVoice.relatedChips(guide, core),
+            ],
           ),
         );
         _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
@@ -320,6 +492,11 @@ class ChatController extends ChangeNotifier {
       counselChip: LegalCounselor.startCounselCmd,
       rnd: _rnd,
       variator: _phrases,
+      // دکمهٔ «دربارهٔ <موضوع دیگر>»: جزئیاتی که کاربر قبلاً گفته حفظ می‌شود.
+      knownFacts:
+          text.startsWith(LawyerVoice.topicChipPrefix) && _facts.isNotEmpty
+              ? _facts
+              : null,
     );
     _disclaimerShown = true;
     _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
@@ -700,6 +877,11 @@ class ChatController extends ChangeNotifier {
   bool _handleStrictCriminalPhrase(String text) {
     final strict = _router.matchStrict(text);
     if (strict == null || strict.intent != 'complaint') return false;
+    // سرقت و بازداشت راهنمای کامل وکیل دارند؛ پیشنهاد خشک قالب کافی نیست.
+    final g = LawyerVoice.matchGuide(LawyerVoice.splitLeadingGreeting(text).$2);
+    if (g != null && (g.id == 'theft' || g.id == 'juvenile_detention')) {
+      return false;
+    }
     if (_declined.contains(strict.intent)) return false;
     final t = _templateFor(strict.intent);
     if (t == null) return false;
@@ -948,7 +1130,9 @@ class ChatController extends ChangeNotifier {
       variator: _phrases,
     );
     if (framed != null) bot.text = framed;
-    if (wasNotFound && alts.isEmpty) alts = LawyerVoice.notFoundChips;
+    // «پیدا نکردم» با گزینه‌های بی‌ربط (مادهٔ تصادفی) همراه نمی‌شود؛ فقط
+    // موضوع‌های رایج پیشنهاد می‌شوند.
+    if (wasNotFound) alts = LawyerVoice.notFoundChips;
     final mergedChips = <String>[
       ...alts,
       if (!sensitive && topicHint != null)
