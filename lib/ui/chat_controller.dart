@@ -9,6 +9,8 @@ import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/dialogue/small_talk_layer.dart';
+import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -47,6 +49,10 @@ class ChatController extends ChangeNotifier {
   String? _pendingText;
   List<LegalTemplate> _pendingList = [];
   final Set<String> _declined = {};
+
+  /// یادآوری «جای وکیل را نمی‌گیرد» فقط یک‌بار در هر گفتگو نمایش داده می‌شود.
+  bool _disclaimerShown = false;
+  static const SmallTalkLayer _smallTalk = SmallTalkLayer();
 
   StreamSubscription<AssistantTurn>? _sub;
   Completer<void>? _askDone;
@@ -192,10 +198,101 @@ class ChatController extends ChangeNotifier {
     }
     if (_handleResumeCounsel(text)) return;
     if (_handleExplicitDraft(text)) return;
+    if (_handleSmallTalk(text)) return;
+    if (await _handleLawyerGuide(text)) return;
     if (_handleImplicitDraftSuggestion(text)) return;
     if (await _handleStartCounsel(text)) return;
 
-    await _ask(text);
+    final (greeted, core) = LawyerVoice.splitLeadingGreeting(text);
+    await _ask(text, query: greeted ? core : null, greeted: greeted);
+  }
+
+  /// احوال‌پرسی، تشکر، خداحافظی و ابراز ناراحتیِ بدون موضوع حقوقی: پاسخ
+  /// گرم و انسانی، به‌جای جست‌وجوی بی‌ربط در متن قوانین.
+  bool _handleSmallTalk(String text) {
+    final reply = _smallTalk.tryHandle(text, rnd: _rnd);
+    if (reply == null) return false;
+    messages.add(ChatMessage(text, true));
+    messages.add(ChatMessage(reply.text, false, chips: reply.chips));
+    unawaited(_saveSession());
+    _notify();
+    _requestScroll();
+    return true;
+  }
+
+  /// مسائل رایج حقوقی با پاسخ وکیل‌مانند: همدلی، توضیح منطقی، قدم‌های عملی،
+  /// مبنای قانونی از متن رسمی و پرسش پیگیری. اگر کاربر ماجرای شخصی خود را
+  /// تعریف کرده (نه پرسش)، همان مقدمه گفته می‌شود و مشاورهٔ گام‌به‌گام شروع
+  /// می‌شود تا پاسخ‌های بعدی کاربر گم نشود.
+  Future<bool> _handleLawyerGuide(String text) async {
+    if (text == LegalCounselor.startCounselCmd ||
+        text == DraftCmd.offerCounsel) {
+      return false;
+    }
+    final (greeted, core) = LawyerVoice.splitLeadingGreeting(text);
+    final guide = LawyerVoice.matchGuide(core);
+    if (guide == null) return false;
+    final personal = LawyerVoice.isPersonal(core) ||
+        LegalCounselor.shouldStartCounseling(core, net: _intentNet);
+
+    // ماجرای شخصی (حتی همراه با «چه کار کنم؟») به مشاورهٔ گام‌به‌گام می‌رود
+    // تا پاسخ‌های بعدی کاربر در همان پرونده جمع شود؛ پرسش عمومی پاسخ کامل
+    // راهنما را می‌گیرد.
+    final narrative =
+        LegalCounselor.shouldStartCounseling(core, net: _intentNet);
+    if (narrative) {
+      final started = LegalCounselor.start(
+        core,
+        engine,
+        repo.templates,
+        net: _intentNet,
+        replies: engine.replies,
+        rnd: _rnd,
+      );
+      if (started != null &&
+          started.$1.topicId != 'general_intake' &&
+          LawyerVoice.counselTopicFits(guide, started.$1.topicId)) {
+        _counsel = started.$1;
+        _lastCounselTopic = started.$1.topicId;
+        final preface = LawyerVoice.counselPreface(guide, core);
+        messages.add(ChatMessage(text, true, sensitive: true));
+        messages.add(
+          ChatMessage(
+            '$preface\n\n${started.$2.text}',
+            false,
+            sensitive: true,
+            chips: started.$2.chips,
+          ),
+        );
+        _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
+        _syncCounselCheckpoint();
+        await _saveSession();
+        _notify();
+        _requestScroll();
+        return true;
+      }
+    }
+
+    final reply = LawyerVoice.composeGuide(
+      guide,
+      core,
+      engine,
+      templates: repo.templates,
+      greeted: greeted,
+      includeDisclaimer: !_disclaimerShown,
+      counselChip: LegalCounselor.startCounselCmd,
+      rnd: _rnd,
+    );
+    _disclaimerShown = true;
+    _memory.recordTurn(core, engine.query(core, maxAlternatives: 0));
+    messages.add(ChatMessage(text, true, sensitive: personal));
+    messages.add(
+      ChatMessage(reply.text, false, sensitive: personal, chips: reply.chips),
+    );
+    await _saveSession();
+    _notify();
+    _requestScroll();
+    return true;
   }
 
   bool _handleActiveCounsel(String text) {
@@ -367,6 +464,20 @@ class ChatController extends ChangeNotifier {
       return true;
     }
 
+    // پیشنهاد ضمنیِ تک‌قالب: فقط «بله»/«خیر» یا عنوان دقیق قالب پاسخ آن است.
+    // هر پیام دیگری (مثل «طلبکار هستم») پیام تازهٔ کاربر است و نباید به‌اشتباه
+    // پذیرش پیشنهاد تلقی شود.
+    if (pt != null && list.length == 1) {
+      _pendingText = null;
+      _pendingList = [];
+      final n = KnowledgeEngine.normalize(text).trim();
+      if (KnowledgeEngine.normalize(list.first.title).trim() == n) {
+        _startDraft(text, list.first);
+        return true;
+      }
+      return false;
+    }
+
     final picked = Drafting.pickChoice(text, list);
     _pendingText = null;
     _pendingList = [];
@@ -510,8 +621,10 @@ class ChatController extends ChangeNotifier {
     String text, {
     bool addUser = true,
     bool sensitive = false,
+    String? query,
+    bool greeted = false,
   }) async {
-    final resolvedQuery = _memory.resolveFollowUp(text);
+    final resolvedQuery = _memory.resolveFollowUp(query ?? text);
     final myEpoch = ++_askEpoch;
     final bot = ChatMessage('...', false, sensitive: sensitive);
     _busy = true;
@@ -557,10 +670,21 @@ class ChatController extends ChangeNotifier {
     }
 
     if (_disposed || myEpoch != _askEpoch) return;
-    _memory.recordTurn(
-      resolvedQuery,
-      engine.query(resolvedQuery, maxAlternatives: 0),
+    final baseReply = engine.query(resolvedQuery, maxAlternatives: 0);
+    _memory.recordTurn(resolvedQuery, baseReply);
+    // لحن وکیل: متن ماده دست‌نخورده می‌ماند، اما با مقدمه و جمع‌بندی انسانی
+    // ارائه می‌شود؛ و «پیدا نکردم» به پاسخی صادقانه و راهگشا تبدیل می‌شود.
+    final framed = LawyerVoice.frameEngineAnswer(
+      query ?? text,
+      baseReply,
+      bot.text,
+      notFoundRaw: engine.replies.get('not_found'),
+      greeted: greeted,
+      rnd: _rnd,
     );
+    final wasNotFound = bot.text.trim() == engine.replies.get('not_found').trim();
+    if (framed != null) bot.text = framed;
+    if (wasNotFound && alts.isEmpty) alts = LawyerVoice.notFoundChips;
     final mergedChips = <String>[
       ...alts,
       if (!sensitive &&

@@ -58,7 +58,7 @@ void main() {
       expect(reply.variantId, isNotNull);
     });
 
-    test('echoes lastUserUtterance when Persian', () {
+    test('does not parrot the whole user utterance', () {
       final state = makeState(lastUserUtterance: 'چکم برگشت خورده');
       final action = const AskForSlot(
         slotKey: 'role',
@@ -66,7 +66,8 @@ void main() {
         options: const ['دارنده'],
       );
       final reply = composer.compose(action, state, EvidenceSet.empty());
-      expect(reply.text, contains('چکم برگشت خورده'));
+      expect(reply.text, isNot(contains('می‌فهمم که گفتید')));
+      expect(reply.text, isNot(contains('چکم برگشت خورده')));
     });
 
     test('does NOT echo when utterance contains Latin chars', () {

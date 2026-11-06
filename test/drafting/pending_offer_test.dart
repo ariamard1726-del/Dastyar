@@ -96,7 +96,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildApp());
 
-      await sendMessage(tester, 'دوستم پول قرض گرفته و پس نمی‌دهد');
+      await sendMessage(tester, 'یک نفر سفته‌ام را پس نمی‌دهد');
       expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
 
       await sendMessage(tester, 'بله');
@@ -106,50 +106,36 @@ void main() {
 
     testWidgets('تایپ «نه» برای تک‌قالب پیشنهادی، به پرسش اصلی پاسخ می‌دهد',
         (tester) async {
-      const q = 'توان پرداخت محکومیت مالی ندارم';
+      const q = 'برای دادگاه پول وکیل ندارم';
       await tester.pumpWidget(buildApp());
 
       await sendMessage(tester, q);
       expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
 
       await sendMessage(tester, 'نه');
-      expect(find.text(engine.answer(q)), findsOneWidget);
-      expect(find.textContaining('محکومیت‌های مالی'), findsWidgets);
+      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
+      expect(find.textContaining('ماده'), findsWidgets);
     });
 
-    testWidgets(
-        'تایپ «بله» در پیشنهاد چندقالبی، پرسش اصلی را حفظ می‌کند و بعد با «نه» جواب می‌دهد',
+    testWidgets('پاسخ نامرتبط به پیشنهاد تک‌قالب، به‌اشتباه «بله» تلقی نمی‌شود',
         (tester) async {
-      const q = 'چکم برگشت خورد';
       await tester.pumpWidget(buildApp());
 
-      await sendMessage(tester, q);
-      expect(find.text(Drafting.suggestChooseText), findsOneWidget);
+      await sendMessage(tester, 'یک نفر سفته‌ام را پس نمی‌دهد');
+      expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
 
-      await sendMessage(tester, 'بله');
-      expect(
-        find.text('لطفاً مشخص کنید کدام‌یک از این قالب‌ها را آماده کنم:'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('لطفاً پرسش خود را کامل‌تر بنویسید'), findsNothing);
-
-      await sendMessage(tester, 'نه');
-      expect(find.text(engine.answer(q)), findsOneWidget);
-      expect(find.textContaining('قانون صدور چک'), findsWidgets);
+      await sendMessage(tester, 'طلبکار هستم');
+      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
     });
 
-    testWidgets('تایپ «اجراییه» در پیشنهاد چندقالبی، قالب اجرائیه چک را باز می‌کند',
+    testWidgets('شرح ماجرای چک برگشتی، به‌جای پیشنهاد خشک قالب، پاسخ همدلانه و مستند می‌دهد',
         (tester) async {
       await tester.pumpWidget(buildApp());
 
       await sendMessage(tester, 'چکم برگشت خورد');
-      expect(find.text(Drafting.suggestChooseText), findsOneWidget);
-
-      await sendMessage(tester, 'اجراییه');
-      expect(
-        find.textContaining('برای «درخواست صدور اجرائیه چک» چند سؤال کوتاه می‌پرسم'),
-        findsOneWidget,
-      );
+      expect(find.text(Drafting.suggestChooseText), findsNothing);
+      expect(find.textContaining('می‌فهمم'), findsWidgets);
+      expect(find.textContaining('گواهی عدم پرداخت'), findsWidgets);
     });
   });
 }

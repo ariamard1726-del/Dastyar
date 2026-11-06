@@ -166,10 +166,21 @@ void main() {
       ctrl.dispose();
     });
 
+    test('شرح ماجرای طلب، به‌جای پیشنهاد خشک قالب، پاسخ وکیل‌مانند می‌دهد', () async {
+      final ctrl = makeCtrl();
+      await ctrl.submit('دوستم پول قرض گرفته و پس نمی‌دهد');
+      final reply = ctrl.messages.last;
+      expect(reply.text, isNot(contains('می‌خواهید همین حالا آماده‌اش کنم؟')));
+      expect(reply.text, contains('مبنای قانونی'));
+      expect(reply.text, contains('اظهارنامه'));
+      expect(reply.chips, contains(LegalCounselor.startCounselCmd));
+      ctrl.dispose();
+    });
+
     test('انتخاب دکمهٔ مشاوره در میانهٔ پیشنهاد قالب، گفتگوی تشخیصی را روی همان موضوع آغاز می‌کند', () async {
       final ctrl = makeCtrl();
 
-      await ctrl.submit('دوستم پول قرض گرفته و پس نمی‌دهد');
+      await ctrl.submit('یک نفر سفته‌ام را پس نمی‌دهد');
       expect(ctrl.messages.last.chips, contains(DraftCmd.offerCounsel));
 
       await ctrl.submit(DraftCmd.offerCounsel);
