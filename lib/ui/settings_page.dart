@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/llama_backend.dart';
+import 'package:dastyar/core/model_store.dart';
+import 'package:dastyar/ui/model_page.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/settings.dart';
 
 class SettingsPage extends StatefulWidget {
   final AppSettings settings;
   final HistoryStore history;
+  final ModelStore? models;
+  final LlamaLlm? llama;
   const SettingsPage({
     super.key,
     required this.settings,
     required this.history,
+    this.models,
+    this.llama,
   });
 
   @override
@@ -157,6 +164,35 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
+            if (widget.models != null) ...[
+              const SizedBox(height: 8),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.auto_awesome_outlined),
+                  title: const Text('مدل هوشمند (اختیاری)'),
+                  subtitle: Text(
+                    widget.models!.isInstalled
+                        ? (s.useLocalLlm
+                            ? 'نصب و روشن: ${widget.models!.installedTitle}'
+                            : 'نصب شده، خاموش')
+                        : 'نصب نشده؛ برنامه بدون مدل کامل کار می‌کند.',
+                  ),
+                  trailing: const Icon(Icons.chevron_left),
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ModelPage(
+                          store: widget.models!,
+                          settings: s,
+                          llama: widget.llama,
+                        ),
+                      ),
+                    );
+                    if (mounted) setState(() {});
+                  },
+                ),
+              ),
+            ],
             const SizedBox(height: 8),
             const Padding(
               padding: EdgeInsets.all(8),

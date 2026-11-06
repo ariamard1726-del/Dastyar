@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -6,6 +8,10 @@ import 'package:dastyar/ui/chat_page.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/llama_backend.dart';
+import 'package:dastyar/core/llm.dart';
+import 'package:dastyar/core/model_store.dart';
+import 'package:dastyar/domain/lawyer/llm_writer.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/core/privacy.dart';
@@ -104,7 +110,18 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  late final Assistant _assistant = Assistant(_engine);
+  /// مدل زبانی اختیاری: فقط وقتی کاربر خودش نصب و روشنش کرده باشد.
+  final ModelStore _models = ModelStore();
+  late final LlamaLlm _llama = LlamaLlm(
+    store: _models,
+    enabled: () => widget.settings.useLocalLlm,
+  );
+  late final LlmBackend _llm = AdaptiveLlm(
+    candidates: [_llama],
+    isEnabled: () => widget.settings.useLocalLlm && _models.isInstalled,
+  );
+  late final Assistant _assistant = Assistant(_engine, llm: _llm);
+  late final LlmWriter _writer = LlmWriter(_llm);
   DraftSession? _initialDraft;
   CounselingSession? _initialCounsel;
 
@@ -129,7 +146,12 @@ class _LoaderState extends State<Loader> {
       _repo.load().catchError((_) {}),
       _history.load().catchError((_) {}),
       IntentNet.load().then((n) => _intentNet = n),
+      _models.load().catchError((_) {}),
     ]);
+    // اگر مدل از قبل روشن است، در پس‌زمینه بارگذاری شود تا پاسخ اول معطل نماند.
+    if (widget.settings.useLocalLlm && _models.isInstalled) {
+      unawaited(_llama.load().catchError((_) {}));
+    }
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
       _initialDraft = await DraftCheckpointStore.load(_repo.templates);
       _initialCounsel = await CounselCheckpointStore.load();
@@ -155,6 +177,9 @@ class _LoaderState extends State<Loader> {
       initialDraft: _initialDraft,
       intentNet: _intentNet,
       initialCounsel: _initialCounsel,
+      models: _models,
+      llama: _llama,
+      writer: _writer,
     );
   }
 }

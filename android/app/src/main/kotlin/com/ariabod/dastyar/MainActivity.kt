@@ -1,9 +1,15 @@
 package com.ariabod.dastyar
 
+import android.app.ActivityManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.provider.OpenableColumns
 import android.os.PersistableBundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -12,7 +18,10 @@ import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
+import java.io.FileInputStream
 import java.security.KeyStore
+import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -22,14 +31,73 @@ class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "com.ariabod.dastyar/privacy"
         private const val LLM_CHANNEL = "com.ariabod.dastyar/llm"
+        private const val MODEL_CHANNEL = "com.ariabod.dastyar/model"
+        private const val REQ_IMPORT_MODEL = 7101
         private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val KEY_ALIAS = "dastyar_local_store_v1"
         private const val PREFIX = "enc1:"
         private const val EXTRA_IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"
     }
 
+    private var pendingImport: MethodChannel.Result? = null
+    private var pendingImportDest: String? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // مدیریت فایل مدل اختیاری: پوشهٔ خصوصی برنامه، امضای SHA-256،
+        // واردکردن فایل با پنجرهٔ سیستم (بدون مجوز دسترسی به حافظه).
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, MODEL_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "modelsDir" -> {
+                        val d = File(filesDir, "models")
+                        d.mkdirs()
+                        result.success(d.absolutePath)
+                    }
+                    "sha256" -> {
+                        val path = call.argument<String>("path")
+                        if (path == null) {
+                            result.success(null)
+                        } else {
+                            Thread {
+                                val h = try { sha256Of(File(path)) } catch (e: Exception) { null }
+                                mainHandler.post { result.success(h) }
+                            }.start()
+                        }
+                    }
+                    "totalRamMb" -> {
+                        val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                        val info = ActivityManager.MemoryInfo()
+                        am.getMemoryInfo(info)
+                        result.success((info.totalMem / (1024L * 1024L)).toInt())
+                    }
+                    "supportedAbi" -> {
+                        val ok = Build.VERSION.SDK_INT >= 26 &&
+                            Build.SUPPORTED_ABIS.contains("arm64-v8a")
+                        result.success(ok)
+                    }
+                    "importFile" -> {
+                        if (pendingImport != null) {
+                            result.error("BUSY", "import in progress", null)
+                        } else {
+                            pendingImport = result
+                            pendingImportDest = call.argument<String>("dest")
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "*/*"
+                            }
+                            try {
+                                startActivityForResult(intent, REQ_IMPORT_MODEL)
+                            } catch (e: Exception) {
+                                pendingImport = null
+                                result.success(null)
+                            }
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LLM_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -76,6 +144,53 @@ class MainActivity : FlutterActivity() {
                     result.error("PRIVACY_ERR", e.message, null)
                 }
             }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQ_IMPORT_MODEL) return
+        val res = pendingImport ?: return
+        val dest = pendingImportDest
+        pendingImport = null
+        pendingImportDest = null
+        val uri = data?.data
+        if (resultCode != RESULT_OK || uri == null || dest == null) {
+            res.success(null)
+            return
+        }
+        Thread {
+            val name = try { copyUri(uri, File(dest)) } catch (e: Exception) { null }
+            mainHandler.post { res.success(name) }
+        }.start()
+    }
+
+    /** محتوای فایل انتخاب‌شده را در مقصد کپی می‌کند و نام اصلی آن را برمی‌گرداند. */
+    private fun copyUri(uri: Uri, dest: File): String {
+        var name = "imported-model.gguf"
+        contentResolver.query(uri, null, null, null, null)?.use { c ->
+            val idx = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (idx >= 0 && c.moveToFirst()) name = c.getString(idx) ?: name
+        }
+        dest.parentFile?.mkdirs()
+        contentResolver.openInputStream(uri).use { input ->
+            requireNotNull(input) { "cannot open" }
+            dest.outputStream().use { out -> input.copyTo(out, 1 shl 20) }
+        }
+        return name
+    }
+
+    private fun sha256Of(f: File): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        FileInputStream(f).use { input ->
+            val buf = ByteArray(1 shl 20)
+            while (true) {
+                val n = input.read(buf)
+                if (n <= 0) break
+                md.update(buf, 0, n)
+            }
+        }
+        return md.digest().joinToString("") { "%02x".format(it) }
     }
 
     private fun getOrCreateKey(): SecretKey {
