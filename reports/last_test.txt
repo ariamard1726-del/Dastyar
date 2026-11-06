@@ -1,4 +1,22 @@
-commit: 0270c94
+commit: 43dc26c
 🎉 305 tests passed.
 --- analyze ---
-No issues found! (ran in 11.7s)
+19 issues found. (ran in 10.3s)
+  error • Target of URI doesn't exist: 'evaluation_report.dart'. Try creating the file referenced by the URI, or try using a URI for a file that does exist • lib/domain/evaluation/evaluation_harness.d
+  error • Undefined class 'EvaluationReport'. Try changing the name to the name of an existing class, or creating a class with the name 'EvaluationReport' • lib/domain/evaluation/evaluation_harness.da
+  error • Undefined class 'ScenarioOutcome'. Try changing the name to the name of an existing class, or creating a class with the name 'ScenarioOutcome' • lib/domain/evaluation/evaluation_harness.dart
+  error • The name 'ScenarioOutcome' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'ScenarioOutcome' • lib/domain/evaluati
+  error • The method 'EvaluationReport' isn't defined for the type 'EvaluationHarness'. Try correcting the name to the name of an existing method, or defining a method named 'EvaluationReport' • lib/d
+  error • The name 'ScenarioOutcome' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'ScenarioOutcome' • lib/domain/evaluati
+  error • Undefined class 'ScenarioOutcome'. Try changing the name to the name of an existing class, or creating a class with the name 'ScenarioOutcome' • lib/domain/evaluation/evaluation_harness.dart
+  error • The name 'RetrievedArticle' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'RetrievedArticle' • lib/domain/evalua
+  error • The method 'ScenarioOutcome' isn't defined for the type 'EvaluationHarness'. Try correcting the name to the name of an existing method, or defining a method named 'ScenarioOutcome' • lib/dom
+  error • The name 'RetrievedArticle' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'RetrievedArticle' • lib/domain/evalua
+  error • The property 'lawId' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • lib/dom
+  error • The property 'article' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • lib/d
+  error • The method 'ScenarioOutcome' isn't defined for the type 'EvaluationHarness'. Try correcting the name to the name of an existing method, or defining a method named 'ScenarioOutcome' • lib/dom
+  error • The name 'RetrievedArticle' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'RetrievedArticle' • lib/domain/evalua
+  error • The name 'RetrievedArticle' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'RetrievedArticle' • lib/domain/evalua
+  error • The property 'lawId' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • lib/dom
+  error • The property 'article' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') • lib/d
+  error • The method 'RetrievedArticle' isn't defined for the type 'EvaluationHarness'. Try correcting the name to the name of an existing method, or defining a method named 'RetrievedArticle' • lib/d
