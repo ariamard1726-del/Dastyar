@@ -1,4 +1,4 @@
-commit: c800c66
+commit: 2c581d8
 ::error::326 tests passed, 1 failed.
 ::group::❌ loading test/evaluation/prompt_hardening_test.dart (failed)
    Failed to load "test/evaluation/prompt_hardening_test.dart":
@@ -18,7 +18,7 @@ Compilation failed for testPath=test/evaluation/prompt_hardening_test.dart: test
 test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
 test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
 --- analyze ---
-42 issues found. (ran in 8.4s)
+42 issues found. (ran in 11.3s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
