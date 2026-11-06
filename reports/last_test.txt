@@ -1,5 +1,14 @@
-commit: 2c581d8
-::error::326 tests passed, 1 failed.
+commit: cbe3805
+::error::272 tests passed, 12 failed.
+::group::❌ loading test/drafting/pending_offer_test.dart (failed)
+   Failed to load "test/drafting/pending_offer_test.dart":
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/ui/chat_page.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
 ::group::❌ loading test/evaluation/prompt_hardening_test.dart (failed)
    Failed to load "test/evaluation/prompt_hardening_test.dart":
    Compilation failed for testPath=test/evaluation/prompt_hardening_test.dart: test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
@@ -9,16 +18,110 @@ commit: 2c581d8
    for (final rule in PromptBuilder.hardRules) {
    ^^^^^^^^^
    test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
+::group::❌ loading test/engine/retrieval_index_test.dart (failed)
+   Failed to load "test/engine/retrieval_index_test.dart":
+   Compilation failed for testPath=test/engine/retrieval_index_test.dart: test/engine/retrieval_index_test.dart:75:27: Error: Method not found: 'Assistant'.
+   final turns = await Assistant(engine).askWithAlternatives(q).toList();
+   ^^^^^^^^^
+   .
+   ::endgroup::
+::group::❌ loading test/counselor/counselor_and_laws_test.dart (failed)
+   Failed to load "test/counselor/counselor_and_laws_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_and_laws_test.dart: lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+   StreamSubscription<AssistantTurn>? _sub;
+   ^^^^^^^^^^^^^
+   lib/ui/chat_page.dart:22:9: Error: Type 'Assistant' not found.
+::group::❌ loading test/counselor/counselor_nn_rag_test.dart (failed)
+   Failed to load "test/counselor/counselor_nn_rag_test.dart":
+   Compilation failed for testPath=test/counselor/counselor_nn_rag_test.dart: lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+   StreamSubscription<AssistantTurn>? _sub;
+   ^^^^^^^^^^^^^
+   test/counselor/counselor_nn_rag_test.dart:58:23: Error: Method not found: 'Assistant'.
+::group::❌ loading test/app/draft_checkpoint_test.dart (failed)
+   Failed to load "test/app/draft_checkpoint_test.dart":
+   Compilation failed for testPath=test/app/draft_checkpoint_test.dart: lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+   StreamSubscription<AssistantTurn>? _sub;
+   ^^^^^^^^^^^^^
+   test/app/draft_checkpoint_test.dart:52:20: Error: Method not found: 'Assistant'.
+::group::❌ loading test/app/assistant_verify_test.dart (failed)
+   Failed to load "test/app/assistant_verify_test.dart":
+   Compilation failed for testPath=test/app/assistant_verify_test.dart: test/app/assistant_verify_test.dart:13:12: Error: Undefined name 'Assistant'.
+   expect(Assistant.isGrounded('طبق ماده ۱۰ نافذ است', ctx), isTrue);
+   ^^^^^^^^^
+   test/app/assistant_verify_test.dart:18:12: Error: Undefined name 'Assistant'.
+   expect(Assistant.isGrounded('طبق ماده ۹۹۹ نافذ است', ctx), isFalse);
+   ^^^^^^^^^
+   test/app/assistant_verify_test.dart:23:12: Error: Undefined name 'Assistant'.
+::group::❌ loading test/app/citation_guard_test.dart (failed)
+   Failed to load "test/app/citation_guard_test.dart":
+   Compilation failed for testPath=test/app/citation_guard_test.dart: test/app/citation_guard_test.dart:50:21: Error: Undefined name 'Assistant'.
+   final cited = Assistant.citedArticles(text);
+   ^^^^^^^^^
+   test/app/citation_guard_test.dart:64:27: Error: Method not found: 'Assistant'.
+   final okOut = await Assistant(engine, llm: validLlm).ask(q).toList();
+   ^^^^^^^^^
+   test/app/citation_guard_test.dart:75:28: Error: Method not found: 'Assistant'.
+::group::❌ loading test/app/no_llm_default_test.dart (failed)
+   Failed to load "test/app/no_llm_default_test.dart":
+   Compilation failed for testPath=test/app/no_llm_default_test.dart: test/app/no_llm_default_test.dart:11:23: Error: Method not found: 'Assistant'.
+   final assistant = Assistant(engine);
+   ^^^^^^^^^
+   test/app/no_llm_default_test.dart:18:23: Error: Method not found: 'Assistant'.
+   final assistant = Assistant(engine, llm: customLlm);
+   ^^^^^^^^^
+   .
+::group::❌ loading test/app/llm_backends_test.dart (failed)
+   Failed to load "test/app/llm_backends_test.dart":
+   Compilation failed for testPath=test/app/llm_backends_test.dart: test/app/llm_backends_test.dart:92:29: Error: Method not found: 'Assistant'.
+   final assistant = Assistant(engine, llm: adaptive);
+   ^^^^^^^^^
+   .
+   ::endgroup::
+::group::❌ loading test/app/chat_controller_test.dart (failed)
+   Failed to load "test/app/chat_controller_test.dart":
+   Compilation failed for testPath=test/app/chat_controller_test.dart: lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+   final Assistant assistant;
+   ^^^^^^^^^
+   lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+   StreamSubscription<AssistantTurn>? _sub;
+   ^^^^^^^^^^^^^
+   lib/ui/chat_page.dart:22:9: Error: Type 'Assistant' not found.
+::group::❌ loading test/app/assistant_stream_test.dart (failed)
+   Failed to load "test/app/assistant_stream_test.dart":
+   Compilation failed for testPath=test/app/assistant_stream_test.dart: test/app/assistant_stream_test.dart:45:23: Error: Method not found: 'Assistant'.
+   final out = await Assistant(e).ask(q).toList();
+   ^^^^^^^^^
+   test/app/assistant_stream_test.dart:51:23: Error: Method not found: 'Assistant'.
+   final out = await Assistant(e, llm: llm).ask(q).toList();
+   ^^^^^^^^^
+   test/app/assistant_stream_test.dart:58:23: Error: Method not found: 'Assistant'.
 --- خطای کامپایل ---
-test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
-test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
-test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
-Failed to load "test/evaluation/prompt_hardening_test.dart":
-Compilation failed for testPath=test/evaluation/prompt_hardening_test.dart: test/evaluation/prompt_hardening_test.dart:12:28: Error: Member not found: 'hardRules'.
-test/evaluation/prompt_hardening_test.dart:13:40: Error: Member not found: 'hardRules'.
-test/evaluation/prompt_hardening_test.dart:27:43: Error: Member not found: 'hardRules'.
+lib/ui/chat_page.dart:22:9: Error: Type 'Assistant' not found.
+lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+test/drafting/pending_offer_test.dart:48:22: Error: Method not found: 'Assistant'.
+lib/ui/chat_page.dart:22:9: Error: 'Assistant' isn't a type.
+lib/ui/chat_controller.dart:22:9: Error: 'Assistant' isn't a type.
+lib/ui/chat_controller.dart:51:22: Error: 'AssistantTurn' isn't a type.
+Failed to load "test/drafting/pending_offer_test.dart":
+Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/ui/chat_page.dart:22:9: Error: Type 'Assistant' not found.
+lib/ui/chat_controller.dart:22:9: Error: Type 'Assistant' not found.
+lib/ui/chat_controller.dart:51:22: Error: Type 'AssistantTurn' not found.
+test/drafting/pending_offer_test.dart:48:22: Error: Method not found: 'Assistant'.
+lib/ui/chat_page.dart:22:9: Error: 'Assistant' isn't a type.
+lib/ui/chat_controller.dart:22:9: Error: 'Assistant' isn't a type.
+lib/ui/chat_controller.dart:51:22: Error: 'AssistantTurn' isn't a type.
 --- analyze ---
-42 issues found. (ran in 11.3s)
+74 issues found. (ran in 11.6s)
   error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
   error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
