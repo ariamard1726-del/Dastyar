@@ -1,3 +1,5 @@
+
+import 'package:dastyar/core/debug_logger.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/llm.dart';
 import 'package:dastyar/domain/guard/citation_guard.dart';
@@ -32,6 +34,11 @@ class Assistant {
   final Duration stallTimeout;
   final int maxChars;
 
+  /// لاگر دیباگ. پیش‌فرض، لاگر سراسری است که به‌طور پیش‌فرض **خاموش** است؛
+  /// پس در تولید هیچ ردی ساخته نمی‌شود و با `DebugLogger.instance.enabled = true`
+  /// می‌توان پرامپت و خروجی مدل را دید.
+  final DebugLogger debug;
+
   late final RetrievalPipeline _pipeline;
   late final CitationGuard _guard;
 
@@ -44,9 +51,11 @@ class Assistant {
     CitationGuard? guard,
     this.stallTimeout = const Duration(seconds: 60),
     this.maxChars = 4000,
-  }) : llm = llm ?? NoLlm(),
-       prompts = prompts ?? const PromptBuilder(),
-       options = options ?? const LlmOptions() {
+    DebugLogger? debug,
+  })  : llm = llm ?? NoLlm(),
+        prompts = prompts ?? const PromptBuilder(),
+        options = options ?? const LlmOptions(),
+        debug = debug ?? DebugLogger.instance {
     _pipeline = pipeline ?? RetrievalPipeline(engine);
     _guard = guard ?? CitationGuard(catalog: engine.catalog);
   }
@@ -67,13 +76,60 @@ class Assistant {
     String question, {
     int maxAlternatives = 3,
   }) async* {
+    final trace = debug.start(question);
+    try {
+      yield* _askTraced(
+        question,
+        maxAlternatives: maxAlternatives,
+        debugger: debug,
+        trace: trace,
+      );
+    } finally {
+      // بستن نوبت حتی وقتی مصرف‌کننده پیش از پایان، استریم را رها کند.
+      debug.finish(trace);
+    }
+  }
+
+  /// پیادهٔ واقعیِ [askWithAlternatives] با ثبت اختیاریِ ردِ دیباگ.
+  Stream<AssistantTurn> _askTraced(
+    String question, {
+    required int maxAlternatives,
+    DebugLogger? debugger,
+    TurnTrace? trace,
+  }) async* {
+    void record(TurnStage stage, String label, [Object? data]) {
+      if (debugger != null && trace != null) {
+        debugger.record(trace, stage, label, data);
+      }
+    }
+
     final base = _pipeline.retrieve(question, maxAlternatives: maxAlternatives);
+    record(TurnStage.retrieval, 'شواهد بازیابی‌شده', <String, Object?>{
+      'question': question,
+      'count': base.contextHits.length,
+      'hits': base.contextHits
+          .map((h) => <String, Object?>{
+                'law': h.chunk.lawId,
+                'article': h.chunk.title,
+                'source': h.chunk.source,
+                'score': h.score,
+              })
+          .toList(),
+      'answer_without_llm': base.text,
+    });
 
     var ready = false;
     try {
       ready = await llm.isReady();
     } catch (_) {}
     if (!ready) {
+      record(TurnStage.llm, 'مدل زبانی آماده نیست', <String, Object?>{
+        'backend': llm.name,
+        'fallback': 'answer_without_llm',
+      });
+      record(TurnStage.response, 'پاسخ نهایی (بدون مدل)', <String, Object?>{
+        'text': base.text,
+      });
       yield AssistantTurn(
         text: base.text,
         alternatives: base.alternatives,
@@ -84,6 +140,13 @@ class Assistant {
 
     final ctx = base.contextHits;
     if (ctx.isEmpty) {
+      record(TurnStage.llm, 'زمینه‌ای برای مدل نیست', <String, Object?>{
+        'count': 0,
+        'fallback': 'answer_without_llm',
+      });
+      record(TurnStage.response, 'پاسخ نهایی (بدون زمینه)', <String, Object?>{
+        'text': base.text,
+      });
       yield AssistantTurn(
         text: base.text,
         alternatives: base.alternatives,
@@ -94,6 +157,12 @@ class Assistant {
 
     final allowed = CitationGuard.allowedArticles(ctx);
     final prompt = prompts.build(question, ctx);
+    record(TurnStage.prompt, 'پرامپت نهایی', <String, Object?>{
+      'backend': llm.name,
+      'chars': prompt.length,
+      'allowed_articles': allowed.toList(),
+      'text': prompt,
+    });
     var acc = '';
     var good = true;
     var finished = false;
@@ -135,7 +204,21 @@ class Assistant {
       }
     }
 
+    record(TurnStage.llm, 'خروجی مدل', <String, Object?>{
+      'text': acc,
+      'chars': acc.length,
+      'stalled': stalled,
+      'accepted_prefix': good,
+    });
+
     if (!good || stalled || acc.trim().isEmpty) {
+      record(TurnStage.guard, 'رد خروجی مدل', <String, Object?>{
+        'reason': stalled ? 'stall' : (good ? 'empty' : 'invalid_citation'),
+        'fallback': 'answer_without_llm',
+      });
+      record(TurnStage.response, 'پاسخ نهایی (بازگشت به موتور)', <String, Object?>{
+        'text': base.text,
+      });
       yield AssistantTurn(
         text: base.text,
         alternatives: base.alternatives,
@@ -144,7 +227,17 @@ class Assistant {
       return;
     }
 
-    if (!isAnswerGrounded(acc, ctx)) {
+    final grounded = isAnswerGrounded(acc, ctx);
+    record(TurnStage.guard, 'گارد استناد', <String, Object?>{
+      'grounded': grounded,
+      'cited': CitationGuard.citedArticles(acc).toList(),
+      'allowed': allowed.toList(),
+    });
+
+    if (!grounded) {
+      record(TurnStage.response, 'پاسخ نهایی (استناد نامعتبر)', <String, Object?>{
+        'text': base.text,
+      });
       yield AssistantTurn(
         text: base.text,
         alternatives: base.alternatives,
@@ -160,8 +253,13 @@ class Assistant {
       final label = c.source.isEmpty ? c.title : '${c.source} — ${c.title}';
       if (seen.add(label)) srcs.add(label);
     }
+    final answer = '$acc\n\nمنبع: ${srcs.join('، ')}';
+    record(TurnStage.response, 'پاسخ نهایی (مدل + منبع)', <String, Object?>{
+      'text': answer,
+      'sources': srcs,
+    });
     yield AssistantTurn(
-      text: '$acc\n\nمنبع: ${srcs.join('، ')}',
+      text: answer,
       alternatives: base.alternatives,
       conflictChains: base.conflictChains,
     );
@@ -174,3 +272,4 @@ class Assistant {
   String buildPrompt(String question, List<Hit> ctx) =>
       prompts.build(question, ctx);
 }
+
