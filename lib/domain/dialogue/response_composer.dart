@@ -344,18 +344,15 @@ class ResponseComposer {
 
   /// ساخت echo از آخرین گفتهٔ کاربر یا matchedSpans.
   String _buildEcho(DialogueState state) {
+    // تکرار طوطی‌وار گفتهٔ کاربر («می‌فهمم که گفتید «…»») مصنوعی به نظر
+    // می‌رسد؛ فقط وقتی پاسخ کوتاه و مشخصی داده شده، آن را تصدیق می‌کنیم.
     if (state.matchedSpans.isNotEmpty) {
-      final first = state.matchedSpans.values.first;
-      if (first.trim().isNotEmpty && !_containsLatin(first)) {
-        return 'می‌فهمم که گفتید «${first.trim()}».';
+      final first = state.matchedSpans.values.first.trim();
+      if (first.isNotEmpty && first.length <= 30 && !_containsLatin(first)) {
+        return 'نکتهٔ «$first» را در نظر گرفتم.';
       }
     }
-    final last = state.lastUserUtterance.trim();
-    if (last.isEmpty || _containsLatin(last)) return '';
-    if (last.length > 50) {
-      return 'می‌فهمم که گفتید «${last.substring(0, 50)}…».';
-    }
-    return 'می‌فهمم که گفتید «$last».';
+    return '';
   }
 
   /// آیا متن شامل حروف لاتین است؟ (برای Persian-only guard)

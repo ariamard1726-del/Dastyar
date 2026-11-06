@@ -346,11 +346,13 @@ class LegalCounselor {
 
   static String _promptFor(String topicId, _QuestionStep s, Replies? replies, Random? rnd) {
     final key = 'cq_${topicId}_${s.slot}';
-    if (replies != null && replies.has(key)) {
-      return replies.pick(key, rnd: rnd);
-    }
-    return s.prompt;
+    final raw = (replies != null && replies.has(key)) ? replies.pick(key, rnd: rnd) : s.prompt;
+    // شمارهٔ ثابت پرسش («۳.») وقتی پرسش‌های قبلی از پیام کاربر پر شده‌اند
+    // گیج‌کننده است؛ گفتگوی طبیعی شماره ندارد.
+    return raw.replaceFirst(_leadingNumRe, '');
   }
+
+  static final RegExp _leadingNumRe = RegExp(r'^\s*[0-9۰-۹]+\s*[.\-)]\s*');
 
   static const List<String> _personalOrProblemCues = [
     'مشاوره', 'راهنمایی کن', 'کمکم کن', 'چه کار کنم', 'چیکار کنم', 'چکار کنم',
@@ -1412,8 +1414,8 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           options: const ['قرارداد کتبی یا سابقهٔ بیمه دارم', 'قرارداد شفاهی ولی واریزی بانکی/پیامک دارم', 'هیچ مدرک کتبی یا بانکی ندارم'],
           extractor: (n) {
             if (n.contains('کتبی') || n.contains('سابقه بیمه')) return 'written';
-            if (n.contains('شفاهی') || n.contains('واریزی')) return 'bank_sms';
-            if (n.contains('هیچ مدرک')) return 'none';
+            if (n.contains('شفاهی') || n.contains('واریزی') || n.contains('واریز') || n.contains('پیامک') || n.contains('واتساپ') || n.contains('فیش')) return 'bank_sms';
+            if (n.contains('هیچ مدرک') || n.contains('مدرکی ندارم') || n.contains('هیچی ندارم')) return 'none';
             return null;
           },
         ),
@@ -1483,8 +1485,8 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           prompt: '۲. شما از طرف زوجه (خانم) پیگیر موضوع هستید یا زوج (آقا)؟',
           options: const ['زوجه (خانم) هستم', 'زوج (آقا) هستم'],
           extractor: (n) {
-            if (n.contains('زوجه') || n.contains('شوهرم') || n.contains('خانم هستم')) return 'wife';
-            if (n.contains('زوج هستم') || n.contains('آقا هستم') || n.contains('خانمم') || n.contains('مهریه را اجرا گذاشته')) return 'husband';
+            if (n.contains('زوجه') || n.contains('شوهرم') || n.contains('خانم هستم') || RegExp(r'(?:^| )(?:زن|خانم) (?:هستم|هستش|ام)(?: |\$)').hasMatch(n) || n.contains('مهریه ام')) return 'wife';
+            if (n.contains('زوج هستم') || n.contains('آقا هستم') || n.contains('خانمم') || n.contains('مهریه را اجرا گذاشته') || RegExp(r'(?:^| )(?:مرد|آقا|شوهر) (?:هستم|ام)(?: |\$)').hasMatch(n) || n.contains('زنم ')) return 'husband';
             return null;
           },
         ),
@@ -1599,8 +1601,8 @@ static List<_QuestionStep> _definedStepsFor(String topicId) {
           options: const ['رسید کتبی، قرارداد یا سفته', 'فیش واریز بانکی و پیامک‌های اقرار به بدهی', 'فقط شهادت شهود (شفاهی)'],
           extractor: (n) {
             if (n.contains('رسید کتبی') || n.contains('سفته') || n.contains('قرارداد')) return 'written';
-            if (n.contains('فیش') || n.contains('واریز')) return 'bank';
-            if (n.contains('شفاهی') || n.contains('شهادت')) return 'oral';
+            if (n.contains('فیش') || n.contains('واریز') || n.contains('کارت به کارت') || n.contains('پیامک') || n.contains('پیام') || n.contains('واتساپ') || n.contains('تلگرام') || n.contains('چت')) return 'bank';
+            if (n.contains('شفاهی') || n.contains('شهادت') || n.contains('شاهد')) return 'oral';
             return null;
           },
         ),
