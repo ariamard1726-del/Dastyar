@@ -1,4 +1,34 @@
-commit: 515afb7
+commit: 78db33e
 🎉 305 tests passed.
 --- analyze ---
-1 issue found. (ran in 12.6s)
+39 issues found. (ran in 11.6s)
+  error • Expected an identifier • bin/evaluate_bot.dart:72:31 • missing_identifier
+  error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:133:10 • 
+  error • 'catch' must be followed by '(identifier)' or '(identifier, identifier)'. No types are needed, the first is given by 'on', the second is always 'StackTrace' • bin/evaluate_bot.dart:148:10 • 
+  error • Expected an identifier • bin/evaluate_bot.dart:159:35 • missing_identifier
+  error • The function '_loadIntentNet' isn't defined. Try importing the library that defines '_loadIntentNet', correcting the name to the name of an existing function, or defining a function named '_
+  error • The function '_loadTemplates' isn't defined. Try importing the library that defines '_loadTemplates', correcting the name to the name of an existing function, or defining a function named '_
+  error • Unterminated string literal • bin/evaluate_bot.dart:198:24 • unterminated_string_literal
+  error • Expected to find ',' • bin/evaluate_bot.dart:200:1 • expected_token
+  error • Too many positional arguments: 1 expected, but 3 found. Try removing the extra arguments • bin/evaluate_bot.dart:200:1 • extra_positional_arguments
+  error • Expected to find ',' • bin/evaluate_bot.dart:200:18 • expected_token
+  error • Illegal character '1587' • bin/evaluate_bot.dart:200:18 • illegal_character
+  error • Undefined name 'سناریو'. Try correcting the name to one that is defined, or defining the name • bin/evaluate_bot.dart:200:18 • undefined_identifier
+  error • Illegal character '1606' • bin/evaluate_bot.dart:200:19 • illegal_character
+  error • Illegal character '1575' • bin/evaluate_bot.dart:200:20 • illegal_character
+  error • Illegal character '1585' • bin/evaluate_bot.dart:200:21 • illegal_character
+  error • Illegal character '1740' • bin/evaluate_bot.dart:200:22 • illegal_character
+  error • Illegal character '1608' • bin/evaluate_bot.dart:200:23 • illegal_character
+  error • Expected to find ';' • bin/evaluate_bot.dart:200:24 • expected_token
+  error • Illegal character '8212' • bin/evaluate_bot.dart:200:26 • illegal_character
+  error • Undefined class '—'. Try changing the name to the name of an existing class, or creating a class with the name '—' • bin/evaluate_bot.dart:200:26 • undefined_class
+  error • Expected to find ';' • bin/evaluate_bot.dart:200:28 • expected_token
+  error • Illegal character '1605' • bin/evaluate_bot.dart:200:28 • illegal_character
+  error • Illegal character '1583' • bin/evaluate_bot.dart:200:29 • illegal_character
+  error • Illegal character '1604' • bin/evaluate_bot.dart:200:30 • illegal_character
+  error • Illegal character '1606' • bin/evaluate_bot.dart:200:32 • illegal_character
+  error • Illegal character '1740' • bin/evaluate_bot.dart:200:33 • illegal_character
+  error • Illegal character '1578' • bin/evaluate_bot.dart:200:34 • illegal_character
+  error • Expected to find ';' • bin/evaluate_bot.dart:200:37 • expected_token
+  error • Undefined name '$'. Try correcting the name to one that is defined, or defining the name • bin/evaluate_bot.dart:200:37 • undefined_identifier
+  error • Expected an identifier • bin/evaluate_bot.dart:200:38 • missing_identifier
