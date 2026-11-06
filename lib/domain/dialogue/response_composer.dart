@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/utils/persian_normalizer.dart';
 import 'package:dastyar/domain/dialogue/dialogue_action.dart';
 import 'package:dastyar/domain/dialogue/dialogue_state.dart';
 import 'package:dastyar/domain/dialogue/domain_slot_schemas.dart';
@@ -417,5 +418,178 @@ class ResponseComposer {
       hash = (hash * 0x01000193) & 0xFFFFFFFF;
     }
     return hash;
+  }
+}
+// ---------------------------------------------------------------------------
+// نگارش پویای پاسخ (Dynamic Response Composer)
+// ---------------------------------------------------------------------------
+
+/// حال کاربر که از متن پیامش برداشت می‌شود.
+enum UserMood { anxious, angry, neutral }
+
+/// نگارندهٔ پاسخ با «راهبرد ساندویچ»:
+///
+/// - **بالا**: همدلی متناسب با حال کاربر ([UserMood])،
+/// - **میانه**: جملهٔ ربط + متن مادهٔ قانونیِ بازیابی‌شده؛ اگر ماده‌ای نباشد،
+///   دقیقاً «متأسفانه ماده قانونی دقیقی پیدا نکردم...» و پیشنهاد مشورت با
+///   وکیل — هرگز متن قانونی ساختگی تولید نمی‌شود،
+/// - **پایین**: قدم‌های عملی (فهرست) + پرسش بعدی.
+///
+/// تنوع جمله‌ها با شمارندهٔ داخلی چرخانده می‌شود (نه Random)، پس خروجی
+/// برای دنبالهٔ یکسانی از فراخوانی‌ها همیشه یکسان است.
+class DynamicResponseComposer {
+  DynamicResponseComposer({int start = 0}) : _counter = start;
+
+  int _counter;
+
+  /// تعداد پاسخ‌های ساخته‌شده تا اینجا.
+  int get counter => _counter;
+
+  void reset([int to = 0]) => _counter = to;
+
+  /// متن ثابت وقتی ماده‌ای پیدا نشده است.
+  static const String noArticleText = 'متأسفانه ماده قانونی دقیقی پیدا نکردم...';
+
+  static const String noArticleAdvice =
+      'برای اینکه بر اساس حدس راهنمایی‌تان نکنم، پیشنهاد می‌کنم موضوع را با '
+      'یک وکیل دادگستری در میان بگذارید. اگر هزینهٔ وکیل برایتان سنگین است، '
+      'می‌توانید از معاضدت کانون وکلا کمک بگیرید.';
+
+  static const List<String> _anxiousWords = [
+    'نگران', 'نگرانم', 'می‌ترسم', 'میترسم', 'ترسیده‌ام', 'ترس', 'استرس',
+    'اضطراب', 'دلشوره', 'چه کار کنم', 'چکار کنم', 'چیکار کنم', 'چه کنم',
+    'بدبخت شدم', 'بیچاره', 'ناامید', 'حالم بد', 'گریه', 'کمکم کنید',
+    'کمک کنید', 'تو رو خدا', 'توروخدا', 'خواهش می‌کنم', 'آبرویم', 'آبروم',
+    'زندان', 'نمی‌دانم چه کنم', 'نمیدونم چیکار', 'خوابم نمی‌برد',
+  ];
+
+  static const List<String> _angryWords = [
+    'عصبانی', 'عصبانیم', 'کلافه', 'خسته شدم', 'بسه', 'ظلم', 'بی‌انصاف',
+    'بی انصاف', 'نامرد', 'دروغگو', 'حقم را خورد', 'حقمو خورد', 'حقم رو خورد',
+    'پدرش را درمی‌آورم', 'پدرشو درمیارم', 'حالشو می‌گیرم', 'ولش نمی‌کنم',
+    'ول نمی‌کنم', 'انتقام', 'تقاص', 'اعصابم', 'شاکی‌ام', 'غیرقابل تحمل',
+    'مسخره', 'سرم کلاه گذاشت',
+  ];
+
+  static final List<List<String>> _anxiousToks = [
+    for (final w in _anxiousWords) PersianNormalizer.tokens(w),
+  ];
+  static final List<List<String>> _angryToks = [
+    for (final w in _angryWords) PersianNormalizer.tokens(w),
+  ];
+
+  /// برداشت قطعی حال کاربر از واژه‌ها و نشانه‌گذاری.
+  ///
+  /// - هر واژهٔ نگرانی/خشم ۱ امتیاز،
+  /// - هر «!» نیم امتیاز خشم (بیشینه ۲)، «؟؟» یا «??» نیم امتیاز نگرانی،
+  ///   «...» یک‌چهارم امتیاز نگرانی،
+  /// - ایموجی‌های 😡🤬😠 خشم و 😢😭😟😰😥 نگرانی.
+  /// با امتیاز کمتر از ۱ حال «خنثی» است؛ در تساوی، نگرانی (همدلی بیشتر)
+  /// انتخاب می‌شود.
+  static UserMood detectMood(String text) {
+    if (text.trim().isEmpty) return UserMood.neutral;
+    final toks = PersianNormalizer.tokens(text);
+    var anxious = 0.0;
+    var angry = 0.0;
+    for (final w in _anxiousToks) {
+      if (PersianNormalizer.containsPhraseTokens(toks, w)) anxious += 1;
+    }
+    for (final w in _angryToks) {
+      if (PersianNormalizer.containsPhraseTokens(toks, w)) angry += 1;
+    }
+    final bangs = RegExp('[!！]').allMatches(text).length;
+    angry += (bangs * 0.5).clamp(0, 2);
+    if (RegExp(r'[؟?]{2,}').hasMatch(text)) anxious += 0.5;
+    if (text.contains('...') || text.contains('…')) anxious += 0.25;
+    for (final e in const ['😡', '🤬', '😠']) {
+      if (text.contains(e)) angry += 1;
+    }
+    for (final e in const ['😢', '😭', '😟', '😰', '😥', '😔']) {
+      if (text.contains(e)) anxious += 1;
+    }
+    if (anxious < 1 && angry < 1) return UserMood.neutral;
+    return angry > anxious ? UserMood.angry : UserMood.anxious;
+  }
+
+  static String _empathy(UserMood mood, int v) => switch (mood) {
+        UserMood.anxious => switch (v % 3) {
+            0 => 'می‌فهمم که این وضعیت چقدر نگران‌کننده است. آرام باشید؛ قدم‌به‌قدم با هم پیش می‌رویم.',
+            1 => 'نگرانی شما کاملاً قابل درک است. خبر خوب این است که قانون برای این وضعیت راه مشخصی دارد.',
+            _ => 'حق دارید نگران باشید، اما تنها نیستید. بیایید با هم ببینیم دقیقاً چه کاری از دستتان برمی‌آید.',
+          },
+        UserMood.angry => switch (v % 3) {
+            0 => 'کاملاً حق دارید ناراحت و عصبانی باشید؛ این رفتار منصفانه نبوده است.',
+            1 => 'می‌فهمم چقدر کلافه شده‌اید. بهترین جواب به این بی‌انصافی، پیگیری قانونی و حساب‌شده است.',
+            _ => 'ناراحتی شما کاملاً بجاست. بیایید این خشم را به یک اقدام قانونی مؤثر تبدیل کنیم.',
+          },
+        UserMood.neutral => switch (v % 3) {
+            0 => 'ممنون که موضوع را با من در میان گذاشتید.',
+            1 => 'پرسش خوبی است؛ اجازه بدهید دقیق جواب بدهم.',
+            _ => 'خوشحالم که قبل از هر اقدامی پرسیدید.',
+          },
+      };
+
+  static String _transition(int v) => switch (v % 3) {
+        0 => 'طبق متن قانون:',
+        1 => 'مبنای قانونی موضوع شما این است:',
+        _ => 'قانون در این باره چنین می‌گوید:',
+      };
+
+  static final RegExp _bulletPrefix = RegExp(r'^\s*(?:[•\-*–]|\d+[.)]|[۰-۹]+[.)])\s*');
+
+  /// پاسخ کامل ساندویچی.
+  ///
+  /// - [userText]: پیام کاربر (برای برداشت حال، اگر [mood] داده نشود)،
+  /// - [lawArticle]: متن مادهٔ بازیابی‌شده؛ null یا خالی یعنی ماده‌ای نیست،
+  /// - [lawSource]: عنوان منبع (مثلاً «قانون صدور چک، ماده ۷»)، اختیاری،
+  /// - [actionPlan]: قدم‌های عملی،
+  /// - [nextQuestion]: پرسش بعدی (مثلاً از `DialogueStateManager`).
+  String compose({
+    required String userText,
+    String? lawArticle,
+    String? lawSource,
+    List<String> actionPlan = const [],
+    String? nextQuestion,
+    UserMood? mood,
+  }) {
+    final v = _counter++;
+    final m = mood ?? detectMood(userText);
+    final b = StringBuffer()..writeln(_empathy(m, v));
+
+    // میانه
+    b.writeln();
+    final article = lawArticle?.trim() ?? '';
+    if (article.isEmpty) {
+      b
+        ..writeln('📜 $noArticleText')
+        ..writeln(noArticleAdvice);
+    } else {
+      b.writeln('📜 ${_transition(v)}');
+      final src = lawSource?.trim() ?? '';
+      if (src.isNotEmpty) b.writeln('«$src»');
+      b.writeln(article);
+    }
+
+    // پایین
+    final steps = [
+      for (final s in actionPlan)
+        if (s.replaceFirst(_bulletPrefix, '').trim().isNotEmpty)
+          s.replaceFirst(_bulletPrefix, '').trim(),
+    ];
+    if (steps.isNotEmpty) {
+      b
+        ..writeln()
+        ..writeln('✅ قدم‌های پیشنهادی:');
+      for (final s in steps) {
+        b.writeln('• $s');
+      }
+    }
+    final q = nextQuestion?.trim() ?? '';
+    if (q.isNotEmpty) {
+      b
+        ..writeln()
+        ..writeln('❓ $q');
+    }
+    return b.toString().trimRight();
   }
 }
