@@ -1,0 +1,22 @@
+name: Gemini Autonomous Agent
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  gemini-run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Run Gemini CLI
+        uses: google-github-actions/run-gemini-cli@main
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: "لطفا این ایشو را بررسی کن و راه حل پیشنهاد بده."
