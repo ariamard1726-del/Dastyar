@@ -1,4 +1,4 @@
-name: Gemini Autonomous Agent
+name: Gemini Issue Reviewer
 
 on:
   issues:
@@ -10,28 +10,60 @@ jobs:
     permissions:
       contents: read
       issues: write
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
-      - name: Run Gemini CLI
-        id: gemini
-        uses: google-github-actions/run-gemini-cli@main
-        env:
-          GEMINI_CLI_TRUST_WORKSPACE: true
-          GEMINI_MODEL: gemini-3.8-flash
-        with:
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          prompt: "لطفا این ایشو را بررسی کن و راه حل پیشنهاد بده."
 
-      - name: Post Comment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Google GenAI SDK
+        run: pip install google-genai
+
+      - name: Run Gemini Analysis
+        id: gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python - << 'EOF'
+          import os
+          from google import genai
+
+          api_key = os.environ.get("GEMINI_API_KEY")
+          title = os.environ.get("ISSUE_TITLE", "")
+          body = os.environ.get("ISSUE_BODY", "")
+
+          client = genai.Client(api_key=api_key)
+          
+          prompt = f"لطفا این ایشو گیت‌هاب را بررسی کن و یک راه حل فنی و دقیق پیشنهاد بده.\n\nعنوان: {title}\nمتن:\n{body}"
+          
+          # استفاده از مدل رایگان و پرسرعت فلش
+          response = client.models.generate_content(
+              model='gemini-2.0-flash',
+              contents=prompt,
+          )
+
+          # ذخیره خروجی برای استفاده در استپ‌های بعدی گیت‌هاب اکشن
+          output_file = os.environ['GITHUB_OUTPUT']
+          with open(output_file, 'a', encoding='utf-8') as f:
+              f.write("summary<<EOF\n")
+              f.write(response.text)
+              f.write("\nEOF\n")
+          EOF
+
+      - name: Post Comment to Issue
         uses: actions/github-script@v7
         with:
           script: |
+            const summary = `${{ steps.gemini.outputs.summary }}`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `${{ steps.gemini.outputs.summary }}`
+              body: `🤖 **پاسخ هوش مصنوعی جمنای:**\n\n${summary}`
             })
