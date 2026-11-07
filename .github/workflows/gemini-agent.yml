@@ -1,28 +1,3 @@
-name: Gemini Issue Reviewer
-
-on:
-  issues:
-    types: [opened]
-
-jobs:
-  gemini-run:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Google GenAI SDK
-        run: pip install google-genai
-
       - name: Run Gemini Analysis
         id: gemini
         env:
@@ -42,9 +17,9 @@ jobs:
           
           prompt = f"لطفا این ایشو گیت‌هاب را بررسی کن و یک راه حل فنی و دقیق پیشنهاد بده.\n\nعنوان: {title}\nمتن:\n{body}"
           
-          # استفاده از مدل رایگان و پرسرعت فلش
+          # استفاده از مدل جدید و معرفی‌شده توسط سرور
           response = client.models.generate_content(
-              model='gemini-2.0-flash',
+              model='gemini-3.8-flash',
               contents=prompt,
           )
 
@@ -55,15 +30,3 @@ jobs:
               f.write(response.text)
               f.write("\nEOF\n")
           EOF
-
-      - name: Post Comment to Issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const summary = `${{ steps.gemini.outputs.summary }}`;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🤖 **پاسخ هوش مصنوعی جمنای:**\n\n${summary}`
-            })
