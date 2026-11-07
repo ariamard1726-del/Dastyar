@@ -1,15 +1,20 @@
-name: Gemini Issue Reviewer
+name: Gemini All-in-One Agent
 
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
 
 jobs:
   gemini-run:
+    # جلوگیری از حلقه بی‌نهایت (ربات به کامنت خودش جواب ندهد)
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout Repository
@@ -23,34 +28,66 @@ jobs:
       - name: Install Google GenAI SDK
         run: pip install google-genai
 
-      - name: Run Gemini Analysis
+      # ==========================================
+      # مرحله ۱: پاسخگویی به ایشوها و کامنت‌ها (چت)
+      # ==========================================
+      - name: Run Gemini Analysis (Chat)
         id: gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
           python - << 'EOF'
           import os
+          import time
           from google import genai
 
           api_key = os.environ.get("GEMINI_API_KEY")
-          title = os.environ.get("ISSUE_TITLE", "")
-          body = os.environ.get("ISSUE_BODY", "")
+          event_name = os.environ.get("EVENT_NAME")
+          
+          project_context = ""
+          if os.path.exists("GEMINI.md"):
+              with open("GEMINI.md", "r", encoding="utf-8") as f:
+                  project_context = f"\nاطلاعات پروژه:\n{f.read()}\n"
+
+          if event_name == "issues":
+              prompt_text = f"عنوان: {os.environ.get('ISSUE_TITLE')}\nمتن: {os.environ.get('ISSUE_BODY')}"
+          else:
+              prompt_text = f"کاربر در کامنت نوشته است: {os.environ.get('COMMENT_BODY')}"
+
+          prompt = f"""تو یک دستیار برنامه‌نویس هستی.{project_context}
+          لطفا به این درخواست کاربر پاسخ فنی و دقیق بده:
+          {prompt_text}
+          """
 
           client = genai.Client(api_key=api_key)
-          prompt = f"لطفا این ایشو گیت‌هاب را بررسی کن و یک راه حل فنی و دقیق پیشنهاد بده.\n\nعنوان: {title}\nمتن:\n{body}"
           
-          try:
-              # مدل تست شده و موفق
-              response = client.models.generate_content(
-                  model='gemini-3.1-flash-lite', 
-                  contents=prompt,
-              )
-              result_text = response.text
-          except Exception as e:
-              print(f"ERROR OCCURRED: {e}")
-              result_text = f"متاسفانه در ارتباط با جمنای خطایی رخ داد:\n{e}"
+          models_to_try = ['gemini-3.1-flash-lite', 'gemini-3.5-flash-lite']
+          result_text = ""
+
+          for model_name in models_to_try:
+              if result_text: break 
+              for attempt in range(3):
+                  try:
+                      response = client.models.generate_content(
+                          model=model_name,
+                          contents=prompt,
+                      )
+                      result_text = response.text
+                      break 
+                  except Exception as e:
+                      error_msg = str(e)
+                      if "503" in error_msg or "UNAVAILABLE" in error_msg:
+                          time.sleep(5)
+                      else:
+                          result_text = f"خطا در ارتباط با جمنای:\n{e}"
+                          break 
+
+          if not result_text:
+              result_text = "متاسفانه سرورهای گوگل در حال حاضر شلوغ هستند (خطای 503). لطفاً بعدا تلاش کنید."
 
           output_file = os.environ['GITHUB_OUTPUT']
           with open(output_file, 'a', encoding='utf-8') as f:
@@ -70,5 +107,31 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🤖 **پاسخ هوش مصنوعی جمنای:**\n\n${summary}`
+              body: `🤖 **پاسخ ایجنت جمنای:**\n\n${summary}`
             })
+
+      # ==========================================
+      # مرحله ۲: اصلاح خودکار کد (فقط وقتی کلمه fix یا اصلاح باشد)
+      # ==========================================
+      - name: Setup Flutter
+        if: github.event_name == 'issue_comment' && (contains(github.event.comment.body, 'fix') || contains(github.event.comment.body, 'اصلاح'))
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+
+      - name: Run Autonomous Agent Script
+        if: github.event_name == 'issue_comment' && (contains(github.event.comment.body, 'fix') || contains(github.event.comment.body, 'اصلاح'))
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: python agent.py
+          
+      - name: Create Pull Request
+        if: github.event_name == 'issue_comment' && (contains(github.event.comment.body, 'fix') || contains(github.event.comment.body, 'اصلاح'))
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "fix: auto-resolved by Gemini Agent"
+          title: "Fix for issue #${{ github.event.issue.number }}"
+          body: "این تغییرات به صورت خودمختار توسط ایجنت Gemini ایجاد شده است."
+          branch: "auto-fix-${{ github.event.issue.number }}"
