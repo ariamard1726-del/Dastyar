@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import time
 from google import genai
 
 # ۱. تنظیمات اولیه
@@ -25,8 +26,10 @@ def ask_gemini(prompt_text):
                 return text.strip()
             except Exception as e:
                 print(f"خطا در مدل {model_name} (تلاش {attempt+1}): {e}")
-                if "503" not in str(e) and "UNAVAILABLE" not in str(e):
-                    break # اگر خطا 503 نبود، مدل بعدی را امتحان کن
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    time.sleep(5)
+                else:
+                    break 
     return None
 
 # بررسی اینکه آیا کاربر درخواست بررسی کل پروژه را داده است یا خیر
