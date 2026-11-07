@@ -1,3 +1,28 @@
+name: Gemini Issue Reviewer
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  gemini-run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Google GenAI SDK
+        run: pip install google-genai
+
       - name: Run Gemini Analysis
         id: gemini
         env:
@@ -14,19 +39,36 @@
           body = os.environ.get("ISSUE_BODY", "")
 
           client = genai.Client(api_key=api_key)
-          
           prompt = f"لطفا این ایشو گیت‌هاب را بررسی کن و یک راه حل فنی و دقیق پیشنهاد بده.\n\nعنوان: {title}\nمتن:\n{body}"
           
-          # استفاده از مدل جدید و معرفی‌شده توسط سرور
-          response = client.models.generate_content(
-              model='gemini-3.8-flash',
-              contents=prompt,
-          )
+          try:
+              # مدل تست شده و موفق
+              response = client.models.generate_content(
+                  model='gemini-3.1-flash-lite', 
+                  contents=prompt,
+              )
+              result_text = response.text
+          except Exception as e:
+              print(f"ERROR OCCURRED: {e}")
+              result_text = f"متاسفانه در ارتباط با جمنای خطایی رخ داد:\n{e}"
 
-          # ذخیره خروجی برای استفاده در استپ‌های بعدی گیت‌هاب اکشن
           output_file = os.environ['GITHUB_OUTPUT']
           with open(output_file, 'a', encoding='utf-8') as f:
               f.write("summary<<EOF\n")
-              f.write(response.text)
+              f.write(result_text)
               f.write("\nEOF\n")
           EOF
+
+      - name: Post Comment to Issue
+        uses: actions/github-script@v7
+        env:
+          SUMMARY: ${{ steps.gemini.outputs.summary }}
+        with:
+          script: |
+            const summary = process.env.SUMMARY;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **پاسخ هوش مصنوعی جمنای:**\n\n${summary}`
+            })
