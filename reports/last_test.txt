@@ -1,4 +1,4 @@
-commit: 53f68e7
+commit: 584f55b
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 14.0s)
+No issues found! (ran in 11.4s)
