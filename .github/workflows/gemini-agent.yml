@@ -16,11 +16,11 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Run Gemini CLI
-        id: gemini # این خط برای دسترسی به خروجی در مرحله بعد ضروری است
+        id: gemini
         uses: google-github-actions/run-gemini-cli@main
         env:
           GEMINI_CLI_TRUST_WORKSPACE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # برای دسترسی به API گیت‌هاب
+          GEMINI_MODEL: gemini-3.8-flash
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           prompt: "لطفا این ایشو را بررسی کن و راه حل پیشنهاد بده."
