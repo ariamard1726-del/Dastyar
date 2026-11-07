@@ -53,10 +53,51 @@ if check_all:
             with open(file, 'r', encoding='utf-8') as f:
                 code = f.read()
 
+            # حذف علامت‌های بک‌تیک برای جلوگیری از تداخل
             prompt = f"""تو یک متخصص فلاتر (Flutter) هستی.
 خطاهای گزارش شده توسط فلاتر:
 {analyze_output}
 
 کد فایل {file}:
-```dart
 {code}
+
+لطفا این فایل را اصلاح کن تا خطاها برطرف شوند. 
+بسیار مهم: فقط و فقط کد نهایی را برگردان. هیچ توضیح اضافه‌ای ننویس و کد را داخل بلاک مارک‌داون قرار نده.
+"""
+            new_code = ask_gemini(prompt)
+            if new_code:
+                with open(file, 'w', encoding='utf-8') as f:
+                    f.write(new_code)
+                print(f"✅ فایل {file} اصلاح شد.")
+
+else:
+    # حالت اصلاح تک‌فایل
+    file_match = re.search(r'([\w\-\./]+\.(?:dart|py|js|txt|md|yaml))', comment_body)
+    if not file_match:
+        print("خطا: نام فایلی برای اصلاح مشخص نشده است. (مثلا: fix pubspec.yaml)")
+        exit(0)
+    
+    target_file = file_match.group(1)
+    if not os.path.exists(target_file):
+        print(f"خطا: فایل {target_file} در پروژه پیدا نشد.")
+        exit(0)
+
+    with open(target_file, 'r', encoding='utf-8') as f:
+        original_code = f.read()
+
+    print(f"فایل {target_file} خوانده شد. در حال ارسال به جمنای...")
+    prompt = f"""تو یک برنامه‌نویس ارشد هستی. کد فعلی فایل {target_file}:
+{original_code}
+
+درخواست کاربر: {comment_body}
+
+لطفا کد را اصلاح کن. بسیار مهم: فقط و فقط کد نهایی را برگردان. هیچ توضیح اضافه‌ای ننویس و کد را داخل بلاک مارک‌داون قرار نده.
+"""
+    new_code = ask_gemini(prompt)
+    if new_code:
+        with open(target_file, 'w', encoding='utf-8') as f:
+            f.write(new_code)
+        print(f"✅ فایل {target_file} با موفقیت اصلاح شد.")
+    else:
+        print("متاسفانه جمنای پاسخی برنگرداند.")
+        exit(1)
