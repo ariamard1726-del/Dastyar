@@ -1,4 +1,4 @@
-commit: 92f3536
+commit: ff1e021
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 14.2s)
+No issues found! (ran in 11.1s)
