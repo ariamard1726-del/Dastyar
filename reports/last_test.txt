@@ -1,4 +1,4 @@
-commit: 6e08a48
+commit: abb77cd
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 11.2s)
+No issues found! (ran in 10.5s)
