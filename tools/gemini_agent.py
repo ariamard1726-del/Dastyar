@@ -186,7 +186,7 @@ def repository_context(root: Path) -> str:
 
 
 def build_user_prompt(env: dict[str, str], root: Path) -> str:
-    connection_only = env.get("EVENT_NAME", "workflow_dispatch") == "workflow_dispatch"
+    connection_only = env.get("EVENT_NAME", "workflow_dispatch") in ("workflow_dispatch", "push")
     if connection_only:
         return "Connection test. Reply with exactly GEMINI_CONNECTION_OK and no other text."
     data = {
@@ -235,9 +235,9 @@ def main() -> int:
     key = env.get("GEMINI_API_KEY", "").strip()
     try:
         event = env.get("EVENT_NAME", "workflow_dispatch")
-        if event not in ("issues", "issue_comment", "workflow_dispatch"):
+        if event not in ("issues", "issue_comment", "workflow_dispatch", "push"):
             raise AgentError("Unsupported event for this agent.")
-        connection_only = event == "workflow_dispatch"
+        connection_only = event in ("workflow_dispatch", "push")
         model = env.get("GEMINI_MODEL") or DEFAULT_MODEL
         reply = generate(
             key, model, SYSTEM_INSTRUCTION, build_user_prompt(env, Path.cwd()),
