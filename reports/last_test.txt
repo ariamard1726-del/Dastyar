@@ -1,4 +1,4 @@
-commit: 12cce2e
+commit: d4ba42e
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 11.8s)
+No issues found! (ran in 9.2s)
