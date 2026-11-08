@@ -33,6 +33,7 @@ The workflow must be present on the repository's default branch (`main`) for iss
 - Open an issue as the owner/collaborator: the agent responds automatically.
 - Follow up with a comment beginning `/gemini `: the agent responds to that comment with the issue title/body as context.
 - Run **Actions → Gemini Repository Agent → Run workflow** for a no-comment connection test. It requires a real Gemini response equal to `GEMINI_CONNECTION_OK`.
+- Changes to this workflow, its Python client, or its safety tests on `main` also run that same no-comment connection test. This provides a push-triggered smoke test when an automation token cannot create issues or dispatch workflows. It does **not** verify issue-comment delivery.
 
 The generation job has read-only repository access. Missing credentials, authentication failures, unavailable models, exhausted quotas, network failures, blocked/empty/truncated responses and failed test markers make the job fail. Transient failures receive at most three attempts. For issue events, a separate job posts either the answer or an explicit failure notice with the run link; that notice does not turn the failed generation job green.
 

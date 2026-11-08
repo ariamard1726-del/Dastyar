@@ -140,8 +140,20 @@ class ContextAndOutputTests(unittest.TestCase):
         self.assertIn("Untrusted", prompt)
 
     def test_connection_prompt_does_not_send_repository_or_issue_content(self):
-        env = {"EVENT_NAME": "workflow_dispatch", "ISSUE_BODY": KEY}
-        self.assertNotIn(KEY, agent.build_user_prompt(env, Path.cwd()))
+        for event in ("workflow_dispatch", "push"):
+            env = {"EVENT_NAME": event, "ISSUE_BODY": KEY}
+            self.assertNotIn(KEY, agent.build_user_prompt(env, Path.cwd()))
+
+    def test_push_smoke_test_writes_real_success_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
+            env = {"GEMINI_API_KEY": KEY, "EVENT_NAME": "push", "GITHUB_OUTPUT": str(output)}
+            reply = agent.GeminiReply("GEMINI_CONNECTION_OK", "model", 10, 1)
+            with mock.patch.dict(agent.os.environ, env, clear=True), \
+                 mock.patch.object(agent, "generate", return_value=reply), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(agent.main(), 0)
+            self.assertEqual(json.loads(output.read_text().split("=", 1)[1])["answer"], "GEMINI_CONNECTION_OK")
 
     def test_output_is_single_line_json_and_resists_heredoc_injection(self):
         with tempfile.TemporaryDirectory() as directory:
