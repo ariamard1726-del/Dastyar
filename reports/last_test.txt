@@ -1,4 +1,4 @@
-commit: 24f47dc
+commit: bdcf6a5
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 12.0s)
+No issues found! (ran in 14.0s)
