@@ -1,0 +1,75 @@
+# Dependency Map (P0-AUDIT)
+
+## Core Engine & Utilities
+- `package:dastyar/core/engine.dart` (KnowledgeEngine, BM25F, Isolate, assets loading)
+- `package:dastyar/core/persian_text.dart` (Normalization, Tokenization, Phrase matching)
+- `package:dastyar/core/utils/persian_normalizer.dart` (Normalization, Tokenization, Phrase matching)
+- `package:dastyar/core/config.dart` (AppConfig: k1, b, wT, wB, wC)
+- `package:dastyar/core/models.dart` (Chunk, CatalogLaw, LegalRef, etc.)
+- `package:dastyar/core/replies.dart` (Replies from assets/replies.json)
+- `package:dastyar/core/router.dart` (QueryRouter: capabilities, outcome prediction)
+- `package:dastyar/core/conflicts_service.dart` (Conflict chains for articles)
+- `package:dastyar/core/law_topic_prior.dart` (Topic priors for laws)
+- `package:dastyar/core/debug_logger.dart` (Evaluation harness logging)
+- `package:dastyar/core/hybrid_router.dart` (Hybrid routing)
+- `package:dastyar/core/intent_net.dart` (Intent classification, FNV-1a, softmax)
+- `package:dastyar/core/model_store.dart` (Model storage)
+
+## Domain Layer
+- `lib/domain/legal_counselor.dart` (Parallel dialogue engine, Goal Frame scattered)
+- `lib/domain/dialogue/conversation_memory.dart` (Follow-up resolution, slot filling)
+- `lib/domain/dialogue/small_talk_layer.dart` (SmallTalk filtering, greetings/thanks)
+- `lib/domain/dialogue/evidence.dart` (EvidenceSet, Evidence, BM25F scores)
+- `lib/domain/dialogue/slot.dart` (SlotValue, DialogueStateManager)
+- `lib/domain/search/retrieval_pipeline.dart` (Graceful degradation, bridge/refuse thresholds)
+- `lib/domain/intent_net.dart` (Neural net classifier, FNV-1a, softmax, L1-normalize)
+- `lib/domain/lawyer/case_reasoner.dart` (CaseFacts, CaseNeed, ReasonedAnswer, FollowUpKind)
+- `lib/domain/lawyer/lawyer_voice.dart` (LawyerReply, Guide matching, template chips)
+- `lib/domain/lawyer/case_facts.dart` (Fact extraction, summary)
+- `lib/domain/lawyer/legal_guides.dart` (LegalGuide, triggers, excludes, steps, cautions)
+- `lib/domain/lawyer/phrase_variator.dart` (Variations for deterministic responses)
+- `lib/domain/evaluation/evaluation_dataset.dart` (Dataset validation)
+- `lib/domain/evaluation/evaluation_harness.dart` (Evaluation harness)
+- `lib/domain/templates.dart` (LegalTemplate)
+
+## UI Layer
+- `lib/ui/chat_controller.dart` (~1,521 lines, 25 imports; submit chain, smallTalk, layering violation)
+- `lib/ui/chat_bubbles.dart` (Chat UI components)
+- `lib/ui/about_page.dart` (About page)
+- `lib/ui/feedback.dart` (Feedback mechanism)
+- `lib/ui/settings_history.dart` (Settings history)
+- `lib/ui/assistant_stream.dart` (Assistant stream)
+- `lib/ui/assistant_verify.dart` (Assistant verification)
+- `lib/ui/citation_guard.dart` (Citation guard)
+- `lib/ui/draft_checkpoint.dart` (Draft checkpoint)
+- `lib/ui/llm_backends.dart` (LLM backends - unused/disabled)
+- `lib/ui/no_llm_default.dart` (No LLM default)
+
+## Assets & Data
+- `assets/laws_catalog.json` (Catalog of laws)
+- `assets/laws/_meta.json` (Law metadata)
+- `assets/replies.json` (Reply templates)
+- `assets/synonyms.txt` (Synonyms for expansion)
+- `assets/relationships.json` (Conflict chains)
+- `assets/knowledge.txt` (General knowledge)
+- `assets/brain/intent_model.json` (Intent model weights)
+- `assets/brain/law_topics.json` (Law topic priors)
+- `assets/data_info.json` (Data version 0.2, updated 1405/08/10)
+- `assets/laws/.../*.txt` (Law texts: 41 files)
+- `assets/templates/*.json` (Legal templates)
+
+## Tests & Evaluation
+- `test/app/...` (UI tests: chat_controller_test, assistant_stream_test, etc.)
+- `test/audit/...` (Audit tests: conversation_audit_test, conversations.txt)
+- `test/core/...` (Core tests: intent_net_test, law_topic_prior_test, etc.)
+- `bin/evaluate_bot.dart` (Evaluation harness, Flutter test binding)
+
+## External Dependencies (pubspec.yaml implied)
+- `flutter/services.dart` (rootBundle, asset loading)
+- `dart:convert`, `dart:io`, `dart:math`, `dart:isolate`, `dart:typed_data` (Standard Dart)
+
+## Internal Structure Violations (Claim 13)
+- Layering: `core/engine` imports `domain/dialogue/evidence.dart` (core -> domain)
+- Normalization: `PersianNormalizer` in `core/utils`, `PersianText` in `core`
+- Hard-coded domain knowledge in Dart (LegalCounselor, ChatController, etc.)
+
