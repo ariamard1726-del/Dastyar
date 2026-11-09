@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Scenario",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "split": { "type": "string", "enum": ["dev", "test"] },
+    "author": { "type": "string" },
+    "domain": { "type": "string" },
+    "needs_human_review": { "type": "boolean" },
+    "turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_text": { "type": "string" },
+          "gold_speech_act": { "type": "string", "enum": ["question", "inform", "confirm", "deny", "smallTalk", "metaDialogue", "outOfDomain"] },
+          "gold_relevance": { "type": "string", "enum": ["continue", "related_side", "topic_switch", "out_of_domain"] },
+          "gold_slots": { "type": "array", "items": { "type": "string" } },
+          "gold_law": { "type": "string" },
+          "gold_article": { "type": "string" },
+          "expect_unanswerable": { "type": "boolean" }
+        },
+        "required": ["user_text", "gold_speech_act", "gold_relevance", "expect_unanswerable"]
+      }
+    }
+  },
+  "required": ["id", "split", "author", "domain", "needs_human_review", "turns"]
+}
