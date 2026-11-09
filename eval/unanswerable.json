@@ -1,0 +1,247 @@
+[
+  {
+    "question": "آیا این موضوع مربوط به قانون مدنی است؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "چگونه می‌توانم یک شکایت رسمی ثبت کنم؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به جرایم رایانه‌ای چیست؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آیا این مورد در قانون کار گنجانده شده است؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "چه زمانی باید شکایت ثبت شود؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به ماليات مستقيم چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه خانواده مجاز است؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به حفاظت مصرف‌کنندگان چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه دعاوي مالياتي وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به مجازات‌های مالی چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه حل اختلاف مجاز است؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به تشديد تقلب چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه خانواده مجاز است؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به حفاظت از کودکان چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه دعاوي مدني وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به اجراي احکام مدني چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه دعاوي مدني وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به مسئوليت مدني چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه آيين دادرسي مدني وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به تجارت چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه اصلاح قانون تجارت وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به قانون اساسي چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه حفاظت مصرف‌کنندگان وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به آيين دادرسي كيفري چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه جرائم رايانه‌اي وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به ماليات مستقيم چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه حل اختلاف وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به حفاظت خانواده چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه مجازات‌های مالی وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به تشديد تقلب چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه کار وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به اجاره‌دهنده و مستاجر چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه ازدواج وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به مجازات اسلامي چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه ثبت اسناد وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به تامين اجتماعي چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه دعاوي كيفري وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به جرائم رايانه‌اي چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه ماليات مستقيم وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به حل اختلاف چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه حفاظت خانواده وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به مجازات‌های مالی چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه تشديد تقلب وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به کار چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه اجاره‌دهنده و مستاجر وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به ازدواج چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه مجازات اسلامي وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "قانون مربوط به ثبت اسناد چيست؟",
+    "tag": "not_in_corpus",
+    "flag_for_human_review": true
+  },
+  {
+    "question": "آيا دادگاه تامين اجتماعي وجود دارد؟",
+    "tag": "out_of_domain",
+    "flag_for_human_review": true
+  }
+]
