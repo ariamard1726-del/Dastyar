@@ -1,4 +1,4 @@
-commit: fdbe7a5
+commit: f6c8456
 🎉 529 tests passed.
 --- analyze ---
-No issues found! (ran in 14.8s)
+No issues found! (ran in 10.6s)
