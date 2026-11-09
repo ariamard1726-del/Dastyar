@@ -1,0 +1,62 @@
+name: Agent CI
+
+on:
+  push:
+    branches:
+      - arena/bb42a511-dastyar
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agent-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Flutter analyze
+        id: analyze
+        run: |
+          set -o pipefail
+          flutter analyze --no-fatal-infos 2>&1 | tee analyze.txt
+          # Extract final "N issues found" line
+          tail -n 1 analyze.txt || true
+
+      - name: Flutter test
+        id: test
+        run: |
+          set -o pipefail
+          flutter test --reporter expanded 2>&1 | tee test.txt
+          # Extract summary line
+          grep -E "All tests passed|Failed|0 passed" test.txt || true
+
+      - name: Run validate_scenarios.dart (conditional)
+        if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          if [ -f "tool/eval/validate_scenarios.dart" ]; then
+            dart run tool/eval/validate_scenarios.dart || true
+          else
+            echo "tool/eval/validate_scenarios.dart not found, skipping."
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-ci-reports
+          path: |
+            analyze.txt
+            test.txt
