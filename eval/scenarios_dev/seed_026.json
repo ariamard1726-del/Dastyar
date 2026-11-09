@@ -1,0 +1,24 @@
+{
+  "id": "dev-026",
+  "split": "dev",
+  "author": "agent-seed",
+  "domain": "mahriyeh",
+  "needs_human_review": true,
+  "turns": [
+    {
+      "user_text": "سؤال درباره mahriyeh (026)؟",
+      "gold_speech_act": "question",
+      "gold_relevance": "continue",
+      "gold_slots": ["mahriyeh"],
+      "gold_law": "ghanoun_e_madani",
+      "gold_article": "1100",
+      "expect_unanswerable": false
+    },
+    {
+      "user_text": "آیا پختن غذا سخت است؟",
+      "gold_speech_act": "smallTalk",
+      "gold_relevance": "out_of_domain",
+      "expect_unanswerable": true
+    }
+  ]
+}

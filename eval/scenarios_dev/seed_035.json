@@ -1,0 +1,24 @@
+{
+  "id": "dev-035",
+  "split": "dev",
+  "author": "agent-seed",
+  "domain": "dismissal",
+  "needs_human_review": true,
+  "turns": [
+    {
+      "user_text": "سؤال درباره dismissal (035)؟",
+      "gold_speech_act": "question",
+      "gold_relevance": "continue",
+      "gold_slots": ["dismissal"],
+      "gold_law": "Hoghough_E_Kar",
+      "gold_article": "20",
+      "expect_unanswerable": false
+    },
+    {
+      "user_text": "آیا پختن غذا سخت است؟",
+      "gold_speech_act": "smallTalk",
+      "gold_relevance": "out_of_domain",
+      "expect_unanswerable": true
+    }
+  ]
+}
