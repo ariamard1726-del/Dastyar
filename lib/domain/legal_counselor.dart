@@ -563,6 +563,39 @@ static CounselorTurn step(
     );
   }
 
+  // fix: a new independent legal topic must not stick to the active one.
+  if (activeContext) {
+    const Set<String> strongTopics = <String>{
+      'family', 'lease', 'labor', 'criminal_harm', 'litigation_defense',
+    };
+    final String? newTopic = detectTopic(trimmed);
+    final bool hasReference =
+        RegExp(r'(^|\s)(همین|همان|همون|اون|آن)(\s|$)').hasMatch(n);
+    if (newTopic != null &&
+        newTopic != session.topicId &&
+        strongTopics.contains(newTopic) &&
+        !hasReference) {
+      session.topicId = 'general_intake';
+      session.facts.clear();
+      session.dialogueState = null;
+      session.concluded = false;
+      CounselorSessionState.reset(session);
+      return _routed(
+        onRoute,
+        CounselorRoute.intake,
+        _handleGeneralIntake(
+          session,
+          trimmed,
+          engine,
+          templates,
+          net: net,
+          replies: replies,
+          rnd: rnd,
+        ),
+      );
+    }
+  }
+
   // Legal questions are answered without mutating the pending slot. Simple
   // declarative answers (amounts, dates, choices, ...) never cross this gate.
   if (_ragEligible(session, trimmed, net: net)) {
