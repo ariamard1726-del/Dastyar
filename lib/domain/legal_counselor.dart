@@ -566,7 +566,7 @@ static CounselorTurn step(
   // fix: a new independent legal topic must not stick to the active one.
   if (activeContext) {
     const Set<String> strongTopics = <String>{
-      'family', 'lease', 'labor', 'criminal_harm', 'litigation_defense',
+      'family', 'lease', 'labor', 'criminal_harm', 'litigation_defense', 'cheque',
     };
     final String? newTopic = detectTopic(trimmed);
     final bool hasReference =

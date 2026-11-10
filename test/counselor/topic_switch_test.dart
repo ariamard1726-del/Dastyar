@@ -65,6 +65,15 @@ void main() {
       expect(session.topicId, 'cheque');
     });
 
+    test('dowry session then an independent cheque message leaves family', () {
+      final (session, _) = startCounseling('شوهرم مهریه‌م رو نمی‌ده');
+      expect(session.topicId, 'family');
+
+      step(session, 'چک‌م برگشت خورده');
+
+      expect(session.topicId, isNot('family'));
+    });
+
     test('safety: a reference word keeps the current topic', () {
       final (session, _) = startCounseling('چک‌م برگشت خورده');
       expect(session.topicId, 'cheque');
