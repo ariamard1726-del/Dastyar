@@ -1,4 +1,4 @@
-commit: 90b2f1f
+commit: 72efc37
 🎉 535 tests passed.
 --- analyze ---
-No issues found! (ran in 14.1s)
+No issues found! (ran in 11.8s)
