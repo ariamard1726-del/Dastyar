@@ -1,23 +1,4 @@
-commit: 4b5ab47
-::error::535 tests passed, 3 failed.
-::group::❌ test/ui/end_counseling_reset_test.dart: end of counseling resets flow memory after end command isCounseling is false (failed)
-   Expected: true
-   Actual: <false>
-   test/ui/end_counseling_reset_test.dart 41:7         main.<fn>.<fn>
-   ::endgroup::
-::group::❌ test/ui/end_counseling_reset_test.dart: end of counseling resets flow memory dowry then end then cheque: answer has no dowry leftovers (failed)
-   Expected: not contains 'عقدنامه'
-   Actual: 'با توجه به همهٔ چیزهایی که گفتید، پیشنهاد من به ترتیب این است:\n'
-   '۱. عقدنامه را بردارید و نوع مهریه را ببینید: عندالمطالبه است یا عندالاستطاعه؟\n'
-   '۲. اگر از اموال همسرتان (ملک، خودرو، حساب بانکی، حقوق) اطلاع دارید، فهرستش را تهیه کنید؛ این برای توقیف سریع بسیار مهم است.\n'
-   '۳. از طریق دفترخانهٔ ثبت ازدواج درخواست صدور اجرائیه بدهید، یا دادخواست مطالبهٔ مهریه را در دادگاه خانواده ثبت کنید.\n'
-   '۴. اگر مالی پیدا نشد، احتمالاً همسرتان دادخواست اعسار و تقسیط می‌دهد و دادگاه مهریه را قسطی می‌کند؛ این پایان راه نیست و هر مالی بعداً پیدا شود قابل توقیف است.\n'
-   '\n'
-   'مدارکی که گفتید (چک) را همراه داشته باشید.\n'
-::group::❌ test/ui/end_counseling_reset_test.dart: end of counseling resets flow memory safety: without end command cheque counseling continues (failed)
-   Expected: true
-   Actual: <false>
-   test/ui/end_counseling_reset_test.dart 65:7         main.<fn>.<fn>
-   ::endgroup::
+commit: 90b2f1f
+🎉 535 tests passed.
 --- analyze ---
-No issues found! (ran in 11.7s)
+No issues found! (ran in 14.1s)
