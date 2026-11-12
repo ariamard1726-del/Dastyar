@@ -12,4 +12,14 @@ void main() {
     final r = RetrievalPipeline.handleLowConfidenceRetrieval('یک موضوع حقوقی مبهم دارم', similarity: 0.1);
     expect(r.contains('وکیل دادگستری'), isTrue);
   });
+
+  test('nonsense text gets out-of-scope reply, not lawyer referral', () {
+    final r = RetrievalPipeline.handleLowConfidenceRetrieval('فلفلی قلقلی', similarity: 0.1);
+    expect(r.contains('وکیل دادگستری'), isFalse);
+  });
+
+  test('legal-cue message below threshold keeps lawyer referral', () {
+    final r = RetrievalPipeline.handleLowConfidenceRetrieval('من به سربازی نروم خوب هست', similarity: 0.1);
+    expect(r.contains('وکیل دادگستری'), isTrue);
+  });
 }
