@@ -374,6 +374,7 @@ class LegalCounselor {
       return true;
     }
     if (_directArtRe.hasMatch(n)) return false;
+    if (_bareComplaintRe.hasMatch(n)) return true;
     if (net != null) {
       final s = net.classify(rawText);
       if (s.score >= net.topicMin) {
@@ -447,6 +448,8 @@ class LegalCounselor {
     }
     return null;
   }
+static final RegExp _bareComplaintRe = RegExp(r'^(?:می[\s\u200c]*خوا(?:م|هم)[\s]+)?شکایت[\s]+(?:کنم|بکنم|کنم؟)$');
+
 static (CounselingSession, CounselorTurn)? start(
   String rawText,
   KnowledgeEngine engine,
@@ -455,7 +458,7 @@ static (CounselingSession, CounselorTurn)? start(
   Replies? replies,
   Random? rnd,
 }) {
-  final topic = detectTopic(rawText, net: net);
+  final topic = detectTopic(rawText, net: net) ?? (_bareComplaintRe.hasMatch(_norm(rawText)) ? 'general_intake' : null);
   if (topic == null) return null;
   final session = CounselingSession(topicId: topic, initialMessage: rawText);
   DialogueIntegration.initializeState(session);
