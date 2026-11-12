@@ -68,8 +68,7 @@ class RetrievalPipeline {
   static final RegExp _legalCueRe = RegExp(
       r'قانون|ماده|دادگاه|شکایت|وکیل|حقوق|چک|اجاره|طلاق|مهریه|قرارداد|دادخواست|جرم');
 
-  static bool _isClearlyOffTopic(String q) =>
-      _offTopicRe.hasMatch(q) && !_legalCueRe.hasMatch(q);
+
 
   /// پاسخ مناسب وقتی بازیابی مطمئن نیست.
   ///
@@ -88,12 +87,7 @@ class RetrievalPipeline {
         _isNotLegal(userQuery)) {
       return _outOfScopeReply(userQuery);
     }
-    if (false) {
-      return 'این سؤال خارج از حوزه‌ی دستیار حقوقی است و من فقط دربارهٔ '
-          'مسائل حقوقی و قوانین ایران پاسخ می‌دهم.\n\n'
-          'اگر مشکل یا سؤال حقوقی دارید (مثل چک، اجاره، کار، خانواده یا '
-          'شکایت)، همین‌جا کوتاه بنویسید تا کمک کنم.';
-    }
+    
     if (similarity.isNaN || similarity < refuseBelow) {
       return 'متأسفانه دربارهٔ این موضوع اطلاعات دقیق و مطمئنی در منابع من نیست '
           'و نمی‌خواهم با حدس زدن، شما را به اشتباه بیندازم.\n\n'
