@@ -531,6 +531,10 @@ static CounselorTurn step(
     return _routed(onRoute, CounselorRoute.cancel,
         const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
   }
+  if (n.length <= 60 && _insultRe.hasMatch(n) && detectTopic(trimmed) == null) {
+    return _routed(onRoute, CounselorRoute.cancel,
+        CounselorTurn(text: '$_farewellLead ${_farewellRude[Random().nextInt(_farewellRude.length)]}', cancelled: true));
+  }
   if (n.length <= 40 && _refusalRe.hasMatch(n) && RegExp(r'حرف|صحبت|مشاوره').hasMatch(n)) {
     return _routed(onRoute, CounselorRoute.cancel,
         CounselorTurn(text: _farewellText(n), cancelled: true));
@@ -1071,6 +1075,10 @@ static String _farewellText(String n, {Random? rnd}) {
   }
   return '$_farewellLead ${pool[r.nextInt(pool.length)]}';
 }
+
+static final RegExp _insultRe = RegExp(
+    r'احمق|عوضی|لعنتی|لعنت[\s\u200c]*بر|خفه[\s\u200c]*(?:شو|شین|باش)|گم[\s\u200c]*شو|بی[\s\u200c]*شعور|بی[\s\u200c]*ناموس|بی[\s\u200c]*غیرت|بی[\s\u200c]*پدر|بی[\s\u200c]*عرضه|آشغال|کثافت|کصافت|حرام[\s\u200c]*زاده|حروم[\s\u200c]*زاده|پفیوز|نکبت|اسکل|دیوث|جاکش|جنده|کونی|پدر[\s\u200c]*سگ|سگ[\s\u200c]*پدر|توله[\s\u200c]*سگ|عن[\s\u200c]*تر|مادر[\s\u200c]*(?:جنده|قحبه)|قحبه|گایید|گاییدم|ریدم|(?:^|\s)(?:کیر|کص|کس[\s\u200c]*ننه|الاغ|خر|گاو|سگ)(?:\s|$)|fuck|shit|bitch|idiot|stupid|moron|asshole',
+    caseSensitive: false);
 
 static final RegExp _refusalRe = RegExp(
   r'(?:نمی[\s\u200c]*خوا(?:هم|م))[^.؟?!]*(?:جواب|پاسخ|بگویم|بگم|حرف|صحبت|مشاوره|ادامه)|(?:(?:جواب|پاسخ)[\s\u200c]*(?:نمی[\s\u200c]*دهم|نمی[\s\u200c]*دم|ندارم))',
