@@ -528,6 +528,10 @@ static CounselorTurn step(
     return _routed(onRoute, CounselorRoute.cancel,
         const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
   }
+  if (n.length <= 40 && _refusalRe.hasMatch(n) && RegExp(r'حرف|صحبت|مشاوره').hasMatch(n)) {
+    return _routed(onRoute, CounselorRoute.cancel,
+        const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
+  }
   if (net != null) {
     final s = net.classify(trimmed);
     if (s.label == 'cancel' && s.score >= net.cancelMin) {
@@ -1013,7 +1017,7 @@ static CounselorTurn _advanceAfterAnswer(
 }
 
 static final RegExp _refusalRe = RegExp(
-  r'(?:نمی\s*خواهم|نمیخواهم).*(?:جواب|پاسخ|بگویم|بگم)|(?:(?:جواب|پاسخ)\s*(?:نمی\s*دهم|ندارم))',
+  r'(?:نمی[\s\u200c]*خوا(?:هم|م))[^.؟?!]*(?:جواب|پاسخ|بگویم|بگم|حرف|صحبت|مشاوره|ادامه)|(?:(?:جواب|پاسخ)[\s\u200c]*(?:نمی[\s\u200c]*دهم|نمی[\s\u200c]*دم|ندارم))',
 );
 
 /// Whether free-form text is still about the active legal domain. This is
