@@ -764,7 +764,7 @@ class ChatController extends ChangeNotifier {
     );
 
     if (turn.cancelled) {
-      _counsel = null;
+      _resetFlow();
       messages.add(ChatMessage(text, true));
       messages.add(ChatMessage(turn.text, false));
       _syncCounselCheckpoint();
