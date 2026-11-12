@@ -1,4 +1,15 @@
-commit: 0b5bf71
-🎉 539 tests passed.
+commit: 33599cf
+::error::539 tests passed, 2 failed.
+::group::❌ test/domain/search/off_topic_reply_test.dart: off-topic message gets out-of-scope reply, not lawyer referral (failed)
+   Expected: true
+   Actual: <false>
+   test/domain/search/off_topic_reply_test.dart 7:5    main.<fn>
+   ::endgroup::
+::group::❌ test/domain/search/low_confidence_retrieval_test.dart: < ۰٫۵۰: امتناع مؤدبانه و معرفی معاضدت کانون وکلا (failed)
+   Expected: contains 'معاضدت کانون وکلا'
+   Actual: 'این سؤال خارج از حوزه‌ی دستیار حقوقی است. اگر مشکل یا پرسش حقوقی دارید (مثل چک، اجاره، کار یا خانواده)، کوتاه بنویسید تا کمک کنم.'
+   Which: does not contain 'معاضدت کانون وکلا'
+   test/domain/search/low_confidence_retrieval_test.dart 20:5  main.<fn>
+   ::endgroup::
 --- analyze ---
-No issues found! (ran in 12.2s)
+2 issues found. (ran in 10.9s)
