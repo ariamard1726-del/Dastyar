@@ -409,6 +409,28 @@ class LegalCounselor {
     if (n.contains('حکم غیابی') || n.contains('رای غیابی') || n.contains('واخواهی') || n.contains('تجدیدنظر') || n.contains('اعتراض به رای') || n.contains('ابلاغیه') || n.contains('احضاریه') || n.contains('از من شکایت') || n.contains('علیه من')) return 'litigation_defense';
     if (n.contains('قرض') || n.contains('طلب') || n.contains('بدهی') || n.contains('بدهکار') || n.contains('سفته') || n.contains('اعسار')) return 'debt';
     if (n.contains('مشاوره') || n.contains('چه کار کنم') || n.contains('چیکار کنم') || n.contains('راهنمایی کن')) return 'general_intake';
+    final colloquial = _colloquialTopic(n);
+    if (colloquial != null) return colloquial;
+    return null;
+  }
+
+  static const List<(String, List<String>)> _colloquialTopics = [
+    ('lease', ['صاحبخونه', 'صاحب خونه', 'صاحبخونم', 'بیرونم می کنه', 'بیرونم میکنه', 'بیرونم کنه', 'اجاره نامه', 'اجاره خونه', 'رهن', 'مالک خونه', 'پول پیش']),
+    ('fraud_cyber', ['حسابم رو خالی', 'حسابم خالی', 'حسابمو خالی', 'پولمو برداشتن', 'پولم رو برداشتن', 'کلاهبردار', 'گول زدن', 'گول زد', 'سرم کلاه', 'کلاه گذاشت', 'پولمو خوردن', 'پولمو خورد', 'هکم کردن', 'هک شدم']),
+    ('litigation_defense', ['شکایت کنم', 'شکایت کردن', 'ازم شکایت', 'ازم شکایت کرده', 'احضار شدم', 'برگه اومده', 'دادگاه خواسته', 'دادگاه احضار']),
+    ('criminal_harm', ['تهدیدم کرد', 'تهدیدم می کنه', 'تهدیدم میکنه', 'کتکم زد', 'کتکم زدن', 'زدتم', 'فحشم داد', 'ناسزا گفت', 'آبروم رو', 'آبرومو']),
+    ('labor', ['بیرونم کردن', 'از کار بیرونم', 'حقوقمو نداد', 'حقوقم رو نداد', 'حقوقمو نمیدن', 'حقوقم رو نمیدن', 'بیمه ام نکرد', 'بیمه نکرد', 'قراردادمو فسخ']),
+    ('family', ['زنم ولم', 'شوهرم ولم', 'شوهرم نفقه', 'زنم نفقه', 'بچه رو نمیده', 'بچه ام رو نمیده', 'میخوام طلاق', 'می خوام طلاق', 'مهرمو', 'مهریمو']),
+    ('debt', ['پولمو پس نمیده', 'پولم رو پس نمیده', 'پولمو نمیده', 'بدهکارم نمیده', 'قرضمو', 'قرضم رو', 'طلبمو', 'طلبم رو']),
+    ('cheque', ['چکمو', 'چکم رو', 'چک برگشتی', 'چک پاس نشد', 'پاس نشد']),
+  ];
+
+  static String? _colloquialTopic(String n) {
+    for (final (topic, phrases) in _colloquialTopics) {
+      for (final ph in phrases) {
+        if (n.contains(ph)) return topic;
+      }
+    }
     return null;
   }
 
