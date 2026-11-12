@@ -1,4 +1,4 @@
-commit: 72efc37
+commit: 50cb7ee
 🎉 535 tests passed.
 --- analyze ---
-No issues found! (ran in 11.8s)
+No issues found! (ran in 9.4s)
