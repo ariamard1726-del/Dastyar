@@ -36,6 +36,14 @@ class RetrievalPipeline {
   /// زیر این شباهت (و بالای [refuseBelow])، «پاسخ پل» می‌دهیم.
   static const double bridgeBelow = 0.65;
 
+  static final RegExp _offTopicRe = RegExp(
+      r'هوا|فوتبال|والیبال|استقلال|پرسپولیس|آشپزی|دستور[\s\u200c]*پخت|قیمت[\s\u200c]*(دلار|سکه|طلا)|سریال|آهنگ|موسیقی|جوک|لطیفه|ساعت[\s\u200c]*چنده');
+  static final RegExp _legalCueRe = RegExp(
+      r'قانون|ماده|دادگاه|شکایت|وکیل|حقوق|چک|اجاره|طلاق|مهریه|قرارداد|دادخواست|جرم');
+
+  static bool _isClearlyOffTopic(String q) =>
+      _offTopicRe.hasMatch(q) && !_legalCueRe.hasMatch(q);
+
   /// پاسخ مناسب وقتی بازیابی مطمئن نیست.
   ///
   /// - شباهت < ۰٫۵۰ (یا نامعتبر): عذرخواهی مؤدبانه، صراحت دربارهٔ نبود
@@ -49,6 +57,13 @@ class RetrievalPipeline {
     String? candidateTopic,
   }) {
     if (!similarity.isNaN && similarity >= bridgeBelow) return '';
+    if ((similarity.isNaN || similarity < refuseBelow) &&
+        _isClearlyOffTopic(userQuery)) {
+      return 'این سؤال خارج از حوزه‌ی دستیار حقوقی است و من فقط دربارهٔ '
+          'مسائل حقوقی و قوانین ایران پاسخ می‌دهم.\n\n'
+          'اگر مشکل یا سؤال حقوقی دارید (مثل چک، اجاره، کار، خانواده یا '
+          'شکایت)، همین‌جا کوتاه بنویسید تا کمک کنم.';
+    }
     if (similarity.isNaN || similarity < refuseBelow) {
       return 'متأسفانه دربارهٔ این موضوع اطلاعات دقیق و مطمئنی در منابع من نیست '
           'و نمی‌خواهم با حدس زدن، شما را به اشتباه بیندازم.\n\n'
