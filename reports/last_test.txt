@@ -1,4 +1,4 @@
-commit: 7cc3b73
+commit: 69be4f7
 🎉 541 tests passed.
 --- analyze ---
-No issues found! (ran in 12.3s)
+No issues found! (ran in 12.0s)
