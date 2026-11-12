@@ -374,6 +374,7 @@ class LegalCounselor {
       return true;
     }
     if (_directArtRe.hasMatch(n)) return false;
+    if (_bareComplaintRe.hasMatch(n)) return true;
     if (net != null) {
       final s = net.classify(rawText);
       if (s.score >= net.topicMin) {
@@ -409,6 +410,28 @@ class LegalCounselor {
     if (n.contains('حکم غیابی') || n.contains('رای غیابی') || n.contains('واخواهی') || n.contains('تجدیدنظر') || n.contains('اعتراض به رای') || n.contains('ابلاغیه') || n.contains('احضاریه') || n.contains('از من شکایت') || n.contains('علیه من')) return 'litigation_defense';
     if (n.contains('قرض') || n.contains('طلب') || n.contains('بدهی') || n.contains('بدهکار') || n.contains('سفته') || n.contains('اعسار')) return 'debt';
     if (n.contains('مشاوره') || n.contains('چه کار کنم') || n.contains('چیکار کنم') || n.contains('راهنمایی کن')) return 'general_intake';
+    final colloquial = _colloquialTopic(n);
+    if (colloquial != null) return colloquial;
+    return null;
+  }
+
+  static const List<(String, List<String>)> _colloquialTopics = [
+    ('lease', ['صاحبخونه', 'صاحب خونه', 'صاحبخونم', 'بیرونم می کنه', 'بیرونم میکنه', 'بیرونم کنه', 'اجاره نامه', 'اجاره خونه', 'رهن', 'مالک خونه', 'پول پیش']),
+    ('fraud_cyber', ['حسابم رو خالی', 'حسابم خالی', 'حسابمو خالی', 'پولمو برداشتن', 'پولم رو برداشتن', 'کلاهبردار', 'گول زدن', 'گول زد', 'سرم کلاه', 'کلاه گذاشت', 'پولمو خوردن', 'پولمو خورد', 'هکم کردن', 'هک شدم']),
+    ('litigation_defense', ['ازم شکایت', 'ازم شکایت کرده', 'احضار شدم', 'برگه اومده', 'دادگاه خواسته', 'دادگاه احضار']),
+    ('criminal_harm', ['تهدیدم کرد', 'تهدیدم می کنه', 'تهدیدم میکنه', 'کتکم زد', 'کتکم زدن', 'زدتم', 'فحشم داد', 'ناسزا گفت', 'آبروم رو', 'آبرومو']),
+    ('labor', ['بیرونم کردن', 'از کار بیرونم', 'حقوقمو نداد', 'حقوقم رو نداد', 'حقوقمو نمیدن', 'حقوقم رو نمیدن', 'بیمه ام نکرد', 'بیمه نکرد', 'قراردادمو فسخ']),
+    ('family', ['زنم ولم', 'شوهرم ولم', 'شوهرم نفقه', 'زنم نفقه', 'بچه رو نمیده', 'بچه ام رو نمیده', 'میخوام طلاق', 'می خوام طلاق', 'مهرمو', 'مهریمو']),
+    ('debt', ['پولمو پس نمیده', 'پولم رو پس نمیده', 'پولمو نمیده', 'بدهکارم نمیده', 'قرضمو', 'قرضم رو', 'طلبمو', 'طلبم رو']),
+    ('cheque', ['چکمو', 'چکم رو', 'چک برگشتی', 'چک پاس نشد', 'پاس نشد']),
+  ];
+
+  static String? _colloquialTopic(String n) {
+    for (final (topic, phrases) in _colloquialTopics) {
+      for (final ph in phrases) {
+        if (n.contains(ph)) return topic;
+      }
+    }
     return null;
   }
 
@@ -425,6 +448,8 @@ class LegalCounselor {
     }
     return null;
   }
+static final RegExp _bareComplaintRe = RegExp(r'^(?:می[\s\u200c]*خوا(?:م|هم)[\s]+)?شکایت[\s]+(?:کنم|بکنم|کنم؟)$');
+
 static (CounselingSession, CounselorTurn)? start(
   String rawText,
   KnowledgeEngine engine,
@@ -433,7 +458,7 @@ static (CounselingSession, CounselorTurn)? start(
   Replies? replies,
   Random? rnd,
 }) {
-  final topic = detectTopic(rawText, net: net);
+  final topic = detectTopic(rawText, net: net) ?? (_bareComplaintRe.hasMatch(_norm(rawText)) ? 'general_intake' : null);
   if (topic == null) return null;
   final session = CounselingSession(topicId: topic, initialMessage: rawText);
   DialogueIntegration.initializeState(session);
@@ -506,6 +531,14 @@ static CounselorTurn step(
     return _routed(onRoute, CounselorRoute.cancel,
         const CounselorTurn(text: 'مشاورهٔ گام‌به‌گام پایان یافت. هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.', cancelled: true));
   }
+  if (n.length <= 60 && _insultRe.hasMatch(n) && detectTopic(trimmed) == null) {
+    return _routed(onRoute, CounselorRoute.cancel,
+        CounselorTurn(text: '$_farewellLead ${_farewellRude[Random().nextInt(_farewellRude.length)]}', cancelled: true));
+  }
+  if (n.length <= 40 && _refusalRe.hasMatch(n) && RegExp(r'حرف|صحبت|مشاوره').hasMatch(n)) {
+    return _routed(onRoute, CounselorRoute.cancel,
+        CounselorTurn(text: _farewellText(n), cancelled: true));
+  }
   if (net != null) {
     final s = net.classify(trimmed);
     if (s.label == 'cancel' && s.score >= net.cancelMin) {
@@ -561,6 +594,39 @@ static CounselorTurn step(
         chips: SmallTalkLayer.defaultIntakeChips,
       ),
     );
+  }
+
+  // fix: a new independent legal topic must not stick to the active one.
+  if (activeContext) {
+    const Set<String> strongTopics = <String>{
+      'family', 'lease', 'labor', 'criminal_harm', 'litigation_defense', 'cheque',
+    };
+    final String? newTopic = detectTopic(trimmed);
+    final bool hasReference =
+        RegExp(r'(^|\s)(همین|همان|همون|اون|آن)(\s|$)').hasMatch(n);
+    if (newTopic != null &&
+        newTopic != session.topicId &&
+        strongTopics.contains(newTopic) &&
+        !hasReference) {
+      session.topicId = 'general_intake';
+      session.facts.clear();
+      session.dialogueState = null;
+      session.concluded = false;
+      CounselorSessionState.reset(session);
+      return _routed(
+        onRoute,
+        CounselorRoute.intake,
+        _handleGeneralIntake(
+          session,
+          trimmed,
+          engine,
+          templates,
+          net: net,
+          replies: replies,
+          rnd: rnd,
+        ),
+      );
+    }
   }
 
   // Legal questions are answered without mutating the pending slot. Simple
@@ -957,8 +1023,65 @@ static CounselorTurn _advanceAfterAnswer(
   );
 }
 
+static const String _farewellLead = 'مشاورهٔ گام‌به‌گام پایان یافت.';
+
+static const List<String> _farewellRude = [
+  'ناراحتی‌تان را می‌فهمم و از لحن تند ناراحت نمی‌شوم. هر وقت آرام‌تر بودید، با کمال میل ادامه می‌دهیم.',
+  'اگر از من یا از وضعیت‌تان عصبانی هستید، حق دارید. هر زمان خواستید، پرونده را از همین‌جا دوباره باز می‌کنیم.',
+  'مشکلی نیست. شاید الان وقت خوبی برای گفت‌وگو نباشد. هر وقت آماده بودید برگردید.',
+  'متوجه شدم که این گفت‌وگو برایتان خوشایند نبوده. اگر خواستید دوباره شروع کنید، از صفر کمک می‌کنم.',
+  'لحن‌تان را به حساب خستگی می‌گذارم. وقتی حالتان بهتر شد، پرسش حقوقی‌تان را بنویسید.',
+  'درک می‌کنم که ممکن است حوصله‌تان سر رفته باشد. هر زمان نیاز داشتید، من همین‌جا هستم.',
+];
+
+static const List<String> _farewellUpset = [
+  'می‌فهمم که ذهن‌تان درگیر است و شاید الان توان جواب‌دادن به سؤال‌ها را نداشته باشید. هر وقت آماده شدید، ادامه می‌دهیم.',
+  'مسائل حقوقی خسته‌کننده‌اند و استراحت حق شماست. وقتی برگشتید، از همان‌جا که مانده بودیم شروع می‌کنیم.',
+  'ناراحتی‌تان را جدی می‌گیرم. فعلاً مشاوره را می‌بندم تا فشاری روی‌تان نباشد. هر زمان خواستید برگردید.',
+  'اگر سؤال‌ها کلافه‌تان کرده، شرمنده. دفعه‌ی بعد می‌توانید فقط ماجرا را کوتاه بگویید تا خودم سؤال را کم کنم.',
+  'اشکالی ندارد که الان ادامه ندهید. اطلاعاتی که گفتید می‌ماند و هر وقت خواستید می‌توانید دوباره بنویسید.',
+  'امیدوارم حالتان بهتر شود. هر وقت دوباره آماده‌ی گفت‌وگو بودید، در خدمتم.',
+];
+
+static const List<String> _farewellIrrelevant = [
+  'به نظر می‌رسد الان این مسیر به کار شما نمی‌آید. اگر موضوع حقوقی دیگری دارید، همین‌جا بنویسید.',
+  'اشکالی ندارد. اگر منظورتان چیز دیگری بود، یک جمله‌ی کوتاه درباره‌ی مشکل اصلی‌تان بنویسید تا از نو شروع کنیم.',
+  'پاسخ‌ها با سؤال‌ها نمی‌خواند و بهتر است همین‌جا مکث کنیم. هر موقع موضوع روشن شد، دوباره شروع می‌کنیم.',
+  'اگر چیزی که دنبالش بودید این نبود، دوباره بپرسید. می‌توانید مستقیم به یک ماده‌ی قانونی هم اشاره کنید.',
+  'مشاوره را می‌بندم تا وقت‌تان تلف نشود. هر زمان سؤال مشخصی داشتید، بفرمایید.',
+  'ظاهراً الان وقت یا حوصله‌ی این بحث را ندارید. مشکلی نیست، بعداً برمی‌گردید.',
+];
+
+static const List<String> _farewellDefault = [
+  'هر زمان پرسش دیگری داشتید یا خواستید متنی تنظیم کنیم، در خدمتم.',
+  'تصمیم با شماست و محترم است. اگر بعداً نظرتان عوض شد، پرونده را دوباره باز می‌کنیم.',
+  'مشکلی نیست. هر وقت خواستید، موضوع‌تان را بنویسید تا از همان‌جا شروع کنیم.',
+  'ممنون که فرصت دادید. هر زمان لازم شد، می‌توانید دوباره بپرسید.',
+  'اگر بعداً سؤال حقوقی دیگری پیش آمد، همین‌جا بنویسید.',
+  'بسیار خب. هر وقت آماده بودید، گام‌به‌گام جلو می‌رویم.',
+];
+
+static String _farewellText(String n, {Random? rnd}) {
+  final r = rnd ?? Random();
+  final List<String> pool;
+  if (RegExp(r'احمق|عوضی|لعنت|خفه|گمشو|بی[\s\u200c]*شعور|مزخرف|آشغال').hasMatch(n)) {
+    pool = _farewellRude;
+  } else if (RegExp(r'ناراحت|عصبی|خسته|کلافه|بی[\s\u200c]*فایده|به[\s\u200c]*درد[\s\u200c]*نمی|حالم[\s\u200c]*بد|حوصله').hasMatch(n)) {
+    pool = _farewellUpset;
+  } else if (RegExp(r'بی[\s\u200c]*ربط|فرقی[\s\u200c]*ندار|مهم[\s\u200c]*نیست|هرچی|بیخیال|ولش').hasMatch(n)) {
+    pool = _farewellIrrelevant;
+  } else {
+    pool = _farewellDefault;
+  }
+  return '$_farewellLead ${pool[r.nextInt(pool.length)]}';
+}
+
+static final RegExp _insultRe = RegExp(
+    r'احمق|عوضی|لعنتی|لعنت[\s\u200c]*بر|خفه[\s\u200c]*(?:شو|شین|باش)|گم[\s\u200c]*شو|بی[\s\u200c]*شعور|بی[\s\u200c]*ناموس|بی[\s\u200c]*غیرت|بی[\s\u200c]*پدر|بی[\s\u200c]*عرضه|آشغال|کثافت|کصافت|حرام[\s\u200c]*زاده|حروم[\s\u200c]*زاده|پفیوز|نکبت|اسکل|دیوث|جاکش|جنده|کونی|پدر[\s\u200c]*سگ|سگ[\s\u200c]*پدر|توله[\s\u200c]*سگ|عن[\s\u200c]*تر|مادر[\s\u200c]*(?:جنده|قحبه)|قحبه|گایید|گاییدم|ریدم|(?:^|\s)(?:کیر|کص|کس[\s\u200c]*ننه|الاغ|خر|گاو|سگ)(?:\s|$)|fuck|shit|bitch|idiot|stupid|moron|asshole',
+    caseSensitive: false);
+
 static final RegExp _refusalRe = RegExp(
-  r'(?:نمی\s*خواهم|نمیخواهم).*(?:جواب|پاسخ|بگویم|بگم)|(?:(?:جواب|پاسخ)\s*(?:نمی\s*دهم|ندارم))',
+  r'(?:نمی[\s\u200c]*خوا(?:هم|م))[^.؟?!]*(?:جواب|پاسخ|بگویم|بگم|حرف|صحبت|مشاوره|ادامه)|(?:(?:جواب|پاسخ)[\s\u200c]*(?:نمی[\s\u200c]*دهم|نمی[\s\u200c]*دم|ندارم))',
 );
 
 /// Whether free-form text is still about the active legal domain. This is

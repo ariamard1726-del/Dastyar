@@ -816,6 +816,13 @@ class DialogueStateManager {
       hits.add((at, code, display));
     }
     if (hits.isEmpty) return null;
+    // «چکم برگشت خورد» موضوع دعواست، نه مدرک؛ مگر صریحاً مدرک بودنش گفته شود.
+    if (hits.length == 1 &&
+        hits.first.$2 == 'cheque' &&
+        RegExp(r'برگشت|پاس[\s\u200c]*نش|صیادی|گم[\s\u200c]*شد|سرقت').hasMatch(text) &&
+        !RegExp(r'دارم|مدرک|عکس|اصل|کپی|رسید|گواهی').hasMatch(text)) {
+      return null;
+    }
     // «مدرکی ندارم» در کنار مدرک واقعی بی‌معناست؛ مدرک واقعی برنده است.
     if (hits.length > 1) hits.removeWhere((h) => h.$2 == 'none');
     hits.sort((a, b) => a.$1.compareTo(b.$1));
