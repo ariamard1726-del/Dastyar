@@ -29,6 +29,8 @@ Workflowها در `.github/workflows`:
 - `build.yml`: ساخت APK (دستی). با کلید اصلی امضا می‌شود و کلید فقط در Secrets نگهداری می‌شود.
 - `test.yml`: بررسی داده‌ها، `flutter analyze` و `flutter test` روی هر push
 - `embed.yml` و `train.yml`: آزمایش‌های دستی آفلاین
+- `gemini-agent.yml`: پاسخ خودکار به ایشوها و کامنت‌های `/gemini` با کلید محافظت‌شده؛ [راهنمای اتصال، امنیت و حریم خصوصی](docs/GEMINI_AGENT.md)
+- `agent.yml`: ایجنت کدنویسی دستی برای پیشنهاد تغییرات در Pull Request
 
 ## قواعد
 

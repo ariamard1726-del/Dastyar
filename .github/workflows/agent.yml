@@ -1,0 +1,64 @@
+name: Autonomous Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "کار مورد نظر ایجنت"
+        required: true
+        default: "همه خطاهای flutter analyze را رفع کن"
+      files:
+        description: "فایل‌های مرتبط با کاما (اختیاری) مثل lib/core/engine.dart"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: agent
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Run agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AGENT_TASK: ${{ inputs.task }}
+          AGENT_FILES: ${{ inputs.files }}
+        run: python tools/agent.py
+
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git status --porcelain lib test)" ]; then
+            echo "تغییری نبود"
+            exit 0
+          fi
+          BR="agent/run-${GITHUB_RUN_ID}"
+          git config user.name "dastyar-agent"
+          git config user.email "agent@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add lib test
+          git commit -m "ایجنت خودکار: تغییرات پیشنهادی"
+          git push origin "$BR"
+          gh pr create --base "${GITHUB_REF_NAME}" --head "$BR" \
+            --title "پیشنهاد ایجنت خودکار" \
+            --body-file /tmp/agent_summary.md \
+            || echo "PR ساخته نشد؛ شاخه $BR را دستی ببین"
