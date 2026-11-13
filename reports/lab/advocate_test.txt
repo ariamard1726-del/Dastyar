@@ -1,200 +1,43 @@
-test/advocate/advocate_test.dart 25:3    main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-.                                        ...
-.                                        ...
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 26:15   main.say
-test/advocate/advocate_test.dart 38:31   main.talk
-test/advocate/advocate_test.dart 428:15  main.<fn>
-::endgroup::
-::group::❌ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد (failed)
-Stack Overflow
-test/advocate/advocate_test.dart 25:3   main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-.                                       ...
-.                                       ...
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 38:31  main.talk
-test/advocate/advocate_test.dart 460:5  main.<fn>
-::endgroup::
+
 ::group::✅ Passing tests
+✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
+✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
+✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
+✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
+✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
+✅ test/advocate/advocate_test.dart: خشونت خانگی به پروندهٔ خانواده می‌رود، نه کار
+✅ test/advocate/advocate_test.dart: متهم: «اگه نرم چی میشه؟» جواب مشخص می‌گیرد
+✅ test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
+✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
+✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
+✅ test/advocate/advocate_test.dart: موضوع تازه وسط گفتگو: پروندهٔ قبلی بسته و پروندهٔ نو باز می‌شود
+✅ test/advocate/advocate_test.dart: هیچ‌وقت بی‌جواب نمی‌ماند و حرف نامفهوم را صادقانه می‌گوید
+✅ test/advocate/advocate_test.dart: بازسازی حافظه از پیام‌های قبلی همان پرونده را می‌سازد
+✅ test/advocate/advocate_test.dart: موجر را با مستأجر اشتباه نمی‌گیرد و «آره» را به پرسش درست می‌دهد
+✅ test/advocate/advocate_test.dart: واژه‌های شبیه هم گمراهش نمی‌کند (خونه≠نه، صیادیه≠دیه، خرجش≠هزینه)
+✅ test/advocate/advocate_test.dart: شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
+✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
+✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
+✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
+✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
+✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
+✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
+✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
+✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
+✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
+✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بقیهٔ حرف فقط وقتی می‌آید که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد
-::endgroup::
-::group::❌ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید (failed)
-Stack Overflow
-test/advocate/advocate_test.dart 25:3   main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-.                                       ...
-.                                       ...
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 26:15  main.say
-test/advocate/advocate_test.dart 38:31  main.talk
-test/advocate/advocate_test.dart 560:7  main.<fn>.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::15 tests passed, 23 failed.
+🎉 38 tests passed.
