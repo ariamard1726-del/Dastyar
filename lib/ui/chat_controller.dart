@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/domain/drafting.dart';
@@ -117,6 +118,16 @@ class ChatController extends ChangeNotifier {
   /// انسانی‌تر می‌کند؛ محتوای حقوقی همیشه از موتور قطعی است.
   final LlmWriter? writer;
 
+  /// مسیر قدیمی (مشاورهٔ فرم‌محور + جست‌وجو + مدل زبانی اختیاری). پیش‌فرض
+  /// خاموش است: گفتگو را [Advocate] پیش می‌برد که هیچ مدلی در آن نیست.
+  final bool legacyFlow;
+
+  /// وکیل بدون مدل: فهم محاوره، حافظهٔ پرونده و تحلیل مستند به متن قانون.
+  late final Advocate advocate = Advocate(
+    engine,
+    draftTitles: {for (final t in repo.templates) t.id: t.title},
+  );
+
   ChatController({
     required this.engine,
     required this.assistant,
@@ -131,6 +142,7 @@ class ChatController extends ChangeNotifier {
     this.onScrollRequested,
     int phraseSeed = 0,
     this.writer,
+    this.legacyFlow = false,
   }) : _intentNet = intentNet,
        _rnd = random,
        _phrases = PhraseVariator(seed: phraseSeed) {
@@ -189,6 +201,58 @@ class ChatController extends ChangeNotifier {
     _pendingClarification = null;
     _slots.reset();
     _slots.setIntent(null);
+    advocate.reset();
+  }
+
+  /// نوبت گفتگو با وکیل بدون مدل. نوشتن سند (وقتی کاربر صریحاً بخواهد یا
+  /// دکمهٔ عنوان یک قالب را بزند) به همان جریان پیش‌نویس سپرده می‌شود.
+  void _advocateTurn(String text) {
+    final key = KnowledgeEngine.normalize(text).trim();
+    for (final t in repo.templates) {
+      if (KnowledgeEngine.normalize(t.title).trim() == key) {
+        _pendingText = null;
+        _pendingList = [];
+        _startDraft(text, t);
+        return;
+      }
+    }
+    if (_pendingList.isNotEmpty) {
+      final list = _pendingList;
+      _pendingText = null;
+      _pendingList = [];
+      final picked = Drafting.pickChoice(text, list);
+      if (picked != null) {
+        _startDraft(text, picked);
+        return;
+      }
+      if (text == DraftCmd.cancel || Drafting.isNo(text)) {
+        _reply(text, 'باشد، فعلاً متنی نمی‌نویسم. هر وقت خواستید بگویید.',
+            chips: advocate.idleChips);
+        return;
+      }
+    }
+    if (Advocate.wantsDraft(text)) {
+      final intent = Drafting.detect(text, repo.templates);
+      final direct = intent.template;
+      if (direct != null) {
+        _startDraft(text, direct);
+        return;
+      }
+      for (final id in advocate.draftIds) {
+        final t = _templateFor(id);
+        if (t != null) {
+          _startDraft(text, t);
+          return;
+        }
+      }
+      if (_handleExplicitDraft(text)) return;
+    }
+    final r = advocate.respond(text);
+    messages.add(ChatMessage(text, true));
+    messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
+    unawaited(_saveSession());
+    _notify();
+    _requestScroll();
   }
 
   /// همگام‌سازی نقطهٔ بازیابی مشاورهٔ ناتمام (رمزنگاری‌شده) با وضعیت جلسه.
@@ -262,6 +326,10 @@ class ChatController extends ChangeNotifier {
       return;
     }
     _slots.extractAndUpdate(text);
+    if (!legacyFlow) {
+      _advocateTurn(text);
+      return;
+    }
     // دکمهٔ «دربارهٔ <موضوع>» (موضوع دیگرِ همان ماجرا) مشاورهٔ جاری را
     // می‌بندد و مستقیم به راهنمای آن موضوع می‌رود.
     if (text.startsWith(LawyerVoice.topicChipPrefix) &&
@@ -1496,6 +1564,12 @@ class ChatController extends ChangeNotifier {
       ..addAll(
         s.messages.map((m) => ChatMessage(m.text, m.fromUser, revealed: true)),
       );
+    if (!legacyFlow) {
+      advocate.replay([
+        for (final m in s.messages)
+          if (m.fromUser) m.text,
+      ]);
+    }
     _notify();
     _requestScroll();
   }
