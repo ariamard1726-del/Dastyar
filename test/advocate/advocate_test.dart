@@ -23,7 +23,7 @@ void main() {
   /// می‌گوید که کاربر «ادامه بده» بگوید؛ این‌جا همه را کنار هم می‌گذاریم تا
   /// درستیِ محتوا سنجیده شود.
   AdvocateReply say(Advocate a, String t) {
-    final r = say(a, t);
+    final r = a.respond(t);
     final sb = StringBuffer(r.text);
     var guard = 0;
     while (a.hasMore && guard < 8) {

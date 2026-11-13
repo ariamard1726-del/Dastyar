@@ -45,7 +45,7 @@ jobs:
       - name: Failing test names
         continue-on-error: true
         run: |
-          flutter test --reporter expanded 2>&1 | grep -vE '^[0-9:]+ \+[0-9]+( ~[0-9]+)?( -[0-9]+)?: (loading |/|test/)[^\[]*$' | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-420 | tail -n 420 > reports/lab/failed.txt || true
+          flutter test --reporter expanded 2>&1 | grep -E '\[E\]|^ *(Expected|Actual|Which): |_test\.dart [0-9]+:[0-9]+ +main\.<fn>|tests passed|Some tests failed' | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-330 | tail -n 200 > reports/lab/failed.txt || true
       - name: Commit lab reports
         continue-on-error: true
         run: |
