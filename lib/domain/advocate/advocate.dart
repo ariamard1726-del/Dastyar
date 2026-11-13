@@ -45,6 +45,12 @@ class Advocate {
 
   /// واقعیت‌هایی که کاربر در همین پیام دوباره گفت (بدون تغییر مقدار).
   final List<Slot> _echo = [];
+
+  /// حرف‌هایی که تا اینجا در گفتگو زده‌ام (برای تکرارنکردن).
+  final Set<String> _said = {};
+
+  /// پیام‌های کاربر پیش از بازشدن پرونده (حداکثر سه تای آخر).
+  final List<String> _loose = [];
   LegalGuide? _guide;
   String _lastBody = '';
   String _deferred = '';
@@ -97,6 +103,8 @@ class Advocate {
     file.turns = 0;
     file.disclaimed = false;
     _quoted.clear();
+    _said.clear();
+    _loose.clear();
     unresolved.clear();
     _vary = 0;
   }
@@ -123,6 +131,7 @@ class Advocate {
     file.turns++;
     if (raw.trim() == newCaseChip) {
       _closeCase();
+      _loose.clear();
       return _out(
         'باشد، آن موضوع را کنار می‌گذارم. ماجرای تازه را تعریف کنید؛ از هر جا که راحت‌ترید شروع کنید.',
         chips: starterChips,
@@ -146,6 +155,8 @@ class Advocate {
 
     if (topic == null) {
       if (best != null && bestScore >= 3) return _open(best, n);
+      _loose.add(n);
+      if (_loose.length > 3) _loose.removeAt(0);
       final g = _glossary(n);
       if (g != null) return _out(g, chips: _idleChips());
       final guide = _guide;
@@ -153,7 +164,7 @@ class Advocate {
         final r = _guideFollow(guide, n);
         if (r != null) return r;
       }
-      final lg = LawyerVoice.matchGuide(raw);
+      final lg = _matchGuide(raw, n);
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);
       if (soc != null) return soc;
@@ -200,6 +211,13 @@ class Advocate {
     return null;
   }
 
+  /// راهنمای آماده برای پیام؛ واژهٔ تک‌افتاده‌ای مثل «صیادیه» نباید به
+  /// «دیه» بخورد.
+  LegalGuide? _matchGuide(String raw, String n) {
+    if (Sense.has(n, 'صیاد')) return null;
+    return LawyerVoice.matchGuide(raw);
+  }
+
   void _closeCase() {
     file.clearCase();
     _guide = null;
@@ -208,31 +226,49 @@ class Advocate {
   }
 
   /// واقعیت‌های تازهٔ پیام را در پرونده می‌نشاند و فهرست تغییرها را می‌دهد.
-  List<Slot> _absorb(Topic t, String n) {
+  ///
+  /// [live] یعنی این همان پیامی است که کاربر الان فرستاده (نه مرور پیام‌های
+  /// قبلی)؛ فقط در این حالت جوابِ کوتاه به پرسشِ معلق تفسیر می‌شود.
+  List<Slot> _absorb(Topic t, String n, {bool live = true}) {
     final out = <Slot>[];
-    _echo.clear();
+    if (live) _echo.clear();
+    final unsure = Sense.saysDontKnow(n);
+    final hedged = unsure && Sense.has(n, ' یا نه |شاید|مطمئن نیستم');
+    final reads = <String, String?>{for (final s in t.slots) s.id: s.read(n)};
+    // «آره مدتش تموم شده»: بله‌ای که پشتش واقعیتِ بله/نه‌ایِ دیگری آمده،
+    // جوابِ همان واقعیت است نه پرسشِ معلق.
+    var otherBool = false;
+    var otherAny = false;
+    for (final e in reads.entries) {
+      if (e.key == file.pending || e.value == null) continue;
+      otherAny = true;
+      if (e.value == 'yes' || e.value == 'no') otherBool = true;
+    }
     for (final s in t.slots) {
-      String? v;
-      if (s.id == file.pending) {
+      var v = reads[s.id];
+      if (v != null && hedged && (v == 'yes' || v == 'no')) v = '?';
+      if (live && v == null && s.id == file.pending) {
         final rp = s.readPending;
-        v = (rp == null ? null : rp(n)) ?? s.read(n);
+        final r = rp == null ? null : rp(n);
+        if (r != null && !(otherBool && (r == 'yes' || r == 'no'))) v = r;
         if (v == null) {
-          if (Sense.saysDontKnow(n)) {
-            v = '?';
-          } else if (Sense.saysYes(n) && s.yesValue.isNotEmpty) {
-            v = s.yesValue;
-          } else if (Sense.saysNo(n) && s.noValue.isNotEmpty) {
-            v = s.noValue;
+          if (unsure) {
+            if (!otherAny) v = '?';
+          } else if (!otherBool) {
+            if (Sense.saysYes(n) && s.yesValue.isNotEmpty) {
+              v = s.yesValue;
+            } else if (Sense.saysNo(n) && s.noValue.isNotEmpty) {
+              v = s.noValue;
+            }
           }
         }
-      } else {
-        v = s.read(n);
       }
       if (v == null) continue;
       if (v == file.facts[s.id]) {
-        if (v != '?') _echo.add(s);
+        if (live && v != '?') _echo.add(s);
         continue;
       }
+      if (v == '?' && file.has(s.id)) continue;
       file.facts[s.id] = v;
       if (v != '?') out.add(s);
     }
@@ -247,30 +283,39 @@ class Advocate {
   }
 
   AdvocateReply _open(Topic t, String n, {bool switched = false}) {
+    final earlier = switched ? const <String>[] : List<String>.of(_loose);
+    _loose.clear();
     _closeCase();
     file.topic = t.id;
+    // حرف‌هایی که پیش از بازشدن پرونده زده شده هم جزو ماجراست.
+    for (final old in earlier) {
+      _absorb(t, old, live: false);
+    }
     final news = _absorb(t, n);
     final parts = <String>[];
     final open = t.opening(file);
     if (open.isNotEmpty) parts.add(open);
-    _addEffects(parts, news, 3);
     final issue = _matchIssue(t, n);
     if (issue != null) {
       if (_roleUnknown(t)) {
         _deferred = issue.id;
-      } else if (parts.join().length < 800) {
+      } else {
         final b = issue.body(file);
         if (!parts.contains(b)) parts.add(b);
         file.covered.add(issue.id);
+        _said.add(b);
         _lastBody = b;
       }
     }
+    _addEffects(parts, news, issue == null ? 3 : 2,
+        skip: _deferred.isEmpty && issue != null ? issue.covers : const {});
+    _noteAmount(parts, news, n);
     if (_lastBody.isEmpty && parts.isNotEmpty) _lastBody = parts.first;
     var lead = '';
     if (switched) {
       lead = 'این موضوعِ جداگانه‌ای است؛ پس آن را جدا بررسی می‌کنم.';
     } else if (LawyerVoice.expressesDistress(n) ||
-        Sense.has(n, 'کتک|میزنه|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {
+        Sense.has(n, 'کتک|میزنه| زد|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {
       lead = _pick(const [
         'متأسفم که در این وضعیت قرار گرفته‌اید. بیایید آرام و قدم‌به‌قدم جلو برویم.',
         'می‌فهمم که چقدر آزاردهنده است. خوب است که زود سراغش آمده‌اید.',
@@ -280,16 +325,34 @@ class Advocate {
     return _finish(t, parts, lead: lead);
   }
 
-  void _addEffects(List<String> parts, List<Slot> news, int max) {
+  /// اثر حقوقیِ واقعیت‌های تازه را اضافه می‌کند؛ حرفی که قبلاً زده شده
+  /// تکرار نمی‌شود.
+  void _addEffects(List<String> parts, List<Slot> news, int max,
+      {Set<String> skip = const {}}) {
     var added = 0;
     for (final s in news) {
+      if (skip.contains(s.id)) continue;
       final fx = s.effect;
       if (fx == null) continue;
       final e = fx(file);
-      if (e.isEmpty || parts.contains(e)) continue;
+      if (e.isEmpty || parts.contains(e) || _said.contains(e)) continue;
       parts.add(e);
+      _said.add(e);
       added++;
       if (added >= max) break;
+    }
+  }
+
+  /// اگر مبلغ بدون واحد گفته شده («۳۰ تومن»)، برداشت خودم را شفاف می‌گویم.
+  void _noteAmount(List<String> parts, List<Slot> news, String n) {
+    if (Sense.amountIsExplicit(n)) return;
+    for (final s in news) {
+      if (s.id != 'amount' && s.id != 'salary') continue;
+      final v = file.n(s.id);
+      if (v == null) continue;
+      parts.add(
+          'رقم را «${Sense.toman(v)}» فهمیدم؛ اگر منظورتان چیز دیگری بود، با واحدش بنویسید (مثلاً «۳۰ میلیون» یا «۵۰۰ هزار»).');
+      return;
     }
   }
 
@@ -308,6 +371,7 @@ class Advocate {
       final b = asked.body(file);
       parts.add(b);
       file.covered.add(asked.id);
+      _said.add(b);
       _lastBody = b;
       understood = true;
     } else {
@@ -322,27 +386,29 @@ class Advocate {
           final b = fb(file);
           parts.add(b);
           file.covered.add('f:$kind');
+          _said.add(b);
           _lastBody = b;
           understood = true;
         }
       }
     }
-    _addEffects(parts, news, 2);
+    _addEffects(parts, news, 2,
+        skip: asked == null ? const {} : asked.covers);
+    _noteAmount(parts, news, n);
     if (!understood && _echo.isNotEmpty) {
-      final before = parts.length;
-      _addEffects(parts, List<Slot>.of(_echo), 1);
-      if (parts.length > before) {
-        parts[before] = 'بله، همین را در نظر گرفته‌ام. ${parts[before]}';
-      } else {
-        parts.add('بله، این را در پرونده دارم.');
-      }
+      parts.add(_pick(const [
+        'بله، این را در پرونده دارم و تحلیلم بر همین پایه است.',
+        'درست است؛ همین را در نظر گرفته‌ام.',
+      ]));
       understood = true;
     }
     if (!understood) {
       final soc = _social(n, t);
       if (soc != null) return soc;
-      final lg = LawyerVoice.matchGuide(raw);
-      if (lg != null) return _openGuide(lg, raw, n, switched: true);
+      if (Sense.words(n) >= 3) {
+        final lg = _matchGuide(raw, n);
+        if (lg != null) return _openGuide(lg, raw, n, switched: true);
+      }
       if (Sense.has(n, 'ماده [0-9]+|قانون ')) return _lookup(raw, n);
       parts.add(_pick(const [
         'این قسمت از حرفتان را نتوانستم به نکتهٔ حقوقی مشخصی وصل کنم. اگر می‌شود با جملهٔ دیگری بگویید، یا یکی از گزینه‌های زیر را انتخاب کنید.',
@@ -397,7 +463,10 @@ class Advocate {
               'حالا یک سؤال از شما:',
               'برای قدم بعد لازم است بدانم:',
             ])
-          : 'سؤال قبلی‌ام بی‌جواب ماند و برای پرونده مهم است:';
+          : _pick(const [
+              'و هنوز این را لازم دارم:',
+              'برگردیم به سؤالی که برای پرونده مهم است:',
+            ]);
       body = '$body\n\n$intro ${q.ask}';
       chips.addAll(q.options);
       if (q.options.isEmpty) chips.add(_dontKnowChip);
@@ -406,6 +475,18 @@ class Advocate {
         if (extra.isNotEmpty) chips.add(extra.first);
       }
     } else {
+      // پرسش‌هایم تمام شد: مثل هر وکیلی، جمع‌بندی و نقشهٔ راه می‌دهم.
+      final plan = t.follow['next'];
+      if (file.pending.isNotEmpty &&
+          plan != null &&
+          !file.covered.contains('f:next') &&
+          body.length < 900) {
+        final p = plan(file);
+        body = '$body\n\nحالا تصویر پرونده برایم روشن است. $p';
+        file.covered.add('f:next');
+        _said.add(p);
+        _lastBody = p;
+      }
       file.pending = '';
       chips.addAll(_suggest(t));
     }
@@ -626,9 +707,10 @@ class Advocate {
 
   /// واپسین راه: جست‌وجوی واژگانی (BM25) در متن قوانین؛ بدون مدل.
   AdvocateReply _lookup(String raw, String n) {
-    final legalish = Sense.isQuestion(n) ||
+    final direct = Sense.has(n, '(?:ماده|اصل) [0-9]+');
+    final legalish = direct ||
         Sense.has(n,
-            'ماده [0-9]+|قانون|حق |جرم|مجازات|دادگاه|شکایت|قرارداد|سند|ارث|دیه|مهریه|جریمه');
+            'قانون|حق |حقوق|جرم|مجازات|دادگاه|دادسرا|شکایت|قرارداد|سند|ارث|دیه|مهریه|جریمه|وکالت|وصیت|ملک|معامله|خسارت|بدهی|طلب|محکوم|حکم |رای |تعهد|ضامن|ضمانت|فسخ|مالکیت|توقیف|زندان|حبس|قاضی|وکیل');
     if (legalish && Sense.words(n) >= 2) {
       final r = engine.query(raw);
       if (r.contextHits.isNotEmpty) {
@@ -636,13 +718,22 @@ class Advocate {
           for (final h in r.contextHits.take(2))
             LawText(h.chunk.title, h.chunk.source, h.chunk.body, ''),
         ];
+        final lead = direct
+            ? 'این متنِ همان ماده در بانک قوانین من است:'
+            : 'برای این پرسش تحلیل آماده‌ای ندارم، ولی نزدیک‌ترین متن قانونی که در بانک قوانینم پیدا کردم این است (ممکن است دقیقاً جواب شما نباشد):';
         return AdvocateReply(
-          'برای این پرسش تحلیل آماده‌ای ندارم، ولی نزدیک‌ترین متن قانونی که در بانک قوانینم پیدا کردم این است:\n\n${r.text}\n\n'
+          '$lead\n\n${r.text}\n\n'
           'اگر ماجرای خودتان را تعریف کنید (چه شد، طرف مقابل کیست، چه می‌خواهید)، می‌توانم متناسب با وضعیت شما راهنمایی کنم.',
           chips: _idleChips(),
           laws: laws,
         );
       }
+    }
+    if (!legalish && Sense.isQuestion(n)) {
+      return _out(
+        'این یکی از حوزهٔ کار من بیرون است؛ من فقط در مسائل حقوقی (اجاره، کار، چک و طلب، خانواده، شکایت و دفاع و مانند این‌ها) می‌توانم کمک کنم. اگر گرفتاری حقوقی دارید، همان را تعریف کنید.',
+        chips: _idleChips(),
+      );
     }
     return _out(
       'راستش این را درست متوجه نشدم، و نمی‌خواهم حدسی جواب بدهم که گمراهتان کند. اگر ماجرا را با چند جملهٔ ساده تعریف کنید (چه شد، طرف مقابل کیست، چه می‌خواهید)، بهتر می‌توانم کمک کنم.',
@@ -731,8 +822,8 @@ class Advocate {
   // ------------------------------------------------------------- خروجی
 
   static final RegExp _refRun =
-      RegExp(r'(?:\s*\[\[[a-z_0-9]+:[0-9]+\]\])+');
-  static final RegExp _refOne = RegExp(r'\[\[([a-z_0-9]+):([0-9]+)\]\]');
+      RegExp(r'(?:\s*\[\[[a-z_0-9]+:[0-9]+m?\]\])+');
+  static final RegExp _refOne = RegExp(r'\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]');
   static final RegExp _sentEnd = RegExp(r'(?<=[.؟!])\s+|\n+');
 
   static String _strip(String s) => s.replaceAll(_refRun, '');
@@ -764,6 +855,9 @@ class Advocate {
     final nl = b.indexOf('\n');
     if (b.startsWith('(') && nl > 0 && nl < 60) b = b.substring(nl + 1);
     b = b.replaceAll(RegExp(r'\s+'), ' ').trim();
+    // حاشیه‌های غیرقانونیِ بانک (مثل «نظر مجلس») جزو متن ماده نیست.
+    final note = b.indexOf('نظر مجلس');
+    if (note > 20) b = b.substring(0, note).trim();
     if (b.length > 190) {
       var cut = b.lastIndexOf(' ', 190);
       if (cut < 90) cut = 190;
@@ -780,19 +874,20 @@ class Advocate {
       final names = <String>[];
       for (final r in _refOne.allMatches(m[0] ?? '')) {
         final law = r[1] ?? '';
+        final rep = (r[3] ?? '').isNotEmpty;
         final art = r[2] ?? '';
-        final key = '$law:$art';
-        final c = engine.findArticle(law, 'ماده $art');
+        final key = '$law:$art${rep ? 'm' : ''}';
+        final c = engine.findArticle(law, 'ماده $art${rep ? ' مکرر' : ''}');
         if (c == null) {
           if (!unresolved.contains(key)) unresolved.add(key);
           continue;
         }
         final label =
-            '${law == 'constitution' ? 'اصل' : 'ماده'} ${Sense.fa(art)} ${c.source}';
+            '${law == 'constitution' ? 'اصل' : 'ماده'} ${Sense.fa(art)}${rep ? ' مکرر' : ''} ${c.source}';
         if (!names.contains(label)) names.add(label);
         if (seen.add(key)) {
           laws.add(LawText(label, c.source, c.body, ''));
-          if (!_quoted.contains(key) && quotes.length < 3) {
+          if (!_quoted.contains(key) && quotes.length < 2) {
             _quoted.add(key);
             quotes.add('• $label: «${_snippet(c.body)}»');
           }

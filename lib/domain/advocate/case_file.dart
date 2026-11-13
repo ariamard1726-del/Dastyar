@@ -100,12 +100,17 @@ class Issue {
   final Body body;
   final Cond? when;
 
+  /// واقعیت‌هایی که پاسخ این پرسش خودش اثرشان را گفته است (تا همان حرف
+  /// دوباره به‌عنوان «اثر واقعیت» تکرار نشود).
+  final Set<String> covers;
+
   Issue({
     required this.id,
     required this.chip,
     required this.cues,
     required this.body,
     this.when,
+    this.covers = const {},
   });
 }
 
