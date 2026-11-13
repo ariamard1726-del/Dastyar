@@ -1,2 +1,10 @@
 Analyzing Dastyar...                                            
-No issues found! (ran in 8.3s)
+
+warning • The declaration '<unnamed>' isn't referenced. Try removing the declaration of '<unnamed>' • lib/domain/advocate/topics_money.dart:1:1 • unused_element
+  error • Variables must be declared using the keywords 'const', 'final', 'var' or a type name. Try adding the name of the type of the variable or the keyword 'var' • lib/domain/advocate/topics_money.dart:104:7 • missing_const_final_var_or_type
+  error • Expected an identifier • lib/domain/advocate/topics_money.dart:105:7 • missing_identifier
+  error • Expected an identifier • lib/domain/advocate/topics_money.dart:106:7 • missing_identifier
+  error • Expected an identifier • lib/domain/advocate/topics_money.dart:107:5 • missing_identifier
+  error • Undefined name '_rentVacated'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/topics_money.dart:261:13 • undefined_identifier
+
+6 issues found. (ran in 13.6s)
