@@ -1,0 +1,53 @@
+name: Lawyer Lab
+
+# آزمایشگاه شاخهٔ کاری: تحلیل، تست و رونوشت گفتگوهای نمونه را اجرا می‌کند و
+# نتیجه را در reports/lab/ روی همان شاخه ثبت می‌کند. روی main اجرا نمی‌شود.
+on:
+  push:
+    branches: ['arena/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lawyer-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Analyze
+        continue-on-error: true
+        run: |
+          mkdir -p reports/lab
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-260 | tail -n 150 > reports/lab/analyze.txt || true
+      - name: Transcripts
+        continue-on-error: true
+        env:
+          AUDIT_IN: ${{ vars.LAB_AUDIT_IN || 'test/lab/probe.txt' }}
+          AUDIT_OUT: reports/lab/transcripts.txt
+        run: |
+          flutter test test/audit/conversation_audit_test.dart 2>&1 | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-400 | tail -n 80 > reports/lab/transcripts_run.txt || true
+      - name: Commit lab reports
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git rev-parse HEAD > reports/lab/ref.txt
+          git add -f reports/lab
+          git diff --cached --quiet || git commit -m "lab report [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}" && break
+            sleep 5
+          done
