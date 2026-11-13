@@ -465,6 +465,10 @@ class Advocate {
     var body = parts.join('\n\n');
     if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
     final q = _nextSlot(t);
+    final plan = t.follow['next'];
+    final planText = q == null && plan != null ? plan(file) : '';
+    final planSaid = _said.contains(planText) || parts.contains(planText);
+    _said.addAll(parts);
     if (q != null) {
       final c = file.askCount[q.id] ?? 0;
       file.askCount[q.id] = c + 1;
@@ -482,23 +486,25 @@ class Advocate {
             ]);
       body = '$body\n\n$intro ${q.ask}';
       chips.addAll(q.options);
-      if (q.options.isEmpty) chips.add(_dontKnowChip);
       if (chips.length <= 2) {
         final extra = _suggest(t);
-        if (extra.isNotEmpty) chips.add(extra.first);
+        chips.addAll(extra.take(q.options.isEmpty ? 2 : 1));
       }
     } else {
       // پرسش‌هایم تمام شد: مثل هر وکیلی، جمع‌بندی و نقشهٔ راه می‌دهم.
-      final plan = t.follow['next'];
       if (file.pending.isNotEmpty &&
-          plan != null &&
+          planText.isNotEmpty &&
           !file.covered.contains('f:next') &&
           body.length < 900) {
-        final p = plan(file);
-        body = '$body\n\nحالا تصویر پرونده برایم روشن است. $p';
-        file.covered.add('f:next');
-        _said.add(p);
-        _lastBody = p;
+        if (planSaid) {
+          body =
+              '$body\n\nحالا تصویر پرونده برایم روشن است و نقشهٔ راه همان است که بالاتر گفتم. اگر جایی از آن مبهم است یا طرف مقابل حرف تازه‌ای زده، بپرسید.';
+        } else {
+          body = '$body\n\nحالا تصویر پرونده برایم روشن است. $planText';
+          file.covered.add('f:next');
+          _said.add(planText);
+          _lastBody = planText;
+        }
       }
       file.pending = '';
       chips.addAll(_suggest(t));
@@ -600,10 +606,13 @@ class Advocate {
         return _out('چیزی نگفته‌ام که پیچیده باشد! بگویید چه مشکلی پیش آمده تا ساده و روشن توضیح بدهم.',
             chips: _idleChips());
       }
-      final s = _sentences(_strip(_lastBody));
+      final lines = <String>[
+        for (final l in _strip(_lastBody).split('\n'))
+          if (l.trim().isNotEmpty) _brief(l.trim()),
+      ];
       return _out(
-        'حق با شماست، ساده‌ترش می‌کنم:\n${s.take(2).join(' ')}\n\nاگر کلمه‌ای گنگ بود، همان را بپرسید؛ مثلاً «تأمین خواسته یعنی چی؟».',
-        chips: _idleChips(),
+        'حق با شماست، ساده‌ترش می‌کنم:\n${lines.take(6).join('\n')}\n\nاگر کلمه‌ای گنگ بود، همان را بپرسید؛ مثلاً «اعسار یعنی چی؟».',
+        chips: topic == null ? _idleChips() : _suggest(topic),
       );
     }
     if (w <= 10 &&
@@ -863,6 +872,20 @@ class Advocate {
     return v;
   }
 
+  /// نام کوتاه و رایج قانون‌های پرتکرار، برای اینکه متن پاسخ سنگین نشود.
+  static String _shortLaw(String source) {
+    if (source.contains('آیین دادرسی دادگاه') && source.contains('مدنی')) {
+      return 'قانون آیین دادرسی مدنی';
+    }
+    final paren = source.indexOf(' (');
+    if (paren > 8 && source.startsWith('قانون مجازات اسلامی')) {
+      return source.contains('تعزیرات')
+          ? 'قانون مجازات اسلامی (تعزیرات)'
+          : source.substring(0, paren);
+    }
+    return source;
+  }
+
   static String _snippet(String body) {
     var b = body.trim();
     final nl = b.indexOf('\n');
@@ -884,21 +907,23 @@ class Advocate {
     final quotes = <String>[];
     final seen = <String>{};
     var body = text.replaceAllMapped(_refRun, (m) {
-      final names = <String>[];
+      // مواد یک قانون کنار هم می‌آیند: «مواد ۵۲۲ و ۵۱۹ قانون …».
+      final byLaw = <String, List<String>>{};
       for (final r in _refOne.allMatches(m[0] ?? '')) {
         final law = r[1] ?? '';
         final rep = (r[3] ?? '').isNotEmpty;
         final art = r[2] ?? '';
         final key = '$law:$art${rep ? 'm' : ''}';
-        final c = engine.findArticle(law,
-            '${law == 'constitution' ? 'اصل' : 'ماده'} $art${rep ? ' مکرر' : ''}');
+        final kind = law == 'constitution' ? 'اصل' : 'ماده';
+        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
         if (c == null) {
           if (!unresolved.contains(key)) unresolved.add(key);
           continue;
         }
-        final label =
-            '${law == 'constitution' ? 'اصل' : 'ماده'} ${Sense.fa(art)}${rep ? ' مکرر' : ''} ${c.source}';
-        if (!names.contains(label)) names.add(label);
+        final num = '${Sense.fa(art)}${rep ? ' مکرر' : ''}';
+        final label = '$kind $num ${c.source}';
+        final nums = byLaw.putIfAbsent(c.source, () => <String>[]);
+        if (!nums.contains(num)) nums.add(num);
         if (seen.add(key)) {
           laws.add(LawText(label, c.source, c.body, ''));
           if (!_quoted.contains(key) && quotes.length < 2) {
@@ -907,7 +932,16 @@ class Advocate {
           }
         }
       }
-      if (names.isEmpty) return '';
+      if (byLaw.isEmpty) return '';
+      final names = <String>[];
+      byLaw.forEach((source, nums) {
+        final basic = source.contains('قانون اساسی');
+        final one = basic ? 'اصل' : 'ماده';
+        final many = basic ? 'اصول' : 'مواد';
+        names.add(nums.length == 1
+            ? '$one ${nums.first} ${_shortLaw(source)}'
+            : '$many ${nums.join(' و ')} ${_shortLaw(source)}');
+      });
       return ' (${names.join('؛ ')})';
     });
     if (quotes.isNotEmpty) {

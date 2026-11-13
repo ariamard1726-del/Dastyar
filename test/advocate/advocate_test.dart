@@ -286,6 +286,29 @@ void main() {
     expect(art.text, contains('قراردادهای خصوصی'));
   });
 
+  test('نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند', () {
+    final a = fresh();
+    final r = talk(a, [
+      'مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه',
+      'آره مدتش تموم شده',
+      'اجاره نامه رو بنگاه نوشته، دو تا شاهد داره',
+    ]);
+    expect(r[0].text, contains('دستور تخلیه'));
+    expect('۱)'.allMatches(r[2].text).length, 0);
+    expect(r[2].text, contains('همان است که بالاتر گفتم'));
+    expect(a.unresolved, isEmpty);
+  });
+
+  test('احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد', () {
+    final a = fresh();
+    final r = talk(a, ['برام احضاریه اومده نمیدونم برای چیه']);
+    expect(a.file.topic, 'accused');
+    expect(r[0].text, contains('ثنا'));
+    expect(r[0].text, isNot(contains('قولنامه')));
+    expect(r[0].chips, isNot(contains('می‌گوید جنس ایراد داشته')));
+    expect(a.unresolved, isEmpty);
+  });
+
   test('تشخیص درخواست صریح نوشتن سند', () {
     expect(Advocate.wantsDraft('برام دادخواست بنویس'), isTrue);
     expect(Advocate.wantsDraft('یه متن آماده کن'), isTrue);
