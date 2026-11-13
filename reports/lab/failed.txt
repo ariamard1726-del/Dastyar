@@ -1,1 +1,2 @@
-🎉 568 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/drafting/pending_offer_test.dart: تنظیم سند در ChatPage «برام بنویسش» بدون پرونده می‌پرسد کدام متن، و «نه» آن را می‌بندد (failed)
+::error::239 tests passed, 1 failed.
