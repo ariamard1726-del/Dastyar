@@ -47,7 +47,8 @@ jobs:
           git rev-parse HEAD > reports/lab/ref.txt
           git add -f reports/lab
           git diff --cached --quiet || git commit -m "lab report [skip ci]"
+          git checkout -- . || true
           for i in 1 2 3 4 5; do
-            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}" && break
+            git -c rebase.autoStash=true pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}" && break
             sleep 5
           done
