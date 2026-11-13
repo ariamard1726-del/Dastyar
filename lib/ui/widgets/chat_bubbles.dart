@@ -387,10 +387,15 @@ class RevealText extends StatefulWidget {
   final VoidCallback? onTick;
   final VoidCallback? onRevealed;
 
-  /// زمان نمایش هر نویسه.
-  static const int msPerChar = 12;
-  static const int minMs = 150;
-  static const int maxMs = 1800;
+  /// زمان نمایش هر نویسه: آهنگ نوشتنِ آرام و طبیعی، نه ظاهرشدنِ یک‌بارهٔ متن.
+  static const int msPerChar = 18;
+  static const int minMs = 250;
+
+  /// سقف زمان نگارشِ پاسخ‌های خیلی بلند (با یک لمس هم می‌شود ردش کرد).
+  static const int maxMs = 30000;
+
+  /// مکث کوتاهِ «در حال فکر کردن» پیش از شروع نگارش پاسخ‌های غیرکوتاه.
+  static const int thinkMs = 500;
 
   const RevealText({
     super.key,
@@ -410,6 +415,9 @@ class _RevealTextState extends State<RevealText>
   int _from = 0;
   String _text = '';
   bool _animatedHere = false;
+
+  /// سهم مکثِ آغازین از کل زمان انیمیشن (۰ تا ۱).
+  double _thinkShare = 0;
 
   @override
   void initState() {
@@ -455,10 +463,22 @@ class _RevealTextState extends State<RevealText>
     }
     final ms = (remaining * RevealText.msPerChar)
         .clamp(RevealText.minMs, RevealText.maxMs);
+    final think = _from == 0 && remaining > 60 ? RevealText.thinkMs : 0;
+    _thinkShare = think / (think + ms);
     _animatedHere = true;
-    _anim.duration = Duration(milliseconds: ms);
+    _anim.duration = Duration(milliseconds: think + ms);
     _anim.forward(from: 0);
   }
+
+  /// با لمس متن، نگارش تدریجی رد می‌شود و کل پاسخ یک‌جا می‌آید.
+  void _skip() {
+    if (widget.message.revealed) return;
+    _anim.stop();
+    _finish();
+  }
+
+  bool get _thinking =>
+      !widget.message.revealed && _thinkShare > 0 && _anim.value < _thinkShare;
 
   void _onTick() {
     // فقط در گام‌های انیمیشن (نه در میانهٔ ساخت ویجت) فهرست را جابه‌جا کن.
@@ -485,8 +505,19 @@ class _RevealTextState extends State<RevealText>
 
   String _visible() {
     if (widget.message.revealed || _text == '...') return _text;
-    final n = _from + ((_text.length - _from) * _anim.value).round();
-    return _text.substring(0, n.clamp(0, _text.length));
+    final t = _thinkShare >= 1
+        ? 1.0
+        : ((_anim.value - _thinkShare) / (1 - _thinkShare)).clamp(0.0, 1.0);
+    var n = (_from + ((_text.length - _from) * t).round())
+        .clamp(0, _text.length);
+    // واژه‌ها کامل ظاهر می‌شوند، نه حرف‌به‌حرف وسط یک کلمه.
+    if (n < _text.length) {
+      final space = _text.lastIndexOf(' ', n);
+      final line = _text.lastIndexOf('\n', n);
+      final edge = space > line ? space : line;
+      if (edge > _from) n = edge;
+    }
+    return _text.substring(0, n);
   }
 
   @override
@@ -502,9 +533,15 @@ class _RevealTextState extends State<RevealText>
       if (!widget.message.revealed) _finish();
       return SelectableText(_text, style: widget.style);
     }
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (context, _) => Text(_visible(), style: widget.style),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _skip,
+      child: AnimatedBuilder(
+        animation: _anim,
+        builder: (context, _) => _thinking
+            ? const TypingDots()
+            : Text('${_visible()} ●', style: widget.style),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dastyar/domain/advocate/briefs.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 
@@ -108,6 +109,8 @@ String _laborChance(CaseFile f) {
 final Topic laborTopic = Topic(
   id: 'labor',
   title: 'کار و کارفرما',
+  claims: laborClaims,
+  recap: laborRecap,
   cues: {
     'کارفرما|صاحب ?کار|رئیسم|رییسم|مدیرم': 2,
     'اخراج|از فردا نیا|دیگه نیا سر|عذرم(?: رو)? خواست|تعدیل نیرو|بیرونم کرد(?:ن|ه)? از (?:کار|شرکت)': 3,
@@ -369,6 +372,8 @@ String _famDivorce(CaseFile f) {
 final Topic familyTopic = Topic(
   id: 'family',
   title: 'خانواده',
+  claims: familyClaims,
+  recap: familyRecap,
   cues: {
     'طلاق|مهریه|مهریم|نفقه|حضانت|جهیزیه|تمکین|جدا (?:شم|بشم|شیم|بشیم)': 3,
     'شوهر|زنم|خانمم|همسر': 2,

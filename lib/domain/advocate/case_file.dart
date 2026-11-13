@@ -30,6 +30,13 @@ class CaseFile {
   String get(String k) => facts[k] ?? '';
   int? n(String k) => int.tryParse(facts[k] ?? '');
 
+  /// سه‌حالته: برقرار (true)، نابرقرار (false)، هنوز نامعلوم (null).
+  bool? tri(String k) => yes(k) ? true : (no(k) ? false : null);
+
+  /// سه‌حالته برای واقعیت‌های برچسبی: اگر معلوم نباشد null.
+  bool? isOne(String k, List<String> values) =>
+      has(k) ? values.contains(facts[k]) : null;
+
   void clearCase() {
     topic = '';
     facts.clear();
@@ -43,6 +50,46 @@ class CaseFile {
 typedef Body = String Function(CaseFile f);
 typedef Reader = String? Function(String n);
 typedef Cond = bool Function(CaseFile f);
+typedef Tri = bool? Function(CaseFile f);
+
+/// یک شرط قانونی که برای رسیدن به یک نتیجه باید برقرار باشد.
+class Element {
+  /// شرط به زبان ساده («مدت اجاره تمام شده باشد»)، همراه استناد.
+  final String text;
+
+  /// آیا با واقعیت‌های پرونده برقرار است؟ null یعنی هنوز نمی‌دانیم.
+  final Tri test;
+
+  /// اگر برقرار نباشد چه می‌شود یا چه باید کرد.
+  final String ifNo;
+
+  const Element(this.text, this.test, {this.ifNo = ''});
+}
+
+/// یک ادعای حقوقی و شرط‌هایش. وکیل با سنجیدن تک‌تک شرط‌ها روی واقعیت‌های
+/// همین پرونده استدلال می‌کند و نتیجه می‌گیرد (نه با متن ازپیش‌نوشته).
+class Claim {
+  /// هدف به زبان کاربر («پس‌گرفتن ودیعه»).
+  final String goal;
+
+  /// این ادعا برای چه وضعیتی است.
+  final Cond? when;
+  final List<Element> elements;
+
+  /// نتیجه وقتی همهٔ شرط‌ها برقرار است.
+  final Body win;
+
+  /// محکم‌ترین حرف طرف مقابل و پاسخ آن.
+  final Body? counter;
+
+  const Claim({
+    required this.goal,
+    required this.elements,
+    required this.win,
+    this.when,
+    this.counter,
+  });
+}
 
 /// یک واقعیتِ مهم پرونده که وکیل باید بداند.
 class Slot {
@@ -136,6 +183,13 @@ class Topic {
   /// شناسهٔ قالب‌های سند مرتبط (به ترتیب اولویت).
   final List<String> Function(CaseFile f)? drafts;
 
+  /// ادعاهایی که وکیل می‌تواند درباره‌شان استدلال کند (به ترتیب اولویت).
+  final List<Claim> claims;
+
+  /// برداشت وکیل از واقعیت‌های پرونده، به صورت عبارت‌های کوتاهِ خطاب به
+  /// کاربر («مستأجر هستید»، «ملک را تخلیه کرده‌اید»).
+  final List<String> Function(CaseFile f)? recap;
+
   Topic({
     required this.id,
     required this.title,
@@ -146,5 +200,7 @@ class Topic {
     required this.follow,
     this.anti = '',
     this.drafts,
+    this.claims = const [],
+    this.recap,
   });
 }

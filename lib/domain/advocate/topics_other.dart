@@ -1,3 +1,4 @@
+import 'package:dastyar/domain/advocate/briefs.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics_money.dart';
@@ -59,6 +60,7 @@ String _accDefect(CaseFile f) =>
 final Topic accusedTopic = Topic(
   id: 'accused',
   title: 'دفاع در برابر شکایت',
+  recap: accusedRecap,
   cues: {
     'ازم شکایت|از من شکایت|علیه من|برام (?:شکایت|پرونده)|ازمون شکایت|شکایت کرد(?:ه|ن|ند)? ازم': 4,
     'متهم(?:م| شدم| هستم| کرد)|به جرم|شاکی دارم|پاپوش|تهمت زد': 3,
@@ -201,6 +203,7 @@ final Topic accusedTopic = Topic(
 final Topic partnerTopic = Topic(
   id: 'partner',
   title: 'شراکت',
+  recap: partnerRecap,
   cues: {
     'شریک|شراکت|شراکتی': 3,
     'با هم (?:[^ ]+ ){0,3}(?:اجاره کردیم|خریدیم|راه انداختیم|زدیم|سرمایه گذاشتیم|کار میکنیم)': 3,

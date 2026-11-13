@@ -1,6 +1,7 @@
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
+import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics_life.dart';
 import 'package:dastyar/domain/advocate/topics_money.dart';
@@ -54,6 +55,9 @@ class Advocate {
   LegalGuide? _guide;
   String _lastBody = '';
   String _deferred = '';
+
+  /// موضوع دومی که کاربر در همان پیام به آن اشاره کرده است.
+  Topic? _also;
   int _vary = 0;
 
   static const String newCaseChip = 'موضوع تازه‌ای دارم';
@@ -106,6 +110,7 @@ class Advocate {
     _said.clear();
     _loose.clear();
     unresolved.clear();
+    _also = null;
     _vary = 0;
   }
 
@@ -154,7 +159,15 @@ class Advocate {
     if (meta != null) return meta;
 
     if (topic == null) {
-      if (best != null && bestScore >= 3) return _open(best, n);
+      if (best != null && bestScore >= 3) {
+        for (final t in topics) {
+          if (t.id != best.id && (scores[t.id] ?? 0) >= 4) {
+            _also = t;
+            break;
+          }
+        }
+        return _open(best, n);
+      }
       _loose.add(n);
       if (_loose.length > 3) _loose.removeAt(0);
       final g = _glossary(n);
@@ -293,6 +306,12 @@ class Advocate {
     }
     final news = _absorb(t, n);
     final parts = <String>[];
+    // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
+    // همان‌جا می‌تواند اصلاحم کند.
+    final got = _recap(t);
+    if (got.length >= 2) {
+      parts.add('${_pick(Say.understood)} ${_join(got)}.');
+    }
     final open = t.opening(file);
     if (open.isNotEmpty) parts.add(open);
     final issue = _matchIssue(t, n);
@@ -313,14 +332,16 @@ class Advocate {
     if (_lastBody.isEmpty && parts.isNotEmpty) _lastBody = parts.first;
     var lead = '';
     if (switched) {
-      lead = 'این موضوعِ جداگانه‌ای است؛ پس آن را جدا بررسی می‌کنم.';
+      lead = _pick(Say.switched);
     } else if (LawyerVoice.expressesDistress(n) ||
         Sense.has(n, 'کتک|میزنه| زد|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {
-      lead = _pick(const [
-        'متأسفم که در این وضعیت قرار گرفته‌اید. بیایید آرام و قدم‌به‌قدم جلو برویم.',
-        'می‌فهمم که چقدر آزاردهنده است. خوب است که زود سراغش آمده‌اید.',
-        'وضعیت سختی است، ولی راه قانونی دارد. با هم مرورش می‌کنیم.',
-      ]);
+      lead = _pick(Say.empathy);
+    }
+    final also = _also;
+    _also = null;
+    if (also != null && also.id != t.id) {
+      parts.add(
+          'به موضوع «${also.title}» هم اشاره کردید. آن پروندهٔ جدایی است؛ اول همین را روشن می‌کنیم و بعد، هر وقت گفتید، سراغ آن می‌رویم.');
     }
     return _finish(t, parts, lead: lead);
   }
@@ -389,8 +410,18 @@ class Advocate {
         understood = true;
       } else {
         final kind = Sense.followKind(n);
-        final fb = kind.isEmpty ? null : (t.follow[kind] ?? _generic(kind));
-        if (fb != null) {
+        final arg = kind == 'argue' || kind == 'chance' ? _argue(t) : null;
+        final fb = kind.isEmpty
+            ? null
+            : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
+        if (arg != null) {
+          parts.add(arg);
+          file.covered.add('f:argue');
+          file.covered.add('f:chance');
+          _said.add(arg);
+          _lastBody = arg;
+          understood = true;
+        } else if (fb != null) {
           final b = fb(file);
           parts.add(b);
           file.covered.add('f:$kind');
@@ -409,10 +440,7 @@ class Advocate {
     }
     _noteAmount(parts, news, n);
     if (!understood && _echo.isNotEmpty) {
-      parts.add(_pick(const [
-        'بله، این را در پرونده دارم و تحلیلم بر همین پایه است.',
-        'درست است؛ همین را در نظر گرفته‌ام.',
-      ]));
+      parts.add(_pick(Say.known));
       understood = true;
     }
     if (!understood) {
@@ -423,10 +451,7 @@ class Advocate {
         if (lg != null) return _openGuide(lg, raw, n, switched: true);
       }
       if (Sense.has(n, 'ماده [0-9]+|قانون ')) return _lookup(raw, n);
-      parts.add(_pick(const [
-        'این قسمت از حرفتان را نتوانستم به نکتهٔ حقوقی مشخصی وصل کنم. اگر می‌شود با جملهٔ دیگری بگویید، یا یکی از گزینه‌های زیر را انتخاب کنید.',
-        'مطمئن نیستم منظورتان را درست گرفته باشم. لطفاً کمی بیشتر توضیح بدهید چه اتفاقی افتاده یا دقیقاً چه می‌خواهید بدانید.',
-      ]));
+      parts.add(_pick(Say.lost));
       file.pending = '';
       return _out(parts.join('\n\n'), chips: _suggest(t));
     }
@@ -475,17 +500,7 @@ class Advocate {
       final c = file.askCount[q.id] ?? 0;
       file.askCount[q.id] = c + 1;
       file.pending = q.id;
-      final intro = c == 0
-          ? _pick(const [
-              'برای اینکه دقیق‌تر راهنمایی کنم:',
-              'یک چیز را باید بدانم:',
-              'حالا یک سؤال از شما:',
-              'برای قدم بعد لازم است بدانم:',
-            ])
-          : _pick(const [
-              'و هنوز این را لازم دارم:',
-              'برگردیم به سؤالی که برای پرونده مهم است:',
-            ]);
+      final intro = _pick(c == 0 ? Say.ask : Say.askAgain);
       body = '$body\n\n$intro ${q.ask}';
       chips.addAll(q.options);
       if (chips.length <= 2) {
@@ -494,24 +509,117 @@ class Advocate {
       }
     } else {
       // پرسش‌هایم تمام شد: مثل هر وکیلی، جمع‌بندی و نقشهٔ راه می‌دهم.
-      if (file.pending.isNotEmpty &&
-          planText.isNotEmpty &&
-          !file.covered.contains('f:next') &&
-          body.length < 900) {
-        if (planSaid) {
-          body =
-              '$body\n\nحالا تصویر پرونده برایم روشن است و نقشهٔ راه همان است که بالاتر گفتم. اگر جایی از آن مبهم است یا طرف مقابل حرف تازه‌ای زده، بپرسید.';
-        } else {
-          body = '$body\n\nحالا تصویر پرونده برایم روشن است. $planText';
-          file.covered.add('f:next');
-          _said.add(planText);
-          _lastBody = planText;
+      if (file.pending.isNotEmpty && body.length < 1200) {
+        var opened = false;
+        final arg = file.covered.contains('f:argue') ? null : _argue(t);
+        if (arg != null) {
+          body = '$body\n\n${_pick(Say.wrap)} $arg';
+          file.covered.add('f:argue');
+          _said.add(arg);
+          _lastBody = arg;
+          opened = true;
+        }
+        if (planText.isNotEmpty && !file.covered.contains('f:next')) {
+          if (planSaid) {
+            body = opened
+                ? '$body\n\n${_pick(Say.planSaid)}'
+                : '$body\n\n${_pick(Say.wrap)} ${_pick(Say.planSaid)}';
+          } else if (body.length < 900) {
+            body = opened
+                ? '$body\n\n$planText'
+                : '$body\n\n${_pick(Say.wrap)} $planText';
+            file.covered.add('f:next');
+            _said.add(planText);
+            _lastBody = planText;
+          } else {
+            body = '$body\n\n${_pick(Say.offerPlan)}';
+          }
         }
       }
       file.pending = '';
       chips.addAll(_suggest(t));
     }
     return _out(body, chips: chips);
+  }
+
+  /// برداشت وکیل از واقعیت‌هایی که تا اینجا شنیده است.
+  List<String> _recap(Topic t) {
+    final r = t.recap;
+    if (r == null) return const [];
+    return [
+      for (final x in r(file))
+        if (x.trim().isNotEmpty) x.trim(),
+    ];
+  }
+
+  static String _join(List<String> items) {
+    if (items.isEmpty) return '';
+    if (items.length == 1) return items.first;
+    return '${items.sublist(0, items.length - 1).join('، ')} و ${items.last}';
+  }
+
+  /// ادعایی که به وضعیت فعلی پرونده می‌خورد.
+  Claim? _claim(Topic t) {
+    for (final c in t.claims) {
+      final w = c.when;
+      if (w == null || w(file)) return c;
+    }
+    return null;
+  }
+
+  /// استدلال: شرط‌های قانونیِ یک ادعا را یکی‌یکی روی واقعیت‌های همین
+  /// پرونده می‌سنجد و از جمع آن‌ها نتیجه می‌گیرد. متن ازپیش‌نوشته نیست؛ با
+  /// عوض‌شدن هر واقعیت، استدلال و نتیجه هم عوض می‌شود.
+  String? _argue(Topic t) {
+    final c = _claim(t);
+    if (c == null || c.elements.isEmpty) return null;
+    final total = c.elements.length;
+    final sb = StringBuffer('${_pick(Say.argue)}\n');
+    sb.write(
+        'هدف: ${c.goal}. برای رسیدن به آن، قانون ${Sense.fa(total)} چیز می‌خواهد:\n');
+    var ok = 0;
+    final failed = <int>[];
+    final open = <int>[];
+    for (var i = 0; i < total; i++) {
+      final e = c.elements[i];
+      final v = e.test(file);
+      final String mark;
+      if (v == true) {
+        ok++;
+        mark = '✓ ${_pick(Say.holds)}.';
+      } else if (v == false) {
+        failed.add(i + 1);
+        mark = '✗ ${_pick(Say.fails)}.${e.ifNo.isEmpty ? '' : ' ${e.ifNo}'}';
+      } else {
+        open.add(i + 1);
+        mark = '؟ ${_pick(Say.unknown)}.';
+      }
+      sb.write('${Sense.fa(i + 1)}) ${e.text}\n   $mark\n');
+    }
+    if (failed.isEmpty && open.isEmpty) {
+      sb.write(
+          'نتیجه: هر ${Sense.fa(total)} شرط جمع است؛ پس ${c.win(file)}\n'
+          'ارزیابی من: پروندهٔ قوی‌ای دارید، به شرط اینکه همین‌ها را با مدرک نشان بدهید.');
+    } else if (failed.isNotEmpty) {
+      sb.write(
+          'نتیجه: چون شرط ${_join([for (final k in failed) Sense.fa(k)])} برقرار نیست، این راه به شکل فعلی جواب نمی‌دهد؛ اول باید همان گره باز شود');
+      sb.write(ok > 0
+          ? ' (${Sense.fa(ok)} شرط دیگر را دارید و آن‌ها به کارتان می‌آید).'
+          : '.');
+      if (open.isNotEmpty) {
+        sb.write(
+            ' شرط ${_join([for (final k in open) Sense.fa(k)])} هم هنوز برایم روشن نیست.');
+      }
+    } else {
+      sb.write(
+          'نتیجه تا اینجا: ${Sense.fa(ok)} شرط از ${Sense.fa(total)} شرط محرز است و حرف آخر به شرط ${_join([for (final k in open) Sense.fa(k)])} بستگی دارد. اگر آن هم برقرار باشد، ${c.win(file)}');
+    }
+    final counter = c.counter;
+    if (counter != null) {
+      final x = counter(file);
+      if (x.isNotEmpty) sb.write('\n${_pick(Say.counter)} $x');
+    }
+    return sb.toString();
   }
 
   List<String> _suggest(Topic t) {
@@ -576,6 +684,23 @@ class Advocate {
         '۳) رویهٔ عملی دادگاه‌ها و ریزه‌کاری‌های هر پرونده را یک وکیل حضوری بهتر می‌بیند.\n'
         'پس: برای فهمیدن وضعیت و آماده‌شدن روی من حساب کنید؛ برای تصمیم‌های بزرگ (امضای توافق، مبلغ سنگین، پروندهٔ کیفری) حرف آخر را با یک وکیل دادگستری چک کنید.',
         chips: _idleChips(),
+      );
+    }
+    if (w <= 8 &&
+        Sense.has(n,
+            'چی فهمیدی|چه فهمیدی|متوجه (?:شدی|حرفم)|فهمیدی چی|حرف(?:م|مو|م رو) فهمیدی|گرفتی چی|میفهمی چی')) {
+      final got = topic == null ? const <String>[] : _recap(topic);
+      if (topic == null || got.isEmpty) {
+        return _out(
+          topic == null
+              ? 'هنوز ماجرای مشخصی از شما نشنیده‌ام که بگویم چه فهمیده‌ام. تعریف کنید چه شده؛ بعد برداشتم را بازگو می‌کنم تا اگر اشتباه گرفتم اصلاحم کنید.'
+              : 'می‌دانم موضوع «${topic.title}» است، ولی هنوز جزئیات کافی ندارم. هر چه بیشتر بگویید، دقیق‌تر می‌فهمم.',
+          chips: topic == null ? starterChips : _suggest(topic),
+        );
+      }
+      return _out(
+        '${_pick(Say.understood)} ${_join(got)}.\nاگر جایی را اشتباه گرفته‌ام، همان را بگویید تا اصلاح کنم.',
+        chips: _suggest(topic),
       );
     }
     if (w <= 8 &&
@@ -653,6 +778,8 @@ class Advocate {
       );
     }
     final sb = StringBuffer('خلاصه و بدون حاشیه:\n');
+    final got = _recap(topic);
+    if (got.isNotEmpty) sb.write('• ماجرا: ${_join(got)}.\n');
     final open = _sentences(_strip(topic.opening(file)));
     if (open.isNotEmpty) sb.write('• حرف قانون: ${open.first}\n');
     final plan = topic.follow['next'];

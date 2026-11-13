@@ -1,3 +1,4 @@
+import 'package:dastyar/domain/advocate/briefs.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 
@@ -136,6 +137,8 @@ String _rentChance(CaseFile f) {
 final Topic rentTopic = Topic(
   id: 'rent',
   title: 'اجاره و ودیعه',
+  claims: rentClaims,
+  recap: rentRecap,
   cues: {
     'پول پیش|پول رهن|ودیعه|رهن(?:م| خونه| رو| کامل)|پیش خونه': 3,
     'صاحبخونه|موجر': 2,
@@ -347,6 +350,8 @@ String _chequeIssuer(CaseFile f) {
 final Topic chequeTopic = Topic(
   id: 'cheque',
   title: 'چک برگشتی',
+  claims: chequeClaims,
+  recap: chequeRecap,
   cues: {
     'چک(?!ار| کرد| کن| میکن| نکرد| شد )': 3,
     'برگشت(?:ی| خورد| زد)|پاس نشد|پاس نمیشه|بلامحل|گواهی عدم پرداخت|صیاد': 1,
@@ -555,6 +560,8 @@ String _debtPlan(CaseFile f) {
 final Topic debtTopic = Topic(
   id: 'debt',
   title: 'طلب و قرض',
+  claims: debtClaims,
+  recap: debtRecap,
   cues: {
     'قرض (?:دادم|داده بودم|داده ام|گرفت|کرد)|پول (?:دادم|قرض)|دستی (?:دادم|گرفت)|قرض الحسنه دادم': 3,
     'طلب(?:م| دارم|کارم)|ازش طلب|بهم بدهکاره|بدهکار منه|پولمو (?:نمیده|پس نمیده|خورد|بالا کشید)|پولم رو (?:نمیده|پس نمیده)': 3,
