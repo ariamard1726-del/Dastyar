@@ -69,6 +69,32 @@ void main() {
       expect(find.text(full), findsOneWidget);
     });
 
+    testWidgets('نگارش آرام است و با یک لمس کل پاسخ می‌آید', (tester) async {
+      final full = List.filled(40, 'این جمله برای آزمودن آهنگ نگارش است.').join(' ');
+      final msg = ChatMessage(full, false);
+      await tester.pumpWidget(host(SingleChildScrollView(
+        child: BotMessageView(
+          message: msg,
+          question: 'پرسش',
+          onCopy: (_) {},
+          onShare: (_) {},
+        ),
+      )));
+      // مکث کوتاهِ فکر کردن پیش از شروع نگارش
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byType(TypingDots), findsOneWidget);
+      // سه ثانیه بعد هنوز در میانهٔ نوشتن است (متن یک‌باره نمی‌آید)
+      await tester.pump(const Duration(seconds: 3));
+      expect(msg.revealed, isFalse);
+      expect(find.text(full), findsNothing);
+      expect(find.textContaining('●'), findsOneWidget);
+      // لمس متن، نگارش را رد می‌کند
+      await tester.tap(find.byType(RevealText));
+      await tester.pumpAndSettle();
+      expect(msg.revealed, isTrue);
+      expect(find.text(full), findsOneWidget);
+    });
+
     testWidgets('پیام بازیابی‌شده از تاریخچه دوباره تایپ نمی‌شود',
         (tester) async {
       final msg = ChatMessage('متن قدیمی', false, revealed: true);

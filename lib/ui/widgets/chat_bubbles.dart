@@ -391,8 +391,12 @@ class RevealText extends StatefulWidget {
   static const int msPerChar = 18;
   static const int minMs = 250;
 
+  /// پس از این تعداد نویسه، نگارش کمی تندتر می‌شود.
+  static const int slowChars = 400;
+  static const int msPerCharLong = 10;
+
   /// سقف زمان نگارشِ پاسخ‌های خیلی بلند (با یک لمس هم می‌شود ردش کرد).
-  static const int maxMs = 30000;
+  static const int maxMs = 24000;
 
   /// مکث کوتاهِ «در حال فکر کردن» پیش از شروع نگارش پاسخ‌های غیرکوتاه.
   static const int thinkMs = 500;
@@ -461,7 +465,13 @@ class _RevealTextState extends State<RevealText>
       _finish();
       return;
     }
-    final ms = (remaining * RevealText.msPerChar)
+    // آغاز پاسخ آرام نوشته می‌شود و ادامهٔ پاسخ‌های بلند کمی روان‌تر، تا
+    // هم حس نوشتن طبیعی بماند و هم کاربر برای متن بلند معطل نشود.
+    final slow = remaining < RevealText.slowChars
+        ? remaining
+        : RevealText.slowChars;
+    final ms = (slow * RevealText.msPerChar +
+            (remaining - slow) * RevealText.msPerCharLong)
         .clamp(RevealText.minMs, RevealText.maxMs);
     final think = _from == 0 && remaining > 60 ? RevealText.thinkMs : 0;
     _thinkShare = think / (think + ms);

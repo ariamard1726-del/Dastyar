@@ -295,7 +295,10 @@ void main() {
     ]);
     expect(r[0].text, contains('دستور تخلیه'));
     expect('۱)'.allMatches(r[2].text).length, 0);
-    expect(r[2].text, contains('همان است که بالاتر گفتم'));
+    expect(r[2].text, contains('بالاتر گفتم'));
+    // جمع‌بندی حالا استدلال هم دارد: شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
+    expect(r[2].text, contains('شرط اول'));
+    expect(r[2].text, contains('نتیجه'));
     expect(a.unresolved, isEmpty);
   });
 
@@ -307,6 +310,119 @@ void main() {
     expect(r[0].text, isNot(contains('قولنامه')));
     expect(r[0].chips, isNot(contains('می‌گوید جنس ایراد داشته')));
     expect(a.unresolved, isEmpty);
+  });
+
+  test('استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود', () {
+    final a = fresh();
+    talk(a, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده ولی هنوز خونه رو خالی نکردم',
+    ]);
+    expect(a.file.no('vacated'), isTrue);
+    final weak = a.respond('استدلالت چیه؟');
+    expect(weak.text, contains('شرط اول'));
+    expect(weak.text, contains('✓'));
+    expect(weak.text, contains('✗'));
+    expect(weak.text, contains('برقرار نیست'));
+    // همان پرونده، با واقعیتِ عوض‌شده، نتیجهٔ دیگری می‌دهد.
+    final b = fresh();
+    talk(b, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
+    ]);
+    final strong = b.respond('استدلالت چیه؟');
+    expect(strong.text, contains('شرط اول'));
+    expect(strong.text, isNot(contains('✗')));
+    expect(strong.text, isNot(weak.text));
+    expect(strong.laws, isNotEmpty);
+  });
+
+  test('برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)', () {
+    final a = fresh();
+    final r = a.respond('مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه');
+    expect(r.text, contains('موجر'));
+    expect(r.text, contains('هنوز تخلیه نشده'));
+    final got = a.respond('چی فهمیدی؟');
+    expect(got.text, contains('موجر'));
+    expect(got.text, contains('اصلاح'));
+    final none = fresh().respond('چی فهمیدی؟');
+    expect(none.text.trim(), isNotEmpty);
+  });
+
+  test('دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود', () {
+    const cases = {
+      'یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره': 'consumer',
+      'از حسابم بی خبر ۲۰ میلیون برداشت شده، فکر کنم فیشینگ بود': 'cyber',
+      'پدرم فوت کرده و برادرم سهم ارث ما رو نمیده': 'inherit',
+      'همسایه مون هر شب بچه شو کتک میزنه': 'child',
+      'حکم گرفتم ولی طرف پول رو نمیده': 'enforce',
+      'یه آپارتمان خریدم ولی فروشنده سند نمیزنه': 'property',
+      'سهامدار یه شرکت سهامی هستم و مدیرعامل سود سهام نمیده': 'company',
+      'ضامن وام دوستم شدم و حالا قسط نمیده': 'guarantee',
+      'بانک وام ازدواج نمیده': 'marriage',
+      'سر کار از داربست افتادم و پام شکست': 'injury',
+    };
+    for (final e in cases.entries) {
+      final a = fresh();
+      final r = a.respond(e.key);
+      expect(a.file.topic, e.value, reason: e.key);
+      expect(r.laws, isNotEmpty, reason: e.key);
+      expect(a.unresolved, isEmpty, reason: e.key);
+      final arg = a.respond('استدلالت چیه؟');
+      expect(arg.text.trim(), isNotEmpty, reason: e.key);
+      expect(a.unresolved, isEmpty, reason: e.key);
+    }
+  });
+
+  test('همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است', () {
+    final ref = RegExp(r'\[\[([a-z_0-9]+):[0-9]+m?\]\]');
+    final used = <String>{};
+    for (final f in Directory('lib/domain/advocate').listSync()) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      for (final m in ref.allMatches(f.readAsStringSync())) {
+        used.add(m[1]!);
+      }
+    }
+    const all = {
+      'civil', 'cheque', 'financial_sentences', 'commerce', 'commerce_1347',
+      'landlord_tenant', 'labor', 'constitution', 'family_protection',
+      'civil_liability', 'child_protection', 'marriage', 'consumer_protection',
+      'penal', 'penal_taazirat', 'fraud_intensify', 'cybercrime',
+      'civil_procedure', 'civil_execution', 'dispute_councils',
+      'criminal_procedure', 'registration', 'direct_taxes', 'social_security',
+    };
+    expect(all.difference(used), isEmpty);
+  });
+
+  test('موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند', () {
+    final a = fresh();
+    final r = talk(a, [
+      'یه آپارتمان خریدم ولی فروشنده سند نمیزنه',
+      'آره قولنامه داریم',
+      'همه پول رو دادم',
+      'به نام خودشه',
+    ]);
+    expect(a.file.topic, 'property');
+    expect(a.file.get('role'), 'buyer');
+    expect(a.file.yes('written'), isTrue);
+    expect(a.file.yes('paid'), isTrue);
+    expect(a.file.yes('registered'), isTrue);
+    expect(r.last.text, contains('شرط'));
+    expect(r.last.text, contains('ارزیابی من'));
+    final c = fresh();
+    talk(c, [
+      'سر کار از داربست افتادم و پام شکست',
+      'نه هیچی ندادن، کمربند نداشتم',
+    ]);
+    expect(c.file.get('kind'), 'work');
+    expect(c.file.no('safe'), isTrue);
+    final e = fresh();
+    talk(e, ['حسابمو بستن چون محکوم شدم', 'ندارم بدم، میشه قسطی بدم؟']);
+    expect(e.file.topic, 'enforce');
+    expect(e.file.get('side'), 'loser');
+    expect(e.draftIds, contains('insolvency'));
   });
 
   test('تشخیص درخواست صریح نوشتن سند', () {

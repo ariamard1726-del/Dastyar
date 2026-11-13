@@ -5,6 +5,8 @@ import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics_life.dart';
 import 'package:dastyar/domain/advocate/topics_money.dart';
+import 'package:dastyar/domain/advocate/topics_extra.dart';
+import 'package:dastyar/domain/advocate/topics_more.dart';
 import 'package:dastyar/domain/advocate/topics_other.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
@@ -73,6 +75,16 @@ class Advocate {
     debtTopic,
     neighborTopic,
     adminTopic,
+    propertyTopic,
+    inheritTopic,
+    consumerTopic,
+    cyberTopic,
+    injuryTopic,
+    enforceTopic,
+    guaranteeTopic,
+    companyTopic,
+    childTopic,
+    marriageTopic,
   ];
 
   static const List<String> starterChips = [
@@ -410,7 +422,10 @@ class Advocate {
         understood = true;
       } else {
         final kind = Sense.followKind(n);
-        final arg = kind == 'argue' || kind == 'chance' ? _argue(t) : null;
+        final a0 = kind == 'argue' || kind == 'chance' ? _argue(t) : null;
+        // استدلالی که عیناً گفته شده برای «شانسم چقدر است؟» تکرار نمی‌شود.
+        final arg =
+            a0 != null && kind == 'chance' && _said.contains(a0) ? null : a0;
         final fb = kind.isEmpty
             ? null
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
@@ -558,6 +573,15 @@ class Advocate {
     return '${items.sublist(0, items.length - 1).join('، ')} و ${items.last}';
   }
 
+  static const List<String> _ords = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم'];
+  static const List<String> _counts = ['یک', 'دو', 'سه', 'چهار', 'پنج', 'شش'];
+
+  static String _ord(int k) =>
+      k >= 1 && k <= _ords.length ? _ords[k - 1] : Sense.fa(k);
+
+  static String _count(int k) =>
+      k >= 1 && k <= _counts.length ? _counts[k - 1] : Sense.fa(k);
+
   /// ادعایی که به وضعیت فعلی پرونده می‌خورد.
   Claim? _claim(Topic t) {
     for (final c in t.claims) {
@@ -575,8 +599,9 @@ class Advocate {
     if (c == null || c.elements.isEmpty) return null;
     final total = c.elements.length;
     final sb = StringBuffer('${_pick(Say.argue)}\n');
-    sb.write(
-        'هدف: ${c.goal}. برای رسیدن به آن، قانون ${Sense.fa(total)} چیز می‌خواهد:\n');
+    sb.write(total == 1
+        ? 'هدف: ${c.goal}. برای رسیدن به آن، قانون یک شرط دارد:\n'
+        : 'هدف: ${c.goal}. برای رسیدن به آن، قانون ${_count(total)} شرط دارد:\n');
     var ok = 0;
     final failed = <int>[];
     final open = <int>[];
@@ -594,25 +619,25 @@ class Advocate {
         open.add(i + 1);
         mark = '؟ ${_pick(Say.unknown)}.';
       }
-      sb.write('${Sense.fa(i + 1)}) ${e.text}\n   $mark\n');
+      sb.write('• شرط ${_ord(i + 1)}: ${e.text}\n   $mark\n');
     }
     if (failed.isEmpty && open.isEmpty) {
       sb.write(
-          'نتیجه: هر ${Sense.fa(total)} شرط جمع است؛ پس ${c.win(file)}\n'
+          '${total == 1 ? 'نتیجه: این شرط برقرار است' : 'نتیجه: هر ${_count(total)} شرط جمع است'}؛ پس ${c.win(file)}\n'
           'ارزیابی من: پروندهٔ قوی‌ای دارید، به شرط اینکه همین‌ها را با مدرک نشان بدهید.');
     } else if (failed.isNotEmpty) {
       sb.write(
-          'نتیجه: چون شرط ${_join([for (final k in failed) Sense.fa(k)])} برقرار نیست، این راه به شکل فعلی جواب نمی‌دهد؛ اول باید همان گره باز شود');
+          'نتیجه: چون شرط ${_join([for (final k in failed) _ord(k)])} برقرار نیست، این راه به شکل فعلی جواب نمی‌دهد؛ اول باید همان گره باز شود');
       sb.write(ok > 0
-          ? ' (${Sense.fa(ok)} شرط دیگر را دارید و آن‌ها به کارتان می‌آید).'
+          ? ' (${_count(ok)} شرط دیگر را دارید و به کارتان می‌آید).'
           : '.');
       if (open.isNotEmpty) {
         sb.write(
-            ' شرط ${_join([for (final k in open) Sense.fa(k)])} هم هنوز برایم روشن نیست.');
+            ' شرط ${_join([for (final k in open) _ord(k)])} هم هنوز برایم روشن نیست.');
       }
     } else {
       sb.write(
-          'نتیجه تا اینجا: ${Sense.fa(ok)} شرط از ${Sense.fa(total)} شرط محرز است و حرف آخر به شرط ${_join([for (final k in open) Sense.fa(k)])} بستگی دارد. اگر آن هم برقرار باشد، ${c.win(file)}');
+          'نتیجه تا اینجا: ${ok == 0 ? 'هنوز هیچ‌کدام از شرط‌ها برایم محرز نیست' : '${_count(ok)} شرط از ${_count(total)} شرط محرز است'} و حرف آخر به شرط ${_join([for (final k in open) _ord(k)])} بستگی دارد. اگر ${open.length == 1 ? 'آن هم' : 'آن‌ها هم'} برقرار باشد، ${c.win(file)}');
     }
     final counter = c.counter;
     if (counter != null) {
