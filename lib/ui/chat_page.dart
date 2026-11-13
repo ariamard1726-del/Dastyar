@@ -42,6 +42,9 @@ class ChatPage extends StatefulWidget {
   final LlamaLlm? llama;
   final LlmWriter? writer;
 
+  /// مسیر قدیمیِ گفتگو (پیش از موتور وکیل). فقط برای تست‌های همان مسیر.
+  final bool legacyFlow;
+
   const ChatPage({
     super.key,
     required this.engine,
@@ -56,6 +59,7 @@ class ChatPage extends StatefulWidget {
     this.initialDraft,
     this.intentNet,
     this.initialCounsel,
+    this.legacyFlow = false,
   });
 
   @override
@@ -82,6 +86,7 @@ class _ChatPageState extends State<ChatPage> {
       initialCounsel: widget.initialCounsel,
       onScrollRequested: _scrollDown,
       writer: widget.writer,
+      legacyFlow: widget.legacyFlow,
       // پاسخ‌های کوچک (سلام، همدلی، ...) با هر بار اجرای اپ از میان
       // گزینه‌های موجود تصادفی انتخاب می‌شوند تا گفتگو یکنواخت نباشد.
       random: Random(),

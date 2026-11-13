@@ -109,6 +109,7 @@ void main() {
       final llm = _ControllableLlm();
       final settings = AppSettings()..saveHistory = false;
       final ctrl = ChatController(
+        legacyFlow: true,
         engine: engine,
         assistant: Assistant(
           engine,
@@ -140,6 +141,7 @@ void main() {
     test('dispose در میانهٔ استریم، مدل را لغو می‌کند و خطا نمی‌اندازد', () async {
       final llm = _ControllableLlm();
       final ctrl = ChatController(
+        legacyFlow: true,
         engine: engine,
         assistant: Assistant(
           engine,
@@ -168,6 +170,7 @@ void main() {
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: ChatPage(
+              legacyFlow: true,
               engine: engine,
               assistant: Assistant(
                 engine,

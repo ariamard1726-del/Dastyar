@@ -367,12 +367,20 @@ class Advocate {
       }
       _deferred = '';
     }
-    if (asked != null) {
+    // اگر همین بحث قبلاً باز شده و کاربر حالا فقط یک واقعیت تازه می‌دهد
+    // (نه پرسش)، کل توضیح تکرار نمی‌شود؛ فقط اثرِ همان واقعیت گفته می‌شود.
+    final onlyFact = asked != null &&
+        file.covered.contains(asked.id) &&
+        !Sense.isQuestion(n) &&
+        news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
+    if (asked != null && !onlyFact) {
       final b = asked.body(file);
       parts.add(b);
       file.covered.add(asked.id);
       _said.add(b);
       _lastBody = b;
+      understood = true;
+    } else if (onlyFact) {
       understood = true;
     } else {
       final g = _glossary(n);
@@ -393,7 +401,12 @@ class Advocate {
       }
     }
     _addEffects(parts, news, 2,
-        skip: asked == null ? const {} : asked.covers);
+        skip: asked == null || onlyFact ? const {} : asked.covers);
+    if (onlyFact && parts.isEmpty) {
+      final b = asked.body(file);
+      parts.add(b);
+      _lastBody = b;
+    }
     _noteAmount(parts, news, n);
     if (!understood && _echo.isNotEmpty) {
       parts.add(_pick(const [
@@ -877,7 +890,8 @@ class Advocate {
         final rep = (r[3] ?? '').isNotEmpty;
         final art = r[2] ?? '';
         final key = '$law:$art${rep ? 'm' : ''}';
-        final c = engine.findArticle(law, 'ماده $art${rep ? ' مکرر' : ''}');
+        final c = engine.findArticle(law,
+            '${law == 'constitution' ? 'اصل' : 'ماده'} $art${rep ? ' مکرر' : ''}');
         if (c == null) {
           if (!unresolved.contains(key)) unresolved.add(key);
           continue;

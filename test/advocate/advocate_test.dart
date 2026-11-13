@@ -31,7 +31,8 @@ void main() {
       if (f is! File || !f.path.endsWith('.dart')) continue;
       for (final m in ref.allMatches(f.readAsStringSync())) {
         count++;
-        final art = 'ماده ${m[2]}${m[3] == 'm' ? ' مکرر' : ''}';
+        final art =
+            '${m[1] == 'constitution' ? 'اصل' : 'ماده'} ${m[2]}${m[3] == 'm' ? ' مکرر' : ''}';
         final c = engine.findArticle(m[1]!, art);
         if (c == null || c.lawId != m[1]) missing.add('${m[1]}:$art');
       }

@@ -39,6 +39,7 @@ void main() {
   });
 
   ChatController make(String llmOut, {bool enabled = true}) => ChatController(
+        legacyFlow: true,
         engine: engine,
         assistant: Assistant(engine),
         repo: repo,
