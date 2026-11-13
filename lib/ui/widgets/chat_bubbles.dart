@@ -307,7 +307,6 @@ class ChatEmptyState extends StatelessWidget {
 /// نوشته‌شدن است پنهان می‌ماند.
 class SuggestionBar extends StatelessWidget {
   final TextEditingController controller;
-  final bool busy;
   final bool isDrafting;
   final List<ChatMessage> messages;
   final List<LegalTemplate> templates;
@@ -316,7 +315,6 @@ class SuggestionBar extends StatelessWidget {
   const SuggestionBar({
     super.key,
     required this.controller,
-    required this.busy,
     required this.isDrafting,
     required this.messages,
     required this.templates,
@@ -328,7 +326,6 @@ class SuggestionBar extends StatelessWidget {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, value, _) {
-        if (busy) return const SizedBox.shrink();
         final items = <InputSuggestion>[];
         final typed = value.text.trim();
         if (typed.isNotEmpty && !isDrafting) {
@@ -359,8 +356,6 @@ class SuggestionBar extends StatelessWidget {
                     avatar: switch (items[i].kind) {
                       SuggestionKind.template =>
                         const Icon(Icons.description_outlined, size: 18),
-                      SuggestionKind.counsel =>
-                        const Icon(Icons.forum_outlined, size: 18),
                       SuggestionKind.question => null,
                     },
                     label: Text(items[i].text),
@@ -630,20 +625,14 @@ class _TypingDotsState extends State<TypingDots>
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
-  final bool busy;
   final bool isDrafting;
-  final bool isCounseling;
   final VoidCallback onSend;
-  final VoidCallback onStop;
 
   const ChatInputBar({
     super.key,
     required this.controller,
-    required this.busy,
     required this.isDrafting,
-    this.isCounseling = false,
     required this.onSend,
-    required this.onStop,
   });
 
   @override
@@ -673,24 +662,15 @@ class ChatInputBar extends StatelessWidget {
                   border: InputBorder.none,
                   hintText: isDrafting
                       ? 'پاسخ فیلد پیش‌نویس را بنویسید...'
-                      : (isCounseling
-                          ? 'پاسخ خود را بنویسید یا از گزینه‌ها انتخاب کنید...'
-                          : 'مشکل حقوقی یا پرسش خود را بنویسید...'),
+                      : 'مشکل حقوقی یا پرسش خود را بنویسید...',
                 ),
               ),
             ),
-            if (busy)
-              IconButton.filled(
-                tooltip: 'توقف پاسخ',
-                onPressed: onStop,
-                icon: const Icon(Icons.stop_rounded),
-              )
-            else
-              IconButton.filled(
-                tooltip: 'ارسال پیام',
-                onPressed: onSend,
-                icon: const Icon(Icons.arrow_upward),
-              ),
+            IconButton.filled(
+              tooltip: 'ارسال پیام',
+              onPressed: onSend,
+              icon: const Icon(Icons.arrow_upward),
+            ),
           ],
         ),
       ),

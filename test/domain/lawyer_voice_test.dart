@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 import 'package:dastyar/domain/settings.dart';
@@ -26,15 +23,12 @@ void main() {
   });
 
   ChatController makeCtrl() => ChatController(
-        legacyFlow: true,
         engine: engine,
-        assistant: Assistant(engine),
         repo: repo,
         history: HistoryStore(),
         settings: AppSettings()
           ..saveHistory = false
           ..saveDraftProgress = false,
-        random: Random(1),
       );
 
   group('راهنماهای حقوقی', () {
@@ -78,28 +72,31 @@ void main() {
       expect(LawyerVoice.matchGuide('ماده ۷ قانون صدور چک چه می‌گوید؟'), isNull);
     });
 
-    test('پاسخ راهنما همدلانه، مستند و با پرسش پیگیری است', () {
-      final g = LawyerVoice.guideById('deposit_return')!;
-      final r = LawyerVoice.composeGuide(
-        g,
-        'صاحبخانه پول پیشم را پس نمی‌دهد',
-        engine,
-        templates: repo.templates,
-        counselChip: 'مشاوره',
-      );
-      expect(r.text, contains('مبنای قانونی'));
-      expect(r.text, contains(g.followUp));
-      expect(r.chips, contains('مشاوره'));
+    test('ناراحتی و ترس کاربر تشخیص داده می‌شود', () {
+      expect(LawyerVoice.expressesDistress('خیلی نگرانم و می‌ترسم'), isTrue);
+      expect(LawyerVoice.expressesDistress('ماده ۱۰ قانون مدنی'), isFalse);
+    });
+
+    test('دکمهٔ قالب‌های مرتبط فقط قالب‌های موجود را می‌آورد', () {
+      for (final g in legalGuides) {
+        final chips = LawyerVoice.templateChips(g, repo.templates);
+        expect(chips.length, lessThanOrEqualTo(g.templateIds.length));
+        final titles = repo.templates.map((t) => t.title).toSet();
+        for (final c in chips) {
+          expect(titles, contains(c), reason: g.id);
+        }
+      }
     });
   });
 
   group('گفتگو در ChatController', () {
-    test('سلام دیگر متن ماده قانونی برنمی‌گرداند', () async {
+    test('سلام متن ماده قانونی برنمی‌گرداند', () async {
       final ctrl = makeCtrl();
       await ctrl.submit('سلام');
       final t = ctrl.messages.last.text;
       expect(t, contains('سلام'));
       expect(t, isNot(contains('ماده')));
+      expect(ctrl.messages.last.laws, isEmpty);
       ctrl.dispose();
     });
 
@@ -107,35 +104,25 @@ void main() {
       final ctrl = makeCtrl();
       await ctrl.submit('ممنون');
       expect(ctrl.messages.last.text, isNot(contains('ماده')));
+      expect(ctrl.messages.last.laws, isEmpty);
       ctrl.dispose();
     });
 
-    test('«طلبکار هستم» پس از پیشنهاد تک‌قالب، فرم تنظیم را شروع نمی‌کند',
-        () async {
+    test('شرح ماجرا فرم تنظیم سند را خودبه‌خود شروع نمی‌کند', () async {
       final ctrl = makeCtrl();
       await ctrl.submit('یک نفر سفته‌ام را پس نمی‌دهد');
-      expect(ctrl.messages.last.text, contains('آماده‌اش کنم'));
+      expect(ctrl.isDrafting, isFalse);
       await ctrl.submit('طلبکار هستم');
       expect(ctrl.isDrafting, isFalse);
       ctrl.dispose();
     });
 
-    test('سلام همراه پرسش، هم احوال‌پرسی و هم پاسخ دارد', () async {
+    test('حرف نامفهوم هم بی‌جواب نمی‌ماند و قانونی به آن چسبانده نمی‌شود',
+        () async {
       final ctrl = makeCtrl();
-      await ctrl.submit('سلام، مهلت تجدیدنظر چند روز است؟');
-      final t = ctrl.messages.last.text;
-      expect(t, startsWith('سلام'));
-      expect(t, contains('بیست روز'));
-      ctrl.dispose();
-    });
-
-    test('وقتی پاسخی پیدا نشود، صادقانه می‌گوید و حدس نمی‌زند', () async {
-      final ctrl = makeCtrl();
-      await ctrl.submit('قانون پرتاب فضاپیما به مریخ با موتور یونی');
-      final t = ctrl.messages.last.text;
-      expect(t, contains('اطلاعات دقیق و مطمئنی در منابع من نیست'));
-      expect(t, contains('معاضدت کانون وکلا'));
-      expect(t, isNot(contains('ماده')));
+      await ctrl.submit('بنفش قورباغه دیروز');
+      expect(ctrl.messages.last.fromUser, isFalse);
+      expect(ctrl.messages.last.text.trim(), isNotEmpty);
       ctrl.dispose();
     });
   });

@@ -1,202 +1,163 @@
-import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/core/llm.dart';
-import 'package:dastyar/domain/assistant.dart';
+import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
-import 'package:dastyar/ui/chat_page.dart';
 
-class _ControllableLlm extends LlmBackend {
-  StreamController<String>? _controller;
-  Completer<void>? _startedSignal;
-  bool cancelled = false;
-
-  Future<void> waitUntilStarted() async {
-    if (_controller != null) return;
-    final sig = _startedSignal ??= Completer<void>();
-    await sig.future.timeout(const Duration(seconds: 3));
-  }
-
-  void emit(String token) {
-    final c = _controller;
-    if (c != null && !c.isClosed) {
-      c.add(token);
+List<LegalTemplate> _loadTemplatesSync() {
+  final out = <LegalTemplate>[];
+  for (final f in Directory('assets/templates').listSync()) {
+    if (f is File && f.path.endsWith('.json')) {
+      final m = jsonDecode(f.readAsStringSync()) as Map<String, dynamic>;
+      out.add(LegalTemplate.fromJson(m));
     }
   }
-
-  void finish() {
-    unawaited(_controller?.close());
-    _controller = null;
-  }
-
-  @override
-  String get name => 'controllable';
-
-  @override
-  Future<bool> isReady() async => true;
-
-  @override
-  Stream<String> generate(
-    String prompt, {
-    LlmOptions options = const LlmOptions(),
-  }) {
-    // ignore: close_sinks
-    final c = StreamController<String>();
-    _controller = c;
-    final sig = _startedSignal;
-    if (sig != null && !sig.isCompleted) {
-      _startedSignal = null;
-      sig.complete();
-    }
-    return c.stream;
-  }
-
-  @override
-  void cancel() {
-    cancelled = true;
-    finish();
-  }
+  out.sort((a, b) => a.id.compareTo(b.id));
+  return out;
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late KnowledgeEngine engine;
+  late List<LegalTemplate> templates;
 
   setUpAll(() async {
     engine = KnowledgeEngine();
     await engine.load();
+    templates = _loadTemplatesSync();
   });
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  group('کنترلر مستقل گفتگو و مدیریت چرخهٔ حیات استریم', () {
-    test('ChatController بدون ویجت، پرسش عادی و ذخیرهٔ تاریخچه را مدیریت می‌کند', () async {
-      final settings = AppSettings()..saveHistory = true;
+  ChatController make({HistoryStore? history, bool saveHistory = false}) {
+    return ChatController(
+      engine: engine,
+      repo: TemplateRepository()..templates.addAll(templates),
+      history: history ?? HistoryStore(),
+      settings: AppSettings()..saveHistory = saveHistory,
+    );
+  }
+
+  group('کنترلر گفتگو: فقط یک مسیر (وکیل + تنظیم سند)', () {
+    test('پرسش عادی پاسخ می‌گیرد و در تاریخچه ذخیره می‌شود', () async {
       final history = HistoryStore();
       await history.load();
-      final repo = TemplateRepository();
-      final ctrl = ChatController(
-        engine: engine,
-        assistant: Assistant(engine),
-        repo: repo,
-        history: history,
-        settings: settings,
-      );
+      final ctrl = make(history: history, saveHistory: true);
 
-      await ctrl
-          .submit('ماده ۱۰ قانون مدنی')
-          .timeout(const Duration(seconds: 5));
-      expect(ctrl.busy, isFalse);
+      await ctrl.submit('ماده ۱۰ قانون مدنی');
       expect(ctrl.messages.length, 2);
       expect(ctrl.messages.first.fromUser, isTrue);
       expect(ctrl.messages.last.text, contains('قراردادهای خصوصی'));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(history.sessions.length, 1);
 
       ctrl.dispose();
     });
 
-    test('لغو پاسخ در میانهٔ استریم مدل را متوقف و رویدادهای کهنه را مسدود می‌کند', () async {
-      final llm = _ControllableLlm();
-      final settings = AppSettings()..saveHistory = false;
-      final ctrl = ChatController(
-        legacyFlow: true,
-        engine: engine,
-        assistant: Assistant(
-          engine,
-          llm: llm,
-          stallTimeout: const Duration(seconds: 2),
-        ),
-        repo: TemplateRepository(),
-        history: HistoryStore(),
-        settings: settings,
-      );
+    test('هر پیام را همان وکیل جواب می‌دهد و پرونده را به خاطر می‌سپارد',
+        () async {
+      final ctrl = make();
+      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      expect(ctrl.advocate.file.topic, 'rent');
+      expect(ctrl.messages.last.fromUser, isFalse);
+      expect(ctrl.messages.last.laws, isNotEmpty);
+      expect(ctrl.messages.last.chips, isNotEmpty);
 
-      final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await llm.waitUntilStarted();
-      expect(ctrl.busy, isTrue);
+      await ctrl.submit('۱۵۰ میلیون');
+      expect(ctrl.advocate.file.n('amount'), 150000000);
+      expect(ctrl.messages.length, 4);
 
-      llm.emit('طبق ماده ۱۰ ');
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
-
-      ctrl.cancelActiveAsk();
-      expect(ctrl.busy, isFalse);
-      expect(llm.cancelled, isTrue);
-
-      await future.timeout(const Duration(seconds: 5));
-      expect(ctrl.messages.last.text, 'طبق ماده ۱۰ ');
+      ctrl.newChat();
+      expect(ctrl.messages, isEmpty);
+      expect(ctrl.advocate.hasCase, isFalse);
       ctrl.dispose();
     });
 
-    test('dispose در میانهٔ استریم، مدل را لغو می‌کند و خطا نمی‌اندازد', () async {
-      final llm = _ControllableLlm();
-      final ctrl = ChatController(
-        legacyFlow: true,
-        engine: engine,
-        assistant: Assistant(
-          engine,
-          llm: llm,
-          stallTimeout: const Duration(seconds: 2),
+    test('بازکردن گفتگوی ذخیره‌شده، حافظهٔ پرونده را از نو می‌سازد', () async {
+      final ctrl = make();
+      ctrl.loadSession(
+        ChatSession(
+          id: 's1',
+          title: 'ودیعه',
+          updated: 1,
+          messages: [
+            StoredMsg('صاحبخونه پول پیشمو نمیده', true),
+            StoredMsg('پاسخ قبلی', false),
+            StoredMsg('۱۵۰ میلیون', true),
+            StoredMsg('پاسخ قبلی', false),
+          ],
         ),
-        repo: TemplateRepository(),
-        history: HistoryStore(),
-        settings: AppSettings()..saveHistory = false,
       );
-
-      final future = ctrl.submit('ماده ۱۰ قانون مدنی');
-      await llm.waitUntilStarted();
-      expect(ctrl.busy, isTrue);
-
-      expect(ctrl.dispose, returnsNormally);
-      expect(llm.cancelled, isTrue);
-      await future.timeout(const Duration(seconds: 5));
+      expect(ctrl.sessionId, 's1');
+      expect(ctrl.messages.length, 4);
+      expect(ctrl.messages.every((m) => m.revealed), isTrue);
+      expect(ctrl.advocate.file.topic, 'rent');
+      expect(ctrl.advocate.file.n('amount'), 150000000);
+      ctrl.dispose();
     });
 
-    testWidgets('دکمهٔ توقف پاسخ در حین استریم نمایش داده می‌شود و کار می‌کند',
-        (tester) async {
-      final llm = _ControllableLlm();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Directionality(
-            textDirection: TextDirection.rtl,
-            child: ChatPage(
-              legacyFlow: true,
-              engine: engine,
-              assistant: Assistant(
-                engine,
-                llm: llm,
-                stallTimeout: const Duration(seconds: 2),
-              ),
-              repo: TemplateRepository(),
-              history: HistoryStore(),
-              settings: AppSettings()..saveHistory = false,
-            ),
-          ),
-        ),
-      );
+    test('لمس عنوان یک قالب، تنظیم همان سند را شروع می‌کند و انصراف به گفتگو برمی‌گردد',
+        () async {
+      final ctrl = make();
+      await ctrl.submit('دادخواست مطالبهٔ وجه');
+      expect(ctrl.isDrafting, isTrue);
+      expect(ctrl.draft?.template.id, 'demand_money');
 
-      await tester.enterText(find.byType(TextField), 'ماده ۱۰ قانون مدنی');
-      await tester.tap(find.byIcon(Icons.arrow_upward));
-      await tester.pump();
-      await tester.pump();
+      await ctrl.submit(DraftCmd.cancel);
+      expect(ctrl.isDrafting, isFalse);
 
-      expect(find.byIcon(Icons.stop_rounded), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.stop_rounded));
-      await tester.pumpAndSettle();
+      await ctrl.submit('چکم برگشت خورده');
+      expect(ctrl.isDrafting, isFalse);
+      expect(ctrl.advocate.file.topic, 'cheque');
+      ctrl.dispose();
+    });
 
-      expect(llm.cancelled, isTrue);
-      expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
-      expect(find.text('پاسخ متوقف شد.'), findsOneWidget);
+    test('«برام بنویسش» سندی را شروع می‌کند که به همان پرونده می‌خورد', () async {
+      final ctrl = make();
+      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      final ids = ctrl.advocate.draftIds;
+      expect(ids, isNotEmpty);
+      await ctrl.submit('برام بنویسش');
+      expect(ctrl.isDrafting, isTrue);
+      expect(ctrl.draft?.template.id, ids.first);
+      // پرونده با شروع سند از بین نمی‌رود.
+      expect(ctrl.advocate.file.topic, 'rent');
+      ctrl.dispose();
+    });
+
+    test('مبلغی که در گفتگو گفته شده، در فیلد مبلغ سند به ریال پیشنهاد می‌شود',
+        () async {
+      final ctrl = make();
+      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      await ctrl.submit('۱۵۰ میلیون');
+      await ctrl.submit('دادخواست مطالبهٔ وجه');
+      expect(ctrl.isDrafting, isTrue);
+      const answers = [
+        'تهران',
+        'علی رضایی',
+        'تهران، خیابان آزادی، پلاک ۱۰',
+        DraftCmd.skip,
+        'حسن احمدی',
+        'کرج، خیابان اصلی، پلاک ۵',
+      ];
+      for (final a in answers) {
+        if (ctrl.draft?.current?.id == 'amount') break;
+        await ctrl.submit(a);
+      }
+      expect(ctrl.draft?.current?.id, 'amount');
+      // ۱۵۰ میلیون تومان = ۱٬۵۰۰ میلیون ریال.
+      expect(ctrl.messages.last.chips, contains('۱۵۰۰۰۰۰۰۰۰'));
+      ctrl.dispose();
     });
   });
 }

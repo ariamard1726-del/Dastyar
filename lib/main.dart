@@ -1,19 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_page.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/core/llama_backend.dart';
-import 'package:dastyar/core/llm.dart';
-import 'package:dastyar/core/model_store.dart';
-import 'package:dastyar/domain/lawyer/llm_writer.dart';
+import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/domain/intent_net.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -110,24 +103,10 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  /// مدل زبانی اختیاری: فقط وقتی کاربر خودش نصب و روشنش کرده باشد.
-  final ModelStore _models = ModelStore();
-  late final LlamaLlm _llama = LlamaLlm(
-    store: _models,
-    enabled: () => widget.settings.useLocalLlm,
-  );
-  late final LlmBackend _llm = AdaptiveLlm(
-    candidates: [_llama],
-    isEnabled: () => widget.settings.useLocalLlm && _models.isInstalled,
-  );
-  late final Assistant _assistant = Assistant(_engine, llm: _llm);
-  late final LlmWriter _writer = LlmWriter(_llm);
   DraftSession? _initialDraft;
-  CounselingSession? _initialCounsel;
 
-  /// شبکهٔ عصبی آفلاین تشخیص نیت؛ پیش از نخستین فریم بارگذاری می‌شود تا
-  /// گفتگو از همان پیام اول هوشمند باشد (در تست‌های ویجتی تزریق‌نشده و
-  /// مسیر نمادین فعال می‌ماند).
+  /// طبقه‌بند سبک نیت (یک فایل JSON کوچک، نه مدل زبانی). وکیل فقط وقتی
+  /// از آن کمک می‌گیرد که قاعده‌های خودش موضوع پیام را نشناخته باشند.
   IntentNet? _intentNet;
   bool _ready = false;
   String? _error;
@@ -146,15 +125,12 @@ class _LoaderState extends State<Loader> {
       _repo.load().catchError((_) {}),
       _history.load().catchError((_) {}),
       IntentNet.load().then((n) => _intentNet = n),
-      _models.load().catchError((_) {}),
+      // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
+      // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
+      LegacyCleanup.run(),
     ]);
-    // اگر مدل از قبل روشن است، در پس‌زمینه بارگذاری شود تا پاسخ اول معطل نماند.
-    if (widget.settings.useLocalLlm && _models.isInstalled) {
-      unawaited(_llama.load().catchError((_) {}));
-    }
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
       _initialDraft = await DraftCheckpointStore.load(_repo.templates);
-      _initialCounsel = await CounselCheckpointStore.load();
     }
     if (!mounted) return;
     setState(() => _ready = true);
@@ -169,17 +145,12 @@ class _LoaderState extends State<Loader> {
     }
     return ChatPage(
       engine: _engine,
-      assistant: _assistant,
       repo: _repo,
       history: _history,
       settings: widget.settings,
       loadError: _error,
       initialDraft: _initialDraft,
       intentNet: _intentNet,
-      initialCounsel: _initialCounsel,
-      models: _models,
-      llama: _llama,
-      writer: _writer,
     );
   }
 }

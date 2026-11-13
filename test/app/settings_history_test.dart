@@ -103,7 +103,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('ذخیرهٔ موقت پیش‌نویس ناتمام'), findsOneWidget);
-      expect(find.text('استفاده از مدل زبانی محلی (در صورت نصب)'), findsNothing);
+      // کلید «مدل محلی» و کارت نصب مدل دیگر در تنظیمات نیست.
+      expect(find.textContaining('مدل'), findsNothing);
       await tester.tap(find.text('ذخیرهٔ موقت پیش‌نویس ناتمام'));
       await tester.pumpAndSettle();
       expect(settings.saveDraftProgress, isTrue);

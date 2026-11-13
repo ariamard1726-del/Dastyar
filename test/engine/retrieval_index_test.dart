@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
-import 'package:dastyar/domain/assistant.dart';
 
 class _CountingEngine extends KnowledgeEngine {
   int queryCalls = 0;
@@ -63,20 +62,6 @@ void main() {
       expect(unified.text, engine.answer(q));
       expect(unified.alternatives, engine.alternatives(q));
       expect(unified.contextHits, isNotEmpty);
-    });
-
-    test('askWithAlternatives فقط یک بار query را فراخوانی می‌کند و rank اضافی نمی‌زند', () async {
-      const q = 'ماده ۱۹۰ قانون مدنی';
-      final expectedAnswer = engine.answer(q);
-
-      engine.queryCalls = 0;
-      engine.rankCalls = 0;
-
-      final turns = await Assistant(engine).askWithAlternatives(q).toList();
-      expect(turns, isNotEmpty);
-      expect(turns.last.text, expectedAnswer);
-      expect(engine.queryCalls, 1);
-      expect(engine.rankCalls, 0);
     });
   });
 }

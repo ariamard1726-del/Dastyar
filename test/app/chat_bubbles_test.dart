@@ -148,7 +148,6 @@ void main() {
       String? picked;
       await tester.pumpWidget(host(SuggestionBar(
         controller: ctrl,
-        busy: false,
         isDrafting: false,
         messages: const [],
         templates: const [],
@@ -171,7 +170,6 @@ void main() {
       final bot = ChatMessage('پاسخ', false, chips: const ['گزینهٔ یک']);
       Widget bar() => host(SuggestionBar(
             controller: ctrl,
-            busy: false,
             isDrafting: false,
             messages: [bot],
             templates: const [],

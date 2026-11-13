@@ -1,11 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <!-- فقط برای دانلود اختیاری مدل زبانی، آن هم با درخواست صریح کاربر.
-         گفتگو، قوانین و تاریخچه همیشه روی گوشی می‌مانند و به جایی فرستاده نمی‌شوند. -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- موتور مدل (llama.cpp) به اندروید ۸ نیاز دارد؛ روی نسخه‌های قدیمی‌تر
-         برنامه بدون مدل کار می‌کند و گزینهٔ نصب مدل غیرفعال است. -->
-    <uses-sdk tools:overrideLibrary="com.write4me.llama_flutter_android"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- برنامه هیچ مجوزی نمی‌خواهد؛ حتی اینترنت. گفتگو، قوانین و تاریخچه
+         روی گوشی می‌مانند و برنامه راهی برای فرستادنشان به جایی ندارد. -->
     <application
         android:allowBackup="false"
         android:label="دستیار"

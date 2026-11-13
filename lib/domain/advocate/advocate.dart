@@ -9,6 +9,7 @@ import 'package:dastyar/domain/advocate/topics_extra.dart';
 import 'package:dastyar/domain/advocate/topics_more.dart';
 import 'package:dastyar/domain/advocate/topics_other.dart';
 import 'package:dastyar/domain/drafting.dart';
+import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 
@@ -20,19 +21,42 @@ class AdvocateReply {
   AdvocateReply(this.text, {this.chips = const [], this.laws = const []});
 }
 
-/// وکیل آفلاینِ بدون مدل.
+/// وکیل آفلاینِ بدون مدل زبانی.
 ///
-/// هیچ مدل زبانی یا شبکهٔ عصبی (نه آفلاین، نه آنلاین) در این مسیر نیست؛
-/// همه‌چیز قاعده و دانش صریح است:
+/// هیچ مدل زبانی (نه آفلاین، نه آنلاین) در این مسیر نیست و هیچ جمله‌ای را
+/// ماشین «تولید» نمی‌کند؛ همه‌چیز قاعده و دانش صریح است:
 ///  ۱. فهم: الگوهای منظم روی متن محاوره‌ای ([Sense]).
 ///  ۲. حافظه: پروندهٔ ماجرا با واقعیت‌هایی که کاربر گفته ([CaseFile]).
 ///  ۳. استدلال: هر واقعیت «اثر حقوقی» دارد و هر پرسش پاسخی که از روی
 ///     واقعیت‌های پرونده ساخته می‌شود ([Topic]، [Slot]، [Issue]).
 ///  ۴. استناد: هر ماده فقط وقتی نام برده می‌شود که متنش در بانک قوانین
 ///     پیدا شود (`engine.findArticle`)، و متن همان ماده نقل می‌شود.
+///
+/// تنها کمکِ بیرونی، طبقه‌بندِ سبکِ نیت ([IntentNet]، یک فایل JSON کوچک) است
+/// و آن هم فقط «نظر دوم» می‌دهد: وقتی قاعده‌ها موضوع پیام را نشناخته‌اند،
+/// اگر طبقه‌بند با اطمینان بالا یکی از موضوع‌های شناخته‌شده را بگوید، همان
+/// پرونده باز می‌شود. متن پاسخ همیشه از همین قاعده‌هاست.
 class Advocate {
-  Advocate(this.engine, {Map<String, String> draftTitles = const {}})
-      : _draftTitles = draftTitles;
+  Advocate(
+    this.engine, {
+    Map<String, String> draftTitles = const {},
+    this.intentNet,
+  }) : _draftTitles = draftTitles;
+
+  /// طبقه‌بند نیت (اختیاری). بدون آن هم وکیل کامل کار می‌کند.
+  final IntentNet? intentNet;
+
+  /// برچسب‌های طبقه‌بند که موضوعِ هم‌معنا در [topics] دارند.
+  static const Map<String, String> netTopics = {
+    'cheque': 'cheque',
+    'debt': 'debt',
+    'family': 'family',
+    'labor': 'labor',
+    'lease': 'rent',
+  };
+
+  /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
+  static const double netMin = 0.6;
 
   final KnowledgeEngine engine;
 
@@ -230,6 +254,11 @@ class Advocate {
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);
       if (soc != null) return soc;
+      final hint = _secondOpinion(raw, n);
+      if (hint != null) {
+        _loose.removeLast();
+        return _open(hint, n);
+      }
       if (_vague(n)) return _intake();
       return _lookup(raw, n);
     }
@@ -291,13 +320,47 @@ class Advocate {
     return 'به «${s.title}» هم اشاره کردید. اگر ماجرای جداگانه‌ای است، بگویید «$sideChip» تا آن را جدا بررسی کنم؛ وگرنه همین پرونده را ادامه می‌دهیم.';
   }
 
-  int _score(Topic t, String n) {
+  /// امتیاز یک موضوع برای متنِ نرمال‌شده: جمع وزن نشانه‌هایی که در متن هست.
+  static int _score(Topic t, String n) {
     if (t.anti.isNotEmpty && Sense.has(n, t.anti)) return 0;
     var s = 0;
     for (final e in t.cues.entries) {
       if (Sense.has(n, e.key)) s += e.value;
     }
     return s;
+  }
+
+  /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`. همان
+  /// قاعدهٔ بازشدن پرونده است تا پیشنهادهای هنگام نوشتن هم از همین‌جا بیاید.
+  static String? topicOf(String raw) {
+    final n = Sense.norm(raw);
+    Topic? best;
+    var bestScore = 0;
+    for (final t in topics) {
+      final s = _score(t, n);
+      if (s > bestScore) {
+        best = t;
+        bestScore = s;
+      }
+    }
+    return best != null && bestScore >= 3 ? best.id : null;
+  }
+
+  /// نظر دوم از طبقه‌بند نیت، وقتی قاعده‌ها موضوع را نشناخته‌اند.
+  Topic? _secondOpinion(String raw, String n) {
+    final net = intentNet;
+    if (net == null || _guide != null || Sense.words(n) < 3) return null;
+    if (Sense.has(n, '(?:ماده|اصل) [0-9]+')) return null;
+    final top = net.classify(raw);
+    if (top.score < netMin) return null;
+    final id = netTopics[top.label];
+    if (id == null) return null;
+    for (final t in topics) {
+      if (t.id != id) continue;
+      if (t.anti.isNotEmpty && Sense.has(n, t.anti)) return null;
+      return t;
+    }
+    return null;
   }
 
   Issue? _matchIssue(Topic t, String n) {

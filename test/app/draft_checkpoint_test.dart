@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -49,7 +48,6 @@ void main() {
 
       final ctrl1 = ChatController(
         engine: engine,
-        assistant: Assistant(engine),
         repo: repo,
         history: HistoryStore(),
         settings: settings,
@@ -70,7 +68,6 @@ void main() {
 
       final ctrl2 = ChatController(
         engine: engine,
-        assistant: Assistant(engine),
         repo: repo,
         history: HistoryStore(),
         settings: settings,

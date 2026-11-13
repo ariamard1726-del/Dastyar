@@ -16,9 +16,6 @@ class DraftCmd {
   static const String finish = 'پایان';
   static const String yes = 'بله';
   static const String no = 'خیر';
-  static const String offerYes = 'بله، آماده کن';
-  static const String offerCounsel = 'مشاورهٔ گام‌به‌گام وضعیت';
-  static const String offerNo = 'نه، فقط توضیح بده';
 }
 
 class DraftSession {
@@ -194,11 +191,6 @@ class Drafting {
   static const String chooseText = 'کدام متن را می‌خواهید تهیه کنم؟';
   static const String suggestChooseText =
       'برای وضعیتی که نوشتید این متن‌ها می‌توانند مفید باشند. کدام را آماده کنم؟';
-
-  static String offerText(LegalTemplate t) {
-    final desc = t.description.isEmpty ? '' : '\n${t.description}';
-    return 'به نظر می‌رسد «${t.title}» برای وضعیت شما مفید است.$desc\n\nمی‌خواهید همین حالا آماده‌اش کنم؟ این فقط یک پیشنهاد است و تصمیم نهایی با شماست.';
-  }
 
   static final RegExp _nonLetter = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',

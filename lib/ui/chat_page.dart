@@ -1,21 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:dastyar/core/llama_backend.dart';
-import 'package:dastyar/core/model_store.dart';
-import 'package:dastyar/domain/lawyer/llm_writer.dart';
 import 'package:dastyar/ui/about_page.dart';
 import 'package:dastyar/ui/app_drawer.dart';
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/ui/history_page.dart';
 import 'package:dastyar/domain/intent_net.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/ui/settings_page.dart';
@@ -24,42 +17,25 @@ import 'package:dastyar/ui/widgets/chat_bubbles.dart';
 
 class ChatPage extends StatefulWidget {
   final KnowledgeEngine engine;
-  final Assistant assistant;
   final TemplateRepository repo;
   final HistoryStore history;
   final AppSettings settings;
   final String? loadError;
   final DraftSession? initialDraft;
 
-  /// شبکهٔ عصبی آفلاین تشخیص نیت (اختیاری؛ در نبودِ آن مسیر نمادین فعال است).
+  /// طبقه‌بند سبک نیت (اختیاری). وکیل فقط وقتی از آن کمک می‌گیرد که
+  /// قاعده‌های خودش موضوع پیام را نشناخته باشند.
   final IntentNet? intentNet;
-
-  /// گفتگوی مشاورهٔ ناتمام بازیابی‌شده از اجرای قبلی.
-  final CounselingSession? initialCounsel;
-
-  /// مدیریت مدل اختیاری (اگر `null` باشد، بخش مدل در تنظیمات نشان داده نمی‌شود).
-  final ModelStore? models;
-  final LlamaLlm? llama;
-  final LlmWriter? writer;
-
-  /// مسیر قدیمیِ گفتگو (پیش از موتور وکیل). فقط برای تست‌های همان مسیر.
-  final bool legacyFlow;
 
   const ChatPage({
     super.key,
     required this.engine,
-    required this.assistant,
     required this.repo,
     required this.history,
     required this.settings,
-    this.models,
-    this.llama,
-    this.writer,
     this.loadError,
     this.initialDraft,
     this.intentNet,
-    this.initialCounsel,
-    this.legacyFlow = false,
   });
 
   @override
@@ -76,22 +52,13 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     _chat = ChatController(
       engine: widget.engine,
-      assistant: widget.assistant,
       repo: widget.repo,
       history: widget.history,
       settings: widget.settings,
       loadError: widget.loadError,
       initialDraft: widget.initialDraft,
       intentNet: widget.intentNet,
-      initialCounsel: widget.initialCounsel,
       onScrollRequested: _scrollDown,
-      writer: widget.writer,
-      legacyFlow: widget.legacyFlow,
-      // پاسخ‌های کوچک (سلام، همدلی، ...) با هر بار اجرای اپ از میان
-      // گزینه‌های موجود تصادفی انتخاب می‌شوند تا گفتگو یکنواخت نباشد.
-      random: Random(),
-      // نقطهٔ شروع چرخش عبارت‌ها با هر اجرا فرق می‌کند؛ درون یک اجرا قطعی است.
-      phraseSeed: DateTime.now().millisecondsSinceEpoch % 9973,
     );
   }
 
@@ -105,7 +72,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _submit([String? override]) async {
     final text = (override ?? _ctrl.text).trim();
-    if (text.isEmpty || _chat.busy) return;
+    if (text.isEmpty) return;
     _ctrl.clear();
     await _chat.submit(text);
   }
@@ -134,7 +101,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _openHistory() async {
-    if (_chat.busy) return;
     final s = await Navigator.of(context).push<ChatSession>(
       MaterialPageRoute(builder: (_) => HistoryPage(history: widget.history)),
     );
@@ -148,8 +114,6 @@ class _ChatPageState extends State<ChatPage> {
         builder: (_) => SettingsPage(
           settings: widget.settings,
           history: widget.history,
-          models: widget.models,
-          llama: widget.llama,
         ),
       ),
     );
@@ -205,7 +169,7 @@ class _ChatPageState extends State<ChatPage> {
             actions: [
               IconButton(
                 tooltip: 'گفتگوی جدید',
-                onPressed: _chat.busy ? null : _chat.newChat,
+                onPressed: _chat.newChat,
                 icon: const Icon(Icons.add_comment_outlined),
               ),
             ],
@@ -251,7 +215,6 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 SuggestionBar(
                   controller: _ctrl,
-                  busy: _chat.busy,
                   isDrafting: _chat.isDrafting,
                   messages: msgs,
                   templates: widget.repo.templates,
@@ -259,11 +222,8 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 ChatInputBar(
                   controller: _ctrl,
-                  busy: _chat.busy,
                   isDrafting: _chat.isDrafting,
-                  isCounseling: _chat.isCounseling,
                   onSend: _submit,
-                  onStop: _chat.cancelActiveAsk,
                 ),
               ],
             ),
