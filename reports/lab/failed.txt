@@ -1,2 +1,420 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/drafting/pending_offer_test.dart: تنظیم سند در ChatPage «برام بنویسش» بدون پرونده می‌پرسد کدام متن، و «نه» آن را می‌بندد (failed)
-::error::239 tests passed, 1 failed.
+00:11 +41 -19: test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟») [E]
+  Stack Overflow
+  test/advocate/advocate_test.dart 25:3    main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  .                                        ...
+  .                                        ...
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 360:15  main.<fn>
+  
+00:12 +41 -20: test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود [E]
+  Stack Overflow
+  test/advocate/advocate_test.dart 25:3    main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  .                                        ...
+  .                                        ...
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 396:17  main.<fn>
+  
+NEAR brain/eval/eval.txt n=30 exact@1 0.93 near@1 0.97 law@1 1.00 near@5 1.00
+00:12 +42 -21: test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند [E]
+  Stack Overflow
+  test/advocate/advocate_test.dart 25:3    main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  .                                        ...
+  .                                        ...
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 26:15   main.say
+  test/advocate/advocate_test.dart 38:31   main.talk
+  test/advocate/advocate_test.dart 428:15  main.<fn>
+  
+NEAR brain/eval/eval_v2.txt n=49 exact@1 0.47 near@1 0.57 law@1 0.82 near@5 0.90
+NEAR brain/eval/eval_v3.txt n=20 exact@1 0.25 near@1 0.35 law@1 0.75 near@5 0.55
+NEAR brain/eval/eval_v4.txt n=18 exact@1 0.39 near@1 0.39 law@1 0.83 near@5 0.67
+00:12 +42 -22: test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد [E]
+  Stack Overflow
+  test/advocate/advocate_test.dart 25:3   main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  .                                       ...
+  .                                       ...
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 38:31  main.talk
+  test/advocate/advocate_test.dart 460:5  main.<fn>
+  
+NEAR brain/eval/eval_extra.txt n=30 exact@1 0.77 near@1 0.83 law@1 0.97 near@5 0.97
+00:13 +46 -23: test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید [E]
+  Stack Overflow
+  test/advocate/advocate_test.dart 25:3   main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  .                                       ...
+  .                                       ...
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 26:15  main.say
+  test/advocate/advocate_test.dart 38:31  main.talk
+  test/advocate/advocate_test.dart 560:7  main.<fn>.<fn>
+  
+NEAR brain/eval/eval_blind.txt n=31 exact@1 0.58 near@1 0.71 law@1 0.90 near@5 0.94
+NEAR TOTAL n=178 exact@1 0.58 near@1 0.66 law@1 0.88 near@5 0.87
+NEAR far | brain/eval/eval_v2.txt | چه کسانی محجور حساب می‌شوند | want civil ماده 1207 | got civil_procedure ماده 337
+NEAR far | brain/eval/eval_v2.txt | مالک تا چه حد در مال خودش حق تصرف دارد | want civil ماده 30 | got civil_procedure ماده 171
+NEAR far | brain/eval/eval_v2.txt | زن و شوهر باید چطور با هم رفتار کنند | want civil ماده 1103 | got civil ماده 1221
+NEAR far | brain/eval/eval_v2.txt | بدهکارهای زندانی را باید جدا از مجرمان نگه دارند | want financial_sentences ماده 5 | got criminal_procedure ماده 46
+NEAR far | brain/eval/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got criminal_procedure ماده 151
+NEAR far | brain/eval/eval_v3.txt | ازدواج موقت کی منقطع حساب میشه | want civil ماده 1075 | got family_protection ماده 21
+NEAR far | brain/eval/eval_v3.txt | ولی قهری بچه کیه | want civil ماده 1180 | got civil ماده 1184
+NEAR far | brain/eval/eval_v3.txt | قیم می‌تونه ملک بچه رو بفروشه | want civil ماده 1241 | got constitution اصل 50
+NEAR far | brain/eval/eval_v3.txt | بعد از مرگ حق فسخ به وارث می‌رسه | want civil ماده 445 | got civil ماده 888
+NEAR far | brain/eval/eval_v3.txt | تو اجاره اگه مدت معلوم نشه چی میشه | want civil ماده 468 | got civil ماده 508
+NEAR far | brain/eval/eval_v3.txt | حواله با رضایت کدوم طرف‌ها درست میشه | want civil ماده 725 | got cybercrime ماده 50
+NEAR far | brain/eval/eval_v3.txt | ارث بر چه اساسی تعلق می‌گیره | want civil ماده 861 | got civil ماده 866
+NEAR far | brain/eval/eval_v3.txt | زن و شوهر از هم ارث می‌برن | want civil ماده 940 | got civil ماده 949
+NEAR far | brain/eval/eval_v3.txt | آیا آدم می‌تونه آزادی خودشو از بین ببره | want civil ماده 960 | got criminal_procedure ماده 558
+NEAR far | brain/eval/eval_v4.txt | ضامن یکی شدم و خودم بدهیش رو دادم می‌تونم از خودش پس بگیرم | want civil ماده 709 | got criminal_procedure ماده 199
+NEAR far | brain/eval/eval_v4.txt | وصیت کرده بیشتر اموالش رو به یک نفر بدن اگه ورثه قبول نکنن چی میشه | want civil ماده 843 | got civil ماده 849
+NEAR far | brain/eval/eval_v4.txt | چکم گم شده یا دزدیده شده چطور جلوی پرداختش رو بگیرم | want cheque ماده 14 | got constitution اصل 50
+NEAR far | brain/eval/eval_v4.txt | اگه برای تحویل جنس و پرداخت پول زمان نذاشته باشیم چی میشه | want civil ماده 344 | got civil ماده 296
+NEAR far | brain/eval/eval_v4.txt | قرارداد رو می‌شه یک‌طرفه به هم زد | want civil ماده 219 | got constitution اصل 50
+NEAR far | brain/eval/eval_v4.txt | چه کسانی از مرده ارث می‌برن | want civil ماده 862 | got civil ماده 866
+NEAR far | brain/eval/eval_extra.txt | اگر کسی را به زور مجبور به معامله کنند معامله معتبر است | want civil ماده 199 | got civil ماده 203
+NEAR far | brain/eval/eval_blind.txt | بدهکار می‌تواند مالی را که دادگاه از تصرفش منع کرده بپردازد | want civil ماده 276 | got civil_procedure ماده 124
+NEAR far | brain/eval/eval_blind.txt | اداره اموال صغیر و مجنون با کیست | want civil ماده 1217 | got civil ماده 1184
+EXTRA rank 19 | وصیت چند نوع است
+EXTRA rank 1 | هبه یعنی چه و چه تعریفی دارد
+EXTRA rank 1 | کسی که چیزی را می‌بخشد باید مالک آن باشد
+EXTRA rank 1 | غصب یعنی چه
+EXTRA rank 2 | چه چیزهایی باعث ضمان قهری می‌شود
+EXTRA rank 6 | اگر کسی را به زور مجبور به معامله کنند معامله معتبر است
+EXTRA rank 1 | اکراه به چه کارهایی گفته می‌شود
+EXTRA rank 1 | وقف یعنی چه
+EXTRA rank 1 | قرض چیست و چه عقدی است
+EXTRA rank 1 | اگر ساختمان و درخت بدون زمین فروخته شود حق شفعه دارد
+EXTRA rank 1 | اقرار شخص ورشکسته نسبت به اموال خودش
+EXTRA rank 1 | خسارت تأخیر پرداخت وجه نقد را چه کسی تعیین می‌کند
+EXTRA rank 1 | دفاتر تجاری علیه صاحبش سند است
+EXTRA rank 2 | خیار عیب چه وقت برای خریدار ثابت می‌شود
+EXTRA rank 1 | تا مهریه تسلیم نشده زن می‌تواند وظایفش را انجام ندهد
+EXTRA rank 1 | وعده ازدواج رابطه زوجیت ایجاد می‌کند
+EXTRA rank 1 | اموال به چند دسته تقسیم می‌شوند
+EXTRA rank 1 | مدیرعامل شرکت سهامی نمایندهٔ شرکت است
+EXTRA rank 1 | هیئت مدیره چه کسی را به مدیریت عامل انتخاب می‌کند
+EXTRA rank 2 | برات باید چه شرایطی داشته باشد
+EXTRA rank 1 | ضمان را چه کسی می‌تواند فسخ کند
+EXTRA rank 1 | اگر محال علیه ندار باشد حواله را می‌شود فسخ کرد
+EXTRA rank 1 | دارنده چک برای گرفتن اجرائیه به کجا مراجعه کند
+EXTRA rank 1 | صادرکننده چک باید در بانک پول داشته باشد
+EXTRA rank 1 | اگر شاکی چک گذشت کند چه می‌شود
+EXTRA rank 1 | چک را به نمایندگی از صاحب حساب امضا کرده‌اند
+EXTRA rank 4 | راه‌های به دست آوردن مالکیت چیست
+EXTRA rank 1 | شرط کنند که طرف معامله رهن یا ضامن بدهد
+EXTRA rank 5 | مال محجور اگر ودیعه باشد
+EXTRA rank 1 | وکیل باید مصلحت موکل را رعایت کند
+EXTRA recall@1 0.77 recall@5 0.93 MRR 0.839
+EVAL rank 1 | معسر کیست
+EVAL rank 1 | مستثنیات دین شامل چه چیزهایی است
+EVAL rank 1 | ممنوع‌الخروج شدن محکوم علیه
+EVAL rank 1 | آیا شرکت می‌تواند دادخواست اعسار بدهد
+EVAL rank 1 | انتقال مال برای فرار از پرداخت دین
+EVAL rank 1 | حبس کسی که محکومیت مالی را نمی‌پردازد
+EVAL rank 1 | تقسیط بدهی و مهلت پرداخت
+EVAL rank 3 | شاهد در دعوای اعسار چه باید بگوید
+EVAL rank 1 | دعوای اعسار در کدام دادگاه اقامه می‌شود
+EVAL rank 1 | دعوای اعسار غیرمالی است و خارج از نوبت رسیدگی می‌شود
+EVAL rank 1 | آیین‌نامه اجرایی ظرف چند ماه تهیه می‌شود
+EVAL rank 1 | اگر دعوای اعسار رد شود خسارت خوانده
+EVAL rank 1 | قرارداد خصوصی اگر خلاف صریح قانون نباشد نافذ است
+EVAL rank 1 | لازم نیست جهت معامله در قرارداد نوشته شود
+EVAL rank 1 | قسم خوردن وقتی دعوا با اقرار یا شهادت ثابت نشده
+EVAL rank 1 | چک بی‌محل چه مجازاتی دارد
+EVAL rank 1 | چک برگشتی چه مجازاتی دارد
+EVAL rank 1 | مهلت شکایت کیفری چک چقدر است
+EVAL rank 1 | چک سفید امضا قابل تعقیب کیفری نیست
+EVAL rank 1 | چکی که برای تضمین معامله داده شده
+EVAL rank 1 | چک گم شده یا سرقت شده و دستور عدم پرداخت
+EVAL rank 1 | دارنده چک چطور اجرائیه بگیرد
+EVAL rank 1 | چک در حکم سند لازم‌الاجرا است
+EVAL rank 1 | گواهی عدم پرداخت بانک و کد رهگیری
+EVAL rank 1 | صدور چک با علم به بسته بودن حساب
+EVAL rank 1 | رسیدگی به شکایت چک فوری و خارج از نوبت است
+EVAL rank 1 | گذشت شاکی و موقوفی تعقیب چک
+EVAL rank 1 | مسئولیت مدنی پشت‌نویس چک
+EVAL rank 1 | چک را با وکالت از صاحب حساب صادر کرده‌اند
+EVAL rank 2 | بسته شدن حساب جاری بعد از چک بی‌محل
+EVAL retrieval recall@1 0.93 recall@5 1.00 MRR 0.961
+EVAL intent accuracy 1.00 (61/61)
+ALT chips checked: 12
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
+
+00:33 +225 -23: Some tests failed.
+
+Failing tests:
+  test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
+  test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
+  test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
+  test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
+  ... and 19 more
