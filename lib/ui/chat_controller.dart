@@ -93,6 +93,16 @@ class ChatController extends ChangeNotifier {
       return;
     }
     if (_draftRequest(text)) return;
+    // «بله» به پیشنهادِ «می‌خواهید فلان متن را برایتان بنویسم؟».
+    final offered = advocate.offeredDraft;
+    if (offered != null && Drafting.isYes(text)) {
+      final t = _templateFor(offered);
+      if (t != null) {
+        advocate.clearOffer();
+        _startDraft(text, t);
+        return;
+      }
+    }
     final r = advocate.respond(text);
     messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));

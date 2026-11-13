@@ -21,6 +21,13 @@ class AdvocateReply {
   AdvocateReply(this.text, {this.chips = const [], this.laws = const []});
 }
 
+/// یک پرسشِ وکیل و گزینه‌های جوابش.
+class _Ask {
+  final String text;
+  final List<String> chips;
+  const _Ask(this.text, this.chips);
+}
+
 /// وکیل آفلاینِ بدون مدل زبانی.
 ///
 /// هیچ مدل زبانی (نه آفلاین، نه آنلاین) در این مسیر نیست و هیچ جمله‌ای را
@@ -68,8 +75,6 @@ class Advocate {
   /// استنادهایی که متنشان در بانک پیدا نشد (برای آزمون؛ باید خالی بماند).
   final List<String> unresolved = [];
 
-  final Set<String> _quoted = {};
-
   /// واقعیت‌هایی که کاربر در همین پیام دوباره گفت (بدون تغییر مقدار).
   final List<Slot> _echo = [];
 
@@ -92,6 +97,68 @@ class Advocate {
   /// جدایی باشد؛ به‌جای پریدنِ خودسرانه از کاربر می‌پرسم.
   Topic? _side;
   String _sideText = '';
+
+  /// بخشی از پاسخ قبلی که برای کوتاه‌ماندنِ حرف، نگفته مانده است.
+  String _rest = '';
+
+  /// آیا در پاسخ قبلی پرسیده‌ام «ادامه‌اش را هم بگویم؟»
+  bool _offeredMore = false;
+
+  /// پیشنهادی که در پاسخ قبلی به شکل پرسش داده‌ام: `argue`، `next` یا
+  /// `draft` (خالی = هیچ).
+  String _offer = '';
+  String _offerDraft = '';
+
+  /// آخرین پرسشی که از کاربر کرده‌ام و گزینه‌های جوابش.
+  String _askText = '';
+  List<String> _askChips = const [];
+
+  /// پاسخ بعدی توضیحی است که خودِ کاربر خواسته (استدلال، نقشهٔ راه) و جای
+  /// بیشتری می‌گیرد.
+  bool _roomy = false;
+
+  /// آیا پرسشِ پایانِ راهنما هنوز بی‌جواب است؟
+  bool _guideAsked = false;
+
+  /// همهٔ حرف‌های کاربر در پروندهٔ جاری (برای پیشنهادهای متناسب).
+  String _heard = '';
+
+  /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
+  List<LawText> _lastLaws = const [];
+
+  /// سقف طول متنِ هر پاسخ (بدون پرسشِ پایانی)؛ بقیه با «ادامه بده» می‌آید.
+  static const int _budget = 380;
+  static const int _roomyBudget = 760;
+
+  static const String moreChip = 'ادامه بده';
+  static const String lawChip = 'متن قانون را ببینم';
+  static const List<String> _yesNo = ['بله، بگو', 'نه، لازم نیست'];
+  static const List<String> _replyChips = [
+    'انکار می‌کند',
+    'امروز و فردا می‌کند',
+    'جواب نمی‌دهد',
+    'هنوز چیزی نگفته‌ام',
+  ];
+  static const List<String> _goalChips = ['توافق و سازش', 'مسیر قانونی تا آخر'];
+
+  /// موضوع‌هایی که طرف مقابلِ مشخصی دارند و «او چه می‌گوید؟» معنا دارد.
+  static const Set<String> _adversarial = {
+    'rent', 'cheque', 'debt', 'labor', 'family', 'partner', 'neighbor',
+    'consumer', 'guarantee', 'property', 'inherit', 'child',
+  };
+
+  /// آیا از پاسخ قبلی چیزی نگفته مانده است؟
+  bool get hasMore => _rest.isNotEmpty;
+
+  /// قالبی که در پاسخ قبلی پیشنهاد نوشتنش را داده‌ام (یا `null`).
+  String? get offeredDraft =>
+      _offer == 'draft' && _offerDraft.isNotEmpty ? _offerDraft : null;
+
+  /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
+  void clearOffer() {
+    _offer = '';
+    _offerDraft = '';
+  }
 
   /// نشانه‌های اینکه کاربر خودش دارد موضوع را عوض می‌کند.
   static const String _newMatter =
@@ -166,7 +233,6 @@ class Advocate {
     _closeCase();
     file.turns = 0;
     file.disclaimed = false;
-    _quoted.clear();
     _said.clear();
     _loose.clear();
     unresolved.clear();
@@ -174,6 +240,9 @@ class Advocate {
     _side = null;
     _sideText = '';
     _vary = 0;
+    _rest = '';
+    _offeredMore = false;
+    _lastLaws = const [];
   }
 
   /// بازسازی حافظه از پیام‌های قبلی کاربر (هنگام بازکردن گفتگوی ذخیره‌شده).
@@ -200,9 +269,51 @@ class Advocate {
       _closeCase();
       _loose.clear();
       return _out(
-        'باشد، آن موضوع را کنار می‌گذارم. ماجرای تازه را تعریف کنید؛ از هر جا که راحت‌ترید شروع کنید.',
-        chips: starterChips,
+        'باشد، آن موضوع را کنار می‌گذارم.',
+        ask: 'ماجرای تازه چیست؟ از هر جا که راحت‌ترید شروع کنید.',
       );
+    }
+    final short = Sense.words(n) <= 4;
+    // ادامهٔ حرفِ قبلی، وقتی کاربر خودش بخواهد.
+    final rest = _rest;
+    if (rest.isNotEmpty &&
+        (raw.trim() == moreChip ||
+            (short &&
+                Sense.has(n,
+                    'ادامه|بقیه|بیشتر (?:بگو|توضیح|باز)|کامل(?:ش|ترش)? (?:بگو|کن)')) ||
+            (_offeredMore && short && Sense.saysYes(n)))) {
+      var ask = _askText;
+      var chips = _askChips;
+      final t0 = _current();
+      if (ask.isEmpty && t0 != null && _cut(rest, _budget)[1].isEmpty) {
+        final a = _nextAsk(t0);
+        _askText = ask = a.text;
+        _askChips = chips = a.chips;
+      }
+      return _out(rest, ask: ask, chips: chips);
+    }
+    if (_offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
+      final t0 = _current();
+      if (t0 != null) return _finish(t0, [_pick(Say.fine)]);
+      return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
+    }
+    // جواب به پیشنهادی که به شکل پرسش داده بودم.
+    if (_offer.isNotEmpty && short) {
+      final t0 = _current();
+      final offer = _offer;
+      if (t0 != null &&
+          (Sense.saysYes(n) || Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا) '))) {
+        clearOffer();
+        if (offer == 'draft') {
+          return _out(
+              'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
+        }
+        return respond(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
+      }
+      if (t0 != null && Sense.saysNo(n)) {
+        clearOffer();
+        return _finish(t0, [_pick(Say.fine)]);
+      }
     }
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = _side;
@@ -243,6 +354,24 @@ class Advocate {
       }
       _loose.add(n);
       if (_loose.length > 3) _loose.removeAt(0);
+      // دو سه پیامِ کوتاهِ پشت‌سرهم با هم یک ماجرا هستند: اگر روی‌هم موضوع
+      // را روشن کنند، همان پرونده باز می‌شود.
+      if (_loose.length > 1 && bestScore >= 1) {
+        final joined = _loose.join(' ');
+        Topic? jb;
+        var js = 0;
+        for (final t in topics) {
+          final sc = _score(t, joined);
+          if (sc > js) {
+            jb = t;
+            js = sc;
+          }
+        }
+        if (jb != null && js >= 3 && (scores[jb.id] ?? 0) >= 1) {
+          _loose.removeLast();
+          return _open(jb, n);
+        }
+      }
       final g = _glossary(n);
       if (g != null) return _out(g, chips: _idleChips());
       final guide = _guide;
@@ -317,7 +446,7 @@ class Advocate {
   String _sideNote() {
     final s = _side;
     if (s == null) return '';
-    return 'به «${s.title}» هم اشاره کردید. اگر ماجرای جداگانه‌ای است، بگویید «$sideChip» تا آن را جدا بررسی کنم؛ وگرنه همین پرونده را ادامه می‌دهیم.';
+    return 'به «${s.title}» هم اشاره کردید. این ماجرای جداگانه‌ای است، یا به همین پرونده مربوط می‌شود؟';
   }
 
   /// امتیاز یک موضوع برای متنِ نرمال‌شده: جمع وزن نشانه‌هایی که در متن هست.
@@ -385,6 +514,11 @@ class Advocate {
     _lastBody = '';
     _deferred = '';
     _arguedOn = '';
+    _heard = '';
+    _askText = '';
+    _askChips = const [];
+    _guideAsked = false;
+    clearOffer();
   }
 
   /// واقعیت‌های تازهٔ پیام را در پرونده می‌نشاند و فهرست تغییرها را می‌دهد.
@@ -454,6 +588,7 @@ class Advocate {
       _absorb(t, old, live: false);
     }
     final news = _absorb(t, n);
+    _heard = '${earlier.join(' ')} $n';
     final parts = <String>[];
     // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
     // همان‌جا می‌تواند اصلاحم کند.
@@ -462,20 +597,23 @@ class Advocate {
       parts.add('${_pick(Say.understood)} ${_join(got)}.');
     }
     final open = t.opening(file);
-    if (open.isNotEmpty) parts.add(open);
     final issue = _matchIssue(t, n);
+    var answered = false;
     if (issue != null) {
       if (_roleUnknown(t)) {
         _deferred = issue.id;
       } else {
+        // کاربر پرسش مشخصی دارد: اول جواب همان را می‌دهم، نه مقدمهٔ کلی.
         final b = issue.body(file);
-        if (!parts.contains(b)) parts.add(b);
+        parts.add(b);
         file.covered.add(issue.id);
         _said.add(b);
         _lastBody = b;
+        answered = true;
       }
     }
-    _addEffects(parts, news, issue == null ? 3 : 2,
+    if (!answered && open.isNotEmpty) parts.add(open);
+    _addEffects(parts, news, 1,
         skip: _deferred.isEmpty && issue != null ? issue.covers : const {});
     _noteAmount(parts, news, n);
     if (_lastBody.isEmpty) {
@@ -534,7 +672,9 @@ class Advocate {
   }
 
   AdvocateReply _inCase(Topic t, String raw, String n, Issue? issue) {
+    final wasPending = file.pending;
     final news = _absorb(t, n);
+    _heard = '$_heard $n';
     final parts = <String>[];
     var understood = news.isNotEmpty || file.touched(file.pending);
     var asked = issue;
@@ -576,6 +716,7 @@ class Advocate {
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
         if (arg != null) {
           parts.add(arg);
+          _roomy = true;
           _arguedOn = _factsKey();
           file.covered.add('f:argue');
           file.covered.add('f:chance');
@@ -585,12 +726,23 @@ class Advocate {
         } else if (fb != null) {
           final b = fb(file);
           parts.add(b);
+          _roomy = kind == 'next';
           file.covered.add('f:$kind');
           _said.add(b);
           _lastBody = b;
           understood = true;
         }
       }
+    }
+    // جوابِ پرسشِ بازِ خودم (طرف چه گفته؟ دنبال چه هستید؟) را بی‌واکنش
+    // نمی‌گذارم.
+    if (wasPending.startsWith('q:') && parts.isEmpty) {
+      if (news.isEmpty) {
+        final soc = _social(n, t);
+        if (soc != null) return soc;
+      }
+      parts.add(_react(wasPending, n));
+      understood = true;
     }
     _addEffects(parts, news, 2,
         skip: asked == null || onlyFact ? const {} : asked.covers);
@@ -615,22 +767,17 @@ class Advocate {
       if (ask.isEmpty && Sense.has(n, 'ماده [0-9]+|قانون ')) {
         return _lookup(raw, n);
       }
-      parts.add(ask.isEmpty ? _pick(Say.lost) : ask);
       file.pending = '';
+      clearOffer();
+      _askText = '';
+      _askChips = const [];
       return _out(
         parts.join('\n\n'),
+        ask: ask.isEmpty ? _pick(Say.lost) : ask,
         chips: [if (ask.isNotEmpty) sideChip, ..._suggest(t)],
       );
     }
-    if (parts.isEmpty) {
-      // اگر همین حالا جمع‌بندی می‌آید، «کدام بخش مهم‌تر است؟» زیادی است.
-      final closing = file.pending.isNotEmpty &&
-          t.follow['next'] != null &&
-          !file.covered.contains('f:next');
-      parts.add(_nextSlot(t) == null && !closing
-          ? 'بسیار خوب. بگویید کدام بخش برایتان مهم‌تر است تا از همان شروع کنم؛ یا یکی از گزینه‌های زیر را انتخاب کنید.'
-          : _pick(const ['بسیار خوب.', 'متوجه شدم.', 'خیلی خوب، یادداشت کردم.']));
-    }
+    if (parts.isEmpty) parts.add(_pick(Say.fine));
     // اگر حرف کاربر را در همین پرونده فهمیده‌ام، فقط برای پیام‌های بلند
     // می‌پرسم که آیا ماجرای جدایی هم هست؛ وگرنه مزاحم گفتگو می‌شود.
     final note = _sideNote();
@@ -665,63 +812,115 @@ class Advocate {
     return null;
   }
 
-  AdvocateReply _finish(Topic t, List<String> parts, {String lead = ''}) {
-    final chips = <String>[];
-    var body = parts.join('\n\n');
-    if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
+  /// پرسش بعدیِ من در این پرونده. اول واقعیت‌هایی که تحلیل به آن‌ها بسته
+  /// است؛ بعد کنجکاوی دربارهٔ برخورد طرف مقابل و خواستهٔ خودِ کاربر؛ و در
+  /// آخر پیشنهادِ تحلیل، نقشهٔ راه و نوشتن متن — هر کدام به شکل یک پرسش، تا
+  /// تصمیمش با کاربر باشد.
+  _Ask _nextAsk(Topic t) {
+    clearOffer();
     final q = _nextSlot(t);
-    final plan = t.follow['next'];
-    final planText = q == null && plan != null ? plan(file) : '';
-    final planSaid = planText.isNotEmpty &&
-        (_said.any((x) => x.contains(planText)) ||
-            parts.any((x) => x.contains(planText)));
-    _said.addAll(parts);
     if (q != null) {
       final c = file.askCount[q.id] ?? 0;
       file.askCount[q.id] = c + 1;
       file.pending = q.id;
-      final intro = _pick(c == 0 ? Say.ask : Say.askAgain);
-      body = '$body\n\n$intro ${q.ask}';
-      chips.addAll(q.options);
-      if (chips.length <= 2) {
-        final extra = _suggest(t);
-        chips.addAll(extra.take(q.options.isEmpty ? 2 : 1));
+      return _Ask(c == 0 ? q.ask : '${_pick(Say.askAgain)} ${q.ask}', q.options);
+    }
+    file.pending = '';
+    if (_adversarial.contains(t.id) && file.covered.add('q:reply')) {
+      file.pending = 'q:reply';
+      return _Ask(_pick(Say.askReply), _replyChips);
+    }
+    if (file.covered.add('q:goal')) {
+      file.pending = 'q:goal';
+      return _Ask(_pick(Say.askGoal), _goalChips);
+    }
+    final claim = _claim(t);
+    if (claim != null &&
+        claim.elements.isNotEmpty &&
+        !file.covered.contains('f:argue') &&
+        file.covered.add('o:argue')) {
+      _offer = 'argue';
+      return const _Ask(
+          'می‌خواهید بگویم از نظر قانون دست شما چقدر پر است؟', _yesNo);
+    }
+    if (t.follow['next'] != null &&
+        !file.covered.contains('f:next') &&
+        file.covered.add('o:next')) {
+      _offer = 'next';
+      return const _Ask('قدم‌های عملی را به ترتیب بگویم؟', _yesNo);
+    }
+    if (!file.covered.contains('o:draft')) {
+      for (final id in draftIds) {
+        final title = _draftTitles[id];
+        if (title == null) continue;
+        file.covered.add('o:draft');
+        _offer = 'draft';
+        _offerDraft = id;
+        return _Ask('می‌خواهید «$title» را با همین اطلاعات برایتان بنویسم؟',
+            const ['بله، بنویس', 'نه، لازم نیست']);
       }
-    } else {
-      // پرسش‌هایم تمام شد: مثل هر وکیلی، جمع‌بندی و نقشهٔ راه می‌دهم.
-      if (file.pending.isNotEmpty && body.length < 1200) {
-        var opened = false;
-        final arg = file.covered.contains('f:argue') ? null : _argue(t);
-        if (arg != null) {
-          body = '$body\n\n${_pick(Say.wrap)} $arg';
-          _arguedOn = _factsKey();
-          file.covered.add('f:argue');
-          _said.add(arg);
-          _lastBody = arg;
-          opened = true;
-        }
-        if (planText.isNotEmpty && !file.covered.contains('f:next')) {
-          if (planSaid) {
-            body = opened
-                ? '$body\n\n${_pick(Say.planSaid)}'
-                : '$body\n\n${_pick(Say.wrap)} ${_pick(Say.planSaid)}';
-          } else if (body.length < 900) {
-            body = opened
-                ? '$body\n\n$planText'
-                : '$body\n\n${_pick(Say.wrap)} $planText';
-            file.covered.add('f:next');
-            _said.add(planText);
-            _lastBody = planText;
-          } else {
-            body = '$body\n\n${_pick(Say.offerPlan)}';
-          }
-        }
+    }
+    return const _Ask('', []);
+  }
+
+  /// واکنش به جوابِ پرسش‌های باز.
+  String _react(String id, String n) {
+    if (id == 'q:reply') {
+      if (Sense.has(n,
+          'جواب ن|تلفن|بلاک|غیب|گم و گور|در دسترس|پیداش|خاموش|فرار|رفته')) {
+        return 'پس عملاً در دسترس نیست. نگران این نباشید؛ ابلاغ رسمی برای همین وقت‌هاست و غیبت او جلوی کار شما را نمی‌گیرد.';
       }
-      file.pending = '';
+      if (Sense.has(n,
+          'انکار|قبول ن|زیر بار|حاشا|گردن ن|نمیدم|نمیده |نمیدهد|دروغ|منکر')) {
+        return 'پس زیر بار نمی‌رود؛ یعنی با حرف حل نمی‌شود و همه‌چیز به مدرک شما برمی‌گردد.';
+      }
+      if (Sense.has(n,
+          'امروز و فردا|امروز فردا|قول|میدم|میده |میدهد|صبر|وقت بده|مهلت|ندارم|نداره|دستم خالی|وضعم')) {
+        return 'پس اصل حرف شما را رد نمی‌کند و فقط عقب می‌اندازد. این به نفع شماست: هر پیام یا قولی که داده نگه دارید، چون نشان می‌دهد خودش هم حق شما را قبول دارد.';
+      }
+      if (Sense.has(n, 'تهدید|فحش|فحاشی|دعوا|داد و بیداد|کتک|توهین')) {
+        return 'این برخورد را جدی بگیرید و هر پیام یا صدایی که دارید نگه دارید؛ خودش می‌تواند موضوع شکایت جداگانه باشد.';
+      }
+      if (Sense.has(n,
+          'هیچی|چیزی نگفت|حرف نزد|نگفتم|نگفته ام|هنوز ن|خبر نداره|نپرسیدم')) {
+        return 'پس هنوز رسماً از او نخواسته‌اید. معمولاً قدم اول همین است که خواسته‌تان را طوری به او برسانید که بعداً قابل اثبات باشد.';
+      }
+      return 'خوب شد گفتید؛ این را کنار بقیهٔ ماجرا یادداشت کردم.';
+    }
+    if (Sense.has(n,
+        'توافق|سازش|صلح|دوستانه|مسالمت|کنار بیا|زود|بی دردسر|آبرو|کدخدامنشی')) {
+      return 'پس اول راهِ توافق را امتحان می‌کنیم: خواسته‌تان را رسمی ولی محترمانه اعلام می‌کنید و مهلت می‌دهید. اگر جواب نداد، مسیر قانونی سر جایش است.';
+    }
+    if (Sense.has(n,
+        'قانونی|شکایت|دادگاه|تا آخر|تا اخر|تا ته|حقمو|حقم|کوتاه نمیام|محکوم')) {
+      return 'پس مسیر رسمی را می‌رویم؛ از همین حالا باید مدرک‌ها را مرتب کنیم.';
+    }
+    return 'متوجه شدم؛ همین را هدف می‌گیرم.';
+  }
+
+  AdvocateReply _finish(Topic t, List<String> parts, {String lead = ''}) {
+    var body = parts.join('\n\n');
+    if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
+    _said.addAll(parts);
+    final a = _nextAsk(t);
+    _askText = a.text;
+    _askChips = a.chips;
+    final chips = <String>[...a.chips];
+    if (a.text.isEmpty) {
+      // دیگر پرسشی ندارم؛ در را باز می‌گذارم.
+      if (parts.length <= 1 && body.length < 40) {
+        body =
+            '$body هر وقت سؤال دیگری داشتید یا اتفاق تازه‌ای افتاد، همین‌جا بگویید.';
+      }
       chips.addAll(_suggest(t));
+    } else if (chips.isEmpty) {
+      chips.addAll(_suggest(t).take(2));
     }
     if (_side != null) chips.insert(0, sideChip);
-    return _out(body, chips: chips);
+    final roomy = _roomy;
+    _roomy = false;
+    return _out(body,
+        chips: chips, ask: a.text, budget: roomy ? _roomyBudget : _budget);
   }
 
   /// برداشت وکیل از واقعیت‌هایی که تا اینجا شنیده است.
@@ -814,23 +1013,39 @@ class Advocate {
     return sb.toString();
   }
 
+  /// پیشنهادهای متناسب با همین گفتگو: پرسش‌هایی که به حرف‌های خودِ کاربر
+  /// نزدیک‌ترند جلوتر می‌آیند، و «نوشتن متن» فقط وقتی که پرونده پخته شده یا
+  /// خودش حرفِ شکایت و دادخواست را زده باشد.
   List<String> _suggest(Topic t) {
-    final out = <String>[];
+    final cand = <Issue>[];
     for (final i in t.issues) {
-      if (out.length >= 2) break;
       if (file.covered.contains(i.id)) continue;
       final w = i.when;
       if (w != null && !w(file)) continue;
-      out.add(i.chip);
+      cand.add(i);
     }
+    final near = <String, int>{};
+    for (var k = 0; k < cand.length; k++) {
+      final i = cand[k];
+      var sc = Sense.has(_heard, i.cues) ? 3 : 0;
+      for (final w in Sense.norm(i.chip).split(' ')) {
+        if (w.length >= 4 && _heard.contains(w)) sc++;
+      }
+      // در تساوی، ترتیبِ خودِ موضوع حفظ می‌شود.
+      near[i.id] = sc * 100 - k;
+    }
+    cand.sort((a, b) => (near[b.id] ?? 0).compareTo(near[a.id] ?? 0));
+    final out = <String>[for (final i in cand.take(2)) i.chip];
     for (final e in _followChips.entries) {
       if (out.length >= 3) break;
       if (file.covered.contains('f:${e.key}')) continue;
       if (!t.follow.containsKey(e.key)) continue;
       out.add(e.value);
     }
+    final ripe = _nextSlot(t) == null ||
+        Sense.has(_heard, 'شکایت|دادخواست|اظهارنامه|لایحه|شکوائیه|بنویس');
     final d = t.drafts;
-    if (d != null) {
+    if (d != null && ripe) {
       for (final id in d(file)) {
         final title = _draftTitles[id];
         if (title != null) {
@@ -845,9 +1060,12 @@ class Advocate {
   /// دکمه‌های پیشنهادی برای وضعیت فعلی گفتگو.
   List<String> get idleChips => _idleChips();
 
+  /// بیرون از پرونده، نمونه‌های آماده فقط پیش از آن‌که کاربر ماجرایی گفته
+  /// باشد نشان داده می‌شود؛ بعد از آن ربطی به حرف او ندارد.
   List<String> _idleChips() {
     final t = _current();
-    return t == null ? starterChips : _suggest(t);
+    if (t != null) return _suggest(t);
+    return _loose.length <= 1 && _guide == null ? starterChips : const [];
   }
 
   // ------------------------------------------------------ گفت‌وگوی انسانی
@@ -858,24 +1076,35 @@ class Advocate {
         Sense.has(n,
             'تو وکیلی|شما وکیل|وکیل هستی|وکیلی ؟|کی هستی|چی هستی|رباتی|ربات هستی|هوش مصنوعی|آدم واقعی|ادم واقعی|آدمی یا|اسمت چیه')) {
       return _out(
-        'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که کاملاً روی همین گوشی و بدون اینترنت کار می‌کند؛ به هیچ سرور یا مدل هوش مصنوعی‌ای هم وصل نیستم و حرف‌هایتان جایی نمی‌رود.\n'
-        'کاری که از من برمی‌آید این است که مثل یک وکیل با شما حرف بزنم: ماجرا را بشنوم، سؤال‌های لازم را بپرسم، بر پایهٔ متن قوانینی که در حافظه دارم تحلیل کنم و قدم بعدی را نشانتان بدهم. کاری که نمی‌توانم: حضور در دادگاه به‌جای شما و قبول مسئولیت پرونده.'
-        '${topic == null ? '\nحالا بگویید چه مشکلی پیش آمده؟' : '\nبرگردیم سر پروندهٔ شما؛ هر جا ماندیم ادامه می‌دهیم.'}',
-        chips: _idleChips(),
+        'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که روی همین گوشی و بدون اینترنت کار می‌کند و حرف‌هایتان جایی نمی‌رود. کارم این است که ماجرا را بشنوم، سؤال بپرسم و بر پایهٔ متن قانون راهنمایی کنم؛ جای وکیل در دادگاه را نمی‌گیرم.',
+        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
+        chips: topic == null ? _idleChips() : _askChips,
+        full: true,
       );
     }
     if (w <= 10 &&
         Sense.has(n,
             'میشه (?:[^ ]+ ){0,3}اعتماد|اعتماد کنم|قابل اعتماد|مطمئنی|از کجا میدونی|از کجا معلوم|درست میگی|حرف(?:ات|هات) درست|منبع(?:ت)? چیه|دروغ نمیگی')) {
       return _out(
-        'سؤال به‌جایی است و جوابش را بی‌تعارف می‌دهم.\n'
-        'تا اینجا می‌شود اعتماد کرد: هر جا شمارهٔ ماده می‌آورم، متن همان ماده واقعاً در بانک قوانین برنامه هست و آن را زیر پاسخ نقل می‌کنم تا خودتان بخوانید؛ من ماده از خودم نمی‌سازم.\n'
-        'اما سه محدودیت دارم:\n'
-        '۱) فقط همان چیزی را می‌دانم که شما گفته‌اید؛ مدارکتان را ندیده‌ام.\n'
-        '۲) قانون‌ها عوض می‌شوند و ممکن است بانک من از آخرین اصلاحیه عقب باشد.\n'
-        '۳) رویهٔ عملی دادگاه‌ها و ریزه‌کاری‌های هر پرونده را یک وکیل حضوری بهتر می‌بیند.\n'
-        'پس: برای فهمیدن وضعیت و آماده‌شدن روی من حساب کنید؛ برای تصمیم‌های بزرگ (امضای توافق، مبلغ سنگین، پروندهٔ کیفری) حرف آخر را با یک وکیل دادگستری چک کنید.',
-        chips: _idleChips(),
+        'سؤال به‌جایی است. هر ماده‌ای که نام می‌برم واقعاً در بانک قوانین برنامه هست و هر وقت بخواهید متنش را نشانتان می‌دهم؛ از خودم ماده نمی‌سازم. ولی سه محدودیت دارم: مدارکتان را ندیده‌ام، ممکن است قانون تازه‌تر شده باشد، و رویهٔ دادگاه‌ها را یک وکیل حضوری بهتر می‌داند. برای تصمیم‌های بزرگ حرف آخر را با وکیل دادگستری چک کنید.',
+        ask: _askText,
+        chips: _askText.isEmpty ? _idleChips() : _askChips,
+        full: true,
+      );
+    }
+    if (w <= 7 &&
+        !Sense.has(n, '(?:ماده|اصل) [0-9]+') &&
+        _lastLaws.isNotEmpty &&
+        Sense.has(n,
+            'متن (?:قانون|ماده)|کدوم ماده|کدام ماده|طبق کدوم|طبق کدام|ماده ?(?:اش|ش) (?:چی|رو|را)|مستند(?:ت|ش)? چی|سندت چیه')) {
+      final lines = [
+        for (final l in _lastLaws.take(2)) '• ${l.title}: «${_snippet(l.body)}»',
+      ];
+      return _out(
+        'متن قانونی که به آن تکیه کردم:\n${lines.join('\n')}',
+        ask: _askText,
+        chips: _askChips,
+        full: true,
       );
     }
     if (w <= 8 &&
@@ -885,13 +1114,17 @@ class Advocate {
       if (topic == null || got.isEmpty) {
         return _out(
           topic == null
-              ? 'هنوز ماجرای مشخصی از شما نشنیده‌ام که بگویم چه فهمیده‌ام. تعریف کنید چه شده؛ بعد برداشتم را بازگو می‌کنم تا اگر اشتباه گرفتم اصلاحم کنید.'
-              : 'می‌دانم موضوع «${topic.title}» است، ولی هنوز جزئیات کافی ندارم. هر چه بیشتر بگویید، دقیق‌تر می‌فهمم.',
-          chips: topic == null ? starterChips : _suggest(topic),
+              ? 'هنوز ماجرای مشخصی از شما نشنیده‌ام که بگویم چه فهمیده‌ام.'
+              : 'می‌دانم موضوع «${topic.title}» است، ولی هنوز جزئیات کافی ندارم.',
+          ask: topic == null || _askText.isEmpty
+              ? 'دقیقاً چه اتفاقی افتاده است؟'
+              : _askText,
+          chips: topic == null ? _idleChips() : _askChips,
         );
       }
       return _out(
-        '${_pick(Say.understood)} ${_join(got)}.\nاگر جایی را اشتباه گرفته‌ام، همان را بگویید تا اصلاح کنم.',
+        '${_pick(Say.understood)} ${_join(got)}.',
+        ask: 'درست گرفته‌ام، یا جایی را باید اصلاح کنم؟',
         chips: _suggest(topic),
       );
     }
@@ -906,8 +1139,10 @@ class Advocate {
       }
       if (p != null && p.why.isNotEmpty) {
         return _out(
-          'حق دارید بپرسید. ${p.why}\nاگر نمی‌دانید یا نمی‌خواهید بگویید هم اشکالی ندارد؛ بگویید «نمی‌دانم» تا از آن بگذرم.\n\nسؤالم این بود: ${p.ask}',
+          'حق دارید بپرسید. ${p.why}\nاگر نمی‌دانید هم اشکالی ندارد؛ از آن می‌گذرم.',
+          ask: 'سؤالم این بود: ${p.ask}',
           chips: [...p.options, _dontKnowChip],
+          full: true,
         );
       }
       return _out(
@@ -922,15 +1157,16 @@ class Advocate {
         Sense.has(n,
             'ساده ?تر|ساده بگو|نفهمیدم|متوجه نشدم|گیج شدم|پیچیده|دوباره بگو|یه بار دیگه|نگرفتم')) {
       if (_lastBody.isEmpty) {
-        return _out('چیزی نگفته‌ام که پیچیده باشد! بگویید چه مشکلی پیش آمده تا ساده و روشن توضیح بدهم.',
-            chips: _idleChips());
+        return _out('هنوز چیزی نگفته‌ام که پیچیده باشد.',
+            ask: 'چه مشکلی پیش آمده؟', chips: _idleChips());
       }
       final lines = <String>[
         for (final l in _strip(_lastBody).split('\n'))
           if (l.trim().isNotEmpty) _brief(l.trim()),
       ];
       return _out(
-        'حق با شماست، ساده‌ترش می‌کنم:\n${lines.take(6).join('\n')}\n\nاگر کلمه‌ای گنگ بود، همان را بپرسید؛ مثلاً «اعسار یعنی چی؟».',
+        'ساده‌ترش این است:\n${lines.take(4).join('\n')}',
+        ask: 'کدام کلمه یا کدام بخشش هنوز گنگ است؟',
         chips: topic == null ? _idleChips() : _suggest(topic),
       );
     }
@@ -939,8 +1175,9 @@ class Advocate {
             'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی')) {
       if (topic == null) {
         return _out(
-          'هنوز برای ناامیدشدن زود است. تقریباً همیشه راهی هست؛ فقط باید بدانیم کدام. ماجرا را تعریف کنید تا با هم نگاهش کنیم.',
-          chips: starterChips,
+          'هنوز برای ناامیدشدن زود است؛ تقریباً همیشه راهی هست.',
+          ask: 'چه اتفاقی افتاده؟',
+          chips: _idleChips(),
         );
       }
       final c = topic.follow['chance'];
@@ -965,8 +1202,9 @@ class Advocate {
     }
     if (topic == null) {
       return _out(
-        'هنوز ماجرایی تعریف نکرده‌اید که خلاصه‌اش کنم. بگویید چه شده؛ کوتاه هم بگویید کافی است.',
-        chips: starterChips,
+        'هنوز ماجرایی تعریف نکرده‌اید که خلاصه‌اش کنم.',
+        ask: 'چه شده؟ کوتاه هم بگویید کافی است.',
+        chips: _idleChips(),
       );
     }
     final sb = StringBuffer('خلاصه و بدون حاشیه:\n');
@@ -991,7 +1229,8 @@ class Advocate {
     if (q != null) {
       sb.write('• چیزی که هنوز نمی‌دانم و مهم است: ${q.ask}');
     }
-    return _out(sb.toString().trimRight(), chips: _suggest(topic));
+    return _out(sb.toString().trimRight(),
+        chips: _suggest(topic), budget: _roomyBudget);
   }
 
   AdvocateReply? _social(String n, Topic? topic) {
@@ -1011,14 +1250,16 @@ class Advocate {
     if (Sense.has(n, '^ (?:سلام|درود|وقت بخیر|صبح بخیر|عصر بخیر|شب بخیر|خسته نباشی)')) {
       return _out(
         topic == null
-            ? 'سلام، خوش آمدید. من دستیار حقوقی شما هستم. ماجرا را همان‌طور که هست و به زبان خودتان تعریف کنید: چه اتفاقی افتاده، طرف مقابل کیست و الان چه می‌خواهید؟'
-            : 'سلام دوباره. پرونده‌تان را به خاطر دارم؛ هر جا ماندیم ادامه بدهیم.',
-        chips: _idleChips(),
+            ? 'سلام، خوش آمدید.'
+            : 'سلام دوباره. پرونده‌تان را به خاطر دارم.',
+        ask: topic == null ? 'چه اتفاقی افتاده که سراغ من آمده‌اید؟' : _askText,
+        chips: topic == null ? _idleChips() : _askChips,
       );
     }
     if (Sense.has(n, 'خوبی|چطوری|حالت چطوره|چه خبر')) {
-      return _out('ممنون که می‌پرسید. من آماده‌ام؛ بگویید چه کمکی از دستم برمی‌آید.',
-          chips: _idleChips());
+      return _out('ممنون که می‌پرسید؛ من آماده‌ام.',
+          ask: topic == null ? 'چه کمکی از دستم برمی‌آید؟' : _askText,
+          chips: topic == null ? _idleChips() : _askChips);
     }
     return null;
   }
@@ -1029,13 +1270,91 @@ class Advocate {
           'مشکل(?:ی)? (?:حقوقی |قانونی )?(?:دارم|پیش اومده|برام)|سوال(?:ی)? (?:حقوقی )?(?:داشتم|دارم)|مشاوره|کمک(?:م)? (?:کن|میخوام|کنید)|راهنمایی(?:م)? (?:کن|میخوام|کنید)|گرفتار شدم|یه مسئله');
 
   AdvocateReply _intake() => _out(
-        'در خدمتم. برای اینکه درست راهنمایی کنم، ماجرا را کوتاه تعریف کنید:\n'
-        '• طرف مقابل کیست؟ (صاحبخانه، کارفرما، همسر، شریک، همسایه، یک اداره…)\n'
-        '• چه اتفاقی افتاده؟\n'
-        '• الان چه می‌خواهید؟ (پولتان را بگیرید، از خودتان دفاع کنید، جدا شوید…)\n'
-        'لازم نیست رسمی بنویسید؛ همان‌طور که برای یک دوست تعریف می‌کنید کافی است.',
-        chips: starterChips,
+        'در خدمتم.',
+        ask:
+            'چه اتفاقی افتاده و طرف مقابل کیست؟ همان‌طور که برای یک دوست تعریف می‌کنید بگویید.',
+        chips: _loose.length <= 1 && _guide == null ? starterChips : const [],
       );
+
+  static const List<List<String>> _parties = [
+    ['همسایه', 'همسایه‌تان'],
+    ['برادر|داداش', 'برادرتان'],
+    ['خواهر|آبجی', 'خواهرتان'],
+    [' پدر| بابا', 'پدرتان'],
+    [' مادر| مامان', 'مادرتان'],
+    ['نامزد', 'نامزدتان'],
+    ['همکار', 'همکارتان'],
+    ['دوستم|رفیق', 'دوستتان'],
+    ['عمو|دایی|خاله|عمه|فامیل|اقوام|پسرعمو|دخترعمو', 'یکی از بستگانتان'],
+    ['بانک', 'بانک'],
+    ['شهرداری', 'شهرداری'],
+    ['بیمه', 'بیمه'],
+    ['پلیس|مامور|کلانتری', 'پلیس'],
+    ['مدرسه|دانشگاه|آموزشگاه|مهدکودک', 'یک مرکز آموزشی'],
+    ['دکتر|پزشک|بیمارستان|کلینیک|درمانگاه', 'پزشک یا مرکز درمانی'],
+    ['فروشنده|مغازه دار|فروشگاه|نمایشگاه', 'فروشنده'],
+    ['شرکت', 'یک شرکت'],
+  ];
+
+  /// طرفِ ماجرا، اگر کاربر نامش را برده باشد.
+  static String _party(String n) {
+    for (final p in _parties) {
+      if (Sense.has(n, p[0])) return p[1];
+    }
+    return '';
+  }
+
+  static const Map<String, String> _areas = {
+    'criminal_harm': 'به نظرم ماجرا جنبهٔ کیفری دارد.',
+    'fraud_cyber': 'به نظرم پای کلاهبرداری یا سوءاستفاده در میان است.',
+    'litigation_defense': 'پس پای دادگاه یا یک رأی در میان است.',
+    'family': 'پس ماجرا خانوادگی است.',
+    'labor': 'پس ماجرا به کار و کارفرما برمی‌گردد.',
+    'lease': 'پس ماجرا به اجاره برمی‌گردد.',
+    'debt': 'پس حرفِ پول و طلب است.',
+    'cheque': 'پس حرفِ چک است.',
+  };
+
+  static String _clip(String raw) {
+    final t = raw.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (t.length <= 60) return t;
+    final cut = t.lastIndexOf(' ', 60);
+    return '${t.substring(0, cut < 20 ? 60 : cut)}…';
+  }
+
+  /// وقتی موضوع را نمی‌شناسم: به‌جای «متوجه نشدم»، نشان می‌دهم چه شنیده‌ام
+  /// و مثل هر وکیلی دربارهٔ ماجرا می‌پرسم تا تصویر روشن شود.
+  AdvocateReply _curious(String raw, String n) {
+    final all = _loose.join(' ');
+    final who = _party(all);
+    var area = '';
+    final net = intentNet;
+    if (net != null && Sense.words(n) >= 3) {
+      final top = net.classify(raw);
+      if (top.score >= 0.5) area = _areas[top.label] ?? '';
+    }
+    final heard = who.isNotEmpty
+        ? 'پس طرفِ ماجرا $who است.'
+        : 'گفتید «${_clip(raw)}».';
+    final lead = area.isEmpty ? heard : '$heard $area';
+    final k = _loose.length;
+    if (k <= 1) {
+      return _out(lead,
+          ask: who.isEmpty
+              ? 'طرف مقابل کیست و دقیقاً چه کرده است؟'
+              : 'دقیقاً چه اتفاقی افتاد و از چه زمانی؟');
+    }
+    if (k == 2) {
+      return _out(lead,
+          ask:
+              'و خودتان الان چه می‌خواهید: مال یا پولتان برگردد، از او شکایت کنید، یا از خودتان دفاع کنید؟');
+    }
+    return _out(
+      '$lead راستش برای این ماجرا هنوز تحلیل آماده‌ای ندارم و نمی‌خواهم حدسی حرف بزنم.',
+      ask:
+          'به کدام نزدیک‌تر است: قرارداد و پول، خانواده، کار، ملک، یا شکایت کیفری؟',
+    );
+  }
 
   // ------------------------------------------------- واژه‌نامه و جست‌وجو
 
@@ -1054,7 +1373,9 @@ class Advocate {
     final legalish = direct ||
         Sense.has(n,
             'قانون|حق |حقوق|جرم|مجازات|دادگاه|دادسرا|شکایت|قرارداد|سند|ارث|دیه|مهریه|جریمه|وکالت|وصیت|ملک|معامله|خسارت|بدهی|طلب|محکوم|حکم |رای |تعهد|ضامن|ضمانت|فسخ|مالکیت|توقیف|زندان|حبس|قاضی|وکیل');
-    if (legalish && Sense.words(n) >= 2) {
+    if (legalish &&
+        Sense.words(n) >= 2 &&
+        (direct || Sense.isQuestion(n) || _loose.length >= 3)) {
       final r = engine.query(raw);
       if (r.contextHits.isNotEmpty) {
         final laws = [
@@ -1063,25 +1384,29 @@ class Advocate {
         ];
         final lead = direct
             ? 'این متنِ همان ماده در بانک قوانین من است:'
-            : 'برای این پرسش تحلیل آماده‌ای ندارم، ولی نزدیک‌ترین متن قانونی که در بانک قوانینم پیدا کردم این است (ممکن است دقیقاً جواب شما نباشد):';
+            : 'تحلیل آماده‌ای برای این پرسش ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:';
+        _rest = '';
+        _offeredMore = false;
         return AdvocateReply(
           '$lead\n\n${r.text}\n\n'
-          'اگر ماجرای خودتان را تعریف کنید (چه شد، طرف مقابل کیست، چه می‌خواهید)، می‌توانم متناسب با وضعیت شما راهنمایی کنم.',
-          chips: _idleChips(),
+          'این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.',
           laws: laws,
         );
       }
     }
-    if (!legalish && Sense.isQuestion(n)) {
+    if (!legalish && Sense.isQuestion(n) && _party(n).isEmpty) {
       return _out(
-        'این یکی از حوزهٔ کار من بیرون است؛ من فقط در مسائل حقوقی (اجاره، کار، چک و طلب، خانواده، شکایت و دفاع و مانند این‌ها) می‌توانم کمک کنم. اگر گرفتاری حقوقی دارید، همان را تعریف کنید.',
-        chips: _idleChips(),
+        'این یکی از حوزهٔ کار من بیرون است؛ من فقط در مسائل حقوقی (اجاره، کار، چک و طلب، خانواده، شکایت و دفاع) می‌توانم کمک کنم.',
+        ask: 'گرفتاری حقوقی‌ای هست که بخواهید درباره‌اش حرف بزنیم؟',
       );
     }
-    return _out(
-      'راستش این را درست متوجه نشدم، و نمی‌خواهم حدسی جواب بدهم که گمراهتان کند. اگر ماجرا را با چند جملهٔ ساده تعریف کنید (چه شد، طرف مقابل کیست، چه می‌خواهید)، بهتر می‌توانم کمک کنم.',
-      chips: _idleChips(),
-    );
+    if (Sense.words(n) < 2 || !Sense.has(n, '[\u0600-\u06FF]{2}')) {
+      return _out(
+        'این را متوجه نشدم.',
+        ask: 'می‌شود با یکی دو جمله بگویید چه اتفاقی افتاده؟',
+      );
+    }
+    return _curious(raw, n);
   }
 
   // ----------------------------------------------------- راهنماهای آماده
@@ -1106,9 +1431,9 @@ class Advocate {
     }
     final refs = [for (final r in g.refs) '[[${r.lawId}:${r.article}]]'];
     if (refs.isNotEmpty) sb.write('\n\nمستند این حرف‌ها ${refs.join(' ')} است.');
-    if (g.followUp.isNotEmpty) sb.write('\n\n${g.followUp}');
     _lastBody = g.answer;
-    return _out(sb.toString(), chips: _guideChips(g));
+    _guideAsked = g.followUp.isNotEmpty;
+    return _out(sb.toString(), chips: _guideChips(g), ask: g.followUp);
   }
 
   String _guideSteps(LegalGuide g) {
@@ -1123,7 +1448,7 @@ class Advocate {
   }
 
   List<String> _guideChips(LegalGuide g) {
-    final out = <String>['قدم بعدی چیست؟', 'خلاصه بگو'];
+    final out = <String>[if (g.steps.isNotEmpty) 'قدم بعدی چیست؟'];
     for (final id in g.templateIds) {
       final title = _draftTitles[id];
       if (title != null) {
@@ -1131,7 +1456,6 @@ class Advocate {
         break;
       }
     }
-    out.add(newCaseChip);
     return out;
   }
 
@@ -1140,8 +1464,9 @@ class Advocate {
     if (gl != null) return _out(gl, chips: _guideChips(g));
     final kind = Sense.followKind(n);
     if (kind == 'next' && g.steps.isNotEmpty) {
+      _guideAsked = false;
       return _out('برای «${g.title}»${_guideSteps(g).replaceFirst('\n\n', ' ')}',
-          chips: _guideChips(g));
+          chips: _guideChips(g), budget: _roomyBudget);
     }
     if (kind == 'lawyer') return _out(anyLawyer, chips: _guideChips(g));
     final soc = _social(n, null);
@@ -1158,6 +1483,12 @@ class Advocate {
           ],
         );
       }
+    }
+    // جوابِ پرسشی که خودم آخرِ راهنما پرسیده بودم: حالا نوبت قدم‌هاست.
+    if (_guideAsked && g.steps.isNotEmpty && !Sense.isQuestion(n)) {
+      _guideAsked = false;
+      return _out('${_pick(Say.fine)} با این حساب${_guideSteps(g).replaceFirst('\n\n', ' ')}',
+          chips: _guideChips(g));
     }
     return null;
   }
@@ -1226,9 +1557,36 @@ class Advocate {
     return Sense.fa(b);
   }
 
-  AdvocateReply _out(String text, {List<String> chips = const []}) {
+  static final RegExp _cutAt = RegExp(r'[.؟!]\s+|\n+');
+
+  /// متن را در مرزِ جمله به دو بخش می‌کند: آنچه الان گفته می‌شود و باقی.
+  static List<String> _cut(String body, int budget) {
+    if (body.length <= budget + 60) return [body, ''];
+    var pick = -1;
+    for (final m in _cutAt.allMatches(body)) {
+      final e = m.end;
+      if (e >= body.length) break;
+      final head = body.substring(0, m.start + 1).trimRight();
+      if (head.endsWith(':') || head.endsWith('،')) continue;
+      if (e > budget && pick >= 0) break;
+      pick = e;
+      if (e > budget) break;
+    }
+    if (pick <= 0 || body.length - pick < 60) return [body, ''];
+    return [body.substring(0, pick).trimRight(), body.substring(pick).trim()];
+  }
+
+  /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
+  /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
+  /// پایان می‌گذارد تا گفتگو دوطرفه بماند.
+  AdvocateReply _out(
+    String text, {
+    List<String> chips = const [],
+    String ask = '',
+    bool full = false,
+    int budget = _budget,
+  }) {
     final laws = <LawText>[];
-    final quotes = <String>[];
     final seen = <String>{};
     var body = text.replaceAllMapped(_refRun, (m) {
       // مواد یک قانون کنار هم می‌آیند: «مواد ۵۲۲ و ۵۱۹ قانون …».
@@ -1248,13 +1606,7 @@ class Advocate {
         final label = '$kind $num ${c.source}';
         final nums = byLaw.putIfAbsent(c.source, () => <String>[]);
         if (!nums.contains(num)) nums.add(num);
-        if (seen.add(key)) {
-          laws.add(LawText(label, c.source, c.body, ''));
-          if (!_quoted.contains(key) && quotes.length < 2) {
-            _quoted.add(key);
-            quotes.add('• $label: «${_snippet(c.body)}»');
-          }
-        }
+        if (seen.add(key)) laws.add(LawText(label, c.source, c.body, ''));
       }
       if (byLaw.isEmpty) return '';
       final names = <String>[];
@@ -1268,14 +1620,31 @@ class Advocate {
       });
       return ' (${names.join('؛ ')})';
     });
-    if (quotes.isNotEmpty) {
-      body = '$body\n\nمتن قانون، برای اینکه خودتان ببینید:\n${quotes.join('\n')}';
+    body = body.trim();
+    _rest = '';
+    _offeredMore = false;
+    if (!full) {
+      final cut = _cut(body, budget);
+      body = cut[0];
+      _rest = cut[1];
+    }
+    if (laws.isNotEmpty) _lastLaws = laws;
+    var tail = ask;
+    if (tail.isEmpty && _rest.isNotEmpty) {
+      tail = _pick(Say.more);
+      _offeredMore = true;
     }
     if (laws.isNotEmpty && !file.disclaimed) {
       file.disclaimed = true;
-      body =
-          '$body\n\nیادآوری: این راهنمایی بر پایهٔ همان چیزی است که شما گفته‌اید و جای بررسی مدارک توسط وکیل دادگستری را نمی‌گیرد.';
+      body = '$body\n\n${Say.disclaimer}';
     }
-    return AdvocateReply(body, chips: chips, laws: laws);
+    if (tail.isNotEmpty) body = body.isEmpty ? tail : '$body\n\n$tail';
+    final all = <String>[
+      if (_offeredMore) ..._yesNo,
+      ...chips,
+      if (_rest.isNotEmpty && !_offeredMore) moreChip,
+      if (laws.isNotEmpty && chips.length < 3) lawChip,
+    ];
+    return AdvocateReply(body, chips: all, laws: laws);
   }
 }
