@@ -560,7 +560,11 @@ class Advocate {
       );
     }
     if (parts.isEmpty) {
-      parts.add(_nextSlot(t) == null
+      // اگر همین حالا جمع‌بندی می‌آید، «کدام بخش مهم‌تر است؟» زیادی است.
+      final closing = file.pending.isNotEmpty &&
+          t.follow['next'] != null &&
+          !file.covered.contains('f:next');
+      parts.add(_nextSlot(t) == null && !closing
           ? 'بسیار خوب. بگویید کدام بخش برایتان مهم‌تر است تا از همان شروع کنم؛ یا یکی از گزینه‌های زیر را انتخاب کنید.'
           : _pick(const ['بسیار خوب.', 'متوجه شدم.', 'خیلی خوب، یادداشت کردم.']));
     }
@@ -727,7 +731,7 @@ class Advocate {
           'ارزیابی من: پروندهٔ قوی‌ای دارید، به شرط اینکه همین‌ها را با مدرک نشان بدهید.');
     } else if (failed.isNotEmpty) {
       sb.write(
-          'نتیجه: چون شرط ${_join([for (final k in failed) _ord(k)])} برقرار نیست، این راه به شکل فعلی جواب نمی‌دهد؛ اول باید همان گره باز شود');
+          'نتیجه: چون شرط ${_join([for (final k in failed) _ord(k)])} برقرار نیست، کار فعلاً همین‌جا گیر است؛ اول باید همین گره باز شود تا این راه به نتیجه برسد');
       sb.write(ok > 0
           ? ' (${_count(ok)} شرط دیگر را دارید و به کارتان می‌آید).'
           : '.');
