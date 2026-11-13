@@ -1,61 +1,99 @@
 name: Test
 
-# آزمایشگاه شاخهٔ کاری: تحلیل، تست و رونوشت گفتگوهای نمونه را اجرا می‌کند و
-# نتیجه را در reports/lab/ روی همان شاخه ثبت می‌کند. روی main اجرا نمی‌شود.
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: lawyer-lab-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  lab:
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Gemini agent safety tests
+        run: python -m unittest discover -s tests/python -v
+      - name: Data checks
+        id: data
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          (python tools/check.py all && python tools/doctor.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
           channel: stable
-          cache: true
       - run: flutter pub get
       - name: Analyze
+        id: analyze
         continue-on-error: true
         run: |
-          mkdir -p reports/lab
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-260 | tail -n 150 > reports/lab/analyze.txt || true
-      - name: Transcripts
+          set -o pipefail
+          flutter analyze --fatal-warnings --no-fatal-infos 2>&1 | tee "$RUNNER_TEMP/analyze.txt"
+      - name: Flutter test
+        id: ft
         continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Short report
+        if: always()
         env:
-          AUDIT_IN: ${{ vars.LAB_AUDIT_IN || 'test/lab/probe.txt' }}
-          AUDIT_OUT: reports/lab/transcripts.txt
+          DATA_FAILED: ${{ steps.data.outcome == 'failure' && '1' || '0' }}
+        run: python tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
+      - name: Append analyze
+        if: always()
         run: |
-          flutter test test/audit/conversation_audit_test.dart 2>&1 | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-400 | tail -n 80 > reports/lab/transcripts_run.txt || true
-      - name: Advocate tests
+          {
+            echo "--- analyze ---"
+            tail -n 1 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
+            grep -E " (info|warning|error) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 | head -n 30 || true
+          } >> reports/last_test.txt
+      - name: Near-miss report
+        if: always()
         continue-on-error: true
         run: |
-          flutter test test/advocate 2>&1 | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-600 | tail -n 200 > reports/lab/advocate_test.txt || true
-      - name: Failing test names
+          mkdir -p brain/reports
+          flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            reports/last_test.txt
+            brain/reports/near_miss.txt
+      - name: Fail if anything failed
+        if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
+        run: exit 1
+
+  commit-reports:
+    needs: test
+    if: always() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/download-artifact@v4
         continue-on-error: true
-        run: |
-          flutter test --reporter expanded 2>&1 | grep -E '\[E\]|^ *(Expected|Actual|Which): |_test\.dart [0-9]+:[0-9]+ +main\.<fn>|tests passed|Some tests failed' | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-330 | tail -n 200 > reports/lab/failed.txt || true
-      - name: Commit lab reports
+        with:
+          name: test-reports
+          path: .
+      - name: Commit reports
         continue-on-error: true
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git rev-parse HEAD > reports/lab/ref.txt
-          git add -f reports/lab
-          git diff --cached --quiet || git commit -m "lab report [skip ci]"
-          git checkout -- . || true
-          for i in 1 2 3 4 5; do
-            git -c rebase.autoStash=true pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}" && break
-            sleep 5
-          done
+          git add brain/reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
+          git pull --rebase || true
+          git push origin HEAD:"${GITHUB_REF_NAME}" || true
