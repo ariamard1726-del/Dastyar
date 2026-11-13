@@ -27,6 +27,7 @@ void main() {
   });
 
   ChatController makeCtrl() => ChatController(
+        legacyFlow: true,
         engine: engine,
         assistant: Assistant(engine),
         repo: repo,

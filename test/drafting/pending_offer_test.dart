@@ -44,6 +44,7 @@ void main() {
       home: Directionality(
         textDirection: TextDirection.rtl,
         child: ChatPage(
+          legacyFlow: true,
           engine: engine,
           assistant: Assistant(engine),
           repo: repo,

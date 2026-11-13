@@ -58,6 +58,7 @@ void main() {
     final assistant = Assistant(engine);
     expect(assistant.llm, isA<NoLlm>());
     return ChatController(
+      legacyFlow: true,
       engine: engine,
       assistant: assistant,
       repo: repo,

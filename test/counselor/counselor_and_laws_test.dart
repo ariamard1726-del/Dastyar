@@ -93,6 +93,7 @@ void main() {
       final assistant = Assistant(engine);
       expect(assistant.llm, isA<NoLlm>());
       return ChatController(
+        legacyFlow: true,
         engine: engine,
         assistant: assistant,
         repo: repo,
@@ -200,6 +201,7 @@ void main() {
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: ChatPage(
+              legacyFlow: true,
               engine: engine,
               assistant: Assistant(engine),
               repo: repo,
