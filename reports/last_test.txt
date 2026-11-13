@@ -1,4 +1,9 @@
-commit: 77f369c
-🎉 559 tests passed.
+commit: d44f5ff
+::error::560 tests passed, 1 failed.
+::group::❌ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند (failed)
+   Expected: <0>
+   Actual: <1>
+   test/advocate/advocate_test.dart 297:5              main.<fn>
+   ::endgroup::
 --- analyze ---
-No issues found! (ran in 11.6s)
+No issues found! (ran in 10.1s)
