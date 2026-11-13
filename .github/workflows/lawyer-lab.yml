@@ -5,6 +5,7 @@ name: Lawyer Lab
 on:
   push:
     branches: ['arena/**']
+  workflow_dispatch:
 
 permissions:
   contents: read
