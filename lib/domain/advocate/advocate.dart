@@ -373,7 +373,10 @@ class Advocate {
         }
       }
       final g = _glossary(n);
-      if (g != null) return _out(g, chips: _idleChips());
+      if (g != null) {
+        return _out(g,
+            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '');
+      }
       final guide = _guide;
       if (guide != null) {
         final r = _guideFollow(guide, n);
@@ -1064,9 +1067,14 @@ class Advocate {
   /// باشد نشان داده می‌شود؛ بعد از آن ربطی به حرف او ندارد.
   List<String> _idleChips() {
     final t = _current();
-    if (t != null) return _suggest(t);
-    return _loose.length <= 1 && _guide == null ? starterChips : const [];
+    return t == null ? const [] : _suggest(t);
   }
+
+  /// نمونه‌های آغاز گفتگو؛ فقط وقتی کاربر هنوز هیچ ماجرایی نگفته است.
+  List<String> _starters() =>
+      _loose.length <= 1 && _guide == null && file.topic.isEmpty
+          ? starterChips
+          : const [];
 
   // ------------------------------------------------------ گفت‌وگوی انسانی
 
@@ -1078,7 +1086,7 @@ class Advocate {
       return _out(
         'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که روی همین گوشی و بدون اینترنت کار می‌کند و حرف‌هایتان جایی نمی‌رود. کارم این است که ماجرا را بشنوم، سؤال بپرسم و بر پایهٔ متن قانون راهنمایی کنم؛ جای وکیل در دادگاه را نمی‌گیرم.',
         ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
-        chips: topic == null ? _idleChips() : _askChips,
+        chips: topic == null ? _starters() : _askChips,
         full: true,
       );
     }
@@ -1145,9 +1153,16 @@ class Advocate {
           full: true,
         );
       }
+      final why = file.pending == 'q:reply'
+          ? 'چون جوابِ او نشان می‌دهد با چه دفاعی روبه‌رو می‌شوید؛ کسی که انکار می‌کند با کسی که فقط عقب می‌اندازد، دو راهِ متفاوت می‌خواهد.'
+          : file.pending == 'q:goal'
+              ? 'چون راهِ توافق و راهِ دادگاه دو مسیرِ جدا هستند و نمی‌خواهم وقتتان را در مسیری بگذارم که خودتان نمی‌خواهید.'
+              : 'برای اینکه جوابم به وضعیت خودِ شما بخورد، نه یک توضیح کلی. در حقوق یک جزئیات کوچک، مثل یک تاریخ یا یک امضا، می‌تواند نتیجه را عوض کند.';
       return _out(
-        'هر سؤالی که می‌پرسم برای این است که جوابم به وضعیت خود شما بخورد، نه یک توضیح کلی که به درد همه و هیچ‌کس می‌خورد. در حقوق، یک جزئیات کوچک (مثل یک تاریخ یا یک امضا) می‌تواند نتیجه را عوض کند.',
-        chips: _idleChips(),
+        why,
+        ask: _askText,
+        chips: _askText.isEmpty ? _idleChips() : _askChips,
+        full: true,
       );
     }
     if (w <= 6 && Sense.has(n, 'خلاصه|جمع ?بندی|در یک جمله|تهش چی|آخرش چی')) {
@@ -1253,13 +1268,13 @@ class Advocate {
             ? 'سلام، خوش آمدید.'
             : 'سلام دوباره. پرونده‌تان را به خاطر دارم.',
         ask: topic == null ? 'چه اتفاقی افتاده که سراغ من آمده‌اید؟' : _askText,
-        chips: topic == null ? _idleChips() : _askChips,
+        chips: topic == null ? _starters() : _askChips,
       );
     }
     if (Sense.has(n, 'خوبی|چطوری|حالت چطوره|چه خبر')) {
       return _out('ممنون که می‌پرسید؛ من آماده‌ام.',
           ask: topic == null ? 'چه کمکی از دستم برمی‌آید؟' : _askText,
-          chips: topic == null ? _idleChips() : _askChips);
+          chips: topic == null ? _starters() : _askChips);
     }
     return null;
   }
@@ -1273,7 +1288,7 @@ class Advocate {
         'در خدمتم.',
         ask:
             'چه اتفاقی افتاده و طرف مقابل کیست؟ همان‌طور که برای یک دوست تعریف می‌کنید بگویید.',
-        chips: _loose.length <= 1 && _guide == null ? starterChips : const [],
+        chips: _starters(),
       );
 
   static const List<List<String>> _parties = [
@@ -1559,20 +1574,35 @@ class Advocate {
 
   static final RegExp _cutAt = RegExp(r'[.؟!]\s+|\n+');
 
+  static final RegExp _listItem = RegExp(r'^(?:[۰-۹0-9]+\)|•)');
+
   /// متن را در مرزِ جمله به دو بخش می‌کند: آنچه الان گفته می‌شود و باقی.
   static List<String> _cut(String body, int budget) {
     if (body.length <= budget + 60) return [body, ''];
-    var pick = -1;
+    final ends = <int>[];
     for (final m in _cutAt.allMatches(body)) {
-      final e = m.end;
-      if (e >= body.length) break;
+      if (m.end >= body.length) break;
       final head = body.substring(0, m.start + 1).trimRight();
       if (head.endsWith(':') || head.endsWith('،')) continue;
-      if (e > budget && pick >= 0) break;
-      pick = e;
-      if (e > budget) break;
+      ends.add(m.end);
     }
-    if (pick <= 0 || body.length - pick < 60) return [body, ''];
+    if (ends.isEmpty) return [body, ''];
+    var k = 0;
+    while (k + 1 < ends.length && ends[k + 1] <= budget) {
+      k++;
+    }
+    // فهرستِ شماره‌دار را وسطش نمی‌بُرم، اگر باقی‌اش جا شود.
+    while (k + 1 < ends.length &&
+        ends[k + 1] <= budget + 280 &&
+        _listItem.hasMatch(body.substring(ends[k]))) {
+      k++;
+    }
+    final pick = ends[k];
+    if (body.length - pick < 60) return [body, ''];
+    if (body.length <= budget + 280 &&
+        _listItem.hasMatch(body.substring(pick))) {
+      return [body, ''];
+    }
     return [body.substring(0, pick).trimRight(), body.substring(pick).trim()];
   }
 
@@ -1634,7 +1664,8 @@ class Advocate {
       tail = _pick(Say.more);
       _offeredMore = true;
     }
-    if (laws.isNotEmpty && !file.disclaimed) {
+    final first = laws.isNotEmpty && !file.disclaimed;
+    if (first) {
       file.disclaimed = true;
       body = '$body\n\n${Say.disclaimer}';
     }
@@ -1643,7 +1674,7 @@ class Advocate {
       if (_offeredMore) ..._yesNo,
       ...chips,
       if (_rest.isNotEmpty && !_offeredMore) moreChip,
-      if (laws.isNotEmpty && chips.length < 3) lawChip,
+      if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
     ];
     return AdvocateReply(body, chips: all, laws: laws);
   }
