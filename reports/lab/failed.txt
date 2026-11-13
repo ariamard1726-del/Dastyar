@@ -1,1 +1,2 @@
-🎉 559 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند (failed)
+::error::560 tests passed, 1 failed.
