@@ -467,7 +467,9 @@ class Advocate {
     final q = _nextSlot(t);
     final plan = t.follow['next'];
     final planText = q == null && plan != null ? plan(file) : '';
-    final planSaid = _said.contains(planText) || parts.contains(planText);
+    final planSaid = planText.isNotEmpty &&
+        (_said.any((x) => x.contains(planText)) ||
+            parts.any((x) => x.contains(planText)));
     _said.addAll(parts);
     if (q != null) {
       final c = file.askCount[q.id] ?? 0;
@@ -858,10 +860,13 @@ class Advocate {
   static String _brief(String line) {
     if (line.length <= 24) return line;
     var cut = line.length;
-    for (final mark in const ['؛', ':', '. ']) {
+    for (final mark in const ['؛', '. ']) {
       final i = line.indexOf(mark, 18);
       if (i > 0 && i < cut) cut = i;
     }
+    // «عنوان: توضیح» فقط وقتی کوتاه می‌شود که خودِ عنوان گویا باشد.
+    final colon = line.indexOf(':', 40);
+    if (colon > 0 && colon < cut) cut = colon;
     final out = line.substring(0, cut).trim();
     return out.endsWith('.') ? out : '$out.';
   }
