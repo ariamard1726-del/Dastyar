@@ -117,17 +117,19 @@ class ChatController extends ChangeNotifier {
     if (_pendingList.isNotEmpty) {
       final list = _pendingList;
       _pendingList = [];
-      final picked = Drafting.pickChoice(text, list);
-      if (picked != null) {
-        _startDraft(text, picked);
-        return true;
-      }
+      // «نه» باید پیش از جست‌وجوی عنوان بررسی شود؛ وگرنه همین دو حرف درون
+      // عنوان یک قالب («هزینه») پیدا می‌شود و سندی ناخواسته شروع می‌شود.
       if (text == DraftCmd.cancel || Drafting.isNo(text)) {
         _reply(
           text,
           'باشد، فعلاً متنی نمی‌نویسم. هر وقت خواستید بگویید.',
           chips: advocate.idleChips,
         );
+        return true;
+      }
+      final picked = Drafting.pickChoice(text, list);
+      if (picked != null) {
+        _startDraft(text, picked);
         return true;
       }
     }

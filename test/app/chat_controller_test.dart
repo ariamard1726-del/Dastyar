@@ -135,6 +135,22 @@ void main() {
       ctrl.dispose();
     });
 
+    test('«نه» در پاسخ به «کدام متن؟» هیچ سندی را شروع نمی‌کند', () async {
+      final ctrl = make();
+      await ctrl.submit('برام بنویسش');
+      expect(ctrl.pendingChoices, isNotEmpty);
+      expect(ctrl.messages.last.text, Drafting.chooseText);
+      // «نه» درون عنوان «دادخواست اعسار از هزینهٔ دادرسی» هم هست.
+      await ctrl.submit('نه');
+      expect(ctrl.isDrafting, isFalse);
+      expect(ctrl.pendingChoices, isEmpty);
+
+      await ctrl.submit('برام بنویسش');
+      await ctrl.submit('اعسار');
+      expect(ctrl.draft?.template.id, 'insolvency');
+      ctrl.dispose();
+    });
+
     test('مبلغی که در گفتگو گفته شده، در فیلد مبلغ سند به ریال پیشنهاد می‌شود',
         () async {
       final ctrl = make();
