@@ -119,6 +119,7 @@ class Advocate {
 
   /// آیا پرسشِ پایانِ راهنما هنوز بی‌جواب است؟
   bool _guideAsked = false;
+  bool _guideStepped = false;
 
   /// همهٔ حرف‌های کاربر در پروندهٔ جاری (برای پیشنهادهای متناسب).
   String _heard = '';
@@ -814,7 +815,7 @@ class Advocate {
           // وسطِ پرونده، حرفِ تازه را کوتاه جواب می‌دهم و رشتهٔ گفتگو را
           // نگه می‌دارم.
           return _out(
-            '${_cut(lg.answer, 220)[0]}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
+            '${_relevant(lg.answer, n)}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
             ask: 'برگردیم سر پروندهٔ خودمان: $_askText',
             chips: _askChips,
             full: true,
@@ -1408,10 +1409,9 @@ class Advocate {
     final heard = who.isNotEmpty
         ? 'پس طرفِ ماجرا $who است.'
         : 'گفتید «${_clip(raw)}».';
-    final lead = area.isEmpty ? heard : '$heard $area';
     final k = _loose.length;
     if (k <= 1) {
-      return _out(lead,
+      return _out(area.isEmpty ? heard : '$heard $area',
           ask: who.isNotEmpty
               ? 'دقیقاً چه اتفاقی افتاد و از چه زمانی؟'
               : Sense.words(n) >= 4
@@ -1419,12 +1419,26 @@ class Advocate {
                   : 'طرف مقابل کیست و دقیقاً چه کرده است؟');
     }
     if (k == 2) {
-      return _out(lead,
+      return _out(area.isEmpty ? 'متوجه شدم.' : area,
           ask:
               'و خودتان الان چه می‌خواهید: مال یا پولتان برگردد، از او شکایت کنید، یا از خودتان دفاع کنید؟');
     }
+    // برای ماجرایی که تحلیل آماده ندارم، دست‌کم راهِ کلی را روراست می‌گویم.
+    final allN = Sense.norm(all);
+    if (Sense.has(allN, 'پول|خسارت|پس بد|برگرد|غرامت|هزینه')) {
+      return _out(
+        'برای این نوع ماجرا تحلیل آماده‌ای ندارم، ولی راه کلیِ پس‌گرفتن پول یا خسارت این است: اول کتبی و قابل اثبات مطالبه کنید (پیام یا اظهارنامهٔ رسمی)، و اگر نداد، دادخواست مطالبهٔ وجه یا خسارت بدهید.',
+        ask: 'مبلغش حدوداً چقدر است و چه مدرکی از این ماجرا دارید؟',
+      );
+    }
+    if (Sense.has(allN, 'شکایت|مجازات|زندان|جرم')) {
+      return _out(
+        'برای این نوع ماجرا تحلیل آماده‌ای ندارم، ولی راه کلیِ شکایت این است: شکوائیه را با مدارکتان در دفتر خدمات الکترونیک قضایی ثبت می‌کنید و دادسرا رسیدگی را شروع می‌کند.',
+        ask: 'چه مدرک یا شاهدی از این ماجرا دارید؟',
+      );
+    }
     return _out(
-      '$lead راستش برای این ماجرا هنوز تحلیل آماده‌ای ندارم و نمی‌خواهم حدسی حرف بزنم.',
+      'راستش برای این ماجرا هنوز تحلیل آماده‌ای ندارم و نمی‌خواهم حدسی حرف بزنم.',
       ask:
           'به کدام نزدیک‌تر است: قرارداد و پول، خانواده، کار، ملک، یا شکایت کیفری؟',
     );
@@ -1507,6 +1521,7 @@ class Advocate {
     if (refs.isNotEmpty) sb.write('\n\nمستند این حرف‌ها ${refs.join(' ')} است.');
     _lastBody = g.answer;
     _guideAsked = g.followUp.isNotEmpty;
+    _guideStepped = false;
     return _out(sb.toString(), chips: _guideChips(g), ask: g.followUp);
   }
 
@@ -1539,8 +1554,19 @@ class Advocate {
     final kind = Sense.followKind(n);
     if (kind == 'next' && g.steps.isNotEmpty) {
       _guideAsked = false;
+      if (_guideStepped) {
+        _guideStepped = false;
+        return _out(
+          'قدم‌ها همان‌هاست که گفتم. از اولی شروع کنید: ${g.steps.first}',
+          ask: 'کجای کار گیر کرده‌اید یا نگران کدام قدم هستید؟',
+          chips: _guideChips(g),
+        );
+      }
+      _guideStepped = true;
       return _out('برای «${g.title}»${_guideSteps(g).replaceFirst('\n\n', ' ')}',
-          chips: _guideChips(g), budget: _roomyBudget);
+          ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
+          chips: _guideChips(g),
+          budget: _roomyBudget);
     }
     if (kind == 'lawyer') return _out(anyLawyer, chips: _guideChips(g));
     final soc = _social(n, null);
@@ -1561,7 +1587,9 @@ class Advocate {
     // جوابِ پرسشی که خودم آخرِ راهنما پرسیده بودم: حالا نوبت قدم‌هاست.
     if (_guideAsked && g.steps.isNotEmpty && !Sense.isQuestion(n)) {
       _guideAsked = false;
+      _guideStepped = true;
       return _out('${_pick(Say.fine)} با این حساب${_guideSteps(g).replaceFirst('\n\n', ' ')}',
+          ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
           chips: _guideChips(g));
     }
     return null;
@@ -1580,6 +1608,21 @@ class Advocate {
         for (final p in s.split(_sentEnd))
           if (p.trim().isNotEmpty) p.trim(),
       ];
+
+  /// از یک توضیح بلند، جمله‌ای که به حرف کاربر می‌خورد.
+  static String _relevant(String answer, String n) {
+    final sents = _sentences(answer);
+    if (sents.isEmpty) return answer;
+    final keys = [
+      for (final w in n.trim().split(' '))
+        if (w.length >= 5) w.substring(0, 5),
+    ];
+    for (final s in sents) {
+      final sn = Sense.norm(s);
+      if (keys.any(sn.contains)) return s;
+    }
+    return sents.first;
+  }
 
   static String _brief(String line) {
     if (line.length <= 24) return line;
