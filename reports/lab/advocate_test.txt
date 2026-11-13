@@ -17,18 +17,9 @@
 ✅ شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
 ✅ مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
 ✅ پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
-::endgroup::
-::group::❌ نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند (failed)
-Expected: <0>
-  Actual: <1>
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/advocate_test.dart 297:5              main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ تشخیص درخواست صریح نوشتن سند
 ::endgroup::
 
-::error::19 tests passed, 1 failed.
+🎉 20 tests passed.
