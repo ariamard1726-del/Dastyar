@@ -1,4 +1,4 @@
-commit: 69be4f7
+commit: ef60189
 🎉 541 tests passed.
 --- analyze ---
-No issues found! (ran in 12.0s)
+No issues found! (ran in 10.2s)
