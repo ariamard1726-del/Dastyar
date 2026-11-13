@@ -1,46 +1,11 @@
 
-lib/domain/advocate/topics_money.dart:104:7: Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-Try adding the name of the type of the variable or the keyword 'var'.
-      n,
-      ^
-lib/domain/advocate/topics_money.dart:105:7: Error: Expected an identifier, but got ''خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده''.
-Try inserting an identifier before ''خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده''.
-      'خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده',
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/domain/advocate/topics_money.dart:106:7: Error: Expected an identifier, but got ''خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی''.
-Try inserting an identifier before ''خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی''.
-      'خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی',
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/domain/advocate/topics_money.dart:107:5: Error: Expected an identifier, but got ')'.
-Try inserting an identifier before ')'.
-    );
-    ^
-lib/domain/advocate/topics_money.dart:261:13: Error: Undefined name '_rentVacated'.
-      read: _rentVacated,
-            ^^^^^^^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/topics_money.dart:104:7: Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-Try adding the name of the type of the variable or the keyword 'var'.
-      n,
-      ^
-lib/domain/advocate/topics_money.dart:105:7: Error: Expected an identifier, but got ''خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده''.
-Try inserting an identifier before ''خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده''.
-      'خالی کردم|تخلیه کردم|تحویل دادم|کلید(?: رو| را)? (?:دادم|تحویل)|اسباب ?کشی کردم|بلند شدم|از اونجا رفتم|خونه رو پس دادم|خالی کرده ام|تخلیه شده',
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/domain/advocate/topics_money.dart:106:7: Error: Expected an identifier, but got ''خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی''.
-Try inserting an identifier before ''خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی''.
-      'خالی نکردم|تخلیه نکردم|هنوز (?:اونجام|توش|تو خونه|ساکن|نشستم|همونجام|تو همون)|بلند نشدم|تحویل ندادم|کلید دست(?:م| خودم)|هنوز خالی',
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/domain/advocate/topics_money.dart:107:5: Error: Expected an identifier, but got ')'.
-Try inserting an identifier before ')'.
-    );
-    ^
-lib/domain/advocate/topics_money.dart:261:13: Error: Undefined name '_rentVacated'.
-      read: _rentVacated,
-            ^^^^^^^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
