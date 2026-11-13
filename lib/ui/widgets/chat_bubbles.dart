@@ -484,7 +484,11 @@ class _RevealTextState extends State<RevealText>
   void _skip() {
     if (widget.message.revealed) return;
     _anim.stop();
-    _finish();
+    // اینجا در پاسخ به لمس هستیم (نه میانهٔ ساخت)، پس همین حالا بازسازی
+    // می‌کنیم؛ با ایستادن انیمیشن دیگر فریمی در راه نیست که منتظرش بمانیم.
+    widget.message.revealed = true;
+    setState(() {});
+    widget.onRevealed?.call();
   }
 
   bool get _thinking =>

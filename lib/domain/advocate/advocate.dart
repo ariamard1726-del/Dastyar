@@ -60,9 +60,33 @@ class Advocate {
 
   /// موضوع دومی که کاربر در همان پیام به آن اشاره کرده است.
   Topic? _also;
+
+  /// واقعیت‌هایی که آخرین استدلال روی آن‌ها بنا شده بود.
+  String _arguedOn = '';
+
+  /// موضوع دیگری که وسط پرونده به آن اشاره شد ولی مطمئن نیستم ماجرای
+  /// جدایی باشد؛ به‌جای پریدنِ خودسرانه از کاربر می‌پرسم.
+  Topic? _side;
+  String _sideText = '';
+
+  /// نشانه‌های اینکه کاربر خودش دارد موضوع را عوض می‌کند.
+  static const String _newMatter =
+      ' راستی | در ضمن | ضمنا | (?:یه|یک) (?:مشکل|سوال|موضوع|مورد|چیز|گرفتاری) (?:دیگه|دیگر|دیگه ای|دیگری) | (?:مشکل|سوال|موضوع|مورد) (?:دیگه|دیگر) ';
+
+  String _factsKey() {
+    final keys = file.facts.keys.toList()..sort();
+    final sb = StringBuffer(file.topic);
+    for (final k in keys) {
+      sb.write('|$k=${file.facts[k]}');
+    }
+    return sb.toString();
+  }
   int _vary = 0;
 
   static const String newCaseChip = 'موضوع تازه‌ای دارم';
+
+  /// پاسخ کاربر به «این ماجرای جدایی است؟».
+  static const String sideChip = 'این یک موضوع جداست';
   static const String _dontKnowChip = 'نمی‌دانم';
 
   static final List<Topic> topics = [
@@ -123,6 +147,8 @@ class Advocate {
     _loose.clear();
     unresolved.clear();
     _also = null;
+    _side = null;
+    _sideText = '';
     _vary = 0;
   }
 
@@ -153,6 +179,17 @@ class Advocate {
         'باشد، آن موضوع را کنار می‌گذارم. ماجرای تازه را تعریف کنید؛ از هر جا که راحت‌ترید شروع کنید.',
         chips: starterChips,
       );
+    }
+    // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
+    final side = _side;
+    final sideText = _sideText;
+    _side = null;
+    _sideText = '';
+    if (side != null &&
+        (raw.trim() == sideChip ||
+            (Sense.words(n) <= 4 &&
+                Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
+      return _open(side, Sense.norm(sideText), switched: true);
     }
     final topic = _current();
     Topic? best;
@@ -199,12 +236,28 @@ class Advocate {
 
     final cur = scores[topic.id] ?? 0;
     final issue = _matchIssue(topic, n);
-    if (best != null &&
-        best.id != topic.id &&
-        bestScore >= 3 &&
-        cur == 0 &&
-        (bestScore >= 4 || issue == null)) {
-      return _open(best, n, switched: true);
+    if (best != null && best.id != topic.id && cur == 0) {
+      // وسط یک پرونده، هر اشاره‌ای به موضوع دیگر به معنی ماجرای تازه
+      // نیست (مثلاً «قولنامه داریم» در پروندهٔ اجاره). فقط وقتی می‌پرم که
+      // خودِ کاربر موضوع را عوض کند یا نشانه قوی باشد؛ در حالت میانه می‌پرسم.
+      final marker = Sense.has(n, _newMatter);
+      final answers = _answers(topic, n);
+      final long = Sense.words(n) >= 5;
+      final need = marker ? 3 : (topic.id == 'accused' ? 9 : 5);
+      final strong = bestScore >= need ||
+          (topic.id != 'accused' && bestScore >= 4 && Sense.isQuestion(n));
+      if (strong &&
+          (marker || (long && !answers)) &&
+          (bestScore >= 4 || issue == null)) {
+        return _open(best, n, switched: true);
+      }
+      // متهم معمولاً ماجرای پشتِ شکایت را تعریف می‌کند (ملک، چک، …)؛ آن‌جا
+      // فقط با نشانهٔ خیلی قوی می‌پرسم.
+      final hint = topic.id == 'accused' ? 6 : 4;
+      if (bestScore >= hint && issue == null && !answers) {
+        _side = best;
+        _sideText = raw;
+      }
     }
     return _inCase(topic, raw, n, issue);
   }
@@ -216,6 +269,26 @@ class Advocate {
       if (t.id == file.topic) return t;
     }
     return null;
+  }
+
+  /// آیا این پیام جوابِ همان پرسشی است که منتظرش بودم؟
+  bool _answers(Topic t, String n) {
+    if (file.pending.isEmpty) return false;
+    for (final s in t.slots) {
+      if (s.id != file.pending) continue;
+      if (s.read(n) != null) return true;
+      final rp = s.readPending;
+      if (rp != null && rp(n) != null) return true;
+    }
+    return Sense.words(n) <= 5 &&
+        (Sense.saysYes(n) || Sense.saysNo(n) || Sense.saysDontKnow(n));
+  }
+
+  /// یادآوریِ موضوعِ دیگری که کاربر وسط پرونده به آن اشاره کرد.
+  String _sideNote() {
+    final s = _side;
+    if (s == null) return '';
+    return 'به «${s.title}» هم اشاره کردید. اگر ماجرای جداگانه‌ای است، بگویید «$sideChip» تا آن را جدا بررسی کنم؛ وگرنه همین پرونده را ادامه می‌دهیم.';
   }
 
   int _score(Topic t, String n) {
@@ -248,6 +321,7 @@ class Advocate {
     _guide = null;
     _lastBody = '';
     _deferred = '';
+    _arguedOn = '';
   }
 
   /// واقعیت‌های تازهٔ پیام را در پرونده می‌نشاند و فهرست تغییرها را می‌دهد.
@@ -321,7 +395,7 @@ class Advocate {
     // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
     // همان‌جا می‌تواند اصلاحم کند.
     final got = _recap(t);
-    if (got.length >= 2) {
+    if (got.isNotEmpty) {
       parts.add('${_pick(Say.understood)} ${_join(got)}.');
     }
     final open = t.opening(file);
@@ -341,7 +415,14 @@ class Advocate {
     _addEffects(parts, news, issue == null ? 3 : 2,
         skip: _deferred.isEmpty && issue != null ? issue.covers : const {});
     _noteAmount(parts, news, n);
-    if (_lastBody.isEmpty && parts.isNotEmpty) _lastBody = parts.first;
+    if (_lastBody.isEmpty) {
+      // «ساده‌تر بگو» باید سراغ حرف قانون برود، نه بازگویی ماجرا.
+      if (open.isNotEmpty) {
+        _lastBody = open;
+      } else if (parts.isNotEmpty) {
+        _lastBody = parts.first;
+      }
+    }
     var lead = '';
     if (switched) {
       lead = _pick(Say.switched);
@@ -422,15 +503,17 @@ class Advocate {
         understood = true;
       } else {
         final kind = Sense.followKind(n);
-        final a0 = kind == 'argue' || kind == 'chance' ? _argue(t) : null;
-        // استدلالی که عیناً گفته شده برای «شانسم چقدر است؟» تکرار نمی‌شود.
+        // استدلالی که با همین واقعیت‌ها گفته شده برای «شانسم چقدر است؟»
+        // تکرار نمی‌شود؛ با «استدلالت چیه؟» یا واقعیت تازه دوباره می‌آید.
+        final stale = kind == 'chance' && _arguedOn == _factsKey();
         final arg =
-            a0 != null && kind == 'chance' && _said.contains(a0) ? null : a0;
+            (kind == 'argue' || kind == 'chance') && !stale ? _argue(t) : null;
         final fb = kind.isEmpty
             ? null
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
         if (arg != null) {
           parts.add(arg);
+          _arguedOn = _factsKey();
           file.covered.add('f:argue');
           file.covered.add('f:chance');
           _said.add(arg);
@@ -461,19 +544,34 @@ class Advocate {
     if (!understood) {
       final soc = _social(n, t);
       if (soc != null) return soc;
-      if (Sense.words(n) >= 3) {
+      final ask = _sideNote();
+      if (ask.isEmpty && Sense.words(n) >= 3) {
         final lg = _matchGuide(raw, n);
         if (lg != null) return _openGuide(lg, raw, n, switched: true);
       }
-      if (Sense.has(n, 'ماده [0-9]+|قانون ')) return _lookup(raw, n);
-      parts.add(_pick(Say.lost));
+      if (ask.isEmpty && Sense.has(n, 'ماده [0-9]+|قانون ')) {
+        return _lookup(raw, n);
+      }
+      parts.add(ask.isEmpty ? _pick(Say.lost) : ask);
       file.pending = '';
-      return _out(parts.join('\n\n'), chips: _suggest(t));
+      return _out(
+        parts.join('\n\n'),
+        chips: [if (ask.isNotEmpty) sideChip, ..._suggest(t)],
+      );
     }
     if (parts.isEmpty) {
       parts.add(_nextSlot(t) == null
           ? 'بسیار خوب. بگویید کدام بخش برایتان مهم‌تر است تا از همان شروع کنم؛ یا یکی از گزینه‌های زیر را انتخاب کنید.'
           : _pick(const ['بسیار خوب.', 'متوجه شدم.', 'خیلی خوب، یادداشت کردم.']));
+    }
+    // اگر حرف کاربر را در همین پرونده فهمیده‌ام، فقط برای پیام‌های بلند
+    // می‌پرسم که آیا ماجرای جدایی هم هست؛ وگرنه مزاحم گفتگو می‌شود.
+    final note = _sideNote();
+    if (note.isNotEmpty && Sense.words(n) >= 5) {
+      parts.add(note);
+    } else {
+      _side = null;
+      _sideText = '';
     }
     return _finish(t, parts);
   }
@@ -529,6 +627,7 @@ class Advocate {
         final arg = file.covered.contains('f:argue') ? null : _argue(t);
         if (arg != null) {
           body = '$body\n\n${_pick(Say.wrap)} $arg';
+          _arguedOn = _factsKey();
           file.covered.add('f:argue');
           _said.add(arg);
           _lastBody = arg;
@@ -554,6 +653,7 @@ class Advocate {
       file.pending = '';
       chips.addAll(_suggest(t));
     }
+    if (_side != null) chips.insert(0, sideChip);
     return _out(body, chips: chips);
   }
 

@@ -342,11 +342,22 @@ void main() {
   test('برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)', () {
     final a = fresh();
     final r = a.respond('مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه');
-    expect(r.text, contains('موجر'));
-    expect(r.text, contains('هنوز تخلیه نشده'));
+    // نقشی که از حرف کاربر برداشت کرده همان اول گفته می‌شود تا قابل اصلاح باشد.
+    expect(r.text, contains('موجر (صاحب ملک) هستید'));
     final got = a.respond('چی فهمیدی؟');
     expect(got.text, contains('موجر'));
     expect(got.text, contains('اصلاح'));
+    final b = fresh();
+    talk(b, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده ولی هنوز خونه رو خالی نکردم',
+    ]);
+    final all = b.respond('چی فهمیدی؟').text;
+    expect(all, contains('مستأجر هستید'));
+    expect(all, contains('مدت اجاره تمام شده'));
+    expect(all, contains('ملک هنوز تخلیه نشده'));
+    expect(all, contains('۱۵۰ میلیون'));
     final none = fresh().respond('چی فهمیدی؟');
     expect(none.text.trim(), isNotEmpty);
   });
@@ -423,6 +434,39 @@ void main() {
     expect(e.file.topic, 'enforce');
     expect(e.file.get('side'), 'loser');
     expect(e.draftIds, contains('insolvency'));
+  });
+
+  test('وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد', () {
+    // جوابِ پرسشِ وکیل، هرچند واژه‌اش به موضوع دیگری بخورد، همان پرونده می‌ماند.
+    final a = fresh();
+    talk(a, ['صاحبخونه پول پیشمو نمیده', 'قولنامه داریم']);
+    expect(a.file.topic, 'rent');
+    expect(a.file.yes('contract'), isTrue);
+    // متهم دارد ماجرای پشتِ شکایت را تعریف می‌کند، نه پروندهٔ تازه.
+    final b = fresh();
+    talk(b, [
+      'ازم شکایت کردن به جرم کلاهبرداری ولی من کاری نکردم',
+      'ملک رو بهش فروختم سند نزدم',
+    ]);
+    expect(b.file.topic, 'accused');
+    // اشارهٔ کوتاه به ماجرایی دیگر: نمی‌پرد، می‌پرسد؛ با تأیید کاربر می‌رود.
+    final c = fresh();
+    c.respond('یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره');
+    final ask = c.respond('سگ همسایه گازم گرفت');
+    expect(c.file.topic, 'consumer');
+    expect(ask.chips, contains(Advocate.sideChip));
+    expect(ask.text, contains('ماجرای جداگانه'));
+    c.respond(Advocate.sideChip);
+    expect(c.file.topic, 'injury');
+    expect(c.file.get('kind'), 'other');
+    // ولی وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌معطلی می‌رود.
+    final d = fresh();
+    talk(d, [
+      'ضامن وام دوستم شدم و حالا قسط نمیده',
+      'راستی یکی عکسامو تو تلگرام پخش کرده',
+    ]);
+    expect(d.file.topic, 'cyber');
+    expect(d.file.get('kind'), 'expose');
   });
 
   test('تشخیص درخواست صریح نوشتن سند', () {
