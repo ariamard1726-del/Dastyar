@@ -141,6 +141,16 @@ class Advocate {
   ];
   static const List<String> _goalChips = ['توافق و سازش', 'مسیر قانونی تا آخر'];
 
+  /// کاربر خودش گفته دنبال چیست؛ دیگر نمی‌پرسم.
+  static const String _goalSaid =
+      '(?:میخوام|میخواهم|ترجیح|دوست دارم|دنبال|بهتره|حاضرم) (?:[^ ]+ ){0,5}(?:توافق|سازش|صلح|دوستانه|مسالمت|کنار بیا)'
+      '|(?:توافق|سازش|صلح)[^ ]* (?:[^ ]+ ){0,2}(?:تموم|تمام|حل) (?:بشه|شه|شود|کنیم)'
+      '|(?:میخوام|میخواهم) (?:[^ ]+ ){0,3}(?:شکایت کنم|تا (?:آخر|اخر|ته)|برم دادگاه)|کوتاه نمیام';
+
+  /// کاربر خودش گفته طرف مقابل چه برخوردی داشته؛ دیگر نمی‌پرسم.
+  static const String _replySaid =
+      ' میگه | میگن | گفته | گفت |جواب(?:م| منو| تلفن)?(?: رو)? نمیده|بلاک|زیر بار نمیره|انکار میکنه|حاشا|امروز و فردا|امروز فردا|قول داده|تهدید(?:م)? (?:کرد|میکنه)';
+
   /// موضوع‌هایی که طرف مقابلِ مشخصی دارند و «او چه می‌گوید؟» معنا دارد.
   static const Set<String> _adversarial = {
     'rent', 'cheque', 'debt', 'labor', 'family', 'partner', 'neighbor',
@@ -302,18 +312,36 @@ class Advocate {
       final t0 = _current();
       final offer = _offer;
       if (t0 != null &&
-          (Sense.saysYes(n) || Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا) '))) {
+          (Sense.saysYes(n) ||
+              raw.trim() == moreChip ||
+              Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
         clearOffer();
         if (offer == 'draft') {
           return _out(
               'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
         }
+        file.turns--;
         return respond(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
       }
       if (t0 != null && Sense.saysNo(n)) {
         clearOffer();
         return _finish(t0, [_pick(Say.fine)]);
       }
+    }
+    // «باشه»، «نه» یا «ادامه بده» وقتی پرسشی روی میز نیست: گفتگو را با
+    // پرسش بعدی جلو می‌برم، نه با «متوجه نشدم».
+    final t1 = _current();
+    if (t1 != null &&
+        rest.isEmpty &&
+        _offer.isEmpty &&
+        file.pending.isEmpty &&
+        _side == null &&
+        Sense.words(n) <= 3 &&
+        (raw.trim() == moreChip ||
+            Sense.has(n, '^ ادامه ') ||
+            Sense.saysYes(n) ||
+            Sense.saysNo(n))) {
+      return _finish(t1, [_pick(Say.fine)]);
     }
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = _side;
@@ -592,6 +620,8 @@ class Advocate {
     }
     final news = _absorb(t, n);
     _heard = '${earlier.join(' ')} $n';
+    if (Sense.has(_heard, _replySaid)) file.covered.add('q:reply');
+    if (Sense.has(_heard, _goalSaid)) file.covered.add('q:goal');
     final parts = <String>[];
     // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
     // همان‌جا می‌تواند اصلاحم کند.
@@ -678,6 +708,17 @@ class Advocate {
     final wasPending = file.pending;
     final news = _absorb(t, n);
     _heard = '$_heard $n';
+    // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
+    final heardGoal = wasPending != 'q:goal' &&
+        !file.covered.contains('q:goal') &&
+        Sense.has(n, _goalSaid);
+    if (heardGoal) file.covered.add('q:goal');
+    if (wasPending != 'q:reply' &&
+        (Sense.has(n, _replySaid) ||
+            news.any((s) =>
+                file.has(s.id) && s.options.any((o) => o.contains('انکار'))))) {
+      file.covered.add('q:reply');
+    }
     final parts = <String>[];
     var understood = news.isNotEmpty || file.touched(file.pending);
     var asked = issue;
@@ -744,7 +785,10 @@ class Advocate {
         final soc = _social(n, t);
         if (soc != null) return soc;
       }
-      parts.add(_react(wasPending, n));
+      parts.add(_react(heardGoal ? 'q:goal' : wasPending, n));
+      understood = true;
+    } else if (heardGoal && parts.isEmpty) {
+      parts.add(_react('q:goal', n));
       understood = true;
     }
     _addEffects(parts, news, 2,
@@ -765,7 +809,17 @@ class Advocate {
       final ask = _sideNote();
       if (ask.isEmpty && Sense.words(n) >= 3) {
         final lg = _matchGuide(raw, n);
-        if (lg != null) return _openGuide(lg, raw, n, switched: true);
+        if (lg != null) {
+          if (_askText.isEmpty) return _openGuide(lg, raw, n, switched: true);
+          // وسطِ پرونده، حرفِ تازه را کوتاه جواب می‌دهم و رشتهٔ گفتگو را
+          // نگه می‌دارم.
+          return _out(
+            '${_cut(lg.answer, 220)[0]}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
+            ask: 'برگردیم سر پروندهٔ خودمان: $_askText',
+            chips: _askChips,
+            full: true,
+          );
+        }
       }
       if (ask.isEmpty && Sense.has(n, 'ماده [0-9]+|قانون ')) {
         return _lookup(raw, n);
@@ -1255,7 +1309,9 @@ class Advocate {
       return _out(
         topic == null
             ? 'خواهش می‌کنم. هر وقت سؤالی بود، همین‌جا هستم.'
-            : 'خواهش می‌کنم. اگر در ادامهٔ کار به مشکلی خوردید یا طرف مقابل حرکت تازه‌ای کرد، همین‌جا بگویید تا قدم بعد را با هم بچینیم.',
+            : _askText.isNotEmpty
+                ? 'خواهش می‌کنم.'
+                : 'خواهش می‌کنم. اگر در ادامهٔ کار به مشکلی خوردید یا طرف مقابل حرکت تازه‌ای کرد، همین‌جا بگویید تا قدم بعد را با هم بچینیم.',
         chips: _idleChips(),
       );
     }
@@ -1308,6 +1364,7 @@ class Advocate {
     ['مدرسه|دانشگاه|آموزشگاه|مهدکودک', 'یک مرکز آموزشی'],
     ['دکتر|پزشک|بیمارستان|کلینیک|درمانگاه', 'پزشک یا مرکز درمانی'],
     ['فروشنده|مغازه دار|فروشگاه|نمایشگاه', 'فروشنده'],
+    [' پیک |پستچی|اداره پست|شرکت پست|تیپاکس|باربری|اسنپ|تپسی', 'پیک یا شرکت حمل‌ونقل'],
     ['شرکت', 'یک شرکت'],
   ];
 
@@ -1355,9 +1412,11 @@ class Advocate {
     final k = _loose.length;
     if (k <= 1) {
       return _out(lead,
-          ask: who.isEmpty
-              ? 'طرف مقابل کیست و دقیقاً چه کرده است؟'
-              : 'دقیقاً چه اتفاقی افتاد و از چه زمانی؟');
+          ask: who.isNotEmpty
+              ? 'دقیقاً چه اتفاقی افتاد و از چه زمانی؟'
+              : Sense.words(n) >= 4
+                  ? 'این از کِی پیش آمده و تا حالا برایش چه کرده‌اید؟'
+                  : 'طرف مقابل کیست و دقیقاً چه کرده است؟');
     }
     if (k == 2) {
       return _out(lead,

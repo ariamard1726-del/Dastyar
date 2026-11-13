@@ -592,6 +592,64 @@ void main() {
       a.respond('کرایه رو میخواد ببره بالا');
       expect(a.file.topic, 'rent');
     });
+
+    test('مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود', () {
+      final a = fresh();
+      final r = a.respond('صاحبخونه میخواد کرایه رو ببره بالا');
+      expect(a.file.topic, 'rent');
+      expect(r.text, contains('یک‌طرفه'));
+      expect(r.text, isNot(contains('ودیعه')));
+      expect(r.text, isNot(contains('تخلیه کرده')));
+      expect(r.text.trimRight(), endsWith('؟'));
+    });
+
+    test('وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد', () {
+      final a = fresh();
+      final r = a.respond('با صاحبخونه سر اجاره به مشکل خوردم');
+      expect(a.file.topic, 'rent');
+      expect(a.file.pending, 'matter');
+      expect(r.text, isNot(contains('ودیعه')));
+      expect(r.chips, contains('می‌خواهد اجاره را زیاد کند'));
+      final next = a.respond('می‌خواهد اجاره را زیاد کند');
+      expect(next.text, contains('یک‌طرفه'));
+      expect(a.file.pending, isNot('vacated'));
+    });
+
+    test('خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود', () {
+      final a = fresh();
+      a.respond('دوستم ازم پول قرض گرفته پس نمیده');
+      final r = a.respond('میخوام با توافق تموم بشه');
+      expect(a.file.covered, contains('q:goal'));
+      expect(r.text, contains('توافق'));
+      expect(r.text.trimRight(), endsWith('؟'));
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('«ادامه بده» در جواب پیشنهاد، یعنی بله', () {
+      final a = fresh();
+      talk(a, [
+        'صاحبخونه پول پیشمو نمیده',
+        '۱۵۰ میلیون',
+        'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
+      ]);
+      var guard = 0;
+      var last = a.respond('نمیدونم');
+      while (!last.chips.contains('بله، بگو') && guard < 14) {
+        guard++;
+        last = a.respond('نمیدونم');
+      }
+      expect(last.chips, contains('بله، بگو'));
+      final yes = a.respond(Advocate.moreChip);
+      expect(yes.text, anyOf(contains('شرط'), contains('۱)')));
+      // «نه» وقتی پرسشی روی میز نیست هم گفتگو را گم نمی‌کند.
+      final a2 = fresh();
+      a2.respond('صاحبخونه پول پیشمو نمیده');
+      a2.file.pending = '';
+      a2.clearOffer();
+      final no = a2.respond('نه');
+      expect(a2.unresolved, isEmpty);
+      expect(no.text.trim(), isNotEmpty);
+    });
   });
 
   test('تشخیص درخواست صریح نوشتن سند', () {

@@ -9,6 +9,14 @@ import 'package:dastyar/domain/advocate/text_sense.dart';
 List<String> rentRecap(CaseFile f) => [
       if (f.eq('role', 'landlord')) 'موجر (صاحب ملک) هستید',
       if (f.eq('role', 'tenant')) 'مستأجر هستید',
+      if (f.eq('role', 'tenant') && f.eq('matter', 'deposit'))
+        'موجر پول پیش را پس نمی‌دهد',
+      if (f.eq('role', 'tenant') && f.eq('matter', 'raise'))
+        'موجر می‌خواهد اجاره را بالا ببرد',
+      if (f.eq('role', 'tenant') && f.eq('matter', 'evict'))
+        'موجر می‌خواهد شما را از خانه بیرون کند',
+      if (f.eq('role', 'tenant') && f.eq('matter', 'repair'))
+        'خانه خرابی دارد و موجر تعمیرش نمی‌کند',
       if (f.yes('ended')) 'مدت اجاره تمام شده',
       if (f.no('ended')) 'مدت اجاره هنوز تمام نشده',
       if (f.yes('vacated')) 'ملک تخلیه و تحویل شده',
@@ -43,6 +51,7 @@ final List<Claim> rentClaims = [
   ),
   Claim(
     goal: 'پس‌گرفتن ودیعه از موجر',
+    when: (f) => !f.has('matter') || f.eq('matter', 'deposit'),
     elements: [
       Element(
         'مدت اجاره تمام شده باشد (یا با توافق دو طرف به هم خورده باشد) [[civil:494]].',
