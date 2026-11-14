@@ -51,11 +51,11 @@
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
-✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
-✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
+✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
 ✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
