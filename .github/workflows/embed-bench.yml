@@ -1,0 +1,43 @@
+name: Embedding model benchmark
+
+# آزمایش، نه بخشی از برنامه: مدل‌های برداری فارسی (fp32 و int8) را روی
+# eval/understanding_probe.tsv با نمونه‌های eval/topic_examples.tsv می‌سنجد و
+# گزارش را در brain/reports/embed_bench.md می‌گذارد. هیچ مدلی وارد مخزن یا APK نمی‌شود.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['arena/**']
+    paths:
+      - 'brain/embed_bench.py'
+      - 'eval/topic_examples.tsv'
+      - '.github/workflows/embed-bench.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn sentence-transformers huggingface_hub sentencepiece protobuf onnx onnxruntime onnxscript
+          pip list 2>/dev/null | grep -i -E "^(torch|transformers|sentence-transformers|onnx|onnxruntime|onnxscript|tokenizers|numpy) "
+      - name: Run benchmark
+        run: python brain/embed_bench.py
+      - name: Commit report
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/embed_bench.md || true
+          git commit -m "گزارش سنجش مدل برداری [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
