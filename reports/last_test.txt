@@ -1,4 +1,4 @@
-commit: 6a4f059
+commit: 486262f
 🎉 286 tests passed.
 --- analyze ---
-No issues found! (ran in 10.6s)
+No issues found! (ran in 8.9s)
