@@ -30,16 +30,21 @@ final List<Claim> rentClaims = [
   Claim(
     goal: 'گرفتن دستور تخلیهٔ فوری از مستأجر',
     when: (f) => f.eq('role', 'landlord'),
+    cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)',
     elements: [
       Element(
         'مدت اجاره تمام شده باشد [[landlord_tenant:3]].',
         (f) => f.tri('ended'),
+        needs: const ['ended'],
+        because: (f) => 'مدت اجاره تمام شده',
         ifNo:
             'تا مدت تمام نشده دستور تخلیهٔ فوری نمی‌دهند؛ فقط اگر در قرارداد برای خودتان حق فسخ گذاشته باشید (مثلاً برای نپرداختن اجاره) می‌شود از راه دادگاه جلو رفت.',
       ),
       Element(
         'اجاره‌نامهٔ کتبی با امضای دو شاهد داشته باشید [[landlord_tenant:2]].',
         (f) => f.tri('contract'),
+        needs: const ['contract'],
+        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
         ifNo:
             'بدون اجاره‌نامهٔ کتبیِ شاهددار باید «دادخواست تخلیه» بدهید که زمان‌برتر از دستور تخلیه است.',
       ),
@@ -52,22 +57,30 @@ final List<Claim> rentClaims = [
   Claim(
     goal: 'پس‌گرفتن ودیعه از موجر',
     when: (f) => !f.has('matter') || f.eq('matter', 'deposit'),
+    cues: 'ودیعه|پول پیش|رهن|پولم',
+    uses: const ['amount'],
     elements: [
       Element(
         'مدت اجاره تمام شده باشد (یا با توافق دو طرف به هم خورده باشد) [[civil:494]].',
         (f) => f.tri('ended'),
+        needs: const ['ended'],
+        because: (f) => 'مدت اجاره تمام شده',
         ifNo:
             'تا پایان مدت، موجر تکلیفی به پس‌دادن ودیعه ندارد، مگر با توافق یا شرطی که در خود قرارداد آمده باشد.',
       ),
       Element(
         'ملک را تخلیه و تحویل داده باشید [[landlord_tenant:4]].',
         (f) => f.tri('vacated'),
+        needs: const ['vacated'],
+        because: (f) => 'ملک را تخلیه کرده و تحویل داده‌اید',
         ifNo:
             'تخلیه و پس‌دادن ودیعه باید هم‌زمان باشد؛ با اظهارنامه اعلام آمادگی کنید و کلید را فقط در برابر پول تحویل بدهید.',
       ),
       Element(
         'بتوانید پرداخت ودیعه و مبلغش را نشان بدهید (اجاره‌نامه، رسید یا تراکنش بانکی).',
         (f) => f.tri('contract'),
+        needs: const ['contract'],
+        because: (f) => 'اجاره‌نامه دارید و ودیعه در آن آمده',
         ifNo:
             'نبودِ اجاره‌نامه مانع نیست، ولی باید با رسید واریز، پیام‌ها یا شاهد، پرداخت ودیعه را ثابت کنید.',
       ),
@@ -96,16 +109,22 @@ final List<Claim> chequeClaims = [
   Claim(
     goal: 'وصول سریع وجه چک از راه اجرائیهٔ دادگاه',
     when: (f) => !f.eq('role', 'issuer'),
+    cues: 'اجرائیه|اجراییه|وصول|پول(?:م|مو|ش)|نقد',
+    uses: const ['amount'],
     elements: [
       Element(
         'گواهی عدم پرداخت از بانک گرفته باشید [[cheque:23]].',
         (f) => f.tri('cert'),
+        needs: const ['cert'],
+        because: (f) => 'گواهی عدم پرداخت گرفته‌اید',
         ifNo:
             'بدون این گواهی هیچ‌کدام از راه‌ها شروع نمی‌شود؛ اول چک را به بانک ببرید و گواهی بگیرید.',
       ),
       Element(
         'در متن خود چک، شرط یا عبارت «بابت تضمین» نوشته نشده باشد [[cheque:23]].',
         (f) => f.has('kind') ? (f.eq('kind', 'guarantee') ? null : true) : null,
+        needs: const ['kind'],
+        because: (f) => 'چک بابت ضمانت نبوده',
       ),
     ],
     win: (f) =>
@@ -131,10 +150,20 @@ List<String> debtRecap(CaseFile f) => [
 final List<Claim> debtClaims = [
   Claim(
     goal: 'گرفتن حکم پرداخت طلب',
+    cues: 'پول(?:م|مو)|طلب(?:م|مو)|حکم|محکوم',
+    uses: const ['amount'],
     elements: [
       Element(
         'اصل بدهی را بتوانید ثابت کنید؛ با نوشته، واریز، پیام، شاهد یا اقرار خودش [[civil_procedure:197]].',
         (f) => f.has('proof') ? !f.eq('proof', 'none') : null,
+        needs: const ['proof'],
+        because: (f) => f.eq('proof', 'doc')
+            ? 'رسید یا نوشته دارید'
+            : (f.eq('proof', 'transfer')
+                ? 'واریز بانکی دارید'
+                : (f.eq('proof', 'witness')
+                    ? 'شاهد دارید'
+                    : 'پیام‌هایی دارید که بدهی را نشان می‌دهد')),
         ifNo:
             'بدون دلیل، اگر او انکار کند و قسم بخورد دعوا رد می‌شود [[civil_procedure:272]]؛ پس پیش از دادخواست باید دلیل ساخت، مثلاً با گرفتن اقرار کتبی در پیام.',
       ),
@@ -146,6 +175,10 @@ final List<Claim> debtClaims = [
           if (f.eq('proof', 'doc') || f.eq('proof', 'transfer')) return true;
           return f.has('proof') ? false : null;
         },
+        needs: const ['admits', 'proof'],
+        because: (f) => f.yes('admits')
+            ? 'خودش اصل بدهی را قبول دارد'
+            : 'مدرک کتبی یا بانکیِ شما از انکار او محکم‌تر است',
         ifNo:
             'با انکار او و دلیلِ ضعیف، نتیجه به سوگند و قرائن بسته است و قابل پیش‌بینی نیست.',
       ),
@@ -221,6 +254,8 @@ final List<Claim> laborClaims = [
   Claim(
     label: 'اخراج',
     goal: 'ناموجه شناخته‌شدنِ اخراج',
+    cues:
+        'برگرد(?:م|ی)? سر کار|برمیگرد(?:م|ی)? سر کار|بازگشت به کار|اخراج(?:م|ش)? (?:[^ ]+ ){0,2}(?:قانونی|غیر ?قانونی|درست|ناموجه|موجه)|حق (?:داشت|داره|دارد|داشته) (?:[^ ]+ ){0,2}اخراج|میتون(?:ه|ست|د) (?:[^ ]+ ){0,2}اخراج|خسارت اخراج',
     when: (f) => laborFired(f),
     uses: const ['months', 'salary'],
     elements: [
@@ -261,6 +296,7 @@ final List<Claim> laborClaims = [
   Claim(
     label: 'حقوق معوق',
     goal: 'وصول حقوق و مزایای پرداخت‌نشده',
+    cues: 'حقوق[^ ]* (?:[^ ]+ ){0,3}(?:بگیرم|میگیرم|گرفت|وصول|میرسه|میدن)',
     when: (f) => f.eq('event', 'unpaid') || f.yes('owed'),
     uses: const ['salary'],
     elements: [
@@ -278,6 +314,7 @@ final List<Claim> laborClaims = [
   Claim(
     label: 'سنوات',
     goal: 'گرفتن سنوات (مزایای پایان کار)',
+    cues: 'سنوات|مزایای پایان کار',
     uses: const ['salary'],
     elements: [
       _laborRel,
@@ -313,6 +350,7 @@ final List<Claim> laborClaims = [
   Claim(
     label: 'بیمهٔ ردنشده',
     goal: 'الزام کارفرما به پرداخت حق‌بیمهٔ مدت کارکرد',
+    cues: 'بیمه',
     when: (f) => !f.yes('insured'),
     elements: [
       _laborRel,
@@ -353,10 +391,16 @@ final List<Claim> familyClaims = [
       Element(
         'ادامهٔ زندگی برایتان سختیِ غیرقابل‌تحمل (عسر و حرج) شده باشد [[civil:1130]].',
         (f) => f.yes('violence') ? true : null,
+        needs: const ['violence'],
+        because: (f) => 'کتک و آزار در کار بوده',
       ),
       Element(
         'بتوانید آن را در دادگاه ثابت کنید (پزشکی قانونی، گزارش پلیس، شاهد).',
         (f) => f.has('proofV') ? !f.eq('proofV', 'none') : null,
+        needs: const ['proofV'],
+        because: (f) => f.eq('proofV', 'medical')
+            ? 'گواهی پزشکی قانونی دارید'
+            : 'عکس یا شاهد دارید',
         ifNo:
             'دادگاه به صرفِ گفتهٔ شما حکم نمی‌دهد؛ از همین حالا هر رخداد را ثبت کنید: پزشکی قانونی، تماس با ۱۱۰، شهادت کسانی که دیده‌اند.',
       ),

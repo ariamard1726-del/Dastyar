@@ -104,6 +104,11 @@ class Claim {
   /// برقراریِ شرط‌ها.
   final List<String> uses;
 
+  /// نشانه‌های اینکه کاربر دربارهٔ همین خواسته می‌پرسد («می‌توانم برگردم سر
+  /// کار؟»). اگر پرسشش «می‌شود/نمی‌شود» باشد، جوابش حکمِ همین ادعا روی
+  /// واقعیت‌های خودش است، نه یک متن کلی.
+  final String cues;
+
   const Claim({
     required this.goal,
     required this.elements,
@@ -112,6 +117,7 @@ class Claim {
     this.when,
     this.counter,
     this.uses = const [],
+    this.cues = '',
   });
 }
 

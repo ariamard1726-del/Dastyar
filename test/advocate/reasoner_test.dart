@@ -4,6 +4,7 @@ import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/topics_life.dart';
+import 'package:dastyar/domain/advocate/topics_money.dart';
 
 /// آزمون استدلال: کدام ادعا روی میز است، هر شرط چه وضعی دارد، و پرسش بعدی
 /// کدام است. بخش اول فقط منطق را می‌سنجد (بدون متن)؛ بخش دوم گفتگو را.
@@ -169,6 +170,28 @@ void main() {
       expect(next(f), 'months');
     });
 
+    test('ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ', () {
+      final f = CaseFile()..topic = 'rent';
+      String? ask() => Reasoner.nextQuestion(rentTopic, f, [
+            for (final s in rentTopic.slots)
+              if (s.ask.isNotEmpty &&
+                  !f.touched(s.id) &&
+                  (s.when == null || s.when!(f)))
+                s,
+          ])?.id;
+      expect(ask(), 'role');
+      f.facts['role'] = 'tenant';
+      expect(ask(), 'matter');
+      f.facts['matter'] = 'deposit';
+      expect(ask(), 'ended');
+      f.facts['ended'] = 'yes';
+      expect(ask(), 'vacated');
+      f.facts['vacated'] = 'yes';
+      expect(ask(), 'contract');
+      f.facts['contract'] = 'yes';
+      expect(ask(), 'amount');
+    });
+
     test('موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد', () {
       for (final t in Advocate.topics) {
         if (t.id == 'labor') continue;
@@ -220,6 +243,8 @@ void main() {
       expect(arg, contains('روی اخراج محکم بایستید'));
       // بعد از تحلیل، پرسش‌های مانده را ادامه می‌دهد.
       expect(arg, contains('چند وقت است آنجا کار می‌کنید؟'));
+      // وقتی پرسش‌ها از یک خواسته به خواستهٔ دیگر می‌رود، می‌گوید.
+      expect(arg, contains('حالا دربارهٔ «سنوات»'));
       expect(a.unresolved, isEmpty);
     });
 
@@ -261,6 +286,83 @@ void main() {
         say(a, 'نه، هیچ اخطاری ندادند'),
       ].join('\n');
       expect(rest, isNot(contains('هنوز همان‌جا کار می‌کنید')));
+    });
+
+    test('پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل', () {
+      final a = fresh();
+      say(a, 'کارفرما اخراجم کرده');
+      say(a, 'بله');
+      final open = say(a, 'میتونم برگردم سر کار؟');
+      expect(open, contains('هنوز نمی‌توانم قطعی بگویم'));
+      expect(open, contains('قرارداد کتبی دارید'));
+      expect(open, contains('سه چیز مانده'));
+      expect(open, contains('ماده ۱۶۵'));
+      say(a, 'نه، چیزی امضا نکرده‌ام');
+      say(a, 'وسط قرارداد بود');
+      say(a, 'نه، هیچ اخطاری ندادند');
+      final yes = say(a, 'میتونم برگردم سر کار؟');
+      expect(yes, contains('بله؛ چون قرارداد کتبی دارید'));
+      expect(yes, contains('هیچ تذکر کتبی‌ای نگرفته‌اید'));
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('«سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل',
+        () {
+      final a = fresh();
+      say(a, 'کارفرما سه ماهه حقوقمو نداده');
+      say(a, 'قرارداد دارم');
+      say(a, 'هنوز کار می‌کنم');
+      final r = say(a, 'سنوات بهم تعلق میگیره؟');
+      expect(r, contains('فعلاً نه'));
+      expect(r, contains('موقع پایان کار'));
+      expect(r, isNot(contains('بله، سنوات حق شماست')));
+    });
+
+    test('وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده', () {
+      final a = fresh();
+      say(a, 'کارفرما اخراجم کرده');
+      say(a, 'بله');
+      expect(a.file.yes('contract'), isTrue);
+      final r = say(a, 'اشتباه گفتم، قرارداد کتبی ندارم');
+      expect(a.file.no('contract'), isTrue);
+      expect(r, contains('برداشتم را اصلاح کردم'));
+      expect(r, contains('«قرارداد کتبی ندارید»'));
+    });
+
+    test('بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود', () {
+      final a = fresh();
+      say(a, 'کارفرما اخراجم کرده');
+      say(a, 'بله');
+      say(a, 'نه، چیزی امضا نکرده‌ام');
+      say(a, 'وسط قرارداد بود');
+      say(a, 'استدلالت چیه؟');
+      final r = say(a, 'نه، هیچ اخطاری ندادند');
+      expect(r, contains('حساب را عوض کرد'));
+      expect(r, contains('«اخراج»'));
+    });
+
+    test('خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود', () {
+      final a = fresh();
+      say(a, 'کارفرما اخراجم کرده');
+      final r = say(a, 'سه ماه هم هست حقوقمو نداده');
+      expect(a.file.yes('owed'), isTrue);
+      expect(a.file.yes('fired'), isTrue);
+      expect(r, contains('«حقوق معوق» خواستهٔ جداگانه‌ای است'));
+    });
+
+    test('اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید', () {
+      final a = fresh();
+      say(a, 'صاحبخونه پول پیشمو نمیده');
+      final r = say(a, 'میتونم پول پیشمو پس بگیرم؟');
+      expect(r, contains('سه چیز مانده'));
+      final b = fresh();
+      say(b, 'دوستم ازم پول قرض گرفته پس نمیده');
+      say(b, 'رسید یا نوشته دارم');
+      say(b, 'قبول دارد ولی نمی‌دهد');
+      final arg = say(b, 'استدلالت چیه؟');
+      expect(arg, contains('چون رسید یا نوشته دارید'));
+      expect(arg, contains('چون خودش اصل بدهی را قبول دارد'));
+      expect(b.unresolved, isEmpty);
     });
 
     test('کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید', () {

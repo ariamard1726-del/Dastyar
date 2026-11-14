@@ -118,6 +118,17 @@ class Reasoner {
     return out;
   }
 
+  /// این پرسش تکلیفِ کدام ادعای زنده را روشن می‌کند؟ (مهم‌ترینشان)
+  static Claim? serves(Topic t, CaseFile f, String slot) {
+    for (final v in assess(t, f)) {
+      if (v.standing == Standing.weak) continue;
+      for (final e in v.elements) {
+        if (e.holds == null && e.element.needs.contains(slot)) return v.claim;
+      }
+    }
+    return null;
+  }
+
   /// پرسش بعدی از میان پرسش‌های قابل‌پرسیدن ([askable] به ترتیب موضوع).
   ///
   /// پرسش‌های پایه همیشه جلوترند. بعد پرسشی که بیشترین اثر را روی نتیجه

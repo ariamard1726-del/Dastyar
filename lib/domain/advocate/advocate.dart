@@ -79,6 +79,13 @@ class Advocate {
   /// واقعیت‌هایی که کاربر در همین پیام دوباره گفت (بدون تغییر مقدار).
   final List<Slot> _echo = [];
 
+  /// واقعیت‌های بله/نه‌ای که کاربر در همین پیام برعکسِ قبل گفت (نام → مقدار
+  /// قبلی)؛ وکیل باید بگوید برداشتش را عوض کرده است.
+  final Map<String, String> _flips = {};
+
+  /// نام ادعایی که آخرین پرسشِ من برای روشن‌شدنِ آن بود.
+  String _lastServed = '';
+
   /// حرف‌هایی که تا اینجا در گفتگو زده‌ام (برای تکرارنکردن).
   final Set<String> _said = {};
 
@@ -543,6 +550,8 @@ class Advocate {
 
   void _closeCase() {
     file.clearCase();
+    _lastServed = '';
+    _flips.clear();
     _guide = null;
     _lastBody = '';
     _deferred = '';
@@ -560,7 +569,10 @@ class Advocate {
   /// قبلی)؛ فقط در این حالت جوابِ کوتاه به پرسشِ معلق تفسیر می‌شود.
   List<Slot> _absorb(Topic t, String n, {bool live = true}) {
     final out = <Slot>[];
-    if (live) _echo.clear();
+    if (live) {
+      _echo.clear();
+      _flips.clear();
+    }
     final unsure = Sense.saysDontKnow(n);
     final hedged = unsure && Sense.has(n, ' یا نه |شاید|مطمئن نیستم');
     final reads = <String, String?>{for (final s in t.slots) s.id: s.read(n)};
@@ -598,6 +610,13 @@ class Advocate {
         continue;
       }
       if (v == '?' && file.has(s.id)) continue;
+      final old = file.facts[s.id];
+      if (live &&
+          old != null &&
+          (old == 'yes' || old == 'no') &&
+          (v == 'yes' || v == 'no')) {
+        _flips[s.id] = old;
+      }
       file.facts[s.id] = v;
       if (v != '?') out.add(s);
     }
@@ -708,6 +727,7 @@ class Advocate {
 
   AdvocateReply _inCase(Topic t, String raw, String n, Issue? issue) {
     final wasPending = file.pending;
+    final before = _standings(t);
     final news = _absorb(t, n);
     _heard = '$_heard $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
@@ -723,6 +743,7 @@ class Advocate {
     }
     final parts = <String>[];
     var understood = news.isNotEmpty || file.touched(file.pending);
+    var reasoned = false;
     var asked = issue;
     if (asked == null && _deferred.isNotEmpty && !_roleUnknown(t)) {
       for (final i in t.issues) {
@@ -736,7 +757,18 @@ class Advocate {
         file.covered.contains(asked.id) &&
         !Sense.isQuestion(n) &&
         news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
-    if (asked != null && !onlyFact) {
+    // «می‌توانم … بگیرم؟»: جوابِ پرسشِ بله/نه دربارهٔ یک خواسته، حکمِ همان
+    // خواسته روی واقعیت‌های همین پرونده است، نه توضیح کلی.
+    final focus = _askedClaim(t, n, asked);
+    if (focus != null) {
+      final b = _verdict(focus);
+      parts.add(b);
+      _roomy = true;
+      _said.add(b);
+      _lastBody = b;
+      understood = true;
+      reasoned = true;
+    } else if (asked != null && !onlyFact) {
       final b = asked.body(file);
       parts.add(b);
       file.covered.add(asked.id);
@@ -761,6 +793,7 @@ class Advocate {
             ? null
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
         if (arg != null) {
+          reasoned = true;
           parts.add(arg);
           _roomy = true;
           _arguedOn = _factsKey();
@@ -800,6 +833,14 @@ class Advocate {
       parts.add(b);
       _lastBody = b;
     }
+    // حرف تازه اگر نتیجه را جابه‌جا کرده، همان‌جا می‌گویم؛ و اگر حرف قبلی
+    // را برعکس کرده، می‌گویم که برداشتم را عوض کرده‌ام.
+    if (!reasoned && news.isNotEmpty) {
+      final shift = _shift(t, before);
+      if (shift.isNotEmpty) parts.add(shift);
+    }
+    final fix = _correction(t);
+    if (fix.isNotEmpty) parts.insert(0, fix);
     _noteAmount(parts, news, n);
     if (!understood && _echo.isNotEmpty) {
       parts.add(_pick(Say.known));
@@ -908,7 +949,19 @@ class Advocate {
       final c = file.askCount[q.id] ?? 0;
       file.askCount[q.id] = c + 1;
       file.pending = q.id;
-      return _Ask(c == 0 ? q.ask : '${_pick(Say.askAgain)} ${q.ask}', q.options);
+      // وقتی پرسش‌هایم از یک خواسته به خواستهٔ دیگر می‌رود، می‌گویم؛ تا
+      // کاربر بداند هر پرسش برای چیست.
+      final served = Reasoner.serves(t, file, q.id)?.label ?? '';
+      var lead = '';
+      if (served.isNotEmpty) {
+        if (c == 0 && _lastServed.isNotEmpty && served != _lastServed) {
+          lead = 'حالا دربارهٔ «$served»: ';
+        }
+        _lastServed = served;
+      }
+      return _Ask(
+          c == 0 ? '$lead${q.ask}' : '${_pick(Say.askAgain)} ${q.ask}',
+          q.options);
     }
     file.pending = '';
     if (_adversarial.contains(t.id) && file.covered.add('q:reply')) {
@@ -1051,6 +1104,136 @@ class Advocate {
     return views.length == 1 ? _argueOne(views.first) : _argueMany(views);
   }
 
+  static String _claimName(ClaimView v) =>
+      v.claim.label.isEmpty ? v.claim.goal : v.claim.label;
+
+  /// وضع ادعاهای روی میز، پیش از شنیدنِ حرف تازه.
+  Map<String, Standing> _standings(Topic t) => {
+        for (final v in Reasoner.assess(t, file)) _claimName(v): v.standing,
+      };
+
+  /// دلیل‌های برقراریِ شرط‌هایی که محرزند، به زبان خودِ کاربر.
+  List<String> _reasons(ClaimView v) => [
+        for (final e in v.elements)
+          if (e.holds == true && e.element.because != null)
+            e.element.because!(file).trim(),
+      ]..removeWhere((x) => x.isEmpty);
+
+  /// حرف تازه چه چیزی را در نتیجه جابه‌جا کرد؟ یا خواستهٔ تازه‌ای کنار
+  /// خواستهٔ اصلی آمده، یا (اگر قبلاً تحلیل داده‌ام) حکمِ یک خواسته عوض شده.
+  String _shift(Topic t, Map<String, Standing> before) {
+    if (before.isEmpty) return '';
+    final now = Reasoner.assess(t, file);
+    if (now.isEmpty) return '';
+    final leadKept = before.keys.first == _claimName(now.first);
+    for (var i = 0; i < now.length; i++) {
+      final v = now[i];
+      final name = _claimName(v);
+      final old = before[name];
+      if (old == null) {
+        if (v.claim.label.isEmpty || i == 0 || !leadKept) continue;
+        return 'این را هم کنار بقیه گذاشتم: «$name» خواستهٔ جداگانه‌ای است و حسابش را جدا نگه می‌دارم.';
+      }
+      if (old == v.standing || v.standing == Standing.open) continue;
+      if (!file.covered.contains('f:argue')) continue;
+      final was = old == Standing.strong
+          ? 'محکم بود'
+          : (old == Standing.open ? 'هنوز باز بود' : 'گیر داشت');
+      return v.standing == Standing.strong
+          ? 'این حرفتان حساب را عوض کرد: «$name» که $was، حالا همهٔ شرط‌هایش جمع است.'
+          : 'این حرفتان حساب را عوض کرد: «$name» که $was، حالا گیر دارد.';
+    }
+    return '';
+  }
+
+  /// اگر کاربر حرف قبلی‌اش را برعکس کرده، می‌گویم برداشتم از چه به چه عوض
+  /// شد؛ بی‌سروصدا عوض‌کردنِ واقعیت، اعتماد را از بین می‌برد.
+  String _correction(Topic t) {
+    if (_flips.isEmpty) return '';
+    final now = _recap(t);
+    for (final e in _flips.entries) {
+      final cur = file.facts[e.key];
+      if (cur == null) continue;
+      file.facts[e.key] = e.value;
+      final was = _recap(t);
+      file.facts[e.key] = cur;
+      final gone = [
+        for (final x in was)
+          if (!now.contains(x)) x,
+      ];
+      final came = [
+        for (final x in now)
+          if (!was.contains(x)) x,
+      ];
+      if (gone.isEmpty || came.isEmpty) continue;
+      return 'برداشتم را اصلاح کردم: قبلاً نوشته بودم «${gone.first}»؛ حالا «${came.first}».';
+    }
+    return '';
+  }
+
+  static const String _entitled =
+      'تعلق|میرسه|میرسد|میتونم|میتوانم|میشه|میشود|حق (?:دارم|من|منه)|حقمه|میگیرم|میدن|میدهند| یا نه |ممکنه|امکان|قانونی|درسته';
+  static const String _howAsked =
+      'چقدر|چند |مبلغ|حساب کن|چطور|چجوری|چه جوری|چگونه|کجا|کی |چه مدرک|چیکار|چه کار';
+
+  /// کاربر دربارهٔ شدنی‌بودنِ کدام خواسته می‌پرسد؟ فقط پرسش‌های «می‌شود /
+  /// نمی‌شود»؛ «چقدر» و «چطور» جواب خودشان را دارند. در موضوع‌هایی که
+  /// خواسته‌هایشان نام ندارد، اگر پرسش به بحث مشخص‌تری خورده باشد همان
+  /// مقدم است.
+  ClaimView? _askedClaim(Topic t, String n, Issue? issue) {
+    if (!Sense.isQuestion(n)) return null;
+    if (!Sense.has(n, _entitled) || Sense.has(n, _howAsked)) return null;
+    for (final v in Reasoner.assess(t, file)) {
+      final c = v.claim.cues;
+      if (c.isEmpty || !Sense.has(n, c)) continue;
+      if (issue != null && v.claim.label.isEmpty) return null;
+      return v;
+    }
+    return null;
+  }
+
+  /// حکمِ یک خواسته روی واقعیت‌های همین پرونده: بله، هنوز معلوم نیست، یا
+  /// فعلاً نه — هر کدام با دلیلش.
+  String _verdict(ClaimView v) {
+    final c = v.claim;
+    final why = _reasons(v);
+    final sb = StringBuffer();
+    if (v.standing == Standing.strong) {
+      sb.write(why.isEmpty
+          ? 'بله؛ با چیزهایی که گفتید همهٔ شرط‌های قانونی‌اش جمع است. '
+          : 'بله؛ چون ${_join(why)}. ');
+      sb.write('پس ${c.win(file)}');
+      final counter = c.counter;
+      if (counter != null) {
+        final x = counter(file);
+        if (x.isNotEmpty) sb.write('\n${_pick(Say.counter)} $x');
+      }
+    } else if (v.standing == Standing.open) {
+      sb.write('هنوز نمی‌توانم قطعی بگویم، ولی معلوم است به چه بسته است.');
+      if (why.isNotEmpty) sb.write(' تا اینجا به نفع شماست که ${_join(why)}.');
+      sb.write(v.open.length == 1
+          ? ' یک چیز مانده:'
+          : ' ${_count(v.open.length)} چیز مانده:');
+      for (final e in v.elements) {
+        if (e.holds == null) sb.write('\n• ${e.element.text}');
+      }
+      sb.write(
+          '\nاگر ${v.open.length == 1 ? 'آن هم' : 'آن‌ها هم'} برقرار باشد، ${c.win(file)}');
+    } else {
+      sb.write('با چیزهایی که تا اینجا گفتید، فعلاً نه.');
+      for (final e in v.elements) {
+        if (e.holds != false) continue;
+        sb.write(e.element.ifNo.isEmpty
+            ? ' این شرط برقرار نیست: ${e.element.text}'
+            : ' ${e.element.ifNo}');
+      }
+      if (why.isNotEmpty) {
+        sb.write('\nاز آن طرف، ${_join(why)}؛ این‌ها به کارتان می‌آید.');
+      }
+    }
+    return sb.toString();
+  }
+
   /// «چون …»: پایهٔ واقعیِ برقراریِ یک شرط، به زبان خودِ کاربر.
   String _because(Element e) {
     final b = e.because;
@@ -1136,10 +1319,7 @@ class Advocate {
       sb.write('\n${name(v)} — ');
       switch (v.standing) {
         case Standing.strong:
-          final why = <String>[
-            for (final e in v.elements)
-              if (e.element.because != null) e.element.because!(file).trim(),
-          ]..removeWhere((x) => x.isEmpty);
+          final why = _reasons(v);
           sb.write(why.isEmpty
               ? 'همهٔ شرط‌هایش جمع است؛ پس ${c.win(file)}'
               : '${_join(why)}؛ پس ${c.win(file)}');

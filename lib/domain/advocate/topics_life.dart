@@ -500,6 +500,7 @@ final Topic familyTopic = Topic(
   slots: [
     Slot(
       id: 'role',
+      first: true,
       ask: 'شما زن هستید یا شوهر؟',
       why: 'حقوق زن و شوهر در طلاق، مهریه و نفقه یکسان نیست؛ باید بدانم از طرف کدام‌یک حرف می‌زنم.',
       options: ['زن هستم', 'شوهر هستم'],
