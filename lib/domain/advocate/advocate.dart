@@ -837,7 +837,7 @@ class Advocate {
     // را برعکس کرده، می‌گویم که برداشتم را عوض کرده‌ام.
     if (!reasoned && news.isNotEmpty) {
       final shift = _shift(t, before);
-      if (shift.isNotEmpty) parts.add(shift);
+      if (shift.isNotEmpty) parts.insert(0, shift);
     }
     final fix = _correction(t);
     if (fix.isNotEmpty) parts.insert(0, fix);
@@ -1244,7 +1244,7 @@ class Advocate {
     final b = e.because;
     if (b == null) return '';
     final x = b(file).trim();
-    return x.isEmpty ? '' : ' چون $x';
+    return x.isEmpty ? '' : '، چون $x';
   }
 
   String _argueOne(ClaimView v) {
@@ -1332,9 +1332,17 @@ class Advocate {
           sb.write(v.met == 0
               ? 'هنوز هیچ شرطی برایم محرز نیست. '
               : '${_count(v.met)} شرط از ${_count(v.elements.length)} شرط محرز است. ');
-          sb.write('مانده:');
-          for (final e in v.elements) {
-            if (e.holds == null) sb.write('\n   ؟ ${e.element.text}');
+          final rest = [
+            for (final e in v.elements)
+              if (e.holds == null) e.element.text,
+          ];
+          if (rest.length == 1) {
+            sb.write('مانده این‌که ${rest.first}');
+          } else {
+            sb.write('مانده:');
+            for (final x in rest) {
+              sb.write('\n   • $x');
+            }
           }
           sb.write('\nاگر برقرار باشد، ${c.win(file)}');
         case Standing.weak:
