@@ -1,6 +1,5 @@
 
 ::group::✅ Passing tests
-✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
@@ -17,6 +16,7 @@
 ✅ test/advocate/advocate_test.dart: واژه‌های شبیه هم گمراهش نمی‌کند (خونه≠نه، صیادیه≠دیه، خرجش≠هزینه)
 ✅ test/advocate/advocate_test.dart: شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
 ✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
+✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
 ✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
 ✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
