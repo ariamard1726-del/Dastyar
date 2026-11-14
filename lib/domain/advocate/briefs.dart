@@ -159,8 +159,12 @@ final List<Claim> debtClaims = [
 
 // ===================================================================== کار
 
+/// اخراج شده است؛ حتی اگر بعدتر حرفِ بیمه یا حقوق پیش آمده و «اتفاق اصلی»
+/// در پرونده عوض شده باشد.
+bool laborFired(CaseFile f) => f.eq('event', 'fired') || f.yes('fired');
+
 List<String> laborRecap(CaseFile f) => [
-      if (f.eq('event', 'fired')) 'کارفرما شما را اخراج کرده',
+      if (laborFired(f)) 'کارفرما شما را اخراج کرده',
       if (f.eq('event', 'unpaid')) 'کارفرما حقوقتان را نداده',
       if (f.eq('event', 'resign')) 'می‌خواهید استعفا بدهید یا داده‌اید',
       if (f.eq('event', 'insurance')) 'کارفرما بیمه‌تان را رد نکرده',
@@ -217,7 +221,7 @@ final List<Claim> laborClaims = [
   Claim(
     label: 'اخراج',
     goal: 'ناموجه شناخته‌شدنِ اخراج',
-    when: (f) => f.eq('event', 'fired'),
+    when: (f) => laborFired(f),
     uses: const ['months', 'salary'],
     elements: [
       _laborRel,
@@ -280,7 +284,7 @@ final List<Claim> laborClaims = [
       Element(
         'کارتان در آنجا تمام شده باشد؛ سنوات هنگام پایان کار پرداخت می‌شود [[labor:24]].',
         (f) {
-          if (f.eq('event', 'fired') || f.no('working')) return true;
+          if (laborFired(f) || f.no('working')) return true;
           if (f.yes('working')) return false;
           return null;
         },
