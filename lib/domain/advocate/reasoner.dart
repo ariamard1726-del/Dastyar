@@ -58,11 +58,26 @@ class Reasoner {
   const Reasoner._();
 
   /// ادعاهایی که با واقعیت‌های فعلی مطرح‌اند، به ترتیب اولویتِ موضوع.
-  static List<ClaimView> assess(Topic t, CaseFile f) => [
-        for (final c in t.claims)
-          if (c.elements.isNotEmpty && (c.when == null || c.when!(f)))
-            ClaimView(c, [for (final e in c.elements) ElementView(e, e.test(f))]),
-      ];
+  ///
+  /// ادعاهای نام‌دار ([Claim.label]) کنار هم مطرح می‌شوند: یک ماجرا می‌تواند
+  /// هم اخراج باشد هم حقوق معوق. ادعاهای بی‌نام جایگزینِ هم‌اند (مثلاً موجر
+  /// یا مستأجر) و فقط اولین موردِ منطبق برداشته می‌شود.
+  static List<ClaimView> assess(Topic t, CaseFile f) {
+    final out = <ClaimView>[];
+    for (final c in t.claims) {
+      if (c.elements.isEmpty) continue;
+      final w = c.when;
+      if (w != null && !w(f)) continue;
+      final v =
+          ClaimView(c, [for (final e in c.elements) ElementView(e, e.test(f))]);
+      if (c.label.isEmpty) {
+        if (out.isEmpty) return [v];
+        continue;
+      }
+      out.add(v);
+    }
+    return out;
+  }
 
   /// هر پرسش چقدر به روشن‌شدن نتیجه کمک می‌کند.
   ///

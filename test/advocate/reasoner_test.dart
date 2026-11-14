@@ -50,6 +50,15 @@ void main() {
     });
   });
 
+  test('ادعاهای بی‌نام جایگزین هم‌اند: در موضوع‌های دیگر فقط یکی سنجیده می‌شود',
+      () {
+    for (final t in Advocate.topics) {
+      if (t.id == 'labor') continue;
+      final f = CaseFile()..topic = t.id;
+      expect(Reasoner.assess(t, f).length, lessThanOrEqualTo(1), reason: t.id);
+    }
+  });
+
   group('سنجش شرط‌ها', () {
     test('اخراج بدون اخطار، بدون امضا، وسط قرارداد: محکم', () {
       final v = view(
