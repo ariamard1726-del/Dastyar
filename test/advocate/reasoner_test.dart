@@ -318,6 +318,28 @@ void main() {
       expect(r, isNot(contains('بله، سنوات حق شماست')));
     });
 
+    test('«نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد', () {
+      final a = fresh();
+      say(a, 'کارفرما سه ماهه حقوقمو نداده');
+      say(a, 'قرارداد دارم');
+      final r = say(a, 'نمیدونم بیمه رد میشه یا نه');
+      expect(a.file.get('insured'), '?');
+      expect(r, isNot(contains('هنوز نمی‌توانم قطعی بگویم')));
+    });
+
+    test('تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود', () {
+      final a = fresh();
+      say(a, 'دوستم ازم پول قرض گرفته پس نمیده');
+      final r = say(a, 'هیچ مدرکی ندارم');
+      expect(a.file.get('proof'), 'none');
+      // هنوز نمی‌دانم خودش بدهی را قبول دارد یا نه؛ اول همان را می‌پرسم.
+      expect(r, isNot(contains('بگویم؟')));
+      expect(r, contains('انکار می‌کند؟'));
+      final s2 = say(a, 'انکار می‌کند');
+      expect(a.file.no('admits'), isTrue);
+      expect(s2, contains('گرهِ کار کجاست'));
+    });
+
     test('وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده', () {
       final a = fresh();
       say(a, 'کارفرما اخراجم کرده');

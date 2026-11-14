@@ -916,14 +916,16 @@ class Advocate {
     return Reasoner.nextQuestion(t, file, askable);
   }
 
-  /// ادعای اصلی به‌قدری روشن شده که بشود درباره‌اش حرف زد، هرچند هنوز
-  /// پرسش‌های فرعی (مبلغ، ادعاهای دیگر) مانده باشد.
-  bool _leadDecided(Topic t) {
+  /// اگر تکلیفِ همهٔ شرط‌های ادعای اصلی روشن شده باشد، وضع آن را می‌دهد؛
+  /// هرچند هنوز پرسش‌های فرعی (مبلغ، خواسته‌های دیگر) مانده باشد. تا وقتی
+  /// شرطی از آن نامعلوم است null می‌دهد، چون همان شرط می‌تواند توصیه را
+  /// عوض کند.
+  Standing? _leadSettled(Topic t) {
     final views = Reasoner.assess(t, file);
-    if (views.isEmpty) return false;
+    if (views.isEmpty) return null;
     final lead = views.first;
-    if (!lead.claim.elements.any((e) => e.needs.isNotEmpty)) return false;
-    return lead.standing != Standing.open;
+    if (!lead.claim.elements.any((e) => e.needs.isNotEmpty)) return null;
+    return lead.open.isEmpty ? lead.standing : null;
   }
 
   /// پرسش بعدیِ من در این پرونده. اول واقعیت‌هایی که تحلیل به آن‌ها بسته
@@ -933,16 +935,18 @@ class Advocate {
   _Ask _nextAsk(Topic t) {
     clearOffer();
     final q = _nextSlot(t);
-    if (q != null &&
-        _leadDecided(t) &&
+    final settled = q == null ? null : _leadSettled(t);
+    if (settled != null &&
         !file.covered.contains('f:argue') &&
         file.covered.add('o:argue')) {
       // وکیل منتظر تمام‌شدن همهٔ پرسش‌ها نمی‌ماند: همین که تکلیف ادعای اصلی
       // روشن شد، پیشنهاد می‌دهد نظرش را بگوید.
       file.pending = '';
       _offer = 'argue';
-      return const _Ask(
-          'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟',
+      return _Ask(
+          settled == Standing.strong
+              ? 'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟'
+              : 'با همین‌ها می‌توانم بگویم گرهِ کار کجاست و چطور باز می‌شود؛ بگویم؟',
           _yesNo);
     }
     if (q != null) {
@@ -1181,7 +1185,8 @@ class Advocate {
   /// خواسته‌هایشان نام ندارد، اگر پرسش به بحث مشخص‌تری خورده باشد همان
   /// مقدم است.
   ClaimView? _askedClaim(Topic t, String n, Issue? issue) {
-    if (!Sense.isQuestion(n)) return null;
+    // «نمی‌دانم بیمه رد می‌شود یا نه» خبر است، نه پرسش.
+    if (!Sense.isQuestion(n) || Sense.saysDontKnow(n)) return null;
     if (!Sense.has(n, _entitled) || Sense.has(n, _howAsked)) return null;
     for (final v in Reasoner.assess(t, file)) {
       final c = v.claim.cues;
