@@ -154,16 +154,21 @@ def score(data, emb):
     zi, _ = nearest(epr, eds)
     zero_ok = sum(1 for (g, _), i in zip(data.probe, zi)
                   if data.desc_ids[i] in g)
-    b_ok = 0
+    b_ok = b_cen = 0
+    conf = [(r['sim'], r['ok']) for r in rows]
     if len(data.set_b):
-        bi, _ = nearest(eb, eex)
+        bi, bs = nearest(eb, eex)
         b_ok = sum(1 for (g, _), i in zip(data.set_b, bi) if labels[i] in g)
+        conf += [(float(s), labels[i] in g)
+                 for (g, _), i, s in zip(data.set_b, bi, bs)]
+        bc, _ = nearest(eb, cmat)
+        b_cen = sum(1 for (g, _), i in zip(data.set_b, bc) if cid[i] in g)
     pair_sims = [float(epairs[2 * i] @ epairs[2 * i + 1])
                  for i in range(len(PAIRS))]
     return {
         'rows': rows, 'knn_ok': sum(r['ok'] for r in rows),
-        'cen_ok': cen_ok, 'zero_ok': zero_ok, 'b_ok': b_ok,
-        'pairs': pair_sims,
+        'cen_ok': cen_ok, 'zero_ok': zero_ok, 'b_ok': b_ok, 'b_cen': b_cen,
+        'pairs': pair_sims, 'conf': conf,
     }
 
 
@@ -422,12 +427,13 @@ def write(data, control, over, models, fails):
              'زمان روی پردازندهٔ GitHub Actions است و فقط برای مقایسهٔ مدل‌ها با هم معتبر است، نه گوشی.')
     L.append('')
     L.append('| روش | حجم (MB) | محک اصلی: نزدیک‌ترین نمونه | محک اصلی: میانگین هر موضوع | '
-             'محک اصلی: فقط شرح موضوع | محک دوم | ms هر جمله | شباهت به fp32 (میانگین/کمینه) |')
-    L.append('|---|---|---|---|---|---|---|---|')
-    L.append(f'| وکیل قاعده‌ای فعلی (داوری دستی) | — | {pct(data.rules_ok, n)} | — | — | — | — | — |')
-    L.append(f'| مدل زبانی، برای مقایسه | ۲۵۰۰–۳۰۰۰ | {LLM_BEST} | — | — | — | — | — |')
+             'محک اصلی: فقط شرح موضوع | محک دوم: نزدیک‌ترین نمونه | محک دوم: میانگین هر موضوع | '
+             'ms هر جمله | شباهت به fp32 (میانگین/کمینه) |')
+    L.append('|---|---|---|---|---|---|---|---|---|')
+    L.append(f'| وکیل قاعده‌ای فعلی (داوری دستی) | — | {pct(data.rules_ok, n)} | — | — | — | — | — | — |')
+    L.append(f'| مدل زبانی، برای مقایسه | ۲۵۰۰–۳۰۰۰ | {LLM_BEST} | — | — | — | — | — | — |')
     L.append(f"| شاهد بدون مدل: n-gram نویسه‌ای روی همان نمونه‌ها | ~0 | {pct(control['knn_ok'], n)} | "
-             f"{pct(control['cen_ok'], n)} | {pct(control['zero_ok'], n)} | {pct(control['b_ok'], nb)} | — | — |")
+             f"{pct(control['cen_ok'], n)} | {pct(control['zero_ok'], n)} | {pct(control['b_ok'], nb)} | {pct(control['b_cen'], nb)} | — | — |")
     for m in models:
         for v in m['variants']:
             mb = f"{v['mb']:.0f}" if v.get('mb') else '—'
@@ -436,9 +442,9 @@ def write(data, control, over, models, fails):
                    if v.get('cos') else '—')
             L.append(f"| {m['repo']} — {v['name']} | {mb} | {pct(v['knn_ok'], n)} | "
                      f"{pct(v['cen_ok'], n)} | {pct(v['zero_ok'], n)} | "
-                     f"{pct(v['b_ok'], nb)} | {ms} | {cos} |")
+                     f"{pct(v['b_ok'], nb)} | {pct(v['b_cen'], nb)} | {ms} | {cos} |")
     for repo, err in fails:
-        L.append(f'| {repo} | — | اجرا نشد | — | — | — | — | — |')
+        L.append(f'| {repo} | — | اجرا نشد | — | — | — | — | — | — |')
     L.append('')
     L.append('## هم‌پوشانی واژه‌ای محک با نمونه‌ها')
     L.append('')
@@ -487,6 +493,16 @@ def write(data, control, over, models, fails):
         pick = next((v for v in m['variants'] if v['name'] == 'int8-s8'),
                     m['variants'][0] if m['variants'] else None)
         if pick:
+            L.append('')
+            L.append(f"آستانهٔ اطمینان برای «{pick['name']}» روی هر دو محک با هم "
+                     f"({len(pick['conf'])} جمله): اگر فقط وقتی جواب بدهد که شباهت از آستانه بیشتر است:")
+            L.append('')
+            L.append('| آستانه | جواب می‌دهد | از این‌ها درست | جواب نمی‌دهد |')
+            L.append('|---|---|---|---|')
+            for t in (0.0, 0.5, 0.55, 0.6, 0.65, 0.7):
+                ans = [ok for s, ok in pick['conf'] if s >= t]
+                L.append(f"| {t:.2f} | {len(ans)} | {pct(sum(ans), len(ans))} | "
+                         f"{len(pick['conf']) - len(ans)} |")
             L.append('')
             L.append(f"جمله‌به‌جمله برای «{pick['name']}»:")
             L.append('')
