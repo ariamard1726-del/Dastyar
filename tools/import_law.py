@@ -6,7 +6,7 @@
 #   python3 tools/import_law.py RAW.txt
 # نوشتن فایل قانون و ثبت در _meta.json:
 #   python3 tools/import_law.py RAW.txt --id labor --title "قانون کار" \
-#     --source "نام سایت یا سازمان" --date 1405/08/08 \
+#     --source "نام سایت یا سازمان" --url "https://…" --date ۱۴۰۵/۰۸/۰۸ \
 #     --out Hoghough_e_Khosousi/Hoghough_e_Kar/ghanoun_e_kar.txt
 import argparse
 import json
@@ -24,6 +24,7 @@ ap.add_argument('--title')
 ap.add_argument('--source')
 ap.add_argument('--date')
 ap.add_argument('--amended', default='')
+ap.add_argument('--url', default='', help='نشانی همان صفحه‌ای که متن از آن کپی شده')
 ap.add_argument('--out')
 ap.add_argument('--force', action='store_true', help='با وجود تعارض بنویس و نسخهٔ بلندتر را نگه دار')
 a = ap.parse_args()
@@ -148,10 +149,25 @@ dest = os.path.join(LAWS, a.out)
 os.makedirs(os.path.dirname(dest), exist_ok=True)
 open(dest, 'w', encoding='utf-8').write('\n'.join(out_lines).rstrip() + '\n')
 
+# متن تازه‌واردشده همیشه «تطبیق‌نشده» ثبت می‌شود؛ verified را فقط
+# tools/law_registry.py verify می‌نویسد، بعد از مقایسهٔ ماده‌به‌ماده با منبع.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import law_registry  # noqa: E402
+
 mp = os.path.join(LAWS, '_meta.json')
-meta = json.load(open(mp, encoding='utf-8'))
-meta[a.id] = {'title': a.title, 'source': a.source, 'date': a.date,
-              'articles': len(order), 'amended': a.amended, 'path': a.out}
-json.dump(meta, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
-open(mp, 'a', encoding='utf-8').write('\n')
-print('نوشته شد: assets/laws/%s و _meta.json (%s).' % (a.out, a.id))
+meta = law_registry.load_meta(mp)
+meta[a.id] = {
+    'title': a.title,
+    'source': a.source,
+    'url': a.url,
+    'date': law_registry.to_fa(a.date),
+    'amended': law_registry.to_fa(a.amended),
+    'articles': len(order),
+    'path': a.out,
+    'sha256': law_registry.sha256_of(dest),
+    'status': 'unverified',
+}
+law_registry.save_meta(meta, mp)
+print('نوشته شد: assets/laws/%s و _meta.json (%s)، با وضعیت unverified.' % (a.out, a.id))
+print('برای تأیید: python3 tools/law_registry.py verify %s --url URL --raw %s --amended تاریخ'
+      % (a.id, a.raw))

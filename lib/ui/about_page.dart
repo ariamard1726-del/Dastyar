@@ -127,9 +127,12 @@ class _AboutPageState extends State<AboutPage> {
         } else {
           detail = 'هنوز وارد نشده';
         }
+        final verified =
+            (metaInfo?['status'] ?? '').toString().trim() == 'verified';
         final subParts = <String>[
           if (src.isNotEmpty) 'منبع: $src',
           if (amended.isNotEmpty) 'آخرین اصلاحیه: ${_fa(amended)}',
+          verified ? 'با منبع رسمی تطبیق داده شده' : 'با منبع رسمی تطبیق داده نشده',
         ];
         out.add(Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),

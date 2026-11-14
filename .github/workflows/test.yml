@@ -1,38 +1,99 @@
 name: Test
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  probe:
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Gemini agent safety tests
+        run: python -m unittest discover -s tests/python -v
+      - name: Data checks
+        id: data
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          (python tools/check.py all && python tools/doctor.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+      - run: flutter pub get
+      - name: Analyze
+        id: analyze
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter analyze --fatal-warnings --no-fatal-infos 2>&1 | tee "$RUNNER_TEMP/analyze.txt"
+      - name: Flutter test
+        id: ft
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Short report
+        if: always()
+        env:
+          DATA_FAILED: ${{ steps.data.outcome == 'failure' && '1' || '0' }}
+        run: python tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
+      - name: Append analyze
+        if: always()
+        run: |
+          {
+            echo "--- analyze ---"
+            tail -n 1 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
+            grep -E " (info|warning|error) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 | head -n 30 || true
+          } >> reports/last_test.txt
+      - name: Near-miss report
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p brain/reports
+          flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            reports/last_test.txt
+            brain/reports/near_miss.txt
+      - name: Fail if anything failed
+        if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
+        run: exit 1
+
+  commit-reports:
+    needs: test
+    if: always() && github.event_name == 'push'
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Probe official sources
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/download-artifact@v4
         continue-on-error: true
-        run: |
-          mkdir -p reports/lab
-          OUT=reports/lab/probe_source.txt
-          : > "$OUT"
-          for U in "https://qavanin.ir/" "https://qavanin.ir/Law/TreeText/84752" "https://rc.majlis.ir/fa/law/show/99612" "https://www.rrk.ir/" "https://dotic.ir/"; do
-            echo "=== $U" >> "$OUT"
-            curl -sS -L -m 25 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" -o /tmp/body.html -w "http=%{http_code} size=%{size_download} final=%{url_effective} ip=%{remote_ip}\n" "$U" >> "$OUT" 2>&1 || echo "curl failed" >> "$OUT"
-            head -c 1500 /tmp/body.html 2>/dev/null | tr '\n' ' ' | cut -c1-1500 >> "$OUT" || true
-            echo >> "$OUT"
-            grep -c "ماده" /tmp/body.html >> "$OUT" 2>/dev/null || true
-            rm -f /tmp/body.html
-          done
-      - name: Commit
+        with:
+          name: test-reports
+          path: .
+      - name: Commit reports
         continue-on-error: true
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add -f reports/lab/probe_source.txt
-          git diff --cached --quiet || git commit -m "source probe [skip ci]"
-          git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"
+          git add brain/reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
+          git pull --rebase || true
+          git push origin HEAD:"${GITHUB_REF_NAME}" || true

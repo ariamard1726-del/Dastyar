@@ -558,6 +558,13 @@ String format(Chunk c) {
     if (date.isNotEmpty) {
       sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
     }
+    final amended = (meta[c.lawId]?['amended'] ?? '').toString().trim();
+    if (amended.isNotEmpty) {
+      sb.write('\nآخرین اصلاح قانون: ${PersianText.toFaDigits(amended)}');
+    }
+    if ((meta[c.lawId]?['status'] ?? '').toString().trim() != 'verified') {
+      sb.write('\nاین متن هنوز با منبع رسمی تطبیق داده نشده است.');
+    }
   }
   return sb.toString();
 }

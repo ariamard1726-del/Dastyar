@@ -55,4 +55,59 @@ void main() {
       expect(mehrieh.hits.first.chunk.title, 'ماده 22');
     });
   });
+
+  group('شناسنامهٔ منبع قوانین', () {
+    const required = [
+      'title',
+      'source',
+      'url',
+      'date',
+      'amended',
+      'articles',
+      'path',
+      'sha256',
+      'status',
+    ];
+
+    test('هر قانون همهٔ فیلدهای شناسنامه را دارد', () {
+      expect(engine.meta, isNotEmpty);
+      for (final e in engine.meta.entries) {
+        for (final k in required) {
+          expect(e.value.containsKey(k), isTrue,
+              reason: '${e.key}: فیلد $k نیست');
+        }
+        expect(['verified', 'unverified'], contains(e.value['status']),
+            reason: e.key);
+        expect(RegExp(r'^[0-9a-f]{64}$').hasMatch('${e.value['sha256']}'),
+            isTrue,
+            reason: e.key);
+      }
+    });
+
+    test('هیچ قانونی بدون نشانیِ منبع رسمی «تطبیق‌شده» نیست', () {
+      for (final e in engine.meta.entries) {
+        if (e.value['status'] != 'verified') continue;
+        final url = '${e.value['url']}';
+        expect(url.startsWith('https://'), isTrue, reason: e.key);
+        expect('${e.value['source']}'.contains('اختبار'), isFalse,
+            reason: e.key);
+      }
+    });
+
+    test('زیر متن ماده، وضعیت تطبیق با منبع رسمی گفته می‌شود', () {
+      final r = engine.answer('اصل ۲۲ قانون اساسی چه می‌گوید؟');
+      final verified = engine.meta['constitution']?['status'] == 'verified';
+      expect(r.contains('هنوز با منبع رسمی تطبیق داده نشده'), !verified);
+      expect(r, contains('تاریخ دریافت متن'));
+    });
+
+    test('ماده‌های ۶۹ و ۷۲ قانون مجازات جدا پیدا می‌شوند', () {
+      final a69 = engine.answer('ماده ۶۹ قانون مجازات اسلامی');
+      expect(a69, contains('ماده 69'));
+      expect(a69, contains('مرتکبان جرایمی'));
+      final a72 = engine.answer('ماده ۷۲ قانون مجازات اسلامی');
+      expect(a72, contains('ماده 72'));
+      expect(a72, contains('جرایم عمدی'));
+    });
+  });
 }
