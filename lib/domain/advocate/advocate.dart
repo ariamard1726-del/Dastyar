@@ -2,6 +2,7 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
+import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics_life.dart';
 import 'package:dastyar/domain/advocate/topics_money.dart';
@@ -859,15 +860,29 @@ class Advocate {
     }
   }
 
+  /// پرسش بعدی: از میان پرسش‌هایی که هنوز جا دارند، آن‌که نتیجهٔ ادعاهای
+  /// روی میز را زودتر روشن می‌کند. در موضوع‌هایی که شرط‌هایشان به پرسش‌ها
+  /// گره نخورده، همان ترتیب موضوع است.
   Slot? _nextSlot(Topic t) {
+    final askable = <Slot>[];
     for (final s in t.slots) {
       if (s.ask.isEmpty || file.touched(s.id)) continue;
       final w = s.when;
       if (w != null && !w(file)) continue;
       if ((file.askCount[s.id] ?? 0) >= 2) continue;
-      return s;
+      askable.add(s);
     }
-    return null;
+    return Reasoner.nextQuestion(t, file, askable);
+  }
+
+  /// ادعای اصلی به‌قدری روشن شده که بشود درباره‌اش حرف زد، هرچند هنوز
+  /// پرسش‌های فرعی (مبلغ، ادعاهای دیگر) مانده باشد.
+  bool _leadDecided(Topic t) {
+    final views = Reasoner.assess(t, file);
+    if (views.isEmpty) return false;
+    final lead = views.first;
+    if (!lead.claim.elements.any((e) => e.needs.isNotEmpty)) return false;
+    return lead.standing != Standing.open;
   }
 
   /// پرسش بعدیِ من در این پرونده. اول واقعیت‌هایی که تحلیل به آن‌ها بسته
@@ -877,6 +892,18 @@ class Advocate {
   _Ask _nextAsk(Topic t) {
     clearOffer();
     final q = _nextSlot(t);
+    if (q != null &&
+        _leadDecided(t) &&
+        !file.covered.contains('f:argue') &&
+        file.covered.add('o:argue')) {
+      // وکیل منتظر تمام‌شدن همهٔ پرسش‌ها نمی‌ماند: همین که تکلیف ادعای اصلی
+      // روشن شد، پیشنهاد می‌دهد نظرش را بگوید.
+      file.pending = '';
+      _offer = 'argue';
+      return const _Ask(
+          'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟',
+          _yesNo);
+    }
     if (q != null) {
       final c = file.askCount[q.id] ?? 0;
       file.askCount[q.id] = c + 1;
@@ -1015,36 +1042,46 @@ class Advocate {
     return null;
   }
 
-  /// استدلال: شرط‌های قانونیِ یک ادعا را یکی‌یکی روی واقعیت‌های همین
-  /// پرونده می‌سنجد و از جمع آن‌ها نتیجه می‌گیرد. متن ازپیش‌نوشته نیست؛ با
-  /// عوض‌شدن هر واقعیت، استدلال و نتیجه هم عوض می‌شود.
+  /// استدلال: شرط‌های قانونیِ ادعاها را یکی‌یکی روی واقعیت‌های همین پرونده
+  /// می‌سنجد و از جمع آن‌ها نتیجه می‌گیرد. متن ازپیش‌نوشته نیست؛ با عوض‌شدن
+  /// هر واقعیت، استدلال و نتیجه هم عوض می‌شود.
   String? _argue(Topic t) {
-    final c = _claim(t);
-    if (c == null || c.elements.isEmpty) return null;
-    final total = c.elements.length;
+    final views = Reasoner.assess(t, file);
+    if (views.isEmpty) return null;
+    return views.length == 1 ? _argueOne(views.first) : _argueMany(views);
+  }
+
+  /// «چون …»: پایهٔ واقعیِ برقراریِ یک شرط، به زبان خودِ کاربر.
+  String _because(Element e) {
+    final b = e.because;
+    if (b == null) return '';
+    final x = b(file).trim();
+    return x.isEmpty ? '' : ' چون $x';
+  }
+
+  String _argueOne(ClaimView v) {
+    final c = v.claim;
+    final total = v.elements.length;
     final sb = StringBuffer('${_pick(Say.argue)}\n');
     sb.write(total == 1
         ? 'هدف: ${c.goal}. برای رسیدن به آن، قانون یک شرط دارد:\n'
         : 'هدف: ${c.goal}. برای رسیدن به آن، قانون ${_count(total)} شرط دارد:\n');
-    var ok = 0;
-    final failed = <int>[];
-    final open = <int>[];
     for (var i = 0; i < total; i++) {
-      final e = c.elements[i];
-      final v = e.test(file);
+      final e = v.elements[i].element;
+      final h = v.elements[i].holds;
       final String mark;
-      if (v == true) {
-        ok++;
-        mark = '✓ ${_pick(Say.holds)}.';
-      } else if (v == false) {
-        failed.add(i + 1);
+      if (h == true) {
+        mark = '✓ ${_pick(Say.holds)}${_because(e)}.';
+      } else if (h == false) {
         mark = '✗ ${_pick(Say.fails)}.${e.ifNo.isEmpty ? '' : ' ${e.ifNo}'}';
       } else {
-        open.add(i + 1);
         mark = '؟ ${_pick(Say.unknown)}.';
       }
       sb.write('• شرط ${_ord(i + 1)}: ${e.text}\n   $mark\n');
     }
+    final ok = v.met;
+    final failed = v.failed;
+    final open = v.open;
     if (failed.isEmpty && open.isEmpty) {
       sb.write(
           '${total == 1 ? 'نتیجه: این شرط برقرار است' : 'نتیجه: هر ${_count(total)} شرط جمع است'}؛ پس ${c.win(file)}\n'
@@ -1069,6 +1106,97 @@ class Advocate {
       if (x.isNotEmpty) sb.write('\n${_pick(Say.counter)} $x');
     }
     return sb.toString();
+  }
+
+  /// وقتی یک ماجرا چند خواسته دارد: اول حکمِ هر کدام در یک خط، بعد دلیلِ
+  /// هر حکم، و در آخر دفاعی که باید منتظرش بود. قوی و ضعیف جدا گفته می‌شود
+  /// تا کاربر بداند روی کدام تکیه کند.
+  String _argueMany(List<ClaimView> views) {
+    String name(ClaimView v) =>
+        v.claim.label.isEmpty ? v.claim.goal : v.claim.label;
+    final sb = StringBuffer('${_pick(Say.argue)}\n');
+    sb.write(
+        'با آنچه تا اینجا گفتید ${_count(views.length)} خواسته دارید و وضع هر کدام فرق می‌کند:\n');
+    for (final v in views) {
+      final String verdict;
+      switch (v.standing) {
+        case Standing.strong:
+          verdict = 'دستتان پر است';
+        case Standing.open:
+          verdict = v.open.length == 1
+              ? 'به یک نکته بسته است'
+              : 'به ${_count(v.open.length)} نکته بسته است';
+        case Standing.weak:
+          verdict = 'فعلاً گیر دارد';
+      }
+      sb.write('• ${name(v)}: $verdict.\n');
+    }
+    for (final v in views) {
+      final c = v.claim;
+      sb.write('\n${name(v)} — ');
+      switch (v.standing) {
+        case Standing.strong:
+          final why = <String>[
+            for (final e in v.elements)
+              if (e.element.because != null) e.element.because!(file).trim(),
+          ]..removeWhere((x) => x.isEmpty);
+          sb.write(why.isEmpty
+              ? 'همهٔ شرط‌هایش جمع است؛ پس ${c.win(file)}'
+              : '${_join(why)}؛ پس ${c.win(file)}');
+        case Standing.open:
+          sb.write(v.met == 0
+              ? 'هنوز هیچ شرطی برایم محرز نیست. '
+              : '${_count(v.met)} شرط از ${_count(v.elements.length)} شرط محرز است. ');
+          sb.write('مانده:');
+          for (final e in v.elements) {
+            if (e.holds == null) sb.write('\n   ؟ ${e.element.text}');
+          }
+          sb.write('\nاگر برقرار باشد، ${c.win(file)}');
+        case Standing.weak:
+          for (final e in v.elements) {
+            if (e.holds != false) continue;
+            sb.write(e.element.ifNo.isEmpty
+                ? 'این شرط برقرار نیست: ${e.element.text} '
+                : '${e.element.ifNo} ');
+          }
+          if (v.open.isNotEmpty) {
+            sb.write(
+                '${v.open.length == 1 ? 'یک شرط' : '${_count(v.open.length)} شرط'} دیگرش هم هنوز روشن نیست.');
+          }
+      }
+    }
+    final strong = [
+      for (final v in views)
+        if (v.standing == Standing.strong) name(v),
+    ];
+    final weak = [
+      for (final v in views)
+        if (v.standing == Standing.weak) name(v),
+    ];
+    if (strong.isNotEmpty || weak.isNotEmpty) {
+      sb.write('\n\nجمع‌بندی من: ');
+      if (strong.isNotEmpty) {
+        sb.write(
+            'روی ${_join(strong)} محکم بایستید، به شرط اینکه همین‌ها را با مدرک نشان بدهید');
+      }
+      if (weak.isNotEmpty) {
+        sb.write(strong.isEmpty
+            ? 'نقطهٔ ضعف شما ${_join(weak)} است؛ پیش از هر کاری باید گره‌اش را باز کنیم'
+            : '؛ نقطهٔ ضعفتان ${_join(weak)} است');
+      }
+      sb.write('.');
+    }
+    // دفاعِ طرف مقابل را دربارهٔ مهم‌ترین ادعایی که هنوز زنده است می‌گویم.
+    for (final v in views) {
+      if (v.standing == Standing.weak) continue;
+      final counter = v.claim.counter;
+      if (counter == null) continue;
+      final x = counter(file);
+      if (x.isEmpty) continue;
+      sb.write('\n${_pick(Say.counter)} $x');
+      break;
+    }
+    return sb.toString().trimRight();
   }
 
   /// پیشنهادهای متناسب با همین گفتگو: پرسش‌هایی که به حرف‌های خودِ کاربر

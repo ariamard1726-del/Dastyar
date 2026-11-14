@@ -63,12 +63,30 @@ class Element {
   /// اگر برقرار نباشد چه می‌شود یا چه باید کرد.
   final String ifNo;
 
-  const Element(this.text, this.test, {this.ifNo = ''});
+  /// واقعیت‌هایی (شناسهٔ پرسش‌ها) که تکلیف این شرط را روشن می‌کنند. وکیل از
+  /// روی همین می‌فهمد پرسش بعدی‌اش باید چه باشد.
+  final List<String> needs;
+
+  /// پایهٔ واقعیِ نتیجه به زبان خودِ کاربر («قرارداد کتبی دارید»)؛ پس از
+  /// «چون» می‌آید. خالی یعنی چیزی برای گفتن نیست.
+  final Body? because;
+
+  const Element(
+    this.text,
+    this.test, {
+    this.ifNo = '',
+    this.needs = const [],
+    this.because,
+  });
 }
 
 /// یک ادعای حقوقی و شرط‌هایش. وکیل با سنجیدن تک‌تک شرط‌ها روی واقعیت‌های
 /// همین پرونده استدلال می‌کند و نتیجه می‌گیرد (نه با متن ازپیش‌نوشته).
 class Claim {
+  /// نام کوتاه ادعا («حقوق معوق»)؛ وقتی یک ماجرا چند خواسته دارد، با همین
+  /// نام از هم جدا می‌شوند.
+  final String label;
+
   /// هدف به زبان کاربر («پس‌گرفتن ودیعه»).
   final String goal;
 
@@ -82,12 +100,18 @@ class Claim {
   /// محکم‌ترین حرف طرف مقابل و پاسخ آن.
   final Body? counter;
 
+  /// واقعیت‌هایی که برای حساب‌کردنِ نتیجه (مبلغ، مرجع) لازم است، نه برای
+  /// برقراریِ شرط‌ها.
+  final List<String> uses;
+
   const Claim({
     required this.goal,
     required this.elements,
     required this.win,
+    this.label = '',
     this.when,
     this.counter,
+    this.uses = const [],
   });
 }
 
@@ -121,6 +145,10 @@ class Slot {
   /// شرط پرسیدن.
   final Cond? when;
 
+  /// پرسشِ پایه: تا جوابش معلوم نشود، معلوم نیست کدام ادعا روی میز است؛
+  /// پس پیش از هر پرسش دیگری پرسیده می‌شود.
+  final bool first;
+
   Slot({
     required this.id,
     required this.ask,
@@ -132,6 +160,7 @@ class Slot {
     this.noValue = 'no',
     this.effect,
     this.when,
+    this.first = false,
   });
 }
 
