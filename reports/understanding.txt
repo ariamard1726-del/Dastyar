@@ -1,7 +1,7 @@
 Understanding on eval/understanding_probe.tsv (39 sentences, first message only)
-model called for 17 sentences; open >= 0.143, ask >= 0.087
+model called for 17 sentences; open >= 0.161 with margin >= 0.0, ask >= 0.087
 rules only   : {none-ok: 10, opened-right: 22, none-missed: 7}
-rules + model: {none-ok: 6, opened-right: 28, opened-WRONG: 2, none-missed: 1, asked-right: 2}
+rules + model: {none-ok: 6, opened-right: 28, opened-WRONG: 2, asked-right: 3}
 columns: changed? | rules only | rules + model | guess | [gold] sentence
 
   none-ok       none-ok       general=0.14 (accused=0.13)        [chat] سلام. من یک سوال حقوقی دارم
@@ -19,12 +19,12 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [family] شرایط حضانت فرزند بعد از طلاق چگونه است؟
   opened-right  opened-right  -                                  [cheque] اگر چک برگشت بخورد چه اتفاقی می افتد
   opened-right  opened-right  -                                  [labor] آیا میتوانم از کارفرما به خاطر اضافه کاری شکایت کنم
-* none-ok       opened-right  family=0.15 (crime=0.08)           [crime|family] برادرم معتاد است و مادرم را اذیت میکند چه کنیم
+* none-ok       asked-right   family=0.15 (crime=0.08)           [crime|family] برادرم معتاد است و مادرم را اذیت میکند چه کنیم
   opened-right  opened-right  -                                  [cyber] یه نفر تو اینستاگرام عکسامو پخش کرده
 * none-missed   opened-right  property=0.19 (cyber=0.07)         [property] زمینی خریده ام که سند ندارد و حالا شخص دیگری مدعی شده
   opened-right  opened-right  -                                  [injury] پسرم ۱۶ ساله است و با موتور تصادف کرده
   opened-right  opened-right  -                                  [family] شوهرم خرجی نمیدهد
-  none-missed   none-missed   guarantee=0.19 (debt=0.11)         [guarantee] من ضامن شده ام و بانک حقوقم را کسر میکند
+* none-missed   opened-right  guarantee=0.19 (debt=0.11)         [guarantee] من ضامن شده ام و بانک حقوقم را کسر میکند
   none-ok       none-ok       general=0.17 (other=0.08)          [general] توضیح بده وکالت نامه چیست
   none-ok       none-ok       general=0.40 (accused=0.08)        [general] فرق دادگاه و دادسرا چیه
   opened-right  opened-right  -                                  [inherit|general] میخوام وصیت نامه بنویسم
