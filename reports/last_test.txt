@@ -1,4 +1,4 @@
-commit: 64208f2
+commit: 60e109c
 🎉 309 tests passed.
 --- analyze ---
-No issues found! (ran in 12.0s)
+No issues found! (ran in 9.0s)

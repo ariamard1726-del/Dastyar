@@ -1,7 +1,7 @@
 Understanding on eval/understanding_probe.tsv (39 sentences, first message only)
-model called for 17 sentences; open >= 0.161 with margin >= 0.0, ask >= 0.087
+model called for 17 sentences; open >= 0.143 with margin >= 0.04, ask >= 0.087
 rules only   : {none-ok: 10, opened-right: 22, none-missed: 7}
-rules + model: {none-ok: 6, opened-right: 28, opened-WRONG: 2, asked-right: 3}
+rules + model: {none-ok: 6, opened-right: 29, asked-right: 3, opened-WRONG: 1}
 columns: changed? | rules only | rules + model | guess | [gold] sentence
 
   none-ok       none-ok       general=0.14 (accused=0.13)        [chat] سلام. من یک سوال حقوقی دارم
@@ -12,14 +12,14 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [rent] من یک خانه اجاره کرده ام و صاحب خانه می خواهد اجاره را دو برابر کند آیا حق دارد؟
   opened-right  opened-right  -                                  [neighbor] برای شکایت از همسایه کجا باید بروم
   opened-right  opened-right  -                                  [inherit] پدرم فوت کرده ارث چطور تقسیم میشود
-* none-missed   opened-WRONG  company=0.20 (labor=0.19)          [labor] من در یک شرکت کار میکنم و بیمه ام نمیکنند
+* none-missed   asked-right   company=0.20 (labor=0.19)          [labor] من در یک شرکت کار میکنم و بیمه ام نمیکنند
 * none-missed   opened-WRONG  consumer=0.17 (debt=0.12)          [debt|property] ماشینم را فروخته ام ولی خریدار پولش را کامل نداده
   none-ok       none-ok       crime=0.18 (injury=0.11)           [injury|crime] یک نفر با ماشین به من زده و فرار کرده
   opened-right  opened-right  -                                  [family] چطور میتوانم مهریه ام را بگیرم
   opened-right  opened-right  -                                  [family] شرایط حضانت فرزند بعد از طلاق چگونه است؟
   opened-right  opened-right  -                                  [cheque] اگر چک برگشت بخورد چه اتفاقی می افتد
   opened-right  opened-right  -                                  [labor] آیا میتوانم از کارفرما به خاطر اضافه کاری شکایت کنم
-* none-ok       asked-right   family=0.15 (crime=0.08)           [crime|family] برادرم معتاد است و مادرم را اذیت میکند چه کنیم
+* none-ok       opened-right  family=0.15 (crime=0.08)           [crime|family] برادرم معتاد است و مادرم را اذیت میکند چه کنیم
   opened-right  opened-right  -                                  [cyber] یه نفر تو اینستاگرام عکسامو پخش کرده
 * none-missed   opened-right  property=0.19 (cyber=0.07)         [property] زمینی خریده ام که سند ندارد و حالا شخص دیگری مدعی شده
   opened-right  opened-right  -                                  [injury] پسرم ۱۶ ساله است و با موتور تصادف کرده
