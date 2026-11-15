@@ -10,8 +10,12 @@ STAGE=hf     خودِ مدلِ بریده‌شده (وزن اصلی، بدون �
              ۲) مدل فقط بردار بدهد و همان سرِ طبقه‌بندِ برنامه رویش بنشیند
              ۳) آموزشِ LoRA روی ۲۵۰ نمونهٔ eval/topic_examples.tsv
 
+STAGE=extra  سه وارسیِ تکمیلی تا نتیجه به یک تنظیمِ خاص وابسته نباشد:
+             پرسش بله/خیر با هر دو ترتیبِ گزینه‌ها، بردارِ استانداردشدهٔ مدل + سرِ
+             طبقه‌بند، و یک آموزشِ LoRA آرام‌تر با سنجش در میانهٔ راه.
+
 سنجه همان است که برای Noql به کار رفت: محک (۳۹) + مجموعهٔ ب (۶۲).
-خروجی: brain/reports/qwen_gguf.md و brain/reports/qwen_tuned.md
+خروجی: brain/reports/qwen_gguf.md، qwen_tuned.md و qwen_extra.md
     DRY=1 STAGE=gguf python brain/qwen_probe.py     # بدون مدل؛ فقط قالب گزارش
 """
 
@@ -32,8 +36,9 @@ GGUF_REPO = 'unsloth/Qwen3-0.6B-GGUF'
 GGUF_FILES = [('Q4_K_M', r'-Q4_K_M\.gguf$'), ('Q8_0', r'-Q8_0\.gguf$')]
 OUT_GGUF = os.path.join(HERE, 'reports', 'qwen_gguf.md')
 OUT_HF = os.path.join(HERE, 'reports', 'qwen_tuned.md')
+OUT_EXTRA = os.path.join(HERE, 'reports', 'qwen_extra.md')
 DRY = bool(os.environ.get('DRY'))
-TRAIN_BUDGET_S = float(os.environ.get('TRAIN_BUDGET_S', 22 * 60))
+TRAIN_BUDGET_S = float(os.environ.get('TRAIN_BUDGET_S', 24 * 60))
 EPOCHS = int(os.environ.get('EPOCHS', 4))
 
 # اندازه‌ها (پارامتر): بدنه در هر دو مدل یکی است، فقط جدول توکن فرق دارد.
@@ -153,6 +158,31 @@ def est_mb(bits_body, bits_table, table_m):
 
 
 # ---------------------------------------------------------------- مرحلهٔ gguf
+def open_gguf(pattern):
+    from llama_cpp import Llama
+
+    path, fname = fetch(GGUF_REPO, pattern)
+    llm = Llama(model_path=path, n_ctx=2048, seed=0,
+                n_threads=os.cpu_count() or 4, verbose=False)
+    stat = {'tokens': 0, 'sec': 0.0}
+
+    def ask(content, think=False, max_tokens=40):
+        prompt = f'<|im_start|>user\n{content}<|im_end|>\n<|im_start|>assistant\n'
+        if not think:
+            prompt += '<think>\n\n</think>\n\n'
+        # کارت مدل برای حالتِ فکرکردن نمونه‌گیری می‌خواهد، نه انتخابِ حریصانه.
+        sample = dict(temperature=0.6, top_p=0.95, top_k=20) if think \
+            else dict(temperature=0)
+        t0 = time.time()
+        r = llm.create_completion(prompt=prompt, max_tokens=max_tokens,
+                                  stop=['<|im_end|>'], **sample)
+        stat['sec'] += time.time() - t0
+        stat['tokens'] += r.get('usage', {}).get('completion_tokens', 0)
+        return r['choices'][0]['text'] or ''
+
+    return ask, stat, fname, os.path.getsize(path) / 1e6
+
+
 def gguf_stage(data):
     rows = []
     for tag, pattern in GGUF_FILES:
@@ -163,29 +193,8 @@ def gguf_stage(data):
                 ask = lambda c, **kw: 'بله' if 'پرسش:' in c else '{"topic": "labor"'  # noqa: E731
                 row.update(file='dry.gguf', mb=0.0)
             else:
-                from llama_cpp import Llama
-
-                path, fname = fetch(GGUF_REPO, pattern)
-                row.update(file=fname, mb=os.path.getsize(path) / 1e6)
-                llm = Llama(model_path=path, n_ctx=2048, seed=0,
-                            n_threads=os.cpu_count() or 4, verbose=False)
-                stat = {'tokens': 0, 'sec': 0.0}
-
-                def ask(content, think=False, max_tokens=40):
-                    prompt = (f'<|im_start|>user\n{content}<|im_end|>\n'
-                              '<|im_start|>assistant\n')
-                    if not think:
-                        prompt += '<think>\n\n</think>\n\n'
-                    t0 = time.time()
-                    # کارت مدل برای حالتِ فکرکردن نمونه‌گیری می‌خواهد، نه انتخابِ حریصانه.
-                    sample = dict(temperature=0.6, top_p=0.95, top_k=20) if think \
-                        else dict(temperature=0)
-                    r = llm.create_completion(prompt=prompt, max_tokens=max_tokens,
-                                              stop=['<|im_end|>'], **sample)
-                    stat['sec'] += time.time() - t0
-                    stat['tokens'] += r.get('usage', {}).get('completion_tokens', 0)
-                    return r['choices'][0]['text'] or ''
-
+                ask, stat, fname, mb = open_gguf(pattern)
+                row.update(file=fname, mb=mb)
                 row['stat'] = stat
             row['probe'] = topic_eval(ask, data.probe)
             row['b'] = topic_eval(ask, data.set_b)
@@ -311,33 +320,39 @@ class Hf:
             return self._gen(ids, max_new)
         return self._gen(self.ids(full), max_new)
 
-    def features(self, texts, layers):
+    def features_raw(self, texts, layers):
+        """بردارِ خام از چند لایه، با دو شیوه: میانگینِ توکن‌ها و آخرین توکن."""
         import numpy as np
 
         torch = self.torch
         self.tok.padding_side = 'right'
-        outs = {k: [] for k in layers}
+        outs = {(p, k): [] for p in ('mean', 'last') for k in layers}
         for i in range(0, len(texts), 16):
             b = self.tok(texts[i:i + 16], return_tensors='pt', padding=True,
                          add_special_tokens=False)
             with torch.no_grad():
                 hs = self.model(**b, output_hidden_states=True).hidden_states
-            m = b['attention_mask'].unsqueeze(-1).float()
+            mask = b['attention_mask']
+            m = mask.unsqueeze(-1).float()
+            last = mask.sum(1) - 1
+            rows = torch.arange(mask.shape[0])
             for k in layers:
-                outs[k].append(((hs[k] * m).sum(1) / m.sum(1)).numpy())
-        return {k: unit(np.concatenate(v)) for k, v in outs.items()}
+                outs[('mean', k)].append(((hs[k] * m).sum(1) / m.sum(1)).numpy())
+                outs[('last', k)].append(hs[k][rows, last].numpy())
+        return {key: np.concatenate(v) for key, v in outs.items()}
 
     # -- آموزش LoRA: «جمله: … ⏎ موضوع: <نام فارسی>»
     def prompt_ids(self, text):
         return self.tok(f'جمله: {fix(text)}\nموضوع:', add_special_tokens=False)['input_ids']
 
-    def train(self, examples, log):
+    def train(self, examples, log, r=16, alpha=32, lr=2e-4, dropout=0.05,
+              epochs=EPOCHS, on_epoch=None):
         import random
 
         from peft import LoraConfig, get_peft_model
 
         torch = self.torch
-        cfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, task_type='CAUSAL_LM',
+        cfg = LoraConfig(r=r, lora_alpha=alpha, lora_dropout=dropout, task_type='CAUSAL_LM',
                          target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj',
                                          'gate_proj', 'up_proj', 'down_proj'])
         self.model = get_peft_model(self.model, cfg)
@@ -350,8 +365,8 @@ class Hf:
             rows.append((p, t))
         log['tokens_mean'] = sum(len(p) + len(t) for p, t in rows) / len(rows)
         bs = 8
-        steps_total = EPOCHS * ((len(rows) + bs - 1) // bs)
-        opt = torch.optim.AdamW(train_p, lr=2e-4, weight_decay=0.0)
+        steps_total = epochs * ((len(rows) + bs - 1) // bs)
+        opt = torch.optim.AdamW(train_p, lr=lr, weight_decay=0.0)
         warm = max(1, steps_total // 10)
         sched = torch.optim.lr_scheduler.LambdaLR(
             opt, lambda s: min(1.0, (s + 1) / warm) * max(0.05, 1 - s / steps_total))
@@ -360,7 +375,7 @@ class Hf:
         t0 = time.time()
         step = 0
         log['loss'] = []
-        for ep in range(EPOCHS):
+        for ep in range(epochs):
             order = list(range(len(rows)))
             rnd.shuffle(order)
             tot = n = 0
@@ -392,6 +407,10 @@ class Hf:
             if time.time() - t0 > TRAIN_BUDGET_S:
                 log['cut'] = True
                 break
+            if on_epoch is not None:
+                self.model.eval()
+                on_epoch(ep + 1)
+                self.model.train()
         log.update(steps=step, steps_total=steps_total, train_sec=time.time() - t0)
         self.model.eval()
 
@@ -466,13 +485,6 @@ def hf_stage(data):
     def neg():
         R['neg'] = neg_eval(hf.ask)
 
-    def feats():
-        from alt_bench import head_scores
-
-        layers = [18, 28]
-        emb = hf.features(data.texts, layers)
-        R['feat'] = {k: head_scores(data, emb[k]) for k in layers}
-
     def lora():
         log = {}
         R['lora'] = log
@@ -484,7 +496,6 @@ def hf_stage(data):
     guard('roundtrip', roundtrip)
     guard('zero-shot', zero)
     guard('negation', neg)
-    guard('features', feats)
     guard('lora', lora)
 
 
@@ -507,10 +518,6 @@ def write_hf(data, R):
         sec = sum(r['sec'] for r in R['zero_probe']) / n_p
         L.append(f"| بدون آموزش (دستور + JSON) | {count(R['zero_probe'])} | {count(R['zero_b'])} | "
                  f"**{count(R['zero_probe']) + count(R['zero_b'])}** | {sec:.1f} ثانیه برای هر پیام |")
-    for k, f in sorted(R.get('feat', {}).items()):
-        L.append(f"| بردار از لایهٔ {k} + سرِ طبقه‌بندِ برنامه | {f['probe']} | {f['b']} | "
-                 f"**{f['probe'] + f['b']}** | اعتبارسنجی {f['cv']}/{f['n']}؛ "
-                 f"شباهتِ جمله با نفی‌اش {min(f['neg'][:4]):.2f}–{max(f['neg'][:4]):.2f} |")
     if 'tuned_probe' in R and 'tuned_b' in R:
         lg = R['lora']
         sec = sum(r['sec'] for r in R['tuned_probe']) / n_p
@@ -539,6 +546,139 @@ def write_hf(data, R):
     save(OUT_HF, L)
 
 
+# --------------------------------------------------------------- مرحلهٔ extra
+ORDERS = (('a', 'بله یا خیر'), ('b', 'خیر یا بله'))
+
+
+def yn_orders(ask):
+    """همان پرسش‌ها با هر دو ترتیبِ گزینه‌ها، با متنِ خامِ جواب."""
+    rows = []
+    for q, yes, no in NEG:
+        for sent, gold in ((yes, 'y'), (no, 'n')):
+            row = {'q': q, 's': sent, 'gold': gold}
+            for key, tail in ORDERS:
+                raw = ask(f'جمله: «{sent}»\nپرسش: {q}\nفقط با یک کلمه جواب بده: {tail}.')
+                row[key] = (parse_yn(raw), raw.strip().replace('\n', ' ').replace('|', '/')[:30])
+            rows.append(row)
+            print('  yn', sent[:40], row['a'], row['b'], flush=True)
+    return rows
+
+
+def yn_counts(rows, key):
+    ok = [r[key][0] == r['gold'] for r in rows]
+    return sum(ok), sum(1 for i in range(0, len(ok), 2) if ok[i] and ok[i + 1])
+
+
+def extra_stage(data):
+    R = {'errors': []}
+
+    def guard(name, fn):
+        print('==', name, flush=True)
+        try:
+            fn()
+        except Exception:  # noqa: BLE001
+            traceback.print_exc()
+            R['errors'].append((name, traceback.format_exc()[-1500:]))
+        write_extra(data, R)
+
+    if DRY:
+        R['yn'] = yn_orders(lambda c, **kw: 'بله')
+        R['feat'] = {}
+        R['lora'] = {'loss': [1.0], 'steps': 1, 'steps_total': 1, 'train_sec': 60.0,
+                     'curve': [(2, 5, 7)], 'lora_params': 5.0}
+        write_extra(data, R)
+        return
+
+    def yn():
+        ask, _, fname, _ = open_gguf(GGUF_FILES[1][1])
+        R['yn_file'] = fname
+        R['yn'] = yn_orders(lambda c: ask(c, max_tokens=12))
+
+    guard('yes/no', yn)
+    hf = Hf()
+
+    def yn_hf():
+        R['yn_hf'] = yn_orders(lambda c: hf.ask(c, max_new=12))
+
+    def feats():
+        from alt_bench import head_scores
+
+        a = data.cut[0]
+        R['feat'] = {}
+        for key, m in hf.features_raw(data.texts, [14, 21, 28]).items():
+            mu, sd = m[:a].mean(0), m[:a].std(0) + 1e-6
+            R['feat'][key] = head_scores(data, unit((m - mu) / sd))
+
+    def lora():
+        log = {'curve': []}
+        R['lora'] = log
+
+        def on_epoch(ep):
+            if ep % 2 == 0:
+                p = count(tuned_eval(hf.classify, data.probe))
+                b = count(tuned_eval(hf.classify, data.set_b))
+                log['curve'].append((ep, p, b))
+                print(f'  epoch {ep}: probe {p} b {b}', flush=True)
+                write_extra(data, R)
+
+        hf.train(data.examples, log, r=8, alpha=16, lr=1e-4, dropout=0.1, epochs=6,
+                 on_epoch=on_epoch)
+
+    guard('yes/no (trimmed)', yn_hf)
+    guard('features', feats)
+    guard('lora-b', lora)
+
+
+def write_extra(data, R):
+    n_p, n_b = len(data.probe), len(data.set_b)
+    name = {'y': 'بله', 'n': 'خیر', '': '—'}
+    L = ['# Qwen3-0.6B: وارسی‌های تکمیلی', '',
+         'برای این‌که نتیجه‌های `qwen_gguf.md` و `qwen_tuned.md` به یک جمله‌بندی یا یک '
+         'تنظیمِ آموزش وابسته نباشد.', '', REFERENCE, '']
+    for key, title in (('yn', f"مدل اصلی، {R.get('yn_file', 'Q8_0')}"),
+                       ('yn_hf', f'`{TRIMMED}`، وزن اصلی')):
+        if key not in R:
+            continue
+        L += [f'## پرسش بله/خیر با هر دو ترتیبِ گزینه‌ها: {title}', '',
+              '| ترتیب در دستور | جمله‌های درست (۲۴) | جفتِ کامل (۱۲) |', '|---|---|---|']
+        for k, tail in ORDERS:
+            items, pairs = yn_counts(R[key], k)
+            L.append(f'| «{tail}» | {items} | **{pairs}** |')
+        L += ['', '| جمله | باید | «بله یا خیر» | متن خام | «خیر یا بله» | متن خام |',
+              '|---|---|---|---|---|---|']
+        for r in R[key]:
+            L.append(f"| {r['s']} | {name[r['gold']]} | {name[r['a'][0]]} | {r['a'][1]} "
+                     f"| {name[r['b'][0]]} | {r['b'][1]} |")
+        L.append('')
+    if R.get('feat'):
+        L += [f'## `{TRIMMED}` فقط به‌عنوان بردارساز', '',
+              'بردارِ هر جمله از درونِ مدل (بدون آموزشِ مدل)، استانداردشده با میانگین و '
+              'پراکندگیِ نمونه‌های آموزشی، سپس همان سرِ طبقه‌بندِ برنامه.', '',
+              '| بردار | لایه | اعتبارسنجی (۲۵۰) | محک | ب | **جمع ۱۰۱** |', '|---|---|---|---|---|---|']
+        pool = {'mean': 'میانگین توکن‌ها', 'last': 'آخرین توکن'}
+        for (p, k), f in sorted(R['feat'].items()):
+            L.append(f"| {pool[p]} | {k} | {f['cv']} | {f['probe']} | {f['b']} | "
+                     f"**{f['probe'] + f['b']}** |")
+        L.append('')
+    if 'lora' in R:
+        lg = R['lora']
+        L += ['## آموزش LoRA، تنظیم دوم (آرام‌تر)', '',
+              'r=8، نرخ یادگیری 1e-4، dropout 0.1، شش دور. تنظیم اول (r=16، 2e-4، چهار دور) '
+              'در `qwen_tuned.md` به ۵۲ از ۱۰۱ رسید.', '',
+              f'| پس از دور | محک ({n_p}) | ب ({n_b}) | **جمع** |', '|---|---|---|---|']
+        for ep, p, b in lg.get('curve', []):
+            L.append(f'| {ep} | {p} | {b} | **{p + b}** |')
+        if lg.get('loss'):
+            L += ['', 'خطای آموزش در هر دور: ' + '، '.join(f'{v:.3f}' for v in lg['loss'])
+                  + f"؛ {lg.get('steps', 0)}/{lg.get('steps_total', 0)} گام در "
+                  f"{lg.get('train_sec', 0) / 60:.0f} دقیقه (با زمانِ سنجش‌های میانی)"
+                  + ('؛ به سقف زمان خورد.' if lg.get('cut') else '.')]
+        L.append('')
+    for nm, err in R['errors']:
+        L += [f'## خطا در مرحلهٔ {nm}', '', '```', err, '```', '']
+    save(OUT_EXTRA, L)
+
+
 def save(path, lines):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
@@ -550,6 +690,8 @@ def main():
     stage = os.environ.get('STAGE', 'gguf')
     if stage == 'gguf':
         gguf_stage(data)
+    elif stage == 'extra':
+        extra_stage(data)
     else:
         hf_stage(data)
 

@@ -6,6 +6,12 @@ name: Qwen3-0.6B-fas probe
 
 on:
   workflow_dispatch:
+    inputs:
+      stage:
+        description: 'all = هر سه بخش؛ extra = فقط وارسی‌های تکمیلی'
+        default: 'all'
+        type: choice
+        options: ['all', 'extra']
   push:
     branches: ['arena/**']
     paths:
@@ -17,6 +23,7 @@ permissions:
 
 jobs:
   gguf:
+    if: github.event_name == 'push' || inputs.stage == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -46,6 +53,7 @@ jobs:
           done
 
   tuned:
+    if: github.event_name == 'push' || inputs.stage == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
@@ -69,6 +77,36 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add brain/reports/qwen_tuned.md || true
           git commit -m "گزارش Qwen3-0.6B-fas: بدون آموزش و با LoRA [skip ci]" || echo "nothing to commit"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
+            sleep 7
+          done
+
+  extra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn transformers peft huggingface_hub
+          pip install llama-cpp-python --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+          pip list 2>/dev/null | grep -i -E "^(torch|transformers|peft|tokenizers|numpy|llama_cpp_python) "
+      - name: Run
+        env:
+          STAGE: extra
+        run: python brain/qwen_probe.py
+      - name: Commit report
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/qwen_extra.md || true
+          git commit -m "گزارش Qwen3-0.6B: وارسی‌های تکمیلی [skip ci]" || echo "nothing to commit"
           for i in 1 2 3 4; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
             sleep 7
