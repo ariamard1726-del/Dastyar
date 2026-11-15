@@ -161,6 +161,20 @@ void main() {
     expect(a.file.topic, 'rent');
   });
 
+  test('حدسِ مطمئن بر راهنمای آماده‌ای که با یک واژه انتخاب شده مقدم است', () {
+    const text = 'من ضامن شده ام و بانک حقوقم را کسر میکند';
+    final plain = Advocate(engine);
+    plain.respond(text);
+    expect(plain.file.topic, isEmpty);
+    final a = Advocate(engine);
+    a.respond(text, guess: sure('guarantee', 'debt'));
+    expect(a.file.topic, 'guarantee');
+    // حدسِ نامطمئن راهنما را کنار نمی‌زند.
+    final b = Advocate(engine);
+    final want = Advocate(engine).respond(text).text;
+    expect(b.respond(text, guess: unsure('guarantee', 'debt')).text, want);
+  });
+
   test('«یک سؤال حقوقی دارم» با حدسِ مدل پرونده باز نمی‌کند', () {
     final a = Advocate(engine);
     a.respond('سلام من یک سوال حقوقی دارم', guess: sure('accused'));
@@ -309,7 +323,8 @@ void main() {
       ..writeln('Understanding on eval/understanding_probe.tsv '
           '(${rows.length} sentences, first message only)')
       ..writeln('model called for $calls sentences; '
-          'open >= ${reader.open}, ask >= ${reader.ask}')
+          'open >= ${reader.open} with margin >= ${reader.margin}, '
+          'ask >= ${reader.ask}')
       ..writeln('rules only   : ${tally['rules']}')
       ..writeln('rules + model: ${tally['model']}')
       ..writeln('columns: changed? | rules only | rules + model | guess | [gold] sentence')

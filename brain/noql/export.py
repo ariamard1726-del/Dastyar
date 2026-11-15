@@ -79,6 +79,27 @@ def pick_threshold(conf, ok, target):
     return best if best is not None else float(np.quantile(conf, 0.9))
 
 
+def pick_open(conf, gap, ok, target):
+    """آستانه و فاصلهٔ لازم از دستهٔ دوم برای «باز کردن پرونده».
+
+    بین همهٔ جفت‌های (آستانه، فاصله) که دقتشان در اعتبارسنجی به هدف می‌رسد،
+    آن‌که جمله‌های بیشتری را پوشش می‌دهد.
+    """
+    best = None
+    for m in (0.0, 0.02, 0.04, 0.06, 0.08, 0.10):
+        for t in np.unique(np.round(conf, 3)):
+            mask = (conf >= t) & (gap >= m)
+            n = int(mask.sum())
+            if n < 10 or (ok & mask).sum() / n < target:
+                continue
+            if best is None or n > best[2]:
+                best = (float(t), m, n)
+            break
+    if best is None:
+        return float(np.quantile(conf, 0.9)), 0.0
+    return best[0], best[1]
+
+
 def main():
     from huggingface_hub import HfApi, hf_hub_download
     from safetensors.numpy import load_file
@@ -198,8 +219,9 @@ def main():
         return np.stack([core.head_probs(hw, hb, v) for v in e])
 
     oof_conf = oof.max(1)
+    oof_gap = oof_conf - np.sort(oof, axis=1)[:, -2]
     oof_ok = model.classes_[oof.argmax(1)] == y
-    t_open = pick_threshold(oof_conf, oof_ok, OPEN_PRECISION)
+    t_open, margin = pick_open(oof_conf, oof_gap, oof_ok, OPEN_PRECISION)
     t_ask = min(pick_threshold(oof_conf, oof_ok, ASK_PRECISION), t_open)
 
     pp, pb = probs(epr), probs(eb)
@@ -207,6 +229,7 @@ def main():
     pall = np.concatenate([pp, pb])
     top = pall.argmax(1)
     conf = pall.max(1)
+    gap = conf - np.sort(pall, axis=1)[:, -2]
     ok = np.array([labels[i] in g for i, g in zip(top, gold)])
     order = np.argsort(-pall, axis=1)
     ok2 = np.array([labels[o[0]] in g or labels[o[1]] in g for o, g in zip(order, gold)])
@@ -214,17 +237,20 @@ def main():
     grid = sorted(set([0.0, 0.08, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18,
                        0.2, 0.25, 0.3, 0.4, 0.5, round(t_open, 3), round(t_ask, 3)]))
     L += ['## اطمینان و آستانه', '',
-          f'- آستانهٔ «باز کردن پرونده» (دقت ≥ {OPEN_PRECISION:.0%} در اعتبارسنجی): **{t_open:.3f}**',
+          f'- «باز کردن پرونده» (دقت ≥ {OPEN_PRECISION:.0%} در اعتبارسنجی): اطمینان ≥ **{t_open:.3f}** '
+          f'و فاصله از دستهٔ دوم ≥ **{margin:.2f}** '
+          f'(در اعتبارسنجی: {int(((oof_conf >= t_open) & (oof_gap >= margin)).sum())} پاسخ، '
+          f'{int((oof_ok & (oof_conf >= t_open) & (oof_gap >= margin)).sum())} درست)',
           f'- آستانهٔ «پرسیدن از کاربر» (دقت ≥ {ASK_PRECISION:.0%} در اعتبارسنجی): **{t_ask:.3f}**',
           '', '| آستانه | اعتبارسنجی: پاسخ / درست | محک + ب (۱۰۱): پاسخ / درست |',
           '|---|---|---|']
     for (t, a1, c1), (_, a2, c2) in zip(sweep(oof_conf, oof_ok, grid), sweep(conf, ok, grid)):
         L.append(f'| {t:.3f} | {a1} / {c1} | {a2} / {c2} |')
-    hi = conf >= t_open
+    hi = (conf >= t_open) & (gap >= margin)
     mid = (conf >= t_ask) & ~hi
     low = conf < t_ask
     L += ['', 'رفتار برنامه روی ۱۰۱ جملهٔ سنجش با این دو آستانه:', '',
-          f'- پرونده مستقیم باز می‌شود: {int(hi.sum())} جمله، {int((ok & hi).sum())} درست، '
+          f'- حدسِ مطمئن (پرونده مستقیم باز می‌شود): {int(hi.sum())} جمله، {int((ok & hi).sum())} درست، '
           f'**{int((~ok & hi).sum())} غلط**',
           f'- از کاربر می‌پرسد (دو گزینه): {int(mid.sum())} جمله؛ در {int((ok2 & mid).sum())} '
           'مورد گزینهٔ درست بین دو پیشنهاد هست',
@@ -249,7 +275,7 @@ def main():
         'model': REPO, 'revision': rev,
         'license': 'MIT (model) + Apache-2.0 (base ALBERT)',
         'labels': labels, 'dim': int(hw.shape[1]),
-        'open': round(t_open, 4), 'ask': round(t_ask, 4), 'c': c,
+        'open': round(t_open, 4), 'margin': round(margin, 4), 'ask': round(t_ask, 4), 'c': c,
         'examples': len(y), 'cv_accuracy': round(best[1] / len(y), 4),
         'b': [round(float(v), 6) for v in hb],
         'w': [round(float(v), 6) for v in hw.reshape(-1)],
@@ -272,8 +298,12 @@ def main():
     for (g, t), e in zip(data.probe, epr):
         p = core.head_probs(hw2, hb2, e)
         i = int(p.argmax())
+        second = float(np.sort(p)[-2])
         ref['probe'].append({'text': t, 'gold': list(g), 'label': labels[i],
-                             'score': round(float(p[i]), 4)})
+                             'score': round(float(p[i]), 4),
+                             'confident': bool(p[i] >= head['open']
+                                               and p[i] - second >= head['margin']),
+                             'plausible': bool(p[i] >= head['ask'])})
     os.makedirs(os.path.dirname(REF), exist_ok=True)
     json.dump(ref, open(REF, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
 

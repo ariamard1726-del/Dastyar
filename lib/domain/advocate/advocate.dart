@@ -503,13 +503,22 @@ class Advocate {
         final r = _guideFollow(guide, n);
         if (r != null) return r;
       }
+      // حدسِ مطمئنِ مدل بر راهنماهای آماده مقدم است: آن‌ها با یک واژه
+      // انتخاب می‌شوند («حقوقم» در «بانک از حقوقم کسر می‌کند») و مدل کل
+      // جمله را می‌بیند. «یک سؤال حقوقی دارم» موضوعی ندارد که حدس زده شود.
+      final usable = guess != null && !_vague(n) ? guess : null;
+      if (usable != null && usable.confident) {
+        final r = _fromGuess(usable, raw, n, scores);
+        if (r != null) return r;
+      }
       final lg = _matchGuide(raw, n);
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);
       if (soc != null) return soc;
       if (guess != null) {
-        // «یک سؤال حقوقی دارم» موضوعی ندارد که حدس زده شود.
-        final r = _vague(n) ? null : _fromGuess(guess, raw, n, scores);
+        final r = usable == null || usable.confident
+            ? null
+            : _fromGuess(usable, raw, n, scores);
         if (r != null) return r;
       } else {
         final hint = _secondOpinion(raw, n);

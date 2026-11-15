@@ -88,8 +88,13 @@ void main() {
       expect(g.label, c['label'], reason: text);
       expect(g.score, closeTo((c['score'] as num).toDouble(), 0.01),
           reason: text);
-      expect(g.confident, g.score >= reader.open);
-      expect(g.plausible, g.score >= reader.ask);
+      expect(g.confident, c['confident'] ?? g.score >= reader.open,
+          reason: text);
+      expect(g.plausible, c['plausible'] ?? g.score >= reader.ask,
+          reason: text);
+      if (g.confident) {
+        expect(g.score - g.secondScore, greaterThanOrEqualTo(reader.margin));
+      }
       expect(g.second, isNot(g.label));
     }
     // زمانِ Dart (JIT روی ماشین تست) برای گزارش؛ روی گوشی فرق می‌کند.
@@ -103,6 +108,7 @@ void main() {
     expect(reader.ask, greaterThan(0));
     expect(reader.open, greaterThanOrEqualTo(reader.ask));
     expect(reader.open, lessThan(1));
+    expect(reader.margin, inInclusiveRange(0, 0.5));
     expect(reader.labels.length, 19);
   });
 }

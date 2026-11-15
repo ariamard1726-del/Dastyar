@@ -20,6 +20,7 @@ class TopicReader {
     required Float32List bias,
     required this.open,
     required this.ask,
+    this.margin = 0,
     this.revision = '',
   })  : _w = weights,
         _b = bias;
@@ -38,6 +39,7 @@ class TopicReader {
       bias: Float32List.fromList([for (final v in b) (v as num).toDouble()]),
       open: (head['open'] as num).toDouble(),
       ask: (head['ask'] as num).toDouble(),
+      margin: ((head['margin'] ?? 0) as num).toDouble(),
       revision: (head['revision'] ?? '').toString(),
     );
   }
@@ -48,8 +50,13 @@ class TopicReader {
   final Float32List _w;
   final Float32List _b;
 
-  /// از این اطمینان به بالا پرونده مستقیم باز می‌شود.
+  /// از این اطمینان به بالا (و با فاصلهٔ [margin] از دستهٔ دوم) پرونده
+  /// مستقیم باز می‌شود.
   final double open;
+
+  /// کمترین فاصلهٔ اطمینانِ دستهٔ اول از دستهٔ دوم برای حدسِ مطمئن؛ وقتی دو
+  /// دسته نزدیکِ هم‌اند بهتر است از کاربر پرسیده شود.
+  final double margin;
 
   /// از این اطمینان تا [open] از کاربر پرسیده می‌شود؛ پایین‌تر، مدل ساکت است.
   final double ask;
@@ -109,7 +116,7 @@ class TopicReader {
       p[a],
       labels[b],
       p[b],
-      confident: p[a] >= open,
+      confident: p[a] >= open && p[a] - p[b] >= margin,
       plausible: p[a] >= ask,
       millis: watch.elapsedMilliseconds,
       tokens: ids.length,

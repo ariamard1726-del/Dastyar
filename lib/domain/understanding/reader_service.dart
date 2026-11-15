@@ -12,8 +12,8 @@ import 'package:dastyar/domain/understanding/topic_reader.dart';
 /// هر خطایی (نبودِ فایل مدل، کمبود حافظه، زمانِ زیاد) فقط به این معناست که
 /// حدسی در کار نیست و وکیل مثل قبل با قاعده‌های خودش جواب می‌دهد.
 class ReaderService {
-  ReaderService._(this._isolate, this._inbox, this._send, this.open, this.ask,
-      this.revision, this.loadMillis);
+  ReaderService._(
+      this._isolate, this._inbox, this._send, this.revision, this.loadMillis);
 
   static const String weightsAsset = 'assets/brain/noql.bin';
   static const String vocabAsset = 'assets/brain/noql_vocab.json';
@@ -25,8 +25,8 @@ class ReaderService {
   final Isolate _isolate;
   final ReceivePort _inbox;
   final SendPort _send;
-  final double open;
-  final double ask;
+
+  /// نسخهٔ مدل در مخزن سازنده‌اش.
   final String revision;
 
   /// زمان آماده‌شدن مدل روی همین دستگاه.
@@ -66,17 +66,15 @@ class ReaderService {
         errorsAreFatal: false,
       );
       final hello = await first.future.timeout(const Duration(seconds: 60));
-      if (hello is! List || hello.length < 5 || hello[0] is! SendPort) {
+      if (hello is! List || hello.length < 3 || hello[0] is! SendPort) {
         throw StateError('reader did not start: $hello');
       }
       final service = ReaderService._(
         isolate,
         inbox,
         hello[0] as SendPort,
-        hello[1] as double,
-        hello[2] as double,
-        hello[3] as String,
-        hello[4] as int,
+        hello[1] as String,
+        hello[2] as int,
       );
       handler = service._onMessage;
       return service;
@@ -104,20 +102,19 @@ class ReaderService {
     if (m is! List || m.isEmpty) return;
     final done = _waiting.remove(m[0]);
     if (done == null || done.isCompleted) return;
-    if (m.length < 7) {
+    if (m.length < 9) {
       done.complete(null);
       return;
     }
-    final score = m[2] as double;
     final g = TopicGuess(
       m[1] as String,
-      score,
+      m[2] as double,
       m[3] as String,
       m[4] as double,
-      confident: score >= open,
-      plausible: score >= ask,
-      millis: m[5] as int,
-      tokens: m[6] as int,
+      confident: m[5] as bool,
+      plausible: m[6] as bool,
+      millis: m[7] as int,
+      tokens: m[8] as int,
     );
     last = g;
     done.complete(g);
@@ -150,8 +147,6 @@ class ReaderService {
     final inbox = ReceivePort();
     home.send([
       inbox.sendPort,
-      reader.open,
-      reader.ask,
       reader.revision,
       watch.elapsedMilliseconds,
     ]);
@@ -165,6 +160,8 @@ class ReaderService {
           g.score,
           g.second,
           g.secondScore,
+          g.confident,
+          g.plausible,
           g.millis,
           g.tokens,
         ]);
