@@ -13,6 +13,7 @@ import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/ui/settings_page.dart';
 import 'package:dastyar/domain/templates.dart';
+import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:dastyar/ui/widgets/chat_bubbles.dart';
 
 class ChatPage extends StatefulWidget {
@@ -27,6 +28,12 @@ class ChatPage extends StatefulWidget {
   /// قاعده‌های خودش موضوع پیام را نشناخته باشند.
   final IntentNet? intentNet;
 
+  /// خوانندهٔ موضوع (مدل برداری روی گوشی)، اگر بار شده باشد.
+  final Future<TopicGuess?> Function(String text)? guesser;
+
+  /// وضعیت خوانندهٔ موضوع برای صفحهٔ «درباره».
+  final List<String> Function()? readerNotes;
+
   const ChatPage({
     super.key,
     required this.engine,
@@ -36,6 +43,8 @@ class ChatPage extends StatefulWidget {
     this.loadError,
     this.initialDraft,
     this.intentNet,
+    this.guesser,
+    this.readerNotes,
   });
 
   @override
@@ -58,6 +67,7 @@ class _ChatPageState extends State<ChatPage> {
       loadError: widget.loadError,
       initialDraft: widget.initialDraft,
       intentNet: widget.intentNet,
+      guesser: widget.guesser,
       onScrollRequested: _scrollDown,
     );
   }
@@ -125,6 +135,7 @@ class _ChatPageState extends State<ChatPage> {
         builder: (_) => AboutPage(
           engine: widget.engine,
           repo: widget.repo,
+          readerNotes: widget.readerNotes?.call() ?? const [],
         ),
       ),
     );
@@ -213,6 +224,21 @@ class _ChatPageState extends State<ChatPage> {
                           },
                         ),
                 ),
+                if (_chat.thinking)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 6),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 8),
+                        Text('در حال خواندن پیام…'),
+                      ],
+                    ),
+                  ),
                 SuggestionBar(
                   controller: _ctrl,
                   isDrafting: _chat.isDrafting,

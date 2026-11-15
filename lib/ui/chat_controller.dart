@@ -10,20 +10,35 @@ import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
+import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:dastyar/ui/chat_models.dart';
 
 /// کنترلر گفتگو: تنها یک مسیر دارد.
 ///
 /// هر پیام کاربر یا پاسخِ یک فیلدِ پیش‌نویس است (وقتی سندی در حال تنظیم
-/// است) یا به [Advocate] می‌رود؛ وکیلِ قاعده‌محور که هیچ مدل زبانی در آن
-/// نیست. کنترلر فقط همین دو را به هم وصل می‌کند و تاریخچه را ذخیره می‌کند؛
-/// هیچ منطق حقوقی‌ای اینجا نیست.
+/// است) یا به [Advocate] می‌رود؛ وکیلِ قاعده‌محور که متن پاسخ را خودش
+/// می‌سازد. اگر قاعده‌ها موضوع پیام را نشناسند و خوانندهٔ موضوع ([guesser])
+/// در دسترس باشد، حدسِ آن هم همراه پیام به وکیل داده می‌شود. کنترلر فقط
+/// این‌ها را به هم وصل می‌کند و تاریخچه را ذخیره می‌کند؛ هیچ منطق
+/// حقوقی‌ای اینجا نیست.
 class ChatController extends ChangeNotifier {
   final KnowledgeEngine engine;
   final TemplateRepository repo;
   final HistoryStore history;
   final AppSettings settings;
   final VoidCallback? onScrollRequested;
+
+  /// خوانندهٔ موضوع (مدل برداری روی گوشی)؛ `null` یعنی فقط قاعده‌ها.
+  final Future<TopicGuess?> Function(String text)? guesser;
+
+  /// در حال خواندن پیام با مدل هستم (برای نشان‌دادن در صفحه).
+  bool thinking = false;
+
+  /// آخرین حدسِ مدل، برای صفحهٔ «درباره».
+  TopicGuess? lastGuess;
+
+  /// پیام‌ها به ترتیب رسیدن پردازش می‌شوند، حتی اگر یکی منتظر مدل باشد.
+  Future<void> _queue = Future<void>.value();
 
   final List<ChatMessage> messages = [];
   String _sessionId = _newId();
@@ -44,6 +59,7 @@ class ChatController extends ChangeNotifier {
     String? loadError,
     DraftSession? initialDraft,
     IntentNet? intentNet,
+    this.guesser,
     this.onScrollRequested,
   }) {
     advocate = Advocate(
@@ -82,7 +98,13 @@ class ChatController extends ChangeNotifier {
     advocate.reset();
   }
 
-  Future<void> submit(String rawText) async {
+  Future<void> submit(String rawText) {
+    final next = _queue.then((_) => _submit(rawText));
+    _queue = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<void> _submit(String rawText) async {
     final text = rawText.trim();
     if (text.isEmpty || _disposed) return;
     for (final m in messages) {
@@ -103,8 +125,34 @@ class ChatController extends ChangeNotifier {
         return;
       }
     }
-    final r = advocate.respond(text);
-    messages.add(ChatMessage(text, true));
+    TopicGuess? guess;
+    var shown = false;
+    final read = guesser;
+    if (read != null && advocate.wantsGuess(text)) {
+      // خواندن جمله با مدل روی گوشی کمی طول می‌کشد؛ پیام کاربر همان لحظه
+      // نشان داده می‌شود و جواب بعد از آن می‌آید.
+      final session = _sessionId;
+      messages.add(ChatMessage(text, true));
+      shown = true;
+      thinking = true;
+      _notify();
+      _requestScroll();
+      try {
+        guess = await read(text);
+      } catch (_) {
+        guess = null;
+      }
+      thinking = false;
+      if (_disposed) return;
+      if (session != _sessionId) {
+        // در این فاصله گفتگو عوض شده است؛ این پیام دیگر جایی ندارد.
+        _notify();
+        return;
+      }
+      lastGuess = guess ?? lastGuess;
+    }
+    final r = advocate.respond(text, guess: guess);
+    if (!shown) messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
     unawaited(_saveSession());
     _notify();

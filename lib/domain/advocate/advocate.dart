@@ -13,6 +13,7 @@ import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
+import 'package:dastyar/domain/understanding/topic_guess.dart';
 
 /// پاسخ وکیل به یک پیام.
 class AdvocateReply {
@@ -40,10 +41,12 @@ class _Ask {
 ///  ۴. استناد: هر ماده فقط وقتی نام برده می‌شود که متنش در بانک قوانین
 ///     پیدا شود (`engine.findArticle`)، و متن همان ماده نقل می‌شود.
 ///
-/// تنها کمکِ بیرونی، طبقه‌بندِ سبکِ نیت ([IntentNet]، یک فایل JSON کوچک) است
-/// و آن هم فقط «نظر دوم» می‌دهد: وقتی قاعده‌ها موضوع پیام را نشناخته‌اند،
-/// اگر طبقه‌بند با اطمینان بالا یکی از موضوع‌های شناخته‌شده را بگوید، همان
-/// پرونده باز می‌شود. متن پاسخ همیشه از همین قاعده‌هاست.
+/// تنها کمکِ بیرونی «نظر دوم» دربارهٔ موضوع پیام است، و فقط وقتی که
+/// قاعده‌ها موضوع را نشناخته‌اند: یا حدسِ خوانندهٔ موضوع ([TopicGuess]، مدل
+/// برداری Noql با یک سرِ طبقه‌بند) که همراه پیام به [respond] داده می‌شود،
+/// یا در نبودِ آن طبقه‌بندِ سبکِ نیت ([IntentNet]). با حدسِ مطمئن پرونده باز
+/// می‌شود و با حدسِ نامطمئن از خودِ کاربر پرسیده می‌شود. واقعیت‌ها، استدلال
+/// و متن پاسخ همیشه از همین قاعده‌هاست.
 class Advocate {
   Advocate(
     this.engine, {
@@ -65,6 +68,27 @@ class Advocate {
 
   /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
   static const double netMin = 0.6;
+
+  /// دسته‌های خوانندهٔ موضوع → موضوع‌های هم‌معنا در [topics] به ترتیب
+  /// اولویت. دسته‌های crime، general، chat و other پرونده‌ای ندارند و با
+  /// آن‌ها وکیل مثل قبل رفتار می‌کند.
+  static const Map<String, List<String>> guessTopics = {
+    'rent': ['rent'],
+    'cheque': ['cheque'],
+    'debt': ['debt', 'enforce'],
+    'labor': ['labor'],
+    'family': ['family', 'child'],
+    'accused': ['accused'],
+    'injury': ['injury'],
+    'neighbor': ['neighbor'],
+    'consumer': ['consumer'],
+    'cyber': ['cyber'],
+    'inherit': ['inherit'],
+    'property': ['property'],
+    'company': ['company', 'partner'],
+    'guarantee': ['guarantee'],
+    'admin': ['admin'],
+  };
 
   final KnowledgeEngine engine;
 
@@ -105,6 +129,14 @@ class Advocate {
   /// جدایی باشد؛ به‌جای پریدنِ خودسرانه از کاربر می‌پرسم.
   Topic? _side;
   String _sideText = '';
+
+  /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
+  /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
+  List<Topic> _choices = const [];
+  String _choiceText = '';
+
+  /// پروندهٔ جاری با حدسِ مدل باز شده و کاربر هنوز تأییدش نکرده است.
+  bool _guessed = false;
 
   /// بخشی از پاسخ قبلی که برای کوتاه‌ماندنِ حرف، نگفته مانده است.
   String _rest = '';
@@ -197,6 +229,12 @@ class Advocate {
 
   /// پاسخ کاربر به «این ماجرای جدایی است؟».
   static const String sideChip = 'این یک موضوع جداست';
+
+  /// پاسخ کاربر به «ماجرای شما به کدام نزدیک‌تر است؟».
+  static const String noneChip = 'هیچ‌کدام';
+
+  /// پاسخ کاربر وقتی پرونده با حدسِ مدل باز شده و حدس غلط بوده.
+  static const String wrongChip = 'موضوعم این نیست';
   static const String _dontKnowChip = 'نمی‌دانم';
 
   static final List<Topic> topics = [
@@ -258,6 +296,9 @@ class Advocate {
     _also = null;
     _side = null;
     _sideText = '';
+    _choices = const [];
+    _choiceText = '';
+    _guessed = false;
     _vary = 0;
     _rest = '';
     _offeredMore = false;
@@ -281,15 +322,58 @@ class Advocate {
 
   // ------------------------------------------------------------- ورودی اصلی
 
-  AdvocateReply respond(String raw) {
+  /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
+  /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
+  AdvocateReply respond(String raw, {TopicGuess? guess}) {
     final n = Sense.norm(raw);
     file.turns++;
+    final choices = _choices;
+    final choiceText = _choiceText;
+    final guessed = _guessed;
+    _choices = const [];
+    _choiceText = '';
+    _guessed = false;
     if (raw.trim() == newCaseChip) {
       _closeCase();
       _loose.clear();
       return _out(
         'باشد، آن موضوع را کنار می‌گذارم.',
         ask: 'ماجرای تازه چیست؟ از هر جا که راحت‌ترید شروع کنید.',
+      );
+    }
+    // جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
+    if (choices.isNotEmpty) {
+      for (final t in choices) {
+        if (n == Sense.norm(t.title)) {
+          return _open(t, Sense.norm(choiceText));
+        }
+      }
+      if (choices.length == 1 && Sense.words(n) <= 3 && Sense.saysYes(n)) {
+        return _open(choices.first, Sense.norm(choiceText));
+      }
+      if (raw.trim() == noneChip ||
+          (Sense.words(n) <= 3 && Sense.saysNo(n))) {
+        return _out(
+          'باشد.',
+          ask:
+              'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
+          chips: _starters(),
+        );
+      }
+    }
+    // پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
+    if (guessed &&
+        (raw.trim() == wrongChip ||
+            (Sense.words(n) <= 7 &&
+                Sense.has(n,
+                    'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
+      _closeCase();
+      _loose.clear();
+      return _out(
+        'ببخشید، اشتباه برداشت کردم.',
+        ask:
+            'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
+        chips: _starters(),
       );
     }
     final short = Sense.words(n) <= 4;
@@ -423,10 +507,16 @@ class Advocate {
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);
       if (soc != null) return soc;
-      final hint = _secondOpinion(raw, n);
-      if (hint != null) {
-        _loose.removeLast();
-        return _open(hint, n);
+      if (guess != null) {
+        // «یک سؤال حقوقی دارم» موضوعی ندارد که حدس زده شود.
+        final r = _vague(n) ? null : _fromGuess(guess, raw, n, scores);
+        if (r != null) return r;
+      } else {
+        final hint = _secondOpinion(raw, n);
+        if (hint != null) {
+          _loose.removeLast();
+          return _open(hint, n);
+        }
       }
       if (_vague(n)) return _intake();
       return _lookup(raw, n);
@@ -513,6 +603,77 @@ class Advocate {
       }
     }
     return best != null && bestScore >= 3 ? best.id : null;
+  }
+
+  /// آیا برای این پیام حدسِ خوانندهٔ موضوع به کار می‌آید؟ محاسبهٔ حدس روی
+  /// گوشی زمان می‌برد؛ فقط وقتی خواسته می‌شود که پرونده‌ای باز نیست و
+  /// قاعده‌ها خودشان موضوع را نشناخته‌اند.
+  bool wantsGuess(String raw) {
+    if (file.topic.isNotEmpty || _guide != null || _choices.isNotEmpty) {
+      return false;
+    }
+    if (raw.trim() == newCaseChip) return false;
+    final n = Sense.norm(raw);
+    if (!_guessable(n)) return false;
+    for (final t in topics) {
+      if (_score(t, n) >= 3) return false;
+    }
+    return true;
+  }
+
+  bool _guessable(String n) =>
+      _guide == null &&
+      Sense.words(n) >= 3 &&
+      !Sense.has(n, '(?:ماده|اصل) [0-9]+');
+
+  /// موضوعِ هم‌معنای یک دستهٔ مدل؛ بین چند نامزد، آن‌که قاعده‌ها هم
+  /// نشانه‌ای از آن دیده‌اند.
+  Topic? _guessTopic(String label, String n, Map<String, int> scores) {
+    Topic? pick;
+    var top = -1;
+    for (final id in guessTopics[label] ?? const <String>[]) {
+      for (final t in topics) {
+        if (t.id != id) continue;
+        if (t.anti.isNotEmpty && Sense.has(n, t.anti)) continue;
+        final s = scores[id] ?? 0;
+        if (s > top) {
+          pick = t;
+          top = s;
+        }
+      }
+    }
+    return pick;
+  }
+
+  /// نظر دوم از خوانندهٔ موضوع: حدسِ مطمئن پرونده را باز می‌کند (و کاربر
+  /// می‌تواند بگوید اشتباه است)، حدسِ نامطمئن به پرسش از خودِ کاربر می‌رسد،
+  /// و پایین‌تر از آن نادیده گرفته می‌شود.
+  AdvocateReply? _fromGuess(
+      TopicGuess g, String raw, String n, Map<String, int> scores) {
+    if (!g.plausible || !_guessable(n)) return null;
+    final first = _guessTopic(g.label, n, scores);
+    if (first == null) return null;
+    if (g.confident) {
+      _loose.removeLast();
+      final r = _open(first, n, guessed: true);
+      _guessed = true;
+      return AdvocateReply(r.text, chips: [wrongChip, ...r.chips], laws: r.laws);
+    }
+    final second = _guessTopic(g.second, n, scores);
+    final list = <Topic>[
+      first,
+      if (second != null && second.id != first.id) second,
+    ];
+    _loose.removeLast();
+    _choices = list;
+    _choiceText = raw;
+    return _out(
+      'می‌خواهم مطمئن شوم موضوع را درست گرفته‌ام.',
+      ask: list.length == 1
+          ? 'ماجرای شما دربارهٔ «${first.title}» است؟'
+          : 'ماجرای شما به کدام نزدیک‌تر است؟',
+      chips: [for (final t in list) t.title, noneChip],
+    );
   }
 
   /// نظر دوم از طبقه‌بند نیت، وقتی قاعده‌ها موضوع را نشناخته‌اند.
@@ -630,7 +791,8 @@ class Advocate {
     return false;
   }
 
-  AdvocateReply _open(Topic t, String n, {bool switched = false}) {
+  AdvocateReply _open(Topic t, String n,
+      {bool switched = false, bool guessed = false}) {
     final earlier = switched ? const <String>[] : List<String>.of(_loose);
     _loose.clear();
     _closeCase();
@@ -679,7 +841,11 @@ class Advocate {
       }
     }
     var lead = '';
-    if (switched) {
+    if (guessed) {
+      // پرونده با حدس باز شده؛ این را پنهان نمی‌کنم تا اگر غلط است بگوید.
+      lead =
+          'برداشتم این است که موضوع شما «${t.title}» است؛ اگر اشتباه گرفته‌ام بگویید.';
+    } else if (switched) {
       lead = _pick(Say.switched);
     } else if (LawyerVoice.expressesDistress(n) ||
         Sense.has(n, 'کتک|میزنه| زد|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {

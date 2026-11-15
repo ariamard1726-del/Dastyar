@@ -4,6 +4,7 @@
   assets/brain/noql.bin          وزن‌های مدل، int8 سطربه‌سطر (قالب NOQL1 در core.py)
   assets/brain/noql_vocab.json   واژگان توکن‌ساز (قطعه‌ها و امتیازها)
   assets/brain/noql_head.json    سرِ طبقه‌بند (۱۹ دسته) + آستانه‌ها + شناسنامه
+  assets/brain/noql_licenses.txt پروانه‌های مدل (همان فایل‌های مخزن سازنده)
   test/understanding/noql_ref.json   خروجیِ مرجع برای تست‌های Dart
   brain/reports/noql_export.md   گزارش
 
@@ -32,8 +33,8 @@ ASSETS = os.path.join(ROOT, 'assets', 'brain')
 REF = os.path.join(ROOT, 'test', 'understanding', 'noql_ref.json')
 OUT = os.path.join(BRAIN, 'reports', 'noql_export.md')
 
-OPEN_PRECISION = float(os.environ.get('OPEN_PRECISION', '0.85'))
-ASK_PRECISION = float(os.environ.get('ASK_PRECISION', '0.60'))
+OPEN_PRECISION = float(os.environ.get('OPEN_PRECISION', '0.90'))
+ASK_PRECISION = float(os.environ.get('ASK_PRECISION', '0.70'))
 C_GRID = (1.0, 4.0, 16.0, 64.0)
 
 ODD = [
@@ -87,7 +88,7 @@ def main():
 
     L = ['# آماده‌سازی Noql برای برنامه', '']
     rev = REV or HfApi().model_info(REPO).sha
-    L.append(f'- مدل: `{REPO}`، نسخهٔ `{rev}`، پروانه apache-2.0')
+    L.append(f'- مدل: `{REPO}`، نسخهٔ `{rev}`')
 
     tj = hf_hub_download(REPO, 'tokenizer.json', revision=rev)
     vocab = json.load(open(tj, encoding='utf-8'))['model']['vocab']
@@ -210,8 +211,8 @@ def main():
     order = np.argsort(-pall, axis=1)
     ok2 = np.array([labels[o[0]] in g or labels[o[1]] in g for o, g in zip(order, gold)])
 
-    grid = sorted(set([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-                       round(t_open, 3), round(t_ask, 3)]))
+    grid = sorted(set([0.0, 0.08, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18,
+                       0.2, 0.25, 0.3, 0.4, 0.5, round(t_open, 3), round(t_ask, 3)]))
     L += ['## اطمینان و آستانه', '',
           f'- آستانهٔ «باز کردن پرونده» (دقت ≥ {OPEN_PRECISION:.0%} در اعتبارسنجی): **{t_open:.3f}**',
           f'- آستانهٔ «پرسیدن از کاربر» (دقت ≥ {ASK_PRECISION:.0%} در اعتبارسنجی): **{t_ask:.3f}**',
@@ -245,7 +246,8 @@ def main():
               open(os.path.join(ASSETS, 'noql_vocab.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, separators=(',', ':'))
     json.dump({
-        'model': REPO, 'revision': rev, 'license': 'apache-2.0',
+        'model': REPO, 'revision': rev,
+        'license': 'MIT (model) + Apache-2.0 (base ALBERT)',
         'labels': labels, 'dim': int(hw.shape[1]),
         'open': round(t_open, 4), 'ask': round(t_ask, 4), 'c': c,
         'examples': len(y), 'cv_accuracy': round(best[1] / len(y), 4),
@@ -274,6 +276,27 @@ def main():
                              'score': round(float(p[i]), 4)})
     os.makedirs(os.path.dirname(REF), exist_ok=True)
     json.dump(ref, open(REF, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+
+    # پروانه‌ها: همان دو فایل مخزن سازنده، به‌علاوهٔ یادداشتِ تغییر.
+    lic = open(hf_hub_download(REPO, 'LICENSE', revision=rev), encoding='utf-8').read()
+    base = open(hf_hub_download(REPO, 'LICENSE.base-albert', revision=rev),
+                encoding='utf-8').read()
+    kind = 'MIT' if 'MIT License' in lic else ('Apache-2.0' if 'Apache License' in lic else '?')
+    with open(os.path.join(ASSETS, 'noql_licenses.txt'), 'w', encoding='utf-8') as f:
+        f.write(f'Noql sentence-embedding model\nSource: https://huggingface.co/{REPO} '
+                f'(revision {rev})\n\n'
+                'Changes made for this app: the weights were converted to 8-bit integers '
+                '(per-row quantization) and stored in a custom file (noql.bin); the tokenizer '
+                'vocabulary was re-saved as JSON (noql_vocab.json). The model itself was not '
+                'retrained.\n\n'
+                '==================== LICENSE ====================\n\n' + lic.strip() + '\n\n'
+                '==================== LICENSE.base-albert ====================\n\n'
+                + base.strip() + '\n')
+    L += ['', '## پروانه', '',
+          f'- فایل `LICENSE` مخزن مدل: **{kind}** ({lic.strip().splitlines()[2] if kind == "MIT" else ""})',
+          '- فایل `LICENSE.base-albert` (مدل پایه): Apache-2.0',
+          '- هر دو متن به‌همراه یادداشتِ تغییرها در `assets/brain/noql_licenses.txt` '
+          'گذاشته شده و در صفحهٔ پروانه‌های برنامه نشان داده می‌شود.']
 
     sizes = {n: os.path.getsize(os.path.join(ASSETS, n)) / 1e6
              for n in ('noql.bin', 'noql_vocab.json', 'noql_head.json')}
