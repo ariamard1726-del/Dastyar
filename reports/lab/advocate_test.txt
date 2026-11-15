@@ -26,11 +26,11 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
 ✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده
-✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/reasoner_test.dart: گفتگو بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
 ✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
