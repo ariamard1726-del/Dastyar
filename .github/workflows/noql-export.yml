@@ -21,15 +21,17 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install
-        run: pip install numpy tokenizers huggingface_hub safetensors
-      - name: Dump
-        run: python brain/noql/dump.py
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn tokenizers huggingface_hub safetensors sentence-transformers
+      - name: Export and measure
+        run: python brain/noql/export.py
       - name: Commit
         if: always()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/noql_dump.md || true
-          git commit -m "Noql dump [skip ci]" || echo "nothing to commit"
+          git add brain/reports/noql_export.md assets/brain/noql.bin assets/brain/noql_vocab.json assets/brain/noql_head.json test/understanding/noql_ref.json || true
+          git commit -m "Noql: فایل‌های مدل برای برنامه و گزارش [skip ci]" || echo "nothing to commit"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
