@@ -21,6 +21,11 @@ const String _cOrderCame =
     '|از (?:دادگاه|شورا|اجرای احکام) (?:[^ ]+ ){0,4}تخلیه'
     '|برگه رسمی (?:اومد|آمد)';
 
+/// ودیعه‌ای که پس داده نشده (وقتی دستور تخلیه در کار است).
+const String _cOrderDeposit =
+    '(?:پول پیش|ودیعه|رهن|قرض الحسنه)[^ ]* (?:[^ ]+ ){0,4}(?:نداده|نمیده|نمیدهد|نداد |پس نداد|برنگردوند|برنگرداند|نگرفتم|نگرفته ام|مونده|مانده|چی میشه|چه میشود|چه میشه)'
+    '|تکلیف (?:پول پیش|ودیعه|رهن)';
+
 const String _cOrder = '$_cOrderCame'
     '|دستور تخلیه|حکم تخلیه|اخطار(?:یه)? تخلیه|اجرائیه تخلیه'
     '|مهلت (?:تخلیه|بگیرم|میخوام|میخواهم|میدن|میدهند)|توقف (?:اجرا|عملیات)';
@@ -169,7 +174,8 @@ const String _cEarly =
     '|نیاز شخصی|تخریب و نوسازی';
 
 const String _cGone =
-    'گذاشته (?:و )?رفته|ول کرده (?:و )?رفته'
+    '(?:وسایل|اسباب|اثاث|کلید)[^ ]* (?:[^ ]+ ){0,3}(?:گذاشته|ول کرده) (?:و )?رفته'
+    '|(?:خونه|خانه|ملک|مغازه|واحد)[^ ]* (?:[^ ]+ ){0,2}ول کرده (?:و )?رفته'
     '|رفته (?:و|ولی) (?:[^ ]+ ){0,3}(?:وسایل|اسباب|اثاث)'
     '|(?:وسایل|اسباب|اثاث)(?:ش)? (?:[^ ]+ ){0,3}(?:مونده|مانده|جا مونده)'
     '|غیبش زده|در(?: رو| را)? قفل کرده|پیداش نیست|خبری ازش نیست|فرار کرده|متواری'
@@ -325,6 +331,13 @@ bool _aim(CaseFile f, String v) => f.eq('role', 'landlord') && f.eq('aim', v);
 bool _ordered(CaseFile f) =>
     _matter(f, 'order') || (_matter(f, 'evict') && f.yes('official'));
 
+/// موجر تخلیه می‌خواهد ولی نه مدت تمام شده و نه شرط فسخی در کار است.
+bool _noGround(CaseFile f) =>
+    f.eq('role', 'landlord') &&
+    (f.eq('aim', 'evict') || f.eq('aim', 'breach')) &&
+    f.no('ended') &&
+    f.no('clause');
+
 /// موجر دنبال تخلیه است (یا هنوز نگفته دنبال چیست).
 bool _evicting(CaseFile f) =>
     f.eq('role', 'landlord') && (!f.has('aim') || f.eq('aim', 'evict'));
@@ -389,6 +402,11 @@ String _rentOrderBody(CaseFile f) {
       '• اگر دربارهٔ قرارداد حقی دارید (مثلاً تمدید شده یا مدتش تمام نشده)، هم‌زمان به دادگاه شکایت کنید [[landlord_tenant:5]].\n'
       '• برای فرصت کوتاهِ جابه‌جایی می‌توانید از همان مرجع کتبی مهلت بخواهید؛ پذیرفتنش با قاضی است.';
 }
+
+const String _rentOrderDepositBody =
+    'همین مهم‌ترین برگ شماست: اجرای دستور تخلیه به پس‌دادن ودیعه گره خورده است. تا موجر پول پیش را به خودتان برنگرداند یا به دایرهٔ اجرا نسپارد، مأمور ملک را تخلیه نمی‌کند [[landlord_tenant:4]].\n'
+    'هنگام اجرا به مأمور و دفتر شعبه بگویید ودیعه را نگرفته‌اید و اجاره‌نامه یا رسیدی را که مبلغ ودیعه در آن آمده نشان بدهید.\n'
+    'اگر موجر مدعی خسارت یا اجارهٔ عقب‌افتاده است، باید خودش دادخواست بدهد و فقط به اندازهٔ همان ادعا از ودیعه نگه داشته می‌شود [[landlord_tenant:4]].';
 
 const String _rentAccessBody =
     'تا وقتی اجاره برقرار است، استفاده از خانه حق شماست و موجر نمی‌تواند سرِ خود وارد شود یا کاری کند که با سکونت شما نسازد [[civil:484]]. دو استثنا دارد: تعمیر فوری‌ای که عقب‌انداختنش به ملک ضرر می‌زند [[civil:485]]، و بازدیدی که خودتان اجازه داده‌اید یا در اجاره‌نامه آمده.\n'
@@ -1106,6 +1124,12 @@ Filing? _rentPetition(CaseFile f) {
             'دادخواست مطالبهٔ خسارت');
       case 'evict':
       case 'breach':
+        if (_noGround(f)) {
+          return f.yes('owes')
+              ? const Filing('demand_money',
+                  'تنظیم دادخواست مطالبهٔ اجاره‌بها', 'دادخواست مطالبهٔ اجاره‌بها')
+              : null;
+        }
         return const Filing(
             'eviction', 'تنظیم دادخواست تخلیه', 'دادخواست تخلیه');
     }
@@ -1137,6 +1161,12 @@ Filing? _rentPetition(CaseFile f) {
 /// لایحه‌ای که در پروندهٔ همین دعوا به کار می‌آید.
 Filing? _rentBrief(CaseFile f) {
   if (f.eq('role', 'landlord')) {
+    if (_noGround(f)) {
+      return f.yes('owes')
+          ? const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
+              'لایحهٔ مطالبهٔ اجاره‌بها')
+          : null;
+    }
     switch (f.get('aim')) {
       case 'unpaid':
         return const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
@@ -1248,8 +1278,10 @@ Map<String, String> _rentFill(CaseFile f, String template) {
       ]);
     case 'defense_brief':
       final big = sum != null && sum > 100000000;
+      // تخلیه‌ای که فعلاً پایه ندارد: لایحه دربارهٔ اجاره‌های نپرداخته است.
+      final aim = _noGround(f) ? 'unpaid' : f.get('aim');
       final money = landlord
-          ? (f.eq('aim', 'unpaid') || f.eq('aim', 'damage'))
+          ? (aim == 'unpaid' || aim == 'damage')
           : f.eq('matter', 'deposit');
       out['authority_type'] =
           money && big ? 'شعبهٔ دادگاه عمومی حقوقی' : 'شعبهٔ دادگاه صلح';
@@ -1258,7 +1290,7 @@ Map<String, String> _rentFill(CaseFile f, String template) {
               ? 'خوانده'
               : 'خواهان / شاکی';
       if (landlord) {
-        switch (f.get('aim')) {
+        switch (aim) {
           case 'unpaid':
             out['subject'] = 'مطالبهٔ اجاره‌بهای پرداخت‌نشده';
             out['merits_defense'] =
@@ -1704,7 +1736,17 @@ final List<Issue> _rentIssues = [
     body: _rentOrderBody,
     when: _tenantSide,
     covers: const {'official', 'matter'},
-    rank: (f) => _r(_matter(f, 'evict'), 3, _r(f.yes('ended'), 1)),
+    rank: (f) => _ordered(f)
+        ? -1
+        : _r(_matter(f, 'evict'), 3, _r(f.yes('ended'), 1)),
+  ),
+  Issue(
+    id: 'orderDeposit',
+    chip: 'پول پیشم را هنوز نداده',
+    cues: _cOrderDeposit,
+    body: (f) => _rentOrderDepositBody,
+    when: _ordered,
+    rank: (f) => 4,
   ),
   Issue(
     id: 'guarantee',
@@ -1788,7 +1830,7 @@ final List<Issue> _rentIssues = [
     body: (f) => _rentLeaveBody,
     when: _tenantSide,
     covers: const {'matter'},
-    rank: (f) => _r(f.no('ended') && !_matter(f, 'leave'), 1),
+    rank: (f) => _matter(f, 'leave') ? -1 : _r(f.no('ended'), 1),
   ),
   Issue(
     id: 'raise',
@@ -1796,7 +1838,7 @@ final List<Issue> _rentIssues = [
     cues: _cRaise,
     body: _rentRaiseBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'evict'), 1),
+    rank: (f) => _matter(f, 'raise') ? -1 : _r(_matter(f, 'evict'), 1),
   ),
   Issue(
     id: 'evict',
@@ -1804,8 +1846,10 @@ final List<Issue> _rentIssues = [
     cues: _cEvict,
     body: (f) => _rentEvictBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'raise'), 3,
-        _r(_matter(f, 'deposit') && f.no('vacated'), 2)),
+    rank: (f) => _matter(f, 'evict')
+        ? -1
+        : _r(_matter(f, 'raise'), 3,
+            _r(_matter(f, 'deposit') && f.no('vacated'), 2)),
   ),
   Issue(
     id: 'repair',
@@ -1902,7 +1946,7 @@ final List<Issue> _rentIssues = [
     body: _rentUnpaidBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _r(_evicting(f), 3, 1),
+    rank: (f) => _aim(f, 'unpaid') ? -1 : _r(_evicting(f), 3, 1),
   ),
   Issue(
     id: 'ldamage',
@@ -1911,7 +1955,7 @@ final List<Issue> _rentIssues = [
     body: (f) => _rentLandlordDamageBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _r(_evicting(f), 2, 1),
+    rank: (f) => _aim(f, 'damage') ? -1 : _r(_evicting(f), 2, 1),
   ),
 ];
 

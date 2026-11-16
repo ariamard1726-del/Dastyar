@@ -184,5 +184,54 @@ void main() {
       expect(a.file.topic, 'rent');
       expect(a.unresolved, isEmpty);
     });
+
+    test('تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید', () {
+      final a = fresh();
+      a.respond('مستاجرم سه ماهه کرایه نداده');
+      a.respond('خونه رو هم خالی نمیکنه');
+      expect(a.file.get('aim'), 'evict');
+      expect(a.filings.first.template, 'eviction');
+      a.respond('نه هنوز مونده');
+      a.respond('نه، چنین شرطی نیست');
+      expect(a.file.no('ended'), isTrue);
+      expect(a.file.no('clause'), isTrue);
+      expect([for (final g in a.filings) g.chip], [
+        'تنظیم دادخواست مطالبهٔ اجاره‌بها',
+        'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
+      ]);
+      expect(a.fillFor('defense_brief')['subject'], contains('اجاره‌بها'));
+    });
+  });
+
+  group('حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند', () {
+    test('دستور تخلیه آمده و ودیعه پس داده نشده', () {
+      final a = fresh();
+      say(a, 'صاحبخونه برام دستور تخلیه گرفته');
+      final r = say(a, 'هنوز پول پیشمو نداده');
+      expect(a.file.get('matter'), 'order');
+      expect(r, contains('دایرهٔ اجرا'));
+      expect(r, contains('ماده ۴ قانون روابط موجر و مستأجر'));
+      expect(r, isNot(contains('همین را در نظر گرفته‌ام')));
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود', () {
+      final a = fresh();
+      final r = a.respond('مستاجرم خونه رو داغون کرده و گذاشته رفته');
+      expect(a.file.get('aim'), 'damage');
+      expect(r.text, isNot(contains('وسایلش')));
+      expect(r.chips, isNot(contains('به ملک خسارت زده')));
+      final b = fresh();
+      final g = say(b, 'مستاجرم رفته و وسایلش مونده تو خونه');
+      expect(g, contains('وسایل'));
+    });
+
+    test('وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت', () {
+      final a = fresh();
+      final r = a.respond(
+          'میخوام قبل از پایان قرارداد بلند شم صاحبخونه قبول نمیکنه');
+      expect(a.file.get('matter'), 'leave');
+      expect(r.text, isNot(contains('چه گفت')));
+    });
   });
 }
