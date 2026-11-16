@@ -1,1 +1,2 @@
-🎉 322 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند (failed)
+::error::328 tests passed, 1 failed.
