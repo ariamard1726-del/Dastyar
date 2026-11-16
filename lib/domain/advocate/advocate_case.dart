@@ -350,7 +350,13 @@ extension _CaseFlow on Advocate {
         final soc = _social(n, t);
         if (soc != null) return soc;
       }
-      parts.add(_react(heardGoal ? 'q:goal' : wasPending, n));
+      // واقعیتِ تازه‌ای که به‌جای جواب آمده («اجاره‌نامه دارم»)، واکنشِ
+      // خودش را دارد؛ رویش «همین را هدف می‌گیرم» نمی‌گذارم.
+      final fact =
+          news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
+      if (!fact || heardGoal) {
+        parts.add(_react(heardGoal ? 'q:goal' : wasPending, n));
+      }
       understood = true;
     } else if (heardGoal && parts.isEmpty) {
       parts.add(_react('q:goal', n));
@@ -547,7 +553,11 @@ extension _CaseFlow on Advocate {
 
   /// واکنش به جوابِ پرسش‌های باز.
   String _react(String id, String n) {
+    final unsure = Sense.words(n) <= 5 && Sense.saysDontKnow(n);
     if (id == 'q:reply') {
+      if (unsure) {
+        return 'اشکالی ندارد. اگر بعداً حرفی زد یا پیامی داد، نگهش دارید؛ به کار می‌آید.';
+      }
       if (Sense.has(n,
           'جواب ن|تلفن|بلاک|غیب|گم و گور|در دسترس|پیداش|خاموش|فرار|رفته')) {
         return 'پس عملاً در دسترس نیست. نگران این نباشید؛ ابلاغ رسمی برای همین وقت‌هاست و غیبت او جلوی کار شما را نمی‌گیرد.';
@@ -568,6 +578,9 @@ extension _CaseFlow on Advocate {
         return 'پس هنوز رسماً از او نخواسته‌اید. معمولاً قدم اول همین است که خواسته‌تان را طوری به او برسانید که بعداً قابل اثبات باشد.';
       }
       return 'خوب شد گفتید؛ این را کنار بقیهٔ ماجرا یادداشت کردم.';
+    }
+    if (unsure) {
+      return 'اشکالی ندارد؛ لازم نیست همین حالا تصمیم بگیرید. هر دو راه را جلوی شما می‌گذارم: اول توافق، و اگر جواب نداد مسیر قانونی.';
     }
     if (Sense.has(n,
         'توافق|سازش|صلح|دوستانه|مسالمت|کنار بیا|زود|بی دردسر|آبرو|کدخدامنشی')) {

@@ -394,8 +394,12 @@ class Advocate {
     if (_offer.isNotEmpty && short) {
       final t0 = _current();
       final offer = _offer;
+      // «نمی‌دانم» در جوابِ «بگویم؟» یعنی تصمیم با خودت: می‌گویم. ولی
+      // برای نوشتنِ سند، بی‌خواستِ روشنِ کاربر دست به کار نمی‌شوم.
+      final unsure = Sense.saysDontKnow(n);
       if (t0 != null &&
           (Sense.saysYes(n) ||
+              (unsure && offer != 'draft') ||
               raw.trim() == moreChip ||
               Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
         clearOffer();
@@ -406,7 +410,7 @@ class Advocate {
         file.turns--;
         return respond(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
       }
-      if (t0 != null && Sense.saysNo(n)) {
+      if (t0 != null && (Sense.saysNo(n) || unsure)) {
         clearOffer();
         return _finish(t0, [_pick(Say.fine)]);
       }

@@ -311,6 +311,30 @@ void main() {
       expect(a.file.covered, contains('q:reply'));
     });
 
+    test('«نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود', () {
+      final a = fresh();
+      untilReply(a, 'صاحبخونه پول پیشمو نمیده');
+      final r = a.respond('نمیدونم');
+      expect(r.text, contains('اشکالی ندارد'));
+      expect(r.text, isNot(contains('یادداشت کردم')));
+      expect(a.file.pending, 'q:goal');
+      final g = a.respond('نمیدونم');
+      expect(g.text, contains('لازم نیست همین حالا تصمیم بگیرید'));
+      expect(g.text, isNot(contains('همین را هدف می‌گیرم')));
+    });
+
+    test('خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند', () {
+      for (final open in [
+        'صاحبخونه آبگرمکن خراب رو تعمیر نمیکنه',
+        'صاحبخونه کولر رو درست نمیکنه',
+        'خونه اجاره ای سقفش چکه میکنه',
+      ]) {
+        final a = fresh();
+        a.respond(open);
+        expect(a.file.topic, 'rent', reason: open);
+      }
+    });
+
     test('نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند', () {
       final a = fresh();
       a.respond('مستاجرم خونه رو خالی نمیکنه');
@@ -349,7 +373,11 @@ void main() {
       final b = fresh();
       final d = say(b, 'مستاجرم و صاحبخونه خونه رو تحویل نمیده');
       expect(b.file.get('role'), 'tenant');
+      // تحویل‌ندادن خودش یک محور است؛ دیگر نمی‌پرسم «اختلاف سرِ چیست؟».
+      expect(b.file.get('matter'), 'deliver');
       expect(d, contains('ماده ۴۷۶ قانون مدنی'));
+      expect(d, isNot(contains('اختلافتان با موجر سرِ چیست')));
+      expect(say(b, 'قدم بعدی چیست؟'), contains('تحویل‌گرفتن ملک'));
       expect(a.unresolved, isEmpty);
       expect(b.unresolved, isEmpty);
     });
