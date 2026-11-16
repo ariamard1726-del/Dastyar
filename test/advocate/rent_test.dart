@@ -30,6 +30,19 @@ void main() {
     return sb.toString();
   }
 
+  /// پرسش‌های پرونده را با «نمی‌دانم» رد می‌کند تا نوبت به پرسشِ «طرف
+  /// مقابل چه می‌گوید؟» برسد.
+  AdvocateReply untilReply(Advocate a, String opening) {
+    var r = a.respond(opening);
+    var guard = 0;
+    while (a.file.pending != 'q:reply' && guard < 30) {
+      guard++;
+      r = a.respond(
+          r.chips.contains('نه، لازم نیست') ? 'نه، لازم نیست' : 'نمیدونم');
+    }
+    return r;
+  }
+
   const depositChip = 'تنظیم دادخواست مطالبهٔ ودیعه';
   const depositBrief = 'تنظیم لایحهٔ مطالبهٔ ودیعه';
 
@@ -232,6 +245,127 @@ void main() {
           'میخوام قبل از پایان قرارداد بلند شم صاحبخونه قبول نمیکنه');
       expect(a.file.get('matter'), 'leave');
       expect(r.text, isNot(contains('چه گفت')));
+    });
+  });
+
+  group('طرف مقابل چه می‌گوید', () {
+    test('پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد', () {
+      final a = fresh();
+      final r = untilReply(a, 'صاحبخونه پول پیشمو نمیده');
+      expect(a.file.pending, 'q:reply');
+      expect(r.text, contains('برای پس‌ندادن ودیعه چه می‌گوید'));
+      expect(
+          r.chips,
+          containsAll(
+              ['می‌گوید پول ندارم', 'می‌گوید صبر کن مستأجر جدید بیاید']));
+      final s = say(a, 'می‌گوید پول ندارم');
+      expect(s, contains('ماده ۲۷۷ قانون مدنی'));
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند', () {
+      for (final open in [
+        'صاحبخونه پول پیشمو نمیده',
+        'صاحبخونه میخواد بیرونم کنه',
+        'صاحبخونه آبگرمکن خراب رو تعمیر نمیکنه',
+        'مستاجرم خونه رو خالی نمیکنه',
+        'مستاجرم سه ماهه کرایه نداده',
+        'مستاجرم خونه رو داغون کرده و گذاشته رفته',
+      ]) {
+        final probe = fresh();
+        final r = untilReply(probe, open);
+        expect(probe.file.pending, 'q:reply', reason: open);
+        final options = [
+          for (final c in r.chips)
+            if (c.startsWith('می‌گوید') ||
+                c == 'جواب نمی‌دهد' ||
+                c == 'دلیلی نمی‌گوید')
+              c,
+        ];
+        expect(options.length, greaterThanOrEqualTo(3), reason: open);
+        for (final c in options) {
+          final a = fresh();
+          untilReply(a, open);
+          final s = say(a, c);
+          expect(s, contains(RegExp('(?:ماده|مواد) [۰-۹]')),
+              reason: '$open / $c');
+          expect(s, isNot(contains('کنار بقیهٔ ماجرا یادداشت کردم')),
+              reason: '$open / $c');
+          expect(a.unresolved, isEmpty, reason: '$open / $c');
+        }
+      }
+    });
+
+    test('وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید', () {
+      final a = fresh();
+      var r = a.respond('صاحبخونه برام دستور تخلیه گرفته');
+      expect(a.file.get('matter'), 'order');
+      for (var i = 0; i < 20; i++) {
+        expect(a.file.pending, isNot('q:reply'), reason: 'نوبت $i');
+        expect(r.text, isNot(contains('چه گفت')), reason: 'نوبت $i');
+        expect(r.chips, isNot(contains('انکار می‌کند')), reason: 'نوبت $i');
+        if (a.file.covered.contains('q:goal')) break;
+        r = a.respond(
+            r.chips.contains('نه، لازم نیست') ? 'نه، لازم نیست' : 'نمیدونم');
+      }
+      expect(a.file.covered, contains('q:reply'));
+    });
+
+    test('نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند', () {
+      final a = fresh();
+      a.respond('مستاجرم خونه رو خالی نمیکنه');
+      final r = say(a, 'میگه اول پول پیشمو بده');
+      expect(a.file.get('role'), 'landlord');
+      expect(r, contains('هم‌زمان'));
+      say(a, 'میگه از پول پیش کم کن');
+      expect(a.file.get('role'), 'landlord');
+      // ولی حرفِ صریحِ خودش نقش را عوض می‌کند.
+      a.respond('نه، من مستاجر هستم');
+      expect(a.file.get('role'), 'tenant');
+    });
+  });
+
+  group('پرسش‌های تازهٔ اجاره', () {
+    test('مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت', () {
+      final a = fresh();
+      a.respond('صاحبخونه پول پیشمو نمیده');
+      expect(say(a, 'کابینت زدم پولش رو میده؟'),
+          contains('ماده ۵۰۲ قانون مدنی'));
+      expect(say(a, 'تو قرارداد جریمه دیرکرد روزانه نوشتیم'),
+          contains('ماده ۲۳۰ قانون مدنی'));
+      expect(
+          say(a, 'مدت قرارداد رو ننوشتیم'), contains('ماده ۵۰۱ قانون مدنی'));
+      expect(a.file.get('matter'), 'deposit');
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود', () {
+      final a = fresh();
+      a.respond('صاحبخونه میخواد بیرونم کنه');
+      final own = say(a, 'میگه پسرم میخواد ازدواج کنه خونه رو لازم داره');
+      expect(own, contains('نیاز شخصی'));
+      expect(a.file.get('matter'), 'evict');
+
+      final b = fresh();
+      final d = say(b, 'مستاجرم و صاحبخونه خونه رو تحویل نمیده');
+      expect(b.file.get('role'), 'tenant');
+      expect(d, contains('ماده ۴۷۶ قانون مدنی'));
+      expect(a.unresolved, isEmpty);
+      expect(b.unresolved, isEmpty);
+    });
+
+    test('موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه', () {
+      final a = fresh();
+      a.respond('مستاجرم سه ماهه کرایه نداده');
+      expect(say(a, 'ضامنش رو میتونم طرف دعوا کنم؟'),
+          contains('مواد ۴۹۴ و ۴۹۵ قانون مدنی'));
+      expect(say(a, 'میگه نقدی دادم ولی رسید نداره'),
+          contains('ماده ۱۹۸ قانون آیین دادرسی'));
+      expect(say(a, 'بدون اجازه تو حیاط دیوار کشیده'),
+          contains('ماده ۵۰۳ قانون مدنی'));
+      expect(a.file.get('role'), 'landlord');
+      expect(a.file.get('aim'), 'unpaid');
+      expect(a.unresolved, isEmpty);
     });
   });
 }

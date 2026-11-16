@@ -13,6 +13,12 @@ bool _outranks(Slot s, String now, String old) {
   return a >= 0 && (b < 0 || a < b);
 }
 
+/// آیا کاربر همین مقدار را صریح و از زبان خودش گفته است؟
+bool _saidSure(Slot s, String n, String v) {
+  final r = s.readSure;
+  return r != null && r(n) == v;
+}
+
 String _join(List<String> items) {
   if (items.isEmpty) return '';
   if (items.length == 1) return items.first;
@@ -88,6 +94,7 @@ extension _CaseFlow on Advocate {
           file.has(s.id) &&
           s.id != file.pending &&
           !_outranks(s, v, file.get(s.id)) &&
+          !_saidSure(s, n, v) &&
           !(live && Sense.has(n, _amend))) {
         continue;
       }
@@ -266,7 +273,11 @@ extension _CaseFlow on Advocate {
     var asked = issue;
     if (asked == null && _deferred.isNotEmpty && !_roleUnknown(t)) {
       for (final i in t.issues) {
-        if (i.id == _deferred) asked = i;
+        if (i.id != _deferred) continue;
+        // حالا که نقش معلوم شده، بحثی که مالِ طرفِ دیگر است جواب داده
+        // نمی‌شود.
+        final w = i.when;
+        if (w == null || w(file)) asked = i;
       }
       _deferred = '';
     }
@@ -488,8 +499,18 @@ extension _CaseFlow on Advocate {
     }
     file.pending = '';
     if (_adversarial.contains(t.id) && file.covered.add('q:reply')) {
-      file.pending = 'q:reply';
-      return _Ask(_pick(Say.askReply), _replyChips);
+      // موضوع می‌تواند این پرسش را به زبانِ همان وضعیت بپرسد، یا بگوید
+      // این‌جا جای پرسیدنش نیست.
+      final ask = t.askReply;
+      final own = ask == null ? null : ask(file);
+      if (own == null) {
+        file.pending = 'q:reply';
+        return _Ask(_pick(Say.askReply), _replyChips);
+      }
+      if (own.text.isNotEmpty) {
+        file.pending = 'q:reply';
+        return _Ask(own.text, own.chips);
+      }
     }
     if (file.covered.add('q:goal')) {
       file.pending = 'q:goal';

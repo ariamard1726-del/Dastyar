@@ -165,6 +165,11 @@ class Slot {
   /// عقب‌افتاده گفته و بعد می‌گوید «تخلیه هم نمی‌کند»).
   final List<String> priority;
 
+  /// برای واقعیتِ [sticky]: حرفِ صریحِ خودِ کاربر («من موجرم») که حتی مقدارِ
+  /// معلوم‌شده را هم عوض می‌کند. برداشتِ غیرمستقیم از [read] (مثلاً از نقلِ
+  /// حرفِ طرف مقابل) این قدرت را ندارد.
+  final String? Function(String n)? readSure;
+
   Slot({
     required this.id,
     required this.ask,
@@ -179,6 +184,7 @@ class Slot {
     this.first = false,
     this.sticky = false,
     this.priority = const [],
+    this.readSure,
   });
 }
 
@@ -230,6 +236,18 @@ class Filing {
   const Filing(this.template, this.chip, this.name);
 }
 
+/// پرسشی که خودِ موضوع به‌جای پرسشِ عمومیِ وکیل می‌پرسد، با گزینه‌های
+/// جوابش. گزینه‌ها از زبان کاربر نوشته می‌شوند و بهتر است هرکدام به یکی از
+/// بحث‌های موضوع (`Issue.cues`) بخورد تا جوابِ مشخصِ خودش را بگیرد.
+class Prompt {
+  final String text;
+  final List<String> chips;
+  const Prompt(this.text, [this.chips = const []]);
+
+  /// «در این وضعیت این پرسش را نپرس».
+  static const Prompt none = Prompt('');
+}
+
 class Topic {
   final String id;
   final String title;
@@ -272,6 +290,12 @@ class Topic {
   /// مقدار فیلدهای گزینه‌ای باید نویسه‌به‌نویسه با قالب یکی باشد.
   final Map<String, String> Function(CaseFile f, String template)? fill;
 
+  /// پرسشِ «طرف مقابل چه می‌گوید؟» به زبانِ همین وضعیت. `null` یعنی همان
+  /// پرسش عمومی پرسیده شود و [Prompt.none] یعنی این‌جا جای پرسیدنش نیست
+  /// (مثلاً وقتی برگهٔ رسمی دادگاه در کار است و حرفِ طرف چیزی را عوض
+  /// نمی‌کند).
+  final Prompt? Function(CaseFile f)? askReply;
+
   Topic({
     required this.id,
     required this.title,
@@ -287,5 +311,6 @@ class Topic {
     this.petition,
     this.brief,
     this.fill,
+    this.askReply,
   });
 }
