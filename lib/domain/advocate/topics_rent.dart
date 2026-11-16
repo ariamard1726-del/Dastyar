@@ -1422,6 +1422,11 @@ String _aimEffect(CaseFile f) {
 String _endedEffect(CaseFile f) {
   final landlord = f.eq('role', 'landlord');
   final other = f.eq('role', 'tenant') && !_rentDeposit(f);
+  if (_ordered(f)) {
+    return f.yes('ended')
+        ? 'با تمام‌شدن مدت، صدور دستور تخلیه راه قانونیِ موجر است [[landlord_tenant:3]]؛ پس تکیهٔ شما روی ودیعه و مهلت است: تا پول پیش را نگرفته‌اید یا به دایرهٔ اجرا سپرده نشده، تخلیه اجرا نمی‌شود [[landlord_tenant:4]].'
+        : 'چون مدت قرارداد تمام نشده، این دستور جای اعتراض دارد: دستور تخلیه فقط برای بعد از پایان مدت است [[landlord_tenant:3]]؛ هم‌زمان با اجرای دستور می‌توانید شکایتتان را به دادگاه بدهید [[landlord_tenant:5]].';
+  }
   if (f.yes('ended')) {
     if (landlord) {
       return 'با تمام‌شدن مدت، عقد اجاره خودبه‌خود پایان یافته است [[civil:494]]؛ از این لحظه ماندنِ او بدون رضایت شما مجوزی ندارد و بابت هر روزش اجرت‌المثل طلبکارید.';
