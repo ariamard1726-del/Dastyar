@@ -1,11 +1,4 @@
-commit: 39e16a7
-::error::328 tests passed, 1 failed.
-::group::❌ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند (failed)
-   Expected: 'q:reply'
-   Actual: ''
-   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: q:reply
-   صاحبخونه آبگرمکن خراب رو تعمیر نمیکنه
-   test/advocate/rent_test.dart 277:9                  main.<fn>.<fn>
-   ::endgroup::
+commit: ef4c2e7
+🎉 331 tests passed.
 --- analyze ---
-No issues found! (ran in 10.4s)
+No issues found! (ran in 11.9s)
