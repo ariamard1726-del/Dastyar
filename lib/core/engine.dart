@@ -4,14 +4,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:dastyar/core/config.dart';
 import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/core/router.dart';
 import 'package:dastyar/core/conflicts_service.dart';
-import 'package:dastyar/domain/dialogue/evidence.dart';
 
 export 'models.dart';
 
@@ -55,12 +53,12 @@ class KnowledgeEngine {
     r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
 
-  // پارامترهای BM25F
-  final double _k1 = AppConfig.k1;
-  final double _b = AppConfig.b;
-  final double _wT = AppConfig.wT;
-  final double _wB = AppConfig.wB;
-  final double _wC = AppConfig.wC;
+  // پارامترهای BM25F: اشباع بسامد، نرمال‌سازی طول، و وزن عنوان / متن / زمینه.
+  final double _k1 = 0.9;
+  final double _b = 0.7;
+  final double _wT = 3.0;
+  final double _wB = 1.0;
+  final double _wC = 0.5;
   final Map<String, int> _lawCounts = {};
   List<String> _vocab = [];
 
@@ -1030,48 +1028,6 @@ RankResult rank(String question, {int k = 3}) {
         .where((chain) => chain.contains('->'))
         .map(PersianText.toFaDigits)
         .toList();
-  }
-
-  /// نسخه‌ی ساخت‌یافته‌ی rank که برای planner در Phase 2 استفاده می‌شود.
-  ///
-  /// مواد منسوخ را فیلتر می‌کند تا EvidenceSet تنها شامل شواهد معتبر باشد.
-  /// Coverage بر اساس بهترین نتیجه محاسبه می‌شود. برای Phase 0.4، فیلد
-  /// `conflicts` خالی است و تشخیص تعارض معنادار به Phase 2 موکول می‌شود
-  /// (چون conflictChainsFor زنجیره‌های ارجاع متقابل است، نه لزوماً
-  /// تعارض واقعی بین مواد). planner در Phase 2 می‌تواند از
-  /// conflictChainsFor مستقیماً استفاده کند اگر بخواهد.
-  ///
-  /// این متد **بدون تغییر** در `rank`، `query`، `coverage` یا
-  /// `conflictChainsFor` کار می‌کند — فقط آن‌ها را در یک بسته‌ی
-  /// ساخت‌یافته جمع می‌کند.
-  EvidenceSet retrieveWithEvidence(String question, {int k = 3}) {
-    final rankResult = rank(question, k: k);
-    final filtered =
-        rankResult.hits.where((h) => !h.chunk.obsolete).toList();
-
-    final items = <Evidence>[];
-    for (var i = 0; i < filtered.length; i++) {
-      final h = filtered[i];
-      final articleId = h.chunk.source.isNotEmpty
-          ? '${h.chunk.source} — ${h.chunk.title}'
-          : h.chunk.title;
-      items.add(Evidence(
-        articleId: articleId,
-        text: h.chunk.body,
-        rank: i + 1,
-        score: h.score,
-        matchedSlots: const [],
-      ));
-    }
-
-    final top = filtered.isEmpty ? null : filtered.first;
-    final cov = top == null ? 0.0 : coverage(question, top.chunk);
-
-    return EvidenceSet(
-      items: items,
-      conflicts: const [],
-      coverage: cov,
-    );
   }
 
   String answer(String question) => query(question, maxAlternatives: 0).text;

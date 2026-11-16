@@ -1,14 +1,13 @@
-import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
-import 'package:dastyar/domain/advocate/topics_money.dart';
-
-// موضوع «اجاره و ودیعه»: دانش وکیل دربارهٔ اختلاف‌های مستأجر و موجر.
+// موضوع: اجاره و ودیعه؛ دانش وکیل دربارهٔ اختلاف‌های مستأجر و موجر.
 //
-// قرارداد نگارش همان است که در topics_money.dart آمده: استناد به‌صورت
+// قرارداد نگارش همان است که در shared.dart آمده: استناد به‌صورت
 // [[شناسهٔ‌قانون:شمارهٔ‌ماده]] و الگوها روی متنِ Sense.norm (بدون نیم‌فاصله،
 // «خونه»، «صاحبخونه»، «می/نمی» چسبیده به فعل). هر الگو سه لایه دارد:
 // زبان کوچه («بلندم کنه»)، زبان رسمی («تخلیه نمی‌نماید») و اصطلاح حقوقی
 // («اجور معوقه»، «خلع ید»).
+import 'package:dastyar/domain/advocate/case_file.dart';
+import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topics/shared.dart';
 
 // ================================================================ الگوها
 

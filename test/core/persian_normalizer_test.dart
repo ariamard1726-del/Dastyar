@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dastyar/core/utils/persian_normalizer.dart';
+import 'package:dastyar/core/persian_normalizer.dart';
 
 void main() {
   group('PersianNormalizer.normalize', () {

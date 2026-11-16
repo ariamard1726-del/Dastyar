@@ -41,7 +41,7 @@ void main() {
     final ref = RegExp(r'\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]');
     final missing = <String>{};
     var count = 0;
-    for (final f in Directory('lib/domain/advocate').listSync()) {
+    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
       if (f is! File || !f.path.endsWith('.dart')) continue;
       for (final m in ref.allMatches(f.readAsStringSync())) {
         count++;
@@ -406,7 +406,7 @@ void main() {
   test('همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است', () {
     final ref = RegExp(r'\[\[([a-z_0-9]+):[0-9]+m?\]\]');
     final used = <String>{};
-    for (final f in Directory('lib/domain/advocate').listSync()) {
+    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
       if (f is! File || !f.path.endsWith('.dart')) continue;
       for (final m in ref.allMatches(f.readAsStringSync())) {
         used.add(m[1]!);

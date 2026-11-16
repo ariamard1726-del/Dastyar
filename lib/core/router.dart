@@ -1,4 +1,4 @@
-import 'package:dastyar/core/utils/persian_normalizer.dart';
+import 'package:dastyar/core/persian_normalizer.dart';
 
 /// تشخیص قصدهای ثابت پرسش و متن پاسخ آن‌ها.
 /// (فعلاً فقط دو قصد؛ قصدهای دیگر در قدم‌های بعد به اینجا می‌آیند.)

@@ -3,8 +3,8 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
-import 'package:dastyar/domain/advocate/topics_life.dart';
-import 'package:dastyar/domain/advocate/topics_rent.dart';
+import 'package:dastyar/domain/advocate/topics/labor.dart';
+import 'package:dastyar/domain/advocate/topics/rent.dart';
 
 /// آزمون استدلال: کدام ادعا روی میز است، هر شرط چه وضعی دارد، و پرسش بعدی
 /// کدام است. بخش اول فقط منطق را می‌سنجد (بدون متن)؛ بخش دوم گفتگو را.
