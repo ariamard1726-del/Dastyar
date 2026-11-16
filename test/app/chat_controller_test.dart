@@ -175,5 +175,39 @@ void main() {
       expect(ctrl.messages.last.chips, contains('۱۵۰۰۰۰۰۰۰۰'));
       ctrl.dispose();
     });
+
+    test('دکمهٔ «تنظیم دادخواست …» سندِ همان پرونده را با متن پیشنهادی شروع می‌کند',
+        () async {
+      const chip = 'تنظیم دادخواست مطالبهٔ ودیعه';
+      final ctrl = make();
+      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      expect(ctrl.messages.last.chips, contains(chip));
+      await ctrl.submit(chip);
+      expect(ctrl.isDrafting, isTrue);
+      expect(ctrl.draft?.template.id, 'demand_money');
+      // پرونده با شروع سند از بین نمی‌رود.
+      expect(ctrl.advocate.file.topic, 'rent');
+      const answers = [
+        'تهران',
+        'علی رضایی',
+        'تهران، خیابان آزادی، پلاک ۱۰',
+        DraftCmd.skip,
+        'حسن احمدی',
+        'کرج، خیابان اصلی، پلاک ۵',
+        '۱۵۰۰۰۰۰۰۰۰',
+        'سند عادی (رسید یا قرارداد)',
+      ];
+      for (final a in answers) {
+        if (ctrl.draft?.current?.id == 'basis_detail') break;
+        await ctrl.submit(a);
+      }
+      expect(ctrl.draft?.current?.id, 'basis_detail');
+      // متن پیشنهادی زیر پرسش می‌آید و با یک لمس پذیرفته می‌شود.
+      expect(ctrl.messages.last.text, contains('پیشنهاد من'));
+      expect(ctrl.messages.last.chips.first, ChatController.useSuggestion);
+      await ctrl.submit(ChatController.useSuggestion);
+      expect(ctrl.draft?.values['basis_detail'], contains('ودیعه'));
+      ctrl.dispose();
+    });
   });
 }

@@ -6,6 +6,7 @@ import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics_life.dart';
 import 'package:dastyar/domain/advocate/topics_money.dart';
+import 'package:dastyar/domain/advocate/topics_rent.dart';
 import 'package:dastyar/domain/advocate/topics_extra.dart';
 import 'package:dastyar/domain/advocate/topics_more.dart';
 import 'package:dastyar/domain/advocate/topics_other.dart';
@@ -281,9 +282,43 @@ class Advocate {
     final t = _current();
     if (t != null) {
       final d = t.drafts;
-      return d == null ? const [] : d(file);
+      final out = <String>[...?(d == null ? null : d(file))];
+      for (final g in filings) {
+        if (!out.contains(g.template)) out.add(g.template);
+      }
+      return out;
     }
     return _guide?.templateIds ?? const [];
+  }
+
+  /// سندهایی که به وضعیتِ همین پرونده می‌خورد: اول دادخواست، بعد لایحه.
+  /// فقط قالب‌هایی که واقعاً در برنامه هستند.
+  List<Filing> get filings {
+    final t = _current();
+    if (t == null) return const [];
+    final out = <Filing>[];
+    for (final make in [t.petition, t.brief]) {
+      final g = make == null ? null : make(file);
+      if (g != null && _draftTitles.containsKey(g.template)) out.add(g);
+    }
+    return out;
+  }
+
+  /// اگر این متن دکمهٔ یکی از سندهای پیشنهادیِ همین پرونده باشد، همان را
+  /// می‌دهد.
+  Filing? filingFor(String raw) {
+    final key = Sense.norm(raw);
+    for (final g in filings) {
+      if (Sense.norm(g.chip) == key) return g;
+    }
+    return null;
+  }
+
+  /// متن‌های پیشنهادی برای فیلدهای یک قالب، از روی واقعیت‌های همین پرونده
+  /// (شناسهٔ فیلد → متن).
+  Map<String, String> fillFor(String templateId) {
+    final fill = _current()?.fill;
+    return fill == null ? const {} : fill(file, templateId);
   }
 
   void reset() {
@@ -400,6 +435,9 @@ class Advocate {
       if (t0 != null) return _finish(t0, [_pick(Say.fine)]);
       return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
     }
+    // لمس دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
+    final wanted = filingFor(raw);
+    if (wanted != null) return _filing(wanted);
     // جواب به پیشنهادی که به شکل پرسش داده بودم.
     if (_offer.isNotEmpty && short) {
       final t0 = _current();
@@ -780,6 +818,15 @@ class Advocate {
         continue;
       }
       if (v == '?' && file.has(s.id)) continue;
+      // محورِ پرونده با اشارهٔ گذرا به موضوعی دیگر عوض نمی‌شود.
+      if (s.sticky &&
+          v != '?' &&
+          file.has(s.id) &&
+          s.id != file.pending &&
+          !_outranks(s, v, file.get(s.id)) &&
+          !(live && Sense.has(n, _amend))) {
+        continue;
+      }
       final old = file.facts[s.id];
       if (live &&
           old != null &&
@@ -791,6 +838,50 @@ class Advocate {
       if (v != '?') out.add(s);
     }
     return out;
+  }
+
+  /// نشانه‌های اینکه کاربر دارد حرف قبلی‌اش را صریحاً اصلاح می‌کند.
+  static const String _amend =
+      ' منظورم | اشتباه (?:گفتم|نوشتم|شد|فهمیدی|گرفتی) | در اصل | درستش | نه (?:اصلا )?(?:مشکل|موضوع|دعوا|حرف|مسئله)(?:م|مون| من| ما)? ';
+
+  /// آیا مقدارِ تازهٔ یک واقعیتِ محوری از مقدارِ فعلی مهم‌تر است؟
+  static bool _outranks(Slot s, String now, String old) {
+    final a = s.priority.indexOf(now);
+    final b = s.priority.indexOf(old);
+    return a >= 0 && (b < 0 || a < b);
+  }
+
+  /// پاسخ به دکمهٔ یک سند: می‌گویم با همین پرونده چه چیزی در آن می‌نویسم و
+  /// نوشتنش را پیشنهاد می‌کنم (در برنامه، لایهٔ بالاتر همین‌جا مستقیم
+  /// پرسش‌های سند را شروع می‌کند).
+  AdvocateReply _filing(Filing g) {
+    final fill = fillFor(g.template);
+    final sb = StringBuffer(
+        '«${g.name}» را می‌شود با همین اطلاعاتی که داده‌اید نوشت؛ نام و نشانی دو طرف را هم موقع نوشتن می‌پرسم.');
+    for (final k in const [
+      'subject',
+      'basis_detail',
+      'ground_detail',
+      'merits_defense',
+      'statement_body',
+    ]) {
+      final v = fill[k];
+      if (v != null && v.isNotEmpty) {
+        sb.write('\nمتنی که برای شرح آن پیشنهاد می‌کنم: «$v»');
+        break;
+      }
+    }
+    final papers = fill['evidence'] ?? fill['attachments'] ?? '';
+    if (papers.isNotEmpty) sb.write('\nپیوست‌ها: $papers.');
+    const ask = 'همین حالا بنویسمش؟';
+    const chips = ['بله، بنویس', 'نه، لازم نیست'];
+    file.covered.add('o:draft');
+    _askText = ask;
+    _askChips = chips;
+    final r = _out(sb.toString(), ask: ask, chips: chips, budget: _roomyBudget);
+    _offer = 'draft';
+    _offerDraft = g.template;
+    return r;
   }
 
   bool _roleUnknown(Topic t) {
@@ -1231,7 +1322,14 @@ class Advocate {
       }
       chips.addAll(_suggest(t));
     } else if (chips.isEmpty) {
-      chips.addAll(_suggest(t).take(2));
+      // با دادخواست و لایحه سه دکمه می‌شود: پرسش، دادخواست، لایحه.
+      chips.addAll(_suggest(t).take(filings.isEmpty ? 2 : 3));
+    } else {
+      // جوابِ پرسش جلوتر است؛ ولی دادخواست و لایحهٔ همین پرونده هم دمِ
+      // دست می‌ماند.
+      for (final g in filings) {
+        if (!chips.contains(g.chip)) chips.add(g.chip);
+      }
     }
     if (_side != null) chips.insert(0, sideChip);
     final roomy = _roomy;
@@ -1572,10 +1670,17 @@ class Advocate {
   /// خودش حرفِ شکایت و دادخواست را زده باشد.
   List<String> _suggest(Topic t) {
     final cand = <Issue>[];
+    final fit = <String, int>{};
     for (final i in t.issues) {
       if (file.covered.contains(i.id)) continue;
       final w = i.when;
       if (w != null && !w(file)) continue;
+      // رتبهٔ منفی یعنی این بحث به این پرونده نمی‌خورد؛ فقط اگر خودِ
+      // کاربر بپرسد جواب می‌گیرد.
+      final r = i.rank;
+      final rv = r == null ? 0 : r(file);
+      if (rv < 0) continue;
+      fit[i.id] = rv;
       cand.add(i);
     }
     final near = <String, int>{};
@@ -1585,16 +1690,27 @@ class Advocate {
       for (final w in Sense.norm(i.chip).split(' ')) {
         if (w.length >= 4 && _heard.contains(w)) sc++;
       }
+      sc += 2 * (fit[i.id] ?? 0);
       // در تساوی، ترتیبِ خودِ موضوع حفظ می‌شود.
       near[i.id] = sc * 100 - k;
     }
     cand.sort((a, b) => (near[b.id] ?? 0).compareTo(near[a.id] ?? 0));
-    final out = <String>[for (final i in cand.take(2)) i.chip];
+    final asks = <String>[for (final i in cand.take(2)) i.chip];
     for (final e in _followChips.entries) {
-      if (out.length >= 3) break;
+      if (asks.length >= 3) break;
       if (file.covered.contains('f:${e.key}')) continue;
       if (!t.follow.containsKey(e.key)) continue;
-      out.add(e.value);
+      asks.add(e.value);
+    }
+    final docs = <String>[for (final g in filings) g.chip];
+    if (docs.isNotEmpty) {
+      // چینش ثابت: اول پرسشی که به همین گفتگو نزدیک‌تر است، بعد دادخواست،
+      // بعد لایحه، و بعد بقیهٔ پرسش‌ها.
+      return [
+        if (asks.isNotEmpty) asks.first,
+        ...docs,
+        ...asks.skip(1),
+      ];
     }
     final ripe = _nextSlot(t) == null ||
         Sense.has(_heard, 'شکایت|دادخواست|اظهارنامه|لایحه|شکوائیه|بنویس');
@@ -1603,12 +1719,12 @@ class Advocate {
       for (final id in d(file)) {
         final title = _draftTitles[id];
         if (title != null) {
-          out.add(title);
+          asks.add(title);
           break;
         }
       }
     }
-    return out;
+    return asks;
   }
 
   /// دکمه‌های پیشنهادی برای وضعیت فعلی گفتگو.

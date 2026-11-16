@@ -155,6 +155,16 @@ class Slot {
   /// پس پیش از هر پرسش دیگری پرسیده می‌شود.
   final bool first;
 
+  /// واقعیتِ «محورِ پرونده» (مثلاً دعوا سرِ چیست): وقتی معلوم شد، اشارهٔ
+  /// گذرا به موضوعی دیگر عوضش نمی‌کند؛ فقط جوابِ همین پرسش یا اصلاحِ صریحِ
+  /// کاربر («نه، منظورم …») آن را تغییر می‌دهد.
+  final bool sticky;
+
+  /// برای واقعیتِ [sticky]: مقدارها به ترتیب اهمیت. حرفِ تازه فقط وقتی
+  /// مقدار را عوض می‌کند که به مقدار مهم‌تری برسد (موجری که اول از اجارهٔ
+  /// عقب‌افتاده گفته و بعد می‌گوید «تخلیه هم نمی‌کند»).
+  final List<String> priority;
+
   Slot({
     required this.id,
     required this.ask,
@@ -167,6 +177,8 @@ class Slot {
     this.effect,
     this.when,
     this.first = false,
+    this.sticky = false,
+    this.priority = const [],
   });
 }
 
@@ -186,6 +198,11 @@ class Issue {
   /// دوباره به‌عنوان «اثر واقعیت» تکرار نشود).
   final Set<String> covers;
 
+  /// این پرسش با واقعیت‌های همین پرونده چقدر «پرسشِ بعدیِ طبیعی» است
+  /// (صفر = بی‌ربط نیست ولی اولویتی هم ندارد). دکمه‌های پیشنهادی از روی
+  /// همین و حرف‌های خودِ کاربر مرتب می‌شوند.
+  final int Function(CaseFile f)? rank;
+
   Issue({
     required this.id,
     required this.chip,
@@ -193,7 +210,24 @@ class Issue {
     required this.body,
     this.when,
     this.covers = const {},
+    this.rank,
   });
+}
+
+/// سندی که وکیل برای همین پرونده پیشنهاد می‌کند: کدام قالب، با چه نامی
+/// روی دکمه («تنظیم دادخواست تخلیه») و با چه نامی در متن پاسخ.
+class Filing {
+  /// شناسهٔ قالب سند.
+  final String template;
+
+  /// متن دکمه؛ با «تنظیم دادخواست»، «تنظیم اظهارنامه» یا «تنظیم لایحه»
+  /// شروع می‌شود.
+  final String chip;
+
+  /// نام همین سند برای این پرونده («دادخواست مطالبهٔ ودیعه»).
+  final String name;
+
+  const Filing(this.template, this.chip, this.name);
 }
 
 class Topic {
@@ -225,6 +259,19 @@ class Topic {
   /// کاربر («مستأجر هستید»، «ملک را تخلیه کرده‌اید»).
   final List<String> Function(CaseFile f)? recap;
 
+  /// دادخواست (یا نخستین نوشتهٔ رسمی، مثل اظهارنامه) که به همین پرونده
+  /// می‌خورد (`null` = هنوز معلوم نیست یا این وضعیت سند مشخصی ندارد).
+  final Filing? Function(CaseFile f)? petition;
+
+  /// لایحه‌ای که به همین پرونده می‌خورد.
+  final Filing? Function(CaseFile f)? brief;
+
+  /// متن‌های پیشنهادی برای فیلدهای یک قالب سند، ساخته‌شده از واقعیت‌های
+  /// همین پرونده (شناسهٔ فیلد → متن). این متن‌ها مستقیم در سند کاربر
+  /// می‌نشینند؛ پس ساده نوشته می‌شوند، بدون نشانهٔ `[[قانون:ماده]]`، و
+  /// مقدار فیلدهای گزینه‌ای باید نویسه‌به‌نویسه با قالب یکی باشد.
+  final Map<String, String> Function(CaseFile f, String template)? fill;
+
   Topic({
     required this.id,
     required this.title,
@@ -237,5 +284,8 @@ class Topic {
     this.drafts,
     this.claims = const [],
     this.recap,
+    this.petition,
+    this.brief,
+    this.fill,
   });
 }

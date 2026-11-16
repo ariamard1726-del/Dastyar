@@ -162,6 +162,17 @@ class ChatController extends ChangeNotifier {
   /// آیا این پیام درخواست نوشتن یک سند است؟ اگر بله، همان را شروع می‌کند
   /// (یا می‌پرسد کدام سند) و `true` برمی‌گرداند.
   bool _draftRequest(String text) {
+    // لمس «تنظیم دادخواست …» یا «تنظیم لایحه …»: سندِ همین پرونده.
+    final filing = advocate.filingFor(text);
+    if (filing != null) {
+      final t = _templateFor(filing.template);
+      if (t != null) {
+        _pendingList = [];
+        advocate.clearOffer();
+        _startDraft(text, t);
+        return true;
+      }
+    }
     // لمس دکمه‌ای که عنوان دقیق یک قالب است.
     final key = KnowledgeEngine.normalize(text).trim();
     for (final t in repo.templates) {
@@ -276,6 +287,47 @@ class ChatController extends ChangeNotifier {
     return DraftReply(r.text, chips: [v, ...r.chips], note: r.note);
   }
 
+  /// دکمه‌ای که متنِ پیشنهادیِ وکیل را برای فیلد جاری می‌پذیرد.
+  static const String useSuggestion = 'همین متن پیشنهادی';
+
+  /// متن پیشنهادی برای فیلدی که الان پرسیده شده (خالی = پیشنهادی نیست).
+  String _suggested = '';
+
+  /// پرسشِ فیلد را با آنچه از گفتگو می‌دانیم همراه می‌کند: گزینهٔ درست جلو
+  /// می‌آید، عدد به‌صورت دکمه پیشنهاد می‌شود و برای فیلدهای متنی، متنِ
+  /// پیشنهادیِ وکیل زیر پرسش می‌آید تا با یک لمس پذیرفته شود.
+  DraftReply _withCaseHelp(DraftReply raw, DraftSession s) {
+    _suggested = '';
+    final r = _withAmountChip(raw, s);
+    if (r.ended || r.isDocument || s.done || s.pickingEdit) return r;
+    final f = s.current;
+    if (f == null || s.values.containsKey(f.id)) return r;
+    final v = (advocate.fillFor(s.template.id)[f.id] ?? '').trim();
+    if (v.isEmpty) return r;
+    switch (f.type) {
+      case 'choice':
+        if (!r.chips.contains(v) || r.chips.first == v) return r;
+        return DraftReply(
+          r.text,
+          chips: [v, ...r.chips.where((c) => c != v)],
+          note: r.note,
+        );
+      case 'number':
+        final n = PersianText.toFaDigits(v);
+        if (r.chips.contains(n)) return r;
+        return DraftReply(r.text, chips: [n, ...r.chips], note: r.note);
+      case 'text':
+      case 'multiline':
+        _suggested = v;
+        return DraftReply(
+          '${r.text}\n\nپیشنهاد من از روی گفتگویمان:\n«$v»',
+          chips: [useSuggestion, ...r.chips],
+          note: r.note,
+        );
+    }
+    return r;
+  }
+
   ChatMessage _botFromReply(DraftReply r, LegalTemplate t) {
     if (r.isDocument) {
       return ChatMessage(
@@ -297,7 +349,7 @@ class ChatController extends ChangeNotifier {
 
   void _startDraft(String userText, LegalTemplate t) {
     final s = DraftSession(t);
-    final r = _withAmountChip(Drafting.start(s), s);
+    final r = _withCaseHelp(Drafting.start(s), s);
     _draft = r.ended ? null : s;
     messages.add(ChatMessage(userText, true, sensitive: true));
     messages.add(_botFromReply(r, t));
@@ -309,8 +361,17 @@ class ChatController extends ChangeNotifier {
   void _draftStep(String text) {
     final s = _draft;
     if (s == null) return;
-    final r = _withAmountChip(Drafting.answer(s, text), s);
-    messages.add(ChatMessage(text, true, sensitive: true));
+    var answer = text;
+    if (text == useSuggestion) {
+      // پذیرفتنِ متن پیشنهادی: همان متن به‌جای جواب می‌نشیند.
+      final f = s.current;
+      final v = _suggested.isNotEmpty
+          ? _suggested
+          : (f == null ? '' : (advocate.fillFor(s.template.id)[f.id] ?? ''));
+      if (v.isNotEmpty) answer = v;
+    }
+    final r = _withCaseHelp(Drafting.answer(s, answer), s);
+    messages.add(ChatMessage(answer, true, sensitive: true));
     messages.add(_botFromReply(r, s.template));
     if (r.ended) _draft = null;
     _syncDraftCheckpoint();
