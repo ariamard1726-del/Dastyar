@@ -437,7 +437,7 @@ void main() {
       ..writeln('### بدون IntentNet')
       ..writeln(runSet(_holdout4))
       ..writeln('### با IntentNet (همان مسیر اپ)')
-      ..writeln(runSet(_holdout4, withNet: true));
+      ..writeln(runSet(_holdout4, withNet: true))
       ..writeln()
       ..writeln('## مجموعهٔ پنجم (تازه؛ پیش از تغییر تصمیم واحد نوشته شد)')
       ..writeln()
