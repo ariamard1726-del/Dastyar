@@ -6,11 +6,11 @@
 | روش | حجم | موضوع درست | JSON سالم | ثانیه برای هر پیام | توکن بر ثانیه |
 |---|---|---|---|---|---|
 | وکیل قاعده‌ای فعلی (داوری دستی) | — | 24/39 (62%) | — | — | — |
-| unsloth/gemma-3-1b-it-GGUF (gemma-3-1b-it-Q4_K_M.gguf) | 0.8 GB | 26/39 (67%) | 39/39 | 1.0 | 16.5 |
-| Qwen/Qwen2.5-1.5B-Instruct-GGUF (qwen2.5-1.5b-instruct-q4_k_m.gguf) | 1.1 GB | 21/39 (54%) | 39/39 | 2.1 | 18.8 |
-| unsloth/gemma-3n-E2B-it-GGUF (gemma-3n-E2B-it-Q4_K_M.gguf) | 3.0 GB | 37/39 (95%) | 39/39 | 2.9 | 12.9 |
-| Qwen/Qwen2.5-3B-Instruct-GGUF (qwen2.5-3b-instruct-q4_k_m.gguf) | 2.1 GB | 28/39 (72%) | 39/39 | 4.4 | 10.6 |
-| unsloth/gemma-3-4b-it-GGUF (gemma-3-4b-it-Q4_K_M.gguf) | 2.5 GB | 37/39 (95%) | 39/39 | 4.4 | 8.9 |
+| unsloth/gemma-3-1b-it-GGUF (gemma-3-1b-it-Q4_K_M.gguf) | 0.8 GB | 26/39 (67%) | 39/39 | 0.9 | 17.3 |
+| Qwen/Qwen2.5-1.5B-Instruct-GGUF (qwen2.5-1.5b-instruct-q4_k_m.gguf) | 1.1 GB | 21/39 (54%) | 39/39 | 2.0 | 20.4 |
+| unsloth/gemma-3n-E2B-it-GGUF (gemma-3n-E2B-it-Q4_K_M.gguf) | 3.0 GB | 37/39 (95%) | 39/39 | 2.7 | 13.6 |
+| Qwen/Qwen2.5-3B-Instruct-GGUF (qwen2.5-3b-instruct-q4_k_m.gguf) | 2.1 GB | 28/39 (72%) | 39/39 | 4.2 | 11.1 |
+| unsloth/gemma-3-4b-it-GGUF (gemma-3-4b-it-Q4_K_M.gguf) | 2.5 GB | 37/39 (95%) | 39/39 | 4.2 | 9.2 |
 
 ## unsloth/gemma-3-1b-it-GGUF
 
