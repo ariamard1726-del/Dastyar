@@ -1,4 +1,4 @@
-commit: 45b7a4f
+commit: ca6edf8
 🎉 321 tests passed.
 --- analyze ---
-No issues found! (ran in 11.7s)
+No issues found! (ran in 11.4s)
