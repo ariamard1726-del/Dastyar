@@ -379,11 +379,13 @@ void main() {
         }
         final pass = reasons.isEmpty;
         if (pass) ok++;
+        final head = last.replaceAll('|', ' ').replaceAll('\n', ' ');
         rows.add('| ${c.name} | ${pass ? 'درست' : 'نادرست'} | '
-            '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} |');
+            '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} | '
+            '${head.length > 70 ? head.substring(0, 70) : head} |');
       }
       return '**نتیجه: $ok از ${set.length} درست.**\n\n'
-          '| جمله | نتیجه | موضوع | دلیل |\n|---|---|---|---|\n${rows.join('\n')}\n';
+          '| جمله | نتیجه | موضوع | دلیل | ابتدای پاسخ |\n|---|---|---|---|---|\n${rows.join('\n')}\n';
     }
 
     final report = StringBuffer()
