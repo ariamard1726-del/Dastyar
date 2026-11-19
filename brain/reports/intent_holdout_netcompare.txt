@@ -1,0 +1,28 @@
+h: اضافه‌کاری                | کارفرمام پول اضافه کاری منو نداده             | labor:0.93, debt:0.01, cancel:0.01
+h: جدایی                     | میخوام از شوهرم جدا شم                        | family:0.79, cancel:0.03, legal_question:0.02
+h: چک برگشتی                 | چکی که بهم دادن برگشت خورد                    | cheque:0.85, legal_question:0.04, draft_request:0.02
+h: برداشت از حساب            | یکی پولمو از حسابم برداشته                    | fraud_cyber:0.37, draft_request:0.18, legal_question:0.15
+h: مهریه                     | همسرم مهریه‌ام را نمی‌دهد                     | family:0.98, counsel_answer:0.01, draft_request:0.00
+h: تخلیه                     | صاحبخونه قرارداد رو تموم کرده و میخواد منو بی | lease:0.70, counsel_answer:0.07, legal_question:0.06
+h: ارث بعد از فوت            | بعد از فوت مادرم سر ارث دعوا شده              | legal_question:0.46, litigation_defense:0.30, article_lookup:0.05
+h: پول خوردن دوست            | دوستم پول منو خورده                           | debt:0.83, fraud_cyber:0.06, out_of_scope:0.03
+h: کالای تقلبی               | در مغازه کالای تقلبی بهم فروختن               | fraud_cyber:0.85, counsel_answer:0.03, lease:0.02
+h: زمین به نام برادر         | برادرم زمینمو به اسم خودش زده                 | chitchat:0.24, legal_question:0.11, criminal_harm:0.11
+h: متهم شدن                  | من متهم به کلاهبرداری شدم و احضار شدم         | litigation_defense:0.82, fraud_cyber:0.03, legal_question:0.02
+h: حادثهٔ کاری بیمه‌نشده     | کارفرما بیمه نکرده و حادثه کاری داشتم         | labor:0.97, counsel_answer:0.01, chitchat:0.00
+h: بردن بچه                  | خانمم می‌خواد بچه رو ببره                     | family:0.47, legal_question:0.37, out_of_scope:0.04
+h: پول پیش بیش از قرارداد    | مالک آپارتمان ازم پول پیش بیشتر از قرارداد خو | lease:0.41, legal_question:0.19, counsel_answer:0.11
+h: صبح بخیر                  | صبح بخیر                                      | chitchat:0.98, counsel_answer:0.00, legal_question:0.00
+h: ساعت                      | ساعت چنده؟                                    | out_of_scope:0.68, chitchat:0.12, lease:0.03
+h: تاریخ امروز               | تاریخ امروز چنده                              | out_of_scope:0.76, counsel_answer:0.13, cheque:0.02
+h2: حقوق معوق کارگاه         | کارگاه حقوقم رو سه ماه نداده                  | labor:0.97, counsel_answer:0.01, cheque:0.00
+h2: توقیف حقوق               | بانک بخاطر بدهی وامم حقوقم رو توقیف کرده      | debt:0.34, legal_question:0.13, out_of_scope:0.09
+h2: بچه و مدرسه              | بچه‌ام مدرسه نمیره و پدرش نمیذاره ببرمش       | family:0.68, legal_question:0.11, out_of_scope:0.06
+h2: ماشین معیوب              | ماشینی که خریدم بعد یک هفته خراب شد و فروشنده | legal_question:0.19, fraud_cyber:0.14, out_of_scope:0.14
+h2: قفل کردن خانه            | کلید خونه رو عوض کرده و وسایلمو ریخته بیرون   | lease:0.52, fraud_cyber:0.13, cheque:0.05
+h2: مادرشوهر                 | مادرشوهرم دعوا راه انداخته و نمیذاره با همسرم | family:0.31, litigation_defense:0.23, legal_question:0.13
+h2: همسایه و سروصدا          | همسایه طبقه بالا هر شب سروصدا میکنه           | legal_question:0.18, draft_request:0.18, out_of_scope:0.17
+h2: خانه پدری                | یکی از برادرام بدون اجازه خونهٔ پدری رو فروخت | counsel_answer:0.46, fraud_cyber:0.20, criminal_harm:0.06
+h2: کفالت                    | کفیل شدم و حالا طلبکار زنگ میزنه بیا پول بده  | debt:0.48, out_of_scope:0.11, counsel_answer:0.11
+h2: تاریخ                    | امروز چندم ماهه؟                              | out_of_scope:0.77, counsel_answer:0.05, article_lookup:0.03
+h2: احوال‌پرسی               | سلام، خوبی؟                                   | chitchat:0.96, cancel:0.01, counsel_answer:0.01
