@@ -1,4 +1,6 @@
-commit: bcd9f6b
+commit: 8e41362
 🎉 320 tests passed.
 --- analyze ---
-No issues found! (ran in 8.7s)
+2 issues found. (ran in 9.5s)
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/advocate/intent_scenarios_test.dart:204:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • test/advocate/intent_scenarios_test.dart:206:7 • avoid_print
