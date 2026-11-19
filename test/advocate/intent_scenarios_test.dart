@@ -159,6 +159,30 @@ const List<_Case> _holdout = [
   _Case('h: تاریخ امروز', ['تاریخ امروز چنده'], contains: ['حوزهٔ کار من']),
 ];
 
+/// مجموعهٔ نگه‌داشتهٔ دوم: جمله‌ها پیش از دیدن نتیجه نوشته شده‌اند و
+/// هیچ نشانه‌ای بر اساس آن‌ها تنظیم نشده است. فقط گزارش می‌شود.
+const List<_Case> _holdout2 = [
+  _Case('h2: حقوق معوق کارگاه', ['کارگاه حقوقم رو سه ماه نداده'], topic: 'labor'),
+  _Case('h2: توقیف حقوق', ['بانک بخاطر بدهی وامم حقوقم رو توقیف کرده'],
+      topic: 'enforce'),
+  _Case('h2: بچه و مدرسه', ['بچه‌ام مدرسه نمیره و پدرش نمیذاره ببرمش'],
+      topic: 'child'),
+  _Case('h2: ماشین معیوب', ['ماشینی که خریدم بعد یک هفته خراب شد و فروشنده قبول نمیکنه'],
+      topic: 'consumer'),
+  _Case('h2: قفل کردن خانه', ['کلید خونه رو عوض کرده و وسایلمو ریخته بیرون'],
+      topic: 'rent'),
+  _Case('h2: مادرشوهر', ['مادرشوهرم دعوا راه انداخته و نمیذاره با همسرم زندگی کنم'],
+      topic: 'family'),
+  _Case('h2: همسایه و سروصدا', ['همسایه طبقه بالا هر شب سروصدا میکنه'],
+      topic: 'neighbor'),
+  _Case('h2: خانه پدری', ['یکی از برادرام بدون اجازه خونهٔ پدری رو فروخته'],
+      topic: 'inherit'),
+  _Case('h2: کفالت', ['کفیل شدم و حالا طلبکار زنگ میزنه بیا پول بده'],
+      topic: 'guarantee'),
+  _Case('h2: تاریخ', ['امروز چندم ماهه؟'], contains: ['حوزهٔ کار من']),
+  _Case('h2: احوال‌پرسی', ['سلام، خوبی؟'], contains: ['سلام']),
+];
+
 /// پاسخ کامل: همهٔ «ادامه بده»ها کنار هم.
 AdvocateReply _full(Advocate a, String t) {
   final r = a.respond(t);
@@ -286,38 +310,47 @@ void main() {
     expect(hardFails, isEmpty, reason: hardFails.join('\n'));
   });
 
-  test('مجموعهٔ نگه‌داشته: سنجش تعمیم (بدون شکست CI)', () {
-    final rows = <String>[];
-    var ok = 0;
-    for (final c in _holdout) {
-      final a = fresh();
-      var last = '';
-      for (final t in c.turns) {
-        last = _full(a, t).text;
+  test('مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)', () {
+    String runSet(List<_Case> set) {
+      final rows = <String>[];
+      var ok = 0;
+      for (final c in set) {
+        final a = fresh();
+        var last = '';
+        for (final t in c.turns) {
+          last = _full(a, t).text;
+        }
+        final reasons = <String>[];
+        if (c.topic != null && a.file.topic != c.topic) {
+          reasons.add('موضوع «${a.file.topic}» به‌جای «${c.topic}»');
+        }
+        for (final s in c.contains) {
+          if (!last.contains(s)) reasons.add('پاسخ شامل «$s» نیست');
+        }
+        final pass = reasons.isEmpty;
+        if (pass) ok++;
+        rows.add('| ${c.name} | ${pass ? 'درست' : 'نادرست'} | '
+            '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} |');
       }
-      final reasons = <String>[];
-      if (c.topic != null && a.file.topic != c.topic) {
-        reasons.add('موضوع «${a.file.topic}» به‌جای «${c.topic}»');
-      }
-      for (final s in c.contains) {
-        if (!last.contains(s)) reasons.add('پاسخ شامل «$s» نیست');
-      }
-      final pass = reasons.isEmpty;
-      if (pass) ok++;
-      rows.add('| ${c.name} | ${pass ? 'درست' : 'نادرست'} | '
-          '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} |');
+      return '**نتیجه: $ok از ${set.length} درست.**\n\n'
+          '| جمله | نتیجه | موضوع | دلیل |\n|---|---|---|---|\n${rows.join('\n')}\n';
     }
+
     final report = StringBuffer()
-      ..writeln('# مجموعهٔ نگه‌داشته: سنجش تعمیم تشخیص نیت')
+      ..writeln('# مجموعه‌های نگه‌داشته: سنجش تعمیم تشخیص نیت')
       ..writeln()
-      ..writeln('نتیجه: $ok از ${_holdout.length} درست.')
+      ..writeln('## مجموعهٔ اول (۱۷ جمله)')
+      ..writeln('این مجموعه پس از اولین اندازه‌گیری، برای رفع شکست‌ها تنظیم شد؛ '
+          'دیگر نگه‌داشته نیست و فقط برای پیگیری نگه داشته شده است.')
       ..writeln()
-      ..writeln('| جمله | نتیجه | موضوع | دلیل |')
-      ..writeln('|---|---|---|---|')
-      ..writeln(rows.join('\n'));
+      ..writeln(runSet(_holdout))
+      ..writeln('## مجموعهٔ دوم (تازه، پیش از دیدن نتیجه نوشته شده)')
+      ..writeln()
+      ..writeln(runSet(_holdout2));
     Directory('reports').createSync(recursive: true);
     File('reports/intent_holdout.md').writeAsStringSync(report.toString());
-    debugPrint('::notice title=intent-holdout::$ok از ${_holdout.length} درست');
+    debugPrint('::notice title=intent-holdout::مجموعهٔ دوم: '
+        '${RegExp(r'نتیجه: (\d+) از (\d+)').firstMatch(report.toString())?.group(0) ?? ''}');
   });
 
   test('پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد', () {
