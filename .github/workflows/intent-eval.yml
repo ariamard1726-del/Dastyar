@@ -55,7 +55,7 @@ jobs:
             ${{ runner.temp }}/scenarios.txt
           if-no-files-found: warn
       - name: Commit report
-        if: always() && github.event_name == 'push'
+        if: always()
         continue-on-error: true
         run: |
           git config user.name "github-actions"
