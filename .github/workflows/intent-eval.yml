@@ -61,15 +61,16 @@ jobs:
           BRANCH: ${{ github.ref_name }}
         run: |
           set +e
-          if [ ! -f reports/intent_scenarios.md ]; then echo "::warning::گزارشی برای ذخیره نیست"; exit 0; fi
-          cp reports/intent_scenarios.md "$RUNNER_TEMP/intent_scenarios.md"
+          if ! ls reports/intent_*.md >/dev/null 2>&1; then echo "::warning::گزارشی برای ذخیره نیست"; exit 0; fi
+          mkdir -p "$RUNNER_TEMP/intent_reports"
+          cp reports/intent_*.md "$RUNNER_TEMP/intent_reports/"
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           for i in 1 2 3 4; do
             git fetch -q origin "$BRANCH" || { sleep 5; continue; }
             git checkout -q -B "$BRANCH" "origin/$BRANCH"
-            cp "$RUNNER_TEMP/intent_scenarios.md" reports/intent_scenarios.md
-            git add reports/intent_scenarios.md
+            cp "$RUNNER_TEMP"/intent_reports/*.md reports/
+            git add reports/intent_*.md
             if git diff --cached --quiet; then echo "گزارش تغییری نکرده"; exit 0; fi
             git commit -q -m "گزارش سناریوهای نیت [skip ci]"
             if git push -q origin "HEAD:$BRANCH"; then echo "گزارش ذخیره شد"; exit 0; fi
