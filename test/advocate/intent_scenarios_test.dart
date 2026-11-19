@@ -206,6 +206,25 @@ const List<_Case> _holdout3 = [
   _Case('h3: سلام', ['سلام، روز خوبی داشته باشی'], contains: ['سلام']),
 ];
 
+/// مجموعهٔ نگه‌داشتهٔ چهارم: پیش از تغییر ترتیب نظر دوم نوشته شد و فقط برای
+/// سنجش است. بعد از این، مجموعه‌های ۲ و ۳ دیگر «تازه» نیستند.
+const List<_Case> _holdout4 = [
+  _Case('h4: حق سنوات بعد از اخراج', ['بعد از اخراج از کار حق سنواتم را نمیدن'],
+      topic: 'labor'),
+  _Case('h4: هک کارت', ['کارت بانکی‌ام را هک کردند و پولم رفت'], topic: 'cyber'),
+  _Case('h4: بیعانه و معامله بهم خورده', ['خریدار ملکم بیعانه داده و معامله را بهم زده'],
+      topic: 'property'),
+  _Case('h4: افزایش اجاره', ['موجر اجاره‌ام را دو برابر کرده'], topic: 'rent'),
+  _Case('h4: بردن بچه از کشور', ['زنم بدون اجازه از کشور خارج شده و بچه را برده'],
+      topic: 'child'),
+  _Case('h4: سهم ارث عمو', ['بعد از فوت پدرم عمویم مغازه را فروخته و سهم منو نداده'],
+      topic: 'inherit'),
+  _Case('h4: فروش خانه توسط بانک', ['وام گرفتم و حالا بانک میخواد خونه‌ام را بفروشد'],
+      topic: 'enforce'),
+  _Case('h4: تصادف و فرار', ['تصادف کردم و طرف مقابل فرار کرده'], topic: 'injury'),
+  _Case('h4: خداحافظی', ['ممنون، خداحافظ'], contains: ['خدانگهدار']),
+];
+
 /// پاسخ کامل: همهٔ «ادامه بده»ها کنار هم.
 AdvocateReply _full(Advocate a, String t) {
   final r = a.respond(t);
@@ -386,7 +405,14 @@ void main() {
       ..writeln()
       ..writeln(runSet(_holdout3))
       ..writeln('### با IntentNet (همان مسیر اپ)')
-      ..writeln(runSet(_holdout3, withNet: true));
+      ..writeln(runSet(_holdout3, withNet: true))
+      ..writeln()
+      ..writeln('## مجموعهٔ چهارم (تازه؛ پیش از تغییر ترتیب نظر دوم نوشته شد)')
+      ..writeln()
+      ..writeln('### بدون IntentNet')
+      ..writeln(runSet(_holdout4))
+      ..writeln('### با IntentNet (همان مسیر اپ)')
+      ..writeln(runSet(_holdout4, withNet: true));
     Directory('reports').createSync(recursive: true);
     File('reports/intent_holdout.md').writeAsStringSync(report.toString());
     debugPrint('::notice title=intent-holdout::مجموعهٔ دوم: '

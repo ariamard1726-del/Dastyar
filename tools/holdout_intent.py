@@ -15,7 +15,7 @@ spec.loader.exec_module(c)
 m=c.IntentModel()
 src=open(os.path.join(ROOT,'test/advocate/intent_scenarios_test.dart'),encoding='utf-8').read()
 cases=[]
-for name in ('_holdout','_holdout2','_holdout3'):
+for name in ('_holdout','_holdout2','_holdout3','_holdout4'):
     i=src.index('const List<_Case> %s = [' % name)
     j=src.index('];',i)
     cases+=re.findall(r"_Case\('([^']*)', \['([^']*)'\]", src[i:j])
