@@ -1,4 +1,4 @@
-commit: 2bc8af4
+commit: eb741ac
 🎉 325 tests passed.
 --- analyze ---
-No issues found! (ran in 8.3s)
+No issues found! (ran in 12.1s)
