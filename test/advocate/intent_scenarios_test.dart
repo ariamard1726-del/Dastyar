@@ -225,6 +225,23 @@ const List<_Case> _holdout4 = [
   _Case('h4: خداحافظی', ['ممنون، خداحافظ'], contains: ['خدانگهدار']),
 ];
 
+/// مجموعهٔ نگه‌داشتهٔ پنجم: پیش از هر تغییر در ترتیب تصمیم نوشته شد و
+/// فقط برای سنجش آن تغییر است؛ بعد از این، همهٔ مجموعه‌ها برای تنظیم دیده شده‌اند.
+const List<_Case> _holdout5 = [
+  _Case('h5: سنگ به شیشه', ['بعد از دعوا با همسایه‌ام سنگ زد به شیشه ماشینم'],
+      topic: 'neighbor'),
+  _Case('h5: عکس جعلی از اینستاگرام', ['یکی از اینستاگرام عکسامو برداشته و جعلی درست کرده'],
+      topic: 'cyber'),
+  _Case('h5: اجرائیه و توقیف', ['دادگاه بهم اجرائیه داده و اموالم داره توقیف میشه'],
+      topic: 'enforce'),
+  _Case('h5: شوهر و نفقه', ['شوهرم رفته و طلاق نمیده و نفقه هم نمیده'], topic: 'family'),
+  _Case('h5: اخراج و حقوق آخر ماه', ['اخراجم کردن و هنوز حقوق آخر ماهمو ندادن'],
+      topic: 'labor'),
+  _Case('h5: بعد از زایمان', ['بعد از زایمان کارفرما منو بیرون کرد'], topic: 'labor'),
+  _Case('h5: قفل کردن کرایه‌خونه', ['کرایه‌خونه‌ام رو صاحبخونه قفل کرده'], topic: 'rent'),
+  _Case('h5: تشکر', ['ممنون از کمکت، روزت خوش'], contains: ['خواهش']),
+];
+
 /// پاسخ کامل: همهٔ «ادامه بده»ها کنار هم.
 AdvocateReply _full(Advocate a, String t) {
   final r = a.respond(t);
@@ -380,12 +397,18 @@ void main() {
         final pass = reasons.isEmpty;
         if (pass) ok++;
         final head = last.replaceAll('|', ' ').replaceAll('\n', ' ');
+        final hint = net == null
+            ? '—'
+            : () {
+                final top = net.classify(c.turns.first);
+                return '${top.label}:${top.score.toStringAsFixed(2)}';
+              }();
         rows.add('| ${c.name} | ${pass ? 'درست' : 'نادرست'} | '
             '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} | '
-            '${head.length > 70 ? head.substring(0, 70) : head} |');
+            '$hint | ${head.length > 70 ? head.substring(0, 70) : head} |');
       }
       return '**نتیجه: $ok از ${set.length} درست.**\n\n'
-          '| جمله | نتیجه | موضوع | دلیل | ابتدای پاسخ |\n|---|---|---|---|---|\n${rows.join('\n')}\n';
+          '| جمله | نتیجه | موضوع | دلیل | نظر دوم | ابتدای پاسخ |\n|---|---|---|---|---|---|\n${rows.join('\n')}\n';
     }
 
     final report = StringBuffer()
@@ -415,6 +438,13 @@ void main() {
       ..writeln(runSet(_holdout4))
       ..writeln('### با IntentNet (همان مسیر اپ)')
       ..writeln(runSet(_holdout4, withNet: true));
+      ..writeln()
+      ..writeln('## مجموعهٔ پنجم (تازه؛ پیش از تغییر تصمیم واحد نوشته شد)')
+      ..writeln()
+      ..writeln('### بدون IntentNet')
+      ..writeln(runSet(_holdout5))
+      ..writeln('### با IntentNet (همان مسیر اپ)')
+      ..writeln(runSet(_holdout5, withNet: true));
     Directory('reports').createSync(recursive: true);
     File('reports/intent_holdout.md').writeAsStringSync(report.toString());
     debugPrint('::notice title=intent-holdout::مجموعهٔ دوم: '
