@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
@@ -246,9 +247,9 @@ void main() {
     // هشدارهای GitHub Actions: نتیجهٔ سناریوهای نرمِ شکست‌خورده را هم قابل
     // دیدن می‌کند (از طریق annotations) بی‌آنکه CI را قرمز کند.
     final softFails = rows.where((r) => r.contains('| نرم | نادرست |')).toList();
-    print('::notice title=intent::${passed.toString()} از ${_cases.length} سناریو درست است');
+    debugPrint('::notice title=intent::${passed.toString()} از ${_cases.length} سناریو درست است');
     for (final r in softFails.take(9)) {
-      print('::warning title=intent-soft::${r.replaceAll('|', ' ').replaceAll('\n', ' ')}');
+      debugPrint('::warning title=intent-soft::${r.replaceAll('|', ' ').replaceAll('\n', ' ')}');
     }
 
     expect(hardFails, isEmpty, reason: hardFails.join('\n'));
