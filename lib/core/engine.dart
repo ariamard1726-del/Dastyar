@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/core/router.dart';
 import 'package:dastyar/core/conflicts_service.dart';
@@ -96,6 +97,8 @@ class KnowledgeEngine {
   final List<String> warnings = [];
 
   int get size => _chunks.length;
+  /// بانک پرسش‌وپاسخ حقوقی (اجاره)؛ پس از [load] پر می‌شود.
+  QaBank get qa => _qaBank;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
@@ -162,6 +165,18 @@ Future<void> _loadReplies() async {
 
 LawTopicPrior _lawPrior = LawTopicPrior.empty;
 
+QaBank _qaBank = QaBank.empty;
+
+Future<void> _loadQa() async {
+  _qaBank = QaBank.empty;
+  try {
+    final t = await rootBundle.loadString('assets/qa/lease_qa.json');
+    _qaBank = QaBank.fromJson(jsonDecode(t));
+  } catch (e) {
+    warnings.add('qa/lease_qa.json: $e');
+  }
+}
+
 /// ضریب موضوعی قانون‌ها برای یک پرسش (برای آزمون و عیب‌یابی).
 Map<String, double> lawFactors(String question) => _lawPrior.factors(question);
 
@@ -217,6 +232,7 @@ Future<void> load() async {
     _loadSynonyms(),
     _loadRelationships(),
     _loadLawTopics(),
+    _loadQa(),
     knowledgeFuture,
   ]);
 

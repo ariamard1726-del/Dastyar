@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'package:dastyar/ui/chat_models.dart';
-import 'package:dastyar/domain/feedback.dart';
+import 'package:dastyar/ui/widgets/feedback_bar.dart';
 import 'package:dastyar/domain/input_suggestions.dart';
 import 'package:dastyar/domain/templates.dart';
 

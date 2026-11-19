@@ -1,4 +1,5 @@
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';

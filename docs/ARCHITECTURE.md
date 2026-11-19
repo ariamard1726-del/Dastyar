@@ -6,13 +6,13 @@
 
 ## لایه‌های `lib/`
 
-وابستگی فقط رو به پایین است (core ← domain ← ui ← main): هیچ فایلی در `core/` چیزی از `domain/` یا `ui/` وارد نمی‌کند و هیچ فایلی در `domain/` چیزی از `ui/`.
+وابستگی فقط رو به پایین است (core ← domain ← ui ← main): هیچ فایلی در `core/` چیزی از `domain/` یا `ui/` وارد نمی‌کند و هیچ فایلی در `domain/` چیزی از `ui/`. نمودارهای معماری در `docs/diagrams/` نگهداری می‌شوند (`docs/diagrams/layers.mmd` و `docs/diagrams/message_flow.mmd`).
 
 | لایه | نقش | فایل‌ها |
 |---|---|---|
-| `lib/core/` | زیرساخت، بدون شناخت از قابلیت‌ها | `persian_text` (لایهٔ یکتای متن فارسی)، `persian_normalizer` (تطبیق کلیدواژه برای `router`)، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
-| `lib/domain/` | قابلیت‌های حقوقی | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback`، `settings` |
-| `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles` |
+| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` (لایهٔ یکتای متن فارسی)، `persian_normalizer` (تطبیق کلیدواژه برای `router`)، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور؛ `HybridIntentRouter` میراث بدون مصرف در اجرا)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
+| `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره و صدور رمزنگاری‌شده، بدون وابستگی UI)، `settings` (تنظیمات؛ فعلاً از `ChangeNotifier`/`ThemeMode` فلاتر استفاده می‌کند) |
+| `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
 
 ## جریان یک پیام (تنها یک مسیر)
 
@@ -87,8 +87,12 @@
 | متادیتای قوانین | `assets/laws/_meta.json` | `laws_catalog.json` و `data_info.json` با `tools/sync_meta.py --write` مشتق می‌شوند؛ `tools/check.py meta` تازگی را می‌سنجد |
 | روابط/تضاد مواد | `assets/relationships.json` | دارت: `core/conflicts_service.dart`؛ پایتون: `brain/engine.py` |
 | طبقه‌بند نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `tools/check.py intent`؛ آموزش: `brain/train_intent.py` |
-| پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` |
-| مجموعه‌های ارزیابی | `brain/eval/*.txt` | ابزارهای ارزیابی و تست‌ها |
+| پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` (فقط ۸ کلید فعال موتور بازیابی) |
+| مجموعه‌های ارزیابی | `brain/eval/*.txt` و `eval/*.tsv` | ابزارهای ارزیابی و تست‌ها (ادغام در یک `eval/` در نقشهٔ بازآرایی است) |
+
+## وضعیت بازیابی مواد (BM25F در برابر مدل تعبیه‌ای)
+
+جست‌وجوی مواد در زمان اجرا (`lib/core/engine.dart`) صرفاً واژه‌ای و قطعی است: **BM25F** همراه با `assets/synonyms.txt`، `assets/brain/law_topics.json` (`LawTopicPrior`) و `assets/relationships.json` (`ConflictsService`). فایل‌های آزمایشی تعبیهٔ مواد (`emb_q8.bin`، `art_vecs.bin`، `art_ids.json`) فقط خروجی اسکریپت آفلاین `brain/train_brain.py` در پوشهٔ `brain_out/` (نادیده‌گرفته‌شده در `.gitignore`) هستند؛ در `pubspec.yaml` معرفی نشده‌اند، وارد APK نمی‌شوند و هیچ کدی در `lib/` آن‌ها را نمی‌خواند.
 
 ## برابری پایتون ↔ دارت
 
@@ -107,4 +111,50 @@
 - تست: `flutter test`؛ گزارش در `reports/last_test.txt`
 - `lawyer-lab.yml`: رونوشت گفتگوهای `test/lab/probe.txt` با همان کنترلر برنامه در `reports/lab/transcripts.txt`
 
-`build.yml` (دستی) همان زنجیره را پیش از ساخت APK اجرا می‌کند.
+`build.yml` (دستی) همان زنجیره را پیش از ساخت APK اجرا می‌کند (`tools/build.sh` صرفاً اسکریپت کمکی ترموکس برای آغاز `build.yml` و دریافت APK است).
+
+## نقاط ضعف شناخته‌شده و نقشهٔ بازآرایی مرحله‌ای
+
+1. **توسعهٔ دستی حوزه‌های حقوقی:** هر موضوع تازه در `lib/domain/advocate/topics/` نیازمند نوشتن دستی الگوها، پرسش‌ها و ادعاها، ثبت در `topics/all.dart`، افزودن قالب در `assets/templates/` و نمونه در `eval/` است.
+2. **محدودیت و هزینهٔ Noql:** Noql نفی را تشخیص نمی‌دهد (شباهت کسینوسی ۰٫۸۷ تا ۰٫۹۳ در `brain/reports/embed_bench.md`) و اجرای Dart خالص آن حدود ۴۰۰ میلی‌ثانیه روی CPU است؛ به همین دلیل فقط نقش «حدس موضوع پس از ناکامی قاعده‌ها» دارد. طبق محک `brain/reports/alt_bench.md`، جایگزین‌های چندزبانه مانند `intfloat/multilingual-e5-small` (۱۱۷٫۷M پارامتر، دقت ۸۳/۱۰۱) هم سنگین‌تر و هم ضعیف‌تر از Noql (۱۲٫۷M پارامتر، دقت ۹۰/۱۰۱) بوده‌اند؛ بررسی جایگزین‌های ایستا و سبک‌تر (مانند Model2Vec فارسی) برای آینده باز است.
+3. **بدهی‌های ساختاریِ قابل اصلاحِ مرحله‌ای (هر مرحله در یک کامیت جدا همراه با `flutter analyze` و `flutter test`):**
+   - یکپارچه‌سازی پوشه‌های دوقلوی `eval/` + `brain/eval/` و `reports/` + `brain/reports/` (همراه با به‌روزرسانی تست‌ها و گردش‌کارهای CI).
+   - تفکیک منطقی لایهٔ `retrieval/` از `lib/core/` و لایهٔ `ml/` از `lib/domain/` به‌عنوان دو لایهٔ هم‌ترازِ بالای `core/` (بدون وابستگی `retrieval → ml` و با حفظ اصل «اول قاعده، بعد مدل» در `Advocate`).
+   - تعیین تکلیف و حذف کد میراث بدون مصرف در اجرا (`HybridIntentRouter` در `lib/core/router.dart`) پس از بررسی تست‌های مرتبط.
+   - جداسازی وابستگی `ChangeNotifier`/`ThemeMode` از `lib/domain/settings.dart` در صورت نیاز به دامنهٔ کاملاً مستقل از فلاتر.
+   - سامان‌دهی `assets/brain/` به تفکیک مدل (`models/`) و داده (`data/`؛ از جمله انتقال `law_topics.json` به بخش داده).
+   - قرارداد نگهداری نمودارها: همهٔ فایل‌های نمودار (`.mmd`، `.png`) فقط در `docs/diagrams/`.
+
+## بانک پرسش‌وپاسخ اجاره (`lib/core/qa_bank.dart` + `assets/qa/lease_qa.json`)
+
+- **محتوا:** ۱۲۰ پرسش‌وپاسخ در نُه دستهٔ قرارداد، ودیعه، اجاره‌بها، تعمیرات، خسارت، حریم، تخلیه، سرقفلی و اجرت‌المثل. هر پاسخ دست‌کم به یک ماده از متن واقعی `قانون روابط موجر و مستأجر` یا `قانون مدنی` (فصل «در اجاره»، مواد ۴۶۶ تا ۵۰۴) استناد دارد.
+- **جایگاه در جریان پیام:** فقط در `Advocate._lookup` و پیش از جست‌وجوی BM25F، و فقط وقتی قواعد موضوعی وکیل (از جمله `topics/rent.dart`) پاسخی نداده‌اند. بنابراین پرسش‌هایی که قواعد اجاره‌ای آن‌ها را می‌فهمند همان مسیر قبلی را طی می‌کنند.
+- **تطبیق:** توکن‌سازی `PersianText.tokenize`؛ حداقل ۲ واژهٔ مشترک و نسبت ≥ ۰٫۶ از واژه‌های پرسش بانک. یک واژهٔ کلیدی تنها (مثل «ودیعه») تطبیق نمی‌گیرد.
+- **استناد نمایشی:** `QaBank.citeLabel` شماره و عنوان قانون را به فارسی می‌نویسد، مثلاً «ماده ۴ قانون روابط موجر و مستأجر».
+- **صحت:** `tests/python/test_lease_qa.py` (در CI با `unittest discover` اجرا می‌شود) تأیید می‌کند که:
+  - شناسه‌ها و پرسش‌ها یکتا هستند؛ هر پرسش به «؟» ختم می‌شود؛
+  - هر استناد به شماره‌ای اشاره دارد که واقعاً در فایل متن قانون وجود دارد؛
+  - هر «ماده …»ی که داخل پاسخ آمده در فهرست استنادهای همان پرسش است؛
+  - پاسخ‌ها عبارت «مجاز است … قفل/وسایل را بیرون» (تخلیهٔ خودسرانه) ندارند.
+  
+  این آزمون هنگام نوشتن همین بانک یک ناهماهنگی واقعی (ماده ۴۹۴ نام برده‌شده ولی استناد نشده) را گرفت و اصلاح شد.
+- **محدودیت:** پاسخ‌ها اطلاع‌رسانی عمومی‌اند و جای مشاورهٔ وکیل را نمی‌گیرند؛ سقف افزایش سالانهٔ اجاره (اگر در مقررات سال جاری ابلاغ شده باشد) در متن این مخزن نیست و پاسخ‌ها به بررسی آن ارجاع می‌دهند.
+
+## بازبینی معماری (ممیزی این نسخه)
+
+**آنچه سالم است**
+- وابستگی‌ها یک‌طرفه‌اند: `core` هیچ وارداتی از `domain` یا `ui` ندارد؛ `domain` هیچ وارداتی از `ui` ندارد. این قاعده‌ها اکنون در `tests/python/test_architecture.py` قفل شده‌اند.
+- `Advocate` همچنان قاعده‌محور است: قواعد → حدس Noql (در صورت نیاز) → نظر دوم IntentNet → بانک پرسش‌وپاسخ → BM25F.
+- `replies.json` و `Replies.defaults` یک‌به‌یک‌اند و کلیدهای مرده ندارند (آزمون Python و Dart).
+
+**بدهی‌های باقی‌مانده (بدون تغییر در این نسخه)**
+1. `lib/domain/settings.dart` هنوز `ChangeNotifier` و `ThemeMode` فلاتر را استفاده می‌کند. آزمون معماری این فایل را در فهرست مجاز نگه داشته و فایل‌های جدید domain را از وابستگی به UI منع می‌کند.
+2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`services.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
+3. کد مرده: `HybridIntentRouter` و وابسته‌هایش، `lawFactors`، `mentionedLaws`، و زنجیرهٔ `persian_normalizer` (جزئیات و پیشنهاد در `docs/DEAD_CODE.md`). **تا تأیید صاحب پروژه حذف نشده‌اند.**
+4. `eval/` و `brain/eval/`، `reports/` و `brain/reports/` تکراری‌اند (ادغام نیازمند کامیت جدا با `flutter test`).
+5. `ChatController` (۴۵۲ خط) مسیرهای پیش‌نویس، حدس خواننده و پاسخ وکیل را کنار هم دارد؛ استخراج یک هماهنگ‌کنندهٔ خالص یک بازآرایی جداگانه است.
+6. `lib/domain/lawyer/legal_guides.dart` (۱۳۹۶ خط) و `advocate_case.dart` (۶۳۷ خط) بزرگ‌اند؛ تفکیک بر اساس موضوع ممکن است ولی فعلاً ریسک خاصی ایجاد نمی‌کند.
+
+**آزمون‌ها**
+- Python (بدون Flutter SDK): ۶۴ آزمون (۴۰ قبلی + ۱۰ بانک اجاره + ۱۴ معماری و هم‌خوانی داده‌ها).
+- Dart: ۸ آزمون جدید در `test/core/qa_bank_test.dart` افزوده شده‌اند؛ چون `flutter` در این محیط نصب نیست، آن‌ها و تغییرات `engine.dart`/`advocate_guides.dart` هنوز در CI با `flutter analyze --fatal-warnings` و `flutter test` تأیید نشده‌اند.

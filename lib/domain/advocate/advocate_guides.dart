@@ -13,7 +13,24 @@ extension _Guides on Advocate {
   }
 
   /// واپسین راه: جست‌وجوی واژگانی (BM25) در متن قوانین؛ بدون مدل.
+  /// پاسخ آمادهٔ بانک پرسش‌وپاسخ اجاره، همراه با استنادهای ماده‌ای.
+  AdvocateReply _qaReply(QaItem qa) {
+    final cites = [for (final r in qa.refs) engine.qa.citeLabel(r)]
+        .where((c) => c.isNotEmpty)
+        .join('، ');
+    final src = cites.isEmpty ? '' : '\n\nمستند: $cites.';
+    _rest = '';
+    _offeredMore = false;
+    return AdvocateReply(
+      '${qa.answer}$src\n\n'
+      'این پاسخ عمومی است. اگر بگویید ماجرای شما دقیقاً چیست، آن را با وضعیت خودتان تطبیق می‌دهم.',
+    );
+  }
+
   AdvocateReply _lookup(String raw, String n) {
+    // پرسش‌های آمادهٔ بانک (مثلاً اجاره) پیش از جست‌وجوی واژگانی پاسخ داده می‌شوند.
+    final qa = engine.qa.match(raw);
+    if (qa != null) return _qaReply(qa);
     final direct = Sense.has(n, '(?:ماده|اصل) [0-9]+');
     final legalish = direct ||
         Sense.has(n,
