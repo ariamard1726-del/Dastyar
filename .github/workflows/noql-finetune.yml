@@ -22,8 +22,8 @@ jobs:
     env:
       SAVE_DIR: ${{ github.workspace }}/.noql_ft
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - name: Install
@@ -32,7 +32,7 @@ jobs:
           pip install numpy scikit-learn sentence-transformers huggingface_hub sentencepiece protobuf onnx onnxruntime onnxscript
       - name: Run experiment
         run: python brain/noql_finetune.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: noql-finetuned-int8
