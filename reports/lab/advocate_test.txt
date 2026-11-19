@@ -12,17 +12,17 @@
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
-::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
+::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
