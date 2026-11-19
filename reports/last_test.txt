@@ -1,4 +1,4 @@
-commit: 716cdc3
+commit: 804e8f6
 🎉 320 tests passed.
 --- analyze ---
-No issues found! (ran in 12.6s)
+No issues found! (ran in 10.3s)
