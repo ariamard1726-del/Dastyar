@@ -156,4 +156,4 @@
 
 **آزمون‌ها**
 - Python (بدون Flutter SDK): ۶۴ آزمون (۴۰ قبلی + ۱۰ بانک اجاره + ۱۴ معماری و هم‌خوانی داده‌ها).
-- Dart: ۸ آزمون جدید در `test/core/qa_bank_test.dart` افزوده شده‌اند؛ چون `flutter` در این محیط نصب نیست، آن‌ها و تغییرات `engine.dart`/`advocate_guides.dart` هنوز در CI با `flutter analyze --fatal-warnings` و `flutter test` تأیید نشده‌اند.
+- Dart: ۸ آزمون جدید در `test/core/qa_bank_test.dart` افزوده شده‌اند؛ چون `flutter` در این محیط نصب نیست، در CI تأیید شده‌اند: روی کامیت `eb6d710` مجموعهٔ کامل ۳۱۲ آزمون Dart گذشت و `flutter analyze` بدون مشکل بود (گزارش در `reports/last_test.txt`).
