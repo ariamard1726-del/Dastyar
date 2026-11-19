@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/intent_net.dart';
 
 /// سناریوهای گفتگوی تعاملی برای سنجش تشخیص نیت.
 ///
@@ -230,10 +232,17 @@ void main() {
     await engine.load();
   });
 
-  Advocate fresh() => Advocate(engine, draftTitles: const {
+  Advocate fresh({IntentNet? net}) => Advocate(engine,
+      intentNet: net,
+      draftTitles: const {
         'demand_money': 'دادخواست مطالبه وجه',
         'defense_brief': 'لایحه دفاعیه',
       });
+
+  /// IntentNet واقعی اپ از همان فایل مدل؛ برای سنجش مسیر «نظر دوم».
+  IntentNet loadNet() => IntentNet.fromJson(jsonDecode(
+          File('assets/brain/intent_model.json').readAsStringSync())
+      as Map<String, dynamic>);
 
   test('سناریوهای گفتگو', () {
     final rows = <String>[];
@@ -332,11 +341,12 @@ void main() {
   });
 
   test('مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)', () {
-    String runSet(List<_Case> set) {
+    String runSet(List<_Case> set, {bool withNet = false}) {
+      final net = withNet ? loadNet() : null;
       final rows = <String>[];
       var ok = 0;
       for (final c in set) {
-        final a = fresh();
+        final a = fresh(net: net);
         var last = '';
         for (final t in c.turns) {
           last = _full(a, t).text;
@@ -364,14 +374,19 @@ void main() {
       ..writeln('این مجموعه پس از اولین اندازه‌گیری، برای رفع شکست‌ها تنظیم شد؛ '
           'دیگر نگه‌داشته نیست و فقط برای پیگیری نگه داشته شده است.')
       ..writeln()
+      ..writeln('### بدون IntentNet')
       ..writeln(runSet(_holdout))
       ..writeln('## مجموعهٔ دوم (تازه، پیش از دیدن نتیجه نوشته شده)')
       ..writeln()
       ..writeln(runSet(_holdout2))
+      ..writeln('### با IntentNet (همان مسیر اپ)')
+      ..writeln(runSet(_holdout2, withNet: true))
       ..writeln()
       ..writeln('## مجموعهٔ سوم (تازه، هرگز برای تنظیم استفاده نشده)')
       ..writeln()
-      ..writeln(runSet(_holdout3));
+      ..writeln(runSet(_holdout3))
+      ..writeln('### با IntentNet (همان مسیر اپ)')
+      ..writeln(runSet(_holdout3, withNet: true));
     Directory('reports').createSync(recursive: true);
     File('reports/intent_holdout.md').writeAsStringSync(report.toString());
     debugPrint('::notice title=intent-holdout::مجموعهٔ دوم: '
