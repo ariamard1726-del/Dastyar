@@ -128,6 +128,37 @@ const List<_Case> _cases = [
       hard: true, topic: 'cheque'),
 ];
 
+/// مجموعهٔ نگه‌داشته: این جمله‌ها پیش از اجرا دیده نشده‌اند و هیچ نشانه‌ای
+/// بر اساس آن‌ها تنظیم نشده است. نتیجه فقط گزارش می‌شود و CI را قرمز
+/// نمی‌کند؛ اگر بعداً برای رفع شکست‌هایش چیزی تنظیم شود، دیگر «نگه‌داشته»
+/// نیست و باید به مجموعهٔ اصلی منتقل شود.
+const List<_Case> _holdout = [
+  _Case('h: اضافه‌کاری', ['کارفرمام پول اضافه کاری منو نداده'], topic: 'labor'),
+  _Case('h: جدایی', ['میخوام از شوهرم جدا شم'], topic: 'family'),
+  _Case('h: چک برگشتی', ['چکی که بهم دادن برگشت خورد'], topic: 'cheque'),
+  _Case('h: برداشت از حساب', ['یکی پولمو از حسابم برداشته'], topic: 'cyber'),
+  _Case('h: مهریه', ['همسرم مهریه‌ام را نمی‌دهد'], topic: 'family'),
+  _Case('h: تخلیه', ['صاحبخونه قرارداد رو تموم کرده و میخواد منو بیرون کنه'],
+      topic: 'rent'),
+  _Case('h: ارث بعد از فوت', ['بعد از فوت مادرم سر ارث دعوا شده'],
+      topic: 'inherit'),
+  _Case('h: پول خوردن دوست', ['دوستم پول منو خورده'], topic: 'debt'),
+  _Case('h: کالای تقلبی', ['در مغازه کالای تقلبی بهم فروختن'],
+      topic: 'consumer'),
+  _Case('h: زمین به نام برادر', ['برادرم زمینمو به اسم خودش زده'],
+      topic: 'property'),
+  _Case('h: متهم شدن', ['من متهم به کلاهبرداری شدم و احضار شدم'],
+      topic: 'accused'),
+  _Case('h: حادثهٔ کاری بیمه‌نشده', ['کارفرما بیمه نکرده و حادثه کاری داشتم'],
+      topic: 'injury'),
+  _Case('h: بردن بچه', ['خانمم می‌خواد بچه رو ببره'], topic: 'child'),
+  _Case('h: پول پیش بیش از قرارداد', ['مالک آپارتمان ازم پول پیش بیشتر از قرارداد خواسته'],
+      topic: 'rent'),
+  _Case('h: صبح بخیر', ['صبح بخیر'], contains: ['سلام']),
+  _Case('h: ساعت', ['ساعت چنده؟'], contains: ['حوزهٔ کار من']),
+  _Case('h: تاریخ امروز', ['تاریخ امروز چنده'], contains: ['حوزهٔ کار من']),
+];
+
 /// پاسخ کامل: همهٔ «ادامه بده»ها کنار هم.
 AdvocateReply _full(Advocate a, String t) {
   final r = a.respond(t);
@@ -253,6 +284,40 @@ void main() {
     }
 
     expect(hardFails, isEmpty, reason: hardFails.join('\n'));
+  });
+
+  test('مجموعهٔ نگه‌داشته: سنجش تعمیم (بدون شکست CI)', () {
+    final rows = <String>[];
+    var ok = 0;
+    for (final c in _holdout) {
+      final a = fresh();
+      var last = '';
+      for (final t in c.turns) {
+        last = _full(a, t).text;
+      }
+      final reasons = <String>[];
+      if (c.topic != null && a.file.topic != c.topic) {
+        reasons.add('موضوع «${a.file.topic}» به‌جای «${c.topic}»');
+      }
+      for (final s in c.contains) {
+        if (!last.contains(s)) reasons.add('پاسخ شامل «$s» نیست');
+      }
+      final pass = reasons.isEmpty;
+      if (pass) ok++;
+      rows.add('| ${c.name} | ${pass ? 'درست' : 'نادرست'} | '
+          '${a.file.topic.isEmpty ? '—' : a.file.topic} | ${reasons.join('؛')} |');
+    }
+    final report = StringBuffer()
+      ..writeln('# مجموعهٔ نگه‌داشته: سنجش تعمیم تشخیص نیت')
+      ..writeln()
+      ..writeln('نتیجه: $ok از ${_holdout.length} درست.')
+      ..writeln()
+      ..writeln('| جمله | نتیجه | موضوع | دلیل |')
+      ..writeln('|---|---|---|---|')
+      ..writeln(rows.join('\n'));
+    Directory('reports').createSync(recursive: true);
+    File('reports/intent_holdout.md').writeAsStringSync(report.toString());
+    debugPrint('::notice title=intent-holdout::$ok از ${_holdout.length} درست');
   });
 
   test('پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد', () {
