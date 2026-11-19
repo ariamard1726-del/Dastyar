@@ -1,42 +1,21 @@
 
 ::group::✅ Passing tests
-✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
-✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
-✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
-✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
-✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
-✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
-✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
-✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
-✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
-✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
-✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
-✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
-✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
-✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
-✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
+✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
+✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
 ::notice title=intent::54 از 54 سناریو درست است
 ::endgroup::
 ::group::✅ Passing tests
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
-✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
-✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
-✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
-✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
 ✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
 ✅ test/advocate/advocate_test.dart: خشونت خانگی به پروندهٔ خانواده می‌رود، نه کار
 ✅ test/advocate/advocate_test.dart: متهم: «اگه نرم چی میشه؟» جواب مشخص می‌گیرد
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: مجموعهٔ نگه‌داشته: سنجش تعمیم (بدون شکست CI)
+::notice title=intent-holdout::13 از 17 درست
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
 ✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
 ✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
@@ -52,6 +31,7 @@
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
 ✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
@@ -73,7 +53,31 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
+✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
+✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
@@ -91,10 +95,11 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
-✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
@@ -109,4 +114,4 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ::endgroup::
 
-🎉 103 tests passed.
+🎉 104 tests passed.
