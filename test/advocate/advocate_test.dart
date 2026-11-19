@@ -658,4 +658,42 @@ void main() {
     expect(Advocate.wantsDraft('اجرا بهتره یا شکایت کیفری کنم؟'), isFalse);
     expect(Advocate.wantsDraft('صاحبخونه پول پیشمو نمیده'), isFalse);
   });
+
+  group('نیت‌های عملی و توانایی برنامه', () {
+    test('«چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا', () {
+      final a = fresh();
+      final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
+      expect(r.text, contains('وکیل'));
+      expect(a.file.topic, isEmpty);
+      expect(r.text, isNot(contains('گفتید')));
+      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    });
+
+    test('«چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه', () {
+      final a = fresh();
+      final r = a.respond('چه کاری می‌توانم بکنم؟');
+      expect(r.text, isNot(contains('کارم این است')));
+    });
+
+    test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
+      final r = fresh().respond('وکیل کجا پیدا کنم؟');
+      expect(r.text, contains('کانون وکلای دادگستری'));
+      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    });
+
+    test('هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند', () {
+      final a = fresh();
+      a.respond('طلب دارم');
+      expect(a.file.topic, 'debt');
+      final r = a.respond('هزینه وکیل چقدره؟');
+      expect(r.text, contains('کانون وکلای دادگستری'));
+      expect(a.file.topic, 'debt');
+    });
+
+    test('پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد', () {
+      final r = fresh().respond('مهلت شکایت چقدره؟');
+      expect(r.text, contains('مهلت'));
+      expect(r.text, contains('ابلاغ'));
+    });
+  });
 }

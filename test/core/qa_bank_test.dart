@@ -62,6 +62,19 @@ void main() {
     });
   });
 
+  group('پرسش‌های مرتبط', () {
+    test('هم‌دسته، بدون خودِ پرسش و حداکثر دو مورد', () {
+      final first = bank.items.first;
+      final rel = bank.related(first);
+      expect(rel.length, lessThanOrEqualTo(2));
+      expect(rel, isNotEmpty);
+      for (final r in rel) {
+        expect(r.id, isNot(first.id));
+        expect(r.category, first.category);
+      }
+    });
+  });
+
   group('برچسب استناد', () {
     test('شماره و عنوان قانون فارسی می‌شود', () {
       expect(bank.citeLabel('landlord_tenant:4'),

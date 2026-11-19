@@ -19,11 +19,31 @@ extension _Guides on Advocate {
         .where((c) => c.isNotEmpty)
         .join('، ');
     final src = cites.isEmpty ? '' : '\n\nمستند: $cites.';
+    // متن همان موادی که پاسخ به آن‌ها استناد می‌کند، تا دکمهٔ «متن قانون» کار کند.
+    final laws = <LawText>[];
+    for (final r in qa.refs) {
+      final cut = r.indexOf(':');
+      if (cut <= 0 || cut == r.length - 1) continue;
+      final law = r.substring(0, cut);
+      final art = r.substring(cut + 1);
+      final kind = law == 'constitution' ? 'اصل' : 'ماده';
+      final c = engine.findArticle(law, '$kind $art');
+      if (c == null) continue;
+      laws.add(LawText('$kind ${Sense.fa(art)} ${c.source}', c.source, c.body, ''));
+    }
+    if (laws.isNotEmpty) _lastLaws = laws;
+    // پرسش‌های هم‌موضوع، تا گفتگو از همان جا ادامه پیدا کند.
+    final next = [for (final q in engine.qa.related(qa)) q.question];
     _rest = '';
     _offeredMore = false;
     return AdvocateReply(
       '${qa.answer}$src\n\n'
       'این پاسخ عمومی است. اگر بگویید ماجرای شما دقیقاً چیست، آن را با وضعیت خودتان تطبیق می‌دهم.',
+      chips: [
+        ...next,
+        if (laws.isNotEmpty) Advocate.lawChip,
+      ],
+      laws: laws,
     );
   }
 

@@ -96,6 +96,24 @@ class QaBank {
     return best;
   }
 
+  /// پرسش‌های هم‌دسته با [it] که به آن نزدیک‌ترند (بیشترین واژهٔ مشترک)،
+  /// بدون خود [it]. برای پیشنهاد دکمه‌ها زیر پاسخ به کار می‌رود.
+  List<QaItem> related(QaItem it, {int max = 2}) {
+    final base = it._tokens;
+    final scored = <({QaItem item, int shared, int order})>[];
+    for (var k = 0; k < items.length; k++) {
+      final o = items[k];
+      if (identical(o, it) || o.category != it.category) continue;
+      final shared = o._tokens.where(base.contains).length;
+      scored.add((item: o, shared: shared, order: k));
+    }
+    scored.sort((a, b) {
+      final d = b.shared.compareTo(a.shared);
+      return d != 0 ? d : a.order.compareTo(b.order);
+    });
+    return [for (final s in scored.take(max)) s.item];
+  }
+
   /// نام خوانا برای یک استناد، مثلاً «ماده ۴ قانون روابط موجر و مستأجر».
   String citeLabel(String ref) {
     final cut = ref.indexOf(':');
