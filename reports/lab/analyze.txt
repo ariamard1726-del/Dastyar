@@ -3,4 +3,4 @@ Analyzing Dastyar...
    info • Don't invoke 'print' in production code. Try using a logging framework • test/advocate/intent_scenarios_test.dart:249:5 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • test/advocate/intent_scenarios_test.dart:251:7 • avoid_print
 
-2 issues found. (ran in 9.1s)
+2 issues found. (ran in 9.4s)
