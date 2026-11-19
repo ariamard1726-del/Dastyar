@@ -14,13 +14,12 @@ c = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c)
 m=c.IntentModel()
 src=open(os.path.join(ROOT,'test/advocate/intent_scenarios_test.dart'),encoding='utf-8').read()
-i=src.index('const List<_Case> _holdout = [')
-j=src.index('];',i)
-block=src[i:j]
-cases=re.findall(r"_Case\('([^']*)', \['([^']*)'\]",block)
-i2=src.index('const List<_Case> _holdout2 = [');j2=src.index('];',i2)
-cases2=re.findall(r"_Case\('([^']*)', \['([^']*)'\]",src[i2:j2])
-for name,text in cases+cases2:
+cases=[]
+for name in ('_holdout','_holdout2','_holdout3'):
+    i=src.index('const List<_Case> %s = [' % name)
+    j=src.index('];',i)
+    cases+=re.findall(r"_Case\('([^']*)', \['([^']*)'\]", src[i:j])
+for name,text in cases:
     s=m.scores(text)
     ranked=sorted(zip(s,m.labels),reverse=True)[:3]
     print(f"{name[:28]:28} | {text[:45]:45} | "+", ".join(f"{l}:{v:.2f}" for v,l in ranked))

@@ -70,6 +70,7 @@ class Advocate {
     'family': 'family',
     'labor': 'labor',
     'lease': 'rent',
+    'fraud_cyber': 'cyber',
   };
 
   /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.

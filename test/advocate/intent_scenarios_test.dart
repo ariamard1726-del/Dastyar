@@ -183,6 +183,27 @@ const List<_Case> _holdout2 = [
   _Case('h2: احوال‌پرسی', ['سلام، خوبی؟'], contains: ['سلام']),
 ];
 
+/// مجموعهٔ نگه‌داشتهٔ سوم: پیش از هر تغییر نوشته شد و هیچ‌وقت برای تنظیم
+/// نشانه‌ها یا نگاشت‌ها استفاده نمی‌شود. فقط گزارش می‌شود.
+const List<_Case> _holdout3 = [
+  _Case('h3: حقوق نداده و اخراج', ['کارفرمام دو ماهه حقوق نداده و اخراجم کرده'],
+      topic: 'labor'),
+  _Case('h3: برداشت با پیامک جعلی', ['مبلغی از کارتم با یک پیامک جعلی برداشت شد'],
+      topic: 'cyber'),
+  _Case('h3: چک پاس نشده', ['چکی که صادر کردم پاس نشد و اجرای ثبت دنبالمه'],
+      topic: 'cheque'),
+  _Case('h3: قطع برق و آب', ['صاحب خونه‌ای که اجاره کردم آب و برق رو قطع کرده'],
+      topic: 'rent'),
+  _Case('h3: کتک و طلاق', ['همسرم منو کتک میزنه و میخوام طلاق بگیرم'],
+      topic: 'family'),
+  _Case('h3: ارث بدون وصیت', ['پدرم بدون وصیت مرده و برادرم سهم منو نمیده'],
+      topic: 'inherit'),
+  _Case('h3: درخت همسایه', ['همسایه‌ام درخت حیاط منو بریده'], topic: 'neighbor'),
+  _Case('h3: جنس خراب', ['از فروشگاه جنس خراب خریدم و پس نمیدن'],
+      topic: 'consumer'),
+  _Case('h3: سلام', ['سلام، روز خوبی داشته باشی'], contains: ['سلام']),
+];
+
 /// پاسخ کامل: همهٔ «ادامه بده»ها کنار هم.
 AdvocateReply _full(Advocate a, String t) {
   final r = a.respond(t);
@@ -346,7 +367,11 @@ void main() {
       ..writeln(runSet(_holdout))
       ..writeln('## مجموعهٔ دوم (تازه، پیش از دیدن نتیجه نوشته شده)')
       ..writeln()
-      ..writeln(runSet(_holdout2));
+      ..writeln(runSet(_holdout2))
+      ..writeln()
+      ..writeln('## مجموعهٔ سوم (تازه، هرگز برای تنظیم استفاده نشده)')
+      ..writeln()
+      ..writeln(runSet(_holdout3));
     Directory('reports').createSync(recursive: true);
     File('reports/intent_holdout.md').writeAsStringSync(report.toString());
     debugPrint('::notice title=intent-holdout::مجموعهٔ دوم: '

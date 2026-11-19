@@ -26,3 +26,12 @@ h2: خانه پدری                | یکی از برادرام بدون اج�
 h2: کفالت                    | کفیل شدم و حالا طلبکار زنگ میزنه بیا پول بده  | debt:0.48, out_of_scope:0.11, counsel_answer:0.11
 h2: تاریخ                    | امروز چندم ماهه؟                              | out_of_scope:0.77, counsel_answer:0.05, article_lookup:0.03
 h2: احوال‌پرسی               | سلام، خوبی؟                                   | chitchat:0.96, cancel:0.01, counsel_answer:0.01
+h3: حقوق نداده و اخراج       | کارفرمام دو ماهه حقوق نداده و اخراجم کرده     | labor:0.93, counsel_answer:0.03, cheque:0.01
+h3: برداشت با پیامک جعلی     | مبلغی از کارتم با یک پیامک جعلی برداشت شد     | fraud_cyber:0.57, counsel_answer:0.30, cancel:0.02
+h3: چک پاس نشده              | چکی که صادر کردم پاس نشد و اجرای ثبت دنبالمه  | cheque:0.26, litigation_defense:0.26, legal_question:0.18
+h3: قطع برق و آب             | صاحب خونه‌ای که اجاره کردم آب و برق رو قطع کر | lease:0.86, legal_question:0.03, cheque:0.02
+h3: کتک و طلاق               | همسرم منو کتک میزنه و میخوام طلاق بگیرم       | family:0.72, criminal_harm:0.05, counsel_answer:0.04
+h3: ارث بدون وصیت            | پدرم بدون وصیت مرده و برادرم سهم منو نمیده    | legal_question:0.24, labor:0.21, counsel_answer:0.13
+h3: درخت همسایه              | همسایه‌ام درخت حیاط منو بریده                 | out_of_scope:0.18, draft_request:0.15, chitchat:0.15
+h3: جنس خراب                 | از فروشگاه جنس خراب خریدم و پس نمیدن          | fraud_cyber:0.45, legal_question:0.33, counsel_answer:0.10
+h3: سلام                     | سلام، روز خوبی داشته باشی                     | chitchat:0.87, counsel_answer:0.05, cancel:0.01
