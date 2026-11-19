@@ -1,4 +1,4 @@
-commit: 26bef77
+commit: 8f72308
 🎉 321 tests passed.
 --- analyze ---
-No issues found! (ran in 11.6s)
+No issues found! (ran in 11.1s)
