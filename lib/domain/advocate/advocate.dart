@@ -517,6 +517,8 @@ class Advocate {
           return _open(hint, n);
         }
       }
+      final hopeless = _hopeless(n);
+      if (hopeless != null) return hopeless;
       final lg = _matchGuide(raw, n);
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);

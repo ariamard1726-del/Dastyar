@@ -50,6 +50,20 @@ String _clip(String raw) {
 }
 
 extension _Talk on Advocate {
+  /// عبارت‌های ناامیدی؛ هم در `_meta` (وقتی موضوع باز است) و هم در `_hopeless`.
+  static const String _hopelessPattern =
+      'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی';
+
+  /// همدلی برای ناامیدی وقتی هیچ موضوعی باز نیست.
+  AdvocateReply? _hopeless(String n) {
+    if (Sense.words(n) > 10 || !Sense.has(n, _hopelessPattern)) return null;
+    return _out(
+      'هنوز برای ناامیدشدن زود است؛ تقریباً همیشه راهی هست.',
+      ask: 'چه اتفاقی افتاده؟',
+      chips: _idleChips(),
+    );
+  }
+
   AdvocateReply? _meta(String n, Topic? topic) {
     final w = Sense.words(n);
     if (w <= 8 &&
@@ -196,16 +210,9 @@ extension _Talk on Advocate {
         chips: topic == null ? _idleChips() : _suggest(topic),
       );
     }
-    if (w <= 10 &&
-        Sense.has(n,
-            'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی')) {
-      if (topic == null) {
-        return _out(
-          'هنوز برای ناامیدشدن زود است؛ تقریباً همیشه راهی هست.',
-          ask: 'چه اتفاقی افتاده؟',
-          chips: _idleChips(),
-        );
-      }
+    // بی‌موضوع: همدلی با ناامیدی پس از نظر دوم می‌آید (`_hopeless`)، تا
+    // جمله‌ای مثل «کارتم هک شد و پولم رفت» موضوعش را از دست ندهد.
+    if (topic != null && w <= 10 && Sense.has(n, _hopelessPattern)) {
       final c = topic.follow['chance'];
       final n2 = topic.follow['next'];
       final sb = StringBuffer('نه، بن‌بست نیست؛ فقط راهش سرراست نیست.');
