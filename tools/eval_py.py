@@ -296,7 +296,7 @@ class Engine:
         return out
 
     def law_factors(self, question):
-        """ضریب موضوعی هر قانون (آینهٔ KnowledgeEngine.lawFactors)."""
+        """ضریب موضوعی هر قانون (آینهٔ LawTopicPrior.factors در Dart)."""
         n = f' {phrase(question)} '
 
         def hit(sigs):

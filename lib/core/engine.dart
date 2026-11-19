@@ -177,9 +177,6 @@ Future<void> _loadQa() async {
   }
 }
 
-/// ضریب موضوعی قانون‌ها برای یک پرسش (برای آزمون و عیب‌یابی).
-Map<String, double> lawFactors(String question) => _lawPrior.factors(question);
-
 Future<void> _loadLawTopics() async {
   _lawPrior = LawTopicPrior.empty;
   try {
@@ -467,9 +464,6 @@ Chunk? findArticle(String law, String article) {
   }
   return null;
 }
-
-/// قوانین فهرست که نام یا نام رایجشان در متن آمده است.
-List<CatalogLaw> mentionedLaws(String q) => _mentionedLaws(q);
 
 List<CatalogLaw> _mentionedLaws(String q) {
   final n = _collapse(normalize(q));

@@ -10,7 +10,7 @@
 
 | لایه | نقش | فایل‌ها |
 |---|---|---|
-| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` (لایهٔ یکتای متن فارسی)، `persian_normalizer` (تطبیق کلیدواژه برای `router`)، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور؛ `HybridIntentRouter` میراث بدون مصرف در اجرا)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
+| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` (لایهٔ یکتای متن فارسی)، ، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
 | `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره و صدور رمزنگاری‌شده، بدون وابستگی UI)، `settings` (تنظیمات؛ فعلاً از `ChangeNotifier`/`ThemeMode` فلاتر استفاده می‌کند) |
 | `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
 
@@ -120,7 +120,6 @@
 3. **بدهی‌های ساختاریِ قابل اصلاحِ مرحله‌ای (هر مرحله در یک کامیت جدا همراه با `flutter analyze` و `flutter test`):**
    - یکپارچه‌سازی پوشه‌های دوقلوی `eval/` + `brain/eval/` و `reports/` + `brain/reports/` (همراه با به‌روزرسانی تست‌ها و گردش‌کارهای CI).
    - تفکیک منطقی لایهٔ `retrieval/` از `lib/core/` و لایهٔ `ml/` از `lib/domain/` به‌عنوان دو لایهٔ هم‌ترازِ بالای `core/` (بدون وابستگی `retrieval → ml` و با حفظ اصل «اول قاعده، بعد مدل» در `Advocate`).
-   - تعیین تکلیف و حذف کد میراث بدون مصرف در اجرا (`HybridIntentRouter` در `lib/core/router.dart`) پس از بررسی تست‌های مرتبط.
    - جداسازی وابستگی `ChangeNotifier`/`ThemeMode` از `lib/domain/settings.dart` در صورت نیاز به دامنهٔ کاملاً مستقل از فلاتر.
    - سامان‌دهی `assets/brain/` به تفکیک مدل (`models/`) و داده (`data/`؛ از جمله انتقال `law_topics.json` به بخش داده).
    - قرارداد نگهداری نمودارها: همهٔ فایل‌های نمودار (`.mmd`، `.png`) فقط در `docs/diagrams/`.
@@ -150,7 +149,7 @@
 **بدهی‌های باقی‌مانده (بدون تغییر در این نسخه)**
 1. `lib/domain/settings.dart` هنوز `ChangeNotifier` و `ThemeMode` فلاتر را استفاده می‌کند. آزمون معماری این فایل را در فهرست مجاز نگه داشته و فایل‌های جدید domain را از وابستگی به UI منع می‌کند.
 2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`services.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
-3. کد مرده: `HybridIntentRouter` و وابسته‌هایش، `lawFactors`، `mentionedLaws`، و زنجیرهٔ `persian_normalizer` (جزئیات و پیشنهاد در `docs/DEAD_CODE.md`). **تا تأیید صاحب پروژه حذف نشده‌اند.**
+3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
 4. `eval/` و `brain/eval/`، `reports/` و `brain/reports/` تکراری‌اند (ادغام نیازمند کامیت جدا با `flutter test`).
 5. `ChatController` (۴۵۲ خط) مسیرهای پیش‌نویس، حدس خواننده و پاسخ وکیل را کنار هم دارد؛ استخراج یک هماهنگ‌کنندهٔ خالص یک بازآرایی جداگانه است.
 6. `lib/domain/lawyer/legal_guides.dart` (۱۳۹۶ خط) و `advocate_case.dart` (۶۳۷ خط) بزرگ‌اند؛ تفکیک بر اساس موضوع ممکن است ولی فعلاً ریسک خاصی ایجاد نمی‌کند.

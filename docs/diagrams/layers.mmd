@@ -19,7 +19,7 @@ flowchart TD
     subgraph core["lib/core/ (بازیابی BM25F و زیرساخت)"]
         retrieval["engine.dart (BM25F) + models.dart<br/>law_topic_prior.dart + conflicts_service.dart<br/>replies.dart + router.dart"]
         qa["qa_bank.dart<br/>بانک پرسش‌وپاسخ اجاره (JSON)"]
-        infra["persian_text.dart, persian_normalizer.dart<br/>privacy.dart, history.dart, legacy_cleanup.dart"]
+        infra["persian_text.dart<br/>privacy.dart, history.dart, legacy_cleanup.dart"]
     end
 
     main --> ui
