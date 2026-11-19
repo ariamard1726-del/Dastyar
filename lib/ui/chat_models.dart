@@ -37,3 +37,18 @@ class ChatMessage {
     this.revealed = false,
   });
 }
+
+/// متن کاملِ گفتگو برای کپی یکجا. پیام‌های خالی حذف می‌شوند و هر پیام با
+/// برچسب گوینده («شما»، «دستیار» یا «سند») می‌آید.
+String conversationTranscript(List<ChatMessage> messages) {
+  final parts = <String>[];
+  for (final m in messages) {
+    final body = m.text.trim();
+    if (body.isEmpty) continue;
+    final who = m.fromUser ? 'شما' : (m.isDoc ? 'سند' : 'دستیار');
+    final title = m.isDoc && m.docTitle.isNotEmpty ? ' (${m.docTitle})' : '';
+    parts.add('$who$title:\n$body');
+  }
+  return parts.join('\n\n');
+}
+

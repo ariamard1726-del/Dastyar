@@ -13,6 +13,7 @@ class UserMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
       label: 'پیام شما',
@@ -20,19 +21,108 @@ class UserMessageBubble extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
           decoration: BoxDecoration(
-            color: dark ? const Color(0xFF3A3A37) : const Color(0xFFEFEDE6),
+            color: cs.secondaryContainer,
             borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: dark ? 0.25 : 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: SelectableText(
-            message.text,
-            style: const TextStyle(fontSize: 16, height: 1.7),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline, size: 14, color: cs.onSecondaryContainer),
+                  const SizedBox(width: 4),
+                  Text(
+                    'شما',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSecondaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              SelectableText(
+                message.text,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.7,
+                  color: cs.onSecondaryContainer,
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// کادر پایان گفتگو: یک دکمه برای کپی کل گفتگو با برچسب گوینده‌ها.
+class ConversationCopyPanel extends StatelessWidget {
+  final List<ChatMessage> messages;
+  final ValueChanged<String> onCopy;
+
+  const ConversationCopyPanel({
+    super.key,
+    required this.messages,
+    required this.onCopy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final count = messages.where((m) => m.text.trim().isNotEmpty).length;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.forum_outlined, color: cs.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'پایان گفتگو',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                  ),
+                ),
+                Text(
+                  '$count پیام',
+                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: () => onCopy(conversationTranscript(messages)),
+            icon: const Icon(Icons.copy_all_outlined, size: 18),
+            label: const Text('کپی کل گفتگو'),
+          ),
+        ],
       ),
     );
   }

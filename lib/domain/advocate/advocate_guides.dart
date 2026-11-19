@@ -59,9 +59,9 @@ extension _Guides on Advocate {
         Sense.words(n) >= 2 &&
         (direct || Sense.isQuestion(n) || _loose.length >= 3)) {
       final r = engine.query(raw);
-      if (r.contextHits.isNotEmpty) {
+      if (_isLawHit(r)) {
         final laws = [
-          for (final h in r.contextHits.take(2))
+          for (final h in r.contextHits.where(_isLaw).take(2))
             LawText(h.chunk.title, h.chunk.source, h.chunk.body, ''),
         ];
         final lead = direct
@@ -165,12 +165,12 @@ extension _Guides on Advocate {
     if (soc != null) return soc;
     if (kind.isNotEmpty || Sense.isQuestion(n)) {
       final r = engine.query('${g.title} $n');
-      if (r.contextHits.isNotEmpty) {
+      if (_isLawHit(r)) {
         return AdvocateReply(
           'دربارهٔ این بخش از «${g.title}» تحلیل آماده‌ای ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:\n\n${r.text}',
           chips: _guideChips(g),
           laws: [
-            for (final h in r.contextHits.take(2))
+            for (final h in r.contextHits.where(_isLaw).take(2))
               LawText(h.chunk.title, h.chunk.source, h.chunk.body, ''),
           ],
         );
@@ -187,3 +187,14 @@ extension _Guides on Advocate {
     return null;
   }
 }
+
+/// منبع «دانش عمومی» دربارهٔ خودِ برنامه است، نه متن قانون؛ هرگز به‌عنوان
+/// «نزدیک‌ترین متن قانونی» نشان داده نمی‌شود.
+const String _generalSource = 'دانش عمومی';
+
+bool _isLaw(Hit h) => h.chunk.source != _generalSource;
+
+/// پاسخ موتور فقط وقتی متن قانونی دارد که بهترین نتیجه‌اش قانون باشد.
+bool _isLawHit(EngineReply r) =>
+    r.contextHits.isNotEmpty && _isLaw(r.contextHits.first);
+

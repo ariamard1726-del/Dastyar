@@ -194,8 +194,14 @@ class _ChatPageState extends State<ChatPage> {
                       : ListView.builder(
                           controller: _scroll,
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                          itemCount: msgs.length,
+                          itemCount: msgs.length + 1,
                           itemBuilder: (context, i) {
+                            if (i == msgs.length) {
+                              return ConversationCopyPanel(
+                                messages: msgs,
+                                onCopy: (t) => _copy(t),
+                              );
+                            }
                             final m = msgs[i];
                             if (m.fromUser) {
                               return UserMessageBubble(message: m);
