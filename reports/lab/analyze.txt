@@ -1,2 +1,5 @@
 Analyzing Dastyar...                                            
-No issues found! (ran in 11.7s)
+
+  error • Expected an identifier • test/advocate/intent_scenarios_test.dart:441:7 • missing_identifier
+
+1 issue found. (ran in 11.7s)
