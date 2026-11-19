@@ -507,6 +507,16 @@ class Advocate {
         final r = _fromGuess(usable, raw, n, scores);
         if (r != null) return r;
       }
+      // نظر دوم IntentNet پیش از راهنماهای ثابت: راهنماها با جفت واژه‌ها
+      // تطبیق می‌یابند (مثلاً «حقوق» و «نداده») و «کارگاه حقوقم را نداده»
+      // را به قاعدهٔ حقوق معوق می‌برند، پیش از آنکه موضوع ماجرا روشن شود.
+      if (guess == null) {
+        final hint = _secondOpinion(raw, n);
+        if (hint != null) {
+          _loose.removeLast();
+          return _open(hint, n);
+        }
+      }
       final lg = _matchGuide(raw, n);
       if (lg != null) return _openGuide(lg, raw, n);
       final soc = _social(n, null);
@@ -516,12 +526,6 @@ class Advocate {
             ? null
             : _fromGuess(usable, raw, n, scores);
         if (r != null) return r;
-      } else {
-        final hint = _secondOpinion(raw, n);
-        if (hint != null) {
-          _loose.removeLast();
-          return _open(hint, n);
-        }
       }
       if (_vague(n)) return _intake();
       return _lookup(raw, n);
