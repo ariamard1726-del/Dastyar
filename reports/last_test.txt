@@ -1,4 +1,4 @@
-commit: a18e246
+commit: 602cbe9
 🎉 325 tests passed.
 --- analyze ---
-No issues found! (ran in 9.9s)
+No issues found! (ran in 8.3s)
