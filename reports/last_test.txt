@@ -1,4 +1,17 @@
-commit: 613b5cd
-🎉 325 tests passed.
+commit: 7497bde
+::error::322 tests passed, 1 failed.
+::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
+   Failed to load "test/advocate/intent_scenarios_test.dart":
+   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: test/advocate/intent_scenarios_test.dart:441:7: Error: Expected an identifier, but got '..'.
+   Try inserting an identifier before '..'.
+   ..writeln()
+   ^^
+   .
+   ::endgroup::
+--- خطای کامپایل ---
+test/advocate/intent_scenarios_test.dart:441:7: Error: Expected an identifier, but got '..'.
+Failed to load "test/advocate/intent_scenarios_test.dart":
+Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: test/advocate/intent_scenarios_test.dart:441:7: Error: Expected an identifier, but got '..'.
 --- analyze ---
-No issues found! (ran in 12.5s)
+1 issue found. (ran in 10.1s)
+  error • Expected an identifier • test/advocate/intent_scenarios_test.dart:441:7 • missing_identifier
