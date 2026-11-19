@@ -1,4 +1,4 @@
-commit: 0356aee
-🎉 312 tests passed.
+commit: 8bde39a
+🎉 318 tests passed.
 --- analyze ---
-No issues found! (ran in 9.1s)
+No issues found! (ran in 8.9s)
