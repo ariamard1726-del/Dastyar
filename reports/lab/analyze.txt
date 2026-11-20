@@ -1,6 +1,5 @@
 Analyzing Dastyar...                                            
 
-  error • Expected an identifier • lib/domain/advocate/topics/minor_sale.dart:18:39 • missing_identifier
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/chat_page.dart:200:29 • deprecated_membe
 
-2 issues found. (ran in 9.0s)
+1 issue found. (ran in 12.4s)
