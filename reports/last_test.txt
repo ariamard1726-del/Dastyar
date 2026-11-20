@@ -1,5 +1,20 @@
-commit: 08c6289
-🎉 325 tests passed.
+commit: a15d08c
+::error::331 tests passed, 2 failed.
+::group::❌ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه (failed)
+   Expected: contains 'ماده ۵۰۳ قانون مدنی'
+   Actual: 'خب، برویم سراغ این موضوع تازه.\n'
+   '\n'
+   'قاعدهٔ اصلی این است: هر کس در ملک خودش آزاد است، اما نه تا جایی که به همسایه ضرر بزند؛ تصرفی که مایهٔ آزار همسایه شود فقط در حدّ متعارف و برای رفع نیاز مجاز است (ماده ۱۳۲ قانون مدنی). اگر هم خسارتی وارد شود، واردکننده مسئول جبران آن است (ماده ۱ قانون مسئولیت مدنی).\n'
+   '\n'
+   'مشکل دقیقاً چیست؟ سروصدا، خسارت (مثل نشتی آب)، پارکینگ و مشاعات، یا چیز دیگر؟'
+   Which: does not contain 'ماده ۵۰۳ قانون مدنی'
+   test/advocate/rent_test.dart 392:7                  main.<fn>.<fn>
+::group::❌ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد (failed)
+   Expected: contains 'کنار گذاشتم'
+   Actual: 'منظورتان از «نمی خواهم این بحث را ادامه…» چیست؟ کمی بیشتر توضیح می‌دهید؟'
+   Which: does not contain 'کنار گذاشتم'
+   test/advocate/conversation_control_test.dart 51:7   main.<fn>
+   ::endgroup::
 --- analyze ---
-1 issue found. (ran in 10.3s)
+1 issue found. (ran in 12.2s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
