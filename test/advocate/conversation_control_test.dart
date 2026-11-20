@@ -82,4 +82,24 @@ void main() {
     final r = a.respond('خاله ام عمه ام را هم دیروز یک جوری دیدم و گفتم');
     expect(r.text, isNot(contains('هر مدرکی که نشان می‌دهد')));
   });
+  test('قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید', () {
+    final a = fresh();
+    final r = a.respond('من با یک شرکت خارجی که در ایران شعبه ندارد یک قرارداد مشاوره منعقد کرده‌ام و بر سر تفسیر یکی از بندها اختلاف داریم');
+    expect(a.file.topic, 'foreign_contract');
+    expect(r.text, contains('ماده ۹۶۸'));
+    expect(r.text, contains('داوری تجاری بین‌المللی'));
+  });
+
+  test('«نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد', () {
+    final a = fresh();
+    expect(a.respond('نفهمی').text, contains('کدام بخشش'));
+    final b = fresh();
+    expect(b.respond('نفهمیدم چی شد').text, isNot(contains('کدام بخشش')));
+  });
+
+  test('«خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد', () {
+    final a = fresh();
+    final r = a.respond('خیلی خلی');
+    expect(r.text, contains('می‌فهمم'));
+  });
 }
