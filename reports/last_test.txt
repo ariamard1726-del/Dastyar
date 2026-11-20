@@ -1,5 +1,144 @@
-commit: 7e3e813
-🎉 325 tests passed.
+commit: a1cd5b8
+::error::157 tests passed, 14 failed.
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+   Failed to load "test/audit/conversation_audit_test.dart":
+   Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/advocate_test.dart (failed)
+   Failed to load "test/advocate/advocate_test.dart":
+   Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
+   Failed to load "test/advocate/intent_scenarios_test.dart":
+   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/rent_test.dart (failed)
+   Failed to load "test/advocate/rent_test.dart":
+   Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/intent_map_test.dart (failed)
+   Failed to load "test/advocate/intent_map_test.dart":
+   Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/intent_hint_test.dart (failed)
+   Failed to load "test/advocate/intent_hint_test.dart":
+   Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/advocate/reasoner_test.dart (failed)
+   Failed to load "test/advocate/reasoner_test.dart":
+   Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/domain/input_suggestions_test.dart (failed)
+   Failed to load "test/domain/input_suggestions_test.dart":
+   Compilation failed for testPath=test/domain/input_suggestions_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+::group::❌ loading test/domain/lawyer_voice_test.dart (failed)
+   Failed to load "test/domain/lawyer_voice_test.dart":
+   Compilation failed for testPath=test/domain/lawyer_voice_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
+   ::endgroup::
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+::group::❌ loading test/understanding/guess_flow_test.dart (failed)
+   Failed to load "test/understanding/guess_flow_test.dart":
+   Compilation failed for testPath=test/understanding/guess_flow_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+   Try adding a backslash (\) to escape the '$'.
+   'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+   ^
+   .
 --- analyze ---
-1 issue found. (ran in 9.6s)
+2 issues found. (ran in 13.6s)
+  error • Expected an identifier • lib/domain/advocate/topics/minor_sale.dart:17:39 • missing_identifier
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
