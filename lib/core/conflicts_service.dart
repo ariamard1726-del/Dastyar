@@ -1,22 +1,6 @@
-import 'dart:convert';
-
-import 'package:flutter/services.dart' show rootBundle;
-
 /// سرویس مدیریت زنجیرهٔ تضادها و ارجاعات متقابل مواد قانونی.
+/// داده‌ها (relationships.json) را موتور می‌خواند و به این سرویس می‌دهد.
 class ConflictsService {
-  /// کش داده‌ها برای جلوگیری از خواندن مکرر فایل.
-  Map<String, dynamic>? _cache;
-
-  /// خواندن relationships.json از assets و کش کردن.
-  Future<Map<String, dynamic>> loadData() async {
-    final cached = _cache;
-    if (cached != null) return cached;
-    final raw = await rootBundle.loadString('assets/relationships.json');
-    final decoded = json.decode(raw) as Map<String, dynamic>;
-    _cache = decoded;
-    return decoded;
-  }
-
   /// زنجیرهٔ تضادها را از یک ماده به‌صورت بازگشتی برمی‌گرداند.
   /// - با محافظت در برابر حلقه (cycle) با پارامتر [path]
   /// - با سقف عمق پیمایش [maxDepth] برای جلوگیری از سرریز پشته

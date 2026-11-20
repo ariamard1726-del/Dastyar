@@ -263,14 +263,4 @@ class IntentNet {
       for (final i in idx.take(k)) IntentScore(labels[i], p[i]),
     ];
   }
-
-  /// احتمال تجمعی برچسب‌های یک گروه (مثلاً حوزه‌های مشاوره).
-  double groupScore(String text, Set<String> group) {
-    final p = probabilities(text);
-    var s = 0.0;
-    for (var i = 0; i < labels.length; i++) {
-      if (group.contains(labels[i])) s += p[i];
-    }
-    return s;
-  }
 }

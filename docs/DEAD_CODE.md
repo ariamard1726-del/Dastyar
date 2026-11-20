@@ -50,3 +50,26 @@
 - `android/**`: توسط Gradle و Flutter مصرف می‌شوند.
 - `raw/*.txt`: متن خام منابع قانونی؛ `docs/LAW_SOURCES.md` به آن‌ها ارجاع می‌دهد.
 - `test/lab/probe.txt`، `reports/lab/`، `brain/eval/debug_queries.txt`: ورودی گردش‌کارهای آزمایشگاه و آزمون رتبه‌بندی.
+
+## ۵. ممیزی دوم (نوامبر ۲۰۲۶)
+
+روش: گراف واردات از `lib/main.dart` (همهٔ فایل‌های `lib/` از آن قابل دسترس‌اند، پس فایل مرده‌ای نمانده)، شمارش ارجاع هر نماد سطح بالا در `lib/`، `test/` و `tool/`، و جست‌وجوی نام هر فایل غیر-Dart در کل مخزن.
+
+### حذف‌شده
+| مورد | شواهد |
+|---|---|
+| `ConflictsService.loadData()` و کش `_cache` در `lib/core/conflicts_service.dart` | موتور `relationships.json` را خودش می‌خواند و به سرویس می‌دهد؛ این متد هیچ‌جا صدا زده نمی‌شد. |
+| `ReplyBank.setOverrides(Map<String,String>)` در `lib/core/replies.dart` | پوشانندهٔ «سازگاری با فراخوان‌های قدیمی»؛ فراخوانی نداشت. `setOverridesRaw` در موتور استفاده می‌شود. |
+| `PersianText.stemIndex` و `PersianText.stemQuery` در `lib/core/persian_text.dart` | پوشانندهٔ عمومی؛ فقط نسخهٔ خصوصی `_stemIndex` و `_stem` داخل همان فایل استفاده می‌شوند. |
+| `IntentNet.groupScore` در `lib/domain/intent_net.dart` | هیچ‌جا صدا زده نمی‌شد. |
+
+### نگه‌داشته‌شده (عمداً)
+| مورد | دلیل |
+|---|---|
+| `tools/holdout_intent.py` و `brain/reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
+| `tests/python/test_intent_map.py`، `tests/python/test_law_registry.py` | `python -m unittest discover -s tests/python` در گردش‌کار `gemini-agent` همهٔ `test_*.py` را اجرا می‌کند؛ بی‌ارجاع نامی، ولی زنده‌اند. |
+| `raw/*.txt` | همان دلیل بخش ۴. |
+
+### نکتهٔ معماری (تغییر داده نشد)
+- لایه‌بندی درست است: `core/` و `domain/` هیچ‌جا `ui/` یا `core/` را از `domain/` وارد نمی‌کنند؛ `ui/` فقط به `core/` و `domain/` وابسته است.
+- `lib/domain/settings.dart` `material.dart` را وارد می‌کند (برای مدل تنظیمات). اگر لازم شد، می‌شود مدل را از Flutter جدا کرد.

@@ -47,10 +47,6 @@ class Replies {
     _over = out;
   }
 
-  /// سازگاری با فراخوان‌های قدیمی: فقط رشته‌ها.
-  void setOverrides(Map<String, String> m) =>
-      setOverridesRaw(Map<String, dynamic>.of(m));
-
   bool has(String key) => _over.containsKey(key) || defaults.containsKey(key);
 
   /// همهٔ قالب‌های یک کلید (دست‌کم یکی).
