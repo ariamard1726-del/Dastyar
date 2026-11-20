@@ -1,1 +1,15 @@
-🎉 325 tests passed.
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/drafting/pending_offer_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/understanding/guess_flow_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/intent_map_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/intent_scenarios_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/reasoner_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/intent_hint_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/domain/lawyer_voice_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/domain/input_suggestions_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/audit/conversation_audit_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/app/draft_checkpoint_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/app/chat_bubbles_test.dart (failed)
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/app/chat_controller_test.dart (failed)
+::error::157 tests passed, 14 failed.
