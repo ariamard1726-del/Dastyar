@@ -536,7 +536,7 @@ class Advocate {
             : _fromGuess(usable, raw, n, scores);
         if (r != null) return r;
       }
-      if (_vague(n)) return _intake();
+      if (_vague(n)) return _intake(raw);
       return _lookup(raw, n);
     }
 

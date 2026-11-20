@@ -83,10 +83,7 @@ extension _Guides on Advocate {
       );
     }
     if (Sense.words(n) < 2 || !Sense.has(n, '[\u0600-\u06FF]{2}')) {
-      return _out(
-        'این را متوجه نشدم.',
-        ask: 'می‌شود با یکی دو جمله بگویید چه اتفاقی افتاده؟',
-      );
+      return _out(_unclearText(raw));
     }
     return _curious(raw, n);
   }
