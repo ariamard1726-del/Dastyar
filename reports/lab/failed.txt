@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد (failed)
-::error::341 tests passed, 1 failed.
+🎉 342 tests passed.
