@@ -4,6 +4,11 @@
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::62 از 62 سناریو درست است
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
@@ -11,11 +16,6 @@
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::62 از 62 سناریو درست است
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
@@ -69,29 +69,29 @@
 ✅ test/advocate/advocate_test.dart: هیچ‌وقت بی‌جواب نمی‌ماند و حرف نامفهوم را صادقانه می‌گوید
 ✅ test/advocate/advocate_test.dart: بازسازی حافظه از پیام‌های قبلی همان پرونده را می‌سازد
 ✅ test/advocate/advocate_test.dart: موجر را با مستأجر اشتباه نمی‌گیرد و «آره» را به پرسش درست می‌دهد
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/advocate_test.dart: واژه‌های شبیه هم گمراهش نمی‌کند (خونه≠نه، صیادیه≠دیه، خرجش≠هزینه)
 ✅ test/advocate/advocate_test.dart: شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
-✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
-✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
-✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
+✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
+✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
 ✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
-✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
-✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
-✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
-✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
 ✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
 ✅ test/advocate/reasoner_test.dart: گفتگو «سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل
 ✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
+✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده
+✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
 ✅ test/advocate/reasoner_test.dart: گفتگو بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
-✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
-✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
+✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
 ✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
@@ -99,16 +99,7 @@
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید
-::endgroup::
-::group::❌ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد (failed)
-Expected: a string ending with '؟'
-  Actual: 'منظورت از «یه نفر وسایلمو از انباری برده…» چیست؟ بیشتر توضیح بده.'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/advocate_test.dart 582:7              main.<fn>.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
@@ -127,4 +118,4 @@ test/advocate/advocate_test.dart 582:7              main.<fn>.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::107 tests passed, 1 failed.
+🎉 108 tests passed.
