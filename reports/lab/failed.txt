@@ -1,1 +1,2 @@
-🎉 325 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد (failed)
+::error::324 tests passed, 1 failed.
