@@ -1,5 +1,13 @@
-commit: 9d2bb4f
-🎉 339 tests passed.
+commit: bc8ea7d
+::error::341 tests passed, 1 failed.
+::group::❌ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد (failed)
+   Expected: contains 'قانون انتشار و دسترسی آزاد به اطلاعات'
+   Actual: 'گفتید «یک مسئول دولتی از دادن اطلاعات یک پروژه عمرانی خودداری کرده…».\n'
+   '\n'
+   'این از کِی پیش آمده و تا حالا برایش چه کرده‌اید؟'
+   Which: does not contain 'قانون انتشار و دسترسی آزاد به اطلاعات'
+   test/advocate/conversation_control_test.dart 108:5  main.<fn>
+   ::endgroup::
 --- analyze ---
-1 issue found. (ran in 11.5s)
+1 issue found. (ran in 10.0s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
