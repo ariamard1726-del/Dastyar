@@ -22,7 +22,19 @@
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+::endgroup::
+::group::❌ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود (failed)
+Expected: contains 'نیاز شخصی'
+  Actual: 'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.\n'
+            '\n'
+            'الان کسی در خطر است؟'
+   Which: does not contain 'نیاز شخصی'
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/rent_test.dart 370:7                  main.<fn>.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
@@ -46,6 +58,9 @@
 ✅ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «انصراف از ضمانت» در جملهٔ بلند خروج نیست
 ✅ test/advocate/conversation_control_test.dart: ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود
+✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
+✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
+✅ test/advocate/conversation_control_test.dart: جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
 ✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
@@ -75,38 +90,58 @@
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
 ✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
-✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
+::endgroup::
+::group::❌ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد (failed)
+Expected: contains 'این یک موضوع جداست'
+  Actual: ['موضوع تازه‌ای دارم']
+   Which: does not contain 'این یک موضوع جداست'
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/advocate_test.dart 475:5              main.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بقیهٔ حرف فقط وقتی می‌آید که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
-✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
-✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
-✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
-✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
-✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
-✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
-✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
-✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
-✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ✅ test/advocate/reasoner_test.dart: ادعاهای بی‌نام جایگزین هم‌اند: در موضوع‌های دیگر فقط یکی سنجیده می‌شود
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها اخراج بدون اخطار، بدون امضا، وسط قرارداد: محکم
+::endgroup::
+::group::❌ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود (failed)
+Expected: contains 'q:goal'
+  Actual: Set:[]
+   Which: does not contain 'q:goal'
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/advocate_test.dart 622:7              main.<fn>.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها تمام‌شدن مدت قرارداد اخراج نیست
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها امضای استعفا ادعای اخراج را سست می‌کند ولی سنوات را نه
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها تا وقتی سر کار است سنوات قابل‌مطالبه نیست
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها بدون قرارداد و بیمه، شاهد رابطهٔ کاری را ثابت می‌کند
+✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها «نمی‌دانم» شرط را نامعلوم نگه می‌دارد، نه برقرار و نه رد
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها هر شرط دست‌کم یک مادهٔ قانون را نشان می‌دهد یا دلیلش را می‌گوید
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی پیش از هر چیز می‌پرسد چه اتفاقی افتاده
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی در اخراج، اول اثبات رابطهٔ کاری و بعد شرط‌های خودِ اخراج
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی وقتی قرارداد نیست سراغ بیمه و بعد شاهد می‌رود
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
@@ -125,4 +160,4 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ::endgroup::
 
-🎉 116 tests passed.
+::error::116 tests passed, 3 failed.

@@ -1,1 +1,4 @@
-🎉 333 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود (failed)
+::error::333 tests passed, 3 failed.
