@@ -1,11 +1,11 @@
 
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/advocate_test.dart (failed)
 Failed to load "test/advocate/advocate_test.dart":
-Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
@@ -32,13 +32,13 @@ dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
 dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
 dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
 ::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
 Failed to load "test/advocate/intent_scenarios_test.dart":
-Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
@@ -65,13 +65,13 @@ dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
 dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
 dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
 ::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/rent_test.dart (failed)
 Failed to load "test/advocate/rent_test.dart":
-Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
@@ -98,13 +98,13 @@ dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
 dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
 dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
 ::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/intent_map_test.dart (failed)
 Failed to load "test/advocate/intent_map_test.dart":
-Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
@@ -131,13 +131,13 @@ dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
 dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
 dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
 ::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/intent_hint_test.dart (failed)
 Failed to load "test/advocate/intent_hint_test.dart":
-Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
@@ -164,13 +164,13 @@ dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
 dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
 dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
 ::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 ::group::❌ loading test/advocate/reasoner_test.dart (failed)
 Failed to load "test/advocate/reasoner_test.dart":
-Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/topics/minor_sale.dart:18:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
