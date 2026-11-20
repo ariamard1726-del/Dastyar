@@ -386,7 +386,7 @@ extension _Talk on Advocate {
     }
     _unclearPhrase = _quoteWords(raw);
     _unclearTurn = file.turns;
-    return 'منظورت از «$_unclearPhrase» چیست؟ بیشتر توضیح بده.';
+    return 'منظورتان از «$_unclearPhrase» چیست؟ کمی بیشتر توضیح می‌دهید؟';
   }
 }
 
