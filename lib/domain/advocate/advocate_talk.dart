@@ -54,6 +54,9 @@ extension _Talk on Advocate {
   static const String _hopelessPattern =
       'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی';
 
+  /// توهین‌های کوتاهی که پاسخ آرام می‌خواهند (در `_meta`).
+  static const String _rudePattern = 'فهم نداری|بی ?[ ‌]?ارزش|بی فهم';
+
   /// همدلی برای ناامیدی وقتی هیچ موضوعی باز نیست.
   AdvocateReply? _hopeless(String n) {
     if (Sense.words(n) > 10 || !Sense.has(n, _hopelessPattern)) return null;
@@ -66,6 +69,15 @@ extension _Talk on Advocate {
 
   AdvocateReply? _meta(String n, Topic? topic) {
     final w = Sense.words(n);
+    // توهین کوتاه («فهم نداری»، «بی ارزش»): پاسخ آرام؛ نه پرسش سنگین و نه
+    // نقشهٔ راه، و موضوع باز هم حفظ می‌شود.
+    if (w <= 5 && Sense.has(n, _rudePattern)) {
+      return _out(
+        'ناراحت شدنتان را می‌فهمم. اگر بگویید ماجرا چیست، تا جایی که بتوانم کمک می‌کنم.',
+        ask: topic == null ? 'چه اتفاقی افتاده؟' : _askText,
+        chips: topic == null ? _idleChips() : _askChips,
+      );
+    }
     if (w <= 8 &&
         Sense.has(n,
             'تو وکیلی|شما وکیل|وکیل هستی|وکیلی ؟|کی هستی|چی هستی|رباتی|ربات هستی|هوش مصنوعی|آدم واقعی|ادم واقعی|آدمی یا|اسمت چیه')) {
