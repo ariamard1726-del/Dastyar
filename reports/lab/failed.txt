@@ -1,3 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد (failed)
-::error::331 tests passed, 2 failed.
+🎉 333 tests passed.
