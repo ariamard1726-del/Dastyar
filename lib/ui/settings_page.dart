@@ -105,6 +105,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'نوشته‌ها از اندازهٔ فونتِ خود گوشی پیروی می‌کنند؛ این گزینه‌ها آن را کمی بزرگ‌تر یا کوچک‌تر می‌کنند.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     const SizedBox(height: 10),
                     const Text('نمونهٔ نوشته: دستیار حقوقی آفلاین'),
                   ],

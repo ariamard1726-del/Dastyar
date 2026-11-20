@@ -93,9 +93,13 @@ class DastyarApp extends StatelessWidget {
           themeMode: settings.themeMode,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
+            // اندازهٔ فونت گوشی پایه است و تنظیم برنامه روی آن ضرب می‌شود؛
+            // پیش‌فرض ۱ یعنی همان اندازهٔ گوشی.
+            final system = mq.textScaler.scale(1.0);
+            final factor = (system * settings.fontScale).clamp(0.8, 2.6).toDouble();
             return MediaQuery(
               data: mq.copyWith(
-                textScaler: TextScaler.linear(settings.fontScale),
+                textScaler: TextScaler.linear(factor),
               ),
               child: child ?? const SizedBox(),
             );

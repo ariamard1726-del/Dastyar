@@ -255,6 +255,17 @@ extension _CaseFlow on Advocate {
     final wasPending = file.pending;
     final before = _standings(t);
     final news = _absorb(t, n);
+    // جملهٔ بلندِ بی‌ربط در وسط یک پرونده: به‌جای تکرار قدم‌های همان پرونده،
+    // کلمه‌های خودِ کاربر نقل و توضیح خواسته می‌شود.
+    if (news.isEmpty &&
+        !wasPending.startsWith('q:') &&
+        Sense.words(n) >= 4 &&
+        !Sense.isQuestion(n) &&
+        Sense.followKind(n).isEmpty &&
+        _matchIssue(t, n) == null &&
+        _glossary(n) == null) {
+      return _out(_unclearText(raw), chips: const [Advocate.newCaseChip]);
+    }
     _heard = '$_heard $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
     final heardGoal = wasPending != 'q:goal' &&

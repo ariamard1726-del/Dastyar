@@ -26,8 +26,13 @@ class UserMessageBubble extends StatelessWidget {
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
           decoration: BoxDecoration(
-            color: cs.secondaryContainer,
-            borderRadius: BorderRadius.circular(18),
+            color: cs.primaryContainer.withValues(alpha: dark ? 0.55 : 0.7),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+              bottomLeft: Radius.circular(18),
+              bottomRight: Radius.circular(4),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: dark ? 0.25 : 0.06),
@@ -43,14 +48,14 @@ class UserMessageBubble extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.person_outline, size: 14, color: cs.onSecondaryContainer),
+                  Icon(Icons.person_outline, size: 14, color: cs.onPrimaryContainer),
                   const SizedBox(width: 4),
                   Text(
                     'شما',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: cs.onSecondaryContainer,
+                      color: cs.onPrimaryContainer,
                     ),
                   ),
                 ],
@@ -61,7 +66,7 @@ class UserMessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.7,
-                  color: cs.onSecondaryContainer,
+                  color: cs.onPrimaryContainer,
                 ),
               ),
             ],
@@ -120,6 +125,29 @@ class _BotMessageViewState extends State<BotMessageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.balance, size: 14, color: cs.onPrimaryContainer),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'دستیار',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
             RevealText(
               message: message,
               style: const TextStyle(fontSize: 16, height: 1.9),
@@ -314,7 +342,14 @@ class ChatEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.balance, size: 40, color: cs.primary),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.balance, size: 36, color: cs.onPrimaryContainer),
+            ),
             const SizedBox(height: 16),
             const Text(
               'سلام، چه کمکی از من برمی‌آید؟',
