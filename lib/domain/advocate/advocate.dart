@@ -518,7 +518,8 @@ class Advocate {
       }
     }
 
-    final meta = _meta(n, topic);
+    // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
 
     // خشونت خانوادگی یا تماس با اورژانس: پیش از هر موضوع، امنیت آدم.
