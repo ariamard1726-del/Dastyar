@@ -4,9 +4,20 @@
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::111 از 112 سناریو درست است
+::warning title=intent-soft::  دزدی ماشین   نرم   نادرست   theft   پاسخ نباید «گفتید» داشته باشد  
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
+::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
@@ -20,21 +31,7 @@
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
-::endgroup::
-::group::❌ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
-::notice title=intent::108 از 112 سناریو درست است
-::warning title=intent-soft::  حال پرسیدن   نرم   نادرست   —   پاسخ شامل «ممنون که می‌پرسید» نیست  
-::warning title=intent-soft::  خارج از حوزه: 23   نرم   نادرست   minor_sale   پاسخ شامل «حوزهٔ کار من» نیست  
-::warning title=intent-soft::  دزدی ماشین   نرم   نادرست   theft   پاسخ نباید «گفتید» داشته باشد  
-Expected: empty
-  Actual: ['گزارش: حال‌پرسی با پاسخ چرخشی: پاسخ شامل «ممنون که می‌پرسید» نیست']
-گزارش: حال‌پرسی با پاسخ چرخشی: پاسخ شامل «ممنون که می‌پرسید» نیست
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
@@ -43,12 +40,6 @@ test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
-::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
-::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
@@ -66,25 +57,12 @@ test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
-✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
-✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
-✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
-✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
-✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
-✅ test/advocate/reasoner_test.dart: گفتگو «سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل
-✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
-✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
-✅ test/advocate/reasoner_test.dart: گفتگو وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده
 ✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
-✅ test/advocate/reasoner_test.dart: گفتگو بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود
 ✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
-✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/advocate_test.dart: خشونت خانگی به پروندهٔ خانواده می‌رود، نه کار
-✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/advocate_test.dart: متهم: «اگه نرم چی میشه؟» جواب مشخص می‌گیرد
-✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ✅ test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
 ✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
 ✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
@@ -98,12 +76,25 @@ test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
 ✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
 ✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
+✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
+✅ test/advocate/reasoner_test.dart: گفتگو «سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل
+✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده
 ✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
+✅ test/advocate/reasoner_test.dart: گفتگو بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
 ✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
+✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
+✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بقیهٔ حرف فقط وقتی می‌آید که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
@@ -128,4 +119,4 @@ test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::107 tests passed, 1 failed.
+🎉 108 tests passed.
