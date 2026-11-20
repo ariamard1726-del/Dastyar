@@ -1,5 +1,5 @@
 Analyzing Dastyar...                                            
 
-  error • Undefined name 'ScrollCacheExtent'. Try correcting the name to one that is defined, or defining the name • lib/ui/chat_page.dart:200:48 • undefined_identifier
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:201:48 • prefer_const_constructors
 
-1 issue found. (ran in 12.5s)
+1 issue found. (ran in 9.1s)
