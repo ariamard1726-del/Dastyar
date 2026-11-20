@@ -1,5 +1,25 @@
-commit: 66935a1
-🎉 333 tests passed.
+commit: 072b006
+::error::333 tests passed, 3 failed.
+::group::❌ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود (failed)
+   Expected: contains 'نیاز شخصی'
+   Actual: 'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.\n'
+   '\n'
+   'الان کسی در خطر است؟'
+   Which: does not contain 'نیاز شخصی'
+   test/advocate/rent_test.dart 370:7                  main.<fn>.<fn>
+   ::endgroup::
+::group::❌ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد (failed)
+   Expected: contains 'این یک موضوع جداست'
+   Actual: ['موضوع تازه‌ای دارم']
+   Which: does not contain 'این یک موضوع جداست'
+   test/advocate/advocate_test.dart 475:5              main.<fn>
+   ::endgroup::
+::group::❌ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود (failed)
+   Expected: contains 'q:goal'
+   Actual: Set:[]
+   Which: does not contain 'q:goal'
+   test/advocate/advocate_test.dart 622:7              main.<fn>.<fn>
+   ::endgroup::
 --- analyze ---
-1 issue found. (ran in 8.8s)
+1 issue found. (ran in 9.9s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
