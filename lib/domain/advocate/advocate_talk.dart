@@ -316,7 +316,7 @@ extension _Talk on Advocate {
         'چه چیزی شما را نگران کرده است؟',
         'امروز چه کاری می‌توانم برایتان بکنم؟',
       ];
-      final i = file.turns;
+      final i = file.turns > 0 ? file.turns - 1 : 0;
       return _out(replies[i % replies.length],
           ask: topic == null ? asks[i % asks.length] : _askText,
           chips: topic == null ? _starters() : _askChips);
