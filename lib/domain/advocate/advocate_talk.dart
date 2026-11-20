@@ -334,6 +334,13 @@ extension _Talk on Advocate {
       final top = net.classify(raw);
       if (top.score >= 0.5) area = _areas[top.label] ?? '';
     }
+    final allN = Sense.norm(all);
+    final known = who.isNotEmpty ||
+        area.isNotEmpty ||
+        Sense.has(allN, 'پول|خسارت|پس بد|برگرد|غرامت|هزینه|شکایت|مجازات|زندان|جرم');
+    // نه طرفی شناخته شد، نه موضوعی، نه نکته‌ای: به‌جای حدس یا جملهٔ ثابت،
+    // کلمه‌های خودِ کاربر را نقل می‌کنم و توضیح می‌خواهم.
+    if (!known) return _out(_unclearText(raw));
     final heard = who.isNotEmpty
         ? 'پس طرفِ ماجرا $who است.'
         : 'گفتید «${_clip(raw)}».';
@@ -352,7 +359,6 @@ extension _Talk on Advocate {
               'و خودتان الان چه می‌خواهید: مال یا پولتان برگردد، از او شکایت کنید، یا از خودتان دفاع کنید؟');
     }
     // برای ماجرایی که تحلیل آماده ندارم، دست‌کم راهِ کلی را روراست می‌گویم.
-    final allN = Sense.norm(all);
     if (Sense.has(allN, 'پول|خسارت|پس بد|برگرد|غرامت|هزینه')) {
       return _out(
         'برای این نوع ماجرا تحلیل آماده‌ای ندارم، ولی راه کلیِ پس‌گرفتن پول یا خسارت این است: اول کتبی و قابل اثبات مطالبه کنید (پیام یا اظهارنامهٔ رسمی)، و اگر نداد، دادخواست مطالبهٔ وجه یا خسارت بدهید.',
@@ -365,20 +371,32 @@ extension _Talk on Advocate {
         ask: 'چه مدرک یا شاهدی از این ماجرا دارید؟',
       );
     }
-    // پاسخ‌ها در هر نوبت عوض می‌شوند تا گفتگو تکراری به نظر نرسد.
-    const lead = [
-      'راستش برای این ماجرا هنوز تحلیل آماده‌ای ندارم و نمی‌خواهم حدسی حرف بزنم.',
-      'هنوز نمی‌توانم از این یک جمله ماجرا را تشخیص بدهم.',
-      'برای اینکه درست کمک کنم، ماجرا را کمی بیشتر توضیح بدهید.',
-    ];
-    const asks = [
-      'به کدام نزدیک‌تر است: قرارداد و پول، خانواده، کار، ملک، یا شکایت کیفری؟',
-      'طرف مقابل کیست و چه کاری کرده است؟',
-      'ماجرا از کجا شروع شد و الان وضعتان چیست؟',
-    ];
-    return _out(
-      lead[file.turns % lead.length],
-      ask: asks[file.turns % asks.length],
-    );
+    return _out(_unclearText(raw));
   }
+
+  /// پاسخ به پیامی که به هیچ نکته‌ای وصل نشد. نخست با نقل همان کلمه‌های
+  /// کاربر می‌پرسد منظورش چیست؛ اگر پس از توضیحش باز نامفهوم ماند، می‌گوید
+  /// چنین درخواستی در پایگاه داده‌اش نیست و جوابی ندارد.
+  String _unclearText(String raw) {
+    if (_unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1) {
+      final p = _unclearPhrase;
+      _unclearPhrase = '';
+      _unclearTurn = -10;
+      return 'با توجه به اینکه «$p» در پایگاه داده‌ام نیست، جوابی برایش ندارم.';
+    }
+    _unclearPhrase = _quoteWords(raw);
+    _unclearTurn = file.turns;
+    return 'منظورت از «$_unclearPhrase» چیست؟ بیشتر توضیح بده.';
+  }
+}
+
+/// نقل کوتاهِ کلمه‌های کاربر: بی‌علامت پایانی و حداکثر شش کلمه.
+String _quoteWords(String raw) {
+  final words = raw
+      .trim()
+      .replaceAll(RegExp(r'[؟?!.،,]+$'), '')
+      .trim()
+      .split(RegExp(r'\s+'));
+  final head = words.take(6).join(' ');
+  return words.length > 6 ? '$head…' : head;
 }

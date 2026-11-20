@@ -182,6 +182,11 @@ class Advocate {
   /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
   List<LawText> _lastLaws = const [];
 
+  /// پیام نامفهومِ قبلی (نقل کوتاه) و نوبتش: اگر پیام بعدی هم نامفهوم بود،
+  /// دیگر نمی‌پرسد، می‌گوید جوابی ندارد.
+  String _unclearPhrase = '';
+  int _unclearTurn = -10;
+
   static const String moreChip = 'ادامه بده';
 
   static const String lawChip = 'متن قانون را ببینم';
@@ -294,6 +299,8 @@ class Advocate {
     _rest = '';
     _offeredMore = false;
     _lastLaws = const [];
+    _unclearPhrase = '';
+    _unclearTurn = -10;
   }
 
   /// بازسازی حافظه از پیام‌های قبلی کاربر (هنگام بازکردن گفتگوی ذخیره‌شده).

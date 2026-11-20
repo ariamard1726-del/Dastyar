@@ -409,7 +409,7 @@ extension _CaseFlow on Advocate {
       _askChips = const [];
       return _out(
         parts.join('\n\n'),
-        ask: ask.isEmpty ? _pick(Say.lost) : ask,
+        ask: ask.isEmpty ? _unclearText(raw) : ask,
         chips: [if (ask.isNotEmpty) Advocate.sideChip, ..._suggest(t)],
       );
     }
