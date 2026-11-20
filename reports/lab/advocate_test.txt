@@ -3,16 +3,16 @@ lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meani
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
-::group::❌ loading test/advocate/intent_map_test.dart (failed)
-Failed to load "test/advocate/intent_map_test.dart":
-Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+::group::❌ loading test/advocate/advocate_test.dart (failed)
+Failed to load "test/advocate/advocate_test.dart":
+Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 .
 
 ::endgroup::
-::group::❌ loading test/advocate/intent_map_test.dart (failed after test completion)
+::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
 Error: The Dart compiler exited unexpectedly.
 package:flutter_tools/src/base/common.dart 34:3  throwToolExit
 package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
@@ -45,7 +45,7 @@ Try adding a backslash (\) to escape the '$'.
 .
 
 ::endgroup::
-::group::❌ loading test/advocate/intent_map_test.dart (failed after test completion)
+::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
 Error: The Dart compiler exited unexpectedly.
 package:flutter_tools/src/base/common.dart 34:3  throwToolExit
 package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
@@ -78,7 +78,7 @@ Try adding a backslash (\) to escape the '$'.
 .
 
 ::endgroup::
-::group::❌ loading test/advocate/intent_map_test.dart (failed after test completion)
+::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
 Error: The Dart compiler exited unexpectedly.
 package:flutter_tools/src/base/common.dart 34:3  throwToolExit
 package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
@@ -102,49 +102,16 @@ lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meani
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
-::group::❌ loading test/advocate/advocate_test.dart (failed)
-Failed to load "test/advocate/advocate_test.dart":
-Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+::group::❌ loading test/advocate/intent_map_test.dart (failed)
+Failed to load "test/advocate/intent_map_test.dart":
+Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
 .
 
 ::endgroup::
-::group::❌ loading test/advocate/intent_map_test.dart (failed after test completion)
-Error: The Dart compiler exited unexpectedly.
-package:flutter_tools/src/base/common.dart 34:3  throwToolExit
-package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
-dart:async/zone_root.dart 48:47                  _rootRunUnary
-dart:async/zone.dart 816:35                      _CustomZone.runUnary
-dart:async/future_impl.dart 948:45               Future._propagateToListeners.handleValueCallback
-dart:async/future_impl.dart 977:13               Future._propagateToListeners
-dart:async/future_impl.dart 862:9                Future._propagateToListeners
-dart:async/future_impl.dart 720:5                Future._completeWithValue
-dart:async/future_impl.dart 804:7                Future._asyncCompleteWithValue.<fn>
-dart:async/zone_root.dart 35:13                  _rootRun
-dart:async/zone.dart 810:35                      _CustomZone.run
-dart:async/zone.dart 702:7                       _CustomZone.runGuarded
-dart:async/zone.dart 743:23                      _CustomZone.bindCallbackGuarded.<fn>
-dart:async/schedule_microtask.dart 40:35         _microtaskLoop
-dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
-dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
-dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
-::endgroup::
-lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
-Try adding a backslash (\) to escape the '$'.
-      'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
-                                      ^
-::group::❌ loading test/advocate/reasoner_test.dart (failed)
-Failed to load "test/advocate/reasoner_test.dart":
-Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
-Try adding a backslash (\) to escape the '$'.
-      'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
-                                      ^
-.
-
-::endgroup::
-::group::❌ loading test/advocate/intent_map_test.dart (failed after test completion)
+::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
 Error: The Dart compiler exited unexpectedly.
 package:flutter_tools/src/base/common.dart 34:3  throwToolExit
 package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
@@ -171,6 +138,39 @@ Try adding a backslash (\) to escape the '$'.
 ::group::❌ loading test/advocate/intent_hint_test.dart (failed)
 Failed to load "test/advocate/intent_hint_test.dart":
 Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Try adding a backslash (\) to escape the '$'.
+      'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+                                      ^
+.
+
+::endgroup::
+::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
+Error: The Dart compiler exited unexpectedly.
+package:flutter_tools/src/base/common.dart 34:3  throwToolExit
+package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
+dart:async/zone_root.dart 48:47                  _rootRunUnary
+dart:async/zone.dart 816:35                      _CustomZone.runUnary
+dart:async/future_impl.dart 948:45               Future._propagateToListeners.handleValueCallback
+dart:async/future_impl.dart 977:13               Future._propagateToListeners
+dart:async/future_impl.dart 862:9                Future._propagateToListeners
+dart:async/future_impl.dart 720:5                Future._completeWithValue
+dart:async/future_impl.dart 804:7                Future._asyncCompleteWithValue.<fn>
+dart:async/zone_root.dart 35:13                  _rootRun
+dart:async/zone.dart 810:35                      _CustomZone.run
+dart:async/zone.dart 702:7                       _CustomZone.runGuarded
+dart:async/zone.dart 743:23                      _CustomZone.bindCallbackGuarded.<fn>
+dart:async/schedule_microtask.dart 40:35         _microtaskLoop
+dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
+dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
+dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
+::endgroup::
+lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
+Try adding a backslash (\) to escape the '$'.
+      'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
+                                      ^
+::group::❌ loading test/advocate/reasoner_test.dart (failed)
+Failed to load "test/advocate/reasoner_test.dart":
+Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/topics/minor_sale.dart:17:39: Error: A '$' has special meaning inside a string, and must be followed by an identifier or an expression in curly braces ({}).
 Try adding a backslash (\) to escape the '$'.
       'بانک|اجاره|کرایه|ضمانت|چک(?: |$)|طلاق|مهریه|ارث|حضانت|شرکت|سرقت|دزد|کلاهبرداری|آپارتمان|ساختمان|ملک|زمین|خونه|خانه',
                                       ^
