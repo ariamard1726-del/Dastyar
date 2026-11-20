@@ -1,5 +1,5 @@
-commit: 32b11f6
+commit: 7e3e813
 🎉 325 tests passed.
 --- analyze ---
-1 issue found. (ran in 10.0s)
+1 issue found. (ran in 9.6s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
