@@ -262,6 +262,9 @@ extension _CaseFlow on Advocate {
         Sense.words(n) >= 4 &&
         !Sense.isQuestion(n) &&
         Sense.followKind(n).isEmpty &&
+        Advocate.topicOf(raw) == null &&
+        !Sense.has(n, _goalSaid) &&
+        !Sense.has(n, _replySaid) &&
         _matchIssue(t, n) == null &&
         _glossary(n) == null) {
       return _out(_unclearText(raw), chips: const [Advocate.newCaseChip]);
