@@ -303,9 +303,22 @@ extension _Talk on Advocate {
         chips: topic == null ? _starters() : _askChips,
       );
     }
-    if (Sense.has(n, 'خوبی|چطوری|حالت چطوره|چه خبر')) {
-      return _out('ممنون که می‌پرسید؛ من آماده‌ام.',
-          ask: topic == null ? 'چه کمکی از دستم برمی‌آید؟' : _askText,
+    if (Sense.has(n,
+        'خوبی|خوبید|چطوری|چطورید|حالت چطوره|حالتون چطوره|حال ?و ?احوال|چه خبر|خوب هستی|خوبین')) {
+      // چرخش: هر نوبت جملهٔ دیگری، تا گفتگو تکراری به نظر نرسد.
+      const replies = [
+        'ممنون که می‌پرسید؛ من آماده‌ام.',
+        'مرسی، خوبم. شما چطورید؟',
+        'ممنون، سرحالم. اگر ماجرایی دارید، بگویید.',
+      ];
+      const asks = [
+        'چه کمکی از دستم برمی‌آید؟',
+        'چه چیزی شما را نگران کرده است؟',
+        'امروز چه کاری می‌توانم برایتان بکنم؟',
+      ];
+      final i = file.turns;
+      return _out(replies[i % replies.length],
+          ask: topic == null ? asks[i % asks.length] : _askText,
           chips: topic == null ? _starters() : _askChips);
     }
     return null;

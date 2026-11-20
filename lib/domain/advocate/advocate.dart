@@ -229,6 +229,17 @@ class Advocate {
   /// همهٔ موضوع‌ها (فهرست در `topics/all.dart`).
   static final List<Topic> topics = allTopics;
 
+  /// نشانه‌های اصلاحِ موضوع توسط کاربر.
+  static const String _correctionPattern =
+      'صحبت نکرد[هم]|صحبت نکرده ?(?:ام|م)|اصلا در مورد|اصلاً در مورد|اصلا از|اصلاً از|منظورم این نبود|حرفم این نبود|در مورد .* نبود|ربطی به .* ندار';
+
+  /// بخشی از پیام که بعد از آخرین نشانهٔ «در مورد/بلکه/منظورم/ماجرا» می‌آید.
+  static String _afterCorrection(String n) {
+    final ms = RegExp(r'(?:در مورد|بلکه|منظورم|ماجرا) ').allMatches(n).toList();
+    if (ms.isEmpty) return '';
+    return n.substring(ms.last.end).trim();
+  }
+
   static const List<String> starterChips = [
     'صاحبخانه پول پیشم را نمی‌دهد',
     'کارفرما اخراجم کرده',
@@ -465,6 +476,31 @@ class Advocate {
 
     final meta = _meta(n, topic);
     if (meta != null) return meta;
+
+    // اصلاحِ کاربر («من اصلا در مورد طلاق صحبت نکردم، در مورد دستبرد بود»):
+    // موضوعِ قبلی رها می‌شود و فقط بخشِ اصلاح‌شده سنجیده می‌شود.
+    if (topic != null &&
+        Sense.words(n) <= 40 &&
+        Sense.has(n, _correctionPattern)) {
+      final fixed = _afterCorrection(n);
+      Topic? nb;
+      var ns = 0;
+      for (final t in topics) {
+        final s = fixed.isEmpty ? 0 : _score(t, fixed);
+        if (s > ns) {
+          nb = t;
+          ns = s;
+        }
+      }
+      _closeCase();
+      _loose.clear();
+      if (nb != null && ns >= 3) return _open(nb, fixed);
+      return _out(
+        'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
+        ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
+        chips: _starters(),
+      );
+    }
 
     if (topic == null) {
       if (best != null && bestScore >= 3) {

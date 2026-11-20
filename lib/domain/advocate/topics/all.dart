@@ -20,6 +20,8 @@ import 'package:dastyar/domain/advocate/topics/neighbor.dart';
 import 'package:dastyar/domain/advocate/topics/partner.dart';
 import 'package:dastyar/domain/advocate/topics/property.dart';
 import 'package:dastyar/domain/advocate/topics/rent.dart';
+import 'package:dastyar/domain/advocate/topics/theft.dart';
+import 'package:dastyar/domain/advocate/topics/minor_sale.dart';
 
 final List<Topic> allTopics = [
   accusedTopic,
@@ -41,4 +43,6 @@ final List<Topic> allTopics = [
   companyTopic,
   childTopic,
   marriageTopic,
+  theftTopic,
+  minorSaleTopic,
 ];
