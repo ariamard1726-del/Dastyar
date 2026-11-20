@@ -1,14 +1,5 @@
-commit: d0d8f2f
-::error::324 tests passed, 1 failed.
-::group::❌ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
-   ::notice title=intent::108 از 112 سناریو درست است
-   ::warning title=intent-soft::  حال پرسیدن   نرم   نادرست   —   پاسخ شامل «ممنون که می‌پرسید» نیست
-   ::warning title=intent-soft::  خارج از حوزه: 23   نرم   نادرست   minor_sale   پاسخ شامل «حوزهٔ کار من» نیست
-   ::warning title=intent-soft::  دزدی ماشین   نرم   نادرست   theft   پاسخ نباید «گفتید» داشته باشد
-   Expected: empty
-   Actual: ['گزارش: حال‌پرسی با پاسخ چرخشی: پاسخ شامل «ممنون که می‌پرسید» نیست']
-   گزارش: حال‌پرسی با پاسخ چرخشی: پاسخ شامل «ممنون که می‌پرسید» نیست
-   test/advocate/intent_scenarios_test.dart 489:5      main.<fn>
+commit: 08c6289
+🎉 325 tests passed.
 --- analyze ---
-1 issue found. (ran in 10.1s)
+1 issue found. (ran in 10.3s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
