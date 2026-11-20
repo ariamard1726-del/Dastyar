@@ -191,18 +191,17 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: msgs.isEmpty
                       ? const ChatEmptyState()
-                      : ListView.builder(
-                          controller: _scroll,
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                          itemCount: msgs.length + 1,
-                          itemBuilder: (context, i) {
-                            if (i == msgs.length) {
-                              return ConversationCopyPanel(
-                                messages: msgs,
-                                onCopy: (t) => _copy(t),
-                              );
-                            }
-                            final m = msgs[i];
+                      // نگه‌داشتن انگشت روی متن، منوی «انتخاب همه» و «کپی» را
+                      // می‌دهد. cacheExtent بزرگ باعث می‌شود همهٔ پیام‌ها
+                      // ساخته شوند تا «انتخاب همه» کل گفتگو را بگیرد.
+                      : SelectionArea(
+                          child: ListView.builder(
+                            controller: _scroll,
+                            cacheExtent: 1e6,
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                            itemCount: msgs.length,
+                            itemBuilder: (context, i) {
+                              final m = msgs[i];
                             if (m.fromUser) {
                               return UserMessageBubble(message: m);
                             }
@@ -228,6 +227,7 @@ class _ChatPageState extends State<ChatPage> {
                               },
                             );
                           },
+                          ),
                         ),
                 ),
                 if (_chat.thinking)

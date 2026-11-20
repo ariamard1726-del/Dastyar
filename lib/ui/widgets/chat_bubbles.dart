@@ -72,62 +72,6 @@ class UserMessageBubble extends StatelessWidget {
   }
 }
 
-/// کادر پایان گفتگو: یک دکمه برای کپی کل گفتگو با برچسب گوینده‌ها.
-class ConversationCopyPanel extends StatelessWidget {
-  final List<ChatMessage> messages;
-  final ValueChanged<String> onCopy;
-
-  const ConversationCopyPanel({
-    super.key,
-    required this.messages,
-    required this.onCopy,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final count = messages.where((m) => m.text.trim().isNotEmpty).length;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.forum_outlined, color: cs.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'پایان گفتگو',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurface,
-                  ),
-                ),
-                Text(
-                  '$count پیام',
-                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
-          FilledButton.tonalIcon(
-            onPressed: () => onCopy(conversationTranscript(messages)),
-            icon: const Icon(Icons.copy_all_outlined, size: 18),
-            label: const Text('کپی کل گفتگو'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class BotMessageView extends StatefulWidget {
   final ChatMessage message;
   final String question;
