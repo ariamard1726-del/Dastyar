@@ -583,7 +583,8 @@ class _RevealTextState extends State<RevealText>
         animation: _anim,
         builder: (context, _) => _thinking
             ? const TypingDots()
-            : Text('${_visible()} ●', style: widget.style),
+            // SelectableText تا در حین نمایش هم بشود متن را با نگه‌داشتن کپی کرد.
+            : SelectableText('${_visible()} ●', style: widget.style),
       ),
     );
   }

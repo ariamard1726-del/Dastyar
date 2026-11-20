@@ -111,7 +111,9 @@ class ChatController extends ChangeNotifier {
       m.chips = const [];
     }
     if (_draft != null) {
-      _draftStep(text);
+      // «انصراف» یا «می‌خواهم از این بحث بیرون بیایم» در فرم هم کار کند؛
+      // وگرنه کاربر در فرم گیر می‌افتد.
+      _draftStep(Drafting.isLeave(text) ? DraftCmd.cancel : text);
       return;
     }
     if (_draftRequest(text)) return;
