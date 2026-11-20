@@ -1,5 +1,10 @@
-commit: a3fdccf
-🎉 325 tests passed.
+commit: a9d7219
+::error::324 tests passed, 1 failed.
+::group::❌ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد (failed)
+   Expected: a string ending with '؟'
+   Actual: 'منظورت از «یه نفر وسایلمو از انباری برده…» چیست؟ بیشتر توضیح بده.'
+   test/advocate/advocate_test.dart 582:7              main.<fn>.<fn>
+   ::endgroup::
 --- analyze ---
-1 issue found. (ran in 8.6s)
+1 issue found. (ran in 12.2s)
    info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
