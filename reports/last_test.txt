@@ -1,5 +1,5 @@
-commit: d82419a
+commit: fb5c13a
 🎉 342 tests passed.
 --- analyze ---
-1 issue found. (ran in 12.5s)
+1 issue found. (ran in 9.3s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:201:48 • prefer_const_constructors
