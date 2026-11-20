@@ -1,5 +1,5 @@
 Analyzing Dastyar...                                            
 
-   info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/chat_page.dart:200:29 • deprecated_membe
+  error • Undefined name 'ScrollCacheExtent'. Try correcting the name to one that is defined, or defining the name • lib/ui/chat_page.dart:200:48 • undefined_identifier
 
-1 issue found. (ran in 12.2s)
+1 issue found. (ran in 12.5s)
