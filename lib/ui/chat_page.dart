@@ -197,7 +197,7 @@ class _ChatPageState extends State<ChatPage> {
                       : SelectionArea(
                           child: ListView.builder(
                             controller: _scroll,
-                            cacheExtent: 1e6,
+                            scrollCacheExtent: ScrollCacheExtent.pixels(1e6),
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             itemCount: msgs.length,
                             itemBuilder: (context, i) {

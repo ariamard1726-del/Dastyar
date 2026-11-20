@@ -359,7 +359,9 @@ extension _CaseFlow on Advocate {
     }
     // جوابِ پرسشِ بازِ خودم (طرف چه گفته؟ دنبال چه هستید؟) را بی‌واکنش
     // نمی‌گذارم.
-    if (wasPending.startsWith('q:') && parts.isEmpty) {
+    // «ادامه بده» جواب پرسش نیست؛ نباید به‌عنوان جواب، «خوب شد گفتید» بگیرد.
+    final isMore = Sense.has(n, ' (?:ادامه|بقیه)(?: |\$)');
+    if (wasPending.startsWith('q:') && parts.isEmpty && !isMore) {
       if (news.isEmpty) {
         final soc = _social(n, t);
         if (soc != null) return soc;
