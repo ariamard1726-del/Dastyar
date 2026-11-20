@@ -1,5 +1,5 @@
-commit: f90aaf1
+commit: e41d9ef
 🎉 342 tests passed.
 --- analyze ---
-1 issue found. (ran in 11.6s)
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:201:48 • prefer_const_constructors
+1 issue found. (ran in 8.5s)
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
