@@ -358,7 +358,7 @@ class ChatEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'وکیل و مشاور حقوقی آفلاین (بدون نیاز به اینترنت یا مدل هوش مصنوعی). مشکل خود را شرح دهید تا با پرسش‌وپاسخ منطقی بررسی کنیم و در صورت نیاز دادخواست، لایحه یا شکوائیه برایتان تنظیم کنم.',
+              'وکیل و مشاور حقوقی آفلاین (بدون نیاز به اینترنت). مشکل خود را شرح دهید تا با پرسش‌وپاسخ منطقی بررسی کنیم و در صورت نیاز دادخواست، لایحه یا شکوائیه برایتان تنظیم کنم.',
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, height: 1.7),
             ),
@@ -698,11 +698,15 @@ class ChatInputBar extends StatelessWidget {
   final bool isDrafting;
   final VoidCallback onSend;
 
+  /// کپی کل گفتگو؛ `null` یعنی هنوز پیامی نیست و دکمه نشان داده نمی‌شود.
+  final VoidCallback? onCopyAll;
+
   const ChatInputBar({
     super.key,
     required this.controller,
     required this.isDrafting,
     required this.onSend,
+    this.onCopyAll,
   });
 
   @override
@@ -736,6 +740,21 @@ class ChatInputBar extends StatelessWidget {
                 ),
               ),
             ),
+            if (onCopyAll != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(bottom: 2, start: 4),
+                child: SizedBox(
+                  width: 34,
+                  height: 34,
+                  child: IconButton.filledTonal(
+                    tooltip: 'کپی کل گفتگو',
+                    onPressed: onCopyAll,
+                    padding: EdgeInsets.zero,
+                    iconSize: 18,
+                    icon: const Icon(Icons.copy_all_outlined),
+                  ),
+                ),
+              ),
             IconButton.filled(
               tooltip: 'ارسال پیام',
               onPressed: onSend,

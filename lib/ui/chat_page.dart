@@ -150,6 +150,16 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  Future<void> _copyAll() async {
+    final text = _chat.transcript();
+    if (text.isEmpty) return;
+    await PrivacyService.copyText(text, sensitive: _chat.hasSensitive);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('کل گفتگو کپی شد')),
+    );
+  }
+
   Future<void> _share(String text, {String? subject}) async {
     try {
       await Share.share(text, subject: subject);
@@ -257,6 +267,7 @@ class _ChatPageState extends State<ChatPage> {
                   controller: _ctrl,
                   isDrafting: _chat.isDrafting,
                   onSend: _submit,
+                  onCopyAll: msgs.isEmpty ? null : _copyAll,
                 ),
               ],
             ),

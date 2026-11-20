@@ -41,6 +41,22 @@ class ChatController extends ChangeNotifier {
   Future<void> _queue = Future<void>.value();
 
   final List<ChatMessage> messages = [];
+
+  /// کل گفتگو به‌صورت متن ساده، برای کپی یک‌جا.
+  String transcript() {
+    final sb = StringBuffer();
+    for (final m in messages) {
+      final body = m.text.trim();
+      if (body.isEmpty) continue;
+      sb.writeln(m.fromUser ? 'شما:' : 'دستیار:');
+      sb.writeln(body);
+      sb.writeln();
+    }
+    return sb.toString().trim();
+  }
+
+  /// اگر در گفتگو پیام حساس (مثلاً متن سند) باشد، کپی هم حساس می‌شود.
+  bool get hasSensitive => messages.any((m) => m.sensitive);
   String _sessionId = _newId();
   DraftSession? _draft;
   bool _disposed = false;
