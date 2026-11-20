@@ -1,5 +1,18 @@
-commit: 3e9ffad
-🎉 342 tests passed.
+commit: 1a111a4
+::error::337 tests passed, 1 failed.
+::group::❌ loading test/drafting/pending_offer_test.dart (failed)
+   Failed to load "test/drafting/pending_offer_test.dart":
+   Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/ui/chat_page.dart:200:48: Error: The getter 'ScrollCacheExtent' isn't defined for the type '_ChatPageState'.
+   - '_ChatPageState' is from 'package:dastyar/ui/chat_page.dart' ('lib/ui/chat_page.dart').
+   Try correcting the name to the name of an existing getter, or defining a getter or field named 'ScrollCacheExtent'.
+   scrollCacheExtent: ScrollCacheExtent.pixels(1e6),
+   ^^^^^^^^^^^^^^^^^
+   .
+   ::endgroup::
+--- خطای کامپایل ---
+lib/ui/chat_page.dart:200:48: Error: The getter 'ScrollCacheExtent' isn't defined for the type '_ChatPageState'.
+Failed to load "test/drafting/pending_offer_test.dart":
+Compilation failed for testPath=test/drafting/pending_offer_test.dart: lib/ui/chat_page.dart:200:48: Error: The getter 'ScrollCacheExtent' isn't defined for the type '_ChatPageState'.
 --- analyze ---
-1 issue found. (ran in 12.4s)
-   info • 'cacheExtent' is deprecated and shouldn't be used. Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre. Try replacing the use of the deprecated member with the r
+1 issue found. (ran in 9.9s)
+  error • Undefined name 'ScrollCacheExtent'. Try correcting the name to one that is defined, or defining the name • lib/ui/chat_page.dart:200:48 • undefined_identifier
