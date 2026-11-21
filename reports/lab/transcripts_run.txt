@@ -1,80 +1,11 @@
-    final v = options[_vary % options.length];
-                      ^^^^^
-lib/domain/advocate/advocate.dart:759:5: Error: Getter not found: '_vary'.
-    _vary++;
-    ^^^^^
-lib/domain/advocate/advocate.dart:784:19: Error: Undefined name 'engine'.
-        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
-                  ^^^^^^
-lib/domain/advocate/advocate.dart:786:16: Error: Undefined name 'unresolved'.
-          if (!unresolved.contains(key)) unresolved.add(key);
-               ^^^^^^^^^^
-lib/domain/advocate/advocate.dart:786:42: Error: Undefined name 'unresolved'.
-          if (!unresolved.contains(key)) unresolved.add(key);
-                                         ^^^^^^^^^^
-lib/domain/advocate/advocate.dart:808:5: Error: Setter not found: '_rest'.
-    _rest = '';
-    ^^^^^
-lib/domain/advocate/advocate.dart:809:5: Error: Setter not found: '_offeredMore'.
-    _offeredMore = false;
-    ^^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:813:7: Error: Setter not found: '_rest'.
-      _rest = cut[1];
-      ^^^^^
-lib/domain/advocate/advocate.dart:815:26: Error: Setter not found: '_lastLaws'.
-    if (laws.isNotEmpty) _lastLaws = laws;
-                         ^^^^^^^^^
-lib/domain/advocate/advocate.dart:817:25: Error: Undefined name '_rest'.
-    if (tail.isEmpty && _rest.isNotEmpty) {
-                        ^^^^^
-lib/domain/advocate/advocate.dart:819:7: Error: Setter not found: '_offeredMore'.
-      _offeredMore = true;
-      ^^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:821:39: Error: Undefined name 'file'.
-    final first = laws.isNotEmpty && !file.disclaimed;
-                                      ^^^^
-lib/domain/advocate/advocate.dart:823:7: Error: Undefined name 'file'.
-      file.disclaimed = true;
-      ^^^^
-lib/domain/advocate/advocate.dart:828:11: Error: Undefined name '_offeredMore'.
-      if (_offeredMore) ..._yesNo,
-          ^^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:830:11: Error: Undefined name '_rest'.
-      if (_rest.isNotEmpty && !_offeredMore) moreChip,
-          ^^^^^
-lib/domain/advocate/advocate.dart:830:32: Error: Undefined name '_offeredMore'.
-      if (_rest.isNotEmpty && !_offeredMore) moreChip,
-                               ^^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:830:46: Error: Undefined name 'moreChip'.
-      if (_rest.isNotEmpty && !_offeredMore) moreChip,
-                                             ^^^^^^^^
-lib/domain/advocate/advocate.dart:831:56: Error: Undefined name 'lawChip'.
-      if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
-                                                       ^^^^^^^
-lib/domain/advocate/advocate.dart:834:9: Error: Undefined name 'hasCase'.
-    if (hasCase) {
-        ^^^^^^^
-lib/domain/advocate/advocate.dart:836:18: Error: Undefined name 'leaveChip'.
-        ..remove(leaveChip)
-                 ^^^^^^^^^
-lib/domain/advocate/advocate.dart:837:15: Error: Undefined name 'leaveChip'.
-        ..add(leaveChip);
-              ^^^^^^^^^
-lib/domain/advocate/advocate_case.dart:267:18: Error: Member not found: 'Advocate.topicOf'.
-        Advocate.topicOf(raw) == null &&
-                 ^^^^^^^
-lib/ui/chat_controller.dart:149:34: Error: The method 'wantsGuess' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'wantsGuess'.
-    if (read != null && advocate.wantsGuess(text)) {
-                                 ^^^^^^^^^^
-lib/ui/chat_controller.dart:213:27: Error: The getter 'idleChips' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'idleChips'.
-          chips: advocate.idleChips,
-                          ^^^^^^^^^
-.
+
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
