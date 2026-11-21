@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود (failed)
-::error::364 tests passed, 1 failed.
+🎉 365 tests passed.
