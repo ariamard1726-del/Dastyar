@@ -129,7 +129,7 @@ extension _Arguing on Advocate {
     final sb = StringBuffer();
     if (v.standing == Standing.strong) {
       sb.write(why.isEmpty
-          ? 'بله؛ با چیزهایی که گفتید همهٔ شرط‌های قانونی‌اش جمع است. '
+          ? 'بله؛ با چیزهایی که گفته‌اید همهٔ شرط‌های قانونی‌اش جمع است. '
           : 'بله؛ چون ${_join(why)}. ');
       sb.write('پس ${c.win(file)}');
       final counter = c.counter;
@@ -149,7 +149,7 @@ extension _Arguing on Advocate {
       sb.write(
           '\nاگر ${v.open.length == 1 ? 'آن هم' : 'آن‌ها هم'} برقرار باشد، ${c.win(file)}');
     } else {
-      sb.write('با چیزهایی که تا اینجا گفتید، فعلاً نه.');
+      sb.write('با چیزهایی که تا اینجا گفته‌اید، فعلاً نه.');
       for (final e in v.elements) {
         if (e.holds != false) continue;
         sb.write(e.element.ifNo.isEmpty
@@ -228,7 +228,7 @@ extension _Arguing on Advocate {
         v.claim.label.isEmpty ? v.claim.goal : v.claim.label;
     final sb = StringBuffer('${_pick(Say.argue)}\n');
     sb.write(
-        'با آنچه تا اینجا گفتید ${_count(views.length)} خواسته دارید و وضع هر کدام فرق می‌کند:\n');
+        'با آنچه تا اینجا گفته‌اید ${_count(views.length)} خواسته دارید و وضع هر کدام فرق می‌کند:\n');
     for (final v in views) {
       final String verdict;
       switch (v.standing) {
