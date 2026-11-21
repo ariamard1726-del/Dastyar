@@ -513,7 +513,7 @@ class Advocate {
       if (raw.trim() == sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
-                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
         return _open(pend, Sense.norm(pendText), switched: true);
       }
       final curTopic = _current();
