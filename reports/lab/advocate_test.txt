@@ -1,198 +1,198 @@
-::group::❌ loading test/advocate/conversation_control_test.dart (failed)
-Failed to load "test/advocate/conversation_control_test.dart":
-Compilation failed for testPath=test/advocate/conversation_control_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-      if (curTopic != null &&
-         ^
-lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-      if (raw.trim() == sideChip ||
-         ^
-lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
-          (Sense.words(n) <= 6 &&
-           ^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:514:23: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (Sense.words(n) <= 6 &&
-                      ^
-lib/domain/advocate/advocate.dart:514:27: Error: Expected ')' before this.
-          (Sense.words(n) <= 6 &&
-                          ^^
-lib/domain/advocate/advocate.dart:521:12: Error: 'raw.trim' can't be used as a type because 'raw' doesn't refer to an import prefix.
-          (raw.trim() == relatedChip ||
-           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:20: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (raw.trim() == relatedChip ||
-                   ^
-lib/domain/advocate/advocate.dart:521:23: Error: Expected ')' before this.
-          (raw.trim() == relatedChip ||
-                      ^^
-lib/domain/advocate/advocate.dart:528:5: Error: Expected an identifier, but got '}'.
-Try inserting an identifier before '}'.
-    }
-    ^
-lib/domain/advocate/advocate.dart:527:7: Error: Expected ';' after this.
-      }
-      ^
-lib/domain/advocate/advocate.dart:514:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
+       ^
+lib/domain/advocate/advocate.dart:681:14: Error: Expected ')' before this.
+    if (best != null && best.id != topic.id && (cur == 0 || dominant)) {
+             ^^
+lib/domain/advocate/advocate.dart:705:5: Error: Expected a class member, but got 'return'.
+    return _inCase(topic, raw, n, issue);
+    ^^^^^^
+lib/domain/advocate/advocate.dart:724:3: Error: Can't have modifier 'static' here.
+Try removing 'static'.
+  static String? topicOf(String raw) {
+  ^^^^^^
+lib/domain/advocate/advocate.dart:841:1: Error: Expected a declaration, but got '}'.
+}
+^
+lib/domain/advocate/advocate.dart:532:5: Error: '_side' is already declared in this scope.
+    _side = null;
+    ^^^^^
+lib/domain/advocate/advocate.dart:140:10: Context: Previous declaration of '_side'.
+  Topic? _side;
+         ^^^^^
+lib/domain/advocate/advocate.dart:533:5: Error: '_sideText' is already declared in this scope.
+    _sideText = '';
+    ^^^^^^^^^
+lib/domain/advocate/advocate.dart:142:10: Context: Previous declaration of '_sideText'.
+  String _sideText = '';
+         ^^^^^^^^^
+lib/domain/advocate/advocate.dart:555:30: Error: 'meta' is already declared in this scope.
+    if (meta != null) return meta;
+                             ^^^^
+lib/domain/advocate/advocate.dart:554:11: Context: Previous declaration of 'meta'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+          ^^^^
+lib/domain/advocate/advocate.dart:559:9: Error: 'Sense.has' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+    if (Sense.has(n, 'قهر') &&
+        ^^^^^^^^^
+lib/domain/advocate/advocate.dart:572:9: Error: 'Sense.has' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+    if (Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
+        ^^^^^^^^^
+lib/domain/advocate/advocate.dart:56:7: Error: The non-abstract class 'Advocate' is missing implementations for these members:
+ - Advocate._inCase
+Try to either
+ - provide an implementation,
+ - inherit an implementation from a superclass or mixin,
+ - mark the class as abstract, or
+ - provide a 'noSuchMethod' implementation.
+class Advocate {
+      ^^^^^^^^
+lib/domain/advocate/advocate.dart:705:12: Context: 'Advocate._inCase' is defined here.
+    return _inCase(topic, raw, n, issue);
+           ^^^^^^^
+lib/domain/advocate/advocate.dart:540:19: Error: Method not found: '_current'.
+    final topic = _current();
+                  ^^^^^^^^
+lib/domain/advocate/advocate.dart:554:24: Error: Undefined name 'n'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+                       ^
+lib/domain/advocate/advocate.dart:554:27: Error: Can't access 'this' in a field initializer to read 'topic'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+                          ^^^^^
+lib/domain/advocate/advocate.dart:554:44: Error: Can't access 'this' in a field initializer to read 'topic'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+                                           ^^^^^
+lib/domain/advocate/advocate.dart:554:61: Error: Can't access 'this' in a field initializer to read 'bestScore'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+                                                            ^^^^^^^^^
+lib/domain/advocate/advocate.dart:554:18: Error: Method not found: '_meta'.
+    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+                 ^^^^^
+lib/domain/advocate/advocate.dart:676:24: Error: Can't access 'this' in a field initializer to read 'topic'.
+    final cur = scores[topic.id] ?? 0;
+                       ^^^^^
+lib/domain/advocate/advocate.dart:676:17: Error: Can't access 'this' in a field initializer to read 'scores'.
+    final cur = scores[topic.id] ?? 0;
+                ^^^^^^
+lib/domain/advocate/advocate.dart:677:31: Error: Can't access 'this' in a field initializer to read 'topic'.
+    final issue = _matchIssue(topic, n);
+                              ^^^^^
+lib/domain/advocate/advocate.dart:677:38: Error: Undefined name 'n'.
+    final issue = _matchIssue(topic, n);
+                                     ^
+lib/domain/advocate/advocate.dart:677:19: Error: Method not found: '_matchIssue'.
+    final issue = _matchIssue(topic, n);
+                  ^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:680:22: Error: Can't access 'this' in a field initializer to read 'bestScore'.
+    final dominant = bestScore >= 5 && cur * 2 < bestScore;
+                     ^^^^^^^^^
+lib/domain/advocate/advocate.dart:680:40: Error: Can't access 'this' in a field initializer to read 'cur'.
+    final dominant = bestScore >= 5 && cur * 2 < bestScore;
+                                       ^^^
+lib/domain/advocate/advocate.dart:680:50: Error: Can't access 'this' in a field initializer to read 'bestScore'.
+    final dominant = bestScore >= 5 && cur * 2 < bestScore;
+                                                 ^^^^^^^^^
+lib/domain/advocate/advocate.dart:370:17: Error: A non-null value must be returned since the return type 'AdvocateReply' doesn't allow null.
  - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (Sense.words(n) <= 6 &&
-          ^
-lib/domain/advocate/advocate.dart:520:11: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-      if (curTopic != null &&
-          ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:24: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                       ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:60: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                                                           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (raw.trim() == relatedChip ||
-          ^
-.
-
-::endgroup::
-::group::❌ loading test/advocate/advocate_test.dart (failed after test completion)
-Error: The Dart compiler exited unexpectedly.
-package:flutter_tools/src/base/common.dart 34:3  throwToolExit
-package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
-dart:async/zone_root.dart 48:47                  _rootRunUnary
-dart:async/zone.dart 816:35                      _CustomZone.runUnary
-dart:async/future_impl.dart 948:45               Future._propagateToListeners.handleValueCallback
-dart:async/future_impl.dart 977:13               Future._propagateToListeners
-dart:async/future_impl.dart 862:9                Future._propagateToListeners
-dart:async/future_impl.dart 720:5                Future._completeWithValue
-dart:async/future_impl.dart 804:7                Future._asyncCompleteWithValue.<fn>
-dart:async/zone_root.dart 35:13                  _rootRun
-dart:async/zone.dart 810:35                      _CustomZone.run
-dart:async/zone.dart 702:7                       _CustomZone.runGuarded
-dart:async/zone.dart 743:23                      _CustomZone.bindCallbackGuarded.<fn>
-dart:async/schedule_microtask.dart 40:35         _microtaskLoop
-dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
-dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
-dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
-::endgroup::
-lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-      if (curTopic != null &&
-         ^
-lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-      if (raw.trim() == sideChip ||
-         ^
-lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
-          (Sense.words(n) <= 6 &&
-           ^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:514:23: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (Sense.words(n) <= 6 &&
-                      ^
-lib/domain/advocate/advocate.dart:514:27: Error: Expected ')' before this.
-          (Sense.words(n) <= 6 &&
-                          ^^
-lib/domain/advocate/advocate.dart:521:12: Error: 'raw.trim' can't be used as a type because 'raw' doesn't refer to an import prefix.
-          (raw.trim() == relatedChip ||
-           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:20: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (raw.trim() == relatedChip ||
-                   ^
-lib/domain/advocate/advocate.dart:521:23: Error: Expected ')' before this.
-          (raw.trim() == relatedChip ||
-                      ^^
-lib/domain/advocate/advocate.dart:528:5: Error: Expected an identifier, but got '}'.
-Try inserting an identifier before '}'.
-    }
-    ^
-lib/domain/advocate/advocate.dart:527:7: Error: Expected ';' after this.
-      }
-      ^
-lib/domain/advocate/advocate.dart:514:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (Sense.words(n) <= 6 &&
-          ^
-lib/domain/advocate/advocate.dart:520:11: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-      if (curTopic != null &&
-          ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:24: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                       ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:60: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                                                           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (raw.trim() == relatedChip ||
-          ^
-::group::❌ loading test/advocate/reasoner_test.dart (failed)
-Failed to load "test/advocate/reasoner_test.dart":
-Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-      if (curTopic != null &&
-         ^
-lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-      if (raw.trim() == sideChip ||
-         ^
-lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
-          (Sense.words(n) <= 6 &&
-           ^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:514:23: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (Sense.words(n) <= 6 &&
-                      ^
-lib/domain/advocate/advocate.dart:514:27: Error: Expected ')' before this.
-          (Sense.words(n) <= 6 &&
-                          ^^
-lib/domain/advocate/advocate.dart:521:12: Error: 'raw.trim' can't be used as a type because 'raw' doesn't refer to an import prefix.
-          (raw.trim() == relatedChip ||
-           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:20: Error: Expected an identifier, but got '('.
-Try inserting an identifier before '('.
-          (raw.trim() == relatedChip ||
-                   ^
-lib/domain/advocate/advocate.dart:521:23: Error: Expected ')' before this.
-          (raw.trim() == relatedChip ||
-                      ^^
-lib/domain/advocate/advocate.dart:528:5: Error: Expected an identifier, but got '}'.
-Try inserting an identifier before '}'.
-    }
-    ^
-lib/domain/advocate/advocate.dart:527:7: Error: Expected ';' after this.
-      }
-      ^
-lib/domain/advocate/advocate.dart:514:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (Sense.words(n) <= 6 &&
-          ^
-lib/domain/advocate/advocate.dart:520:11: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-      if (curTopic != null &&
-          ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:24: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                       ^^^^^^^^
-lib/domain/advocate/advocate.dart:526:60: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-                                                           ^^^^^^^^
-lib/domain/advocate/advocate.dart:521:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-          (raw.trim() == relatedChip ||
-          ^
+  AdvocateReply respond(String raw, {TopicGuess? guess}) {
+                ^
+lib/domain/advocate/advocate.dart:712:5: Error: Setter not found: '_pendingTopic'.
+    _pendingTopic = t;
+    ^^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:713:5: Error: Setter not found: '_pendingText'.
+    _pendingText = raw;
+    ^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:714:22: Error: Method not found: '_current'.
+    final curTitle = _current()?.title ?? 'موضوع قبلی';
+                     ^^^^^^^^
+lib/domain/advocate/advocate.dart:728:21: Error: Undefined name 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+lib/domain/advocate/advocate.dart:742:9: Error: Undefined name 'file'.
+    if (file.topic.isNotEmpty || _guide != null || _choices.isNotEmpty) {
+        ^^^^
+lib/domain/advocate/advocate.dart:742:34: Error: Undefined name '_guide'.
+    if (file.topic.isNotEmpty || _guide != null || _choices.isNotEmpty) {
+                                 ^^^^^^
+lib/domain/advocate/advocate.dart:742:52: Error: Undefined name '_choices'.
+    if (file.topic.isNotEmpty || _guide != null || _choices.isNotEmpty) {
+                                                   ^^^^^^^^
+lib/domain/advocate/advocate.dart:745:23: Error: Undefined name 'newCaseChip'.
+    if (raw.trim() == newCaseChip) return false;
+                      ^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:747:10: Error: Method not found: '_guessable'.
+    if (!_guessable(n)) return false;
+         ^^^^^^^^^^
+lib/domain/advocate/advocate.dart:748:21: Error: Undefined name 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+lib/domain/advocate/advocate.dart:755:33: Error: Method not found: '_idleChips'.
+  List<String> get idleChips => _idleChips();
+                                ^^^^^^^^^^
+lib/domain/advocate/advocate.dart:758:23: Error: Undefined name '_vary'.
+    final v = options[_vary % options.length];
+                      ^^^^^
+lib/domain/advocate/advocate.dart:759:5: Error: Getter not found: '_vary'.
+    _vary++;
+    ^^^^^
+lib/domain/advocate/advocate.dart:784:19: Error: Undefined name 'engine'.
+        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
+                  ^^^^^^
+lib/domain/advocate/advocate.dart:786:16: Error: Undefined name 'unresolved'.
+          if (!unresolved.contains(key)) unresolved.add(key);
+               ^^^^^^^^^^
+lib/domain/advocate/advocate.dart:786:42: Error: Undefined name 'unresolved'.
+          if (!unresolved.contains(key)) unresolved.add(key);
+                                         ^^^^^^^^^^
+lib/domain/advocate/advocate.dart:808:5: Error: Setter not found: '_rest'.
+    _rest = '';
+    ^^^^^
+lib/domain/advocate/advocate.dart:809:5: Error: Setter not found: '_offeredMore'.
+    _offeredMore = false;
+    ^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:813:7: Error: Setter not found: '_rest'.
+      _rest = cut[1];
+      ^^^^^
+lib/domain/advocate/advocate.dart:815:26: Error: Setter not found: '_lastLaws'.
+    if (laws.isNotEmpty) _lastLaws = laws;
+                         ^^^^^^^^^
+lib/domain/advocate/advocate.dart:817:25: Error: Undefined name '_rest'.
+    if (tail.isEmpty && _rest.isNotEmpty) {
+                        ^^^^^
+lib/domain/advocate/advocate.dart:819:7: Error: Setter not found: '_offeredMore'.
+      _offeredMore = true;
+      ^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:821:39: Error: Undefined name 'file'.
+    final first = laws.isNotEmpty && !file.disclaimed;
+                                      ^^^^
+lib/domain/advocate/advocate.dart:823:7: Error: Undefined name 'file'.
+      file.disclaimed = true;
+      ^^^^
+lib/domain/advocate/advocate.dart:828:11: Error: Undefined name '_offeredMore'.
+      if (_offeredMore) ..._yesNo,
+          ^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:830:11: Error: Undefined name '_rest'.
+      if (_rest.isNotEmpty && !_offeredMore) moreChip,
+          ^^^^^
+lib/domain/advocate/advocate.dart:830:32: Error: Undefined name '_offeredMore'.
+      if (_rest.isNotEmpty && !_offeredMore) moreChip,
+                               ^^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:830:46: Error: Undefined name 'moreChip'.
+      if (_rest.isNotEmpty && !_offeredMore) moreChip,
+                                             ^^^^^^^^
+lib/domain/advocate/advocate.dart:831:56: Error: Undefined name 'lawChip'.
+      if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
+                                                       ^^^^^^^
+lib/domain/advocate/advocate.dart:834:9: Error: Undefined name 'hasCase'.
+    if (hasCase) {
+        ^^^^^^^
+lib/domain/advocate/advocate.dart:836:18: Error: Undefined name 'leaveChip'.
+        ..remove(leaveChip)
+                 ^^^^^^^^^
+lib/domain/advocate/advocate.dart:837:15: Error: Undefined name 'leaveChip'.
+        ..add(leaveChip);
+              ^^^^^^^^^
+lib/domain/advocate/advocate_case.dart:267:18: Error: Member not found: 'Advocate.topicOf'.
+        Advocate.topicOf(raw) == null &&
+                 ^^^^^^^
 .
 
 ::endgroup::
