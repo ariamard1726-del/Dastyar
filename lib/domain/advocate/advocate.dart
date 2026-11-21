@@ -513,7 +513,7 @@ class Advocate {
       if (raw.trim() == sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
-                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه')) {
+                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
         return _open(pend, Sense.norm(pendText), switched: true);
       }
       final curTopic = _current();
@@ -521,7 +521,7 @@ class Advocate {
           (raw.trim() == relatedChip ||
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
-                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی'))) {
+                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
         final pn = Sense.norm(pendText);
         return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
       }
