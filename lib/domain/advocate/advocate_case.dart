@@ -28,6 +28,8 @@ String _join(List<String> items) {
 extension _CaseFlow on Advocate {
   void _closeCase() {
     file.clearCase();
+    _pendingTopic = null;
+    _pendingText = '';
     _lastServed = '';
     _flips.clear();
     _guide = null;

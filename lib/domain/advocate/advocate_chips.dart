@@ -33,9 +33,9 @@ extension _Chips on Advocate {
       near[i.id] = sc * 100 - k;
     }
     cand.sort((a, b) => (near[b.id] ?? 0).compareTo(near[a.id] ?? 0));
-    final asks = <String>[for (final i in cand.take(2)) i.chip];
+    final asks = <String>[for (final i in cand.take(3)) i.chip];
     for (final e in _followChips.entries) {
-      if (asks.length >= 3) break;
+      if (asks.length >= 4) break;
       if (file.covered.contains('f:${e.key}')) continue;
       if (!t.follow.containsKey(e.key)) continue;
       asks.add(e.value);

@@ -141,6 +141,10 @@ class Advocate {
 
   String _sideText = '';
 
+  /// موضوعی که پیام کاربر به آن اشاره کرده، ولی هنوز تأیید نشده است.
+  Topic? _pendingTopic;
+  String _pendingText = '';
+
   /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
   /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
   List<Topic> _choices = const [];
@@ -219,6 +223,12 @@ class Advocate {
 
   /// پاسخ کاربر به «این ماجرای جدایی است؟».
   static const String sideChip = 'این یک موضوع جداست';
+
+  /// پاسخ کاربر به «به همین ماجرای قبلی مربوط است؟».
+  static const String relatedChip = 'به همین ماجرای قبلی مربوط است';
+
+  /// خروج از موضوع فقط با این دکمه (یا «انصراف» نوشته‌شده) انجام می‌شود.
+  static const String leaveChip = 'انصراف';
 
   /// پاسخ کاربر به «ماجرای شما به کدام نزدیک‌تر است؟».
   static const String noneChip = 'هیچ‌کدام';
@@ -494,6 +504,28 @@ class Advocate {
             Sense.saysNo(n))) {
       return _finish(t1, [_pick(Say.fine)]);
     }
+    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟».
+    final pend = _pendingTopic;
+    final pendText = _pendingText;
+    _pendingTopic = null;
+    _pendingText = '';
+    if (pend != null) {
+      if (raw.trim() == sideChip ||
+          (Sense.words(n) <= 6 &&
+              Sense.has(n,
+                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه')) {
+        return _open(pend, Sense.norm(pendText), switched: true);
+      }
+      final curTopic = _current();
+      if (curTopic != null &&
+          (raw.trim() == relatedChip ||
+              (Sense.words(n) <= 6 &&
+                  Sense.has(n,
+                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی'))) {
+        final pn = Sense.norm(pendText);
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+      }
+    }
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = _side;
     final sideText = _sideText;
@@ -659,7 +691,8 @@ class Advocate {
       if (strong &&
           (marker || (long && !answers)) &&
           (bestScore >= 4 || issue == null)) {
-        return _open(best, n, switched: true);
+        if (marker) return _open(best, n, switched: true);
+        return _askSwitch(best, raw);
       }
       // متهم معمولاً ماجرای پشتِ شکایت را تعریف می‌کند (ملک، چک، …)؛ آن‌جا
       // فقط با نشانهٔ خیلی قوی می‌پرسم.
@@ -670,6 +703,20 @@ class Advocate {
       }
     }
     return _inCase(topic, raw, n, issue);
+  }
+
+  /// پیامی به موضوع دیگری اشاره دارد، بدون آنکه کاربر صریحاً بگوید موضوع تازه
+  /// است. پیش از عوض‌کردن پرونده می‌پرسیم؛ تا وقتی کاربر «انصراف» نزده، از
+  /// موضوع فعلی خارج نمی‌شویم.
+  AdvocateReply _askSwitch(Topic t, String raw) {
+    _pendingTopic = t;
+    _pendingText = raw;
+    final curTitle = _current()?.title ?? 'موضوع قبلی';
+    return _out(
+      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است.',
+      ask: 'این موضوع تازه است، یا به همین ماجرای قبلی مربوط است؟',
+      chips: const [Advocate.sideChip, Advocate.relatedChip],
+    );
   }
 
   /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`. همان
@@ -783,6 +830,12 @@ class Advocate {
       if (_rest.isNotEmpty && !_offeredMore) moreChip,
       if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
     ];
+    // «انصراف» همیشه آخرین دکمه است؛ تا کاربر آن را نزند، موضوع عوض نمی‌شود.
+    if (hasCase) {
+      all
+        ..remove(leaveChip)
+        ..add(leaveChip);
+    }
     return AdvocateReply(body, chips: all, laws: laws);
   }
 }
