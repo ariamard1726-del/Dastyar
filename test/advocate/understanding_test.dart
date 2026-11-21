@@ -92,7 +92,7 @@ void main() {
     expect(Understanding.relevantChip(Sense.norm('مهریه‌ام را نداده')), 'مهریه‌ام پرداخت نشده');
     expect(Understanding.relevantChip(Sense.norm('صاحبخانه ودیعه‌ام را پس نداد')),
         'ودیعه‌ام پس داده نشده');
-    expect(Understanding.relevantChip(Sense.norm('چکم برگشت خورده')), 'چکم برگشت خورده');
+    expect(Understanding.relevantChip(Sense.norm('چک من برگشت خورده است')), 'چکم برگشت خورده');
     expect(Understanding.relevantChip(Sense.norm('ماشینم خراب شده')), isNull);
   });
 
