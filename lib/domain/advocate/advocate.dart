@@ -7,6 +7,7 @@ import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topics/all.dart';
 import 'package:dastyar/domain/advocate/topics/shared.dart';
+import 'package:dastyar/domain/advocate/understanding.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
@@ -144,6 +145,9 @@ class Advocate {
   /// موضوعی که پیام کاربر به آن اشاره کرده، ولی هنوز تأیید نشده است.
   Topic? _pendingTopic;
   String _pendingText = '';
+
+  /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
+  String _prevN = '';
 
   /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
   /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
@@ -331,6 +335,7 @@ class Advocate {
 
   void reset() {
     _closeCase();
+    _prevN = '';
     file.turns = 0;
     file.disclaimed = false;
     _said.clear();
@@ -369,6 +374,8 @@ class Advocate {
   /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
   AdvocateReply respond(String raw, {TopicGuess? guess}) {
     final n = Sense.norm(raw);
+    final prevN = _prevN;
+    _prevN = n;
     file.turns++;
     final choices = _choices;
     final choiceText = _choiceText;
@@ -553,6 +560,31 @@ class Advocate {
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
+
+    // کاربر همان حرف قبلی‌اش را دوباره فرستاده: دوباره از اول نمی‌پرسیم.
+    if (hasCase && Understanding.isRepeat(prevN, n)) {
+      return _out(
+        'این را پیش‌تر گفته‌اید و چیز تازه‌ای در آن نیست؛ همان ماجرا را در نظر دارم و از همان‌جا ادامه می‌دهم.',
+        ask: _askText.isEmpty
+            ? 'چه تغییری کرده، یا دقیقاً چه می‌خواهید بدانید؟'
+            : _askText,
+        chips: _askChips,
+      );
+    }
+
+    // ثبت طلاق و تعارض قوانین: پاسخ مستند به متن قانون.
+    final divorce = Understanding.divorceRegistration(n);
+    if (divorce != null) {
+      return _out(divorce,
+          ask: 'گواهی عدم امکان سازش را گرفته‌اید، و آیا به دفترخانه تسلیم کرده‌اید؟',
+          full: true);
+    }
+    final rule = Understanding.conflictRule(n);
+    if (rule != null) {
+      return _out(rule,
+          ask: 'این حکم برای همین پرونده است؟ اگر بگویید چه شده، همان را روی متن قانون می‌سنجم.',
+          full: true);
+    }
 
     // «قهر» جرم نیست و کسی را به‌خاطر قهر زندانی یا جریمه نمی‌کنند. این را
     // پیش از هر موضوع می‌گوییم تا برداشت اشتباه جا نماند.
