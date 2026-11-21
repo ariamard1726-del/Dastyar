@@ -67,6 +67,16 @@ extension _Guides on Advocate {
         Sense.words(n) >= 2 &&
         (direct || Sense.isQuestion(n) || _loose.length >= 3)) {
       final r = engine.query(raw);
+      // نزدیک‌ترینِ موتور گاهی فقط به‌خاطر یک شماره (مثلاً «۱۷») آمده است.
+      // اگر هیچ واژهٔ معنادار پرسش در متنش نیست، آن را جواب ندانیم.
+      if (_isLawHit(r) &&
+          !direct &&
+          !_sharesContent(n, r.contextHits.first.chunk.body)) {
+        return _out(
+          'در بانک قوانین من متنی که مستقیم به این پرسش جواب دهد پیدا نکردم، پس ماده‌ی نامربوط نمی‌دهم.',
+          ask: 'نام دقیق قانون یا شماره‌ی ماده‌ای که دنبالش هستید را بگویید.',
+        );
+      }
       if (_isLawHit(r)) {
         final laws = [
           for (final h in r.contextHits.where(_isLaw).take(2))
@@ -203,3 +213,21 @@ bool _isLaw(Hit h) => h.chunk.source != _generalSource;
 bool _isLawHit(EngineReply r) =>
     r.contextHits.isNotEmpty && _isLaw(r.contextHits.first);
 
+
+const Set<String> _genericLegal = {
+  'قانون', 'ماده', 'مواد', 'مجازات', 'اسلامی', 'آیا', 'یکی', 'هست', 'چیست',
+  'چیه', 'باید', 'میشه', 'میتونم', 'میتوانم', 'یا', 'این', 'آن', 'با', 'که',
+  'برای', 'درباره', 'دربارهٔ', 'تفاوت', 'فرق', 'یکسان', 'همان',
+};
+
+/// آیا پرسش و متنِ قانون دست‌کم یک واژهٔ معنادار مشترک دارند؟ واژه‌های
+/// کوتاه، عددها و واژه‌های عمومیِ قانونی کنار گذاشته می‌شوند.
+bool _sharesContent(String n, String body) {
+  final bn = Sense.norm(body);
+  for (final w in Sense.norm(n).split(' ')) {
+    if (w.length < 3 || _genericLegal.contains(w)) continue;
+    if (RegExp(r'^[0-9۰-۹]+$').hasMatch(w)) continue;
+    if (bn.contains(w)) return true;
+  }
+  return false;
+}
