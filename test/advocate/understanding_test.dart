@@ -66,7 +66,8 @@ void main() {
     expect(r, isNotNull);
     expect(r!, contains('[[civil:416]]'));
     expect(r, contains('[[civil:420]]'));
-    expect(r, contains('اصطلاح قانونی نیست'));
+    expect(r, contains('در متن قانون نیامده'));
+    expect(r, contains('[[civil:421]]'));
   });
 
   test('واژه‌های پیوند: مهریه و ودیعه به مادهٔ درست می‌روند', () {
