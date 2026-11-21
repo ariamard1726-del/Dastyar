@@ -2,4 +2,4 @@ Analyzing Dastyar...
 
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
 
-1 issue found. (ran in 10.5s)
+1 issue found. (ran in 10.1s)
