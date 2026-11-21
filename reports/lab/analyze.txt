@@ -1,6 +1,5 @@
 Analyzing Dastyar...                                            
 
-  error • Expected an identifier • lib/domain/advocate/topics/sale.dart:16:30 • missing_identifier
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
 
-2 issues found. (ran in 12.1s)
+1 issue found. (ran in 12.3s)
