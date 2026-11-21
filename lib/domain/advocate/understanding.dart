@@ -102,4 +102,36 @@ class Understanding {
     }
     return null;
   }
+
+  /// دکمهٔ پیشنهادیِ مرتبط با همین پیام: کوتاه، به زبان خودِ کاربر، و آماده
+  /// برای فرستادن. اگر پیام همین دکمه باشد یا نشانه‌ای نباشد، `null`.
+  static String? relevantChip(String raw) {
+    final n = Sense.norm(raw);
+    if (n.isEmpty) return null;
+    for (final r in _chipRules) {
+      if (!Sense.has(n, r.cue)) continue;
+      if (r.also.isNotEmpty && !Sense.has(n, r.also)) continue;
+      if (n.contains(Sense.norm(r.chip))) return null;
+      return r.chip;
+    }
+    return null;
+  }
+
+  static const List<_ChipRule> _chipRules = [
+    _ChipRule('مهریه', 'نداده|نمی ?دهد|پرداخت نکرده|نپرداخته|پرداخت نشده|نمیده', 'مهریه‌ام پرداخت نشده'),
+    _ChipRule('نفقه', 'نداده|نمی ?دهد|پرداخت نکرده|نپرداخته|معوق|نمیده', 'نفقه‌ام پرداخت نشده'),
+    _ChipRule('ودیعه|پول پیش|پیش ?پرداخت', 'نداده|نمی ?دهد|پس نداد|نمیده|برنمی', 'ودیعه‌ام پس داده نشده'),
+    _ChipRule('حقوق', 'نداده|نداد|نمی ?دهد|معوق|نمیده', 'حقوقم پرداخت نشده'),
+    _ChipRule('چک', 'برگشت', 'چکم برگشت خورده'),
+    _ChipRule('اخراج', '', 'مرا اخراج کرده‌اند'),
+    _ChipRule('طلاق', 'ثبت|سردفتر|دفترخانه|دفتر', 'ثبت طلاق انجام نمی‌شود'),
+    _ChipRule('غبن', '', 'قیمت واقعی را بعداً فهمیدم'),
+  ];
+}
+
+class _ChipRule {
+  final String cue;
+  final String also;
+  final String chip;
+  const _ChipRule(this.cue, this.also, this.chip);
 }

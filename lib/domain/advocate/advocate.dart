@@ -149,6 +149,9 @@ class Advocate {
   /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
   String _prevN = '';
 
+  /// دکمهٔ پیشنهادیِ مرتبط با پیام همین نوبت (اگر باشد).
+  String _relevantChip = '';
+
   /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
   /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
   List<Topic> _choices = const [];
@@ -336,6 +339,7 @@ class Advocate {
   void reset() {
     _closeCase();
     _prevN = '';
+    _relevantChip = '';
     file.turns = 0;
     file.disclaimed = false;
     _said.clear();
@@ -376,6 +380,7 @@ class Advocate {
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
+    _relevantChip = Understanding.relevantChip(raw) ?? '';
     file.turns++;
     final choices = _choices;
     final choiceText = _choiceText;
@@ -868,12 +873,21 @@ class Advocate {
       body = '$body\n\n${Say.disclaimer}';
     }
     if (tail.isNotEmpty) body = body.isEmpty ? tail : '$body\n\n$tail';
+    // دکمهٔ مرتبط با حرف کاربر، جلوی بقیهٔ دکمه‌ها؛ بدون تکرار.
     final all = <String>[
       if (_offeredMore) ..._yesNo,
+      if (_relevantChip.isNotEmpty) _relevantChip,
       ...chips,
       if (_rest.isNotEmpty && !_offeredMore) moreChip,
       if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
     ];
+    final uniq = <String>[];
+    for (final c in all) {
+      if (!uniq.contains(c)) uniq.add(c);
+    }
+    all
+      ..clear()
+      ..addAll(uniq);
     // «انصراف» همیشه آخرین دکمه است؛ تا کاربر آن را نزند، موضوع عوض نمی‌شود.
     if (hasCase) {
       all

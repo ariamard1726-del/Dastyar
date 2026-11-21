@@ -87,4 +87,22 @@ void main() {
     expect(r.text.trim(), isNotEmpty);
     expect(r.text.contains('ماده ۱۰۸۲') || a.file.topic.isNotEmpty, isTrue);
   });
+
+  test('دکمهٔ مرتبط از حرف کاربر ساخته می‌شود', () {
+    expect(Understanding.relevantChip(Sense.norm('مهریه‌ام را نداده')), 'مهریه‌ام پرداخت نشده');
+    expect(Understanding.relevantChip(Sense.norm('صاحبخانه ودیعه‌ام را پس نداد')),
+        'ودیعه‌ام پس داده نشده');
+    expect(Understanding.relevantChip(Sense.norm('چکم برگشت خورده')), 'چکم برگشت خورده');
+    expect(Understanding.relevantChip(Sense.norm('ماشینم خراب شده')), isNull);
+  });
+
+  test('دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست', () {
+    final r = fresh().respond('مهریه‌ام را نداده');
+    expect(r.chips, contains('مهریه‌ام پرداخت نشده'));
+    expect(r.chips.where((c) => c == 'مهریه‌ام پرداخت نشده').length, 1);
+  });
+
+  test('همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد', () {
+    expect(Understanding.relevantChip(Sense.norm('مهریه‌ام پرداخت نشده')), isNull);
+  });
 }
