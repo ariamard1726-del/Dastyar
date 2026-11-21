@@ -1,11 +1,80 @@
-
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+      if (curTopic != null &&
+          ^^^^^^^^
+lib/domain/advocate/advocate.dart:526:24: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+                       ^^^^^^^^
+lib/domain/advocate/advocate.dart:526:60: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+                                                           ^^^^^^^^
+lib/domain/advocate/advocate.dart:521:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
+ - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+          (raw.trim() == relatedChip ||
+          ^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
+      if (curTopic != null &&
+         ^
+lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
+      if (raw.trim() == sideChip ||
+         ^
+lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+          (Sense.words(n) <= 6 &&
+           ^^^^^^^^^^^
+lib/domain/advocate/advocate.dart:514:23: Error: Expected an identifier, but got '('.
+Try inserting an identifier before '('.
+          (Sense.words(n) <= 6 &&
+                      ^
+lib/domain/advocate/advocate.dart:514:27: Error: Expected ')' before this.
+          (Sense.words(n) <= 6 &&
+                          ^^
+lib/domain/advocate/advocate.dart:521:12: Error: 'raw.trim' can't be used as a type because 'raw' doesn't refer to an import prefix.
+          (raw.trim() == relatedChip ||
+           ^^^^^^^^
+lib/domain/advocate/advocate.dart:521:20: Error: Expected an identifier, but got '('.
+Try inserting an identifier before '('.
+          (raw.trim() == relatedChip ||
+                   ^
+lib/domain/advocate/advocate.dart:521:23: Error: Expected ')' before this.
+          (raw.trim() == relatedChip ||
+                      ^^
+lib/domain/advocate/advocate.dart:528:5: Error: Expected an identifier, but got '}'.
+Try inserting an identifier before '}'.
+    }
+    ^
+lib/domain/advocate/advocate.dart:527:7: Error: Expected ';' after this.
+      }
+      ^
+lib/domain/advocate/advocate.dart:514:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
+ - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+          (Sense.words(n) <= 6 &&
+          ^
+lib/domain/advocate/advocate.dart:520:11: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+      if (curTopic != null &&
+          ^^^^^^^^
+lib/domain/advocate/advocate.dart:526:24: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+                       ^^^^^^^^
+lib/domain/advocate/advocate.dart:526:60: Error: The getter 'curTopic' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'curTopic'.
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+                                                           ^^^^^^^^
+lib/domain/advocate/advocate.dart:521:11: Error: A value of type 'AdvocateReply Function()' can't be assigned to a variable of type 'bool'.
+ - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+          (raw.trim() == relatedChip ||
+          ^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.

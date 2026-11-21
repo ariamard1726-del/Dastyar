@@ -1,5 +1,21 @@
 Analyzing Dastyar...                                            
 
+  error • The operands of the operator '||' must be assignable to 'bool' • lib/domain/advocate/advocate.dart:514:11 • non_bool_operand
+  error • Sense.words isn't a type. Try correcting the name to match an existing type • lib/domain/advocate/advocate.dart:514:12 • not_a_type
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:514:23 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:514:27 • expected_token
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:519:7 • expected_token
+warning • The value of the local variable 'curTopic' isn't used. Try removing the variable or using it • lib/domain/advocate/advocate.dart:519:13 • unused_local_variable
+  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:520:11 • undefined_identifier
+  error • The operands of the operator '&&' must be assignable to 'bool' • lib/domain/advocate/advocate.dart:521:11 • non_bool_operand
+  error • The prefix 'raw' can't be used here because it's shadowed by a local declaration. Try renaming either the prefix or the local declaration • lib/domain/advocate/advocate.dart:521:12 • prefix_shadowed_by_local_declaration
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:521:20 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:521:23 • expected_token
+  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:526:24 • undefined_identifier
+  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:526:60 • undefined_identifier
+  error • Expected to find ';' • lib/domain/advocate/advocate.dart:527:7 • expected_token
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:528:5 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:528:5 • expected_token
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
 
-1 issue found. (ran in 10.1s)
+17 issues found. (ran in 11.8s)
