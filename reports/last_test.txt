@@ -1,158 +1,172 @@
-commit: be73c51
+commit: 80fc0f2
 ::error::157 tests passed, 16 failed.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed)
    Failed to load "test/audit/conversation_audit_test.dart":
-   Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/advocate_test.dart (failed)
    Failed to load "test/advocate/advocate_test.dart":
-   Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
    Failed to load "test/advocate/intent_scenarios_test.dart":
-   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/topic_switch_test.dart (failed)
    Failed to load "test/advocate/topic_switch_test.dart":
-   Compilation failed for testPath=test/advocate/topic_switch_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/topic_switch_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/rent_test.dart (failed)
    Failed to load "test/advocate/rent_test.dart":
-   Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/intent_map_test.dart (failed)
    Failed to load "test/advocate/intent_map_test.dart":
-   Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/intent_hint_test.dart (failed)
    Failed to load "test/advocate/intent_hint_test.dart":
-   Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
-   lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
-   ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
+   lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
 ::group::❌ loading test/advocate/conversation_control_test.dart (failed)
    Failed to load "test/advocate/conversation_control_test.dart":
-   Compilation failed for testPath=test/advocate/conversation_control_test.dart: lib/domain/advocate/advocate.dart:520:10: Error: Can't find ')' to match '('.
-   if (curTopic != null &&
+   Compilation failed for testPath=test/advocate/conversation_control_test.dart: lib/domain/advocate/advocate.dart:516:19: Error: String starting with ' must end with '.
+   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه))) {
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   lib/domain/advocate/advocate.dart:515:24: Error: Can't find ')' to match '('.
+   Sense.has(n,
    ^
-   lib/domain/advocate/advocate.dart:513:10: Error: Can't find ')' to match '('.
-   if (raw.trim() == sideChip ||
-   ^
-   lib/domain/advocate/advocate.dart:514:12: Error: 'Sense.words' can't be used as a type because 'Sense' doesn't refer to an import prefix.
+   lib/domain/advocate/advocate.dart:514:11: Error: Can't find ')' to match '('.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
    Error: The Dart compiler exited unexpectedly.
    ::endgroup::
 --- analyze ---
-17 issues found. (ran in 7.7s)
-  error • The operands of the operator '||' must be assignable to 'bool' • lib/domain/advocate/advocate.dart:514:11 • non_bool_operand
-  error • Sense.words isn't a type. Try correcting the name to match an existing type • lib/domain/advocate/advocate.dart:514:12 • not_a_type
-  error • Expected an identifier • lib/domain/advocate/advocate.dart:514:23 • missing_identifier
-  error • Expected to find ')' • lib/domain/advocate/advocate.dart:514:27 • expected_token
-  error • Expected to find ')' • lib/domain/advocate/advocate.dart:519:7 • expected_token
-  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:520:11 • undefined_identifier
-  error • The operands of the operator '&&' must be assignable to 'bool' • lib/domain/advocate/advocate.dart:521:11 • non_bool_operand
-  error • The prefix 'raw' can't be used here because it's shadowed by a local declaration. Try renaming either the prefix or the local declaration • lib/domain/advocate/advocate.dart:521:12 • prefix_
-  error • Expected an identifier • lib/domain/advocate/advocate.dart:521:20 • missing_identifier
-  error • Expected to find ')' • lib/domain/advocate/advocate.dart:521:23 • expected_token
-  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:526:24 • undefined_identifier
-  error • Undefined name 'curTopic'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:526:60 • undefined_identifier
-  error • Expected to find ';' • lib/domain/advocate/advocate.dart:527:7 • expected_token
-  error • Expected an identifier • lib/domain/advocate/advocate.dart:528:5 • missing_identifier
-  error • Expected to find ')' • lib/domain/advocate/advocate.dart:528:5 • expected_token
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
+159 issues found. (ran in 12.2s)
+   info • The private field _sideText could be 'final'. Try making the field 'final' • lib/domain/advocate/advocate.dart:142:10 • prefer_final_fields
+  error • The body might complete normally, causing 'null' to be returned, but the return type, 'AdvocateReply', is a potentially non-nullable type. Try adding either a return or a throw statement at 
+  error • Unterminated string literal • lib/domain/advocate/advocate.dart:516:97 • unterminated_string_literal
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:517:9 • expected_token
+  error • The instance member '_side' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:530:18 • i
+  error • The instance member '_sideText' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:531:22
+  error • The name '_side' is already defined. Try renaming one of the declarations • lib/domain/advocate/advocate.dart:532:5 • duplicate_definition
+  error • Variables must be declared using the keywords 'const', 'final', 'var' or a type name. Try adding the name of the type of the variable or the keyword 'var' • lib/domain/advocate/advocate.dart
+  error • The name '_sideText' is already defined. Try renaming one of the declarations • lib/domain/advocate/advocate.dart:533:5 • duplicate_definition
+  error • Variables must be declared using the keywords 'const', 'final', 'var' or a type name. Try adding the name of the type of the variable or the keyword 'var' • lib/domain/advocate/advocate.dart
+  error • Expected a class member. Try placing this code inside a class member • lib/domain/advocate/advocate.dart:534:5 • expected_class_member
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:534:8 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:534:14 • expected_token
+  error • The instance member '_current' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:540:19 
+  error • Expected a class member. Try placing this code inside a class member • lib/domain/advocate/advocate.dart:544:5 • expected_class_member
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:544:9 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:544:18 • expected_token
+  error • Undefined name 'n'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:545:27 • undefined_identifier
+  error • The instance member '_meta' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:554:18 • i
+  error • Undefined name 'n'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:554:24 • undefined_identifier
+  error • The instance member 'topic' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:554:27 • i
+  error • The instance member 'topic' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:554:44 • i
+  error • The instance member 'bestScore' can't be accessed in an initializer. Try replacing the reference to the instance member with a different expression • lib/domain/advocate/advocate.dart:554:61
+  error • Expected a class member. Try placing this code inside a class member • lib/domain/advocate/advocate.dart:555:5 • expected_class_member
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:555:8 • missing_identifier
+  error • Expected to find ')' • lib/domain/advocate/advocate.dart:555:14 • expected_token
+  error • A function body must be provided. Try adding a function body • lib/domain/advocate/advocate.dart:555:23 • missing_function_body
+  error • Expected a class member. Try placing this code inside a class member • lib/domain/advocate/advocate.dart:559:5 • expected_class_member
+  error • Expected an identifier • lib/domain/advocate/advocate.dart:559:8 • missing_identifier
+  error • Sense.has isn't a type. Try correcting the name to match an existing type • lib/domain/advocate/advocate.dart:559:9 • not_a_type
