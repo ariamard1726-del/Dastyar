@@ -698,7 +698,7 @@ class ChatInputBar extends StatelessWidget {
   final bool isDrafting;
   final VoidCallback onSend;
 
-  /// کپی کل گفتگو؛ `null` یعنی هنوز پیامی نیست و دکمه نشان داده نمی‌شود.
+  /// کپی کل گفتگو؛ `null` یعنی هنوز پیامی نیست و دکمه غیرفعال است.
   final VoidCallback? onCopyAll;
 
   const ChatInputBar({
@@ -740,25 +740,28 @@ class ChatInputBar extends StatelessWidget {
                 ),
               ),
             ),
-            if (onCopyAll != null)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(bottom: 2, start: 4),
-                child: SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: IconButton.filledTonal(
-                    tooltip: 'کپی کل گفتگو',
-                    onPressed: onCopyAll,
-                    padding: EdgeInsets.zero,
-                    iconSize: 18,
-                    icon: const Icon(Icons.copy_all_outlined),
-                  ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton.filled(
+                  tooltip: 'ارسال پیام',
+                  onPressed: onSend,
+                  icon: const Icon(Icons.arrow_upward),
                 ),
-              ),
-            IconButton.filled(
-              tooltip: 'ارسال پیام',
-              onPressed: onSend,
-              icon: const Icon(Icons.arrow_upward),
+                const SizedBox(height: 4),
+                // کپی کل گفتگو: زیر دکمهٔ ارسال. تا وقتی پیامی نیست غیرفعال است.
+                IconButton.filledTonal(
+                  tooltip: 'کپی کل گفتگو',
+                  onPressed: onCopyAll,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 36,
+                    height: 36,
+                  ),
+                  iconSize: 18,
+                  icon: const Icon(Icons.copy_all_outlined),
+                ),
+              ],
             ),
           ],
         ),

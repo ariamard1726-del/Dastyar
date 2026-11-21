@@ -21,6 +21,7 @@ import 'package:dastyar/domain/advocate/topics/partner.dart';
 import 'package:dastyar/domain/advocate/topics/property.dart';
 import 'package:dastyar/domain/advocate/topics/rent.dart';
 import 'package:dastyar/domain/advocate/topics/theft.dart';
+import 'package:dastyar/domain/advocate/topics/sale.dart';
 import 'package:dastyar/domain/advocate/topics/minor_sale.dart';
 import 'package:dastyar/domain/advocate/topics/foreign_contract.dart';
 
@@ -47,4 +48,5 @@ final List<Topic> allTopics = [
   theftTopic,
   minorSaleTopic,
   foreignContractTopic,
+  saleTopic,
 ];
