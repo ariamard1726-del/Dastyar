@@ -80,4 +80,11 @@ void main() {
     expect(Understanding.conflictRule(Sense.norm('صاحبخانه پول پیشم را نمی‌دهد')), isNull);
     expect(Understanding.divorceRegistration(Sense.norm('ماشینم خراب شده')), isNull);
   });
+
+  test('واژهٔ قانونیِ تنها بدون پرونده، ماده را نشان می‌دهد یا موضوع را باز می‌کند', () {
+    final a = fresh();
+    final r = a.respond('مهریه‌ام را نداده');
+    expect(r.text.trim(), isNotEmpty);
+    expect(r.text.contains('ماده ۱۰۸۲') || a.file.topic.isNotEmpty, isTrue);
+  });
 }

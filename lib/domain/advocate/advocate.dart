@@ -579,6 +579,18 @@ class Advocate {
           ask: 'گواهی عدم امکان سازش را گرفته‌اید، و آیا به دفترخانه تسلیم کرده‌اید؟',
           full: true);
     }
+    // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
+    // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
+    if (!hasCase && bestScore < 3) {
+      final refs = Understanding.linkedArticles(n);
+      if (refs.isNotEmpty) {
+        return _out(
+          'این موضوع در متن قانون این‌جا آمده: ${refs.join(' ')}',
+          ask: 'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟',
+          full: true,
+        );
+      }
+    }
     final rule = Understanding.conflictRule(n);
     if (rule != null) {
       return _out(rule,
