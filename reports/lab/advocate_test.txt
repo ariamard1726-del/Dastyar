@@ -10,12 +10,6 @@
 ✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
 ✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
 ✅ test/advocate/advocate_test.dart: موضوع تازه وسط گفتگو: پروندهٔ قبلی بسته و پروندهٔ نو باز می‌شود
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::113 از 114 سناریو درست است
-::warning title=intent-soft::  دزدی ماشین   نرم   نادرست   theft   پاسخ نباید «گفتید» داشته باشد  
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/advocate_test.dart: هیچ‌وقت بی‌جواب نمی‌ماند و حرف نامفهوم را صادقانه می‌گوید
 ✅ test/advocate/advocate_test.dart: بازسازی حافظه از پیام‌های قبلی همان پرونده را می‌سازد
 ✅ test/advocate/advocate_test.dart: موجر را با مستأجر اشتباه نمی‌گیرد و «آره» را به پرسش درست می‌دهد
@@ -29,11 +23,6 @@
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
 ✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
-::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
 ✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
@@ -53,6 +42,15 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::116 از 117 سناریو درست است
+::warning title=intent-soft::  دعوا: با سنگ زدم به سرش   نرم   نادرست   —   موضوع «» به‌جای «fight»؛پاسخ نباید «گفتید» داشته باشد  
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
+::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
@@ -83,7 +81,6 @@
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
 ✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
 ✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
@@ -91,6 +88,7 @@
 ✅ test/advocate/conversation_control_test.dart: «چرا از موضوع خارج نمی شوی» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «انصراف از ضمانت» در جملهٔ بلند خروج نیست
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/conversation_control_test.dart: ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود
 ✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
 ✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
