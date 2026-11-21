@@ -1,7 +1,13 @@
-commit: 0b10a64
-🎉 362 tests passed.
+commit: dda5ffc
+::error::364 tests passed, 1 failed.
+::group::❌ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود (failed)
+   Expected: 'چکم برگشت خورده'
+   Actual: <null>
+   Which: not an <Instance of 'String'>
+   test/advocate/understanding_test.dart 95:5          main.<fn>
+   ::endgroup::
 --- analyze ---
-4 issues found. (ran in 12.9s)
+4 issues found. (ran in 9.6s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
