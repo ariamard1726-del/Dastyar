@@ -16,9 +16,6 @@ class DraftCmd {
   static const String finish = 'پایان';
   static const String yes = 'بله';
   static const String no = 'خیر';
-  static const String offerYes = 'بله، آماده کن';
-  static const String offerCounsel = 'مشاورهٔ گام‌به‌گام وضعیت';
-  static const String offerNo = 'نه، فقط توضیح بده';
 }
 
 class DraftSession {
@@ -195,11 +192,6 @@ class Drafting {
   static const String suggestChooseText =
       'برای وضعیتی که نوشتید این متن‌ها می‌توانند مفید باشند. کدام را آماده کنم؟';
 
-  static String offerText(LegalTemplate t) {
-    final desc = t.description.isEmpty ? '' : '\n${t.description}';
-    return 'به نظر می‌رسد «${t.title}» برای وضعیت شما مفید است.$desc\n\nمی‌خواهید همین حالا آماده‌اش کنم؟ این فقط یک پیشنهاد است و تصمیم نهایی با شماست.';
-  }
-
   static final RegExp _nonLetter = RegExp(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
   );
@@ -257,10 +249,17 @@ class Drafting {
     'پیشنویس کن',
   ];
 
+  /// «بنویس/بنویسید/بنویسش» که به دستیار گفته شده، نه «بنویسم» که کاربر از
+  /// خودش می‌گوید («چک را در وجه حامل بنویسم»).
+  static final RegExp _writeCmdRe = RegExp(r'بنویس(?:ش|ید|ی)?(?![\u0600-\u06FF])');
+
+  static bool _has(String n, String w) =>
+      w == 'بنویس' ? _writeCmdRe.hasMatch(n) : n.contains(w);
+
   static bool _wantsDraft(String n) {
     final asks = _questionWords.any((w) => n.contains(w));
-    if (asks && !_imperatives.any((w) => n.contains(w))) return false;
-    if (_verbs.any((w) => n.contains(w))) return true;
+    if (asks && !_imperatives.any((w) => _has(n, w))) return false;
+    if (_verbs.any((w) => _has(n, w))) return true;
     return _nouns.any((w) => n.contains(w));
   }
 
@@ -438,6 +437,26 @@ class Drafting {
   }
 
   static bool isYes(String raw) => _yes.contains(_fold(raw));
+
+  /// کاربر می‌خواهد از این موضوع یا این فرم بیرون بیاید («انصراف»، «خروج از
+  /// موضوع»، «نمی‌خواهم این بحث را ادامه دهم»، «چرا از موضوع خارج نمی‌شوی»).
+  static bool isLeave(String raw) {
+    final n = _fold(raw);
+    if (isComplaintNoOption(raw)) return false;
+    if (RegExp(r'خروج از|از (?:موضوع|بحث|این بحث|این موضوع|ماجرا)[^؟]{0,12}(?:خارج|بیرون|بری)|(?:خارج|بیرون) (?:نمی|نمیشی|نمیشه|نشو|نمیشی)|ادامه (?:ش )?(?:نمی|نمیخوام|نخواهم)|(?:نمی خواهم|نمیخوام|نمیخواهم|نمی خوام|نخوام|نمی خوام) (?:این بحث|ادامه|بحث)|بیرون (?:بیام|بیایم)')
+        .hasMatch(n)) {
+      return true;
+    }
+    // «انصراف» به‌تنهایی یا در جملهٔ کوتاه؛ «انصراف از ضمانت» یعنی موضوع دیگری.
+    return n.contains('انصراف') && n.split(' ').where((w) => w.isNotEmpty).length <= 4;
+  }
+
+  /// کاربر می‌گوید گزینه‌ای برای خروج نشان داده نشده («گزینه‌ای وجود ندارد»).
+  static bool isComplaintNoOption(String raw) {
+    final n = _fold(raw);
+    return RegExp(r'گزینه(?: ای| ی)? (?:وجود )?ندار|گزینه(?: انصراف)? (?:نیست|نیس)|(?:انصراف|گزینه) (?:وجود )?ندار|انصراف (?:وجود )?ندار|گزینه انصراف')
+        .hasMatch(n);
+  }
 
   static bool isNo(String raw) => _no.contains(_fold(raw));
 

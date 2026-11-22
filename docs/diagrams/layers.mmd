@@ -1,0 +1,52 @@
+flowchart TD
+    main["lib/main.dart<br/>نقطهٔ ورود و تزریق وابستگی‌ها"]
+
+    subgraph ui["lib/ui/ (نمایش و کنترلر)"]
+        chat_page["chat_page.dart<br/>about / history / settings / drawer"]
+        widgets["widgets/<br/>chat_bubbles.dart, feedback_bar.dart"]
+        controller["chat_controller.dart<br/>+ chat_models.dart"]
+    end
+
+    subgraph domain["lib/domain/ (منطق حقوقی و مدل‌های آفلاین)"]
+        advocate["advocate/<br/>وکیل قاعده‌محور + 19 موضوع + Reasoner"]
+        drafting["drafting.dart + templates.dart<br/>تنظیم سند و قالب‌ها"]
+        lawyer["lawyer/<br/>راهنماهای قطعی و همدلی"]
+        understanding["understanding/<br/>Noql ALBERT int8 + TopicReader + ReaderService"]
+        intent["intent_net.dart<br/>طبقه‌بند نیت n-gram"]
+        state_util["feedback.dart (ذخیرهٔ رمزنگاری‌شده)<br/>input_suggestions.dart, settings.dart"]
+    end
+
+    subgraph core["lib/core/ (بازیابی BM25F و زیرساخت)"]
+        retrieval["engine.dart (BM25F) + models.dart<br/>law_topic_prior.dart + conflicts_service.dart<br/>replies.dart + router.dart"]
+        qa["qa_bank.dart<br/>بانک پرسش‌وپاسخ اجاره (JSON)"]
+        infra["persian_text.dart<br/>privacy.dart, history.dart, legacy_cleanup.dart"]
+    end
+
+    main --> ui
+    main --> domain
+    main --> core
+
+    chat_page --> widgets
+    chat_page --> controller
+    widgets --> state_util
+    widgets --> drafting
+
+    controller --> advocate
+    controller --> drafting
+    controller --> understanding
+    controller --> state_util
+    controller --> infra
+
+    advocate --> retrieval
+    advocate --> qa
+    advocate --> lawyer
+    advocate --> drafting
+    advocate --> understanding
+    advocate --> intent
+    advocate --> infra
+
+    drafting --> retrieval
+    drafting --> infra
+    intent --> infra
+    state_util --> infra
+    retrieval --> infra

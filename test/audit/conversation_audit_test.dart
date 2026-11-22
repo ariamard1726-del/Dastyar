@@ -1,14 +1,15 @@
 @Tags(['slow'])
 library;
 
+import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/domain/assistant.dart';
+import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
@@ -26,6 +27,12 @@ void main() {
     await engine.load();
     final repo = TemplateRepository();
     await repo.load();
+    // همان طبقه‌بند نیتی که خودِ برنامه بار می‌کند، تا رونوشت‌ها با رفتار
+    // برنامه روی گوشی یکی باشد.
+    final net = IntentNet.fromJson(
+      jsonDecode(File('assets/brain/intent_model.json').readAsStringSync())
+          as Map<String, dynamic>,
+    );
     final inputs = (Platform.environment['AUDIT_IN'] ??
             'test/audit/conversations.txt,test/audit/conversations_followup.txt')
         .split(',');
@@ -41,14 +48,12 @@ void main() {
       n++;
       final ctrl = ChatController(
         engine: engine,
-        assistant: Assistant(engine),
         repo: repo,
         history: HistoryStore(),
         settings: AppSettings()
           ..saveHistory = false
           ..saveDraftProgress = false,
-        random: Random(1),
-        phraseSeed: 1,
+        intentNet: net,
       );
       out.writeln('=================== گفتگو $n');
       for (final t in turns) {
@@ -66,6 +71,28 @@ void main() {
       }
       ctrl.dispose();
     }
+    // گزارش «نظر دوم»: کدام جمله‌های مجموعهٔ آزمونِ طبقه‌بند را قاعده‌های
+    // وکیل نشناخته بودند و طبقه‌بند پرونده‌شان را باز کرد.
+    out.writeln('=================== نظر دوم طبقه‌بند نیت');
+    var total = 0, byRules = 0, byNet = 0;
+    for (final line
+        in File('brain/eval/intent_eval.txt').readAsLinesSync()) {
+      final i = line.indexOf('|');
+      if (line.startsWith('#') || i <= 0) continue;
+      final label = line.substring(0, i);
+      final text = line.substring(i + 1).trim();
+      total++;
+      final plain = Advocate(engine)..respond(text);
+      final hinted = Advocate(engine, intentNet: net)..respond(text);
+      if (plain.file.topic.isNotEmpty) {
+        byRules++;
+      } else if (hinted.file.topic.isNotEmpty) {
+        byNet++;
+        out.writeln('[$label → ${hinted.file.topic}] $text');
+      }
+    }
+    out.writeln('جمله‌ها: $total | قاعده‌ها باز کردند: $byRules | '
+        'طبقه‌بند باز کرد: $byNet');
     File(Platform.environment['AUDIT_OUT'] ??
             '${Directory.systemTemp.path}/dastyar_audit_out.txt')
         .writeAsStringSync(out.toString());

@@ -1,0 +1,54 @@
+h: اضافه‌کاری                | کارفرمام پول اضافه کاری منو نداده             | labor:0.93, debt:0.01, cancel:0.01
+h: جدایی                     | میخوام از شوهرم جدا شم                        | family:0.79, cancel:0.03, legal_question:0.02
+h: چک برگشتی                 | چکی که بهم دادن برگشت خورد                    | cheque:0.85, legal_question:0.04, draft_request:0.02
+h: برداشت از حساب            | یکی پولمو از حسابم برداشته                    | fraud_cyber:0.37, draft_request:0.18, legal_question:0.15
+h: مهریه                     | همسرم مهریه‌ام را نمی‌دهد                     | family:0.98, counsel_answer:0.01, draft_request:0.00
+h: تخلیه                     | صاحبخونه قرارداد رو تموم کرده و میخواد منو بی | lease:0.70, counsel_answer:0.07, legal_question:0.06
+h: ارث بعد از فوت            | بعد از فوت مادرم سر ارث دعوا شده              | legal_question:0.46, litigation_defense:0.30, article_lookup:0.05
+h: پول خوردن دوست            | دوستم پول منو خورده                           | debt:0.83, fraud_cyber:0.06, out_of_scope:0.03
+h: کالای تقلبی               | در مغازه کالای تقلبی بهم فروختن               | fraud_cyber:0.85, counsel_answer:0.03, lease:0.02
+h: زمین به نام برادر         | برادرم زمینمو به اسم خودش زده                 | chitchat:0.24, legal_question:0.11, criminal_harm:0.11
+h: متهم شدن                  | من متهم به کلاهبرداری شدم و احضار شدم         | litigation_defense:0.82, fraud_cyber:0.03, legal_question:0.02
+h: حادثهٔ کاری بیمه‌نشده     | کارفرما بیمه نکرده و حادثه کاری داشتم         | labor:0.97, counsel_answer:0.01, chitchat:0.00
+h: بردن بچه                  | خانمم می‌خواد بچه رو ببره                     | family:0.47, legal_question:0.37, out_of_scope:0.04
+h: پول پیش بیش از قرارداد    | مالک آپارتمان ازم پول پیش بیشتر از قرارداد خو | lease:0.41, legal_question:0.19, counsel_answer:0.11
+h: صبح بخیر                  | صبح بخیر                                      | chitchat:0.98, counsel_answer:0.00, legal_question:0.00
+h: ساعت                      | ساعت چنده؟                                    | out_of_scope:0.68, chitchat:0.12, lease:0.03
+h: تاریخ امروز               | تاریخ امروز چنده                              | out_of_scope:0.76, counsel_answer:0.13, cheque:0.02
+h2: حقوق معوق کارگاه         | کارگاه حقوقم رو سه ماه نداده                  | labor:0.97, counsel_answer:0.01, cheque:0.00
+h2: توقیف حقوق               | بانک بخاطر بدهی وامم حقوقم رو توقیف کرده      | debt:0.34, legal_question:0.13, out_of_scope:0.09
+h2: بچه و مدرسه              | بچه‌ام مدرسه نمیره و پدرش نمیذاره ببرمش       | family:0.68, legal_question:0.11, out_of_scope:0.06
+h2: ماشین معیوب              | ماشینی که خریدم بعد یک هفته خراب شد و فروشنده | legal_question:0.19, fraud_cyber:0.14, out_of_scope:0.14
+h2: قفل کردن خانه            | کلید خونه رو عوض کرده و وسایلمو ریخته بیرون   | lease:0.52, fraud_cyber:0.13, cheque:0.05
+h2: مادرشوهر                 | مادرشوهرم دعوا راه انداخته و نمیذاره با همسرم | family:0.31, litigation_defense:0.23, legal_question:0.13
+h2: همسایه و سروصدا          | همسایه طبقه بالا هر شب سروصدا میکنه           | legal_question:0.18, draft_request:0.18, out_of_scope:0.17
+h2: خانه پدری                | یکی از برادرام بدون اجازه خونهٔ پدری رو فروخت | counsel_answer:0.46, fraud_cyber:0.20, criminal_harm:0.06
+h2: کفالت                    | کفیل شدم و حالا طلبکار زنگ میزنه بیا پول بده  | debt:0.48, out_of_scope:0.11, counsel_answer:0.11
+h2: تاریخ                    | امروز چندم ماهه؟                              | out_of_scope:0.77, counsel_answer:0.05, article_lookup:0.03
+h2: احوال‌پرسی               | سلام، خوبی؟                                   | chitchat:0.96, cancel:0.01, counsel_answer:0.01
+h3: حقوق نداده و اخراج       | کارفرمام دو ماهه حقوق نداده و اخراجم کرده     | labor:0.93, counsel_answer:0.03, cheque:0.01
+h3: برداشت با پیامک جعلی     | مبلغی از کارتم با یک پیامک جعلی برداشت شد     | fraud_cyber:0.57, counsel_answer:0.30, cancel:0.02
+h3: چک پاس نشده              | چکی که صادر کردم پاس نشد و اجرای ثبت دنبالمه  | cheque:0.26, litigation_defense:0.26, legal_question:0.18
+h3: قطع برق و آب             | صاحب خونه‌ای که اجاره کردم آب و برق رو قطع کر | lease:0.86, legal_question:0.03, cheque:0.02
+h3: کتک و طلاق               | همسرم منو کتک میزنه و میخوام طلاق بگیرم       | family:0.72, criminal_harm:0.05, counsel_answer:0.04
+h3: ارث بدون وصیت            | پدرم بدون وصیت مرده و برادرم سهم منو نمیده    | legal_question:0.24, labor:0.21, counsel_answer:0.13
+h3: درخت همسایه              | همسایه‌ام درخت حیاط منو بریده                 | out_of_scope:0.18, draft_request:0.15, chitchat:0.15
+h3: جنس خراب                 | از فروشگاه جنس خراب خریدم و پس نمیدن          | fraud_cyber:0.45, legal_question:0.33, counsel_answer:0.10
+h3: سلام                     | سلام، روز خوبی داشته باشی                     | chitchat:0.87, counsel_answer:0.05, cancel:0.01
+h4: حق سنوات بعد از اخراج    | بعد از اخراج از کار حق سنواتم را نمیدن        | labor:0.72, counsel_answer:0.16, cancel:0.02
+h4: هک کارت                  | کارت بانکی‌ام را هک کردند و پولم رفت          | fraud_cyber:0.63, counsel_answer:0.27, debt:0.02
+h4: بیعانه و معامله بهم خورد | خریدار ملکم بیعانه داده و معامله را بهم زده   | legal_question:0.34, lease:0.12, fraud_cyber:0.10
+h4: افزایش اجاره             | موجر اجاره‌ام را دو برابر کرده                | lease:0.93, counsel_answer:0.02, cheque:0.01
+h4: بردن بچه از کشور         | زنم بدون اجازه از کشور خارج شده و بچه را برده | family:0.69, fraud_cyber:0.08, legal_question:0.07
+h4: سهم ارث عمو              | بعد از فوت پدرم عمویم مغازه را فروخته و سهم م | fraud_cyber:0.28, family:0.15, lease:0.08
+h4: فروش خانه توسط بانک      | وام گرفتم و حالا بانک میخواد خونه‌ام را بفروش | cheque:0.43, draft_request:0.18, family:0.11
+h4: تصادف و فرار             | تصادف کردم و طرف مقابل فرار کرده              | cheque:0.39, fraud_cyber:0.29, debt:0.05
+h4: خداحافظی                 | ممنون، خداحافظ                                | chitchat:0.98, cancel:0.01, general_intake:0.00
+h5: سنگ به شیشه              | بعد از دعوا با همسایه‌ام سنگ زد به شیشه ماشین | criminal_harm:0.52, legal_question:0.12, chitchat:0.05
+h5: عکس جعلی از اینستاگرام   | یکی از اینستاگرام عکسامو برداشته و جعلی درست  | criminal_harm:0.49, fraud_cyber:0.10, out_of_scope:0.06
+h5: اجرائیه و توقیف          | دادگاه بهم اجرائیه داده و اموالم داره توقیف م | legal_question:0.56, debt:0.21, draft_request:0.09
+h5: شوهر و نفقه              | شوهرم رفته و طلاق نمیده و نفقه هم نمیده       | family:0.95, counsel_answer:0.01, draft_request:0.00
+h5: اخراج و حقوق آخر ماه     | اخراجم کردن و هنوز حقوق آخر ماهمو ندادن       | counsel_answer:0.71, labor:0.19, legal_question:0.03
+h5: بعد از زایمان            | بعد از زایمان کارفرما منو بیرون کرد           | labor:0.92, chitchat:0.02, legal_question:0.01
+h5: قفل کردن کرایه‌خونه      | کرایه‌خونه‌ام رو صاحبخونه قفل کرده            | lease:0.89, cheque:0.02, criminal_harm:0.02
+h5: تشکر                     | ممنون از کمکت، روزت خوش                       | chitchat:0.98, cancel:0.01, criminal_harm:0.00

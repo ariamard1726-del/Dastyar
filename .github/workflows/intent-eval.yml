@@ -1,0 +1,79 @@
+name: Intent scenarios
+
+# گفتگوهای تعاملی وکیل را روی همان کد اجرا می‌کند و گزارش را منتشر می‌کند.
+on:
+  push:
+    branches: ['arena/**']
+    paths:
+      - 'lib/domain/advocate/**'
+      - 'lib/core/qa_bank.dart'
+      - 'lib/core/engine.dart'
+      - 'lib/core/replies.dart'
+      - 'assets/replies.json'
+      - 'assets/qa/**'
+      - 'test/advocate/**'
+      - '.github/workflows/intent-eval.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scenarios:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+      - run: flutter pub get
+      - name: Run conversation scenarios
+        id: run
+        run: |
+          set -o pipefail
+          flutter test test/advocate/intent_scenarios_test.dart --reporter expanded 2>&1 | tee "$RUNNER_TEMP/scenarios.txt"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## گزارش سناریوهای نیت"
+            if [ -f reports/intent_scenarios.md ]; then
+              head -n 40 reports/intent_scenarios.md
+            else
+              echo "گزارشی ساخته نشد."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: intent-scenarios
+          path: |
+            reports/intent_scenarios.md
+            ${{ runner.temp }}/scenarios.txt
+          if-no-files-found: warn
+      - name: Commit report
+        if: always()
+        continue-on-error: true
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set +e
+          if ! ls reports/intent_*.md >/dev/null 2>&1; then echo "::warning::گزارشی برای ذخیره نیست"; exit 0; fi
+          mkdir -p "$RUNNER_TEMP/intent_reports"
+          cp reports/intent_*.md "$RUNNER_TEMP/intent_reports/"
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          for i in 1 2 3 4; do
+            git fetch -q origin "$BRANCH" || { sleep 5; continue; }
+            git checkout -q -B "$BRANCH" "origin/$BRANCH"
+            cp "$RUNNER_TEMP"/intent_reports/*.md reports/
+            git add reports/intent_*.md
+            if git diff --cached --quiet; then echo "گزارش تغییری نکرده"; exit 0; fi
+            git commit -q -m "گزارش سناریوهای نیت [skip ci]"
+            if git push -q origin "HEAD:$BRANCH"; then echo "گزارش ذخیره شد"; exit 0; fi
+            sleep 5
+          done
+          echo "::warning::ذخیرهٔ گزارش انجام نشد"

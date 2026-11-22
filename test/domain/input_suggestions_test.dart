@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/input_suggestions.dart';
-import 'package:dastyar/domain/lawyer/phrase_variator.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 
 void main() {
   group('InputSuggestions', () {
@@ -39,50 +38,32 @@ void main() {
       }
     });
 
-    test('برای موضوع شناخته‌شده مشاورهٔ گام‌به‌گام هم پیشنهاد می‌شود', () {
-      expect(texts('کارفرما حقوقم را نداده'),
-          contains(LegalCounselor.startCounselCmd));
+    test('موضوع پیشنهادها از همان تشخیص موضوعِ وکیل می‌آید', () {
+      expect(Advocate.topicOf('کارفرما حقوقم را نداده'), 'labor');
+      expect(InputSuggestions.topicOf('کارفرما حقوقم را نداده'), 'labor');
+      expect(Advocate.topicOf('سلام خوبی'), isNull);
+      final ids = Advocate.topics.map((t) => t.id).toSet();
+      InputSuggestions.advocateTopic.forEach((id, key) {
+        expect(ids, contains(id), reason: 'موضوع $id در وکیل نیست');
+        expect(InputSuggestions.topicQuestions[key], isNotEmpty, reason: key);
+      });
+    });
+
+    test('فقط پرسش و قالب سند پیشنهاد می‌شود', () {
+      for (final q in ['کارفرما حقوقم را نداده', 'چک برگشت خورده', 'مهریه']) {
+        for (final s in InputSuggestions.forTyping(q)) {
+          expect(
+            s.kind,
+            anyOf(SuggestionKind.question, SuggestionKind.template),
+          );
+        }
+      }
     });
 
     test('همهٔ موضوعات راهنماها پرسش دارند', () {
       for (final t in InputSuggestions.guideTopic.values) {
         expect(InputSuggestions.topicQuestions[t], isNotEmpty, reason: t);
       }
-    });
-  });
-
-  group('PhraseVariator', () {
-    const vs = ['الف', 'ب', 'ج'];
-
-    test('دو بار پشت سر هم یک عبارت تکرار نمی‌شود و همه می‌چرخند', () {
-      final v = PhraseVariator(seed: 7);
-      final seen = <String>[];
-      for (var i = 0; i < 9; i++) {
-        seen.add(v.pick('k', vs));
-      }
-      for (var i = 1; i < seen.length; i++) {
-        expect(seen[i], isNot(seen[i - 1]));
-      }
-      expect(seen.take(3).toSet(), vs.toSet());
-    });
-
-    test('با بذر یکسان قطعی است', () {
-      final a = PhraseVariator(seed: 3);
-      final b = PhraseVariator(seed: 3);
-      for (var i = 0; i < 5; i++) {
-        expect(a.pick('x', vs), b.pick('x', vs));
-      }
-      expect(a.counterOf('x'), 5);
-      a.reset();
-      expect(a.counterOf('x'), 0);
-    });
-
-    test('کلیدهای جدا شمارندهٔ جدا دارند', () {
-      final v = PhraseVariator();
-      v.pick('a', vs);
-      v.pick('a', vs);
-      expect(v.counterOf('a'), 2);
-      expect(v.counterOf('b'), 0);
     });
   });
 }

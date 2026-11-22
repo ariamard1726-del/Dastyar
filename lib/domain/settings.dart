@@ -9,7 +9,6 @@ class AppSettings extends ChangeNotifier {
   bool saveHistory = true;
   bool saveDraftProgress = false;
   bool secureScreen = false;
-  bool useLocalLlm = false;
   ThemeMode themeMode = ThemeMode.system;
   SharedPreferences? _prefs;
 
@@ -64,7 +63,6 @@ class AppSettings extends ChangeNotifier {
       s.saveHistory = p.getBool('saveHistory') ?? true;
       s.saveDraftProgress = p.getBool('saveDraftProgress') ?? false;
       s.secureScreen = p.getBool('secureScreen') ?? false;
-      s.useLocalLlm = p.getBool('useLocalLlm') ?? false;
       s.themeMode = _parseThemeMode(p.getString('themeMode'));
     } catch (_) {}
     return s;
@@ -105,15 +103,6 @@ class AppSettings extends ChangeNotifier {
     try {
       final p = _prefs ??= await SharedPreferences.getInstance();
       await p.setBool('saveDraftProgress', v);
-    } catch (_) {}
-  }
-
-  Future<void> setUseLocalLlm(bool v) async {
-    useLocalLlm = v;
-    notifyListeners();
-    try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
-      await p.setBool('useLocalLlm', v);
     } catch (_) {}
   }
 

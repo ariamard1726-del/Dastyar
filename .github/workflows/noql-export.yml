@@ -1,0 +1,37 @@
+name: Noql export
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['arena/**']
+    paths:
+      - 'brain/noql/**'
+      - '.github/workflows/noql-export.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn tokenizers huggingface_hub safetensors sentence-transformers
+      - name: Export and measure
+        run: python brain/noql/export.py
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/noql_export.md assets/brain/noql.bin assets/brain/noql_vocab.json assets/brain/noql_head.json assets/brain/noql_licenses.txt test/understanding/noql_ref.json || true
+          git commit -m "Noql: فایل‌های مدل برای برنامه و گزارش [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -526,6 +526,569 @@
    ]
   }
  ],
+ "terms": [
+  {
+   "accepted": false,
+   "cover": 0.335,
+   "law": "labor",
+   "matched": [
+    "قرارداد",
+    "طرفین",
+    "تاریخ"
+   ],
+   "missing": [
+    "متن",
+    "کوتاه",
+    "شامل",
+    "مبلغ"
+   ],
+   "phrases": [],
+   "q": "متن کوتاه قرارداد شامل طرفین، مبلغ و تاریخ",
+   "title": "ماده 10",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 0.609,
+   "law": "civil",
+   "matched": [
+    "بیع",
+    "شرط"
+   ],
+   "missing": [
+    "رهن"
+   ],
+   "phrases": [
+    "بیع شرط"
+   ],
+   "q": "بیع شرط رهن",
+   "title": "ماده 463",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 0.736,
+   "law": "civil",
+   "matched": [
+    "غبن",
+    "فاحش"
+   ],
+   "missing": [
+    "کارشناس"
+   ],
+   "phrases": [
+    "غبن فاحش"
+   ],
+   "q": "کارشناس غبن افحش",
+   "title": "ماده 416",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "غبن",
+    "فاحش",
+    "معامله"
+   ],
+   "missing": [],
+   "phrases": [
+    "غبن فاحش"
+   ],
+   "q": "غبن فاحش در معامله",
+   "title": "ماده 416",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "خیار",
+    "غبن"
+   ],
+   "missing": [],
+   "phrases": [
+    "خیار غبن"
+   ],
+   "q": "خیار غبن",
+   "title": "ماده 396",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "خیار",
+    "شرط"
+   ],
+   "missing": [],
+   "phrases": [
+    "خیار شرط"
+   ],
+   "q": "خیار شرط",
+   "title": "ماده 396",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "حق",
+    "شفعه"
+   ],
+   "missing": [],
+   "phrases": [
+    "حق شفعه"
+   ],
+   "q": "حق شفعه",
+   "title": "ماده 808",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "وصیت",
+    "ثلث"
+   ],
+   "missing": [],
+   "phrases": [],
+   "q": "وصیت به ثلث",
+   "title": "ماده 849",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "family_protection",
+   "matched": [
+    "طلاق",
+    "توافقی"
+   ],
+   "missing": [],
+   "phrases": [
+    "طلاق توافقی"
+   ],
+   "q": "طلاق توافقی چقدر طول می‌کشد",
+   "title": "ماده 25",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "حضانت",
+    "فرزند"
+   ],
+   "missing": [],
+   "phrases": [
+    "حضانت فرزند"
+   ],
+   "q": "حضانت فرزند",
+   "title": "ماده 1169",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "labor",
+   "matched": [
+    "مرخصی",
+    "سالانه",
+    "کارگر"
+   ],
+   "missing": [],
+   "phrases": [
+    "مرخصی سالانه"
+   ],
+   "q": "مرخصی سالانه کارگر",
+   "title": "ماده 66",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "labor",
+   "matched": [
+    "حق",
+    "سنوات",
+    "کارگر"
+   ],
+   "missing": [],
+   "phrases": [
+    "حق سنوات"
+   ],
+   "q": "حق سنوات کارگر",
+   "title": "ماده 165",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "cheque",
+   "matched": [
+    "چک",
+    "بی",
+    "محل"
+   ],
+   "missing": [],
+   "phrases": [
+    "بی محل"
+   ],
+   "q": "چک بی محل",
+   "title": "ماده 5",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "commerce",
+   "matched": [
+    "فسخ",
+    "قرارداد"
+   ],
+   "missing": [],
+   "phrases": [
+    "فسخ قرارداد"
+   ],
+   "q": "فسخ قرارداد",
+   "title": "ماده 492",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil_procedure",
+   "matched": [
+    "تصرف",
+    "عدوانی"
+   ],
+   "missing": [],
+   "phrases": [
+    "تصرف عدوانی"
+   ],
+   "q": "تصرف عدوانی",
+   "title": "ماده 164",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "penal",
+   "matched": [
+    "قاچاق",
+    "کالا"
+   ],
+   "missing": [],
+   "phrases": [
+    "قاچاق کالا"
+   ],
+   "q": "قاچاق کالا",
+   "title": "ماده 36",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "commerce_1347",
+   "matched": [
+    "شرکت",
+    "سهامی"
+   ],
+   "missing": [],
+   "phrases": [
+    "شرکت سهامی"
+   ],
+   "q": "شرکت سهامی",
+   "title": "ماده 4",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "commerce",
+   "matched": [
+    "ورشکستگی",
+    "تاجر"
+   ],
+   "missing": [],
+   "phrases": [
+    "ورشکستگی تاجر"
+   ],
+   "q": "ورشکستگی تاجر",
+   "title": "ماده 414",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil_procedure",
+   "matched": [
+    "جعل",
+    "سند"
+   ],
+   "missing": [],
+   "phrases": [
+    "جعل سند"
+   ],
+   "q": "جعل سند",
+   "title": "ماده 227",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "marriage",
+   "matched": [
+    "ودیعه",
+    "مسکن"
+   ],
+   "missing": [],
+   "phrases": [
+    "ودیعه مسکن"
+   ],
+   "q": "ودیعه مسکن",
+   "title": "ماده 2",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "registration",
+   "matched": [
+    "سند",
+    "رسمی"
+   ],
+   "missing": [],
+   "phrases": [
+    "سند رسمی"
+   ],
+   "q": "سند رسمی",
+   "title": "ماده 99",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "عادی"
+   ],
+   "missing": [
+    "قولنامه"
+   ],
+   "phrases": [],
+   "q": "قولنامه عادی",
+   "title": "ماده 1286",
+   "unknown": [
+    "قولنامه"
+   ]
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "ارث",
+    "همسر"
+   ],
+   "missing": [],
+   "phrases": [
+    "ارث همسر"
+   ],
+   "q": "ارث همسر",
+   "title": "ماده 946",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "نفقه",
+    "همسر"
+   ],
+   "missing": [],
+   "phrases": [
+    "نفقه همسر"
+   ],
+   "q": "نفقه همسر",
+   "title": "ماده 1106",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 0.458,
+   "law": "registration",
+   "matched": [
+    "امانت"
+   ],
+   "missing": [
+    "خیانت"
+   ],
+   "phrases": [],
+   "q": "خیانت در امانت",
+   "title": "ماده 78",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "penal",
+   "matched": [
+    "دیه"
+   ],
+   "missing": [],
+   "phrases": [],
+   "q": "دیه چیست",
+   "title": "ماده 644",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "registration",
+   "matched": [
+    "صلح",
+    "عمومی"
+   ],
+   "missing": [],
+   "phrases": [],
+   "q": "صلح عمومی",
+   "title": "ماده 47",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "penal_taazirat",
+   "matched": [
+    "کشف",
+    "حجاب"
+   ],
+   "missing": [],
+   "phrases": [
+    "کشف حجاب"
+   ],
+   "q": "کشف حجاب",
+   "title": "ماده 638",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "penal",
+   "matched": [
+    "سلام"
+   ],
+   "missing": [],
+   "phrases": [],
+   "q": "سلام",
+   "title": "ماده 262",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "civil_procedure",
+   "matched": [
+    "روز"
+   ],
+   "missing": [
+    "خوبی"
+   ],
+   "phrases": [],
+   "q": "روز خوبی دارم",
+   "title": "ماده 443",
+   "unknown": [
+    "خوبی"
+   ]
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "landlord_tenant",
+   "matched": [
+    "تخلیه",
+    "ملک"
+   ],
+   "missing": [],
+   "phrases": [
+    "تخلیه ملک"
+   ],
+   "q": "تخلیه ملک",
+   "title": "ماده 3",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "کفالت"
+   ],
+   "missing": [],
+   "phrases": [
+    "کفالت"
+   ],
+   "q": "کفالت",
+   "title": "ماده 734",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "حضانت",
+    "بچه"
+   ],
+   "missing": [],
+   "phrases": [
+    "حضانت بچه"
+   ],
+   "q": "حضانت بچه",
+   "title": "ماده 1169",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "family_protection",
+   "matched": [
+    "طلاق",
+    "توافقی"
+   ],
+   "missing": [],
+   "phrases": [
+    "طلاق توافقی"
+   ],
+   "q": "طلاق توافقی",
+   "title": "ماده 25",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "landlord_tenant",
+   "matched": [
+    "سرقفلی"
+   ],
+   "missing": [],
+   "phrases": [
+    "سرقفلی"
+   ],
+   "q": "سرقفلی",
+   "title": "ماده 6",
+   "unknown": []
+  }
+ ],
  "text": [
   {
    "collapse": "ماده 10 قانون مدنی",

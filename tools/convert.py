@@ -65,6 +65,7 @@ def main():
     ap.add_argument('--source', default='')
     ap.add_argument('--date', default='')
     ap.add_argument('--amended', default='')
+    ap.add_argument('--url', default='', help='نشانی صفحهٔ منبع')
     ap.add_argument('--out', default='', help='مسیر نسبی زیر assets/laws')
     ap.add_argument('--chapters', action='store_true')
     ap.add_argument('--drop-notes', action='store_true')
@@ -186,13 +187,21 @@ def main():
         with open(dest, 'w', encoding='utf-8') as f:
             f.write('\n'.join(out).strip() + '\n')
 
+        # متن تازه همیشه «تطبیق‌نشده» ثبت می‌شود؛ verified را فقط
+        # tools/law_registry.py verify می‌نویسد.
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import law_registry
         meta[a.law_id] = {
             'title': a.name,
             'source': a.source or prev_info.get('source', ''),
-            'date': a.date or prev_info.get('date', ''),
+            'url': a.url or prev_info.get('url', ''),
+            'date': law_registry.to_fa(a.date or prev_info.get('date', '')),
+            'amended': law_registry.to_fa(
+                a.amended or prev_info.get('amended', '')),
             'articles': len(articles),
-            'amended': a.amended or prev_info.get('amended', ''),
             'path': rel_out,
+            'sha256': law_registry.sha256_of(dest),
+            'status': 'unverified',
         }
         with open(meta_path, 'w', encoding='utf-8') as f:
             json.dump(meta, f, ensure_ascii=False, indent=2)

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_page.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
@@ -44,9 +43,7 @@ void main() {
       home: Directionality(
         textDirection: TextDirection.rtl,
         child: ChatPage(
-          legacyFlow: true,
           engine: engine,
-          assistant: Assistant(engine),
           repo: repo,
           history: history,
           settings: settings,
@@ -92,51 +89,43 @@ void main() {
     });
   });
 
-  group('جریان پیشنهاد قالب در ChatPage', () {
-    testWidgets('تایپ «بله» برای تک‌قالب پیشنهادی، فرم را شروع می‌کند',
+  group('تنظیم سند در ChatPage', () {
+    testWidgets('صفحهٔ گفتگو بالا می‌آید و شرح ماجرا پاسخ وکیل می‌گیرد، نه فرم',
         (tester) async {
       await tester.pumpWidget(buildApp());
-
-      await sendMessage(tester, 'یک نفر سفته‌ام را پس نمی‌دهد');
-      expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
-
-      await sendMessage(tester, 'بله');
-      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsOneWidget);
-      expect(find.textContaining('لطفاً پرسش خود را کامل‌تر بنویسید'), findsNothing);
-    });
-
-    testWidgets('تایپ «نه» برای تک‌قالب پیشنهادی، به پرسش اصلی پاسخ می‌دهد',
-        (tester) async {
-      const q = 'برای دادگاه پول وکیل ندارم';
-      await tester.pumpWidget(buildApp());
-
-      await sendMessage(tester, q);
-      expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
-
-      await sendMessage(tester, 'نه');
-      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
-      expect(find.textContaining('ماده'), findsWidgets);
-    });
-
-    testWidgets('پاسخ نامرتبط به پیشنهاد تک‌قالب، به‌اشتباه «بله» تلقی نمی‌شود',
-        (tester) async {
-      await tester.pumpWidget(buildApp());
-
-      await sendMessage(tester, 'یک نفر سفته‌ام را پس نمی‌دهد');
-      expect(find.textContaining('می‌خواهید همین حالا آماده‌اش کنم؟'), findsOneWidget);
-
-      await sendMessage(tester, 'طلبکار هستم');
-      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
-    });
-
-    testWidgets('شرح ماجرای چک برگشتی، به‌جای پیشنهاد خشک قالب، پاسخ همدلانه و مستند می‌دهد',
-        (tester) async {
-      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsOneWidget);
+      // دکمهٔ «توقف پاسخ» مخصوص مدل زبانی بود و دیگر وجود ندارد.
+      expect(find.byIcon(Icons.stop_rounded), findsNothing);
 
       await sendMessage(tester, 'چکم برگشت خورد');
-      expect(find.text(Drafting.suggestChooseText), findsNothing);
-      expect(find.textContaining('می‌فهمم'), findsWidgets);
-      expect(find.textContaining('گواهی عدم پرداخت'), findsWidgets);
+      expect(find.text('چکم برگشت خورد'), findsOneWidget);
+      expect(find.text(Drafting.chooseText), findsNothing);
+      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
+      expect(find.textContaining('چک'), findsWidgets);
+    });
+
+    testWidgets('«برام بنویسش» بدون پرونده می‌پرسد کدام متن، و «نه» آن را می‌بندد',
+        (tester) async {
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      await sendMessage(tester, 'برام بنویسش');
+      expect(find.text(Drafting.chooseText), findsOneWidget);
+
+      await sendMessage(tester, 'نه');
+      expect(find.textContaining('فعلاً متنی نمی‌نویسم'), findsOneWidget);
+      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
+    });
+
+    testWidgets('نام‌بردن از یک قالب، فرم همان را شروع می‌کند',
+        (tester) async {
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      await sendMessage(tester, 'دادخواست مطالبهٔ وجه');
+      expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsOneWidget);
+      expect(find.textContaining('شهر دادگاه'), findsWidgets);
     });
   });
 }
