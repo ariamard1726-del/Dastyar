@@ -609,7 +609,9 @@ class Advocate {
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
     if (!hasCase && bestScore < 3) {
-      final lt = _lawTermsReply(raw, n);
+      // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
+      final confidentGuess = guess != null && guess.confident;
+      final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _lawTermsReply(raw, n);
       if (lt != null) return lt;
       final refs = Understanding.linkedArticles(n);
       if (refs.isNotEmpty) {
@@ -709,7 +711,7 @@ class Advocate {
       // واژه‌های پرسش را با متن قوانین می‌سنجیم: ماده‌ای که واژه‌ها را با هم
       // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
       // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
-      if (guide == null) {
+      if (guide == null && (guess == null || !guess.confident)) {
         final lt = _lawTermsReply(raw, n);
         if (lt != null) return lt;
       }
