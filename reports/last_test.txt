@@ -1,13 +1,7 @@
-commit: ac61dc0
-::error::375 tests passed, 1 failed.
-::group::❌ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت (failed)
-   Expected: 'leave'
-   Actual: ''
-   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: leave
-   test/advocate/rent_test.dart 246:7                  main.<fn>.<fn>
-   ::endgroup::
+commit: fbcdab8
+🎉 376 tests passed.
 --- analyze ---
-4 issues found. (ran in 10.0s)
+4 issues found. (ran in 10.2s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
