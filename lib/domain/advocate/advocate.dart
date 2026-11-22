@@ -668,13 +668,6 @@ class Advocate {
       );
     }
 
-    // عبارتی دوواژه‌ای که عیناً در یک ماده است («بیع شرط») و پرونده‌ای باز
-    // نیست، پیش از موضوع‌های ضعیف جواب می‌گیرد: مادهٔ همان عبارت نشان داده
-    // می‌شود، نه حدس موضوعی که فقط از یک واژهٔ مشترک آمده است.
-    if (topic == null && !hasCase && bestScore <= 4 && _guide == null) {
-      final lt = _lawTermsReply(raw, n, phraseOnly: true);
-      if (lt != null) return lt;
-    }
     if (topic == null) {
       if (best != null && bestScore >= 3) {
         for (final t in topics) {
