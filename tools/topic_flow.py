@@ -15,8 +15,8 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FLOW = os.path.join(ROOT, 'assets', 'brain', 'topics', 'cheque.json')
-GOLD = os.path.join(ROOT, 'tests', 'topics', 'cheque_gold.json')
+TOPIC_DIR = os.path.join(ROOT, 'assets', 'brain', 'topics')
+TEST_DIR = os.path.join(ROOT, 'tests', 'topics')
 
 _FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه', 'ؤ': 'و', 'أ': 'ا', 'ء': ''})
 _PUNCT = re.compile(r'[،,.;:!?؟()\[\]«»"\-/]+')
@@ -49,13 +49,32 @@ def route(q, flow=None):
     return 'ask'
 
 
-def load():
-    with open(FLOW, encoding='utf-8') as f:
+def topic_names():
+    with open(os.path.join(TOPIC_DIR, 'index.json'), encoding='utf-8') as f:
+        return [os.path.splitext(n)[0] for n in json.load(f)['topics']]
+
+
+def load(topic='cheque'):
+    with open(os.path.join(TOPIC_DIR, topic + '.json'), encoding='utf-8') as f:
         return json.load(f)
 
 
+def route_all(q):
+    """اولین موضوعی که پاسخ غیر از ask بدهد؛ (نام موضوع، برگ) یا (None، 'ask')."""
+    for name in topic_names():
+        flow = load(name)
+        leaf = route(q, flow)
+        if leaf != 'ask':
+            return name, leaf
+    return None, 'ask'
+
+
 def answer(q, flow=None):
-    flow = flow or load()
+    if flow is None:
+        name, leaf_id = route_all(q)
+        if name is None:
+            flow, name = load('cheque'), 'cheque'
+        flow = load(name)
     leaf_id = route(q, flow)
     leaf = flow['leaves'][leaf_id]
     refs = ['%s %s' % (a['law'], a['title']) for a in leaf['articles']]
@@ -64,18 +83,26 @@ def answer(q, flow=None):
 
 
 def check():
-    flow = load()
-    gold = json.load(open(GOLD, encoding='utf-8'))
-    bad = [(g['q'], g['leaf'], route(g['q'], flow)) for g in gold if route(g['q'], flow) != g['leaf']]
-    return gold, bad
+    """بررسی هر موضوع با نمونه‌های خودش؛ خروجی: (همه، ناموفق‌ها)."""
+    gold_all, bad = [], []
+    for name in topic_names():
+        flow = load(name)
+        path = os.path.join(TEST_DIR, name + '_gold.json')
+        gold = json.load(open(path, encoding='utf-8'))
+        for g in gold:
+            gold_all.append(g)
+            got = route(g['q'], flow)
+            if got != g['leaf']:
+                bad.append((name, g['q'], g['leaf'], got))
+    return gold_all, bad
 
 
 def main(argv):
     if argv and argv[0] == '--check':
         gold, bad = check()
         print('%d از %d نمونه درست است.' % (len(gold) - len(bad), len(gold)))
-        for q, want, got in bad:
-            print('  ✗ %s: انتظار %s، گرفت %s' % (q, want, got))
+        for name, q, want, got in bad:
+            print('  ✗ [%s] %s: انتظار %s، گرفت %s' % (name, q, want, got))
         return 1 if bad else 0
     if not argv:
         print(__doc__)

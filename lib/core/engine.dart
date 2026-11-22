@@ -106,8 +106,8 @@ class KnowledgeEngine {
   QaBank get qa => _qaBank;
   /// فهرست واژه‌های حقوقی با ماده؛ پس از [load] پر می‌شود.
   Map<String, dynamic> get legalTerms => _legalTerms;
-  /// مسیر تصمیم چک؛ پس از [load] پر می‌شود.
-  Map<String, dynamic> get chequeFlow => _chequeFlow;
+  /// مسیرهای تصمیم موضوعی (assets/brain/topics/index.json)؛ پس از [load] پر می‌شود.
+  List<Map<String, dynamic>> get topicFlows => _topicFlows;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
@@ -179,26 +179,22 @@ QaBank _qaBank = QaBank.empty;
 /// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
 Map<String, dynamic> _legalTerms = const {};
 
-/// مسیر تصمیم چک (assets/brain/topics/cheque.json).
-Map<String, dynamic> _chequeFlow = const {};
+/// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
+List<Map<String, dynamic>> _topicFlows = const [];
 
-Future<void> _loadChequeFlow() async {
-  _chequeFlow = const {};
+Future<void> _loadTopicFlows() async {
+  _topicFlows = const [];
   try {
-    final t = await rootBundle.loadString('assets/brain/topics/cheque.json');
-    _chequeFlow = jsonDecode(t) as Map<String, dynamic>;
+    final idx = jsonDecode(await rootBundle.loadString('assets/brain/topics/index.json'))
+        as Map<String, dynamic>;
+    final out = <Map<String, dynamic>>[];
+    for (final name in (idx['topics'] as List).cast<String>()) {
+      final t = await rootBundle.loadString('assets/brain/topics/$name');
+      out.add(jsonDecode(t) as Map<String, dynamic>);
+    }
+    _topicFlows = out;
   } catch (e) {
-    warnings.add('brain/topics/cheque.json: $e');
-  }
-}
-
-Future<void> _loadLegalTerms() async {
-  _legalTerms = const {};
-  try {
-    final t = await rootBundle.loadString('assets/brain/legal_terms.json');
-    _legalTerms = jsonDecode(t) as Map<String, dynamic>;
-  } catch (e) {
-    warnings.add('brain/legal_terms.json: $e');
+    warnings.add('brain/topics: $e');
   }
 }
 
@@ -266,7 +262,7 @@ Future<void> load() async {
     _loadLawTopics(),
     _loadQa(),
     _loadLegalTerms(),
-    _loadChequeFlow(),
+    _loadTopicFlows(),
     knowledgeFuture,
   ]);
 

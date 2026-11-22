@@ -289,15 +289,20 @@ const String _legalHint =
     'بیع|رهن|شرط|خیار|عقد|غبن|فاحش|کارشناس|قولنامه|طرفین|مبلغ|مالک|مستاجر|موجر|دعوا|اتهام|قصاص|تخلف|جعل|توهین|افترا|تهدید|قانون|حق |حقوق|جرم|مجازات|دادگاه|دادسرا|شکایت|قرارداد|(?:^| )سند|ارث|دیه|مهریه|جریمه|وکالت|وکیل|وصیت|ملک|معامله|خسارت|بدهی|(?:^| )طلب|محکوم|حکم |(?:^| )رای |تعهد|ضامن|ضمانت|فسخ|مالکیت|توقیف|زندان|حبس|قاضی|کارفرما|کارگر|اخراج|اجاره|موجر|مستاجر|چک|طلاق|نفقه|حضانت|بیمه|ورشکست|شرکت|سهام|ثبت|طلبکار|بدهکار|سرقت|دزد|کلاهبردار|تصرف|همسایه|دیوار|ودیعه|بانک|اجرای|دادخواست|لایحه|اجرائیه|کیفری|مدنی';
 
 extension _TopicFlowReply on Advocate {
-  /// پاسخ مسیر تصمیم چک، فقط وقتی پرونده‌ای باز نیست و پیام دربارهٔ چک است.
-  /// اگر مسیر به برگ `ask` برسد، `null` برمی‌گرداند تا مسیر قبلی ادامه یابد.
+  /// پاسخ مسیرهای تصمیم موضوعی، فقط وقتی پرونده‌ای باز نیست. هر موضوع با
+  /// دروازهٔ واژه‌هایش فعال می‌شود؛ اگر هیچ برگی جز `ask` نباشد، `null`.
   AdvocateReply? _topicReply(String raw, String n) {
     if (hasCase) return null;
-    if (!TopicFlow.mentionsCheque(raw)) return null;
-    final flow = engine.chequeFlow;
-    if (flow.isEmpty) return null;
-    final leafId = TopicFlow.route(flow, raw);
-    if (leafId == 'ask') return null;
+    for (final flow in engine.topicFlows) {
+      final leafId = TopicFlow.route(flow, raw);
+      if (leafId == 'ask') continue;
+      final r = _topicLeafReply(flow, leafId);
+      if (r != null) return r;
+    }
+    return null;
+  }
+
+  AdvocateReply? _topicLeafReply(Map<String, dynamic> flow, String leafId) {
     final leaves = flow['leaves'];
     if (leaves is! Map) return null;
     final leaf = leaves[leafId];

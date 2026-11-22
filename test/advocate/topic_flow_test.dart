@@ -10,14 +10,21 @@ void main() {
   final flow = jsonDecode(File('assets/brain/topics/cheque.json').readAsStringSync())
       as Map<String, dynamic>;
 
-  test('مسیر چک: نمونه‌های توسعه همه درست‌اند', () {
-    final gold = (jsonDecode(File('tests/topics/cheque_gold.json').readAsStringSync()) as List)
-        .cast<Map<String, dynamic>>();
-    final bad = [
-      for (final g in gold)
-        if (TopicFlow.route(flow, g['q'] as String) != g['leaf']) g['q'],
-    ];
-    expect(bad, isEmpty, reason: bad.join(' | '));
+  test('همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند', () {
+    final index = jsonDecode(File('assets/brain/topics/index.json').readAsStringSync())
+        as Map<String, dynamic>;
+    for (final name in (index['topics'] as List).cast<String>()) {
+      final topic = jsonDecode(File('assets/brain/topics/$name').readAsStringSync())
+          as Map<String, dynamic>;
+      final stem = name.replaceAll('.json', '');
+      final gold = (jsonDecode(File('tests/topics/${stem}_gold.json').readAsStringSync()) as List)
+          .cast<Map<String, dynamic>>();
+      final bad = [
+        for (final g in gold)
+          if (TopicFlow.route(topic, g['q'] as String) != g['leaf']) '[$stem] ${g['q']}',
+      ];
+      expect(bad, isEmpty, reason: bad.join(' | '));
+    }
   });
 
   test('تشخیص پیام دربارهٔ چک', () {
