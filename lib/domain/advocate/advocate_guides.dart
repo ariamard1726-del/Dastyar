@@ -287,3 +287,38 @@ extension _LawTermsReply on Advocate {
 /// نشانه‌های حقوقیِ کلی؛ فقط برای تصمیم «این جمله حقوقی است؟» به کار می‌رود.
 const String _legalHint =
     'بیع|رهن|شرط|خیار|عقد|غبن|فاحش|کارشناس|قولنامه|طرفین|مبلغ|مالک|مستاجر|موجر|دعوا|اتهام|قصاص|تخلف|جعل|توهین|افترا|تهدید|قانون|حق |حقوق|جرم|مجازات|دادگاه|دادسرا|شکایت|قرارداد|(?:^| )سند|ارث|دیه|مهریه|جریمه|وکالت|وکیل|وصیت|ملک|معامله|خسارت|بدهی|(?:^| )طلب|محکوم|حکم |(?:^| )رای |تعهد|ضامن|ضمانت|فسخ|مالکیت|توقیف|زندان|حبس|قاضی|کارفرما|کارگر|اخراج|اجاره|موجر|مستاجر|چک|طلاق|نفقه|حضانت|بیمه|ورشکست|شرکت|سهام|ثبت|طلبکار|بدهکار|سرقت|دزد|کلاهبردار|تصرف|همسایه|دیوار|ودیعه|بانک|اجرای|دادخواست|لایحه|اجرائیه|کیفری|مدنی';
+
+extension _TopicFlowReply on Advocate {
+  /// پاسخ مسیر تصمیم چک، فقط وقتی پرونده‌ای باز نیست و پیام دربارهٔ چک است.
+  /// اگر مسیر به برگ `ask` برسد، `null` برمی‌گرداند تا مسیر قبلی ادامه یابد.
+  AdvocateReply? _topicReply(String raw, String n) {
+    if (hasCase) return null;
+    if (!TopicFlow.mentionsCheque(raw)) return null;
+    final flow = engine.chequeFlow;
+    if (flow.isEmpty) return null;
+    final leafId = TopicFlow.route(flow, raw);
+    if (leafId == 'ask') return null;
+    final leaves = flow['leaves'];
+    if (leaves is! Map) return null;
+    final leaf = leaves[leafId];
+    if (leaf is! Map) return null;
+    final laws = <LawText>[];
+    for (final a in (leaf['articles'] as List? ?? const []).cast<Map>()) {
+      final lawId = a['law'].toString();
+      final title = a['title'].toString();
+      for (final c in engine.chunks) {
+        if (c.lawId == lawId && c.title == title) {
+          laws.add(LawText(c.title, c.source, c.body, ''));
+          break;
+        }
+      }
+    }
+    final refs = laws.map((l) => '«${l.title}»').join('، ');
+    final text = '${leaf['title']}\n\n${leaf['text']}'
+        '${refs.isEmpty ? '' : '\n\nمواد مستند: ${PersianText.toFaDigits(refs)}'}\n\n'
+        '${flow['disclaimer'] ?? ''}';
+    _rest = '';
+    _offeredMore = false;
+    return AdvocateReply(text, laws: laws);
+  }
+}

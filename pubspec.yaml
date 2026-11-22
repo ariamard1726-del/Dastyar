@@ -32,6 +32,7 @@ flutter:
     - assets/relationships.json
     - assets/qa/
     - assets/brain/
+    - assets/brain/topics/
     - assets/laws/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/

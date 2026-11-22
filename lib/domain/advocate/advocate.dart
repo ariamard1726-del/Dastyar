@@ -7,6 +7,7 @@ import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topic_flow.dart';
 import 'package:dastyar/domain/advocate/topics/all.dart';
 import 'package:dastyar/domain/advocate/topics/shared.dart';
 import 'package:dastyar/domain/advocate/understanding.dart';
@@ -712,6 +713,8 @@ class Advocate {
       // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
       // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
       if (guide == null && (guess == null || !guess.confident)) {
+        final tf = _topicReply(raw, n);
+        if (tf != null) return tf;
         final lt = _lawTermsReply(raw, n);
         if (lt != null) return lt;
       }

@@ -106,6 +106,8 @@ class KnowledgeEngine {
   QaBank get qa => _qaBank;
   /// فهرست واژه‌های حقوقی با ماده؛ پس از [load] پر می‌شود.
   Map<String, dynamic> get legalTerms => _legalTerms;
+  /// مسیر تصمیم چک؛ پس از [load] پر می‌شود.
+  Map<String, dynamic> get chequeFlow => _chequeFlow;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
@@ -176,6 +178,19 @@ QaBank _qaBank = QaBank.empty;
 
 /// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
 Map<String, dynamic> _legalTerms = const {};
+
+/// مسیر تصمیم چک (assets/brain/topics/cheque.json).
+Map<String, dynamic> _chequeFlow = const {};
+
+Future<void> _loadChequeFlow() async {
+  _chequeFlow = const {};
+  try {
+    final t = await rootBundle.loadString('assets/brain/topics/cheque.json');
+    _chequeFlow = jsonDecode(t) as Map<String, dynamic>;
+  } catch (e) {
+    warnings.add('brain/topics/cheque.json: $e');
+  }
+}
 
 Future<void> _loadLegalTerms() async {
   _legalTerms = const {};
@@ -251,6 +266,7 @@ Future<void> load() async {
     _loadLawTopics(),
     _loadQa(),
     _loadLegalTerms(),
+    _loadChequeFlow(),
     knowledgeFuture,
   ]);
 
