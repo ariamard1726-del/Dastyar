@@ -1,5 +1,4 @@
 import 'package:dastyar/core/engine.dart';
-import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 
 /// نتیجهٔ تطبیق واژه‌های پرسش با متن قوانین.
