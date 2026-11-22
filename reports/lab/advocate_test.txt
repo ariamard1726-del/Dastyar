@@ -21,6 +21,11 @@
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::119 از 119 سناریو درست است
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
 ✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
 ✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
@@ -42,9 +47,6 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::119 از 119 سناریو درست است
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
@@ -102,6 +104,10 @@
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
+✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
+✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
 ✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
 ✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
@@ -156,4 +162,4 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ::endgroup::
 
-🎉 148 tests passed.
+🎉 152 tests passed.
