@@ -1,3 +1,23 @@
+
+::group::✅ Passing tests
+✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
+✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
+✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
+✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
+✅ test/advocate/advocate_test.dart: خشونت خانگی به پروندهٔ خانواده می‌رود، نه کار
+✅ test/advocate/advocate_test.dart: متهم: «اگه نرم چی میشه؟» جواب مشخص می‌گیرد
+✅ test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
+✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
+✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
+✅ test/advocate/advocate_test.dart: موضوع تازه وسط گفتگو: پروندهٔ قبلی بسته و پروندهٔ نو باز می‌شود
+✅ test/advocate/advocate_test.dart: هیچ‌وقت بی‌جواب نمی‌ماند و حرف نامفهوم را صادقانه می‌گوید
+✅ test/advocate/advocate_test.dart: بازسازی حافظه از پیام‌های قبلی همان پرونده را می‌سازد
+✅ test/advocate/advocate_test.dart: موجر را با مستأجر اشتباه نمی‌گیرد و «آره» را به پرسش درست می‌دهد
+✅ test/advocate/advocate_test.dart: واژه‌های شبیه هم گمراهش نمی‌کند (خونه≠نه، صیادیه≠دیه، خرجش≠هزینه)
+✅ test/advocate/advocate_test.dart: شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
+✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
+✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
+✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
@@ -22,75 +42,25 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
-✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
-✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
-::endgroup::
-::group::❌ test/advocate/law_terms_test.dart: بیع شرط و رهن: ماده‌ای که بیع شرط را دارد نشان داده می‌شود (failed)
-Expected: contains 'ماده ۴۶۳'
-  Actual: 'این یک اختلاف فروش است. قرارداد فروش برای طرفین لازم‌الاتباع است (ماده ۲۱۹ قانون مدنی) و فروشنده باید مال فروخته‌شده را تحویل دهد (ماده ۳۶۲ قانون مدنی). چون پول را داده‌اید، تا وقتی تحویل نشده می‌توانید تحویل را بخواهید؛ و اگر تأخیر ادامه یابد، امتناع فروشنده قابل اجبار به تسلیم است (ماده ۳۷۶ قانون مدنی). برای اینکه کار روشن شود: قرارداد چه بوده، چه مبلغی و با چه موعدی پرداخت شده، و آیا خودرو هنوز به نام فروشنده است؟\n'
-            '\n'
-            'یادآوری: این راهنمایی بر پایهٔ گفته‌های شماست و جای وکیل دادگستری را نمی‌گیرد.\n'
-            '\n'
-            'قرارداد، قولنامه، رسید یا فیش پرداخت دارید؟ (مکاتبه یا پیامک هم مدرک است.)'
-   Which: does not contain 'ماده ۴۶۳'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/law_terms_test.dart 59:5              main.<fn>
-::endgroup::
-::group::❌ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود (failed)
-Expected: contains 'ماده ۴۱۶'
-  Actual: 'این واژه در متن قانون به این مواد مربوط است: (مواد ۴۱۶ و ۴۱۷ قانون مدنی)\n'
-            '\n'
-            'یادآوری: این راهنمایی بر پایهٔ گفته‌های شماست و جای وکیل دادگستری را نمی‌گیرد.\n'
-            '\n'
-            'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟'
-   Which: does not contain 'ماده ۴۱۶'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/law_terms_test.dart 66:5              main.<fn>
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::116 از 119 سناریو درست است
-::warning title=intent-soft::  خارج از حوزه: 30   نرم   نادرست   —   پاسخ شامل «حوزهٔ کار من» نیست  
-::warning title=intent-soft::  خارج از حوزه: 40   نرم   نادرست   —   پاسخ شامل «حوزهٔ کار من» نیست  
-::warning title=intent-soft::  آیین‌نامه با شماره ماده: نباید ماده‌ی قانون دیگر را بدهد   نرم   نادرست   —   پاسخ شامل «نام همان قانون» نیست  
+::notice title=intent::118 از 119 سناریو درست است
+::warning title=intent-soft::  قهر جرم نیست   نرم   نادرست   —   پاسخ شامل «قهر کردن جرم نیست» نیست  
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
 ::endgroup::
 ::group::✅ Passing tests
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
+✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
+✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
+✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
+✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
-::endgroup::
-::group::❌ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد (failed)
-Expected: not contains 'نوجوان'
-  Actual: 'در «قانون حمایت از اطفال و نوجوانان» ماده ۱۷ واژه‌های «17»، «مجازات»، «اسلامی» با هم آمده‌اند. واژهٔ «تجارت» در این ماده نیست.\n'
-            '\n'
-            'هر‌کس از وقوع جرم یا شروع به آن یا خطر شدید و قریب‌الوقوع علیه طفل یا نوجوانی مطلع بوده یا شاهد وقوع آن باشد و با وجود توانایی اعلام و گزارش به مقامات یا مراجع صلاحیت‌دار و کمک طلبیدن از آن‌ها از این امر خودداری کند یا در صورت عدم دسترسی به این مقامات و مراجع و یا عدم تأثیر دخالت آن‌ها در رفع تجاوز و خطر، از اقدامات فوری و متناسب برای جلوگیری از وقوع خطر و یا تشدید نتیجه آن امتناع کند، مشروط بر اینکه با این اقدام، خطری مشابه یا شدیدتر و یا خطر کمتر قابل توجهی متوجه خود او یا دیگران نشود، به یکی از مجازات‌های درجه شش قانون مجازات اسلامی محکوم می‌شود.\n'
-            'تبصره – اگر مرتکب جرم مذکور در این ماده از افرادی باشد که مطابق قوانین و مقررات و یا برحسب وظیفه شغلی مکلف به اعلام، گزارش یا کمک می‌باشند و یا به اقتضای حرفه خود می‌توانند کمک مؤثری کنند، به دو یا هر سه مجازات درجه شش قانون مجازات اسلامی و حسب مورد به انفصال موقت از خدمات دولتی یا عمومی یا محرومیت از فعالیت در آن حرفه به مدت شش ماه تا دو سال محکوم می‌شود.\n'
-            '\n'
-            'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/intro_and_law_test.dart 33:5          main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
 ✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
-::endgroup::
-::group::❌ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد (failed)
-Expected: non-empty
-  Actual: []
-هیچ پرسش بانک به مسیر QA نمی‌رسد؛ مسیر QA بی‌استفاده است.
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/intent_scenarios_test.dart 602:5      main.<fn>
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/topic_switch_test.dart: «انصراف» دکمهٔ آخر است وقتی پرونده باز است
 ✅ test/advocate/topic_switch_test.dart: بدون پرونده، «انصراف» دکمه نیست
 ✅ test/advocate/topic_switch_test.dart: پیام با موضوع دیگر، پرونده را بی‌پرسش عوض نمی‌کند
@@ -178,6 +148,7 @@ test/advocate/intent_scenarios_test.dart 602:5      main.<fn>
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
@@ -191,10 +162,9 @@ test/advocate/intent_scenarios_test.dart 602:5      main.<fn>
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::153 tests passed, 5 failed.
+🎉 158 tests passed.
