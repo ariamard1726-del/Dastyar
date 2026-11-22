@@ -457,6 +457,7 @@ extension _Talk on Advocate {
 /// نقل کوتاهِ کلمه‌های کاربر: بی‌علامت پایانی و حداکثر شش کلمه.
 String _quoteWords(String raw) {
   final words = raw
+      .replaceAll(RegExp("[«»\"“”'‘’]"), ' ')
       .trim()
       .replaceAll(RegExp(r'[؟?!.،,]+$'), '')
       .trim()
