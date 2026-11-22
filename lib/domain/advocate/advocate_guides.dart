@@ -50,7 +50,7 @@ extension _Guides on Advocate {
   AdvocateReply _lookup(String raw, String n) {
     // پرسش‌های آمادهٔ بانک (مثلاً اجاره) پیش از جست‌وجوی واژگانی پاسخ داده می‌شوند.
     final qa = engine.qa.match(raw);
-    if (qa != null) return _qaReply(qa);
+    if (qa != null && _qaFits(qa, n)) return _qaReply(qa);
     final direct = Sense.has(n, '(?:ماده|اصل) [0-9]+');
     final legalish = direct ||
         Sense.has(n,
@@ -230,4 +230,14 @@ bool _sharesContent(String n, String body) {
     if (bn.contains(w)) return true;
   }
   return false;
+}
+
+/// پاسخ‌های بانک اجاره فقط برای پرسشی که واژهٔ اجاره‌ای دارد. بدون این
+/// قید، پرسش دربارهٔ فروش دوباره‌ی ملک («سند عادی»، «سند رسمی») به
+/// پاسخ اجاره می‌خورد.
+bool _qaFits(QaItem qa, String n) {
+  final rent = qa.refs.any((r) => r.startsWith('landlord_tenant:'));
+  if (!rent) return true;
+  return Sense.has(n,
+      'اجاره|مستاجر|مستأجر|موجر|کرایه|ودیعه|تخلیه|سرقفلی|مغازه|منزل|خانه|واحد|مالک');
 }

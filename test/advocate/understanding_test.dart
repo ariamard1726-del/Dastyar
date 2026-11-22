@@ -105,4 +105,16 @@ void main() {
   test('همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد', () {
     expect(Understanding.relevantChip(Sense.norm('مهریه‌ام پرداخت نشده')), isNull);
   });
+
+  test('پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود', () {
+    final r = fresh().respond(
+        'خریدار اول سند عادی دارد و ساکن است؛ خریدار دوم سند رسمی گرفته. کدام مقدم است؟');
+    expect(r.text, isNot(contains('مستاجر')));
+    expect(r.text, isNot(contains('مستأجر')));
+  });
+
+  test('پژواک پرسش با گیومه تودرتو نمی‌شود', () {
+    final r = fresh().respond('«طبق ماده ۹۹۹۹ قانون مدنی، مدت قرارداد چقدر است؟»');
+    expect(r.text, isNot(contains('««')));
+  });
 }
