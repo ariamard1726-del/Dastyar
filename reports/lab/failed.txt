@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت (failed)
-::error::375 tests passed, 1 failed.
+🎉 376 tests passed.
