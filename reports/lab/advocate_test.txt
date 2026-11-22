@@ -3,24 +3,24 @@
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
-✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
-✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
-✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
+✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
-✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
+✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
-✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
@@ -37,14 +37,12 @@
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
 ::notice title=intent::119 از 119 سناریو درست است
 ::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
-✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
-::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
 ::endgroup::
 ::group::✅ Passing tests
+✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
+✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
 ✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
 ✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
@@ -61,21 +59,21 @@
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
-✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
-✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
-✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
-✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
-✅ test/advocate/understanding_test.dart: مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید
-✅ test/advocate/understanding_test.dart: غبن با اسقاط شرط: قاعدهٔ تعارض پیش از فهرست ماده‌ها جواب می‌دهد
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
 ✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
+✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/conversation_control_test.dart: «خروج از موضوع» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «چرا از موضوع خارج نمی شوی» پرونده را می‌بندد
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «انصراف از ضمانت» در جملهٔ بلند خروج نیست
+✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/conversation_control_test.dart: ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود
+✅ test/advocate/understanding_test.dart: مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید
 ✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
+✅ test/advocate/understanding_test.dart: غبن با اسقاط شرط: قاعدهٔ تعارض پیش از فهرست ماده‌ها جواب می‌دهد
 ✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
 ✅ test/advocate/conversation_control_test.dart: جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند
 ✅ test/advocate/conversation_control_test.dart: قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید
