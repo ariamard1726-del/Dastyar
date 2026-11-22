@@ -898,33 +898,35 @@
    ]
   },
   {
-   "accepted": false,
-   "cover": 0.459,
+   "accepted": true,
+   "cover": 1.0,
    "law": "civil",
    "matched": [
-    "ارث"
-   ],
-   "missing": [
+    "ارث",
     "همسر"
    ],
-   "phrases": [],
+   "missing": [],
+   "phrases": [
+    "ارث همسر"
+   ],
    "q": "ارث همسر",
-   "title": "ماده 873",
+   "title": "ماده 946",
    "unknown": []
   },
   {
-   "accepted": false,
-   "cover": 0.493,
-   "law": "family_protection",
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
    "matched": [
-    "نفقه"
-   ],
-   "missing": [
+    "نفقه",
     "همسر"
    ],
-   "phrases": [],
+   "missing": [],
+   "phrases": [
+    "نفقه همسر"
+   ],
    "q": "نفقه همسر",
-   "title": "ماده 47",
+   "title": "ماده 1106",
    "unknown": []
   },
   {
@@ -970,16 +972,17 @@
    "unknown": []
   },
   {
-   "accepted": false,
-   "cover": 0.623,
+   "accepted": true,
+   "cover": 1.0,
    "law": "penal_taazirat",
    "matched": [
+    "کشف",
     "حجاب"
    ],
-   "missing": [
-    "کشف"
+   "missing": [],
+   "phrases": [
+    "کشف حجاب"
    ],
-   "phrases": [],
    "q": "کشف حجاب",
    "title": "ماده 638",
    "unknown": []
@@ -1013,6 +1016,22 @@
    "unknown": [
     "خوبی"
    ]
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "landlord_tenant",
+   "matched": [
+    "تخلیه",
+    "ملک"
+   ],
+   "missing": [],
+   "phrases": [
+    "تخلیه ملک"
+   ],
+   "q": "تخلیه ملک",
+   "title": "ماده 3",
+   "unknown": []
   }
  ],
  "text": [

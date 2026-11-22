@@ -11,14 +11,13 @@
   {
     "q": "تخلیه ملک",
     "accepted": true,
-    "not_law": [
-      "direct_taxes"
-    ],
     "body_has": [
       "تخلیه"
     ],
-    "status": "open",
-    "note": "نباید به مالیات‌های مستقیم برود"
+    "status": "ok",
+    "note": "نباید به مالیات‌های مستقیم برود",
+    "law": "landlord_tenant",
+    "title": "ماده 3"
   },
   {
     "q": "نزدیک‌ترین ستاره به زمین",
@@ -53,13 +52,13 @@
   {
     "q": "ارث همسر",
     "accepted": true,
-    "status": "open",
+    "status": "ok",
     "note": "قانون مدنی"
   },
   {
     "q": "نفقه همسر",
     "accepted": true,
-    "status": "open",
+    "status": "ok",
     "note": "قانون مدنی / حمایت خانواده"
   },
   {
@@ -71,7 +70,7 @@
   {
     "q": "کشف حجاب",
     "accepted": true,
-    "status": "open",
+    "status": "ok",
     "note": "قانون مجازات اسلامی"
   },
   {

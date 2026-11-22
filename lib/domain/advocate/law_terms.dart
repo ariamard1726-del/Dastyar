@@ -171,8 +171,52 @@ class LawTerms {
     return f;
   }
 
+  /// همتای `glossary_match` در tools/law_terms.py: اگر عبارتی از فهرست واژه‌های
+  /// حقوقی در پرسش باشد، ماده‌ٔ همان عبارت پذیرفته می‌شود (بلندترین عبارت برنده است).
+  TermMatch? _glossary(String q) {
+    final entries = engine.legalTerms['entries'];
+    if (entries is! List) return null;
+    final text = _spaced(q);
+    String? bestPhrase;
+    Map<String, dynamic>? bestEntry;
+    for (final entry in entries.cast<Map<String, dynamic>>()) {
+      for (final ph in (entry['phrases'] as List).cast<String>()) {
+        final p = _spaced(ph);
+        if (text.contains(p) && (bestPhrase == null || p.length > _spaced(bestPhrase).length)) {
+          bestPhrase = ph;
+          bestEntry = entry;
+        }
+      }
+    }
+    if (bestPhrase == null || bestEntry == null) return null;
+    Chunk? target;
+    for (final c in engine.chunks) {
+      if (c.lawId == bestEntry['law'] && c.title == bestEntry['title']) {
+        target = c;
+        break;
+      }
+    }
+    if (target == null) return null;
+    return TermMatch(
+      accepted: true,
+      chunk: target,
+      cover: 1.0,
+      matched: bestPhrase.split(' '),
+      missing: const [],
+      unknown: const [],
+      phrases: [bestPhrase],
+    );
+  }
+
+  static String _spaced(String s) {
+    final n = PersianText.normalize(s).replaceAll(_punct, ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+    return ' $n ';
+  }
+
   /// بهترین ماده برای پرسش، با دلیل پذیرش.
   TermMatch match(String q) {
+    final g = _glossary(q);
+    if (g != null) return g;
     final rs = runs(q);
     final seq = <String>[for (final r in rs) ...r];
     // Set در دارت ترتیب درج را نگه می‌دارد، پس ترتیب اولین آمدن واژه‌ها حفظ می‌شود.

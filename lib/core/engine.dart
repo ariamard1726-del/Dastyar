@@ -104,6 +104,8 @@ class KnowledgeEngine {
   Map<String, double> get idf => _idf;
   /// بانک پرسش‌وپاسخ حقوقی (اجاره)؛ پس از [load] پر می‌شود.
   QaBank get qa => _qaBank;
+  /// فهرست واژه‌های حقوقی با ماده؛ پس از [load] پر می‌شود.
+  Map<String, dynamic> get legalTerms => _legalTerms;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
@@ -172,6 +174,19 @@ LawTopicPrior _lawPrior = LawTopicPrior.empty;
 
 QaBank _qaBank = QaBank.empty;
 
+/// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
+Map<String, dynamic> _legalTerms = const {};
+
+Future<void> _loadLegalTerms() async {
+  _legalTerms = const {};
+  try {
+    final t = await rootBundle.loadString('assets/brain/legal_terms.json');
+    _legalTerms = jsonDecode(t) as Map<String, dynamic>;
+  } catch (e) {
+    warnings.add('brain/legal_terms.json: $e');
+  }
+}
+
 Future<void> _loadQa() async {
   _qaBank = QaBank.empty;
   try {
@@ -235,6 +250,7 @@ Future<void> load() async {
     _loadRelationships(),
     _loadLawTopics(),
     _loadQa(),
+    _loadLegalTerms(),
     knowledgeFuture,
   ]);
 

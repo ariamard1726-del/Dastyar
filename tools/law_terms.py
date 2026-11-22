@@ -151,7 +151,45 @@ def word_report(q, e=None):
     return report
 
 
+GLOSSARY = os.path.join(ROOT, 'assets', 'brain', 'legal_terms.json')
+
+_PERSIAN_FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه'})
+
+
+def _spaced(s):
+    """متن را برای جست‌وجوی عبارت یکدست می‌کند (همان قاعدهٔ لایهٔ دارت)."""
+    s = s.translate(_PERSIAN_FIX)
+    s = _PUNCT_RE.sub(' ', s)
+    return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
+
+
+def glossary_match(q, e=None):
+    """اگر پرسش عبارتی از فهرست واژه‌های حقوقی را دارد، ماده‌ٔ آن را برمی‌گرداند."""
+    e = e or engine()
+    with open(GLOSSARY, encoding='utf-8') as f:
+        entries = json.load(f)['entries']
+    text = _spaced(q)
+    best = None
+    for entry in entries:
+        for ph in entry['phrases']:
+            p = _spaced(ph)
+            if p in text and (best is None or len(p) > best[0]):
+                best = (len(p), ph, entry)
+    if best is None:
+        return None
+    _, ph, entry = best
+    for i, c in enumerate(e.chunks):
+        if c['law'] == entry['law'] and c['title'] == entry['title']:
+            return {'accepted': True, 'law': c['law'], 'title': c['title'], 'cover': 1.0,
+                    'span': 0, 'matched': ph.split(), 'phrases': [ph], 'missing': [],
+                    'unknown': [], 'glossary': True}
+    raise KeyError('glossary target missing: %s %s' % (entry['law'], entry['title']))
+
+
 def match(q, e=None):
+    g = glossary_match(q, e)
+    if g is not None:
+        return g
     """بهترین ماده برای پرسش، با دلیل پذیرش و واژه‌های پیدانشده."""
     e = e or engine()
     runs = query_runs(q)

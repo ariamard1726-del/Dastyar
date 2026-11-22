@@ -173,19 +173,17 @@
   {
     "q": "ارث همسر",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "همسر"
-      ]
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 946"
     }
   },
   {
     "q": "نفقه همسر",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "همسر"
-      ]
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 1106"
     }
   },
   {
@@ -212,10 +210,9 @@
   {
     "q": "کشف حجاب",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "کشف"
-      ]
+      "accepted": true,
+      "law": "penal_taazirat",
+      "title": "ماده 638"
     }
   },
   {
@@ -228,6 +225,14 @@
     "q": "روز خوبی دارم",
     "expect": {
       "accepted": false
+    }
+  },
+  {
+    "q": "تخلیه ملک",
+    "expect": {
+      "accepted": true,
+      "law": "landlord_tenant",
+      "title": "ماده 3"
     }
   }
 ]
