@@ -1,8 +1,7 @@
-commit: e03ed97
+commit: 9050f43
 🎉 376 tests passed.
 --- analyze ---
-5 issues found. (ran in 12.0s)
-   info • The import of 'package:dastyar/core/models.dart' is unnecessary because all of the used elements are also provided by the import of 'package:dastyar/core/engine.dart'. Try removing the impor
+4 issues found. (ran in 9.6s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
