@@ -609,10 +609,12 @@ class Advocate {
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
     if (!hasCase && bestScore < 3) {
+      final lt = _lawTermsReply(raw, n);
+      if (lt != null) return lt;
       final refs = Understanding.linkedArticles(n);
       if (refs.isNotEmpty) {
         return _out(
-          'این واژه در متن قانون به این مواد مربوط است: ${refs.join(' ')}',
+          'این واژه به ${refs.join(' ')} مربوط است.',
           ask: 'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟',
           full: true,
         );
