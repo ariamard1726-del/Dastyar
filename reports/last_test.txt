@@ -1,10 +1,5 @@
-commit: 333159b
-::error::366 tests passed, 1 failed.
-::group::❌ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود (failed)
-   Expected: not contains '««'
-   Actual: 'منظورتان از ««طبق ماده ۹۹۹۹ قانون مدنی، مدت…» چیست؟ کمی بیشتر توضیح می‌دهید؟'
-   test/advocate/understanding_test.dart 118:5         main.<fn>
-   ::endgroup::
+commit: ee664dc
+🎉 369 tests passed.
 --- analyze ---
 4 issues found. (ran in 8.7s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
