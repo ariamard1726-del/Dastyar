@@ -1,23 +1,7 @@
-commit: 21937d7
-🎉 376 tests passed.
---- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---
-_meta.json درست است. تطبیق‌شده با منبع رسمی: 0 از 24.
-هشدار: 24 قانون هنوز با منبع رسمی تطبیق داده نشده (python3 tools/law_registry.py status).
-sync_meta: مشتق‌ها تازه‌اند (کاتالوگ و data_info هم‌راستا با _meta.json).
-===== check intent =====
-intent eval: n=144 raw_acc 0.965 group_acc 0.972
-[litigation_defense->counsel_answer 0.47] حکم بدون حضور من آمده و تازه فهمیدم
-[legal_question->out_of_scope 0.50] نحوه محاسبه دیه در ماه حرام چطور است
-[criminal_harm->counsel_answer 0.31] گواهی پزشکی قانونی گرفتم
-[family->counsel_answer 0.35] برای حضانت دختر هشت ساله‌ام شکایت دارم
-[criminal_harm->litigation_defense 0.21] در فضای مجازی علیه من تهمت دزدی زده‌اند
-critical guards: 22/22
-نتیجه: سالم
-===== check parity =====
-parity: استاندارد طلایی تازه است (text=20 conflicts=4 rank=30 terms=35).
-check: بخش‌های ناموفق: assets
+commit: 6610d0b
+🎉 379 tests passed.
 --- analyze ---
-4 issues found. (ran in 9.8s)
+4 issues found. (ran in 12.0s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
