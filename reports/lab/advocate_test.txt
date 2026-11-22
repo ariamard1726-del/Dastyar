@@ -44,7 +44,11 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::119 از 119 سناریو درست است
+::notice title=intent::115 از 119 سناریو درست است
+::warning title=intent-soft::  شکایت از کارفرما بعد از اخراج   نرم   نادرست   sale   موضوع «sale» به‌جای «labor»  
+::warning title=intent-soft::  اخراج بدون حکم   نرم   نادرست   —   موضوع «» به‌جای «labor»  
+::warning title=intent-soft::  حقوق سه ماه معوق   نرم   نادرست   —   موضوع «» به‌جای «labor»  
+::warning title=intent-soft::  وصیت‌نامه   نرم   نادرست   —   موضوع «» به‌جای «inherit»  
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
@@ -83,7 +87,17 @@
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
-✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+::endgroup::
+::group::❌ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت (failed)
+Expected: 'leave'
+  Actual: ''
+   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: leave
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/rent_test.dart 246:7                  main.<fn>.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
@@ -147,7 +161,6 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
@@ -161,9 +174,10 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-🎉 158 tests passed.
+::error::157 tests passed, 1 failed.
