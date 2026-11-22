@@ -244,7 +244,7 @@ bool _qaFits(QaItem qa, String n) {
 
 extension _LawTermsReply on Advocate {
   /// پاسخ بر پایهٔ تطبیق واژه‌ها با متن قوانین (نگاه کنید به [LawTerms]).
-  AdvocateReply? _lawTermsReply(String raw, String n) {
+  AdvocateReply? _lawTermsReply(String raw, String n, {bool phraseOnly = false}) {
     if (Sense.words(n) < 2 || _vague(n)) return null;
     // شماره‌ها، ماده‌های مشخص و آیین‌نامه‌ها پیش‌تر و با قاعدهٔ خودشان جواب
     // می‌گیرند؛ بانک پرسش‌وپاسخ هم اولویت دارد.
@@ -254,6 +254,7 @@ extension _LawTermsReply on Advocate {
     // سنجیده نمی‌شود، حتی اگر دو واژه‌اش در قانون باشد.
     if (!Sense.has(n, _legalHint)) return null;
     final tm = _terms.match(raw);
+    if (phraseOnly && !(tm.accepted && tm.phrases.isNotEmpty)) return null;
     final c = tm.chunk;
     if (tm.accepted && c != null) {
       final lawName = engine.meta[c.lawId]?['title']?.toString() ?? c.source;
