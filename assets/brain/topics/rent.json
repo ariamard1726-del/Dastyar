@@ -1,4 +1,5 @@
 {
+  "live": false,
   "topic": "rent",
   "label": "اجاره و تخلیه",
   "law": "landlord_tenant",

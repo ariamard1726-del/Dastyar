@@ -1,4 +1,5 @@
 {
+  "live": true,
   "topic": "cheque",
   "gate": [
     "چک"
