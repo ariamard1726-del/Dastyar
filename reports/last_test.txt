@@ -1,13 +1,7 @@
-commit: c8a101b
-::error::375 tests passed, 1 failed.
-::group::❌ test/understanding/guess_flow_test.dart: حدسِ مطمئن بر راهنمای آماده‌ای که با یک واژه انتخاب شده مقدم است (failed)
-   Expected: 'guarantee'
-   Actual: ''
-   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: guarantee
-   test/understanding/guess_flow_test.dart 171:5       main.<fn>
-   ::endgroup::
+commit: e03ed97
+🎉 376 tests passed.
 --- analyze ---
-5 issues found. (ran in 9.9s)
+5 issues found. (ran in 12.0s)
    info • The import of 'package:dastyar/core/models.dart' is unnecessary because all of the used elements are also provided by the import of 'package:dastyar/core/engine.dart'. Try removing the impor
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks

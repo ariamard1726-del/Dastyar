@@ -1,7 +1,7 @@
 Understanding on eval/understanding_probe.tsv (39 sentences, first message only)
 model called for 16 sentences; open >= 0.143 with margin >= 0.04, ask >= 0.087
 rules only   : {none-ok: 9, opened-right: 23, none-missed: 7}
-rules + model: {none-ok: 6, opened-right: 26, none-missed: 4, opened-WRONG: 1, asked-right: 2}
+rules + model: {none-ok: 5, opened-right: 30, none-missed: 1, opened-WRONG: 1, asked-right: 2}
 columns: changed? | rules only | rules + model | guess | [gold] sentence
 
   none-ok       none-ok       general=0.14 (accused=0.13)        [chat] سلام. من یک سوال حقوقی دارم
@@ -21,14 +21,14 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [labor] آیا میتوانم از کارفرما به خاطر اضافه کاری شکایت کنم
 * none-ok       opened-right  family=0.15 (crime=0.08)           [crime|family] برادرم معتاد است و مادرم را اذیت میکند چه کنیم
   opened-right  opened-right  -                                  [cyber] یه نفر تو اینستاگرام عکسامو پخش کرده
-  none-missed   none-missed   property=0.19 (cyber=0.07)         [property] زمینی خریده ام که سند ندارد و حالا شخص دیگری مدعی شده
+* none-missed   opened-right  property=0.19 (cyber=0.07)         [property] زمینی خریده ام که سند ندارد و حالا شخص دیگری مدعی شده
   opened-right  opened-right  -                                  [injury] پسرم ۱۶ ساله است و با موتور تصادف کرده
   opened-right  opened-right  -                                  [family] شوهرم خرجی نمیدهد
-  none-missed   none-missed   guarantee=0.19 (debt=0.11)         [guarantee] من ضامن شده ام و بانک حقوقم را کسر میکند
+* none-missed   opened-right  guarantee=0.19 (debt=0.11)         [guarantee] من ضامن شده ام و بانک حقوقم را کسر میکند
   none-ok       none-ok       general=0.17 (other=0.08)          [general] توضیح بده وکالت نامه چیست
   none-ok       none-ok       general=0.40 (accused=0.08)        [general] فرق دادگاه و دادسرا چیه
   opened-right  opened-right  -                                  [inherit|general] میخوام وصیت نامه بنویسم
-  none-ok       none-ok       labor=0.25 (general=0.08)          [labor|general] حقوق کارگر در سال جدید چقدر است
+* none-ok       opened-right  labor=0.25 (general=0.08)          [labor|general] حقوق کارگر در سال جدید چقدر است
 * none-missed   asked-right   family=0.14 (rent=0.12)            [family] خانم من بدون اجازه از خانه رفته
   opened-right  opened-right  -                                  [family] آیا زن میتواند حق طلاق بگیرد؟
   opened-right  opened-right  -                                  [rent] مستأجر من اجاره نمی‌دهد و خانه را تخليه نمي كند
@@ -38,7 +38,7 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [other|general|admin] آیا برای سربازی معافیت کفالت دارم
   opened-right  opened-right  -                                  [injury] دیه شکستگی دست چقدره
   opened-right  opened-right  -                                  [family] همسرم به من خیانت کرده چه کنم
-  none-missed   none-missed   company=0.29 (chat=0.10)           [company] میخواهم شرکت ثبت کنم
+* none-missed   opened-right  company=0.29 (chat=0.10)           [company] میخواهم شرکت ثبت کنم
   opened-right  opened-right  -                                  [inherit] کسی که فوت کرده بدهی داشته ورثه باید بدهند؟
 * none-ok       opened-right  family=0.19 (inherit=0.09)         [family|admin|general] بدون رضایت شوهر میشه پاسپورت گرفت؟
   opened-right  opened-right  -                                  [rent] صاحبخانه پول رهن را نمی دهد
