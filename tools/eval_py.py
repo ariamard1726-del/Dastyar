@@ -174,6 +174,7 @@ class Engine:
                 dict(
                     law=law,
                     source=source,
+                    chapter=chapter,
                     title=first,
                     norm_title=collapse(normalize(first)),
                     body=body,

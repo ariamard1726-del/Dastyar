@@ -97,6 +97,11 @@ class KnowledgeEngine {
   final List<String> warnings = [];
 
   int get size => _chunks.length;
+
+  /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
+  List<Chunk> get chunks => _chunks;
+  Map<String, List<int>> get postings => _postings;
+  Map<String, double> get idf => _idf;
   /// بانک پرسش‌وپاسخ حقوقی (اجاره)؛ پس از [load] پر می‌شود.
   QaBank get qa => _qaBank;
   Map<String, int> get lawCounts => _lawCounts;

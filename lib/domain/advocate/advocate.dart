@@ -1,7 +1,9 @@
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
+import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
@@ -99,6 +101,8 @@ class Advocate {
   };
 
   final KnowledgeEngine engine;
+
+  late final LawTerms _terms = LawTerms(engine);
 
   /// شناسهٔ قالب سند → عنوان آن (برای دکمهٔ «تهیهٔ متن»).
   final Map<String, String> _draftTitles;
@@ -699,6 +703,13 @@ class Advocate {
       if (guide != null) {
         final r = _guideFollow(guide, n);
         if (r != null) return r;
+      }
+      // واژه‌های پرسش را با متن قوانین می‌سنجیم: ماده‌ای که واژه‌ها را با هم
+      // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
+      // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
+      if (guide == null) {
+        final lt = _lawTermsReply(raw, n);
+        if (lt != null) return lt;
       }
       // حدسِ مطمئنِ مدل بر راهنماهای آماده مقدم است: آن‌ها با یک واژه
       // انتخاب می‌شوند («حقوقم» در «بانک از حقوقم کسر می‌کند») و مدل کل

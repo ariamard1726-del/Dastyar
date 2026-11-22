@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/conflicts_service.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/domain/advocate/law_terms.dart';
 
 /// برابری دوطرفهٔ پایتون↔دارت.
 ///
@@ -78,6 +79,24 @@ void main() {
           .map((h) => [h.chunk.lawId, h.chunk.title])
           .toList();
       expect(got, want, reason: q);
+    }
+  });
+
+  test('تطبیق واژه‌ها با متن قوانین: LawTerms با tools/law_terms.py یکسان است', () {
+    final rows = (golden['terms'] as List).cast<Map<String, dynamic>>();
+    expect(rows, isNotEmpty);
+    final terms = LawTerms(engine);
+    for (final m in rows) {
+      final q = m['q'] as String;
+      final got = terms.match(q);
+      expect(got.accepted, m['accepted'], reason: q);
+      expect(got.chunk?.lawId, m['law'], reason: q);
+      expect(got.chunk?.title, m['title'], reason: q);
+      expect(got.cover, closeTo((m['cover'] as num).toDouble(), 0.0005), reason: q);
+      expect(got.matched, (m['matched'] as List).cast<String>(), reason: q);
+      expect(got.missing, (m['missing'] as List).cast<String>(), reason: q);
+      expect(got.phrases, (m['phrases'] as List).cast<String>(), reason: q);
+      expect(got.unknown, (m['unknown'] as List).cast<String>(), reason: q);
     }
   });
 }

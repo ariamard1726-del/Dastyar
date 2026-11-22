@@ -241,3 +241,45 @@ bool _qaFits(QaItem qa, String n) {
   return Sense.has(n,
       'اجاره|مستاجر|مستأجر|موجر|کرایه|ودیعه|تخلیه|سرقفلی|مغازه|منزل|خانه|واحد|مالک');
 }
+
+extension _LawTermsReply on Advocate {
+  /// پاسخ بر پایهٔ تطبیق واژه‌ها با متن قوانین (نگاه کنید به [LawTerms]).
+  AdvocateReply? _lawTermsReply(String raw, String n) {
+    if (Sense.words(n) < 2 || _vague(n)) return null;
+    final tm = _terms.match(raw);
+    // جمله‌ای که هیچ نشانهٔ حقوقی ندارد (سلام، خوراک، جغرافیا) با متن قانون
+    // سنجیده نمی‌شود؛ مگر عبارتی دوواژه‌ای عیناً در متن ماده باشد.
+    if (tm.phrases.isEmpty && !Sense.has(n, _legalHint)) return null;
+    final c = tm.chunk;
+    if (tm.accepted && c != null) {
+      final lawName = engine.meta[c.lawId]?['title']?.toString() ?? c.source;
+      final words = tm.matched.map((w) => '«$w»').join('، ');
+      final gap = tm.missing.isEmpty
+          ? ''
+          : ' واژهٔ ${tm.missing.map((w) => '«$w»').join('، ')} در این ماده نیست.';
+      _rest = '';
+      _offeredMore = false;
+      return AdvocateReply(
+        'در «$lawName» ${PersianText.toFaDigits(c.title)} واژه‌های $words با هم آمده‌اند.$gap\n\n${c.body}\n\n'
+        'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.',
+        laws: [LawText(c.title, c.source, c.body, '')],
+      );
+    }
+    final unknown = tm.unknown;
+    final known = [for (final w in tm.missing) if (!unknown.contains(w)) w, ...tm.matched];
+    if (known.length < 2) return null;
+    final unknownText = unknown.isEmpty
+        ? ''
+        : 'واژه‌های ${unknown.map((w) => '«$w»').join('، ')} در هیچ‌یک از قوانین من نیست. ';
+    return _out(
+      '$unknownText'
+      'واژه‌های ${known.map((w) => '«$w»').join('، ')} در متن قوانین من هست، '
+      'اما هیچ ماده‌ای همهٔ آن‌ها را با هم ندارد، پس ماده‌ای را به‌عنوان جواب نمی‌گذارم.',
+      ask: 'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟',
+    );
+  }
+}
+
+/// نشانه‌های حقوقیِ کلی؛ فقط برای تصمیم «این جمله حقوقی است؟» به کار می‌رود.
+const String _legalHint =
+    'قانون|حق |حقوق|جرم|مجازات|دادگاه|دادسرا|شکایت|قرارداد|(?:^| )سند|ارث|دیه|مهریه|جریمه|وکالت|وکیل|وصیت|ملک|معامله|خسارت|بدهی|(?:^| )طلب|محکوم|حکم |(?:^| )رای |تعهد|ضامن|ضمانت|فسخ|مالکیت|توقیف|زندان|حبس|قاضی|کارفرما|کارگر|اخراج|اجاره|موجر|مستاجر|چک|طلاق|نفقه|حضانت|بیمه|ورشکست|شرکت|سهام|ثبت|طلبکار|بدهکار|سرقت|دزد|کلاهبردار|تصرف|همسایه|دیوار|ودیعه|بانک|اجرای|دادخواست|لایحه|اجرائیه|کیفری|مدنی';
