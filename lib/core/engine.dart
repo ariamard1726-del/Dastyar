@@ -198,6 +198,16 @@ Future<void> _loadTopicFlows() async {
   }
 }
 
+Future<void> _loadLegalTerms() async {
+  _legalTerms = const {};
+  try {
+    final t = await rootBundle.loadString('assets/brain/legal_terms.json');
+    _legalTerms = jsonDecode(t) as Map<String, dynamic>;
+  } catch (e) {
+    warnings.add('brain/legal_terms.json: $e');
+  }
+}
+
 Future<void> _loadQa() async {
   _qaBank = QaBank.empty;
   try {
