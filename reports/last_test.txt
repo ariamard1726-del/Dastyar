@@ -1,148 +1,63 @@
-commit: efc2dee
-::error::154 tests passed, 20 failed.
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-   Failed to load "test/audit/conversation_audit_test.dart":
-   Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
+commit: 8a0f382
+::error::369 tests passed, 7 failed.
+::group::❌ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند (failed)
+   Expected: contains 'قراردادهای خصوصی'
+   Actual: 'واژه‌های «میگه» در هیچ‌یک از قوانین من نیست. واژه‌های «10»، «مدنی» در متن قوانین من هست، اما هیچ ماده‌ای همهٔ آن‌ها را با هم ندارد، پس ماده‌ای را به‌عنوان جواب نمی‌گذارم.\n'
+   '\n'
+   'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟'
+   Which: does not contain 'قراردادهای خصوصی'
+   test/advocate/advocate_test.dart 300:5              main.<fn>
    ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/advocate_test.dart (failed)
-   Failed to load "test/advocate/advocate_test.dart":
-   Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
+::group::❌ test/advocate/law_terms_test.dart: بیع شرط و رهن: ماده‌ای که بیع شرط را دارد نشان داده می‌شود (failed)
+   Expected: contains 'ماده ۴۶۳'
+   Actual: 'این یک اختلاف فروش است. قرارداد فروش برای طرفین لازم‌الاتباع است (ماده ۲۱۹ قانون مدنی) و فروشنده باید مال فروخته‌شده را تحویل دهد (ماده ۳۶۲ قانون مدنی). چون پول را داده‌اید، تا وقتی تحویل نشده می‌توانید تحویل را بخواهید؛ و اگر تأخیر ادامه یابد، امتناع فروشنده قابل اجبار به تسلیم است (ماده ۳
+   '\n'
+   'یادآوری: این راهنمایی بر پایهٔ گفته‌های شماست و جای وکیل دادگستری را نمی‌گیرد.\n'
+   '\n'
+   'قرارداد، قولنامه، رسید یا فیش پرداخت دارید؟ (مکاتبه یا پیامک هم مدرک است.)'
+   Which: does not contain 'ماده ۴۶۳'
+   test/advocate/law_terms_test.dart 59:5              main.<fn>
+::group::❌ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود (failed)
+   Expected: contains 'ماده ۴۱۶'
+   Actual: 'این واژه در متن قانون به این مواد مربوط است: (مواد ۴۱۶ و ۴۱۷ قانون مدنی)\n'
+   '\n'
+   'یادآوری: این راهنمایی بر پایهٔ گفته‌های شماست و جای وکیل دادگستری را نمی‌گیرد.\n'
+   '\n'
+   'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟'
+   Which: does not contain 'ماده ۴۱۶'
+   test/advocate/law_terms_test.dart 66:5              main.<fn>
+::group::❌ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد (failed)
+   Expected: non-empty
+   Actual: []
+   هیچ پرسش بانک به مسیر QA نمی‌رسد؛ مسیر QA بی‌استفاده است.
+   test/advocate/intent_scenarios_test.dart 602:5      main.<fn>
    ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
-   Failed to load "test/advocate/intent_scenarios_test.dart":
-   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
+::group::❌ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد (failed)
+   Expected: not contains 'نوجوان'
+   Actual: 'در «قانون حمایت از اطفال و نوجوانان» ماده ۱۷ واژه‌های «17»، «مجازات»، «اسلامی» با هم آمده‌اند. واژهٔ «تجارت» در این ماده نیست.\n'
+   '\n'
+   'هر‌کس از وقوع جرم یا شروع به آن یا خطر شدید و قریب‌الوقوع علیه طفل یا نوجوانی مطلع بوده یا شاهد وقوع آن باشد و با وجود توانایی اعلام و گزارش به مقامات یا مراجع صلاحیت‌دار و کمک طلبیدن از آن‌ها از این امر خودداری کند یا در صورت عدم دسترسی به این مقامات و مراجع و یا عدم تأثیر دخالت آن‌ها در رفع تجاوز
+   'تبصره – اگر مرتکب جرم مذکور در این ماده از افرادی باشد که مطابق قوانین و مقررات و یا برحسب وظیفه شغلی مکلف به اعلام، گزارش یا کمک می‌باشند و یا به اقتضای حرفه خود می‌توانند کمک مؤثری کنند، به دو یا هر سه مجازات درجه شش قانون مجازات اسلامی و حسب مورد به انفصال موقت از خدمات دولتی یا عمومی یا محرومیت
+   '\n'
+   'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.'
+   test/advocate/intro_and_law_test.dart 33:5          main.<fn>
+::group::❌ test/understanding/guess_flow_test.dart: حدسِ مطمئن بر راهنمای آماده‌ای که با یک واژه انتخاب شده مقدم است (failed)
+   Expected: 'guarantee'
+   Actual: ''
+   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: guarantee
+   test/understanding/guess_flow_test.dart 171:5       main.<fn>
    ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/law_terms_test.dart (failed)
-   Failed to load "test/advocate/law_terms_test.dart":
-   Compilation failed for testPath=test/advocate/law_terms_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
-   ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/intro_and_law_test.dart (failed)
-   Failed to load "test/advocate/intro_and_law_test.dart":
-   Compilation failed for testPath=test/advocate/intro_and_law_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
-   ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/topic_switch_test.dart (failed)
-   Failed to load "test/advocate/topic_switch_test.dart":
-   Compilation failed for testPath=test/advocate/topic_switch_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
-   ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/rent_test.dart (failed)
-   Failed to load "test/advocate/rent_test.dart":
-   Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
-   ::endgroup::
-   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-::group::❌ loading test/advocate/intent_map_test.dart (failed)
-   Failed to load "test/advocate/intent_map_test.dart":
-   Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
-   static const Set<String> generic = {
-   ^
-   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
-   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-   ^
-   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
-::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
-   Error: The Dart compiler exited unexpectedly.
+::group::❌ test/app/chat_controller_test.dart: کنترلر گفتگو: فقط یک مسیر (وکیل + تنظیم سند) پرسش عادی پاسخ می‌گیرد و در تاریخچه ذخیره می‌شود (failed)
+   Expected: contains 'قراردادهای خصوصی'
+   Actual: 'واژه‌های «10»، «مدنی» در متن قوانین من هست، اما هیچ ماده‌ای همهٔ آن‌ها را با هم ندارد، پس ماده‌ای را به‌عنوان جواب نمی‌گذارم.\n'
+   '\n'
+   'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟'
+   Which: does not contain 'قراردادهای خصوصی'
+   test/app/chat_controller_test.dart 60:7             main.<fn>.<fn>
    ::endgroup::
 --- analyze ---
-7 issues found. (ran in 12.4s)
+5 issues found. (ran in 7.9s)
    info • The import of 'package:dastyar/core/models.dart' is unnecessary because all of the used elements are also provided by the import of 'package:dastyar/core/engine.dart'. Try removing the impor
-  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:63:66 • equal_elements_in_const_set
-  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:64:31 • equal_elements_in_const_set
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
