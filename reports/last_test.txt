@@ -1,7 +1,148 @@
-commit: 4ef0593
-🎉 371 tests passed.
+commit: efc2dee
+::error::154 tests passed, 20 failed.
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+   Failed to load "test/audit/conversation_audit_test.dart":
+   Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/advocate_test.dart (failed)
+   Failed to load "test/advocate/advocate_test.dart":
+   Compilation failed for testPath=test/advocate/advocate_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/intent_scenarios_test.dart (failed)
+   Failed to load "test/advocate/intent_scenarios_test.dart":
+   Compilation failed for testPath=test/advocate/intent_scenarios_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/law_terms_test.dart (failed)
+   Failed to load "test/advocate/law_terms_test.dart":
+   Compilation failed for testPath=test/advocate/law_terms_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/intro_and_law_test.dart (failed)
+   Failed to load "test/advocate/intro_and_law_test.dart":
+   Compilation failed for testPath=test/advocate/intro_and_law_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/topic_switch_test.dart (failed)
+   Failed to load "test/advocate/topic_switch_test.dart":
+   Compilation failed for testPath=test/advocate/topic_switch_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/rent_test.dart (failed)
+   Failed to load "test/advocate/rent_test.dart":
+   Compilation failed for testPath=test/advocate/rent_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
+   lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+::group::❌ loading test/advocate/intent_map_test.dart (failed)
+   Failed to load "test/advocate/intent_map_test.dart":
+   Compilation failed for testPath=test/advocate/intent_map_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+   static const Set<String> generic = {
+   ^
+   lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+   'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+   ^
+   lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+::group::❌ loading test/audit/conversation_audit_test.dart (failed after test completion)
+   Error: The Dart compiler exited unexpectedly.
+   ::endgroup::
 --- analyze ---
-4 issues found. (ran in 7.5s)
+7 issues found. (ran in 12.4s)
+   info • The import of 'package:dastyar/core/models.dart' is unnecessary because all of the used elements are also provided by the import of 'package:dastyar/core/engine.dart'. Try removing the impor
+  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:63:66 • equal_elements_in_const_set
+  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:64:31 • equal_elements_in_const_set
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
