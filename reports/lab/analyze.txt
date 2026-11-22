@@ -1,8 +1,11 @@
 Analyzing Dastyar...                                            
 
+   info • The import of 'package:dastyar/core/models.dart' is unnecessary because all of the used elements are also provided by the import of 'package:dastyar/core/engine.dart'. Try removing the import directive • lib/domain/advocate/law_terms.dart:2:8 • unnec
+  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:63:66 • equal_elements_in_const_set
+  error • Two elements in a constant set literal can't be equal. Change or remove the duplicate element • lib/domain/advocate/law_terms.dart:64:31 • equal_elements_in_const_set
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
 
-4 issues found. (ran in 10.9s)
+7 issues found. (ran in 9.8s)

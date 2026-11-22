@@ -1,11 +1,26 @@
 
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+  static const Set<String> generic = {
+                                     ^
+lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+    'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+                                                                 ^
+lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+  static const Set<String> generic = {
+                           ^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/law_terms.dart:55:38: Error: Constant evaluation error:
+  static const Set<String> generic = {
+                                     ^
+lib/domain/advocate/law_terms.dart:63:66: Context: The element '"شده"' conflicts with another existing element in the set.
+    'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
+                                                                 ^
+lib/domain/advocate/law_terms.dart:55:28: Context: While analyzing:
+  static const Set<String> generic = {
+                           ^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
