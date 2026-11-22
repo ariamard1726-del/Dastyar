@@ -1,4 +1,4 @@
-commit: 8e66380
+commit: 8798fc6
 🎉 379 tests passed.
 --- analyze ---
 4 issues found. (ran in 10.5s)
