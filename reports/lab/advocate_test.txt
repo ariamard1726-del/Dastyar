@@ -1,5 +1,8 @@
 
 ::group::✅ Passing tests
+✅ test/advocate/topic_flow_test.dart: مسیر چک: نمونه‌های توسعه همه درست‌اند
+✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
+✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
@@ -72,11 +75,7 @@
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
-✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
-✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
-✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
-✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
 ✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
@@ -85,6 +84,10 @@
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
+✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
+✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
+✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
@@ -166,4 +169,4 @@
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-🎉 158 tests passed.
+🎉 161 tests passed.
