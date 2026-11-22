@@ -7,10 +7,12 @@ class TopicFlow {
 
   static final RegExp _punct = RegExp(r'[،,.;:!?؟()\[\]«»"\-/]+');
   static final RegExp _chequeWord = RegExp(r' چک[\u0600-\u06FF]* ');
+  static final RegExp _diacritics = RegExp('[\u064B-\u065F\u0670]');
 
   /// نرمال‌سازی همان قاعدهٔ پایتون: یکسان‌سازی نویسه‌ها و فاصله‌دار کردن.
   static String spaced(String s) {
     var t = s
+        .replaceAll(_diacritics, '')
         .replaceAll('ي', 'ی')
         .replaceAll('ك', 'ک')
         .replaceAll('\u200c', ' ')
@@ -22,6 +24,9 @@ class TopicFlow {
     return ' $t ';
   }
 
+  /// پیشوندِ واژه: «برگشتی» و «برگشت» هر دو با «برگشت» تطبیق می‌یابند.
+  static String _prefix(String w) => ' ${spaced(w).trim()}';
+
   /// آیا پیام دربارهٔ چک است (چک، چکم، چکی، چکش، ...)؟
   static bool mentionsCheque(String q) => _chequeWord.hasMatch(spaced(q));
 
@@ -32,13 +37,13 @@ class TopicFlow {
     if (rules is! List) return 'ask';
     for (final r in rules.cast<Map<String, dynamic>>()) {
       final any = r['any'];
-      if (any is List && any.cast<String>().any((w) => text.contains(spaced(w)))) {
+      if (any is List && any.cast<String>().any((w) => text.contains(_prefix(w)))) {
         return r['leaf'] as String;
       }
       final groups = r['all_groups'];
       if (groups is List &&
           groups.isNotEmpty &&
-          groups.cast<List>().every((g) => g.cast<String>().any((w) => text.contains(spaced(w))))) {
+          groups.cast<List>().every((g) => g.cast<String>().any((w) => text.contains(_prefix(w))))) {
         return r['leaf'] as String;
       }
     }

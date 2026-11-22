@@ -20,15 +20,18 @@ GOLD = os.path.join(ROOT, 'tests', 'topics', 'cheque_gold.json')
 
 _FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه', 'ؤ': 'و', 'أ': 'ا', 'ء': ''})
 _PUNCT = re.compile(r'[،,.;:!?؟()\[\]«»"\-/]+')
+_DIACRITICS = re.compile('[\u064B-\u065F\u0670]')
 
 
 def spaced(s):
-    s = _PUNCT.sub(' ', s.translate(_FIX))
+    s = _DIACRITICS.sub('', s.translate(_FIX))
+    s = _PUNCT.sub(' ', s)
     return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
 
 
 def _has(text, words):
-    return any(spaced(w) in text for w in words)
+    # پیشوندِ واژه: «برگشتی» و «برگشت» هر دو با «برگشت» تطبیق می‌یابند.
+    return any((' ' + spaced(w).strip()) in text for w in words)
 
 
 def route(q, flow=None):
