@@ -38,6 +38,9 @@ def route(q, flow=None):
     """برگ تصمیم را برمی‌گرداند؛ ترتیب قاعده‌ها مهم است (اولین تطابق)."""
     flow = flow or load()
     text = spaced(q)
+    # مسیر فقط برای پیام‌هایی است که واژهٔ دروازه (مثلاً «چک») دارند.
+    if flow.get('gate') and not _has(text, flow['gate']):
+        return 'ask'
     for rule in flow['rules']:
         if 'any' in rule and _has(text, rule['any']):
             return rule['leaf']

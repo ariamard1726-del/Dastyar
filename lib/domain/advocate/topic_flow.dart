@@ -33,6 +33,11 @@ class TopicFlow {
   /// شناسهٔ برگ تصمیم برای پرسش؛ `ask` وقتی هیچ قاعده‌ای نخورد.
   static String route(Map<String, dynamic> flow, String q) {
     final text = spaced(q);
+    final gate = flow['gate'];
+    if (gate is List && gate.isNotEmpty &&
+        !gate.cast<String>().any((w) => text.contains(_prefix(w)))) {
+      return 'ask';
+    }
     final rules = flow['rules'];
     if (rules is! List) return 'ask';
     for (final r in rules.cast<Map<String, dynamic>>()) {
