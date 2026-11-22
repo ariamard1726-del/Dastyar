@@ -1,10 +1,8 @@
 Analyzing Dastyar...                                            
 
-   info • The private field _legalTerms could be 'final'. Try making the field 'final' • lib/core/engine.dart:180:22 • prefer_final_fields
-  error • The method '_loadLegalTerms' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named '_loadLegalTerms' • lib/core/engine.dart:264:5 • undefined_method
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
 
-6 issues found. (ran in 10.2s)
+4 issues found. (ran in 12.1s)

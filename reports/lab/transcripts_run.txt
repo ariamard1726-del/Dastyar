@@ -1,18 +1,11 @@
 
-lib/core/engine.dart:264:5: Error: The method '_loadLegalTerms' isn't defined for the type 'KnowledgeEngine'.
- - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_loadLegalTerms'.
-    _loadLegalTerms(),
-    ^^^^^^^^^^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/core/engine.dart:264:5: Error: The method '_loadLegalTerms' isn't defined for the type 'KnowledgeEngine'.
- - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_loadLegalTerms'.
-    _loadLegalTerms(),
-    ^^^^^^^^^^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
