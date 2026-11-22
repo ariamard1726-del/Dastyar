@@ -57,7 +57,7 @@
     "expect": {
       "accepted": true,
       "law": "civil",
-      "title": "ماده 821"
+      "title": "ماده 808"
     }
   },
   {
@@ -71,8 +71,9 @@
   {
     "q": "طلاق توافقی چقدر طول می‌کشد",
     "expect": {
-      "accepted": false,
-      "missing": []
+      "accepted": true,
+      "law": "family_protection",
+      "title": "ماده 25"
     }
   },
   {
@@ -233,6 +234,38 @@
       "accepted": true,
       "law": "landlord_tenant",
       "title": "ماده 3"
+    }
+  },
+  {
+    "q": "کفالت",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 734"
+    }
+  },
+  {
+    "q": "حضانت بچه",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 1169"
+    }
+  },
+  {
+    "q": "طلاق توافقی",
+    "expect": {
+      "accepted": true,
+      "law": "family_protection",
+      "title": "ماده 25"
+    }
+  },
+  {
+    "q": "سرقفلی",
+    "expect": {
+      "accepted": true,
+      "law": "landlord_tenant",
+      "title": "ماده 6"
     }
   }
 ]

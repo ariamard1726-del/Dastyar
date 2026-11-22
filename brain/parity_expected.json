@@ -645,7 +645,7 @@
     "حق شفعه"
    ],
    "q": "حق شفعه",
-   "title": "ماده 821",
+   "title": "ماده 808",
    "unknown": []
   },
   {
@@ -663,32 +663,25 @@
    "unknown": []
   },
   {
-   "accepted": false,
-   "cover": 0.671,
+   "accepted": true,
+   "cover": 1.0,
    "law": "family_protection",
    "matched": [
     "طلاق",
     "توافقی"
    ],
-   "missing": [
-    "چقدر",
-    "طول",
-    "کشد"
-   ],
+   "missing": [],
    "phrases": [
     "طلاق توافقی"
    ],
    "q": "طلاق توافقی چقدر طول می‌کشد",
-   "title": "ماده 26",
-   "unknown": [
-    "چقدر",
-    "کشد"
-   ]
+   "title": "ماده 25",
+   "unknown": []
   },
   {
    "accepted": true,
    "cover": 1.0,
-   "law": "constitution",
+   "law": "civil",
    "matched": [
     "حضانت",
     "فرزند"
@@ -698,7 +691,7 @@
     "حضانت فرزند"
    ],
    "q": "حضانت فرزند",
-   "title": "اصل 21",
+   "title": "ماده 1169",
    "unknown": []
   },
   {
@@ -1031,6 +1024,68 @@
    ],
    "q": "تخلیه ملک",
    "title": "ماده 3",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "کفالت"
+   ],
+   "missing": [],
+   "phrases": [
+    "کفالت"
+   ],
+   "q": "کفالت",
+   "title": "ماده 734",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "حضانت",
+    "بچه"
+   ],
+   "missing": [],
+   "phrases": [
+    "حضانت بچه"
+   ],
+   "q": "حضانت بچه",
+   "title": "ماده 1169",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "family_protection",
+   "matched": [
+    "طلاق",
+    "توافقی"
+   ],
+   "missing": [],
+   "phrases": [
+    "طلاق توافقی"
+   ],
+   "q": "طلاق توافقی",
+   "title": "ماده 25",
+   "unknown": []
+  },
+  {
+   "accepted": true,
+   "cover": 1.0,
+   "law": "landlord_tenant",
+   "matched": [
+    "سرقفلی"
+   ],
+   "missing": [],
+   "phrases": [
+    "سرقفلی"
+   ],
+   "q": "سرقفلی",
+   "title": "ماده 6",
    "unknown": []
   }
  ],
