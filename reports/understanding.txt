@@ -1,7 +1,7 @@
 Understanding on eval/understanding_probe.tsv (39 sentences, first message only)
 model called for 16 sentences; open >= 0.143 with margin >= 0.04, ask >= 0.087
 rules only   : {none-ok: 9, opened-right: 23, none-missed: 7}
-rules + model: {none-ok: 7, opened-right: 25, none-missed: 5, opened-WRONG: 1, asked-right: 1}
+rules + model: {none-ok: 6, opened-right: 26, none-missed: 4, opened-WRONG: 1, asked-right: 2}
 columns: changed? | rules only | rules + model | guess | [gold] sentence
 
   none-ok       none-ok       general=0.14 (accused=0.13)        [chat] سلام. من یک سوال حقوقی دارم
@@ -29,7 +29,7 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   none-ok       none-ok       general=0.40 (accused=0.08)        [general] فرق دادگاه و دادسرا چیه
   opened-right  opened-right  -                                  [inherit|general] میخوام وصیت نامه بنویسم
   none-ok       none-ok       labor=0.25 (general=0.08)          [labor|general] حقوق کارگر در سال جدید چقدر است
-  none-missed   none-missed   family=0.14 (rent=0.12)            [family] خانم من بدون اجازه از خانه رفته
+* none-missed   asked-right   family=0.14 (rent=0.12)            [family] خانم من بدون اجازه از خانه رفته
   opened-right  opened-right  -                                  [family] آیا زن میتواند حق طلاق بگیرد؟
   opened-right  opened-right  -                                  [rent] مستأجر من اجاره نمی‌دهد و خانه را تخليه نمي كند
   opened-right  opened-right  -                                  [labor] کارفرماي من حقوقم را پرداخت نكرده است
@@ -40,6 +40,6 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [family] همسرم به من خیانت کرده چه کنم
   none-missed   none-missed   company=0.29 (chat=0.10)           [company] میخواهم شرکت ثبت کنم
   opened-right  opened-right  -                                  [inherit] کسی که فوت کرده بدهی داشته ورثه باید بدهند؟
-  none-ok       none-ok       family=0.19 (inherit=0.09)         [family|admin|general] بدون رضایت شوهر میشه پاسپورت گرفت؟
+* none-ok       opened-right  family=0.19 (inherit=0.09)         [family|admin|general] بدون رضایت شوهر میشه پاسپورت گرفت؟
   opened-right  opened-right  -                                  [rent] صاحبخانه پول رهن را نمی دهد
 * none-missed   asked-right   labor=0.13 (rent=0.09)             [labor] رئیسم به من گفته دیگر لازم نیست بیایی
