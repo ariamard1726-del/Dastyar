@@ -5,4 +5,4 @@ Analyzing Dastyar...
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
 
-4 issues found. (ran in 9.8s)
+4 issues found. (ran in 11.7s)
