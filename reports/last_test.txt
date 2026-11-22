@@ -1,4 +1,4 @@
-commit: 6c6b2a5
+commit: 6ec8917
 ::error::34 tests passed, 49 failed.
 ::group::❌ loading test/audit/conversation_audit_test.dart (failed)
    Failed to load "test/audit/conversation_audit_test.dart":
@@ -139,7 +139,7 @@ commit: 6c6b2a5
    _loadLegalTerms(),
    ^^^^^^^^^^^^^^^
 --- analyze ---
-6 issues found. (ran in 9.8s)
+6 issues found. (ran in 11.8s)
    info • The private field _legalTerms could be 'final'. Try making the field 'final' • lib/core/engine.dart:180:22 • prefer_final_fields
   error • The method '_loadLegalTerms' isn't defined for the type 'KnowledgeEngine'. Try correcting the name to the name of an existing method, or defining a method named '_loadLegalTerms' • lib/core/
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:211:48 • prefer_const_constructors
