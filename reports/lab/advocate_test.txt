@@ -109,7 +109,6 @@
 ✅ test/advocate/understanding_test.dart: مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید
 ✅ test/advocate/understanding_test.dart: غبن با اسقاط شرط: قاعدهٔ تعارض پیش از فهرست ماده‌ها جواب می‌دهد
 ✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
 ✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
 ✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
@@ -127,9 +126,7 @@
 ✅ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد
 ✅ test/advocate/conversation_control_test.dart: «زن داری» پیش از حدس زدن، توضیح می‌خواهد
 ✅ test/advocate/conversation_control_test.dart: «شکایت کرده‌ام» یعنی کاربر شاکی است
-✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
-✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
-✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
@@ -147,6 +144,9 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
