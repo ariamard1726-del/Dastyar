@@ -244,9 +244,14 @@ class LawTerms {
       if ((postings[t]?.length ?? 0) <= rareDf) rareN++;
     }
     final near = _span(bt, matched) <= maxSpan;
-    final accepted = (ph.isNotEmpty && m >= 2) ||
-        (cover >= minCover && rareN >= 2 && near) ||
-        headHit;
+    // واژهٔ نادرِ پرسش که در ماده نیست یعنی ماده بخشی از پرسش را پوشش می‌دهد؛
+    // با عبارت یا عنوان پذیرفته نمی‌شود (همتای tools/law_terms.py).
+    final rareMissing = [
+      for (final t in known)
+        if ((postings[t]?.length ?? 0) <= rareDf && !matched.contains(t)) t
+    ];
+    final accepted = (((ph.isNotEmpty && m >= 2) || headHit) && rareMissing.isEmpty) ||
+        (cover >= minCover && rareN >= 2 && near);
     return TermMatch(
       accepted: accepted,
       chunk: c,

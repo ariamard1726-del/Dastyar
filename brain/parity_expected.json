@@ -548,7 +548,7 @@
    "unknown": []
   },
   {
-   "accepted": true,
+   "accepted": false,
    "cover": 0.609,
    "law": "civil",
    "matched": [
@@ -663,7 +663,7 @@
    "unknown": []
   },
   {
-   "accepted": true,
+   "accepted": false,
    "cover": 0.671,
    "law": "family_protection",
    "matched": [

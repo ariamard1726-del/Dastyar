@@ -192,7 +192,11 @@ def match(q, e=None):
     span = _span(btoks, matched)
     near = span <= MAX_SPAN
     rare_n = sum(1 for t in matched if len(e.postings[t]) <= RARE_DF)
-    accepted = (bool(ph) and m >= 2) or (cover >= MIN_COVER and rare_n >= 2 and near) or head_hit
+    # واژهٔ نادرِ پرسش که در ماده نیست، یعنی ماده بخشی از پرسش را پوشش می‌دهد؛
+    # آن را به‌عنوان پاسخ قطعی نمی‌پذیریم.
+    rare_missing = [t for t in known if len(e.postings[t]) <= RARE_DF and t not in matched]
+    by_phrase = bool(ph) and m >= 2
+    accepted = ((by_phrase or head_hit) and not rare_missing) or (cover >= MIN_COVER and rare_n >= 2 and near)
     return {
         'accepted': accepted,
         'law': c['law'],

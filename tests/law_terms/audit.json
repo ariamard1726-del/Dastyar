@@ -1,16 +1,95 @@
 [
-  {"q": "بیع شرط رهن", "accepted": true, "body_has": ["رهن"], "status": "open", "note": "ماده ۴۶۳ قانون مدنی رهن ندارد؛ باید مادهٔ رهن پیدا شود"},
-  {"q": "تخلیه ملک", "accepted": true, "not_law": ["direct_taxes"], "body_has": ["تخلیه"], "status": "open", "note": "نباید به مالیات‌های مستقیم برود"},
-  {"q": "نزدیک‌ترین ستاره به زمین", "accepted": false, "status": "open", "note": "خارج از حقوق"},
-  {"q": "کدام شهر ایران برای گردش", "accepted": false, "status": "open", "note": "خارج از حقوق"},
-  {"q": "بهترین نرم‌افزار ویرایش عکس", "accepted": false, "status": "open", "note": "خارج از حقوق"},
-  {"q": "این مجموعه اندازه‌گیری", "accepted": false, "status": "open", "note": "خارج از حقوق"},
-  {"q": "قولنامه عادی", "accepted": true, "status": "open", "note": "در قانون مدنی و تجارت باید پیدا شود"},
-  {"q": "ارث همسر", "accepted": true, "status": "open", "note": "قانون مدنی"},
-  {"q": "نفقه همسر", "accepted": true, "status": "open", "note": "قانون مدنی / حمایت خانواده"},
-  {"q": "خیانت در امانت", "accepted": true, "status": "open", "note": "قانون مجازات"},
-  {"q": "کشف حجاب", "accepted": true, "status": "open", "note": "قانون مجازات اسلامی"},
-  {"q": "متن کوتاه قرارداد شامل طرفین، مبلغ و تاریخ", "accepted": false, "status": "ok", "note": "عبارت عمومی نباید حدس زده شود"},
-  {"q": "کارشناس غبن افحش", "accepted": true, "law": "civil", "title": "ماده 416", "status": "ok"},
-  {"q": "سلام", "accepted": false, "status": "ok"}
+  {
+    "q": "بیع شرط رهن",
+    "accepted": true,
+    "body_has": [
+      "رهن"
+    ],
+    "status": "open",
+    "note": "مادهٔ رهن نیست؛ نپذیرفتن بهتر از پاسخ اشتباه است. مادهٔ درست رهن هنوز در فهرست نیست"
+  },
+  {
+    "q": "تخلیه ملک",
+    "accepted": true,
+    "not_law": [
+      "direct_taxes"
+    ],
+    "body_has": [
+      "تخلیه"
+    ],
+    "status": "open",
+    "note": "نباید به مالیات‌های مستقیم برود"
+  },
+  {
+    "q": "نزدیک‌ترین ستاره به زمین",
+    "accepted": false,
+    "status": "open",
+    "note": "خارج از حقوق"
+  },
+  {
+    "q": "کدام شهر ایران برای گردش",
+    "accepted": false,
+    "status": "ok",
+    "note": "خارج از حقوق"
+  },
+  {
+    "q": "بهترین نرم‌افزار ویرایش عکس",
+    "accepted": false,
+    "status": "open",
+    "note": "خارج از حقوق"
+  },
+  {
+    "q": "این مجموعه اندازه‌گیری",
+    "accepted": false,
+    "status": "open",
+    "note": "خارج از حقوق"
+  },
+  {
+    "q": "قولنامه عادی",
+    "accepted": true,
+    "status": "open",
+    "note": "در قانون مدنی و تجارت باید پیدا شود"
+  },
+  {
+    "q": "ارث همسر",
+    "accepted": true,
+    "status": "open",
+    "note": "قانون مدنی"
+  },
+  {
+    "q": "نفقه همسر",
+    "accepted": true,
+    "status": "open",
+    "note": "قانون مدنی / حمایت خانواده"
+  },
+  {
+    "q": "خیانت در امانت",
+    "accepted": true,
+    "status": "open",
+    "note": "قانون مجازات"
+  },
+  {
+    "q": "کشف حجاب",
+    "accepted": true,
+    "status": "open",
+    "note": "قانون مجازات اسلامی"
+  },
+  {
+    "q": "متن کوتاه قرارداد شامل طرفین، مبلغ و تاریخ",
+    "accepted": false,
+    "status": "ok",
+    "note": "عبارت عمومی نباید حدس زده شود"
+  },
+  {
+    "q": "کارشناس غبن افحش",
+    "accepted": true,
+    "law": "civil",
+    "title": "ماده 416",
+    "status": "ok"
+  },
+  {
+    "q": "سلام",
+    "accepted": false,
+    "status": "ok"
+  }
 ]
