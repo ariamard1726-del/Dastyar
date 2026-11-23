@@ -8,12 +8,33 @@ import 'package:dastyar/core/privacy.dart';
 class StoredMsg {
   final String text;
   final bool fromUser;
-  StoredMsg(this.text, this.fromUser);
 
-  Map<String, dynamic> toJson() => {'t': text, 'u': fromUser};
+  /// دکمه‌های پیشنهادی همان پیام. پیش‌تر ذخیره نمی‌شدند و گفتگوی
+  /// بازیابی‌شده همهٔ دکمه‌هایش را از دست می‌داد.
+  final List<String> chips;
 
-  factory StoredMsg.fromJson(Map<String, dynamic> j) =>
-      StoredMsg((j['t'] ?? '').toString(), j['u'] == true);
+  StoredMsg(this.text, this.fromUser, {this.chips = const []});
+
+  Map<String, dynamic> toJson() => {
+        't': text,
+        'u': fromUser,
+        if (chips.isNotEmpty) 'c': chips,
+      };
+
+  factory StoredMsg.fromJson(Map<String, dynamic> j) => StoredMsg(
+        (j['t'] ?? '').toString(),
+        j['u'] == true,
+        chips: parseChips(j['c']),
+      );
+
+  /// دکمه‌های ذخیره‌شده؛ ورودی نامعتبر فهرست خالی می‌دهد.
+  static List<String> parseChips(Object? raw) {
+    if (raw is! List) return const [];
+    return [
+      for (final e in raw)
+        if (e != null && e.toString().trim().isNotEmpty) e.toString(),
+    ];
+  }
 }
 
 class ChatSession {
@@ -63,7 +84,7 @@ class ChatSession {
     if (raw is! List) return out;
     for (final e in raw) {
       if (e is! Map) continue;
-      out.add(StoredMsg((e['t'] ?? '').toString(), e['u'] == true));
+      out.add(StoredMsg.fromJson(Map<String, dynamic>.from(e)));
     }
     return out;
   }

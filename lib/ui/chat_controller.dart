@@ -313,7 +313,7 @@ class ChatController extends ChangeNotifier {
     if (!settings.saveHistory || _disposed) return;
     final stored = messages
         .where((m) => !m.sensitive && !m.isDoc)
-        .map((m) => StoredMsg(m.text, m.fromUser))
+        .map((m) => StoredMsg(m.text, m.fromUser, chips: m.chips))
         .toList();
     final users = stored.where((m) => m.fromUser).toList();
     if (users.isEmpty) return;
@@ -495,7 +495,14 @@ class ChatController extends ChangeNotifier {
     messages
       ..clear()
       ..addAll(
-        s.messages.map((m) => ChatMessage(m.text, m.fromUser, revealed: true)),
+        s.messages.map((m) => ChatMessage(
+              m.text,
+              m.fromUser,
+              // دکمه‌های پیشنهادی همان‌جا که بودند برمی‌گردند؛ وگرنه گفتگوی
+              // بازیابی‌شده راه ادامه ندارد.
+              chips: m.chips,
+              revealed: true,
+            )),
       );
     final saved = s.caseJson;
     if (saved != null) {

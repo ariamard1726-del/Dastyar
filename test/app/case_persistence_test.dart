@@ -121,4 +121,37 @@ void main() {
     final bad = ChatSession.fromJson({'id': '2', 'case': 'not-a-map'});
     expect(bad.caseJson, isNull);
   });
+  test('دکمه‌های پیشنهادی با گفتگو ذخیره و بازیابی می‌شوند', () async {
+    final history = HistoryStore();
+    await history.load();
+    final a = make(history);
+
+    await a.submit('صاحبخونه پول پیشمو نمیده');
+    await settle();
+    final withChips =
+        a.messages.where((m) => !m.fromUser && m.chips.isNotEmpty).toList();
+    expect(withChips, isNotEmpty, reason: 'پاسخ هیچ دکمه‌ای نداشت');
+    final saved = history.sessions.first;
+    a.dispose();
+
+    final b = make(history);
+    b.loadSession(saved);
+    final restored =
+        b.messages.where((m) => !m.fromUser && m.chips.isNotEmpty).toList();
+    expect(restored, isNotEmpty, reason: 'دکمه‌ها پس از بازیابی گم شدند');
+    expect(restored.first.chips, withChips.first.chips);
+    b.dispose();
+  });
+
+  test('دکمه‌های نامعتبر در رکورد JSON رد می‌شوند', () {
+    final m = StoredMsg.fromJson({'t': 'x', 'u': false, 'c': 'not-a-list'});
+    expect(m.chips, isEmpty);
+    final m2 = StoredMsg.fromJson({
+      't': 'x',
+      'u': false,
+      'c': ['الف', null, '  ', 'ب'],
+    });
+    expect(m2.chips, ['الف', 'ب']);
+  });
+
 }
