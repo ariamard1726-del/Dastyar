@@ -85,7 +85,10 @@ extension _TopicPicking on Advocate {
       _loose.removeLast();
       final r = _open(first, n, guessed: true);
       _guessed = true;
-      return AdvocateReply(r.text, chips: [Advocate.wrongChip, ...r.chips], laws: r.laws);
+      return AdvocateReply(r.text,
+          chips: [Advocate.wrongChip, ...r.chips],
+          laws: r.laws,
+          source: AnswerSource.guess);
     }
     final second = _guessTopic(g.second, n, scores);
     final list = <Topic>[

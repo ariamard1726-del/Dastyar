@@ -209,5 +209,33 @@ void main() {
       expect(ctrl.draft?.values['basis_detail'], contains('ودیعه'));
       ctrl.dispose();
     });
+
+    test('پیامِ در صف بعد از «گفتگوی جدید» به گفتگوی تازه نمی‌چسبد', () async {
+      final ctrl = make();
+      final pending = ctrl.submit('ماده ۱۰ قانون مدنی');
+      // پیش از آنکه پیام پردازش شود، گفتگو عوض می‌شود.
+      ctrl.newChat();
+      await pending;
+      expect(ctrl.messages, isEmpty);
+      expect(ctrl.advocate.hasCase, isFalse);
+      ctrl.dispose();
+    });
+
+    test('خطای خوانندهٔ موضوع، پیام را بی‌توضیح گم نمی‌کند', () async {
+      // حدسِ مدل خطا می‌دهد؛ وکیل باید بدون حدس ادامه دهد، پیام کاربر
+      // نمایش داده شود و خطا برای عیب‌یابی ثبت شود.
+      final ctrl = ChatController(
+        engine: engine,
+        repo: TemplateRepository()..templates.addAll(templates),
+        history: HistoryStore(),
+        settings: AppSettings()..saveHistory = false,
+        guesser: (String _) async => throw StateError('مدل بار نشد'),
+      );
+      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      expect(ctrl.messages.first.fromUser, isTrue);
+      expect(ctrl.messages.last.fromUser, isFalse);
+      expect(ctrl.problems, isNotEmpty);
+      ctrl.dispose();
+    });
   });
 }

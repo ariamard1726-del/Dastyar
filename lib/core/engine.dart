@@ -21,6 +21,10 @@ class KnowledgeEngine {
   final Map<String, double> _idf = {};
   final Map<String, List<int>> _postings = {};
   final Map<String, List<int>> _byTitle = {};
+
+  /// فهرست «شناسهٔ قانون + عنوان ماده» → شمارهٔ chunk؛ یک بار ساخته می‌شود
+  /// تا یافتن متن یک ماده در هر پیام روی کل بانک خطی نگردد.
+  Map<String, int>? _articleIndex;
   double _avgLen = 1.0;
   double _maxIdf = 1.0;
 
@@ -255,6 +259,7 @@ Future<void> load() async {
   _idf.clear();
   _postings.clear();
   _byTitle.clear();
+  _articleIndex = null;
   _lawCounts.clear();
   catalog.clear();
   categoryNames.clear();
@@ -484,6 +489,24 @@ static String _faArticleLabel(RegExpMatch m) {
           : ' مکرر')
       : '';
   return '$num$mk';
+}
+
+/// شمارهٔ chunk یک ماده از روی (شناسهٔ قانون، عنوان ماده)؛ یا `null`.
+///
+/// همتای O(1) پیمایش خطیِ `for (final c in engine.chunks)` که در تطبیق
+/// واژه‌ها و برگ‌های مسیر موضوعی استفاده می‌شد. فهرست با اولین فراخوانی
+/// ساخته و با هر بار `load()` دور انداخته می‌شود.
+int? chunkOf(String lawId, String title) {
+  var idx = _articleIndex;
+  if (idx == null) {
+    idx = <String, int>{};
+    for (var i = 0; i < _chunks.length; i++) {
+      final c = _chunks[i];
+      idx.putIfAbsent('${c.lawId}\u0000${c.title}', () => i);
+    }
+    _articleIndex = idx;
+  }
+  return idx['$lawId\u0000$title'];
 }
 
 /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.

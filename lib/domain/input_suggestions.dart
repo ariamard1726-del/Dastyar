@@ -172,14 +172,20 @@ class InputSuggestions {
     return true;
   }
 
+  /// آخرین متن و موضوعش؛ نوار پیشنهاد در هر کلید چند بار موضوع را می‌پرسد
+  /// و این حافظه از تکرارِ اسکن ۲۴ موضوع و ۳۵ راهنما جلوگیری می‌کند.
+  static (String, String?)? _topicMemo;
+
   /// موضوع پیام در حال تایپ، یا `null`.
   static String? topicOf(String text) {
+    final memo = _topicMemo;
+    if (memo != null && memo.$1 == text) return memo.$2;
     final g = LawyerVoice.matchGuide(text);
-    if (g != null) {
-      final t = guideTopic[g.id];
-      if (t != null) return t;
-    }
-    return advocateTopic[Advocate.topicOf(text)];
+    String? t;
+    if (g != null) t = guideTopic[g.id];
+    t ??= advocateTopic[Advocate.topicOf(text)];
+    _topicMemo = (text, t);
+    return t;
   }
 
   /// پیشنهادها برای متنی که کاربر در حال نوشتن آن است.
@@ -208,13 +214,13 @@ class InputSuggestions {
         final sb = _norm(b).startsWith(typedNorm) ? 0 : 1;
         return sa.compareTo(sb);
       });
-    final reserve = topicOf(raw) == null ? 0 : 1;
+    final topic = topicOf(raw);
+    final reserve = topic == null ? 0 : 1;
     for (final q in completions.take(maxItems - reserve)) {
       add(q, SuggestionKind.question);
     }
 
     // ۲. پرسش‌های رایج همان موضوع.
-    final topic = topicOf(raw);
     if (topic != null) {
       for (final q in topicQuestions[topic]!) {
         if (out.length >= maxItems - reserve) break;

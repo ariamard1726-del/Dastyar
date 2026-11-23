@@ -25,12 +25,62 @@ part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
 
+/// از کدام مسیر دانش، این پاسخ ساخته شد؟
+///
+/// این برچسب فقط برای شفافیت و آزمون است: ترتیب اولویت مسیرها در
+/// [Advocate.pipelineOrder] نوشته شده و `test/advocate/answer_source_test.dart`
+/// همان را می‌سنجد. متن پاسخ هیچ‌جا از مدل نمی‌آید؛ برچسب می‌گوید از کدام
+/// منبعِ صریح آمده است.
+enum AnswerSource {
+  /// پیام اضطراری ایمنی (خشونت خانگی، تماس با اورژانس).
+  safety,
+
+  /// پروندهٔ موضوع‌ها: پرسش، استدلال، جمع‌بندی، دادخواست.
+  topic,
+
+  /// مسیر تصمیم موضوعی از `assets/brain/topics/*.json`.
+  topicFlow,
+
+  /// تطبیق واژه‌های پیام با متن قوانین (`LawTerms`).
+  lawTerms,
+
+  /// واژه‌نامهٔ اصطلاحات حقوقی.
+  glossary,
+
+  /// راهنمای ازپیش‌نوشتهٔ وکیل (`legal_guides`).
+  guide,
+
+  /// حدسِ خوانندهٔ موضوع (Noql) که پرونده را باز کرد.
+  guess,
+
+  /// نظر دوم طبقه‌بند سبک نیت (`IntentNet`).
+  intentNet,
+
+  /// بانک پرسش‌وپاسخ (`assets/qa`).
+  qaBank,
+
+  /// بازیابی BM25F از متن قوانین.
+  engine,
+
+  /// پاسخ برچسب‌نخورده؛ نباید در پاسخ‌های نهایی دیده شود.
+  unknown,
+}
+
 /// پاسخ وکیل به یک پیام.
 class AdvocateReply {
   final String text;
   final List<String> chips;
   final List<LawText> laws;
-  AdvocateReply(this.text, {this.chips = const [], this.laws = const []});
+
+  /// مسیر دانشی که این پاسخ را ساخت (برای شفافیت و آزمون).
+  final AnswerSource source;
+
+  AdvocateReply(
+    this.text, {
+    this.chips = const [],
+    this.laws = const [],
+    this.source = AnswerSource.unknown,
+  });
 }
 
 /// یک پرسشِ وکیل و گزینه‌های جوابش.
@@ -79,6 +129,25 @@ class Advocate {
 
   /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
   static const double netMin = 0.6;
+
+  /// ترتیب اولویت مسیرهای دانش، همان‌طور که در [respond] اجرا می‌شود.
+  ///
+  /// این فهرست «قرارداد» است، نه تزئین: هر مسیر تازه باید جای خودش را در
+  /// همین فهرست بگیرد و `test/advocate/answer_source_test.dart` هر پاسخ را
+  /// با برچسب [AdvocateReply.source] می‌سنجد. تغییر ترتیب = تغییر رفتار،
+  /// پس تغییرش باید همراه با به‌روزکردن همین فهرست و آزمون باشد.
+  static const List<AnswerSource> pipelineOrder = [
+    AnswerSource.safety,
+    AnswerSource.topic,
+    AnswerSource.lawTerms,
+    AnswerSource.glossary,
+    AnswerSource.guide,
+    AnswerSource.topicFlow,
+    AnswerSource.guess,
+    AnswerSource.intentNet,
+    AnswerSource.qaBank,
+    AnswerSource.engine,
+  ];
 
   /// دسته‌های خوانندهٔ موضوع → موضوع‌های هم‌معنا در [topics] به ترتیب
   /// اولویت. دسته‌های crime، general، chat و other پرونده‌ای ندارند و با
@@ -153,6 +222,15 @@ class Advocate {
 
   /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
   String _prevN = '';
+
+  /// آیا پیام ایمنی (خشونت/اورژانس) را در همین پرونده یک بار گفته‌ام؟
+  /// یک بار کافی است تا گفتگو در حلقه نیفتد؛ با بسته‌شدن پرونده صفر می‌شود.
+  bool _safetyShown = false;
+
+  /// پیامی که پاسخ ایمنی جایش را گرفت، برای اینکه موضوعش گم نشود.
+  /// در نوبت بعد فقط وقتی به حساب می‌آید که پیام تازه خودش موضوع روشنی
+  /// نداشته باشد.
+  String _safetyCarry = '';
 
   /// دکمهٔ پیشنهادیِ مرتبط با پیام همین نوبت (اگر باشد).
   String _relevantChip = '';
@@ -311,6 +389,16 @@ class Advocate {
   /// خشونت (کتک، پرت‌کردن چیزی، تهدید) در خانواده، یا گزارش تماس با اورژانس.
   /// پاسخ امنیت را می‌دهد و پرونده را نمی‌بندد.
   AdvocateReply? _safety(String n) {
+    // «الان در خطر هستم» جوابِ پرسش خودِ ماست و باید سریع‌ترین راه را بدهد.
+    if (Sense.has(n,
+        'الان در خطر(?: هستم|یم)?(?! نیست)|همین حالا در خطر|در خطر فوری|هنوز در خطر|کسی در خطر')) {
+      return _out(
+        'اگر همین حالا کسی در خطر است، اول از محل دور شوید و ۱۱۰ یا ۱۱۵ را بگیرید. اگر درگیری خانوادگی است، اورژانس اجتماعی ۱۲۳ هم شبانه‌روزی پاسخ می‌دهد. تا وقتی امن نشده، هیچ فرایند حقوقی را شروع نکنید؛ هرچه اتفاق افتاد را با تاریخ و ساعت یادداشت کنید و اگر آسیب جسمی دارید، پیش از محو شدن اثرش به پزشکی قانونی بروید.',
+        ask: 'آیا الان جای امنی هستید و کسی همراهتان است؟',
+        chips: const ['الان امن هستم', 'هنوز در خطر هستم'],
+        source: AnswerSource.safety,
+      );
+    }
     final called = Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
         Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
     final violent = Sense.has(n,
@@ -322,6 +410,7 @@ class Advocate {
         'خوب کردید که زنگ زدید. اگر درگیری ادامه دارد، از جای امن دور شوید و دوباره ۱۱۰ یا ۱۱۵ را بگیرید. اگر ماجرا در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند.',
         ask: 'الان وضعیت چطور است؟ آیا کسی هنوز در خطر است؟',
         chips: const ['الان در خطر هستم', 'الان امن است'],
+        source: AnswerSource.safety,
       );
     }
     if (violent) {
@@ -329,6 +418,7 @@ class Advocate {
         'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.',
         ask: 'الان کسی در خطر است؟',
         chips: const ['الان در خطر هستم', 'الان امن است'],
+        source: AnswerSource.safety,
       );
     }
     return null;
@@ -347,6 +437,8 @@ class Advocate {
     _relevantChip = '';
     file.turns = 0;
     file.disclaimed = false;
+    _safetyShown = false;
+    _safetyCarry = '';
     _said.clear();
     _loose.clear();
     unresolved.clear();
@@ -418,6 +510,44 @@ class Advocate {
         ask: 'موضوع تازه‌تان چیست؟',
         chips: _starters(),
       );
+    }
+    // ایمنی، پیش از هر چیز و مستقل از امتیاز موضوع.
+    //
+    // پیش‌تر این بررسی فقط وقتی اجرا می‌شد که هیچ موضوعی امتیاز ۴ به بالا
+    // نگرفته باشد؛ یعنی درست همان پیام‌های روشنِ خشونت (که واژه‌های طلاق یا
+    // مهریه هم دارند و امتیاز بالا می‌گیرند) پیام اضطراری را از دست
+    // می‌دادند. ایمنی به تشخیص موضوع گره نمی‌خورد. در هر پرونده یک بار
+    // گفته می‌شود تا گفتگو در حلقه نیفتد.
+    if (!_safetyShown) {
+      final safe = _safety(n);
+      if (safe != null) {
+        if (!hasCase) {
+          // پیامِ خشونت اغلب موضوع روشنی هم دارد («زد و می‌خوام طلاق
+          // بگیرم»). پاسخِ این نوبت ایمنی است، ولی پرونده را بی‌صدا باز
+          // می‌کنیم تا نوبت بعد از سرِ همان موضوع ادامه پیدا کند و کاربر
+          // مجبور نشود ماجرا را دوباره بگوید.
+          Topic? pick;
+          var score = 0;
+          for (final t in topics) {
+            final sc = _score(t, n);
+            if (sc > score) {
+              pick = t;
+              score = sc;
+            }
+          }
+          if (pick != null && score >= 3) {
+            _open(pick, n);
+            // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
+            _askChips = safe.chips;
+          } else {
+            _safetyCarry = n;
+          }
+        }
+        // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر
+        // می‌کند.
+        _safetyShown = true;
+        return safe;
+      }
     }
     // جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
     if (choices.isNotEmpty) {
@@ -555,6 +685,10 @@ class Advocate {
       return _open(side, Sense.norm(sideText), switched: true);
     }
     final topic = _current();
+    // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
+    // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
+    final carry = _safetyCarry;
+    _safetyCarry = '';
     Topic? best;
     var bestScore = 0;
     final scores = <String, int>{};
@@ -564,6 +698,16 @@ class Advocate {
       if (s > bestScore) {
         best = t;
         bestScore = s;
+      }
+    }
+    if (bestScore < 4 && carry.isNotEmpty) {
+      for (final t in topics) {
+        final s = _score(t, '$n $carry');
+        if (s > bestScore) {
+          best = t;
+          bestScore = s;
+        }
+        scores[t.id] = s;
       }
     }
 
@@ -634,11 +778,6 @@ class Advocate {
       );
     }
 
-    // خشونت خانوادگی یا تماس با اورژانس: پیش از هر موضوع، امنیت آدم.
-    if (best == null || bestScore < 4) {
-      final safe = _safety(n);
-      if (safe != null) return safe;
-    }
     if (Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
       return _out('درست است؛ این گفتگو با خود همین برنامه است. هر ماجرایی دارید، بگویید.',
           ask: 'چه چیزی را بررسی کنیم؟');
@@ -702,7 +841,8 @@ class Advocate {
       final g = _glossary(n);
       if (g != null) {
         return _out(g,
-            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '');
+            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+            source: AnswerSource.glossary);
       }
       final guide = _guide;
       if (guide != null) {
@@ -733,7 +873,10 @@ class Advocate {
         final hint = _secondOpinion(raw, n);
         if (hint != null) {
           _loose.removeLast();
-          return _open(hint, n);
+          // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
+          final r = _open(hint, n);
+          return AdvocateReply(r.text,
+              chips: r.chips, laws: r.laws, source: AnswerSource.intentNet);
         }
       }
       final hopeless = _hopeless(n);
@@ -848,6 +991,7 @@ class Advocate {
     String ask = '',
     bool full = false,
     int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
   }) {
     final laws = <LawText>[];
     final seen = <String>{};
@@ -869,7 +1013,10 @@ class Advocate {
         final label = '$kind $num ${c.source}';
         final nums = byLaw.putIfAbsent(c.source, () => <String>[]);
         if (!nums.contains(num)) nums.add(num);
-        if (seen.add(key)) laws.add(LawText(label, c.source, c.body, ''));
+        if (seen.add(key)) {
+          laws.add(LawText(label, c.source, c.body, '',
+              status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
+        }
       }
       if (byLaw.isEmpty) return '';
       final names = <String>[];
@@ -924,7 +1071,7 @@ class Advocate {
         ..remove(leaveChip)
         ..add(leaveChip);
     }
-    return AdvocateReply(body, chips: all, laws: laws);
+    return AdvocateReply(body, chips: all, laws: laws, source: source);
   }
 }
 

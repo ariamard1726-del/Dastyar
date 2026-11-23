@@ -32,6 +32,8 @@ extension _CaseFlow on Advocate {
     _pendingText = '';
     _lastServed = '';
     _flips.clear();
+    _safetyShown = false;
+    _safetyCarry = '';
     _guide = null;
     _lastBody = '';
     _deferred = '';
