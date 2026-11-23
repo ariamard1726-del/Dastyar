@@ -474,9 +474,9 @@ void main() {
     c.respond('یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره');
     final ask = say(c, 'سگ همسایه گازم گرفت');
     expect(c.file.topic, 'consumer');
-    expect(ask.chips, contains(Advocate.sideChip));
+    expect(ask.chips, contains(Advocate.newTopicChip));
     expect(ask.text, contains('ماجرای جداگانه'));
-    c.respond(Advocate.sideChip);
+    c.respond(Advocate.newTopicChip);
     expect(c.file.topic, 'injury');
     expect(c.file.get('kind'), 'other');
     // ولی وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌معطلی می‌رود.

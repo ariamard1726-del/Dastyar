@@ -322,6 +322,18 @@ class Advocate {
   /// پاسخ کاربر به «به همین ماجرای قبلی مربوط است؟».
   static const String relatedChip = 'به همین ماجرای قبلی مربوط است';
 
+  /// پاسخ‌های پرسشِ «موضوع تازه است یا به قبلی مربوط؟» وقتی فقط همین پرسش
+  /// روی میز است.
+  static const String newTopicYesChip = 'بله';
+
+  static const String newTopicNoChip = 'خیر';
+
+  /// همان پاسخ‌ها وقتی پرسش همراهِ پرسشِ خودِ پرونده می‌آید؛ «بله/خیر» تنها
+  /// با جوابِ پرسش‌های پرونده اشتباه می‌شود.
+  static const String newTopicChip = 'بله، موضوع تازه است';
+
+  static const String sameCaseChip = 'خیر، به همان ماجرا مربوط است';
+
   /// خروج از موضوع فقط با این دکمه (یا «انصراف» نوشته‌شده) انجام می‌شود.
   static const String leaveChip = 'انصراف';
 
@@ -508,7 +520,23 @@ class Advocate {
 
   /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
   /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
-  AdvocateReply respond(String raw, {TopicGuess? guess}) {
+  AdvocateReply respond(String raw, {TopicGuess? guess}) =>
+      _withLeave(_reply(raw, guess: guess));
+
+  /// «انصراف» آخرین دکمهٔ **هر** پاسخ است، در هر مرحله‌ای از گفتگو؛ وگرنه
+  /// کاربر از وسط ماجرا راه خروج ندارد (بعضی مسیرها مثل جست‌وجوی متن قانون،
+  /// پاسخ را مستقیم می‌سازند و از [_out] نمی‌گذرند).
+  AdvocateReply _withLeave(AdvocateReply r) {
+    if (r.chips.isNotEmpty && r.chips.last == leaveChip) return r;
+    return AdvocateReply(
+      r.text,
+      chips: [...r.chips.where((c) => c != leaveChip), leaveChip],
+      laws: r.laws,
+      source: r.source,
+    );
+  }
+
+  AdvocateReply _reply(String raw, {TopicGuess? guess}) {
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
@@ -693,7 +721,7 @@ class Advocate {
               'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
         }
         file.turns--;
-        return respond(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
+        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
       }
       if (t0 != null && (Sense.saysNo(n) || unsure)) {
         clearOffer();
@@ -721,7 +749,8 @@ class Advocate {
     _pendingTopic = null;
     _pendingText = '';
     if (pend != null) {
-      if (raw.trim() == sideChip ||
+      if (raw.trim() == Advocate.newTopicYesChip ||
+          raw.trim() == sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
@@ -729,7 +758,8 @@ class Advocate {
       }
       final curTopic = _current();
       if (curTopic != null &&
-          (raw.trim() == relatedChip ||
+          (raw.trim() == Advocate.newTopicNoChip ||
+              raw.trim() == relatedChip ||
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
@@ -744,9 +774,18 @@ class Advocate {
     _sideText = '';
     if (side != null &&
         (raw.trim() == sideChip ||
+            raw.trim() == Advocate.newTopicChip ||
             (Sense.words(n) <= 4 &&
                 Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
       return _open(side, Sense.norm(sideText), switched: true);
+    }
+    if (side != null && raw.trim() == Advocate.sameCaseChip) {
+      // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
+      final cur = _current();
+      if (cur != null) {
+        return _out('باشد، همین پرونده را ادامه می‌دهیم.',
+            ask: _askText.isEmpty ? 'ادامه بدهید.' : _askText, chips: _askChips);
+      }
     }
     final topic = _current();
     // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
@@ -1023,6 +1062,10 @@ class Advocate {
       // فقط با نشانهٔ خیلی قوی می‌پرسم.
       final hint = topic.id == 'accused' ? 6 : 4;
       if (bestScore >= hint && issue == null && !answers) {
+        // جملهٔ کامل دربارهٔ موضوع دیگری: به‌جای نگه‌داشتنِ بی‌صدا، اعلام
+        // می‌کنیم و از خودِ کاربر می‌پرسیم؛ اشارهٔ کوتاه («قولنامه داریم»)
+        // فقط کنار گذاشته می‌شود.
+        if (Sense.words(n) >= 5) return _askSwitch(best, raw);
         _side = best;
         _sideText = raw;
       }
@@ -1037,10 +1080,16 @@ class Advocate {
     _pendingTopic = t;
     _pendingText = raw;
     final curTitle = _current()?.title ?? 'موضوع قبلی';
+    // پرسشِ خودِ پرونده کنار می‌رود تا در این نوبت فقط یک پرسش باشد و
+    // «بله/خیر» دو معنا نداشته باشد.
+    file.pending = '';
+    _askText = '';
+    _askChips = const [];
     return _out(
-      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است.',
-      ask: 'این موضوع تازه است، یا به همین ماجرای قبلی مربوط است؟',
-      chips: const [Advocate.sideChip, Advocate.relatedChip],
+      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
+      'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
+      ask: 'این موضوع تازه است یا به همان ماجرای قبلی مربوط است؟',
+      chips: const [Advocate.newTopicYesChip, Advocate.newTopicNoChip],
     );
   }
 
@@ -1168,12 +1217,7 @@ class Advocate {
     all
       ..clear()
       ..addAll(uniq);
-    // «انصراف» همیشه آخرین دکمه است؛ تا کاربر آن را نزند، موضوع عوض نمی‌شود.
-    if (hasCase) {
-      all
-        ..remove(leaveChip)
-        ..add(leaveChip);
-    }
+    // «انصراف» را [_withLeave] آخرین دکمهٔ هر پاسخ می‌کند.
     return AdvocateReply(body, chips: all, laws: laws, source: source);
   }
 }

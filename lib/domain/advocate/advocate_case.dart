@@ -430,7 +430,13 @@ extension _CaseFlow on Advocate {
       return _out(
         parts.join('\n\n'),
         ask: ask.isEmpty ? _unclearText(raw) : ask,
-        chips: [if (ask.isNotEmpty) Advocate.sideChip, ..._suggest(t)],
+        chips: [
+          if (ask.isNotEmpty) ...const [
+            Advocate.newTopicChip,
+            Advocate.sameCaseChip,
+          ],
+          ..._suggest(t),
+        ],
       );
     }
     if (parts.isEmpty) parts.add(_pick(Say.fine));
@@ -638,7 +644,9 @@ extension _CaseFlow on Advocate {
         if (!chips.contains(g.chip)) chips.add(g.chip);
       }
     }
-    if (_side != null) chips.insert(0, Advocate.sideChip);
+    if (_side != null) {
+      chips.insertAll(0, const [Advocate.newTopicChip, Advocate.sameCaseChip]);
+    }
     final roomy = _roomy;
     _roomy = false;
     return _out(body,

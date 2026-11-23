@@ -57,11 +57,11 @@ void main() {
     expect(r.text, contains('چه کسی چه کاری کرد'), reason: r.text);
   });
 
-  test('«انصراف» گفتگو را می‌بندد و دکمهٔ اضافه نمی‌گذارد', () {
+  test('«انصراف» گفتگو را می‌بندد و فقط دکمهٔ خروج می‌ماند', () {
     final a = fresh();
     a.respond('سلام');
     final r = a.respond('انصراف');
-    expect(r.chips, isEmpty, reason: r.chips.join('،'));
+    expect(r.chips, [Advocate.leaveChip], reason: r.chips.join('،'));
     expect(r.text, contains('هر وقت'), reason: r.text);
   });
 

@@ -502,7 +502,8 @@ void main() {
         if (!r.text.contains('مستند:')) {
           qaProblems.add('${it.id}: استناد «مستند» ندارد');
         }
-        if (r.chips.isEmpty) {
+        // «انصراف» در هر پاسخ هست؛ برای این بررسی به حساب نمی‌آید.
+        if (r.chips.where((c) => c != Advocate.leaveChip).isEmpty) {
           qaProblems.add('${it.id}: دکمه‌های هم‌موضوع ندارد');
         }
       } else {
