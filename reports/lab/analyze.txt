@@ -1,17 +1,8 @@
 Analyzing Dastyar...                                            
 
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • lib/domain/advocate/advocate.dart:181:25 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • lib/domain/advocate/case_file.dart:69:15 • new_with_undefined_constructor_default
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/case_file_json_test.dart:15:15 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/case_file_json_test.dart:43:43 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/conversation_fixes_test.dart:116:30 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/reasoner_test.dart:15:15 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/reasoner_test.dart:58:17 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/reasoner_test.dart:174:17 • new_with_undefined_constructor_default
-  error • The class 'CaseFile' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'CaseFile' • test/advocate/reasoner_test.dart:198:19 • new_with_undefined_constructor_default
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
 
-13 issues found. (ran in 9.3s)
+4 issues found. (ran in 10.2s)
