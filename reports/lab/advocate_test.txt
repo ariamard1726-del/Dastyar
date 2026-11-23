@@ -1,3 +1,14 @@
+
+::group::✅ Passing tests
+✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
+✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
+✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
+✅ test/advocate/branch_chips_test.dart: سلام فقط پنج دکمهٔ دسته را نشان می‌دهد، نه نمونه‌های آماده
+✅ test/advocate/branch_chips_test.dart: انتخاب «حقوقی» ماجرا را کامل می‌پرسد و بعد پرونده باز می‌شود
+✅ test/advocate/branch_chips_test.dart: «کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند
+✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد
+✅ test/advocate/branch_chips_test.dart: «انصراف» گفتگو را می‌بندد و فقط دکمهٔ خروج می‌ماند
+✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» بعد از بازشدن پرونده، جوابِ پرونده است نه انتخابِ دسته
 ✅ test/advocate/branch_chips_test.dart: کیفری انتخاب‌شده، پرسشِ دسته را در نوبت‌های بعد تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
@@ -42,19 +53,8 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ::endgroup::
-::group::❌ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
-::notice title=intent::128 از 130 سناریو درست است
-Expected: empty
-  Actual: [
-            'گزارش: موضوع تازه وسط پرونده، «بله»: پاسخ شامل «فرق دارد» نیست',
-            'گزارش: موضوع تازه وسط پرونده، «خیر»: پاسخ شامل «فرق دارد» نیست'
-          ]
-گزارش: موضوع تازه وسط پرونده، «بله»: پاسخ شامل «فرق دارد» نیست
-گزارش: موضوع تازه وسط پرونده، «خیر»: پاسخ شامل «فرق دارد» نیست
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/intent_scenarios_test.dart 562:5      main.<fn>
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::130 از 130 سناریو درست است
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
@@ -197,4 +197,4 @@ test/advocate/intent_scenarios_test.dart 562:5      main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::188 tests passed, 1 failed.
+🎉 189 tests passed.

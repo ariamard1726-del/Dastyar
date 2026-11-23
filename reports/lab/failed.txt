@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
-::error::423 tests passed, 1 failed.
+🎉 424 tests passed.
