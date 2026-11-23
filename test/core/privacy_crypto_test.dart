@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/privacy.dart';
 
@@ -12,6 +13,13 @@ String hex(List<int> bytes) =>
     bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    // مسیر جایگزین (بدون Keystore) کلیدش را در تنظیمات محلی می‌گذارد.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+  });
+
   test('SHA-256 بردارهای FIPS 180-4', () {
     expect(
       hex(PrivacyService.sha256(utf8.encode('abc'))),
