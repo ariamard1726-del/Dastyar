@@ -1,3 +1,13 @@
+
+::group::✅ Passing tests
+✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
+✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
+✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
+✅ test/advocate/branch_chips_test.dart: سلام فقط پنج دکمهٔ دسته را نشان می‌دهد، نه نمونه‌های آماده
+✅ test/advocate/branch_chips_test.dart: انتخاب «حقوقی» ماجرا را کامل می‌پرسد و بعد پرونده باز می‌شود
+✅ test/advocate/branch_chips_test.dart: «کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند
+✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد
+✅ test/advocate/branch_chips_test.dart: «انصراف» گفتگو را می‌بندد و فقط دکمهٔ خروج می‌ماند
 ✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» بعد از بازشدن پرونده، جوابِ پرونده است نه انتخابِ دسته
 ✅ test/advocate/branch_chips_test.dart: کیفری انتخاب‌شده، پرسشِ دسته را در نوبت‌های بعد تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
@@ -50,10 +60,10 @@
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
 ::endgroup::
 ::group::✅ Passing tests
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
 ✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
@@ -63,17 +73,7 @@
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
-::endgroup::
-::group::❌ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد (failed)
-Expected: 'neighbor'
-  Actual: ''
-   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: neighbor
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/topic_switch_test.dart 82:5           main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
 ✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
@@ -197,4 +197,4 @@ test/advocate/topic_switch_test.dart 82:5           main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::188 tests passed, 1 failed.
+🎉 189 tests passed.
