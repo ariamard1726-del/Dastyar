@@ -4,5 +4,6 @@ Analyzing Dastyar...
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
+warning • Unused import: 'package:dastyar/domain/drafting.dart'. Try removing the import directive • test/app/case_persistence_test.dart:9:8 • unused_import
 
-4 issues found. (ran in 10.2s)
+5 issues found. (ran in 12.6s)
