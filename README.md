@@ -17,6 +17,38 @@
 | **تنظیمات** | اندازهٔ نوشته (۴ سطح، هماهنگ با اندازهٔ فونت گوشی)، ذخیرهٔ تاریخچه، ذخیرهٔ موقت پیش‌نویس ناتمام، و محافظت صفحه (جلوگیری از اسکرین‌شات). |
 | **اطلاعات و وضعیت داده‌ها** | وضعیت داده‌ها و منابع قوانین در برنامه. |
 
+## تغییرات اخیر (شاخهٔ `arena/df26048b-dastyar`)
+
+این شاخه گام اول از رفع نقاط ضعف بازبینی است: «داده، منبع حقیقت؛ کد، اجراکننده».
+هیچ منطق حقوقی تازه‌ای اضافه نشد و هیچ پاسخ کاربر عوض نشد؛ فقط قراردادها
+نگهبان پیدا کردند.
+
+**۱. ترتیب مسیرهای پاسخ، تک‌منبع شد**
+- `assets/pipeline.json`: ترتیب ده مسیر دانش و آستانه‌های `netMin`/`topicOpen`/`topicStrong`/`topicDominant`.
+- `tools/pipeline_check.py` (و `python tools/check.py pipeline`) این فایل را با
+  `Advocate.pipelineOrder` و `Advocate.netMin` در Dart می‌سنجد.
+- `test/advocate/pipeline_contract_test.dart` همان قرارداد را در آزمون فلاتر قفل می‌کند.
+
+**۲. مسیرهای موضوعی، اسکیما و نگهبان دارند**
+- `tools/schemas/topic_flow.schema.json` + `tools/topic_schema.py` (`check.py topics`).
+- خطا: کلید ناقص، قاعدهٔ بی‌شرط، برگ بی‌متن، ارجاع به قانون ناشناخته یا عنوان مادهٔ بدشکل.
+- هشدار: دروازهٔ عام («خانه»، «پول»، «قرارداد»…) و `live:false`ی که در APK می‌ماند.
+
+**۳. ارجاع‌های قانونیِ داده، خطا می‌شوند نه سکوت**
+- `tools/data_refs.py` (`check.py refs`): ۱۹۷ ارجاع در مسیرهای موضوعی، قالب‌های سند
+  و بانک پرسش‌وپاسخ را با متن واقعی قوانین می‌سنجد؛ ارقام فارسی/عربی هم شناخته می‌شوند.
+  پیش‌تر اگر ارجاعی می‌شکست، `chunkOf` نال می‌داد و پاسخ بدون استناد نمایش داده می‌شد.
+
+**۴. پروندهٔ گفتگو قابل‌ذخیره شد**
+- `CaseFile.toJson()`/`CaseFile.fromJson()` با `CaseFile.schemaVersion`؛ ورودی
+  بدشکل یا نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش. آزمون: `test/advocate/case_file_json_test.dart`.
+
+**۵. مجوز و مستندات**
+- `LICENSE` (MIT) با بند شخص ثالث Noql و وضعیت متن قوانین.
+- `docs/CONTRACTS.md` (قراردادهای داده و کد) و `docs/ROADMAP.md` (مراحل و وضعیت).
+
+آزمون‌های پایتون این شاخه: ۱۰۹ (بود ۸۶). `python tools/check.py all` سبز است.
+
 ## تغییرات اخیر (شاخهٔ `arena/552cb284-dastyar`)
 
 این شاخه پنج ایراد اصلی بازبینی معماری (`docs/CODE_REVIEW.md`) را می‌بندد.
@@ -147,6 +179,7 @@ lib/
   main.dart    راه‌اندازی، تم، اندازهٔ فونت و بارگذاری داده‌ها
 
 assets/
+  pipeline.json ترتیب مسیرهای پاسخ و آستانه‌ها (منبع حقیقت؛ با Dart هم‌خوان می‌شود)
   laws/        متن ۲۴ فایل قانون، به تفکیک خانواده (خصوصی، عمومی، شکلی) با _meta.json
   templates/   ۹ قالب سند (JSON)
   qa/          بانک پرسش‌وپاسخ اجاره (۱۲۰ پرسش)
@@ -156,6 +189,7 @@ assets/
 test/          آزمون‌های Dart (۵۷ فایل) به تفکیک: advocate، core، domain، drafting، engine، app، ...
 tests/python/  آزمون‌های پایتون بدون Flutter (ابزار Gemini، شناسنامهٔ قوانین، بانک اجاره، نگهبان معماری)
 tools/         ابزارهای پایتون برای ساخت، بررسی و همگام‌سازی داده‌ها (فقط زمان توسعه)
+  schemas/     اسکیمای داده (topic_flow)؛ قرارداد ساختار مسیرهای موضوعی
 brain/         آزمایش‌های آفلاین (embedding، مدل کوچک) و مجموعه‌های ارزیابی
 docs/          معماری، راهنمای بازبینی متن قوانین، منابع قوانین، کد مرده
 reports/       گزارش‌های خودکار CI (نتیجهٔ آزمون نیت، آزمایشگاه وکیل)
@@ -175,14 +209,18 @@ reports/       گزارش‌های خودکار CI (نتیجهٔ آزمون نی
 flutter pub get
 flutter analyze --fatal-warnings --no-fatal-infos
 flutter test
-python tools/check.py all        # بررسی یکپارچه: corpus، assets، meta، intent، parity
+python tools/check.py all        # بررسی یکپارچه: corpus، assets، meta، intent، parity، pipeline، topics، refs
 python tools/doctor.py           # وضعیت محیط و گزارش آخرین تست
 flutter build apk --release
 ```
 
 - `tools/check.py` هر بخش را جدا هم اجرا می‌کند: `python tools/check.py intent`.
 - `tools/build.sh` ساخت APK را با `gh` روی GitHub Actions اجرا می‌کند (مسیر آن برای محیط Termux صاحب پروژه است).
-- `tools/check_refs.py` بررسی می‌کند که هر ارجاع استنادی در کد به ماده‌ی واقعی برسد.
+- `tools/check_refs.py` بررسی می‌کند که هر ارجاع `[[کلید:شماره]]` در کد Dart به ماده‌ی واقعی برسد.
+- `tools/data_refs.py` همان بررسی را برای ارجاع‌های داخل داده انجام می‌دهد: `articles` مسیرهای موضوعی، `lawRefs` قالب‌ها و `refs` بانک پرسش‌وپاسخ (۱۹۷ ارجاع).
+- `tools/topic_schema.py` ساختار `assets/brain/topics/*.json` را با اسکیمای `tools/schemas/topic_flow.schema.json` می‌سنجد و دروازه‌های عام و موضوع‌های `live:false` را هشدار می‌دهد.
+- `tools/pipeline_check.py` ترتیب مسیرهای پاسخ و آستانهٔ `netMin` را بین `assets/pipeline.json` و Dart هم‌خوان می‌کند.
+- قراردادهای داده و کد، و این‌که هرکدام با چه ابزاری سنجیده می‌شوند: `docs/CONTRACTS.md`؛ نقشهٔ راه و وضعیت مراحل: `docs/ROADMAP.md`.
 - `tools/sync_meta.py` فهرست‌های مشتق‌شده (`laws_catalog.json`، `data_info.json`) را از `_meta.json` می‌سازد.
 - امضای انتشار: `tools/setup_release_signing.py` در CI با کلید از Secrets. فایل کلید هرگز در گیت نیست.
 
@@ -206,6 +244,7 @@ flutter build apk --release
 - جواب غلط با ظاهر موثق بدتر از «پیدا نشد» است؛ اگر موضوع روشن نیست، اپ می‌پرسد.
 - هر فایل مرده‌ای که حذف می‌شود، در `docs/DEAD_CODE.md` با دلیل ثبت می‌شود.
 - محیط توسعهٔ ابری Dart SDK ندارد؛ آزمون‌های Dart در CI اجرا می‌شوند.
+- دانش، ترتیب خط لوله و آستانه‌ها داده‌اند، نه کد: `assets/pipeline.json` و `assets/brain/topics/*.json` تنها منبع حقیقت‌اند و کد فقط آن‌ها را اجرا می‌کند.
 
 ## محدودیت‌ها
 
@@ -218,6 +257,10 @@ flutter build apk --release
 - پرسش‌هایی که بدون واژهٔ حقوقی روشن و بی‌عبارت‌اند، از این تطبیق خارج می‌مانند.
 - بانک پرسش‌وپاسخ اجاره فقط برای پرسش‌های اجاره‌ای است؛ پرسش‌های بیرون از اجاره به آن نمی‌رسند.
 - متن برخی مواد هنوز با سامانهٔ رسمی تطبیق داده نشده است؛ فهرست آن‌ها در `reports/source_check.md` است.
+
+## مجوز
+
+کد پروژه با مجوز MIT منتشر می‌شود (`LICENSE`). مدل Noql با مجوز MIT و متن قوانین به‌عنوان متن عمومی حقوقی در `LICENSE` و صفحهٔ مجوزهای اپ فهرست شده‌اند.
 
 ## گزارش مشکل
 

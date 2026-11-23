@@ -55,7 +55,7 @@
 - وسط پرونده، یک نشانهٔ تنها باعث پرش به موضوع دیگر نمی‌شود؛ وکیل می‌پرسد که آیا ماجرای جداگانه‌ای است.
 - **ایمنی پیش از موضوع:** بررسی خشونت/اورژانس (`_safety`) پیش از سنجش موضوع و مستقل از امتیازش اجرا می‌شود؛ در هر پرونده یک بار. اگر همان پیام موضوع روشنی هم داشته باشد، پرونده بی‌صدا باز می‌شود تا گفتگو گم نشود؛ وگرنه متن پیام برای نوبت بعد نگه داشته می‌شود (`_safetyCarry`).
 
-**مسیر پاسخ (`AnswerSource`):** هر `AdvocateReply` برچسب دارد که از کدام مسیر دانش آمده — `safety`، `topic`، `lawTerms`، `glossary`، `guide`، `topicFlow`، `guess`، `intentNet`، `qaBank`، `engine`. ترتیب قراردادی در `Advocate.pipelineOrder` نوشته شده و ترتیب واقعی `respond` همان است؛ `test/advocate/answer_source_test.dart` این قرارداد را می‌سنجد. برچسب فقط برای شفافیت و آزمون است و هیچ فراخوانی مدل تازه‌ای اضافه نمی‌کند.
+**مسیر پاسخ (`AnswerSource`):** هر `AdvocateReply` برچسب دارد که از کدام مسیر دانش آمده — `safety`، `topic`، `lawTerms`، `glossary`، `guide`، `topicFlow`، `guess`، `intentNet`، `qaBank`، `engine`. ترتیب قراردادی در `assets/pipeline.json` ثبت شده و `Advocate.pipelineOrder` باید عیناً همان باشد (`tools/pipeline_check.py` این را می‌سنجد)؛ `test/advocate/answer_source_test.dart` این قرارداد را می‌سنجد. برچسب فقط برای شفافیت و آزمون است و هیچ فراخوانی مدل تازه‌ای اضافه نمی‌کند.
 
 ### خوانندهٔ موضوع (`lib/domain/understanding/` + `assets/brain/noql*`)
 
@@ -93,6 +93,9 @@
 | طبقه‌بند نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `tools/check.py intent`؛ آموزش: `brain/train_intent.py` |
 | پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` (فقط ۸ کلید فعال موتور بازیابی) |
 | مجموعه‌های ارزیابی | `brain/eval/*.txt` و `eval/*.tsv` | ابزارهای ارزیابی و تست‌ها (ادغام در یک `eval/` در نقشهٔ بازآرایی است) |
+| ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | دارت: `Advocate.pipelineOrder`/`netMin`؛ نگهبان: `tools/pipeline_check.py` و `python tools/check.py pipeline`؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
+| ساختار مسیر موضوعی | `tools/schemas/topic_flow.schema.json` | نگهبان: `tools/topic_schema.py` (`check.py topics`) |
+| ارجاع‌های قانونیِ داده | متن قوانین + `_meta.json` | نگهبان: `tools/data_refs.py` (`check.py refs`) برای `articles`، `lawRefs` و `refs` |
 
 ## وضعیت بازیابی مواد (BM25F در برابر مدل تعبیه‌ای)
 
@@ -114,6 +117,8 @@
 - تحلیل: `flutter analyze --fatal-warnings`
 - تست: `flutter test`؛ گزارش در `reports/last_test.txt`
 - `lawyer-lab.yml`: رونوشت گفتگوهای `test/lab/probe.txt` با همان کنترلر برنامه در `reports/lab/transcripts.txt`
+
+قرارداد کامل داده/کد و این‌که هر کدام با چه ابزاری سنجیده می‌شوند: `docs/CONTRACTS.md`. وضعیت مراحل بازسازی: `docs/ROADMAP.md`.
 
 `build.yml` (دستی) همان زنجیره را پیش از ساخت APK اجرا می‌کند (`tools/build.sh` صرفاً اسکریپت کمکی ترموکس برای آغاز `build.yml` و دریافت APK است).
 

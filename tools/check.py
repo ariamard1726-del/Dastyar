@@ -443,6 +443,24 @@ def cmd_parity():
     return parity.main()
 
 
+# ---------------------------------------------------------------- pipeline
+def cmd_pipeline():
+    import pipeline_check
+    return pipeline_check.main([])
+
+
+# ---------------------------------------------------------------- topics
+def cmd_topics():
+    import topic_schema
+    return topic_schema.main([])
+
+
+# ---------------------------------------------------------------- refs
+def cmd_refs():
+    import data_refs
+    return data_refs.main([])
+
+
 # ---------------------------------------------------------------- main
 COMMANDS = {
     'corpus': cmd_corpus,
@@ -450,6 +468,9 @@ COMMANDS = {
     'meta': cmd_meta,
     'intent': cmd_intent,
     'parity': cmd_parity,
+    'pipeline': cmd_pipeline,
+    'topics': cmd_topics,
+    'refs': cmd_refs,
 }
 
 

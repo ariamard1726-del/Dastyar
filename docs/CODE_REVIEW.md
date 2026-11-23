@@ -46,10 +46,14 @@
 | F8 دقت تشخیص موضوع | ❌ باز | کار داده/ارزیابی است، نه یک وصلهٔ کد |
 | F9 اعتبار دادهٔ حقوقی | 🟡 تا حدی | `LawText.status` + هشدار «تطبیق نشده» در کارت ماده (`drafting.dart`، `chat_bubbles.dart`)؛ برچسب‌گذاری همهٔ مسیرها انجام شد. پر کردن `status`/`url` در `_meta.json` و دروازهٔ `--require-verified` کار محتوایی است و انجام نشد |
 | F10 امضای release بی‌صدا debug | ✅ رفع | `android/app/build.gradle.kts`: ساخت release بدون `key.properties` می‌شکند؛ `ALLOW_DEBUG_SIGNING=true` فقط برای ساخت آزمایشی (`build.yml` هم همین را پاس می‌دهد) |
-| F11 پروانهٔ استفاده | ❌ باز | تصمیم حقوقی صاحب پروژه |
 | F12 چرخهٔ CI | ✅ رفع | `test.yml`: گزارش‌ها فقط با تست سبز کامیت می‌شوند و `git push` بی‌صدا رد نمی‌شود |
 | F13 بازخورد بدون مصرف | ❌ باز | خارج از محدودهٔ این دور |
 | A1 ترتیب مسیرهای پاسخ | ✅ رفع | `AnswerSource` + `AdvocateReply.source` + `Advocate.pipelineOrder`؛ آزمون: `test/advocate/answer_source_test.dart`. arbiter کامل (پیشنهاد بلندمدت) انجام نشد |
+| A1b ترتیب خط لوله فقط در کد بود | ✅ رفع | `assets/pipeline.json` منبع حقیقت شد؛ `tools/pipeline_check.py` (`check.py pipeline`) آن را با `Advocate.pipelineOrder` و `netMin` می‌سنجد؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
+| A1c ساختار مسیرهای موضوعی بی‌نگهبان بود | ✅ رفع | `tools/schemas/topic_flow.schema.json` + `tools/topic_schema.py` (`check.py topics`)؛ خطا برای کلید ناقص/قاعدهٔ بی‌شرط/ارجاع بد، هشدار برای دروازهٔ عام و `live:false`؛ آزمون: `tests/python/test_topic_schema.py` |
+| A9 ارجاع قانونیِ شکسته، بی‌صدا حذف می‌شد | ✅ رفع | `tools/data_refs.py` (`check.py refs`) ۱۹۷ ارجاع مسیرهای موضوعی، قالب‌ها و بانک QA را با متن واقعی می‌سنجد؛ آزمون: `tests/python/test_data_refs.py` |
+| A8b پروندهٔ گفتگو قابل‌ذخیره نبود | ✅ رفع | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion`؛ ورودی بدشکل ⇒ پروندهٔ خالی؛ آزمون: `test/advocate/case_file_json_test.dart` |
+| F11 پروانهٔ استفاده | ✅ رفع | `LICENSE` (MIT) + بند شخص ثالث Noql و وضعیت متن قوانین؛ README بخش «مجوز» |
 | A8 نسخه‌بندی و مهاجرت داده | 🟡 تا حدی | قالب تاریخچه `v:2` با مهاجرت خودکار؛ بقیهٔ ذخیره‌ها (پیش‌نویس، بازخورد، تنظیمات) نسخه‌بندی نشدند |
 
 **چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۸۶ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)

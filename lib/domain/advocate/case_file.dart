@@ -45,6 +45,56 @@ class CaseFile {
     covered.clear();
     lastKey = '';
   }
+
+  /// نسخهٔ قالب سریال‌سازی پرونده. تغییر ساختار = افزایش این عدد و نوشتن
+  /// مهاجرت در [CaseFile.fromJson].
+  static const int schemaVersion = 1;
+
+  /// پرونده به‌صورت JSON؛ برای ذخیرهٔ گفتگو بدون پخش دوبارهٔ پیام‌ها.
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'v': schemaVersion,
+        'topic': topic,
+        'facts': Map<String, String>.of(facts),
+        'askCount': Map<String, int>.of(askCount),
+        'pending': pending,
+        'covered': covered.toList(),
+        'lastKey': lastKey,
+        'turns': turns,
+        'disclaimed': disclaimed,
+      };
+
+  /// بازسازی پرونده از JSON. ورودی نامعتبر یا نسخهٔ ناشناخته، پروندهٔ
+  /// خالی برمی‌گرداند تا گفتگو با پروندهٔ تازه ادامه یابد، نه با کرش.
+  factory CaseFile.fromJson(Map<String, dynamic> j) {
+    final f = CaseFile();
+    final v = j['v'];
+    if (v is int && v != schemaVersion) return f;
+    f.topic = (j['topic'] ?? '').toString();
+    final factsRaw = j['facts'];
+    if (factsRaw is Map) {
+      factsRaw.forEach((k, val) {
+        if (k != null && val != null) f.facts[k.toString()] = val.toString();
+      });
+    }
+    final askRaw = j['askCount'];
+    if (askRaw is Map) {
+      askRaw.forEach((k, val) {
+        if (k != null && val is int) f.askCount[k.toString()] = val;
+      });
+    }
+    f.pending = (j['pending'] ?? '').toString();
+    final coveredRaw = j['covered'];
+    if (coveredRaw is List) {
+      for (final e in coveredRaw) {
+        if (e != null) f.covered.add(e.toString());
+      }
+    }
+    f.lastKey = (j['lastKey'] ?? '').toString();
+    final turnsRaw = j['turns'];
+    if (turnsRaw is int) f.turns = turnsRaw;
+    f.disclaimed = j['disclaimed'] == true;
+    return f;
+  }
 }
 
 typedef Body = String Function(CaseFile f);
