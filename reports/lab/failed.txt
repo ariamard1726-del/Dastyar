@@ -1,1 +1,2 @@
-🎉 423 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد (failed)
+::error::423 tests passed, 1 failed.
