@@ -52,7 +52,7 @@
 | A1 ترتیب مسیرهای پاسخ | ✅ رفع | `AnswerSource` + `AdvocateReply.source` + `Advocate.pipelineOrder`؛ آزمون: `test/advocate/answer_source_test.dart`. arbiter کامل (پیشنهاد بلندمدت) انجام نشد |
 | A8 نسخه‌بندی و مهاجرت داده | 🟡 تا حدی | قالب تاریخچه `v:2` با مهاجرت خودکار؛ بقیهٔ ذخیره‌ها (پیش‌نویس، بازخورد، تنظیمات) نسخه‌بندی نشدند |
 
-**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است؛ همهٔ فایل‌های `lib/` و `test/` از یک بازبینی ساختاری پرانتز/گیومه (با در نظر گرفتن `${…}`) سالم بیرون آمدند. در این محیط Dart/Flutter SDK نبود، پس `flutter analyze` و `flutter test` اجرا نشده‌اند و باید در CI همین شاخه تأیید شوند.
+**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۸۶ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)
 
 ---
 
