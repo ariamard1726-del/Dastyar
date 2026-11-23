@@ -277,6 +277,10 @@ class Advocate {
   /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
   List<LawText> _lastLaws = const [];
 
+  /// همین نوبت‌قبل، دکمه‌های دستهٔ مشکل («حقوقی/کیفری/اداری/نمی‌دانم/انصراف»)
+  /// نشان داده شده است؛ فقط در همان نوبتِ بعد معنا دارند.
+  bool _branchAsked = false;
+
   /// پیام نامفهومِ قبلی (نقل کوتاه) و نوبتش: اگر پیام بعدی هم نامفهوم بود،
   /// دیگر نمی‌پرسد، می‌گوید جوابی ندارد.
   String _unclearPhrase = '';
@@ -346,6 +350,29 @@ class Advocate {
     'کارفرما اخراجم کرده',
     'چکم برگشت خورده',
     'می‌خواهم طلاق بگیرم',
+  ];
+
+  /// دکمه‌های «دستهٔ مشکل» که بعد از سلام نشان داده می‌شوند.
+  ///
+  /// پیش‌تر پاسخِ سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ برای
+  /// کاربری که تازه سلام کرده، این نمی‌گفت از کجا شروع کند. حالا اول شاخهٔ
+  /// کار روشن می‌شود و بعد ماجرا پرسیده می‌شود.
+  static const String civilChip = 'حقوقی';
+
+  static const String criminalChip = 'کیفری';
+
+  static const String adminChip = 'اداری';
+
+  static const String unsureChip = 'نمی‌دانم';
+
+  /// دکمهٔ خروج، همان [leaveChip] است: هم موضوعِ باز را می‌بندد، هم در آغاز
+  /// گفتگو راهِ انصراف است.
+  static const List<String> branchChips = [
+    civilChip,
+    criminalChip,
+    adminChip,
+    unsureChip,
+    leaveChip,
   ];
 
   bool get hasCase => file.topic.isNotEmpty || _guide != null;
@@ -459,6 +486,7 @@ class Advocate {
     _rest = '';
     _offeredMore = false;
     _lastLaws = const [];
+    _branchAsked = false;
     _unclearPhrase = '';
     _unclearTurn = -10;
   }
@@ -489,9 +517,11 @@ class Advocate {
     final choices = _choices;
     final choiceText = _choiceText;
     final guessed = _guessed;
+    final branchAsked = _branchAsked;
     _choices = const [];
     _choiceText = '';
     _guessed = false;
+    _branchAsked = false;
     if (raw.trim() == newCaseChip) {
       _closeCase();
       _loose.clear();
@@ -508,14 +538,18 @@ class Advocate {
         chips: const [newCaseChip],
       );
     }
+    // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
+    final branch = _branchReply(raw, n, asked: branchAsked);
+    if (branch != null) return branch;
     // «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته می‌شود.
     if (Drafting.isLeave(raw)) {
       _closeCase();
       _loose.clear();
+      _branchAsked = true;
       return _out(
         'باشد، این موضوع را کنار گذاشتم.',
         ask: 'موضوع تازه‌تان چیست؟',
-        chips: _starters(),
+        chips: Advocate.branchChips,
       );
     }
     // ایمنی، پیش از هر چیز و مستقل از امتیاز موضوع.
@@ -590,11 +624,12 @@ class Advocate {
       }
       if (raw.trim() == noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
+        _branchAsked = true;
         return _out(
           'باشد.',
           ask:
               'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
-          chips: _starters(),
+          chips: Advocate.branchChips,
         );
       }
     }
@@ -610,7 +645,7 @@ class Advocate {
         'ببخشید، اشتباه برداشت کردم.',
         ask:
             'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
-        chips: _starters(),
+        chips: _branchStart(),
       );
     }
     final short = Sense.words(n) <= 4;
@@ -854,7 +889,7 @@ class Advocate {
       return _out(
         'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
         ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
-        chips: _starters(),
+        chips: _branchStart(),
       );
     }
 

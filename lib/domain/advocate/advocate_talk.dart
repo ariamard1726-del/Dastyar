@@ -113,7 +113,7 @@ extension _Talk on Advocate {
       return _out(
         'منظورتان را درست نگرفتم. آیا می‌خواهید دربارهٔ ازدواج مجدد یا همسر دوم بپرسید، یا ماجرای شما درباره‌ی همسرتان است؟',
         ask: topic == null ? 'کدام را می‌خواهید؟' : _askText,
-        chips: topic == null ? _starters() : _askChips,
+        chips: topic == null ? _branchStart() : _askChips,
       );
     }
     // «شکایت کرده‌ام»: خودِ کاربر شاکی است، نه طرف شکایت.
@@ -133,7 +133,7 @@ extension _Talk on Advocate {
       return _out(
         'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که روی همین گوشی و بدون اینترنت کار می‌کند و حرف‌هایتان جایی نمی‌رود. کارم این است که ماجرا را بشنوم، سؤال بپرسم و بر پایهٔ متن قانون راهنمایی کنم؛ جای وکیل در دادگاه را نمی‌گیرم.',
         ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
-        chips: topic == null ? _starters() : _askChips,
+        chips: topic == null ? _branchStart() : _askChips,
         full: true,
       );
     }
@@ -147,7 +147,7 @@ extension _Talk on Advocate {
       return _out(
         _pick(v),
         ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
-        chips: topic == null ? _starters() : _askChips,
+        chips: topic == null ? _branchStart() : _askChips,
         full: true,
       );
     }
@@ -159,7 +159,7 @@ extension _Talk on Advocate {
       return _out(
         'برای پیدا کردن وکیل می‌توانید از فهرست وکلای کانون وکلای دادگستری شهرتان استفاده کنید، یا به مراکز مشاوره حقوقی رایگان و دفاتر خدمات حقوقی مراجعه کنید. هزینهٔ وکالت را پیش از امضای قرارداد با وکیل روشن و کتبی کنید. اگر توان پرداخت ندارید، درباره‌اش هم بپرسید تا راه‌های کمک را بگویم.',
         ask: topic == null ? 'ماجرای شما چیست؟ اگر بگویید، می‌گویم برایش چه مدارکی لازم است.' : _askText,
-        chips: topic == null ? _starters() : _askChips,
+        chips: topic == null ? _branchStart() : _askChips,
         full: true,
       );
     }
@@ -172,7 +172,7 @@ extension _Talk on Advocate {
       return _out(
         'مهلت‌های قانونی، مثل مهلت شکایت، اعتراض یا تجدیدنظر، بسته به نوع ماجرا فرق دارد و بعضی‌شان بسیار کوتاه‌اند. معمولاً از تاریخ ابلاغ یا از روز وقوع ماجرا شمرده می‌شود، پس تاریخ دقیق آن را یادداشت کنید. اگر بگویید ماجرا چیست، همان مهلت مشخص را می‌گویم.',
         ask: 'ماجرا چیست و کِی ابلاغ شده یا اتفاق افتاده است؟',
-        chips: _starters(),
+        chips: _branchStart(),
         full: true,
       );
     }
@@ -356,12 +356,18 @@ extension _Talk on Advocate {
       return _out('خدانگهدار. امیدوارم کارتان به‌خوبی پیش برود.');
     }
     if (Sense.has(n, '^ (?:سلام|درود|وقت بخیر|صبح بخیر|عصر بخیر|شب بخیر|خسته نباشی)')) {
+      if (topic != null) {
+        return _out('سلام دوباره. پرونده‌تان را به خاطر دارم.',
+            ask: _askText, chips: _askChips);
+      }
+      // پیش‌تر سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ کاربر تازه
+      // نمی‌دانست از کجا شروع کند. حالا اول شاخهٔ کار روشن می‌شود
+      // (حقوقی/کیفری/اداری/نمی‌دانم) و راهِ انصراف هم روی دکمه‌ها هست.
+      _branchAsked = true;
       return _out(
-        topic == null
-            ? 'سلام، خوش آمدید.'
-            : 'سلام دوباره. پرونده‌تان را به خاطر دارم.',
-        ask: topic == null ? 'چه اتفاقی افتاده که سراغ من آمده‌اید؟' : _askText,
-        chips: topic == null ? _starters() : _askChips,
+        'سلام، خوش آمدید.',
+        ask: 'مشکلتان چیست؟',
+        chips: Advocate.branchChips,
       );
     }
     if (Sense.has(n,
@@ -378,11 +384,71 @@ extension _Talk on Advocate {
         'امروز چه کاری می‌توانم برایتان بکنم؟',
       ];
       final i = file.turns > 0 ? file.turns - 1 : 0;
+      if (topic == null) {
+        // همان جهت‌دهیِ سلام: اول شاخهٔ کار، بعد ماجرا.
+        _branchAsked = true;
+        return _out(replies[i % replies.length],
+            ask: asks[i % asks.length], chips: Advocate.branchChips);
+      }
       return _out(replies[i % replies.length],
-          ask: topic == null ? asks[i % asks.length] : _askText,
-          chips: topic == null ? _starters() : _askChips);
+          ask: _askText, chips: _askChips);
     }
     return null;
+  }
+
+  /// دکمه‌های «از کجا شروع کنیم» بیرون از پرونده: شاخهٔ کار (حقوقی/کیفری/
+  /// اداری/نمی‌دانم/انصراف)، نه چهار ماجرای آمادهٔ دیگران که کاربر را از حرف
+  /// خودش دور می‌کند.
+  List<String> _branchStart() {
+    _branchAsked = true;
+    return Advocate.branchChips;
+  }
+
+  /// پاسخ به دکمه‌های دستهٔ مشکل («حقوقی»، «کیفری»، «اداری»، «نمی‌دانم»،
+  /// «انصراف») که همراهِ سلام نشان داده می‌شوند.
+  ///
+  /// فقط در همان نوبتِ بعد از سلام (یا در آغازِ گفتگو، پیش از آن‌که ماجرایی
+  /// گفته شود) معنا دارد؛ وگرنه «نمی‌دانم» جوابِ پرسش‌های خودِ پرونده است، نه
+  /// انتخابِ دسته.
+  AdvocateReply? _branchReply(String raw, String n, {required bool asked}) {
+    final label = raw.trim();
+    if (!Advocate.branchChips.contains(label)) {
+      // «خروج از برنامه» یا «انصراف» را ممکن است کاربر تایپ کند، نه بزند.
+      if (!asked ||
+          Sense.words(n) > 4 ||
+          !Sense.has(n, 'انصراف|خروج|بی‌خیال|بستن|دیگه کاری ندارم')) {
+        return null;
+      }
+      _closeCase();
+      _loose.clear();
+      return _out(
+        'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
+      );
+    }
+    if (!asked && (hasCase || _loose.isNotEmpty)) return null;
+    _closeCase();
+    _loose.clear();
+    if (label == Advocate.leaveChip) {
+      return _out(
+        'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
+      );
+    }
+    if (label == Advocate.unsureChip) {
+      return _out(
+        'اشکالی ندارد، لازم نیست اسمش را بدانید.',
+        ask: 'فقط بگویید چه شده: چه کسی چه کاری کرد و از چه زمانی؟ '
+            'هرچه کامل‌تر تعریف کنید، بهتر می‌توانم راهنمایی کنم.',
+      );
+    }
+    final tail = label == Advocate.criminalChip
+        ? 'و آیا از دادسرا یا کلانتری خبری دارید (احضاریه، شکایت طرف مقابل)؟'
+        : label == Advocate.adminChip
+            ? 'و با کدام اداره یا سازمان طرف هستید؟'
+            : 'و الان چه می‌خواهید: پولتان برگردد، شکایت کنید، یا از خودتان دفاع کنید؟';
+    return _out(
+      'باشد، مشکل $label.',
+      ask: 'ماجرا را کامل بگویید: چه کسی چه کاری کرد و از چه زمانی شروع شد؟ $tail',
+    );
   }
 
   bool _vague(String n) =>
@@ -396,7 +462,7 @@ extension _Talk on Advocate {
         'در خدمتم. «${_quoteWords(raw)}» یعنی چه شده؟',
         ask:
             'چه اتفاقی افتاده و طرف مقابل کیست؟ همان‌طور که برای یک دوست تعریف می‌کنید بگویید.',
-        chips: _starters(),
+        // دکمهٔ اضافه نمی‌گذاریم: کاربر همین حالا دارد ماجرا را می‌گوید.
       );
 
   /// وقتی موضوع را نمی‌شناسم: به‌جای «متوجه نشدم»، نشان می‌دهم چه شنیده‌ام

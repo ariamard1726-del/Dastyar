@@ -27,9 +27,12 @@ void main() {
     expect(r.chips.where((c) => c == Advocate.leaveChip).length, 1);
   });
 
-  test('بدون پرونده، «انصراف» دکمه نیست', () {
+  test('بدون پرونده هم راه خروج روی دکمه‌ها هست و آخرین دکمه است', () {
+    // پیش‌تر «انصراف» فقط وقتی پرونده باز بود نشان داده می‌شد، پس کاربرِ
+    // تازه هیچ راه خروجی روی دکمه‌ها نداشت.
     final r = fresh().respond('سلام');
-    expect(r.chips, isNot(contains(Advocate.leaveChip)));
+    expect(r.chips, contains(Advocate.leaveChip));
+    expect(r.chips.last, Advocate.leaveChip);
   });
 
   test('پیام با موضوع دیگر، پرونده را بی‌پرسش عوض نمی‌کند', () {
