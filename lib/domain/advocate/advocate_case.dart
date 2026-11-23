@@ -406,7 +406,14 @@ extension _CaseFlow on Advocate {
       final soc = _social(n, t);
       if (soc != null) return soc;
       final ask = _sideNote();
-      if (ask.isEmpty && Sense.words(n) >= 3) {
+      // حرفی که موضوعش چیز دیگری است، وسط این پرونده به راهنمای همان موضوع
+      // دیگر پرت نمی‌شود؛ جای آن، از کاربر توضیح می‌خواهیم و رشتهٔ پرونده
+      // می‌مانَد (کاربر گفته «مربوط به همان ماجرا نیست/هست» را هم همین‌جا
+      // جواب می‌دهیم).
+      final foreign = Advocate.topicOf(raw);
+      if (ask.isEmpty &&
+          Sense.words(n) >= 3 &&
+          (foreign == null || foreign == t.id)) {
         final lg = _matchGuide(raw, n);
         if (lg != null) {
           if (_askText.isEmpty) return _openGuide(lg, raw, n, switched: true);
