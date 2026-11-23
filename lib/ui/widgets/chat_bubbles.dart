@@ -508,6 +508,15 @@ class _RevealTextState extends State<RevealText>
   String _text = '';
   bool _animatedHere = false;
 
+  /// آخرین متنی که واقعاً نمایش داده شده و آخرین حالت «در حال فکر کردن».
+  ///
+  /// بازسازی ویجت فقط وقتی رخ می‌دهد که یکی از این دو عوض شود. پیش‌تر
+  /// `AnimatedBuilder` در هر فریم (۶۰ بار در ثانیه، تا ۲۴ ثانیه برای پاسخ
+  /// بلند) یک `SelectableText` تازه می‌ساخت و متنِ در حال رشد را از نو
+  /// می‌چید.
+  String _shown = '';
+  bool _thinkingShown = false;
+
   /// سهم مکثِ آغازین از کل زمان انیمیشن (۰ تا ۱).
   double _thinkShare = 0;
 
@@ -518,6 +527,7 @@ class _RevealTextState extends State<RevealText>
       ..addListener(_onTick)
       ..addStatusListener(_onStatus);
     _text = widget.message.text;
+    _shown = _text;
     if (!widget.message.revealed) _start(0);
   }
 
@@ -548,6 +558,8 @@ class _RevealTextState extends State<RevealText>
       return;
     }
     _from = from.clamp(0, _text.length);
+    _shown = _text.substring(0, _from);
+    _thinkingShown = false;
     final remaining = _text.length - _from;
     if (remaining <= 0) {
       _finish();
@@ -566,6 +578,8 @@ class _RevealTextState extends State<RevealText>
     _animatedHere = true;
     _anim.duration = Duration(milliseconds: think + ms);
     _anim.forward(from: 0);
+    // حالت «در حال فکر کردن» از همان فریم اول درست نشان داده شود.
+    _thinkingShown = _thinking;
   }
 
   /// با لمس متن، نگارش تدریجی رد می‌شود و کل پاسخ یک‌جا می‌آید.
@@ -588,6 +602,14 @@ class _RevealTextState extends State<RevealText>
         SchedulerPhase.transientCallbacks) {
       widget.onTick?.call();
     }
+    if (!mounted || widget.message.revealed) return;
+    final visible = _visible();
+    final thinking = _thinking;
+    if (visible == _shown && thinking == _thinkingShown) return;
+    setState(() {
+      _shown = visible;
+      _thinkingShown = thinking;
+    });
   }
 
   void _onStatus(AnimationStatus s) {
@@ -638,13 +660,10 @@ class _RevealTextState extends State<RevealText>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _skip,
-      child: AnimatedBuilder(
-        animation: _anim,
-        builder: (context, _) => _thinking
-            ? const TypingDots()
-            // SelectableText تا در حین نمایش هم بشود متن را با نگه‌داشتن کپی کرد.
-            : SelectableText('${_visible()} ●', style: widget.style),
-      ),
+      child: _thinkingShown
+          ? const TypingDots()
+          // SelectableText تا در حین نمایش هم بشود متن را با نگه‌داشتن کپی کرد.
+          : SelectableText('$_shown ●', style: widget.style),
     );
   }
 }
