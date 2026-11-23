@@ -1,6 +1,9 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
+warning • The value of the local variable 'meta' isn't used. Try removing the variable or using it • lib/domain/advocate/advocate.dart:868:11 • unused_local_variable
+  error • The name 'meta' is already defined. Try renaming one of the declarations • lib/domain/advocate/advocate.dart:868:11 • duplicate_definition
+  error • The operator '>=' isn't defined for the type 'bool'. Try defining the operator '>=' • lib/domain/advocate/advocate_meta.dart:49:25 • undefined_operator
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
@@ -8,4 +11,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 9.8s)
+10 issues found. (ran in 12.3s)
