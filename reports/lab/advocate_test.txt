@@ -68,10 +68,6 @@
 ✅ test/advocate/topic_switch_test.dart: پیام با موضوع دیگر، پرونده را بی‌پرسش عوض نمی‌کند
 ✅ test/advocate/topic_switch_test.dart: «موضوع تازه است» پرونده را به موضوع جدید می‌برد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
-✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
-✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
-✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
-✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
@@ -87,7 +83,11 @@
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
+✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
+✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
