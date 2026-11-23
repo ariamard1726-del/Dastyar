@@ -1,3 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/makrar_test.dart: نام رایج «قانون چک» شناخته می‌شود (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/law_bank_test.dart: ۱. تکمیل ۱۰۰٪ بانک قوانین رسمی و پشتیبانی از اصول قانون اساسی جستجوی مستقیم اصول قانون اساسی با واژهٔ «اصل» کار می‌کند (failed)
-::error::410 tests passed, 2 failed.
+🎉 412 tests passed.
