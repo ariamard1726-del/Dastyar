@@ -552,11 +552,19 @@ extension _Talk on Advocate {
   AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) {
     final stuck = _unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1;
     final text = _unclearText(raw);
-    if (!stuck) return _out(text);
+    // پیامِ نامفهومِ کوتاه («سگم مرده»، «هوم») کاربر را همان‌جا گیر می‌اندازد؛
+    // پس از بار اول هم راهِ خروج نشان داده می‌شود. برای جملهٔ بلندِ نامفهوم،
+    // دکمه‌ها فقط بار دوم (وقتی «stuck» است) می‌آیند تا گفتگو شلوغ نشود.
+    if (!stuck && Sense.words(Sense.norm(raw)) > 3) return _out(text);
+    final out = <String>[...chips, ..._starters()];
+    if (out.isEmpty) out.addAll(_idleChips());
+    if (out.isEmpty) return _out(text);
     return _out(
       text,
-      ask: 'کدام‌یک به ماجرای شما نزدیک‌تر است؟',
-      chips: [...chips, ..._starters()],
+      ask: stuck
+          ? 'کدام‌یک به ماجرای شما نزدیک‌تر است؟'
+          : 'اگر یکی از این‌ها نزدیک است، همان را بزنید:',
+      chips: out,
     );
   }
 }

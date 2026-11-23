@@ -22,6 +22,7 @@ part 'advocate_topic.dart';
 part 'advocate_case.dart';
 part 'advocate_argue.dart';
 part 'advocate_chips.dart';
+part 'advocate_meta.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
@@ -667,6 +668,12 @@ class Advocate {
         return safe;
       }
     }
+    // پیام «دربارهٔ خودِ برنامه» («از برنامه خارج شدم») یا جملهٔ کوتاهِ سوگ،
+    // ماجرای حقوقی نیست ولی پرسش واقعی دارد؛ پیش از «منظورتان چیست؟» و پیش
+    // از حدسِ موضوع، پاسخ صریح می‌گیرد. بعد از بررسی ایمنی می‌آید تا پیام
+    // خطر هرگز زیر این پاسخ نماند.
+    final meta = _metaReply(raw, n);
+    if (meta != null) return meta;
     // دعوای لفظی: تا وقتی تهدید یا برخورد فیزیکی نبوده، خودِ «جر و بحث»
     // جرم نیست؛ ولی باید بدانیم کدامش پیش آمده. پیش‌تر این جمله به حدسِ
     // «دفاع در برابر شکایت» یا پاسخ «در پایگاه نیست» می‌رسید.
