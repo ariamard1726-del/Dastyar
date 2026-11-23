@@ -1,2 +1,2 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد (failed)
 ::error::423 tests passed, 1 failed.
