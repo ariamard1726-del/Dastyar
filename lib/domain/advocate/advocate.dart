@@ -860,11 +860,29 @@ class Advocate {
 
     if (topic == null) {
       if (best != null && bestScore >= 3) {
-        for (final t in topics) {
-          if (t.id != best.id && (scores[t.id] ?? 0) >= 4) {
-            _also = t;
-            break;
-          }
+        final others = <Topic>[
+          for (final t in topics)
+            if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
+        ];
+        if (others.isNotEmpty) _also = others.first;
+        // پیامِ چندموضوعی: پیش‌تر فقط به یکی از موضوع‌ها جواب می‌داد و بقیه
+        // بی‌صدا می‌ماند. حالا موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع
+        // کنیم؛ هر کدام پرونده و مهلت جدا دارد.
+        final asksOrder = Sense.has(n,
+            'اول کدام|کدوم را اول|کدام را اول|از کجا شروع|اول (?:چی|کدام)|چی را اول');
+        if (others.isNotEmpty &&
+            (asksOrder || (others.length >= 2 && Sense.words(n) >= 14))) {
+          _choices = <Topic>[best, ...others].take(3).toList();
+          _choiceText = n;
+          final lines = [
+            for (final t in _choices) '• ${t.title}',
+          ];
+          return _out(
+            'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
+            'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
+            'سطحی می‌شود. از کدام شروع کنیم؟',
+            chips: [for (final t in _choices) t.title, noneChip],
+          );
         }
         return _open(best, n);
       }

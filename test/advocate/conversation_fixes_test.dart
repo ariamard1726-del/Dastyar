@@ -51,6 +51,19 @@ void main() {
     expect(r.text, contains('اگر بگویید چه شده'), reason: r.text);
   });
 
+  test('پیام چندموضوعی: موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع کنیم', () {
+    final a = fresh();
+    final r = a.respond('چک برگشتی دارم و شوهرم هم نفقه نمی‌دهد و '
+        'صاحبخانه هم ودیعه را پس نمی‌دهد، اول کدام را پیگیری کنم؟');
+    expect(r.text, contains('چند ماجرای جدا'), reason: r.text);
+    expect(r.chips.length, greaterThanOrEqualTo(2), reason: r.chips.join('،'));
+    expect(a.file.topic, isEmpty, reason: 'نباید بی‌صدا یکی را انتخاب کند');
+    // با انتخاب یکی از دکمه‌ها همان پرونده باز می‌شود.
+    final pick = r.chips.first;
+    a.respond(pick);
+    expect(a.file.topic, isNotEmpty, reason: 'انتخاب «$pick» پرونده باز نکرد');
+  });
+
   test('«جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»', () {
     final a = fresh();
     final r = a.respond('من کسی با کسی جر و بحث کردم');
