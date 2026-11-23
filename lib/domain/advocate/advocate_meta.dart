@@ -43,8 +43,17 @@ extension _AdvocateMeta on Advocate {
   /// پاسخ به پیام‌های «دربارهٔ برنامه» و پیام‌های شخصیِ غیرحقوقی؛ `null` یعنی
   /// این پیام از این دسته نیست و مسیر عادی ادامه پیدا می‌کند.
   AdvocateReply? _metaReply(String raw, String n) {
+    final legal = Sense.has(n, _legalCues);
+
+    // جملهٔ کوتاهِ سوگ پیش از هر حدسِ موضوعی بررسی می‌شود: «سگم مرده» به یک
+    // نشانهٔ ضعیف در موضوع‌های دیگر می‌خورد و همان نشانه کافی بود که این پیام
+    // به «منظورتان چیست؟» برسد. تنها نگهبانِ لازم، نشانهٔ حقوقی است.
+    if (!legal && Sense.words(n) <= 8 && Sense.has(n, _lossWords)) {
+      return _lossReply();
+    }
+
     // نشانهٔ حقوقی، یا موضوعِ شناخته‌شده، یعنی ماجرای واقعی: کاری به آن نداریم.
-    if (Sense.has(n, _legalCues)) return null;
+    if (legal) return null;
     if (Advocate.topicOf(raw) != null) return null;
     if (_anyTopicCue(n)) return null;
 
@@ -52,9 +61,6 @@ extension _AdvocateMeta on Advocate {
         (Sense.word(n, _appWords) && Sense.has(n, _appActs)) ||
             Sense.has(n, _historyWords);
     if (aboutApp) return _appMetaReply();
-
-    // جملهٔ کوتاهِ سوگ، بی‌هیچ نشانهٔ حقوقی: حدس نمی‌زنیم که چه می‌خواهد.
-    if (Sense.words(n) <= 8 && Sense.has(n, _lossWords)) return _lossReply();
 
     return null;
   }
