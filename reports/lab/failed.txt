@@ -1,1 +1,15 @@
-🎉 398 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_fixes_test.dart: دوباره نامفهوم‌ماندن، به بن‌بست «در پایگاه نیست» نمی‌رسد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_fixes_test.dart: «قرارداد کتبی دارید» بدون اینکه کاربر گفته باشد، گفته نمی‌شود (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/synonyms_test.dart: جست‌وجوی شمارهٔ ماده با فرهنگ تغییر نمی‌کند (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/retrieval_index_test.dart: نمایهٔ معکوس، جستجوی دودویی پیشوند و پرس‌وجوی تک‌مرحله‌ای جستجوی مادهٔ مکرر و پیشوند واژگان از روی نمایهٔ معکوس دقیق کار می‌کند (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/labor_test.dart: ماده ۱۷۲ قانون کار با منبع و تبصره پیدا می‌شود (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/laws_test.dart: ماده با نام قانون مدنی (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/makrar_test.dart: نام رایج «قانون چک» شناخته می‌شود (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/makrar_test.dart: ماده ۲۱ مکرر چک با ماده ۲۱ فرق دارد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/makrar_test.dart: ماده ۸۸۱ مکرر مدنی (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/makrar_test.dart: ماده ۱۳۱۳ مکرر مدنی (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/law_bank_test.dart: ۱. تکمیل ۱۰۰٪ بانک قوانین رسمی و پشتیبانی از اصول قانون اساسی جستجوی مستقیم اصول قانون اساسی با واژهٔ «اصل» کار می‌کند (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/law_bank_test.dart: شناسنامهٔ منبع قوانین ماده‌های ۶۹ و ۷۲ قانون مجازات جدا پیدا می‌شوند (failed)
+::error::399 tests passed, 14 failed.

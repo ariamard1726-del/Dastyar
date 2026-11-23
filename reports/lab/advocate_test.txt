@@ -1,38 +1,3 @@
-
-::group::✅ Passing tests
-✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
-✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
-✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
-✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
-✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
-✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
-✅ test/advocate/advocate_test.dart: صادرکنندهٔ چک را با دارنده اشتباه نمی‌گیرد
-✅ test/advocate/advocate_test.dart: خشونت خانگی به پروندهٔ خانواده می‌رود، نه کار
-✅ test/advocate/advocate_test.dart: متهم: «اگه نرم چی میشه؟» جواب مشخص می‌گیرد
-✅ test/advocate/advocate_test.dart: اجارهٔ مشترک مغازه با شریک به موجر و مستأجر نمی‌رود
-✅ test/advocate/advocate_test.dart: پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه
-✅ test/advocate/advocate_test.dart: بدهکارِ بی‌مدرک: «هیچ راهی نیست؟» ناامید رها نمی‌شود
-✅ test/advocate/advocate_test.dart: موضوع تازه وسط گفتگو: پروندهٔ قبلی بسته و پروندهٔ نو باز می‌شود
-✅ test/advocate/advocate_test.dart: هیچ‌وقت بی‌جواب نمی‌ماند و حرف نامفهوم را صادقانه می‌گوید
-✅ test/advocate/advocate_test.dart: بازسازی حافظه از پیام‌های قبلی همان پرونده را می‌سازد
-✅ test/advocate/advocate_test.dart: موجر را با مستأجر اشتباه نمی‌گیرد و «آره» را به پرسش درست می‌دهد
-✅ test/advocate/advocate_test.dart: واژه‌های شبیه هم گمراهش نمی‌کند (خونه≠نه، صیادیه≠دیه، خرجش≠هزینه)
-✅ test/advocate/advocate_test.dart: شوهرِ بدهکار مهریه: سکه و ناتوانی از پرداخت را می‌فهمد
-✅ test/advocate/advocate_test.dart: مدتِ نپرداختن حقوق را سابقهٔ کار حساب نمی‌کند؛ «نمی‌دانم … یا نه» را می‌فهمد
-✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
-✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
-✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
-✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
-✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
-✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
-✅ test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است
-✅ test/advocate/advocate_test.dart: موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند
-✅ test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بقیهٔ حرف فقط وقتی می‌آید که کاربر بخواهد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
@@ -46,11 +11,22 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::119 از 119 سناریو درست است
+::group::❌ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو (failed)
+::notice title=intent::117 از 119 سناریو درست است
+Expected: empty
+  Actual: [
+            'گزارش: دعوا سر کرایه خانه: موضوع «» به‌جای «rent»',
+            'گزارش: نامفهوم بعد از توضیح، جوابی ندارد: پاسخ شامل «در پایگاه داده‌ام نیست، جوابی برایش ندارم» نیست'
+          ]
+گزارش: دعوا سر کرایه خانه: موضوع «» به‌جای «rent»
+گزارش: نامفهوم بعد از توضیح، جوابی ندارد: پاسخ شامل «در پایگاه داده‌ام نیست، جوابی برایش ندارم» نیست
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/intent_scenarios_test.dart 512:5      main.<fn>
 ::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
-::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
+::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 16 از 17
 ::endgroup::
 ::group::✅ Passing tests
 ✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
@@ -68,6 +44,10 @@
 ✅ test/advocate/topic_switch_test.dart: پیام با موضوع دیگر، پرونده را بی‌پرسش عوض نمی‌کند
 ✅ test/advocate/topic_switch_test.dart: «موضوع تازه است» پرونده را به موضوع جدید می‌برد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
+✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
+✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
+✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
+✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
@@ -84,10 +64,6 @@
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
 ✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
-✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
-✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
-✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
-✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
@@ -100,6 +76,32 @@
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
+::endgroup::
+::group::❌ test/advocate/conversation_fixes_test.dart: دوباره نامفهوم‌ماندن، به بن‌بست «در پایگاه نیست» نمی‌رسد (failed)
+Expected: non-empty
+  Actual: []
+کاربر نباید بی‌راه بماند
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/conversation_fixes_test.dart 32:5     main.<fn>
+::endgroup::
+::group::✅ Passing tests
+✅ test/advocate/conversation_fixes_test.dart: «جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»
+✅ test/advocate/conversation_fixes_test.dart: جر و بحث همراه کتک، به پاسخِ دعوای لفظی بسنده نمی‌کند
+✅ test/advocate/conversation_fixes_test.dart: مهلت با تاریخ و مدت، حساب می‌شود
+✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
+✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
+::endgroup::
+::group::❌ test/advocate/conversation_fixes_test.dart: «قرارداد کتبی دارید» بدون اینکه کاربر گفته باشد، گفته نمی‌شود (failed)
+Expected: not contains 'کتبی'
+  Actual: 'قرارداد کتبی ندارید'
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/conversation_fixes_test.dart 81:5     main.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
 ✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار حرف در پروندهٔ باز پاسخ ادامه می‌دهد، نه پرسش از اول
@@ -165,7 +167,23 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
-✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
+::endgroup::
+::group::❌ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل (failed)
+Expected: contains 'قرارداد کتبی دارید'
+  Actual: 'هنوز نمی‌توانم قطعی بگویم، ولی معلوم است به چه بسته است. تا اینجا به نفع شماست که قرارداد دارید. سه چیز مانده:\n'
+            '• خودتان استعفا نداده و تسویه‌حساب امضا نکرده باشید؛ استعفا خودش راه قانونیِ پایان قرارداد است (ماده ۲۱ قانون کار).\n'
+            '• قرارداد با تمام‌شدن مدتش خودبه‌خود پایان نیافته باشد (ماده ۲۱ قانون کار).\n'
+            '• کارفرما تشریفات اخراج را طی نکرده باشد: تذکر کتبیِ قبلی و نظر مثبت شورای اسلامی کار یا هیئت تشخیص (ماده ۲۷ قانون کار).\n'
+            'اگر آن‌ها هم برقرار باشد، اخراج ناموجه شناخته می‌شود: یا با حقوقِ همهٔ این مدت به کار برمی‌گردید، یا اگر نخواهید برگردید، به ازای هر سال سابقه ۴۵ روز حقوق می‌گیرید (ماده ۱۶۵ قانون کار).\n'
+            '\n'
+            'و سؤال خودم: برگهٔ استعفا یا تسویه‌حساب امضا کرده‌اید؟'
+   Which: does not contain 'قرارداد کتبی دارید'
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/reasoner_test.dart 297:7              main.<fn>.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/reasoner_test.dart: گفتگو «سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل
 ✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
 ✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
@@ -179,4 +197,4 @@
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-🎉 171 tests passed.
+::error::174 tests passed, 4 failed.
