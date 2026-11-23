@@ -46,7 +46,7 @@ extension _AdvocateMeta on Advocate {
     // نشانهٔ حقوقی، یا موضوعِ شناخته‌شده، یعنی ماجرای واقعی: کاری به آن نداریم.
     if (Sense.has(n, _legalCues)) return null;
     if (Advocate.topicOf(raw) != null) return null;
-    if (_anyTopicCue(n) >= 3) return null;
+    if (_anyTopicCue(n)) return null;
 
     final aboutApp =
         (Sense.word(n, _appWords) && Sense.has(n, _appActs)) ||
