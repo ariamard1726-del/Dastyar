@@ -49,6 +49,15 @@ void main() {
     expect(second.source, isNot(AnswerSource.safety));
   });
 
+  test('گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد', () {
+    final a = fresh();
+    a.respond('شوهرم منو زد');
+    // حتی اگر هشدار یک بار داده شده باشد، اعلام خطر تازه نادیده گرفته نمی‌شود.
+    final again = a.respond('الان در خطر هستم');
+    expect(again.source, AnswerSource.safety, reason: again.text);
+    expect(again.text, contains('۱۱۰'));
+  });
+
   test('«الان در خطر هستم» راهنمای فوری می‌گیرد', () {
     final a = fresh();
     final r = a.respond('الان در خطر هستم');
