@@ -45,6 +45,10 @@
 **۴. پروندهٔ گفتگو ذخیره و بازیابی می‌شود**
 - `CaseFile.toJson()`/`CaseFile.fromJson()` با `CaseFile.schemaVersion`؛ ورودی
   بدشکل یا نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش. آزمون: `test/advocate/case_file_json_test.dart`.
+- تنظیمات دیگر بی‌صدا شکست نمی‌خورد: اگر «محافظت از صفحه» روی گوشی اعمال نشود،
+  تیک روشن نمی‌ماند و دلیلش در صفحهٔ تنظیمات نوشته می‌شود (`AppSettings.lastError`،
+  `PrivacyService.setSecureScreen` که حالا `bool` برمی‌گرداند). آزمون:
+  `test/app/settings_failure_test.dart`.
 - دکمه‌های پیشنهادی هر پاسخ هم در تاریخچه می‌مانند (`StoredMsg.chips`)؛ پیش‌تر گفتگوی
   بازیابی‌شده همهٔ دکمه‌هایش را از دست می‌داد و راه ادامه نداشت.
 - خودِ پرونده در رکورد گفتگو ذخیره می‌شود (`ChatSession.caseJson` + `Advocate.restoreCase`):

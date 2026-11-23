@@ -75,13 +75,20 @@ class PrivacyService {
   }
 
   /// فعال یا غیرفعال کردن FLAG_SECURE برای جلوگیری از اسکرین‌شات و مخفی‌سازی در اپ‌های اخیر.
-  static Future<void> setSecureScreen(bool enabled) async {
+  /// روشن/خاموش کردن محافظت صفحه.
+  ///
+  /// خروجی `false` یعنی کانال بومی خطا داد یا اجازه نداد؛ پیش‌تر خطا بلعیده
+  /// می‌شد و تیکِ «محافظت از صفحه» دروغ می‌گفت.
+  static Future<bool> setSecureScreen(bool enabled) async {
     try {
-      await channel.invokeMethod<bool>(
+      final ok = await channel.invokeMethod<bool>(
         'setSecureScreen',
         <String, Object?>{'enabled': enabled},
       );
-    } catch (_) {}
+      return ok == true;
+    } catch (_) {
+      return false;
+    }
   }
 
   // ---------- رمزنگاری احرازهویت‌شدهٔ جایگزین (HMAC-SHA256 + CTR) ----------
