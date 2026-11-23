@@ -191,9 +191,21 @@ extension _Talk on Advocate {
         _lastLaws.isNotEmpty &&
         Sense.has(n,
             'متن (?:قانون|ماده)|کدوم ماده|کدام ماده|طبق کدوم|طبق کدام|ماده ?(?:اش|ش) (?:چی|رو|را)|مستند(?:ت|ش)? چی|سندت چیه')) {
+      // «متن قانون را ببینم» یعنی خودِ متن، نه چکیده؛ و همهٔ موادی که پاسخ
+      // پیشین به آن‌ها استناد کرده بود. پیش‌تر فقط دو ماده و آن هم بریده
+      // می‌آمد و عنوانشان با ارقام لاتین («ماده 10»).
+      final shown = _lastLaws.take(3).toList();
       final lines = [
-        for (final l in _lastLaws.take(2)) '• ${l.title}: «${_snippet(l.body)}»',
+        for (final l in shown)
+          '• ${PersianText.toFaDigits(l.title)}'
+              '${l.source.trim().isEmpty ? '' : ' — ${l.source.trim()}'}:\n'
+              '«${_lawBody(l.body)}»',
       ];
+      final rest = _lastLaws.length - shown.length;
+      if (rest > 0) {
+        lines.add('و ${PersianText.toFaDigits('$rest')} مادهٔ دیگر هم بود؛ '
+            'شماره‌اش را بگویید تا همان را بیاورم.');
+      }
       return _out(
         'متن قانونی که به آن تکیه کردم:\n${lines.join('\n')}',
         ask: _askText,

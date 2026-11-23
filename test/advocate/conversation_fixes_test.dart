@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/topics/labor.dart';
@@ -19,6 +20,36 @@ void main() {
   });
 
   Advocate fresh() => Advocate(engine);
+
+  test('«متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد',
+      () {
+    final a = fresh();
+    final r = a.respond('صاحبخونه پول پیشمو نمیده');
+    expect(r.laws, isNotEmpty, reason: 'پاسخ باید به ماده استناد کند');
+    final law = a.respond(Advocate.lawChip);
+    final title = r.laws.first.title;
+    expect(law.text, contains(PersianText.toFaDigits(title)), reason: law.text);
+    if (title != PersianText.toFaDigits(title)) {
+      expect(law.text, isNot(contains(title)),
+          reason: 'عنوان ماده نباید با ارقام لاتین بیاید: ${law.text}');
+    }
+    // متن ماده، نه چکیدهٔ «…»دار.
+    expect(law.text, isNot(contains('…')), reason: law.text);
+  });
+
+  test('وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد', () {
+    final a = fresh();
+    a.respond('کارفرما اخراجم کرده');
+    final r = a.respond('ماده ۱۰ قانون مدنی چیست؟');
+    expect(r.text.trim(), isNotEmpty);
+    expect(r.text, isNot(contains('اگر بگویید چه شده')), reason: r.text);
+  });
+
+  test('وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است', () {
+    final a = fresh();
+    final r = a.respond('ماده ۱۰ قانون مدنی چیست؟');
+    expect(r.text, contains('اگر بگویید چه شده'), reason: r.text);
+  });
 
   test('«جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»', () {
     final a = fresh();
