@@ -4,14 +4,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:dastyar/core/config.dart';
 import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/core/router.dart';
 import 'package:dastyar/core/conflicts_service.dart';
-import 'package:dastyar/domain/dialogue/evidence.dart';
 
 export 'models.dart';
 
@@ -22,6 +21,10 @@ class KnowledgeEngine {
   final Map<String, double> _idf = {};
   final Map<String, List<int>> _postings = {};
   final Map<String, List<int>> _byTitle = {};
+
+  /// فهرست «شناسهٔ قانون + عنوان ماده» → شمارهٔ chunk؛ یک بار ساخته می‌شود
+  /// تا یافتن متن یک ماده در هر پیام روی کل بانک خطی نگردد.
+  Map<String, int>? _articleIndex;
   double _avgLen = 1.0;
   double _maxIdf = 1.0;
 
@@ -55,12 +58,12 @@ class KnowledgeEngine {
     r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
 
-  // پارامترهای BM25F
-  final double _k1 = AppConfig.k1;
-  final double _b = AppConfig.b;
-  final double _wT = AppConfig.wT;
-  final double _wB = AppConfig.wB;
-  final double _wC = AppConfig.wC;
+  // پارامترهای BM25F: اشباع بسامد، نرمال‌سازی طول، و وزن عنوان / متن / زمینه.
+  final double _k1 = 0.9;
+  final double _b = 0.7;
+  final double _wT = 3.0;
+  final double _wB = 1.0;
+  final double _wC = 0.5;
   final Map<String, int> _lawCounts = {};
   List<String> _vocab = [];
 
@@ -98,6 +101,17 @@ class KnowledgeEngine {
   final List<String> warnings = [];
 
   int get size => _chunks.length;
+
+  /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
+  List<Chunk> get chunks => _chunks;
+  Map<String, List<int>> get postings => _postings;
+  Map<String, double> get idf => _idf;
+  /// بانک پرسش‌وپاسخ حقوقی (اجاره)؛ پس از [load] پر می‌شود.
+  QaBank get qa => _qaBank;
+  /// فهرست واژه‌های حقوقی با ماده؛ پس از [load] پر می‌شود.
+  Map<String, dynamic> get legalTerms => _legalTerms;
+  /// مسیرهای تصمیم موضوعی (assets/brain/topics/index.json)؛ پس از [load] پر می‌شود.
+  List<Map<String, dynamic>> get topicFlows => _topicFlows;
   Map<String, int> get lawCounts => _lawCounts;
   bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
 
@@ -164,8 +178,49 @@ Future<void> _loadReplies() async {
 
 LawTopicPrior _lawPrior = LawTopicPrior.empty;
 
-/// ضریب موضوعی قانون‌ها برای یک پرسش (برای آزمون و عیب‌یابی).
-Map<String, double> lawFactors(String question) => _lawPrior.factors(question);
+QaBank _qaBank = QaBank.empty;
+
+/// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
+Map<String, dynamic> _legalTerms = const {};
+
+/// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
+List<Map<String, dynamic>> _topicFlows = const [];
+
+Future<void> _loadTopicFlows() async {
+  _topicFlows = const [];
+  try {
+    final idx = jsonDecode(await rootBundle.loadString('assets/brain/topics/index.json'))
+        as Map<String, dynamic>;
+    final out = <Map<String, dynamic>>[];
+    for (final name in (idx['topics'] as List).cast<String>()) {
+      final t = await rootBundle.loadString('assets/brain/topics/$name');
+      out.add(jsonDecode(t) as Map<String, dynamic>);
+    }
+    _topicFlows = out;
+  } catch (e) {
+    warnings.add('brain/topics: $e');
+  }
+}
+
+Future<void> _loadLegalTerms() async {
+  _legalTerms = const {};
+  try {
+    final t = await rootBundle.loadString('assets/brain/legal_terms.json');
+    _legalTerms = jsonDecode(t) as Map<String, dynamic>;
+  } catch (e) {
+    warnings.add('brain/legal_terms.json: $e');
+  }
+}
+
+Future<void> _loadQa() async {
+  _qaBank = QaBank.empty;
+  try {
+    final t = await rootBundle.loadString('assets/qa/lease_qa.json');
+    _qaBank = QaBank.fromJson(jsonDecode(t));
+  } catch (e) {
+    warnings.add('qa/lease_qa.json: $e');
+  }
+}
 
 Future<void> _loadLawTopics() async {
   _lawPrior = LawTopicPrior.empty;
@@ -204,6 +259,7 @@ Future<void> load() async {
   _idf.clear();
   _postings.clear();
   _byTitle.clear();
+  _articleIndex = null;
   _lawCounts.clear();
   catalog.clear();
   categoryNames.clear();
@@ -219,6 +275,9 @@ Future<void> load() async {
     _loadSynonyms(),
     _loadRelationships(),
     _loadLawTopics(),
+    _loadQa(),
+    _loadLegalTerms(),
+    _loadTopicFlows(),
     knowledgeFuture,
   ]);
 
@@ -432,6 +491,24 @@ static String _faArticleLabel(RegExpMatch m) {
   return '$num$mk';
 }
 
+/// شمارهٔ chunk یک ماده از روی (شناسهٔ قانون، عنوان ماده)؛ یا `null`.
+///
+/// همتای O(1) پیمایش خطیِ `for (final c in engine.chunks)` که در تطبیق
+/// واژه‌ها و برگ‌های مسیر موضوعی استفاده می‌شد. فهرست با اولین فراخوانی
+/// ساخته و با هر بار `load()` دور انداخته می‌شود.
+int? chunkOf(String lawId, String title) {
+  var idx = _articleIndex;
+  if (idx == null) {
+    idx = <String, int>{};
+    for (var i = 0; i < _chunks.length; i++) {
+      final c = _chunks[i];
+      idx.putIfAbsent('${c.lawId}\u0000${c.title}', () => i);
+    }
+    _articleIndex = idx;
+  }
+  return idx['$lawId\u0000$title'];
+}
+
 /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
 /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
 Chunk? findArticle(String law, String article) {
@@ -453,9 +530,6 @@ Chunk? findArticle(String law, String article) {
   }
   return null;
 }
-
-/// قوانین فهرست که نام یا نام رایجشان در متن آمده است.
-List<CatalogLaw> mentionedLaws(String q) => _mentionedLaws(q);
 
 List<CatalogLaw> _mentionedLaws(String q) {
   final n = _collapse(normalize(q));
@@ -546,7 +620,9 @@ String _lawListText() {
 
 String format(Chunk c) {
   final sb = StringBuffer();
-  sb.write(c.title);
+  // عنوان در فایل‌های قانون با ارقام لاتین است («ماده 10»)؛ در متن فارسی
+  // باید با ارقام فارسی بیاید.
+  sb.write(PersianText.toFaDigits(c.title));
   if (c.body != c.title) sb.write('\n${c.body}');
   if (c.obsolete) {
     sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');
@@ -557,6 +633,13 @@ String format(Chunk c) {
     final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
     if (date.isNotEmpty) {
       sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
+    }
+    final amended = (meta[c.lawId]?['amended'] ?? '').toString().trim();
+    if (amended.isNotEmpty) {
+      sb.write('\nآخرین اصلاح قانون: ${PersianText.toFaDigits(amended)}');
+    }
+    if ((meta[c.lawId]?['status'] ?? '').toString().trim() != 'verified') {
+      sb.write('\nاین متن هنوز با منبع رسمی تطبیق داده نشده است.');
     }
   }
   return sb.toString();
@@ -929,7 +1012,8 @@ RankResult rank(String question, {int k = 3}) {
         if (others.isNotEmpty) {
           res += '\n\nمواد نزدیک دیگر:';
           for (final h in others) {
-            res += '\n• ${h.chunk.title} — ${h.chunk.source}';
+            res +=
+                '\n• ${PersianText.toFaDigits(h.chunk.title)} — ${h.chunk.source}';
           }
         }
       }
@@ -1023,48 +1107,6 @@ RankResult rank(String question, {int k = 3}) {
         .where((chain) => chain.contains('->'))
         .map(PersianText.toFaDigits)
         .toList();
-  }
-
-  /// نسخه‌ی ساخت‌یافته‌ی rank که برای planner در Phase 2 استفاده می‌شود.
-  ///
-  /// مواد منسوخ را فیلتر می‌کند تا EvidenceSet تنها شامل شواهد معتبر باشد.
-  /// Coverage بر اساس بهترین نتیجه محاسبه می‌شود. برای Phase 0.4، فیلد
-  /// `conflicts` خالی است و تشخیص تعارض معنادار به Phase 2 موکول می‌شود
-  /// (چون conflictChainsFor زنجیره‌های ارجاع متقابل است، نه لزوماً
-  /// تعارض واقعی بین مواد). planner در Phase 2 می‌تواند از
-  /// conflictChainsFor مستقیماً استفاده کند اگر بخواهد.
-  ///
-  /// این متد **بدون تغییر** در `rank`، `query`، `coverage` یا
-  /// `conflictChainsFor` کار می‌کند — فقط آن‌ها را در یک بسته‌ی
-  /// ساخت‌یافته جمع می‌کند.
-  EvidenceSet retrieveWithEvidence(String question, {int k = 3}) {
-    final rankResult = rank(question, k: k);
-    final filtered =
-        rankResult.hits.where((h) => !h.chunk.obsolete).toList();
-
-    final items = <Evidence>[];
-    for (var i = 0; i < filtered.length; i++) {
-      final h = filtered[i];
-      final articleId = h.chunk.source.isNotEmpty
-          ? '${h.chunk.source} — ${h.chunk.title}'
-          : h.chunk.title;
-      items.add(Evidence(
-        articleId: articleId,
-        text: h.chunk.body,
-        rank: i + 1,
-        score: h.score,
-        matchedSlots: const [],
-      ));
-    }
-
-    final top = filtered.isEmpty ? null : filtered.first;
-    final cov = top == null ? 0.0 : coverage(question, top.chunk);
-
-    return EvidenceSet(
-      items: items,
-      conflicts: const [],
-      coverage: cov,
-    );
   }
 
   String answer(String question) => query(question, maxAlternatives: 0).text;

@@ -12,11 +12,15 @@ class AboutPage extends StatefulWidget {
   final TemplateRepository repo;
   final Map<String, dynamic>? initialInfo;
 
+  /// وضعیت خوانندهٔ موضوع (مدل برداری)؛ خالی یعنی چیزی برای گفتن نیست.
+  final List<String> readerNotes;
+
   const AboutPage({
     super.key,
     required this.engine,
     required this.repo,
     this.initialInfo,
+    this.readerNotes = const [],
   });
 
   @override
@@ -127,9 +131,12 @@ class _AboutPageState extends State<AboutPage> {
         } else {
           detail = 'هنوز وارد نشده';
         }
+        final verified =
+            (metaInfo?['status'] ?? '').toString().trim() == 'verified';
         final subParts = <String>[
           if (src.isNotEmpty) 'منبع: $src',
           if (amended.isNotEmpty) 'آخرین اصلاحیه: ${_fa(amended)}',
+          verified ? 'با منبع رسمی تطبیق داده شده' : 'با منبع رسمی تطبیق داده نشده',
         ];
         out.add(Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -197,6 +204,19 @@ class _AboutPageState extends State<AboutPage> {
               _p('هر قانونی که ❌ دارد هنوز وارد نشده و دستیار از روی آن جواب نمی‌دهد.'),
               ..._lawRows(),
             ]),
+            if (widget.readerNotes.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _card('فهم جمله', [
+                for (final s in widget.readerNotes) _p(s),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton(
+                    onPressed: () => showLicensePage(context: context),
+                    child: const Text('پروانهٔ مدل و کتابخانه‌ها'),
+                  ),
+                ),
+              ]),
+            ],
             const SizedBox(height: 8),
             _card('این برنامه چه کاری می‌کند', [
               _p('• از متن‌های داخل خود برنامه جواب می‌دهد و هیچ اطلاعاتی را به اینترنت نمی‌فرستد.'),

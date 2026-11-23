@@ -19,15 +19,29 @@ void main() {
         'defense_brief': 'لایحه دفاعیه',
       });
 
-  /// گفتگو را اجرا می‌کند و پاسخ‌ها را برمی‌گرداند.
+  /// پاسخ کامل به یک پیام: وکیل حرفش را کوتاه می‌زند و بقیه را فقط وقتی
+  /// می‌گوید که کاربر «ادامه بده» بگوید؛ این‌جا همه را کنار هم می‌گذاریم تا
+  /// درستیِ محتوا سنجیده شود.
+  AdvocateReply say(Advocate a, String t) {
+    final r = a.respond(t);
+    final sb = StringBuffer(r.text);
+    var guard = 0;
+    while (a.hasMore && guard < 8) {
+      guard++;
+      sb.write('\n${a.respond(Advocate.moreChip).text}');
+    }
+    return AdvocateReply(sb.toString(), chips: r.chips, laws: r.laws);
+  }
+
+  /// گفتگو را اجرا می‌کند و پاسخ‌های کامل را برمی‌گرداند.
   List<AdvocateReply> talk(Advocate a, List<String> turns) =>
-      [for (final t in turns) a.respond(t)];
+      [for (final t in turns) say(a, t)];
 
   test('هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست', () {
     final ref = RegExp(r'\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]');
     final missing = <String>{};
     var count = 0;
-    for (final f in Directory('lib/domain/advocate').listSync()) {
+    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
       if (f is! File || !f.path.endsWith('.dart')) continue;
       for (final m in ref.allMatches(f.readAsStringSync())) {
         count++;
@@ -134,18 +148,18 @@ void main() {
 
   test('پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه', () {
     final a = fresh();
-    final who = a.respond('تو وکیلی؟');
+    final who = say(a, 'تو وکیلی؟');
     expect(who.text, contains('وکیل دادگستری نیستم'));
     expect(who.laws, isEmpty);
-    final trust = a.respond('میشه به حرفات اعتماد کرد؟');
+    final trust = say(a, 'میشه به حرفات اعتماد کرد؟');
     expect(trust.text, contains('محدودیت'));
-    final term = a.respond('یعنی چی اعسار؟');
+    final term = say(a, 'یعنی چی اعسار؟');
     expect(term.text, contains('اعسار'));
     a.respond('طلب دارم');
     expect(a.file.topic, 'debt');
-    final why = a.respond('چرا اینو میپرسی؟');
+    final why = say(a, 'چرا اینو میپرسی؟');
     expect(why.text, contains('سؤالم این بود'));
-    final sum = a.respond('خلاصه بگو');
+    final sum = say(a, 'خلاصه بگو');
     expect(sum.text, contains('خلاصه'));
     expect(a.unresolved, isEmpty);
   });
@@ -185,7 +199,7 @@ void main() {
       expect(a.respond(t).text.trim(), isNotEmpty, reason: t);
     }
     a.respond('چکم برگشت خورده');
-    final r = a.respond('بنفش قورباغه دیروز');
+    final r = say(a, 'بنفش قورباغه دیروز');
     expect(r.text.trim(), isNotEmpty);
     expect(r.chips, isNotEmpty);
     expect(a.file.topic, 'cheque');
@@ -279,10 +293,10 @@ void main() {
 
   test('پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند', () {
     final a = fresh();
-    final r = a.respond('هوا چطوره');
+    final r = say(a, 'هوا چطوره');
     expect(r.laws, isEmpty);
     expect(r.text, contains('حوزهٔ کار من'));
-    final art = a.respond('ماده ۱۰ قانون مدنی چی میگه');
+    final art = say(a, 'ماده ۱۰ قانون مدنی چی میگه');
     expect(art.text, contains('قراردادهای خصوصی'));
   });
 
@@ -294,8 +308,13 @@ void main() {
       'اجاره نامه رو بنگاه نوشته، دو تا شاهد داره',
     ]);
     expect(r[0].text, contains('دستور تخلیه'));
+    // نقشهٔ راه و استدلال را سرِ خود روی سر کاربر نمی‌ریزد.
     expect('۱)'.allMatches(r[2].text).length, 0);
-    expect(r[2].text, contains('همان است که بالاتر گفتم'));
+    expect(r[2].text, isNot(contains('شرط اول')));
+    // ولی وقتی خودش بخواهد، شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
+    final arg = say(a, 'استدلالت چیه؟');
+    expect(arg.text, contains('شرط اول'));
+    expect(arg.text, contains('نتیجه'));
     expect(a.unresolved, isEmpty);
   });
 
@@ -309,10 +328,374 @@ void main() {
     expect(a.unresolved, isEmpty);
   });
 
+  test('استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود', () {
+    final a = fresh();
+    talk(a, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده ولی هنوز خونه رو خالی نکردم',
+    ]);
+    expect(a.file.no('vacated'), isTrue);
+    final weak = say(a, 'استدلالت چیه؟');
+    expect(weak.text, contains('شرط اول'));
+    expect(weak.text, contains('✓'));
+    expect(weak.text, contains('✗'));
+    expect(weak.text, contains('برقرار نیست'));
+    // همان پرونده، با واقعیتِ عوض‌شده، نتیجهٔ دیگری می‌دهد.
+    final b = fresh();
+    talk(b, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
+    ]);
+    final strong = say(b, 'استدلالت چیه؟');
+    expect(strong.text, contains('شرط اول'));
+    expect(strong.text, isNot(contains('✗')));
+    expect(strong.text, isNot(weak.text));
+    expect(strong.laws, isNotEmpty);
+  });
+
+  test('برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)', () {
+    final a = fresh();
+    final r = say(a, 'مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه');
+    // نقشی که از حرف کاربر برداشت کرده همان اول گفته می‌شود تا قابل اصلاح باشد.
+    expect(r.text, contains('موجر (صاحب ملک) هستید'));
+    final got = say(a, 'چی فهمیدی؟');
+    expect(got.text, contains('موجر'));
+    expect(got.text, contains('اصلاح'));
+    final b = fresh();
+    talk(b, [
+      'صاحبخونه پول پیشمو نمیده',
+      '۱۵۰ میلیون',
+      'آره قرارداد تموم شده ولی هنوز خونه رو خالی نکردم',
+    ]);
+    final all = say(b, 'چی فهمیدی؟').text;
+    expect(all, contains('مستأجر هستید'));
+    expect(all, contains('مدت اجاره تمام شده'));
+    expect(all, contains('ملک هنوز تخلیه نشده'));
+    expect(all, contains('۱۵۰ میلیون'));
+    final none = fresh().respond('چی فهمیدی؟');
+    expect(none.text.trim(), isNotEmpty);
+  });
+
+  test('دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود', () {
+    const cases = {
+      'یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره': 'consumer',
+      'از حسابم بی خبر ۲۰ میلیون برداشت شده، فکر کنم فیشینگ بود': 'cyber',
+      'پدرم فوت کرده و برادرم سهم ارث ما رو نمیده': 'inherit',
+      // این جمله عمداً خشونت ندارد: پیامِ خشونت پیش از سنجش موضوع، پاسخ
+      // ایمنی می‌گیرد و دیگر «مواد قانونی» برنمی‌گرداند (safety_test).
+      'همسایه مون بچه شو مدرسه نمیفرسته': 'child',
+      'حکم گرفتم ولی طرف پول رو نمیده': 'enforce',
+      'یه آپارتمان خریدم ولی فروشنده سند نمیزنه': 'property',
+      'سهامدار یه شرکت سهامی هستم و مدیرعامل سود سهام نمیده': 'company',
+      'ضامن وام دوستم شدم و حالا قسط نمیده': 'guarantee',
+      'بانک وام ازدواج نمیده': 'marriage',
+      'سر کار از داربست افتادم و پام شکست': 'injury',
+    };
+    for (final e in cases.entries) {
+      final a = fresh();
+      final r = say(a, e.key);
+      expect(a.file.topic, e.value, reason: e.key);
+      expect(r.laws, isNotEmpty, reason: e.key);
+      expect(a.unresolved, isEmpty, reason: e.key);
+      final arg = say(a, 'استدلالت چیه؟');
+      expect(arg.text.trim(), isNotEmpty, reason: e.key);
+      expect(a.unresolved, isEmpty, reason: e.key);
+    }
+  });
+
+  test('همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است', () {
+    final ref = RegExp(r'\[\[([a-z_0-9]+):[0-9]+m?\]\]');
+    final used = <String>{};
+    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      for (final m in ref.allMatches(f.readAsStringSync())) {
+        used.add(m[1]!);
+      }
+    }
+    const all = {
+      'civil', 'cheque', 'financial_sentences', 'commerce', 'commerce_1347',
+      'landlord_tenant', 'labor', 'constitution', 'family_protection',
+      'civil_liability', 'child_protection', 'marriage', 'consumer_protection',
+      'penal', 'penal_taazirat', 'fraud_intensify', 'cybercrime',
+      'civil_procedure', 'civil_execution', 'dispute_councils',
+      'criminal_procedure', 'registration', 'direct_taxes', 'social_security',
+    };
+    expect(all.difference(used), isEmpty);
+  });
+
+  test('موضوع‌های تازه: واقعیت‌ها را می‌فهمد و نتیجه را با آن‌ها عوض می‌کند', () {
+    final a = fresh();
+    final r = talk(a, [
+      'یه آپارتمان خریدم ولی فروشنده سند نمیزنه',
+      'آره قولنامه داریم',
+      'همه پول رو دادم',
+      'به نام خودشه',
+    ]);
+    expect(a.file.topic, 'property');
+    expect(a.file.get('role'), 'buyer');
+    expect(a.file.yes('written'), isTrue);
+    expect(a.file.yes('paid'), isTrue);
+    expect(a.file.yes('registered'), isTrue);
+    expect(r.last.text, isNot(contains('ارزیابی من')));
+    final arg = say(a, 'استدلالت چیه؟');
+    expect(arg.text, contains('شرط'));
+    expect(arg.text, contains('ارزیابی من'));
+    final c = fresh();
+    talk(c, [
+      'سر کار از داربست افتادم و پام شکست',
+      'نه هیچی ندادن، کمربند نداشتم',
+    ]);
+    expect(c.file.get('kind'), 'work');
+    expect(c.file.no('safe'), isTrue);
+    final e = fresh();
+    talk(e, ['حسابمو بستن چون محکوم شدم', 'ندارم بدم، میشه قسطی بدم؟']);
+    expect(e.file.topic, 'enforce');
+    expect(e.file.get('side'), 'loser');
+    expect(e.draftIds, contains('insolvency'));
+  });
+
+  test('وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد', () {
+    // جوابِ پرسشِ وکیل، هرچند واژه‌اش به موضوع دیگری بخورد، همان پرونده می‌ماند.
+    final a = fresh();
+    talk(a, ['صاحبخونه پول پیشمو نمیده', 'قولنامه داریم']);
+    expect(a.file.topic, 'rent');
+    expect(a.file.yes('contract'), isTrue);
+    // متهم دارد ماجرای پشتِ شکایت را تعریف می‌کند، نه پروندهٔ تازه.
+    final b = fresh();
+    talk(b, [
+      'ازم شکایت کردن به جرم کلاهبرداری ولی من کاری نکردم',
+      'ملک رو بهش فروختم سند نزدم',
+    ]);
+    expect(b.file.topic, 'accused');
+    // اشارهٔ کوتاه به ماجرایی دیگر: نمی‌پرد، می‌پرسد؛ با تأیید کاربر می‌رود.
+    final c = fresh();
+    c.respond('یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره');
+    final ask = say(c, 'سگ همسایه گازم گرفت');
+    expect(c.file.topic, 'consumer');
+    expect(ask.chips, contains(Advocate.newTopicChip));
+    expect(ask.text, contains('ماجرای جداگانه'));
+    c.respond(Advocate.newTopicChip);
+    expect(c.file.topic, 'injury');
+    expect(c.file.get('kind'), 'other');
+    // ولی وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌معطلی می‌رود.
+    final d = fresh();
+    talk(d, [
+      'ضامن وام دوستم شدم و حالا قسط نمیده',
+      'راستی یکی عکسامو تو تلگرام پخش کرده',
+    ]);
+    expect(d.file.topic, 'cyber');
+    expect(d.file.get('kind'), 'expose');
+  });
+
+  group('گفتگوی دوطرفه', () {
+    const openers = [
+      'صاحبخونه پول پیشمو نمیده',
+      'کارفرما اخراجم کرده',
+      'چکم برگشت خورده',
+      'میخوام از شوهرم جدا بشم ولی مهریه مو میخوام',
+      'دوستم ازم پول قرض گرفته پس نمیده',
+      'همسایه بالایی نصف شب سروصدا میکنه خسته شدیم',
+      'ماشینمو فروختم طرف سند نمیزنه بره به نامش',
+    ];
+
+    test('جواب اول کوتاه است، با پرسش تمام می‌شود و به دکمه‌ها حواله نمی‌دهد',
+        () {
+      for (final o in openers) {
+        final a = fresh();
+        final r = a.respond(o);
+        expect(a.file.topic, isNotEmpty, reason: o);
+        expect(r.text.length, lessThan(700), reason: o);
+        expect(r.text.trimRight(), endsWith('؟'), reason: o);
+        expect(r.text, isNot(contains('گزینه')), reason: o);
+        expect(r.text, isNot(contains('دکمه')), reason: o);
+        expect(r.text, isNot(contains('متن قانون، برای اینکه')), reason: o);
+      }
+    });
+
+    test('بقیهٔ حرف فقط وقتی می‌آید که کاربر بخواهد', () {
+      final a = fresh();
+      final r = a.respond('کارفرما اخراجم کرده');
+      if (a.hasMore) {
+        expect(r.chips, contains(Advocate.moreChip));
+        final m = a.respond(Advocate.moreChip);
+        expect(m.text.trim(), isNotEmpty);
+        expect(m.text, isNot(r.text));
+      }
+      expect(a.file.topic, 'labor');
+    });
+
+    test('متن ماده را وقتی نشان می‌دهد که کاربر بخواهد', () {
+      final a = fresh();
+      final r = a.respond('صاحبخونه پول پیشمو نمیده');
+      expect(r.laws, isNotEmpty);
+      expect(r.text, isNot(contains('«')));
+      final law = a.respond(Advocate.lawChip);
+      expect(law.text, contains('ماده'));
+      expect(law.text, contains('«'));
+      expect(a.file.topic, 'rent');
+    });
+
+    test('بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد',
+        () {
+      final a = fresh();
+      a.respond('دوستم ازم پول قرض گرفته پس نمیده');
+      expect(a.file.topic, 'debt');
+      var guard = 0;
+      while (!a.file.pending.startsWith('q:') && guard < 12) {
+        guard++;
+        a.respond('نمیدونم');
+      }
+      expect(a.file.pending, 'q:reply');
+      final r = a.respond('میگه امروز و فردا');
+      expect(r.text.trimRight(), endsWith('؟'));
+      expect(a.file.pending, 'q:goal');
+      final g = a.respond('میخوام با توافق تموم بشه');
+      expect(g.text.trimRight(), endsWith('؟'));
+      expect(a.file.topic, 'debt');
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید', () {
+      final a = fresh();
+      talk(a, [
+        'صاحبخونه پول پیشمو نمیده',
+        '۱۵۰ میلیون',
+        'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
+      ]);
+      var guard = 0;
+      var last = a.respond('نمیدونم');
+      while (!last.chips.contains('بله، بگو') && guard < 14) {
+        guard++;
+        last = a.respond('نمیدونم');
+      }
+      expect(last.chips, contains('بله، بگو'));
+      expect(last.text.trimRight(), endsWith('؟'));
+      final yes = say(a, 'بله، بگو');
+      expect(yes.text, anyOf(contains('شرط'), contains('۱)')));
+      expect(a.file.topic, 'rent');
+    });
+
+    test('حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد',
+        () {
+      final a = fresh();
+      final r = a.respond('یه نفر وسایلمو از انباری برده و جواب نمیده');
+      expect(r.text.trimRight(), endsWith('؟'));
+      for (final c in Advocate.starterChips) {
+        expect(r.chips, isNot(contains(c)));
+      }
+    });
+
+    test('دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند', () {
+      final a = fresh();
+      a.respond('یه گرفتاری با صاحبخونه پیدا کردم');
+      expect(a.file.topic, isEmpty);
+      a.respond('کرایه رو میخواد ببره بالا');
+      expect(a.file.topic, 'rent');
+    });
+
+    test('مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود', () {
+      final a = fresh();
+      final r = a.respond('صاحبخونه میخواد کرایه رو ببره بالا');
+      expect(a.file.topic, 'rent');
+      expect(r.text, contains('یک‌طرفه'));
+      expect(r.text, isNot(contains('ودیعه')));
+      expect(r.text, isNot(contains('تخلیه کرده')));
+      expect(r.text.trimRight(), endsWith('؟'));
+    });
+
+    test('وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد', () {
+      final a = fresh();
+      final r = a.respond('با صاحبخونه سر اجاره به مشکل خوردم');
+      expect(a.file.topic, 'rent');
+      expect(a.file.pending, 'matter');
+      expect(r.text, isNot(contains('ودیعه')));
+      expect(r.chips, contains('می‌خواهد اجاره را زیاد کند'));
+      final next = a.respond('می‌خواهد اجاره را زیاد کند');
+      expect(next.text, contains('یک‌طرفه'));
+      expect(a.file.pending, isNot('vacated'));
+    });
+
+    test('خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود', () {
+      final a = fresh();
+      a.respond('دوستم ازم پول قرض گرفته پس نمیده');
+      final r = a.respond('میخوام با توافق تموم بشه');
+      expect(a.file.covered, contains('q:goal'));
+      expect(r.text, contains('توافق'));
+      expect(r.text.trimRight(), endsWith('؟'));
+      expect(a.unresolved, isEmpty);
+    });
+
+    test('«ادامه بده» در جواب پیشنهاد، یعنی بله', () {
+      final a = fresh();
+      talk(a, [
+        'صاحبخونه پول پیشمو نمیده',
+        '۱۵۰ میلیون',
+        'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
+      ]);
+      var guard = 0;
+      var last = a.respond('نمیدونم');
+      while (!last.chips.contains('بله، بگو') && guard < 14) {
+        guard++;
+        last = a.respond('نمیدونم');
+      }
+      expect(last.chips, contains('بله، بگو'));
+      final yes = a.respond(Advocate.moreChip);
+      expect(yes.text, anyOf(contains('شرط'), contains('۱)')));
+      // «نه» وقتی پرسشی روی میز نیست هم گفتگو را گم نمی‌کند.
+      final a2 = fresh();
+      a2.respond('صاحبخونه پول پیشمو نمیده');
+      a2.file.pending = '';
+      a2.clearOffer();
+      final no = a2.respond('نه');
+      expect(a2.unresolved, isEmpty);
+      expect(no.text.trim(), isNotEmpty);
+    });
+  });
+
   test('تشخیص درخواست صریح نوشتن سند', () {
     expect(Advocate.wantsDraft('برام دادخواست بنویس'), isTrue);
     expect(Advocate.wantsDraft('یه متن آماده کن'), isTrue);
     expect(Advocate.wantsDraft('اجرا بهتره یا شکایت کیفری کنم؟'), isFalse);
     expect(Advocate.wantsDraft('صاحبخونه پول پیشمو نمیده'), isFalse);
+  });
+
+  group('نیت‌های عملی و توانایی برنامه', () {
+    test('«چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا', () {
+      final a = fresh();
+      final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
+      expect(r.text, contains('وکیل'));
+      expect(a.file.topic, isEmpty);
+      expect(r.text, isNot(contains('گفتید')));
+      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    });
+
+    test('«چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه', () {
+      final a = fresh();
+      final r = a.respond('چه کاری می‌توانم بکنم؟');
+      expect(r.text, isNot(contains('کارم این است')));
+    });
+
+    test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
+      final r = fresh().respond('وکیل کجا پیدا کنم؟');
+      expect(r.text, contains('کانون وکلای دادگستری'));
+      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    });
+
+    test('هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند', () {
+      final a = fresh();
+      a.respond('طلب دارم');
+      expect(a.file.topic, 'debt');
+      final r = a.respond('هزینه وکیل چقدره؟');
+      expect(r.text, contains('کانون وکلای دادگستری'));
+      expect(a.file.topic, 'debt');
+    });
+
+    test('پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد', () {
+      final r = fresh().respond('مهلت شکایت چقدره؟');
+      expect(r.text, contains('مهلت'));
+      expect(r.text, contains('ابلاغ'));
+    });
   });
 }

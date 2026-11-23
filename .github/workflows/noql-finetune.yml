@@ -1,0 +1,51 @@
+name: Noql fine-tune experiment
+
+# آزمایش، نه بخشی از برنامه: Noql را روی eval/topic_examples.tsv تنظیم می‌کند و
+# پیش و پس را روی همان محک‌های embed-bench می‌سنجد. گزارش در
+# brain/reports/noql_finetune.md؛ مدل int8 تنظیم‌شده فقط به‌صورت artifact نگه داشته می‌شود.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['arena/**']
+    paths:
+      - 'brain/noql_finetune.py'
+      - '.github/workflows/noql-finetune.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finetune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SAVE_DIR: ${{ github.workspace }}/.noql_ft
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn sentence-transformers huggingface_hub sentencepiece protobuf onnx onnxruntime onnxscript
+      - name: Run experiment
+        run: python brain/noql_finetune.py
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: noql-finetuned-int8
+          path: .noql_ft/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Commit report
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain/reports/noql_finetune.md || true
+          git commit -m "گزارش آزمایش تنظیم دقیق Noql [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

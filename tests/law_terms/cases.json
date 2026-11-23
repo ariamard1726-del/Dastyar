@@ -1,0 +1,271 @@
+[
+  {
+    "q": "متن کوتاه قرارداد شامل طرفین، مبلغ و تاریخ",
+    "expect": {
+      "accepted": false,
+      "missing": [
+        "کوتاه"
+      ]
+    }
+  },
+  {
+    "q": "بیع شرط رهن",
+    "expect": {
+      "accepted": false,
+      "missing": [
+        "رهن"
+      ]
+    }
+  },
+  {
+    "q": "کارشناس غبن افحش",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 416",
+      "missing": [
+        "کارشناس"
+      ]
+    }
+  },
+  {
+    "q": "غبن فاحش در معامله",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 416"
+    }
+  },
+  {
+    "q": "خیار غبن",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 396"
+    }
+  },
+  {
+    "q": "خیار شرط",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 396"
+    }
+  },
+  {
+    "q": "حق شفعه",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 808"
+    }
+  },
+  {
+    "q": "وصیت به ثلث",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 849"
+    }
+  },
+  {
+    "q": "طلاق توافقی چقدر طول می‌کشد",
+    "expect": {
+      "accepted": true,
+      "law": "family_protection",
+      "title": "ماده 25"
+    }
+  },
+  {
+    "q": "حضانت فرزند",
+    "expect": {
+      "accepted": true
+    }
+  },
+  {
+    "q": "مرخصی سالانه کارگر",
+    "expect": {
+      "accepted": true,
+      "law": "labor",
+      "title": "ماده 66"
+    }
+  },
+  {
+    "q": "حق سنوات کارگر",
+    "expect": {
+      "accepted": true,
+      "law": "labor",
+      "title": "ماده 165"
+    }
+  },
+  {
+    "q": "چک بی محل",
+    "expect": {
+      "accepted": true,
+      "law": "cheque",
+      "title": "ماده 5"
+    }
+  },
+  {
+    "q": "فسخ قرارداد",
+    "expect": {
+      "accepted": true
+    }
+  },
+  {
+    "q": "تصرف عدوانی",
+    "expect": {
+      "accepted": true,
+      "law": "civil_procedure",
+      "title": "ماده 164"
+    }
+  },
+  {
+    "q": "قاچاق کالا",
+    "expect": {
+      "accepted": true,
+      "law": "penal",
+      "title": "ماده 36"
+    }
+  },
+  {
+    "q": "شرکت سهامی",
+    "expect": {
+      "accepted": true
+    }
+  },
+  {
+    "q": "ورشکستگی تاجر",
+    "expect": {
+      "accepted": true,
+      "law": "commerce",
+      "title": "ماده 414"
+    }
+  },
+  {
+    "q": "جعل سند",
+    "expect": {
+      "accepted": true
+    }
+  },
+  {
+    "q": "ودیعه مسکن",
+    "expect": {
+      "accepted": true,
+      "law": "marriage",
+      "title": "ماده 2"
+    }
+  },
+  {
+    "q": "سند رسمی",
+    "expect": {
+      "accepted": true
+    }
+  },
+  {
+    "q": "قولنامه عادی",
+    "expect": {
+      "accepted": false,
+      "missing": [
+        "قولنامه"
+      ]
+    }
+  },
+  {
+    "q": "ارث همسر",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 946"
+    }
+  },
+  {
+    "q": "نفقه همسر",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 1106"
+    }
+  },
+  {
+    "q": "خیانت در امانت",
+    "expect": {
+      "accepted": false,
+      "missing": [
+        "خیانت"
+      ]
+    }
+  },
+  {
+    "q": "دیه چیست",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "صلح عمومی",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "کشف حجاب",
+    "expect": {
+      "accepted": true,
+      "law": "penal_taazirat",
+      "title": "ماده 638"
+    }
+  },
+  {
+    "q": "سلام",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "روز خوبی دارم",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "تخلیه ملک",
+    "expect": {
+      "accepted": true,
+      "law": "landlord_tenant",
+      "title": "ماده 3"
+    }
+  },
+  {
+    "q": "کفالت",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 734"
+    }
+  },
+  {
+    "q": "حضانت بچه",
+    "expect": {
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 1169"
+    }
+  },
+  {
+    "q": "طلاق توافقی",
+    "expect": {
+      "accepted": true,
+      "law": "family_protection",
+      "title": "ماده 25"
+    }
+  },
+  {
+    "q": "سرقفلی",
+    "expect": {
+      "accepted": true,
+      "law": "landlord_tenant",
+      "title": "ماده 6"
+    }
+  }
+]

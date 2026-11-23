@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'package:dastyar/ui/chat_models.dart';
-import 'package:dastyar/domain/feedback.dart';
+import 'package:dastyar/ui/widgets/feedback_bar.dart';
 import 'package:dastyar/domain/input_suggestions.dart';
 import 'package:dastyar/domain/templates.dart';
 
@@ -13,6 +13,7 @@ class UserMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
       label: 'پیام شما',
@@ -20,17 +21,55 @@ class UserMessageBubble extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
           decoration: BoxDecoration(
-            color: dark ? const Color(0xFF3A3A37) : const Color(0xFFEFEDE6),
-            borderRadius: BorderRadius.circular(18),
+            color: cs.primaryContainer.withValues(alpha: dark ? 0.55 : 0.7),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+              bottomLeft: Radius.circular(18),
+              bottomRight: Radius.circular(4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: dark ? 0.25 : 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: SelectableText(
-            message.text,
-            style: const TextStyle(fontSize: 16, height: 1.7),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline, size: 14, color: cs.onPrimaryContainer),
+                  const SizedBox(width: 4),
+                  Text(
+                    'شما',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              SelectableText(
+                message.text,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.7,
+                  color: cs.onPrimaryContainer,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -86,6 +125,29 @@ class _BotMessageViewState extends State<BotMessageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.balance, size: 14, color: cs.onPrimaryContainer),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'دستیار',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
             RevealText(
               message: message,
               style: const TextStyle(fontSize: 16, height: 1.9),
@@ -241,6 +303,30 @@ class DraftDocumentCard extends StatelessWidget {
                     '${l.source} — ${l.title}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  // متن قانون تا وقتی با منبع رسمی تطبیق داده نشده، نباید
+                  // ظاهر «سند تأییدشده» داشته باشد.
+                  if (!l.verified)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.info_outline,
+                              size: 14, color: cs.error),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'متن این قانون هنوز با منبع رسمی تطبیق داده نشده است؛ '
+                              'پیش از استناد، آن را با متن رسمی یا وکیل بسنجید.',
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.error,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (l.note.isNotEmpty) Text(l.note),
                   const SizedBox(height: 4),
                   SelectableText(
@@ -280,7 +366,14 @@ class ChatEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.balance, size: 40, color: cs.primary),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.balance, size: 36, color: cs.onPrimaryContainer),
+            ),
             const SizedBox(height: 16),
             const Text(
               'سلام، چه کمکی از من برمی‌آید؟',
@@ -289,7 +382,7 @@ class ChatEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'وکیل و مشاور حقوقی آفلاین (بدون نیاز به اینترنت یا مدل هوش مصنوعی). مشکل خود را شرح دهید تا با پرسش‌وپاسخ منطقی بررسی کنیم و در صورت نیاز دادخواست، لایحه یا شکوائیه برایتان تنظیم کنم.',
+              'وکیل و مشاور حقوقی آفلاین (بدون نیاز به اینترنت). مشکل خود را شرح دهید تا با پرسش‌وپاسخ منطقی بررسی کنیم و در صورت نیاز دادخواست، لایحه یا شکوائیه برایتان تنظیم کنم.',
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, height: 1.7),
             ),
@@ -307,7 +400,6 @@ class ChatEmptyState extends StatelessWidget {
 /// نوشته‌شدن است پنهان می‌ماند.
 class SuggestionBar extends StatelessWidget {
   final TextEditingController controller;
-  final bool busy;
   final bool isDrafting;
   final List<ChatMessage> messages;
   final List<LegalTemplate> templates;
@@ -316,7 +408,6 @@ class SuggestionBar extends StatelessWidget {
   const SuggestionBar({
     super.key,
     required this.controller,
-    required this.busy,
     required this.isDrafting,
     required this.messages,
     required this.templates,
@@ -328,7 +419,6 @@ class SuggestionBar extends StatelessWidget {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, value, _) {
-        if (busy) return const SizedBox.shrink();
         final items = <InputSuggestion>[];
         final typed = value.text.trim();
         if (typed.isNotEmpty && !isDrafting) {
@@ -359,8 +449,6 @@ class SuggestionBar extends StatelessWidget {
                     avatar: switch (items[i].kind) {
                       SuggestionKind.template =>
                         const Icon(Icons.description_outlined, size: 18),
-                      SuggestionKind.counsel =>
-                        const Icon(Icons.forum_outlined, size: 18),
                       SuggestionKind.question => null,
                     },
                     label: Text(items[i].text),
@@ -387,10 +475,19 @@ class RevealText extends StatefulWidget {
   final VoidCallback? onTick;
   final VoidCallback? onRevealed;
 
-  /// زمان نمایش هر نویسه.
-  static const int msPerChar = 12;
-  static const int minMs = 150;
-  static const int maxMs = 1800;
+  /// زمان نمایش هر نویسه: آهنگ نوشتنِ آرام و طبیعی، نه ظاهرشدنِ یک‌بارهٔ متن.
+  static const int msPerChar = 18;
+  static const int minMs = 250;
+
+  /// پس از این تعداد نویسه، نگارش کمی تندتر می‌شود.
+  static const int slowChars = 400;
+  static const int msPerCharLong = 10;
+
+  /// سقف زمان نگارشِ پاسخ‌های خیلی بلند (با یک لمس هم می‌شود ردش کرد).
+  static const int maxMs = 24000;
+
+  /// مکث کوتاهِ «در حال فکر کردن» پیش از شروع نگارش پاسخ‌های غیرکوتاه.
+  static const int thinkMs = 500;
 
   const RevealText({
     super.key,
@@ -410,6 +507,9 @@ class _RevealTextState extends State<RevealText>
   int _from = 0;
   String _text = '';
   bool _animatedHere = false;
+
+  /// سهم مکثِ آغازین از کل زمان انیمیشن (۰ تا ۱).
+  double _thinkShare = 0;
 
   @override
   void initState() {
@@ -453,12 +553,34 @@ class _RevealTextState extends State<RevealText>
       _finish();
       return;
     }
-    final ms = (remaining * RevealText.msPerChar)
+    // آغاز پاسخ آرام نوشته می‌شود و ادامهٔ پاسخ‌های بلند کمی روان‌تر، تا
+    // هم حس نوشتن طبیعی بماند و هم کاربر برای متن بلند معطل نشود.
+    final slow = remaining < RevealText.slowChars
+        ? remaining
+        : RevealText.slowChars;
+    final ms = (slow * RevealText.msPerChar +
+            (remaining - slow) * RevealText.msPerCharLong)
         .clamp(RevealText.minMs, RevealText.maxMs);
+    final think = _from == 0 && remaining > 60 ? RevealText.thinkMs : 0;
+    _thinkShare = think / (think + ms);
     _animatedHere = true;
-    _anim.duration = Duration(milliseconds: ms);
+    _anim.duration = Duration(milliseconds: think + ms);
     _anim.forward(from: 0);
   }
+
+  /// با لمس متن، نگارش تدریجی رد می‌شود و کل پاسخ یک‌جا می‌آید.
+  void _skip() {
+    if (widget.message.revealed) return;
+    _anim.stop();
+    // اینجا در پاسخ به لمس هستیم (نه میانهٔ ساخت)، پس همین حالا بازسازی
+    // می‌کنیم؛ با ایستادن انیمیشن دیگر فریمی در راه نیست که منتظرش بمانیم.
+    widget.message.revealed = true;
+    setState(() {});
+    widget.onRevealed?.call();
+  }
+
+  bool get _thinking =>
+      !widget.message.revealed && _thinkShare > 0 && _anim.value < _thinkShare;
 
   void _onTick() {
     // فقط در گام‌های انیمیشن (نه در میانهٔ ساخت ویجت) فهرست را جابه‌جا کن.
@@ -485,8 +607,19 @@ class _RevealTextState extends State<RevealText>
 
   String _visible() {
     if (widget.message.revealed || _text == '...') return _text;
-    final n = _from + ((_text.length - _from) * _anim.value).round();
-    return _text.substring(0, n.clamp(0, _text.length));
+    final t = _thinkShare >= 1
+        ? 1.0
+        : ((_anim.value - _thinkShare) / (1 - _thinkShare)).clamp(0.0, 1.0);
+    var n = (_from + ((_text.length - _from) * t).round())
+        .clamp(0, _text.length);
+    // واژه‌ها کامل ظاهر می‌شوند، نه حرف‌به‌حرف وسط یک کلمه.
+    if (n < _text.length) {
+      final space = _text.lastIndexOf(' ', n);
+      final line = _text.lastIndexOf('\n', n);
+      final edge = space > line ? space : line;
+      if (edge > _from) n = edge;
+    }
+    return _text.substring(0, n);
   }
 
   @override
@@ -502,9 +635,16 @@ class _RevealTextState extends State<RevealText>
       if (!widget.message.revealed) _finish();
       return SelectableText(_text, style: widget.style);
     }
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (context, _) => Text(_visible(), style: widget.style),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _skip,
+      child: AnimatedBuilder(
+        animation: _anim,
+        builder: (context, _) => _thinking
+            ? const TypingDots()
+            // SelectableText تا در حین نمایش هم بشود متن را با نگه‌داشتن کپی کرد.
+            : SelectableText('${_visible()} ●', style: widget.style),
+      ),
     );
   }
 }
@@ -579,20 +719,18 @@ class _TypingDotsState extends State<TypingDots>
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
-  final bool busy;
   final bool isDrafting;
-  final bool isCounseling;
   final VoidCallback onSend;
-  final VoidCallback onStop;
+
+  /// کپی کل گفتگو؛ `null` یعنی هنوز پیامی نیست و دکمه غیرفعال است.
+  final VoidCallback? onCopyAll;
 
   const ChatInputBar({
     super.key,
     required this.controller,
-    required this.busy,
     required this.isDrafting,
-    this.isCounseling = false,
     required this.onSend,
-    required this.onStop,
+    this.onCopyAll,
   });
 
   @override
@@ -622,24 +760,33 @@ class ChatInputBar extends StatelessWidget {
                   border: InputBorder.none,
                   hintText: isDrafting
                       ? 'پاسخ فیلد پیش‌نویس را بنویسید...'
-                      : (isCounseling
-                          ? 'پاسخ خود را بنویسید یا از گزینه‌ها انتخاب کنید...'
-                          : 'مشکل حقوقی یا پرسش خود را بنویسید...'),
+                      : 'مشکل حقوقی یا پرسش خود را بنویسید...',
                 ),
               ),
             ),
-            if (busy)
-              IconButton.filled(
-                tooltip: 'توقف پاسخ',
-                onPressed: onStop,
-                icon: const Icon(Icons.stop_rounded),
-              )
-            else
-              IconButton.filled(
-                tooltip: 'ارسال پیام',
-                onPressed: onSend,
-                icon: const Icon(Icons.arrow_upward),
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton.filled(
+                  tooltip: 'ارسال پیام',
+                  onPressed: onSend,
+                  icon: const Icon(Icons.arrow_upward),
+                ),
+                const SizedBox(height: 4),
+                // کپی کل گفتگو: زیر دکمهٔ ارسال. تا وقتی پیامی نیست غیرفعال است.
+                IconButton.filledTonal(
+                  tooltip: 'کپی کل گفتگو',
+                  onPressed: onCopyAll,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 36,
+                    height: 36,
+                  ),
+                  iconSize: 18,
+                  icon: const Icon(Icons.copy_all_outlined),
+                ),
+              ],
+            ),
           ],
         ),
       ),

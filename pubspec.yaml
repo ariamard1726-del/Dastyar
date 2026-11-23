@@ -14,7 +14,6 @@ dependencies:
   shared_preferences: ^2.2.0
   share_plus: ^10.1.4
   cupertino_icons: ^1.0.8
-  llama_flutter_android: ^0.2.6
 
 dev_dependencies:
   flutter_test:
@@ -31,7 +30,9 @@ flutter:
     - assets/laws_catalog.json
     - assets/synonyms.txt
     - assets/relationships.json
+    - assets/qa/
     - assets/brain/
+    - assets/brain/topics/
     - assets/laws/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/
     - assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/

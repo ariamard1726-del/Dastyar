@@ -2,193 +2,282 @@
   "civil": {
     "title": "قانون مدنی",
     "source": "سایت اختبار",
+    "url": "",
     "date": "۱۴۰۵/۰۷/۲۸",
-    "articles": 1336,
     "amended": "۱۴۰۴/۰۷/۲۳",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_madani.txt"
+    "articles": 1336,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_madani.txt",
+    "sha256": "4af88c9c7027ea55e8f82af5762bc161aa9179f409abd27591e54a10932c9230",
+    "status": "unverified"
   },
   "cheque": {
     "title": "قانون صدور چک",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
+    "url": "",
     "date": "۱۴۰۵/۰۸/۰۱",
-    "articles": 27,
     "amended": "۱۴۰۳/۰۳/۳۰",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_sodour_e_check.txt"
+    "articles": 27,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_sodour_e_check.txt",
+    "sha256": "25dcf9d6ada15e903d35e36a455886f5a3962f7f66945b894223b37707e77ce9",
+    "status": "unverified"
   },
   "financial_sentences": {
     "title": "قانون نحوه اجرای محکومیت‌های مالی",
     "source": "مرکز پژوهش‌های مجلس شورای اسلامی",
+    "url": "",
     "date": "۱۴۰۵/۰۶/۰۱",
-    "articles": 29,
     "amended": "۱۴۰۵/۰۶/۰۱",
-    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ejray_e_mohkoumiyat_e_mali.txt"
+    "articles": 29,
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ejray_e_mohkoumiyat_e_mali.txt",
+    "sha256": "124f756689aeb03adc15cb6d6dab89312cadba54f9fc9189b7384fbdf7a539cb",
+    "status": "unverified"
   },
   "commerce": {
     "title": "قانون تجارت",
     "source": "سامانه قوانین و مقررات جمهوری اسلامی ایران",
+    "url": "",
     "date": "۱۴۰۵/۰۸/۰۲",
-    "articles": 522,
     "amended": "۱۴۰۳/۰۶/۲۸",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_tejarat.txt"
+    "articles": 522,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/ghanoun_e_tejarat.txt",
+    "sha256": "7b267e17014aba314b853ddd7d017841cee6461585dfdbe710e72e666cd7a267",
+    "status": "unverified"
   },
   "commerce_1347": {
     "title": "لایحه اصلاحی قسمتی از قانون تجارت",
     "source": "سامانه قوانین و مقررات جمهوری اسلامی ایران",
+    "url": "",
     "date": "۱۴۰۵/۰۸/۰۲",
-    "articles": 300,
     "amended": "۱۴۰۳/۰۶/۲۸",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/layehe_eslah_e_ghanoun_e_tejarat_1347.txt"
+    "articles": 300,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Tejarat/layehe_eslah_e_ghanoun_e_tejarat_1347.txt",
+    "sha256": "fdb2592ee81bea0f0933f548f203b1eddfe165474604a805440fd0cc96fc21dc",
+    "status": "unverified"
   },
   "landlord_tenant": {
     "title": "قانون روابط موجر و مستأجر",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
+    "url": "",
     "date": "۱۴۰۵/۰۸/۰۵",
-    "articles": 13,
     "amended": "۱۳۷۶/۰۵/۲۶",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_roabat_e_mojer_va_mostajer.txt"
+    "articles": 13,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_roabat_e_mojer_va_mostajer.txt",
+    "sha256": "5e37dbab22619a46c312a53b624b571e41069e61d06ea01d605f2c1625ea13c1",
+    "status": "unverified"
   },
   "labor": {
     "title": "قانون کار",
     "source": "سامانه ملی قوانین و مقررات جمهوری اسلامی ایران",
+    "url": "",
     "date": "۱۴۰۵/۰۸/۰۸",
-    "articles": 203,
     "amended": "۱۳۹۰/۰۴/۰۸",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt"
+    "articles": 203,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt",
+    "sha256": "ee27578094992548a7158c39643c378a32c3ffd42e9e971a9c511f0e777e1388",
+    "status": "unverified"
   },
   "constitution": {
     "title": "قانون اساسی جمهوری اسلامی ایران",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 177,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۶۸/۰۵/۰۶",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Asasi/ghanoun_e_asasi.txt"
+    "articles": 177,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Asasi/ghanoun_e_asasi.txt",
+    "sha256": "36098ef47182f537e3c67703164406a2a0ad7dc4dd3aaff2bbf155011d0fc749",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "family_protection": {
     "title": "قانون حمایت خانواده",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 58,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۹۱/۱۲/۰۱",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_e_khanevadeh.txt"
+    "articles": 58,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_e_khanevadeh.txt",
+    "sha256": "8fe7f6ba80d8dfaebbc0e0bd862f4acef322ac7d60b93be3c53d7b8cab584e2b",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "civil_liability": {
     "title": "قانون مسئولیت مدنی",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 16,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۳۹/۰۲/۰۷",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_masouliyat_e_madani.txt"
+    "articles": 16,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_masouliyat_e_madani.txt",
+    "sha256": "48e28373857be0c9aa6eaca6c9e1ca99e1bc040b50d745efba6d03453ba0ac12",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "child_protection": {
     "title": "قانون حمایت از اطفال و نوجوانان",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 51,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۹۹/۰۲/۲۳",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_atfal.txt"
+    "articles": 51,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_atfal.txt",
+    "sha256": "ed6028072d39964786ffd2046b7b02bfb6240d69a4cbfa897af3fec2eec8f01a",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "marriage": {
     "title": "قانون تسهیل ازدواج جوانان",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 13,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۸۴/۰۹/۲۷",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_tashil_e_ezdevaj.txt"
+    "articles": 13,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_tashil_e_ezdevaj.txt",
+    "sha256": "ca07e9e569d109bf68d7b5189b984069dcbc40abd87f32a4d9bc35a4d9ddb7fc",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "consumer_protection": {
     "title": "قانون حمایت از حقوق مصرف‌کنندگان",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 22,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۸۸/۰۷/۱۵",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_mosarefkonandegan.txt"
+    "articles": 22,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_hemayat_az_mosarefkonandegan.txt",
+    "sha256": "98a4c8662271e2b261f7b49cec8ac2f332626e8cdf3bdf9221fe5e5e40b70da1",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "penal": {
     "title": "قانون مجازات اسلامی",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 726,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۹۹/۰۲/۲۳",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_mojazat_e_eslami.txt"
+    "articles": 728,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_mojazat_e_eslami.txt",
+    "sha256": "05709904b9b639cba0e6581a9d99cebdda435317d6a336145530e4014c790b1a",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "penal_taazirat": {
     "title": "قانون مجازات اسلامی (کتاب پنجم - تعزیرات و مجازات‌های بازدارنده)",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 256,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۷۵/۰۳/۰۲",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_taazirat.txt"
+    "articles": 256,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_taazirat.txt",
+    "sha256": "019a2e6187bbaf4a9258d405ae4064894e04641ecec546a819c62efbbf63f20c",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "fraud_intensify": {
     "title": "قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 8,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۶۷/۰۹/۱۵",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_tashdid_e_kolahbardari.txt"
+    "articles": 8,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_tashdid_e_kolahbardari.txt",
+    "sha256": "0e6d459646d399f64fc8d282086c413db130c56f5180c38d5c6e907dfa20eed7",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "cybercrime": {
     "title": "قانون جرایم رایانه‌ای",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 55,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۸۸/۰۳/۰۵",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_jarayem_e_rayaneh_ei.txt"
+    "articles": 55,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Keyfari/ghanoun_e_jarayem_e_rayaneh_ei.txt",
+    "sha256": "29b48e5f34992cc9a9921de5ca1667cf78b9f99d9c58a2532744c3524a3c864d",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "civil_procedure": {
     "title": "قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 527,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۷۹/۰۱/۲۱",
-    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ayin_e_dadresi_e_madani.txt"
+    "articles": 527,
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ayin_e_dadresi_e_madani.txt",
+    "sha256": "f6825f349e3e3f23c9e1cbfa1449677e68e75c1428849423f0d11d919ba0b27e",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "civil_execution": {
     "title": "قانون اجرای احکام مدنی",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 180,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۵۶/۰۸/۰۱",
-    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ejray_e_ahkam_e_madani.txt"
+    "articles": 180,
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_ejray_e_ahkam_e_madani.txt",
+    "sha256": "9c1fcd6cbe888a353cf7c34f0072ba798ffad833db65bc3684faa18d0c29a630",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "dispute_councils": {
     "title": "قانون شوراهای حل اختلاف",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 41,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۴۰۲/۰۶/۲۲",
-    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_shorahaye_hal_e_ekhtelaf.txt"
+    "articles": 41,
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Madani/ghanoun_e_shorahaye_hal_e_ekhtelaf.txt",
+    "sha256": "469016f367ab4948a3121662c47d7e7042b80ee4ce055030f8302b438b50cfc2",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "criminal_procedure": {
     "title": "قانون آیین دادرسی کیفری",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 699,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۹۴/۰۳/۲۴",
-    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ayin_e_dadresi_e_keyfari.txt"
+    "articles": 699,
+    "path": "Hoghough_e_Shekli/Ayin_e_Dadresi_e_Keyfari/ghanoun_e_ayin_e_dadresi_e_keyfari.txt",
+    "sha256": "e11219fb89d53125f698a9411de5a2370a5b516dd1628260ea305e0a3dcf674f",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "registration": {
     "title": "قانون ثبت اسناد و املاک",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 158,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۱۰/۱۲/۲۶",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_sabt_e_asnad_va_amlak.txt"
+    "articles": 158,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_sabt_e_asnad_va_amlak.txt",
+    "sha256": "dd042c5ecde1da4d3693c2629f17141d453c7b3e9f849ce401606f81d30eb46f",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "direct_taxes": {
     "title": "قانون مالیات‌های مستقیم",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 156,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۹۴/۰۴/۳۱",
-    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_maliathaye_mostaghim.txt"
+    "articles": 156,
+    "path": "Hoghough_e_Omumi/Hoghough_e_Edari/ghanoun_e_maliathaye_mostaghim.txt",
+    "sha256": "940f21c8773b79dfd4588d2d72ba8c2e1f5e3a6c4267c9eb58672eedc0a4c298",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   },
   "social_security": {
     "title": "قانون تأمین اجتماعی",
     "source": "روزنامه رسمی / پایگاه قوانین و مقررات اختبار",
-    "date": "1405/08/10",
-    "articles": 115,
+    "url": "",
+    "date": "۱۴۰۵/۰۸/۱۰",
     "amended": "۱۳۵۴/۰۴/۰۳",
-    "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/ghanoun_e_tamin_e_ejtemaei.txt"
+    "articles": 115,
+    "path": "Hoghough_e_Khosousi/Hoghough_e_Kar/ghanoun_e_tamin_e_ejtemaei.txt",
+    "sha256": "d593f81f5e3d030c7dba441b2e9f90db47bf5b957431e0569fb4c82dda118698",
+    "status": "unverified",
+    "note": "ثبت دسته‌ای: منبع و تاریخ دریافت این قانون جداگانه ثبت نشده و تأییدشده نیست."
   }
 }

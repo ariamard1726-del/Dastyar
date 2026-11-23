@@ -1,0 +1,121 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/drafting.dart';
+
+/// آزمون کنترل گفتگو: نوشتنِ «بنویسم» از سوی کاربر فرم سند را باز نمی‌کند،
+/// «انصراف» و «خروج از موضوع» پرونده را می‌بندند، و موضوع تازهٔ روشن
+/// پروندهٔ قبلی را عوض می‌کند.
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late KnowledgeEngine engine;
+
+  setUpAll(() async {
+    engine = KnowledgeEngine();
+    await engine.load();
+  });
+
+  Advocate fresh() => Advocate(engine, draftTitles: const {
+        'demand_money': 'دادخواست مطالبه وجه',
+        'defense_brief': 'لایحه دفاعیه',
+      });
+
+  const cheque =
+      'قرار است برای خرید یک ماشین به فروشنده یک چک ۵۰۰ میلیون تومانی بدهم. '
+      'فروشنده می‌گوید باید چک را «در وجه حامل» بنویسم. آیا این کار خطرناک است؟';
+
+  test('«بنویسم» کاربر درخواست سند نیست', () {
+    expect(Advocate.wantsDraft(cheque), isFalse);
+    expect(Advocate.wantsDraft('این متن را برایم بنویس'), isTrue);
+  });
+
+  test('«گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود', () {
+    final a = fresh();
+    a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
+    final r = a.respond('گزینه ای وجود ندارد');
+    expect(r.text, contains('انصراف'));
+    expect(r.chips, contains(Advocate.newCaseChip));
+  });
+
+  for (final exit in [
+    'انصراف',
+    'خروج از موضوع',
+    'چرا از موضوع خارج نمی شوی',
+    'نمی خواهم این بحث را ادامه دهم',
+  ]) {
+    test('«$exit» پرونده را می‌بندد', () {
+      final a = fresh();
+      a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
+      expect(a.file.topic, isNotEmpty);
+      final r = a.respond(exit);
+      expect(r.text, contains('کنار گذاشتم'));
+      expect(a.file.topic, isEmpty);
+    });
+  }
+
+  test('«انصراف از ضمانت» در جملهٔ بلند خروج نیست', () {
+    expect(Drafting.isLeave('می‌خواهم از ضمانتی که دادم انصراف دهم و کاغذ بگیرم'),
+        isFalse);
+  });
+
+  test('ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود', () {
+    final a = fresh();
+    a.respond('همسایه من دیوار مشترک بین حیاط ما و خودش را بدون اجازه من خراب کرده و دیوار بلندتری ساخته که نور را از خانه ما می‌گیرد');
+    expect(a.file.topic, 'neighbor');
+  });
+  test('خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار', () {
+    final a = fresh();
+    final r = a.respond('عمه ام داره کفش پرت می کنه، چکار کنم');
+    expect(r.text, contains('۱۱۰'));
+    expect(r.text, isNot(contains('قدم')));
+  });
+
+  test('گزارش تماس با اورژانس پاسخ می‌گیرد', () {
+    final a = fresh();
+    final r = a.respond('به اورژانس زنگ زدم');
+    expect(r.text, contains('خوب کردید'));
+  });
+
+  test('جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند', () {
+    final a = fresh();
+    a.respond('من در یک شرکت بازرگانی کار می‌کنم و حقوق معوقه دو ماه است');
+    final r = a.respond('خاله ام عمه ام را هم دیروز یک جوری دیدم و گفتم');
+    expect(r.text, isNot(contains('هر مدرکی که نشان می‌دهد')));
+  });
+  test('قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید', () {
+    final a = fresh();
+    final r = a.respond('من با یک شرکت خارجی که در ایران شعبه ندارد یک قرارداد مشاوره منعقد کرده‌ام و بر سر تفسیر یکی از بندها اختلاف داریم');
+    expect(a.file.topic, 'foreign_contract');
+    expect(r.text, contains('ماده ۹۶۸'));
+    expect(r.text, contains('داوری تجاری بین‌المللی'));
+  });
+
+  test('«نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد', () {
+    final a = fresh();
+    expect(a.respond('نفهمی').text, contains('کدام بخشش'));
+    final b = fresh();
+    expect(b.respond('نفهمیدم چی شد').text, isNot(contains('کدام بخشش')));
+  });
+
+  test('«خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد', () {
+    final a = fresh();
+    final r = a.respond('خیلی خلی');
+    expect(r.text, contains('می‌فهمم'));
+  });
+  test('دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد', () {
+    final a = fresh();
+    final r = a.respond('یک مسئول دولتی از دادن اطلاعات یک پروژه عمرانی خودداری کرده و می‌گوید محرمانه است، آیا می‌توانم شکایت کنم؟');
+    expect(r.text, contains('قانون انتشار و دسترسی آزاد به اطلاعات'));
+    expect(r.text, isNot(contains('اصل ۳۴')));
+  });
+
+  test('«زن داری» پیش از حدس زدن، توضیح می‌خواهد', () {
+    final a = fresh();
+    expect(a.respond('زن داری').text, contains('منظورتان را درست نگرفتم'));
+  });
+
+  test('«شکایت کرده‌ام» یعنی کاربر شاکی است', () {
+    final a = fresh();
+    expect(a.respond('شکایت کرده‌ام').text, contains('شما شاکی هستید'));
+  });
+}

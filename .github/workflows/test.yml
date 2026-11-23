@@ -14,8 +14,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - name: Gemini agent safety tests
@@ -62,12 +62,14 @@ jobs:
         run: |
           mkdir -p brain/reports
           flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-reports
           path: |
             reports/last_test.txt
+            reports/understanding.txt
+            reports/noql_dart_speed.txt
             brain/reports/near_miss.txt
       - name: Fail if anything failed
         if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
@@ -75,25 +77,29 @@ jobs:
 
   commit-reports:
     needs: test
-    if: always() && github.event_name == 'push'
+    # فقط وقتی تست‌ها سبزند گزارش نوشته می‌شود؛ پیش‌تر با always() حتی روی
+    # شکست هم کامیت می‌گذاشت و تاریخچهٔ شاخه را پر از نویز می‌کرد.
+    if: needs.test.result == 'success' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref_name }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: test-reports
           path: .
       - name: Commit reports
-        continue-on-error: true
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add brain/reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
+          git add reports/understanding.txt reports/noql_dart_speed.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
+          # rebase ممکن است به‌خاطر push هم‌زمان شکست بخورد؛ ولی push دیگر
+          # بی‌صدا رد نمی‌شود.
           git pull --rebase || true
-          git push origin HEAD:"${GITHUB_REF_NAME}" || true
+          git push origin HEAD:"${GITHUB_REF_NAME}"

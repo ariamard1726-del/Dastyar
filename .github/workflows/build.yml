@@ -16,9 +16,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -29,7 +29,7 @@ jobs:
           python tools/eval_py.py --check
           python tools/eval_none.py --check
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -76,6 +76,8 @@ jobs:
           flutter test test/engine/eval_test.dart --reporter expanded 2>&1 | grep -E "EVAL" || echo "no EVAL lines printed"
 
       - name: Build release APK
+        env:
+          ALLOW_DEBUG_SIGNING: ${{ inputs.allow_debug_signing && 'true' || 'false' }}
         run: flutter build apk --release --build-number=${{ github.run_number }}
 
       - name: Verify APK signature
@@ -96,7 +98,7 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dastyar-apk
           path: build/app/outputs/flutter-apk/app-release.apk

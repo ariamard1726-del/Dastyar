@@ -1,25 +1,34 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:dastyar/domain/assistant.dart';
 import 'package:dastyar/ui/chat_page.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
-import 'package:dastyar/core/llama_backend.dart';
-import 'package:dastyar/core/llm.dart';
-import 'package:dastyar/core/model_store.dart';
-import 'package:dastyar/domain/lawyer/llm_writer.dart';
+import 'package:dastyar/core/legacy_cleanup.dart';
+import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/intent_net.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
+import 'package:dastyar/domain/understanding/reader_service.dart';
+import 'package:dastyar/domain/understanding/topic_guess.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // پروانهٔ مدل برداری Noql در صفحهٔ پروانه‌های برنامه.
+  LicenseRegistry.addLicense(() async* {
+    try {
+      yield LicenseEntryWithLineBreaks(
+        const ['Noql (shekar-ai)'],
+        await rootBundle.loadString('assets/brain/noql_licenses.txt'),
+      );
+    } catch (_) {}
+  });
   final settings = await AppSettings.load();
   if (settings.secureScreen) {
     await PrivacyService.setSecureScreen(true);
@@ -84,9 +93,13 @@ class DastyarApp extends StatelessWidget {
           themeMode: settings.themeMode,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
+            // اندازهٔ فونت گوشی پایه است و تنظیم برنامه روی آن ضرب می‌شود؛
+            // پیش‌فرض ۱ یعنی همان اندازهٔ گوشی.
+            final system = mq.textScaler.scale(1.0);
+            final factor = (system * settings.fontScale).clamp(0.8, 2.6).toDouble();
             return MediaQuery(
               data: mq.copyWith(
-                textScaler: TextScaler.linear(settings.fontScale),
+                textScaler: TextScaler.linear(factor),
               ),
               child: child ?? const SizedBox(),
             );
@@ -110,25 +123,16 @@ class _LoaderState extends State<Loader> {
   final KnowledgeEngine _engine = KnowledgeEngine();
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
-  /// مدل زبانی اختیاری: فقط وقتی کاربر خودش نصب و روشنش کرده باشد.
-  final ModelStore _models = ModelStore();
-  late final LlamaLlm _llama = LlamaLlm(
-    store: _models,
-    enabled: () => widget.settings.useLocalLlm,
-  );
-  late final LlmBackend _llm = AdaptiveLlm(
-    candidates: [_llama],
-    isEnabled: () => widget.settings.useLocalLlm && _models.isInstalled,
-  );
-  late final Assistant _assistant = Assistant(_engine, llm: _llm);
-  late final LlmWriter _writer = LlmWriter(_llm);
   DraftSession? _initialDraft;
-  CounselingSession? _initialCounsel;
 
-  /// شبکهٔ عصبی آفلاین تشخیص نیت؛ پیش از نخستین فریم بارگذاری می‌شود تا
-  /// گفتگو از همان پیام اول هوشمند باشد (در تست‌های ویجتی تزریق‌نشده و
-  /// مسیر نمادین فعال می‌ماند).
+  /// طبقه‌بند سبک نیت (یک فایل JSON کوچک، نه مدل زبانی). وکیل فقط وقتی
+  /// از آن کمک می‌گیرد که قاعده‌های خودش موضوع پیام را نشناخته باشند.
   IntentNet? _intentNet;
+
+  /// خوانندهٔ موضوع (مدل برداری Noql). در پس‌زمینه بار می‌شود تا بالاآمدن
+  /// برنامه را کند نکند؛ تا آماده نشده، وکیل فقط با قاعده‌ها کار می‌کند.
+  ReaderService? _reader;
+  bool _readerTried = false;
   bool _ready = false;
   String? _error;
 
@@ -138,23 +142,75 @@ class _LoaderState extends State<Loader> {
     _init();
   }
 
-  Future<void> _init() async {
-    await Future.wait([
-      _engine.load().catchError((_) {
-        _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
-      }),
-      _repo.load().catchError((_) {}),
-      _history.load().catchError((_) {}),
-      IntentNet.load().then((n) => _intentNet = n),
-      _models.load().catchError((_) {}),
-    ]);
-    // اگر مدل از قبل روشن است، در پس‌زمینه بارگذاری شود تا پاسخ اول معطل نماند.
-    if (widget.settings.useLocalLlm && _models.isInstalled) {
-      unawaited(_llama.load().catchError((_) {}));
+  @override
+  void dispose() {
+    _reader?.dispose();
+    super.dispose();
+  }
+
+  Future<TopicGuess?> _guess(String text) async => _reader?.read(text);
+
+  String _fa(int n) => PersianText.toFaDigits(n.toString());
+
+  List<String> _readerNotes() {
+    final r = _reader;
+    if (r == null) {
+      return [
+        _readerTried
+            ? 'مدل برداری بار نشد؛ برنامه فقط با قاعده‌های خودش پیام را می‌فهمد.'
+            : 'مدل برداری هنوز در حال آماده‌شدن است.',
+      ];
     }
+    final g = r.last;
+    return [
+      'مدل برداری Noql (shekar-ai) درون خودِ برنامه اجرا می‌شود و چیزی به اینترنت نمی‌فرستد. فقط وقتی قاعده‌ها موضوع پیام را نشناسند، موضوع را حدس می‌زند؛ متن جواب همچنان از قاعده‌ها و متن قانون است.',
+      'آماده‌شدن مدل روی این دستگاه: ${_fa(r.loadMillis)} میلی‌ثانیه',
+      if (g != null)
+        'آخرین خواندن: ${_fa(g.millis)} میلی‌ثانیه برای ${_fa(g.tokens)} توکن',
+    ];
+  }
+
+  Future<void> _init() async {
+    unawaited(ReaderService.start().then((r) {
+      _readerTried = true;
+      if (mounted) {
+        _reader = r;
+      } else {
+        r?.dispose();
+      }
+    }));
+    // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
+    // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
+    final problems = <String>[];
+    await Future.wait([
+      _engine.load().catchError((Object e) {
+        problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
+      }),
+      _repo.load().catchError((Object e) {
+        problems.add('قالب‌های سند بار نشدند؛ «تنظیم سند» کار نمی‌کند.');
+      }),
+      _history.load().catchError((Object e) {
+        problems.add('تاریخچهٔ گفتگوها بار نشد؛ گفتگوهای قبلی دیده نمی‌شوند.');
+      }),
+      IntentNet.load().then((n) {
+        _intentNet = n;
+      }).catchError((Object e) {
+        // طبقه‌بند اختیاری است؛ نبودش فقط یعنی «نظر دوم» نداریم.
+        _intentNet = null;
+      }),
+      // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
+      // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
+      LegacyCleanup.run(),
+    ]);
+    // [HistoryStore.load] خطا را می‌بلعد و در `lastError` می‌گذارد.
+    final historyError = _history.lastError;
+    if (historyError != null) problems.add('تاریخچه: $historyError');
+    if (_repo.problems.isNotEmpty) {
+      problems.add('${_repo.problems.length} قالب سند خوانده نشد.');
+    }
+    _error = problems.isEmpty ? null : problems.join('\n');
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
       _initialDraft = await DraftCheckpointStore.load(_repo.templates);
-      _initialCounsel = await CounselCheckpointStore.load();
     }
     if (!mounted) return;
     setState(() => _ready = true);
@@ -169,17 +225,14 @@ class _LoaderState extends State<Loader> {
     }
     return ChatPage(
       engine: _engine,
-      assistant: _assistant,
       repo: _repo,
       history: _history,
       settings: widget.settings,
       loadError: _error,
       initialDraft: _initialDraft,
       intentNet: _intentNet,
-      initialCounsel: _initialCounsel,
-      models: _models,
-      llama: _llama,
-      writer: _writer,
+      guesser: _guess,
+      readerNotes: _readerNotes,
     );
   }
 }

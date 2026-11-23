@@ -1,0 +1,24 @@
+flowchart TD
+    user["پیام کاربر در ChatPage"] --> submit["ChatController.submit(rawText)"]
+
+    submit --> activeDraft{"سند در حال تنظیم است؟<br/>(DraftSession != null)"}
+    activeDraft -- "بله" --> draftAns["DraftSession.answer(text)<br/>اعتبارسنجی فیلد یا تولید پیش‌نویس نهایی"]
+
+    activeDraft -- "خیر" --> wantDraft{"درخواست تنظیم سند؟<br/>(Advocate.wantsDraft یا عنوان دقیق قالب)"}
+    wantDraft -- "بله" --> draftStart["Drafting.start(...)<br/>با پیش‌پرکردن از Advocate.fillFor"]
+
+    wantDraft -- "خیر" --> needGuess{"Advocate.wantsGuess(text)؟<br/>(پرونده باز نیست، >=۳ واژه، قاعده‌ها نرسیدند)"}
+    needGuess -- "بله" --> noql["ReaderService.read(text)<br/>ایزولیت جدا: Noql int8 → TopicReader (19 دسته)"]
+    needGuess -- "خیر" --> advocate
+
+    noql --> advocate["Advocate.respond(text, guess: guess)"]
+
+    advocate --> rules["۱. قاعده‌های وکیل (topics/*.dart، وزن >= ۳)<br/>پروندهٔ باز / واژه‌نامه / راهنمای فعال"]
+    rules -- "تطبیق داشت" --> reasoner["Reasoner + استدلال + verify با KnowledgeEngine.findArticle"]
+    rules -- "تطبیق نداشت" --> guessUse{"حدس Noql معتبر است؟"}
+    guessUse -- "مطمئن (>= open و margin)" --> openGuess["بازکردن پرونده با دکمهٔ «موضوعم این نیست»"]
+    guessUse -- "محتمل (>= ask)" --> askGuess["پرسش انتخابی (۱ تا ۲ گزینه)"]
+    guessUse -- "خیر / بدون حدس" --> guides["LawyerVoice.matchGuide / احوال‌پرسی"]
+    guides -- "نبود و guess == null" --> intentNet["نظر دوم: IntentNet (>= 0.6)"]
+    intentNet -- "نبود" --> lookup["_lookup: ابتدا QaBank.match(text) (پرسش‌های آمادهٔ اجاره با استناد ماده)"]
+    lookup -- "تطبیق نداشت" --> bm25["آخرین پناه: KnowledgeEngine.query(text)<br/>BM25F + synonyms + LawTopicPrior + ConflictsService"]

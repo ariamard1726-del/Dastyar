@@ -9,6 +9,7 @@
   normalize/collapse/phrase/tokenize — لایهٔ متن (brain/common.py + tools/eval_py.py ↔ lib/core/persian_text.dart)
   conflicts — زنجیرهٔ تضادها (brain/engine.py ↔ ConflictsService)
   rank — top-3 بازیابی برای پرسش‌های brain/eval/eval.txt (tools/eval_py.py ↔ KnowledgeEngine)
+  terms — تطبیق واژه‌های پرسش با متن قوانین (tools/law_terms.py ↔ lib/domain/advocate/law_terms.dart)
 
 اجرا:
   python3 tools/parity.py           # بررسی تازگی (خروج ۱ اگر کهنه است)
@@ -94,12 +95,35 @@ def rank_section():
     return out
 
 
+def terms_section():
+    import law_terms
+    path = os.path.join(ROOT, 'tests', 'law_terms', 'cases.json')
+    with open(path, encoding='utf-8') as f:
+        cases = json.load(f)
+    out = []
+    for case in cases:
+        r = law_terms.match(case['q'])
+        out.append({
+            'q': case['q'],
+            'accepted': r['accepted'],
+            'law': r['law'],
+            'title': r['title'],
+            'cover': r['cover'],
+            'matched': r['matched'],
+            'missing': r['missing'],
+            'phrases': r['phrases'],
+            'unknown': r['unknown'],
+        })
+    return out
+
+
 def build():
     doc = {
         'version': 1,
         'text': text_section(),
         'conflicts': conflicts_section(),
         'rank': rank_section(),
+        'terms': terms_section(),
     }
     return json.dumps(doc, ensure_ascii=False, indent=1, sort_keys=True) + '\n'
 
@@ -112,8 +136,8 @@ def main():
             have = f.read()
     if have == want:
         n = json.loads(want)
-        print('parity: استاندارد طلایی تازه است (text=%d conflicts=%d rank=%d).'
-              % (len(n['text']), len(n['conflicts']), len(n['rank'])))
+        print('parity: استاندارد طلایی تازه است (text=%d conflicts=%d rank=%d terms=%d).'
+              % (len(n['text']), len(n['conflicts']), len(n['rank']), len(n['terms'])))
         return 0
     if '--write' not in sys.argv:
         print('خطا: brain/parity_expected.json با خروجی آینهٔ پایتون نمی‌خواند.')

@@ -53,10 +53,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            // نسخهٔ انتشار بی‌صدا با کلید debug امضا نمی‌شود. اگر کلید نباشد،
+            // ساخت release باید بشکند. فقط ساخت آزمایشی صریحاً اجازهٔ کلید
+            // debug دارد (ورودی allow_debug_signing در build.yml → همین متغیر).
+            val wantsRelease = gradle.startParameter.taskNames.any {
+                it.contains("release", ignoreCase = true)
+            }
+            val allowDebug = System.getenv("ALLOW_DEBUG_SIGNING") == "true"
+            signingConfig = when {
+                keystorePropertiesFile.exists() -> signingConfigs.getByName("release")
+                wantsRelease && !allowDebug -> throw GradleException(
+                    "key.properties پیدا نشد؛ برای نسخهٔ انتشار کلید امضا لازم است " +
+                        "(tools/setup_release_signing.py) یا ALLOW_DEBUG_SIGNING=true."
+                )
+                else -> signingConfigs.getByName("debug")
             }
         }
     }

@@ -86,9 +86,6 @@ class PersianText {
     return w;
   }
 
-  static String stemIndex(String w) => _stemIndex(w);
-  static String stemQuery(String w) => _stem(w);
-
   static List<String> tokenizeIndex(String s) {
     final cleaned = normalize(s).replaceAll(_nonWord, ' ');
     final out = <String>[];

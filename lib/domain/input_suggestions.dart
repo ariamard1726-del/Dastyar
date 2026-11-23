@@ -1,11 +1,11 @@
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
-import 'package:dastyar/domain/legal_counselor.dart';
 import 'package:dastyar/domain/templates.dart';
 
 /// نوع یک پیشنهاد (برای انتخاب نماد کنار دکمه).
-enum SuggestionKind { question, template, counsel }
+enum SuggestionKind { question, template }
 
 class InputSuggestion {
   final String text;
@@ -29,9 +29,9 @@ class InputSuggestion {
 ///
 /// منبع پیشنهادها:
 /// ۱. تکمیل متن: پرسش‌های آماده‌ای که با واژه‌های تایپ‌شده جور می‌شوند.
-/// ۲. موضوع: راهنمای حقوقی مرتبط یا تشخیص نمادین موضوع → پرسش‌های رایج همان
-///    موضوع.
-/// ۳. قالب سند مرتبط (مثلاً «دادخواست مطالبهٔ وجه») و شروع مشاورهٔ گام‌به‌گام.
+/// ۲. موضوع: راهنمای حقوقی مرتبط یا همان تشخیص موضوعِ وکیل
+///    ([Advocate.topicOf]) → پرسش‌های رایج همان موضوع.
+/// ۳. قالب سند مرتبط (مثلاً «دادخواست مطالبهٔ وجه»).
 class InputSuggestions {
   InputSuggestions._();
 
@@ -134,6 +134,24 @@ class InputSuggestions {
     'defect_purchase': 'consumer',
   };
 
+  /// موضوع‌های وکیل ([Advocate.topics]) → کلید [topicQuestions].
+  static const Map<String, String> advocateTopic = {
+    'cheque': 'cheque',
+    'labor': 'labor',
+    'rent': 'lease',
+    'family': 'family',
+    'debt': 'debt',
+    'guarantee': 'debt',
+    'enforce': 'debt',
+    'accused': 'litigation_defense',
+    'cyber': 'fraud_cyber',
+    'inherit': 'inheritance',
+    'injury': 'accident',
+    'consumer': 'consumer',
+    'property': 'contract',
+    'partner': 'contract',
+  };
+
   static List<String> get _corpus => [
         for (final qs in topicQuestions.values) ...qs,
       ];
@@ -154,16 +172,20 @@ class InputSuggestions {
     return true;
   }
 
+  /// آخرین متن و موضوعش؛ نوار پیشنهاد در هر کلید چند بار موضوع را می‌پرسد
+  /// و این حافظه از تکرارِ اسکن ۲۴ موضوع و ۳۵ راهنما جلوگیری می‌کند.
+  static (String, String?)? _topicMemo;
+
   /// موضوع پیام در حال تایپ، یا `null`.
   static String? topicOf(String text) {
+    final memo = _topicMemo;
+    if (memo != null && memo.$1 == text) return memo.$2;
     final g = LawyerVoice.matchGuide(text);
-    if (g != null) {
-      final t = guideTopic[g.id];
-      if (t != null) return t;
-    }
-    final d = LegalCounselor.detectTopic(text);
-    if (d == null || d == 'general_intake') return null;
-    return topicQuestions.containsKey(d) ? d : null;
+    String? t;
+    if (g != null) t = guideTopic[g.id];
+    t ??= advocateTopic[Advocate.topicOf(text)];
+    _topicMemo = (text, t);
+    return t;
   }
 
   /// پیشنهادها برای متنی که کاربر در حال نوشتن آن است.
@@ -192,13 +214,13 @@ class InputSuggestions {
         final sb = _norm(b).startsWith(typedNorm) ? 0 : 1;
         return sa.compareTo(sb);
       });
-    final reserve = topicOf(raw) == null ? 0 : 2;
+    final topic = topicOf(raw);
+    final reserve = topic == null ? 0 : 1;
     for (final q in completions.take(maxItems - reserve)) {
       add(q, SuggestionKind.question);
     }
 
     // ۲. پرسش‌های رایج همان موضوع.
-    final topic = topicOf(raw);
     if (topic != null) {
       for (final q in topicQuestions[topic]!) {
         if (out.length >= maxItems - reserve) break;
@@ -206,7 +228,7 @@ class InputSuggestions {
       }
     }
 
-    // ۳. قالب سند مرتبط و مشاورهٔ گام‌به‌گام.
+    // ۳. قالب سند مرتبط.
     final tplTitles = <String>[];
     final g = LawyerVoice.matchGuide(raw);
     if (g != null && templates.isNotEmpty) {
@@ -222,9 +244,6 @@ class InputSuggestions {
       }
     }
     if (tplTitles.isNotEmpty) add(tplTitles.first, SuggestionKind.template);
-    if (topic != null) {
-      add(LegalCounselor.startCounselCmd, SuggestionKind.counsel);
-    }
     return out;
   }
 }

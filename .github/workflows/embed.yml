@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - run: pip install numpy
@@ -23,7 +23,7 @@ jobs:
           for m in intfloat/multilingual-e5-small sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2; do
             MODEL="$m" python brain/embed_eval.py || echo "failed: $m"
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: embed-reports

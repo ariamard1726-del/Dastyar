@@ -14,7 +14,7 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
       - uses: subosito/flutter-action@v2
@@ -29,7 +29,7 @@ jobs:
           flutter test test/engine/eval_test.dart test/engine/eval_extra_test.dart test/engine/debug_rank_test.dart --reporter expanded 2>&1 | grep -E "EVAL|EXTRA|DBG" | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 > out/eval.txt || true
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tail -n 12 | cut -c1-220 > out/analyze.txt || true
           git rev-parse HEAD > out/ref.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: eval-report
           path: out/
