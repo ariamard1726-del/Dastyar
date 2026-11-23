@@ -231,7 +231,9 @@ void main() {
         settings: AppSettings()..saveHistory = false,
         guesser: (String _) async => throw StateError('مدل بار نشد'),
       );
-      await ctrl.submit('صاحبخونه پول پیشمو نمیده');
+      // جمله‌ای که قاعده‌ها موضوعش را نمی‌شناسند تا خوانندهٔ موضوع صدا زده
+      // شود (همان جملهٔ آزمون جریان حدس).
+      await ctrl.submit('رئیسم به من گفته دیگر لازم نیست بیایی');
       expect(ctrl.messages.first.fromUser, isTrue);
       expect(ctrl.messages.last.fromUser, isFalse);
       expect(ctrl.problems, isNotEmpty);
