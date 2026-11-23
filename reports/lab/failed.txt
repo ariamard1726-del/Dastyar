@@ -1,1 +1,2 @@
-🎉 449 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/privacy_crypto_test.dart: هر دو مسیر رمزنگاری، رفت‌وبرگشت سالم دارند (failed)
+::error::452 tests passed, 1 failed.
