@@ -620,7 +620,9 @@ String _lawListText() {
 
 String format(Chunk c) {
   final sb = StringBuffer();
-  sb.write(c.title);
+  // عنوان در فایل‌های قانون با ارقام لاتین است («ماده 10»)؛ در متن فارسی
+  // باید با ارقام فارسی بیاید.
+  sb.write(PersianText.toFaDigits(c.title));
   if (c.body != c.title) sb.write('\n${c.body}');
   if (c.obsolete) {
     sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');

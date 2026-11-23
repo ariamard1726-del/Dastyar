@@ -404,7 +404,7 @@ extension _Talk on Advocate {
         Sense.has(allN, 'پول|خسارت|پس بد|برگرد|غرامت|هزینه|شکایت|مجازات|زندان|جرم');
     // نه طرفی شناخته شد، نه موضوعی، نه نکته‌ای: به‌جای حدس یا جملهٔ ثابت،
     // کلمه‌های خودِ کاربر را نقل می‌کنم و توضیح می‌خواهم.
-    if (!known) return _out(_unclearText(raw));
+    if (!known) return _unclearReply(raw);
     final heard = who.isNotEmpty
         ? 'پس طرفِ ماجرا $who است.'
         : 'گفتید «${_clip(raw)}».';
@@ -435,22 +435,42 @@ extension _Talk on Advocate {
         ask: 'چه مدرک یا شاهدی از این ماجرا دارید؟',
       );
     }
-    return _out(_unclearText(raw));
+    return _unclearReply(raw);
   }
 
   /// پاسخ به پیامی که به هیچ نکته‌ای وصل نشد. نخست با نقل همان کلمه‌های
-  /// کاربر می‌پرسد منظورش چیست؛ اگر پس از توضیحش باز نامفهوم ماند، می‌گوید
-  /// چنین درخواستی در پایگاه داده‌اش نیست و جوابی ندارد.
+  /// کاربر می‌پرسد منظورش چیست؛ اگر بار دوم هم نامفهوم ماند، به‌جای بن‌بست
+  /// («در پایگاه نیست») حوزهٔ کارش را می‌گوید و راه ادامه را نشان می‌دهد.
+  ///
+  /// پیش‌تر بار دوم، حرفِ *پیام قبلی* را نقل می‌کرد و می‌گفت جوابی ندارد؛
+  /// هم به پیام تازه ربطی نداشت، هم دست کاربر را خالی می‌گذاشت.
   String _unclearText(String raw) {
     if (_unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1) {
-      final p = _unclearPhrase;
       _unclearPhrase = '';
       _unclearTurn = -10;
-      return 'با توجه به اینکه «$p» در پایگاه داده‌ام نیست، جوابی برایش ندارم.';
+      return 'هنوز مطمئن نیستم چه اتفاقی را بررسی کنیم، و حدس‌زدن هم به ضرر '
+          'شماست. من در این موضوع‌ها کار می‌کنم: اجاره و ودیعه، کار و حقوق، '
+          'چک و طلب، خانواده، ارث، همسایه و ملک، خرید و مصرف‌کننده، تصادف، '
+          'و شکایت و دفاع. اگر ماجرای شما در یکی از این‌هاست، در یک جمله '
+          'بگویید چه کسی چه کاری کرد؛ اگر نیست، صادقانه بگویم که تحلیل '
+          'آماده‌ای برایش ندارم و باید با وکیل مشورت کنید.';
     }
     _unclearPhrase = _quoteWords(raw);
     _unclearTurn = file.turns;
     return 'منظورتان از «$_unclearPhrase» چیست؟ کمی بیشتر توضیح می‌دهید؟';
+  }
+
+  /// همان پاسخِ نامفهوم، ولی این بار با دکمه‌های شروع تا کاربر در بن‌بست
+  /// نماند.
+  AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) {
+    final stuck = _unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1;
+    final text = _unclearText(raw);
+    if (!stuck) return _out(text);
+    return _out(
+      text,
+      ask: 'کدام‌یک به ماجرای شما نزدیک‌تر است؟',
+      chips: [...chips, ..._starters()],
+    );
   }
 }
 

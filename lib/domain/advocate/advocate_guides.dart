@@ -105,7 +105,7 @@ extension _Guides on Advocate {
       );
     }
     if (Sense.words(n) < 2 || !Sense.has(n, '[\u0600-\u06FF]{2}')) {
-      return _out(_unclearText(raw));
+      return _unclearReply(raw);
     }
     return _curious(raw, n);
   }

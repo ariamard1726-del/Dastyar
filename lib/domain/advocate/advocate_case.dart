@@ -271,7 +271,7 @@ extension _CaseFlow on Advocate {
         !Sense.has(n, _replySaid) &&
         _matchIssue(t, n) == null &&
         _glossary(n) == null) {
-      return _out(_unclearText(raw), chips: const [Advocate.newCaseChip]);
+      return _unclearReply(raw, chips: const [Advocate.newCaseChip]);
     }
     _heard = '$_heard $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
