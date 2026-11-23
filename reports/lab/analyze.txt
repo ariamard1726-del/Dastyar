@@ -8,4 +8,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 8.9s)
+7 issues found. (ran in 12.8s)
