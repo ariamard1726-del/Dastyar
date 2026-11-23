@@ -24,6 +24,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 META_PATH = os.path.join(ROOT, 'assets', 'laws', '_meta.json')
 TOPIC_GLOB = os.path.join(ROOT, 'assets', 'brain', 'topics', '*.json')
+# مسیرهای در دست ساخت (در APK نیستند) هم بررسی می‌شوند تا ارجاع شکسته‌شان
+# وقتی live شد غافلگیرمان نکند.
+LAB_TOPIC_GLOB = os.path.join(ROOT, 'lab', 'topics', '*.json')
 TEMPLATE_GLOB = os.path.join(ROOT, 'assets', 'templates', '*.json')
 QA_GLOB = os.path.join(ROOT, 'assets', 'qa', '*.json')
 
@@ -95,7 +98,7 @@ def check_flow_refs(name, flow, meta, errors):
 
 def check_topic_refs(meta, errors):
     n = 0
-    for path in sorted(glob.glob(TOPIC_GLOB)):
+    for path in sorted(glob.glob(TOPIC_GLOB) + glob.glob(LAB_TOPIC_GLOB)):
         name = os.path.basename(path)
         if name == 'index.json':
             continue

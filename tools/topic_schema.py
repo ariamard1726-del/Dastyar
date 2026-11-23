@@ -24,6 +24,8 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOPIC_DIR = os.path.join(ROOT, 'assets', 'brain', 'topics')
+# مسیرهای در دست ساخت که در APK نیستند؛ برایشان هشدار «live نیست» بی‌معناست.
+LAB_DIR = os.path.join(ROOT, 'lab', 'topics')
 META_PATH = os.path.join(ROOT, 'assets', 'laws', '_meta.json')
 
 REQUIRED = ('live', 'gate', 'topic', 'law', 'disclaimer', 'clarify', 'rules', 'leaves')
@@ -46,12 +48,25 @@ def topic_names():
         return json.load(f)['topics']
 
 
+def topic_path(name):
+    shipped = os.path.join(TOPIC_DIR, name)
+    if os.path.isfile(shipped):
+        return shipped
+    return os.path.join(LAB_DIR, name)
+
+
+def lab_names():
+    if not os.path.isdir(LAB_DIR):
+        return []
+    return sorted(n for n in os.listdir(LAB_DIR) if n.endswith('.json'))
+
+
 def load_topic(name):
-    with open(os.path.join(TOPIC_DIR, name), encoding='utf-8') as f:
+    with open(topic_path(name), encoding='utf-8') as f:
         return json.load(f)
 
 
-def validate_topic(flow, meta, name='<topic>'):
+def validate_topic(flow, meta, name='<topic>', shipped=True):
     """یک موضوع را می‌سنجد؛ خروجی: (خطاها، هشدارها)."""
     errors, warnings = [], []
     if not isinstance(flow, dict):
@@ -121,22 +136,27 @@ def validate_topic(flow, meta, name='<topic>'):
                 errors.append('%s: برگ %s عنوان ماده نامعتبر دارد: %r' % (name, leaf_id, a['title']))
         if leaf_id != 'ask' and leaf_id not in reached:
             warnings.append('%s: برگ %s هیچ قاعده‌ای ندارد (دادهٔ مرده)' % (name, leaf_id))
-    if flow.get('live') is not True:
-        warnings.append('%s: live نیست؛ در APK می‌ماند ولی در گفتگو جواب نمی‌دهد' % name)
+    if shipped and flow.get('live') is not True:
+        errors.append('%s: در APK بسته‌بندی می‌شود ولی live نیست؛ هرگز جواب نمی‌دهد' % name)
     return errors, warnings
 
 
 def check(names=None):
+    """موضوع‌های بستهٔ برنامه سخت‌گیرانه‌اند (live:false خطاست) و
+    موضوع‌های آزمایشگاه فقط ساختاری سنجیده می‌شوند."""
     meta = load_meta()
-    names = names or topic_names()
+    if names is None:
+        pairs = [(n, True) for n in topic_names()] + [(n, False) for n in lab_names()]
+    else:
+        pairs = [(n, os.path.isfile(os.path.join(TOPIC_DIR, n))) for n in names]
     all_errors, all_warnings = [], []
-    for name in names:
+    for name, shipped in pairs:
         try:
             flow = load_topic(name)
         except Exception as e:
             all_errors.append('%s: خوانده نشد (%s)' % (name, e))
             continue
-        e, w = validate_topic(flow, meta, name)
+        e, w = validate_topic(flow, meta, name, shipped=shipped)
         all_errors += e
         all_warnings += w
     return all_errors, all_warnings

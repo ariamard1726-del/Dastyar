@@ -29,6 +29,10 @@ python tools/check.py pipeline
 
 ## ۲. ساختار مسیر موضوعی (`tools/schemas/topic_flow.schema.json`)
 
+دو پوشه داریم: `assets/brain/topics/` (در APK بسته‌بندی می‌شود؛ `live` الزامی و
+`live:false` **خطا**) و `lab/topics/` (در دست ساخت، در `pubspec.yaml` نیست؛ فقط
+ساختارش سنجیده می‌شود و آزمون‌های نمونه‌اش اجرا می‌شوند).
+
 هر `assets/brain/topics/*.json` باید کلیدهای `live/gate/topic/law/disclaimer/
 clarify/rules/leaves` را داشته باشد، هر قاعده به برگی موجود اشاره کند، هر برگ
 `title` و `text` داشته باشد و ارجاع‌های `articles` از شکل «ماده/اصل N» باشند.

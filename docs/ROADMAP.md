@@ -13,7 +13,7 @@
 | شفاف‌بودن متن تأییدنشده | ✅ | از پیش در `KnowledgeEngine.format` و صفحهٔ «درباره» بود؛ حالا در README هم هست |
 | ارجاع‌های شکسته، خطا شوند | ✅ | `tools/data_refs.py` + `check.py refs` (۱۹۷ ارجاع) |
 | ساختار دادهٔ موضوع، نگهبان پیدا کند | ✅ | `tools/topic_schema.py` + اسکیما + `check.py topics` |
-| دادهٔ مرده آشکار شود | ✅ (هشدار) | `live:false`ها هشدار می‌دهند؛ حذف واقعی به مرحلهٔ ۱ موکول شد |
+| دادهٔ مرده آشکار شود | ✅ | `live:false` در بستهٔ برنامه خطاست؛ دو مسیر غیرفعال به `lab/topics/` رفتند (از APK بیرون) |
 | ترتیب خط لوله، تک‌منبع شود | ✅ | `assets/pipeline.json` + `pipeline_check.py` + آزمون Dart |
 | ساخت release فقط با کلید امضا | ✅ (از پیش) | `build.gradle.kts` بدون `ALLOW_DEBUG_SIGNING` می‌شکند |
 
@@ -25,7 +25,7 @@
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `ChatSession.caseJson` + `Advocate.restoreCase`؛ گفتگوی قدیمی بدون پرونده با بازپخش پیام باز می‌شود |
 | انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | ⬜ | بزرگ‌ترین کار؛ نیاز به تبدیل `Slot/Issue/Claim` به داده |
-| حذف `live:false` از APK | ⬜ | پس از انتقال rent/labor_wages به فرمت داده |
+| حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
 | جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |
 
 ## مرحلهٔ ۲ — یک داور، نه زنجیرهٔ ۷۵۰ خطی

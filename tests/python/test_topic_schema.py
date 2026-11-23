@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import sys
 import unittest
@@ -54,11 +55,32 @@ class TopicSchemaTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertTrue(any('خانه' in w for w in warnings))
 
-    def test_dead_topic_warns(self):
+    def test_dead_shipped_topic_is_error(self):
+        # موضوعی که در APK بسته‌بندی می‌شود ولی live نیست، همیشه مسیر مرده است.
         flow = copy.deepcopy(TS.load_topic('cheque.json'))
         flow['live'] = False
-        _, warnings = TS.validate_topic(flow, self.meta, 'cheque.json')
-        self.assertTrue(any('live' in w for w in warnings))
+        errors, _ = TS.validate_topic(flow, self.meta, 'cheque.json')
+        self.assertTrue(any('live' in e for e in errors))
+
+    def test_lab_topic_may_be_not_live(self):
+        flow = copy.deepcopy(TS.load_topic('cheque.json'))
+        flow['live'] = False
+        errors, _ = TS.validate_topic(flow, self.meta, 'lab.json', shipped=False)
+        self.assertFalse(any('live' in e for e in errors))
+
+    def test_shipped_topics_are_all_live(self):
+        index = json.load(open(os.path.join(ROOT, 'assets', 'brain', 'topics', 'index.json'),
+                               encoding='utf-8'))
+        self.assertTrue(index['topics'])
+        for name in index['topics']:
+            flow = json.load(open(os.path.join(ROOT, 'assets', 'brain', 'topics', name),
+                                  encoding='utf-8'))
+            self.assertTrue(flow['live'], name)
+
+    def test_lab_topics_are_not_packaged(self):
+        # اگر lab/ در pubspec بیاید، دوباره در APK بسته‌بندی می‌شود.
+        pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+        self.assertNotIn('lab/', pubspec)
 
 
 if __name__ == '__main__':

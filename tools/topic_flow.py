@@ -16,6 +16,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOPIC_DIR = os.path.join(ROOT, 'assets', 'brain', 'topics')
+# مسیرهای در دست ساخت: در APK بسته‌بندی نمی‌شوند (در pubspec نیستند) ولی
+# نمونه‌های آزمونشان باید همچنان اجرا شود تا کار نیمه‌کاره از دست نرود.
+LAB_DIR = os.path.join(ROOT, 'lab', 'topics')
 TEST_DIR = os.path.join(ROOT, 'tests', 'topics')
 
 _FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه', 'ؤ': 'و', 'أ': 'ا', 'ء': ''})
@@ -54,8 +57,31 @@ def topic_names():
         return [os.path.splitext(n)[0] for n in json.load(f)['topics']]
 
 
+def topic_path(topic):
+    """مسیر فایل یک موضوع: اول بستهٔ برنامه، بعد آزمایشگاه."""
+    shipped = os.path.join(TOPIC_DIR, topic + '.json')
+    if os.path.isfile(shipped):
+        return shipped
+    return os.path.join(LAB_DIR, topic + '.json')
+
+
+def lab_names():
+    if not os.path.isdir(LAB_DIR):
+        return []
+    return sorted(os.path.splitext(n)[0] for n in os.listdir(LAB_DIR) if n.endswith('.json'))
+
+
+def all_names():
+    """همهٔ موضوع‌ها: هم آن‌هایی که در APK هستند، هم آن‌هایی که در آزمایشگاه‌اند."""
+    out = list(topic_names())
+    for n in lab_names():
+        if n not in out:
+            out.append(n)
+    return out
+
+
 def load(topic='cheque'):
-    with open(os.path.join(TOPIC_DIR, topic + '.json'), encoding='utf-8') as f:
+    with open(topic_path(topic), encoding='utf-8') as f:
         return json.load(f)
 
 
@@ -85,9 +111,11 @@ def answer(q, flow=None):
 def check():
     """بررسی هر موضوع با نمونه‌های خودش؛ خروجی: (همه، ناموفق‌ها)."""
     gold_all, bad = [], []
-    for name in topic_names():
+    for name in all_names():
         flow = load(name)
         path = os.path.join(TEST_DIR, name + '_gold.json')
+        if not os.path.isfile(path):
+            continue
         gold = json.load(open(path, encoding='utf-8'))
         for g in gold:
             gold_all.append(g)
