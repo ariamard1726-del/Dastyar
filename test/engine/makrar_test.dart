@@ -18,7 +18,7 @@ void main() {
 
   test('نام رایج «قانون چک» شناخته می‌شود', () {
     final a = e.answer('ماده ۱۰ قانون چک');
-    expect(a, contains('ماده 10'));
+    expect(a, contains('ماده ۱۰'));
     expect(a, contains('قانون صدور چک'));
   });
 

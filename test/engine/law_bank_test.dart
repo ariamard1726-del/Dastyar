@@ -27,7 +27,7 @@ void main() {
 
     test('جستجوی مستقیم اصول قانون اساسی با واژهٔ «اصل» کار می‌کند', () {
       final r22 = engine.answer('اصل ۲۲ قانون اساسی چه می‌گوید؟');
-      expect(r22, contains('اصل 22'));
+      expect(r22, contains('اصل ۲۲'));
       expect(r22, contains('حیثیت'));
 
       final r37 = engine.answer('اصل ۳۷ قانون اساسی');
