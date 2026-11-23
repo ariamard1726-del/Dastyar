@@ -441,7 +441,7 @@ extension _Talk on Advocate {
   /// آیا پیام به موضوعی نشانهٔ روشن (امتیاز ۳ به بالا) دارد؟ برای اینکه
   /// قاعده‌های عمومی (مثل «دعوای لفظی») ماجرای موضوع‌دار را ندزدند.
   bool _anyTopicCue(String n) {
-    for (final t in topics) {
+    for (final t in allTopics) {
       if (_score(t, n) >= 3) return true;
     }
     return false;
