@@ -566,6 +566,32 @@ class Advocate {
         chips: const [newCaseChip],
       );
     }
+    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
+    // قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» به‌عنوان ادامهٔ پروندهٔ
+    // قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
+    final pend = _pendingTopic;
+    final pendText = _pendingText;
+    _pendingTopic = null;
+    _pendingText = '';
+    if (pend != null) {
+      if (raw.trim() == Advocate.newTopicYesChip ||
+          raw.trim() == sideChip ||
+          (Sense.words(n) <= 6 &&
+              Sense.has(n,
+                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
+        return _open(pend, Sense.norm(pendText), switched: true);
+      }
+      final curTopic = _current();
+      if (curTopic != null &&
+          (raw.trim() == Advocate.newTopicNoChip ||
+              raw.trim() == relatedChip ||
+              (Sense.words(n) <= 6 &&
+                  Sense.has(n,
+                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
+        final pn = Sense.norm(pendText);
+        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+      }
+    }
     // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
     final branch = _branchReply(raw, n, asked: branchAsked);
     if (branch != null) return branch;
@@ -742,30 +768,6 @@ class Advocate {
             Sense.saysYes(n) ||
             Sense.saysNo(n))) {
       return _finish(t1, [_pick(Say.fine)]);
-    }
-    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟».
-    final pend = _pendingTopic;
-    final pendText = _pendingText;
-    _pendingTopic = null;
-    _pendingText = '';
-    if (pend != null) {
-      if (raw.trim() == Advocate.newTopicYesChip ||
-          raw.trim() == sideChip ||
-          (Sense.words(n) <= 6 &&
-              Sense.has(n,
-                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
-        return _open(pend, Sense.norm(pendText), switched: true);
-      }
-      final curTopic = _current();
-      if (curTopic != null &&
-          (raw.trim() == Advocate.newTopicNoChip ||
-              raw.trim() == relatedChip ||
-              (Sense.words(n) <= 6 &&
-                  Sense.has(n,
-                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
-        final pn = Sense.norm(pendText);
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-      }
     }
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = _side;
