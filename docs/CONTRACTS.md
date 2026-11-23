@@ -12,6 +12,12 @@
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
 | ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python tools/check.py meta` | `tests/python/` |
+| نرمال‌سازی متن (بدهی موقت) | `tests/normalize_cases.json` | `tests/python/test_normalize_parity.py` (نگاشت نویسه‌ها هم) | `test/core/normalize_fixture_test.dart` |
+| آینهٔ پایتون ↔ دارت (بدهی موقت) | ایست‌واژه‌ها و آستانه‌های `law_terms.dart` و `tools/law_terms.py` | `tests/python/test_law_terms_parity.py` | همان فایل |
+
+> دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
+> از جداافتادن‌شان جلوگیری می‌کند. فهرست کامل بدهی‌های موقت و نگهبان‌هایشان
+> در `docs/ROADMAP.md` بخش «بدهی‌های موقتِ ثبت‌شده» است.
 
 ## ۱. خط لولهٔ پاسخ (`assets/pipeline.json`)
 

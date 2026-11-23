@@ -51,7 +51,7 @@
 - `LICENSE` (MIT) با بند شخص ثالث Noql و وضعیت متن قوانین؛ `docs/CONTRACTS.md`، `docs/ROADMAP.md`، `docs/DEAD_CODE.md` به‌روز.
 - CI نام آزمون‌های شکست‌خورده و هشدارهای تحلیلگر را در آنوتیشن اجرا می‌آورد.
 
-آزمون‌های پایتون این شاخه: **۱۱۷** (بود ۸۶). `python tools/check.py all` سبز است و
+آزمون‌های پایتون این شاخه: **۱۲۰** (بود ۸۶). `python tools/check.py all` سبز است و
 `flutter analyze --fatal-warnings` + `flutter test` در CI روی سرِ شاخه سبز است.
 
 ## تغییرات اخیر (شاخهٔ `arena/552cb284-dastyar`)
