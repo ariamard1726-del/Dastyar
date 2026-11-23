@@ -23,6 +23,7 @@
 |---|---|---|
 | اسکیمای مسیر موضوعی | ✅ | `tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
+| ذخیره و بازیابی پرونده در تاریخچه | ✅ | `ChatSession.caseJson` + `Advocate.restoreCase`؛ گفتگوی قدیمی بدون پرونده با بازپخش پیام باز می‌شود |
 | انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | ⬜ | بزرگ‌ترین کار؛ نیاز به تبدیل `Slot/Issue/Claim` به داده |
 | حذف `live:false` از APK | ⬜ | پس از انتقال rent/labor_wages به فرمت داده |
 | جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |

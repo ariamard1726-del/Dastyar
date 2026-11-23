@@ -50,6 +50,30 @@ class CaseFile {
     lastKey = '';
   }
 
+  /// پروندهٔ چیز مشخصی را نگه داشته است؟ (برای اینکه پروندهٔ خالی ذخیره نشود)
+  bool get hasContent => topic.isNotEmpty || facts.isNotEmpty;
+
+  /// محتوای پروندهٔ دیگر را داخل همین نمونه می‌ریزد.
+  ///
+  /// [CaseFile] در `Advocate` به‌صورت `final` نگه داشته می‌شود تا هیچ‌کس
+  /// نمونه را عوض نکند؛ برای بازیابی از تاریخچه، محتوا را کپی می‌کنیم.
+  void copyFrom(CaseFile o) {
+    topic = o.topic;
+    facts
+      ..clear()
+      ..addAll(o.facts);
+    askCount
+      ..clear()
+      ..addAll(o.askCount);
+    covered
+      ..clear()
+      ..addAll(o.covered);
+    pending = o.pending;
+    lastKey = o.lastKey;
+    turns = o.turns;
+    disclaimed = o.disclaimed;
+  }
+
   /// نسخهٔ قالب سریال‌سازی پرونده. تغییر ساختار = افزایش این عدد و نوشتن
   /// مهاجرت در [CaseFile.fromJson].
   static const int schemaVersion = 1;

@@ -77,4 +77,30 @@ void main() {
     expect(g.facts['amount'], '1200');
     expect(g.n('amount'), 1200);
   });
+  test('copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد', () {
+    final src = CaseFile()
+      ..topic = 'labor'
+      ..pending = 'contract'
+      ..turns = 3;
+    src.facts['fired'] = 'yes';
+    src.covered.add('wage');
+
+    final dst = CaseFile()..topic = 'rent';
+    dst.copyFrom(src);
+
+    expect(dst.topic, 'labor');
+    expect(dst.facts, src.facts);
+    expect(dst.pending, 'contract');
+    expect(dst.covered, src.covered);
+    expect(dst.turns, 3);
+  });
+
+  test('پروندهٔ خالی محتوا حساب نمی‌شود', () {
+    expect(CaseFile().hasContent, isFalse);
+    expect((CaseFile()..topic = 'rent').hasContent, isTrue);
+    final f = CaseFile();
+    f.facts['a'] = 'yes';
+    expect(f.hasContent, isTrue);
+  });
+
 }

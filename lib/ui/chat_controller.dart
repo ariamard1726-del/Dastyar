@@ -323,6 +323,9 @@ class ChatController extends ChangeNotifier {
         title: HistoryStore.makeTitle(users.first.text),
         updated: DateTime.now().millisecondsSinceEpoch,
         messages: stored,
+        // پروندهٔ گفتگو هم ذخیره می‌شود تا بازکردن دوباره، پیام‌ها را از نو
+        // پردازش نکند و «بله/نه/نمی‌دانم»ها با گذشت زمان جابه‌جا نشوند.
+        caseJson: advocate.file.hasContent ? advocate.file.toJson() : null,
       ),
     );
   }
@@ -494,11 +497,17 @@ class ChatController extends ChangeNotifier {
       ..addAll(
         s.messages.map((m) => ChatMessage(m.text, m.fromUser, revealed: true)),
       );
-    // حافظهٔ پرونده از روی پیام‌های خودِ کاربر دوباره ساخته می‌شود.
-    advocate.replay([
-      for (final m in s.messages)
-        if (m.fromUser) m.text,
-    ]);
+    final saved = s.caseJson;
+    if (saved != null) {
+      // پرونده همان‌طور که بود برمی‌گردد؛ هیچ پیامی دوباره پردازش نمی‌شود.
+      advocate.restoreCase(saved);
+    } else {
+      // گفتگوی ذخیره‌شدهٔ قدیمی: پرونده از روی پیام‌های خودِ کاربر ساخته می‌شود.
+      advocate.replay([
+        for (final m in s.messages)
+          if (m.fromUser) m.text,
+      ]);
+    }
     _notify();
     _requestScroll();
   }

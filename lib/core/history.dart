@@ -22,11 +22,16 @@ class ChatSession {
   int updated;
   List<StoredMsg> messages;
 
+  /// پروندهٔ وکیل در پایان این گفتگو (`CaseFile.toJson`)؛ `null` یعنی
+  /// گفتگو پیش از این نسخه ذخیره شده و پرونده را باید از پیام‌ها بازسازی کرد.
+  Map<String, dynamic>? caseJson;
+
   ChatSession({
     required this.id,
     required this.title,
     required this.updated,
     required this.messages,
+    this.caseJson,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +39,7 @@ class ChatSession {
         'title': title,
         'updated': updated,
         'messages': messages.map((m) => m.toJson()).toList(),
+        if (caseJson != null) 'case': caseJson,
       };
 
   factory ChatSession.fromJson(Map<String, dynamic> j) => ChatSession(
@@ -41,7 +47,15 @@ class ChatSession {
         title: (j['title'] ?? '').toString(),
         updated: j['updated'] is int ? j['updated'] as int : 0,
         messages: parseMessages(j['messages']),
+        caseJson: parseCase(j['case']),
       );
+
+  /// پروندهٔ ذخیره‌شده؛ ورودی نامعتبر `null` می‌دهد (و گفتگو با بازپخش
+  /// پیام‌ها باز می‌شود، نه با کرش).
+  static Map<String, dynamic>? parseCase(Object? raw) {
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return null;
+  }
 
   /// پیام‌های یک رکورد ذخیره‌شده؛ ورودی نامعتبر فهرست خالی می‌دهد.
   static List<StoredMsg> parseMessages(Object? raw) {
