@@ -589,7 +589,15 @@ class Advocate {
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
         final pn = Sense.norm(pendText);
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+        final r = _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+        // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
+        // برنامه سرگردان شده است.
+        return AdvocateReply(
+          'باشد، همین پرونده را ادامه می‌دهیم.\n\n${r.text}',
+          chips: r.chips,
+          laws: r.laws,
+          source: r.source,
+        );
       }
     }
     // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
