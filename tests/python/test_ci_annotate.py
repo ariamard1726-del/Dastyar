@@ -33,6 +33,16 @@ class AnnotateTests(unittest.TestCase):
         self.assertLessEqual(len(out), 8)
         self.assertNotIn('/home/runner', '\n'.join(out))
 
+    def test_cross_marker_reporter_is_understood(self):
+        log = ['00:01 +10: a',
+               '❌ test/advocate/meta_and_tone_test.dart: پیام کوتاه',
+               '   Expected: no matching text',
+               '   Actual: x',
+               '✅ test/x_test.dart: y']
+        out = ci_annotate.annotate(log)
+        self.assertIn('meta_and_tone_test.dart', out[0])
+        self.assertIn('Expected:', '\n'.join(out))
+
     def test_without_marker_reports_tail(self):
         out = ci_annotate.annotate(['Some tests failed.', 'ok'])
         self.assertTrue(out)

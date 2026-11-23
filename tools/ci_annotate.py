@@ -47,10 +47,34 @@ def blocks(lines):
     return out
 
 
+def cross_blocks(lines):
+    """بلوک‌های ❌ (گزارش‌گرِ داخلیِ مخزن) هم همان معنا را دارند."""
+    out = []
+    i = 0
+    while i < len(lines):
+        if '❌' in lines[i]:
+            detail = []
+            j = i + 1
+            while (j < len(lines) and len(detail) < 3
+                   and '❌' not in lines[j] and '✅' not in lines[j]):
+                t = lines[j].strip()
+                if t and not t.startswith(('package:', 'dart:', '::')):
+                    detail.append(_cut(t))
+                j += 1
+            out.append((_cut(lines[i]), detail))
+            i = j
+        else:
+            i += 1
+    return out
+
+
 def annotate(lines, limit=8):
     """خطوطِ آنوتیشن؛ سقفِ گیت‌هاب برای هر step حدود ده است."""
     out = []
     found = blocks(lines)
+    if not found:
+        # گزارش‌گرِ همین مخزن گاهی خطِ ✅/❌ می‌دهد، نه نشانگرِ [E].
+        found = cross_blocks(lines)
     if found:
         for head, detail in found:
             out.append('::error::' + head)
@@ -59,7 +83,8 @@ def annotate(lines, limit=8):
             if len(out) >= limit:
                 break
     else:
-        tail = [l for l in lines if l.strip()][-6:]
+        tail = [l for l in lines
+                if l.strip() and not l.strip().startswith('::')][-6:]
         for t in tail:
             out.append('::error::(بدون بلوکِ [E]) ' + _cut(t))
     return out[:limit]
