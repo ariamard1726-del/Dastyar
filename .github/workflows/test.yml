@@ -43,6 +43,21 @@ jobs:
         run: |
           set -o pipefail
           flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
+      # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
+      # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
+      - name: Failing test names
+        if: steps.ft.outcome == 'failure'
+        run: |
+          grep -E "\[E\]$|Failed to load" "$RUNNER_TEMP/test_full.txt" 2>/dev/null \
+            | sed -E 's#^.*/(test/[^:]+):#::error::\1:#' \
+            | cut -c1-300 | head -n 40 || true
+      - name: Analyzer errors
+        if: steps.analyze.outcome == 'failure'
+        run: |
+          grep -E " error • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null \
+            | sed 's#/home/runner/work/Dastyar/Dastyar/##' \
+            | sed 's#^#::error::#' | cut -c1-300 | head -n 40 || true
       - name: Short report
         if: always()
         env:
