@@ -45,6 +45,9 @@
 **۴. پروندهٔ گفتگو ذخیره و بازیابی می‌شود**
 - `CaseFile.toJson()`/`CaseFile.fromJson()` با `CaseFile.schemaVersion`؛ ورودی
   بدشکل یا نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش. آزمون: `test/advocate/case_file_json_test.dart`.
+- آزمون ساختاری پاسخ‌ها: `test/advocate/reply_contract_test.dart` شکل پاسخ را می‌سنجد
+  (برچسب مسیر، دکمهٔ تکراری/خالی، متن مادهٔ استنادی، «انصراف» به‌عنوان راه خروج) —
+  مستقل از جمله‌ها، برخلاف آزمون‌های `contains`.
 - رمزنگاری دست‌نویس حذف شد: SHA-256 و HMAC-SHA256 از بستهٔ رسمی `crypto` می‌آیند و
   بردارهای FIPS 180-4 و RFC 4231 در `test/core/privacy_crypto_test.dart` قفل‌اند.
 - نمایش تدریجی پاسخ دیگر در هر فریم `SelectableText` تازه نمی‌سازد؛ فقط وقتی واژه‌ای
