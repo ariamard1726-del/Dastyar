@@ -31,7 +31,7 @@ void main() {
       expect(r22, contains('حیثیت'));
 
       final r37 = engine.answer('اصل ۳۷ قانون اساسی');
-      expect(r37, contains('اصل 37'));
+      expect(r37, contains('اصل ۳۷'));
       expect(r37, contains('برائت'));
 
       final missing = engine.answer('اصل ۳۰۰ قانون اساسی');
@@ -103,10 +103,10 @@ void main() {
 
     test('ماده‌های ۶۹ و ۷۲ قانون مجازات جدا پیدا می‌شوند', () {
       final a69 = engine.answer('ماده ۶۹ قانون مجازات اسلامی');
-      expect(a69, contains('ماده 69'));
+      expect(a69, contains('ماده ۶۹'));
       expect(a69, contains('مرتکبان جرایمی'));
       final a72 = engine.answer('ماده ۷۲ قانون مجازات اسلامی');
-      expect(a72, contains('ماده 72'));
+      expect(a72, contains('ماده ۷۲'));
       expect(a72, contains('جرایم عمدی'));
     });
   });

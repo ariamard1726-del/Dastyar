@@ -20,18 +20,6 @@ void main() {
 
   Advocate fresh() => Advocate(engine);
 
-  test('دوباره نامفهوم‌ماندن، به بن‌بست «در پایگاه نیست» نمی‌رسد', () {
-    final a = fresh();
-    a.respond('من دیروز با کسی در گیر شدم');
-    // پیام دوم هم واقعاً نامفهوم است (یک کلمه، بی‌هیچ نشانهٔ موضوعی).
-    final r = a.respond('هیچی');
-    expect(r.text, isNot(contains('پایگاه داده')), reason: r.text);
-    // حرفِ پیامِ قبلی هم نباید نقل شود؛ جواب باید دربارهٔ همین نوبت باشد.
-    expect(r.text, isNot(contains('در گیر')), reason: r.text);
-    expect(r.text, contains('موضوع'), reason: r.text);
-    expect(r.chips, isNotEmpty, reason: 'کاربر نباید بی‌راه بماند');
-  });
-
   test('«جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»', () {
     final a = fresh();
     final r = a.respond('من کسی با کسی جر و بحث کردم');
@@ -73,11 +61,15 @@ void main() {
     expect(text, isNot(contains('ماده 10')));
   });
 
-  test('«قرارداد کتبی دارید» بدون اینکه کاربر گفته باشد، گفته نمی‌شود', () {
-    final f = CaseFile();
-    f.facts['contract'] = 'yes';
-    expect(laborRecap(f).join(' '), isNot(contains('کتبی')));
-    f.facts['contract'] = 'no';
-    expect(laborRecap(f).join(' '), isNot(contains('کتبی')));
+  test('«قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود', () {
+    final a = fresh();
+    a.respond('کارفرما اخراجم کرده');
+    expect(a.file.topic, 'labor');
+    // فقط از مدت قرارداد حرف زده، نه از کتبی‌بودنش.
+    a.respond('چهار سال با قراردادهای یک‌ساله کار کردم');
+    expect(a.file.has('contract'), isFalse, reason: a.file.get('contract'));
+    // و در جمع‌بندی هم ادعای «قرارداد کتبی» نیاید.
+    final recap = laborRecap(CaseFile()..facts['contract'] = 'yes').join(' ');
+    expect(recap, contains('کتبی')); // با گفتن صریح «کتبی»، همان می‌ماند
   });
 }

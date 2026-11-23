@@ -1012,7 +1012,8 @@ RankResult rank(String question, {int k = 3}) {
         if (others.isNotEmpty) {
           res += '\n\nمواد نزدیک دیگر:';
           for (final h in others) {
-            res += '\n• ${h.chunk.title} — ${h.chunk.source}';
+            res +=
+                '\n• ${PersianText.toFaDigits(h.chunk.title)} — ${h.chunk.source}';
           }
         }
       }

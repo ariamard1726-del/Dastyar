@@ -43,7 +43,7 @@ void main() {
   test('ماده با نام قانون مدنی', () {
     if (!e.isLoaded('civil')) fail('قانون civil بارگذاری نشده است');
     final a = e.answer('ماده ۱۰ قانون مدنی');
-    expect(a, contains('ماده 10'));
+    expect(a, contains('ماده ۱۰'));
     expect(a, contains('قانون مدنی'));
   });
 
