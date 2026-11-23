@@ -3,6 +3,13 @@
 ✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
 ✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
 ✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
+✅ test/advocate/branch_chips_test.dart: سلام فقط پنج دکمهٔ دسته را نشان می‌دهد، نه نمونه‌های آماده
+✅ test/advocate/branch_chips_test.dart: انتخاب «حقوقی» ماجرا را کامل می‌پرسد و بعد پرونده باز می‌شود
+✅ test/advocate/branch_chips_test.dart: «کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند
+✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد
+✅ test/advocate/branch_chips_test.dart: «انصراف» گفتگو را می‌بندد و دکمهٔ اضافه نمی‌گذارد
+✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» بعد از بازشدن پرونده، جوابِ پرونده است نه انتخابِ دسته
+✅ test/advocate/branch_chips_test.dart: کیفری انتخاب‌شده، پرسشِ دسته را در نوبت‌های بعد تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست
 ✅ test/advocate/advocate_test.dart: ودیعهٔ اجاره: مبلغ را می‌فهمد و سؤال قبلی را تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: پرسش وسط پرونده جواب می‌گیرد، نه تکرار سؤال
@@ -64,7 +71,7 @@
 ✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
 ✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/topic_switch_test.dart: «انصراف» دکمهٔ آخر است وقتی پرونده باز است
-✅ test/advocate/topic_switch_test.dart: بدون پرونده، «انصراف» دکمه نیست
+✅ test/advocate/topic_switch_test.dart: بدون پرونده هم راه خروج روی دکمه‌ها هست و آخرین دکمه است
 ✅ test/advocate/topic_switch_test.dart: پیام با موضوع دیگر، پرونده را بی‌پرسش عوض نمی‌کند
 ✅ test/advocate/topic_switch_test.dart: «موضوع تازه است» پرونده را به موضوع جدید می‌برد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
@@ -170,6 +177,7 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
@@ -183,10 +191,9 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-🎉 181 tests passed.
+🎉 188 tests passed.
