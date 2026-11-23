@@ -1,11 +1,20 @@
 
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+lib/domain/advocate/advocate.dart:181:25: Error: Couldn't find constructor 'CaseFile'.
+  final CaseFile file = CaseFile();
+                        ^^^^^^^^
+lib/domain/advocate/case_file.dart:69:15: Error: Couldn't find constructor 'CaseFile'.
+    final f = CaseFile();
+              ^^^^^^^^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate.dart:181:25: Error: Couldn't find constructor 'CaseFile'.
+  final CaseFile file = CaseFile();
+                        ^^^^^^^^
+lib/domain/advocate/case_file.dart:69:15: Error: Couldn't find constructor 'CaseFile'.
+    final f = CaseFile();
+              ^^^^^^^^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
