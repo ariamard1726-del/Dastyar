@@ -48,10 +48,9 @@ jobs:
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
       - name: Failing test names
         if: steps.ft.outcome == 'failure'
-        run: |
-          grep -E "\[E\]$|Failed to load" "$RUNNER_TEMP/test_full.txt" 2>/dev/null \
-            | sed -E 's#^.*/(test/[^:]+):#::error::\1:#' \
-            | cut -c1-300 | head -n 40 || true
+        # بلوکِ [E] و علتش (Expected/Actual) را با هم می‌آورد؛ اگر نشانگر نبود،
+        # تهٔ خروجی چاپ می‌شود تا «۱ شکست» بی‌نام نماند.
+        run: python tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
       - name: Analyzer errors
         if: steps.analyze.outcome == 'failure'
         run: |
