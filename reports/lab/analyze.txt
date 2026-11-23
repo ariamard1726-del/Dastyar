@@ -1,8 +1,9 @@
 Analyzing Dastyar...                                            
 
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_talk.dart:444:21 • unqualified_reference_to_static_member_of_ex
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
 
-4 issues found. (ran in 10.4s)
+5 issues found. (ran in 9.7s)

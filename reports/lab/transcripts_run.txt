@@ -1,11 +1,18 @@
 
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+lib/domain/advocate/advocate_talk.dart:444:21: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate_talk.dart:444:21: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
