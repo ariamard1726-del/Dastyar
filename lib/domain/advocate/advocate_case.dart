@@ -32,6 +32,8 @@ extension _CaseFlow on Advocate {
     _pendingText = '';
     _lastServed = '';
     _flips.clear();
+    _safetyShown = false;
+    _safetyCarry = '';
     _guide = null;
     _lastBody = '';
     _deferred = '';
@@ -269,7 +271,7 @@ extension _CaseFlow on Advocate {
         !Sense.has(n, _replySaid) &&
         _matchIssue(t, n) == null &&
         _glossary(n) == null) {
-      return _out(_unclearText(raw), chips: const [Advocate.newCaseChip]);
+      return _unclearReply(raw, chips: const [Advocate.newCaseChip]);
     }
     _heard = '$_heard $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
@@ -404,7 +406,14 @@ extension _CaseFlow on Advocate {
       final soc = _social(n, t);
       if (soc != null) return soc;
       final ask = _sideNote();
-      if (ask.isEmpty && Sense.words(n) >= 3) {
+      // حرفی که موضوعش چیز دیگری است، وسط این پرونده به راهنمای همان موضوع
+      // دیگر پرت نمی‌شود؛ جای آن، از کاربر توضیح می‌خواهیم و رشتهٔ پرونده
+      // می‌مانَد (کاربر گفته «مربوط به همان ماجرا نیست/هست» را هم همین‌جا
+      // جواب می‌دهیم).
+      final foreign = Advocate.topicOf(raw);
+      if (ask.isEmpty &&
+          Sense.words(n) >= 3 &&
+          (foreign == null || foreign == t.id)) {
         final lg = _matchGuide(raw, n);
         if (lg != null) {
           if (_askText.isEmpty) return _openGuide(lg, raw, n, switched: true);
@@ -428,7 +437,13 @@ extension _CaseFlow on Advocate {
       return _out(
         parts.join('\n\n'),
         ask: ask.isEmpty ? _unclearText(raw) : ask,
-        chips: [if (ask.isNotEmpty) Advocate.sideChip, ..._suggest(t)],
+        chips: [
+          if (ask.isNotEmpty) ...const [
+            Advocate.newTopicChip,
+            Advocate.sameCaseChip,
+          ],
+          ..._suggest(t),
+        ],
       );
     }
     if (parts.isEmpty) parts.add(_pick(Say.fine));
@@ -636,7 +651,9 @@ extension _CaseFlow on Advocate {
         if (!chips.contains(g.chip)) chips.add(g.chip);
       }
     }
-    if (_side != null) chips.insert(0, Advocate.sideChip);
+    if (_side != null) {
+      chips.insertAll(0, const [Advocate.newTopicChip, Advocate.sameCaseChip]);
+    }
     final roomy = _roomy;
     _roomy = false;
     return _out(body,

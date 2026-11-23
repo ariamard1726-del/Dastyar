@@ -179,17 +179,36 @@ class _LoaderState extends State<Loader> {
         r?.dispose();
       }
     }));
+    // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
+    // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
+    final problems = <String>[];
     await Future.wait([
-      _engine.load().catchError((_) {
-        _error = 'بارگذاری دانش با خطا روبه‌رو شد.';
+      _engine.load().catchError((Object e) {
+        problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
       }),
-      _repo.load().catchError((_) {}),
-      _history.load().catchError((_) {}),
-      IntentNet.load().then((n) => _intentNet = n),
+      _repo.load().catchError((Object e) {
+        problems.add('قالب‌های سند بار نشدند؛ «تنظیم سند» کار نمی‌کند.');
+      }),
+      _history.load().catchError((Object e) {
+        problems.add('تاریخچهٔ گفتگوها بار نشد؛ گفتگوهای قبلی دیده نمی‌شوند.');
+      }),
+      IntentNet.load().then((n) {
+        _intentNet = n;
+      }).catchError((Object e) {
+        // طبقه‌بند اختیاری است؛ نبودش فقط یعنی «نظر دوم» نداریم.
+        _intentNet = null;
+      }),
       // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
       // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
       LegacyCleanup.run(),
     ]);
+    // [HistoryStore.load] خطا را می‌بلعد و در `lastError` می‌گذارد.
+    final historyError = _history.lastError;
+    if (historyError != null) problems.add('تاریخچه: $historyError');
+    if (_repo.problems.isNotEmpty) {
+      problems.add('${_repo.problems.length} قالب سند خوانده نشد.');
+    }
+    _error = problems.isEmpty ? null : problems.join('\n');
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
       _initialDraft = await DraftCheckpointStore.load(_repo.templates);
     }

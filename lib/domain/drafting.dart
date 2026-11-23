@@ -154,7 +154,15 @@ class LawText {
   final String source;
   final String body;
   final String note;
-  LawText(this.title, this.source, this.body, this.note);
+
+  /// وضعیت بازبینی متن قانون: `verified`، `unverified` یا خالی (نامعلوم).
+  /// در UI به کاربر نشان داده می‌شود تا متن تأییدنشده با ظاهر رسمی نیاید.
+  final String status;
+
+  LawText(this.title, this.source, this.body, this.note, {this.status = ''});
+
+  /// آیا این متن با منبع رسمی تطبیق داده شده است؟
+  bool get verified => status == 'verified';
 }
 
 class IntentResult {
@@ -642,7 +650,8 @@ class Drafting {
     for (final r in t.lawRefs) {
       final c = e.findArticle(r.law, r.article);
       if (c == null) continue;
-      out.add(LawText(c.title, c.source, c.body, r.note));
+      out.add(LawText(c.title, c.source, c.body, r.note,
+          status: e.meta[c.lawId]?['status']?.toString() ?? ''));
     }
     return out;
   }

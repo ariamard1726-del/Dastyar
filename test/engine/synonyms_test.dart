@@ -32,6 +32,6 @@ void main() {
 
   test('جست‌وجوی شمارهٔ ماده با فرهنگ تغییر نمی‌کند', () {
     final a = e.answer('ماده ۱۰ قانون مدنی');
-    expect(a, startsWith('ماده 10'));
+    expect(a, startsWith('ماده ۱۰'));
   });
 }

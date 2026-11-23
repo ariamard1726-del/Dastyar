@@ -303,6 +303,30 @@ class DraftDocumentCard extends StatelessWidget {
                     '${l.source} — ${l.title}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  // متن قانون تا وقتی با منبع رسمی تطبیق داده نشده، نباید
+                  // ظاهر «سند تأییدشده» داشته باشد.
+                  if (!l.verified)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.info_outline,
+                              size: 14, color: cs.error),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'متن این قانون هنوز با منبع رسمی تطبیق داده نشده است؛ '
+                              'پیش از استناد، آن را با متن رسمی یا وکیل بسنجید.',
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.error,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (l.note.isNotEmpty) Text(l.note),
                   const SizedBox(height: 4),
                   SelectableText(

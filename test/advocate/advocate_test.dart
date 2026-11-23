@@ -383,7 +383,9 @@ void main() {
       'یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره': 'consumer',
       'از حسابم بی خبر ۲۰ میلیون برداشت شده، فکر کنم فیشینگ بود': 'cyber',
       'پدرم فوت کرده و برادرم سهم ارث ما رو نمیده': 'inherit',
-      'همسایه مون هر شب بچه شو کتک میزنه': 'child',
+      // این جمله عمداً خشونت ندارد: پیامِ خشونت پیش از سنجش موضوع، پاسخ
+      // ایمنی می‌گیرد و دیگر «مواد قانونی» برنمی‌گرداند (safety_test).
+      'همسایه مون بچه شو مدرسه نمیفرسته': 'child',
       'حکم گرفتم ولی طرف پول رو نمیده': 'enforce',
       'یه آپارتمان خریدم ولی فروشنده سند نمیزنه': 'property',
       'سهامدار یه شرکت سهامی هستم و مدیرعامل سود سهام نمیده': 'company',
@@ -472,9 +474,9 @@ void main() {
     c.respond('یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره');
     final ask = say(c, 'سگ همسایه گازم گرفت');
     expect(c.file.topic, 'consumer');
-    expect(ask.chips, contains(Advocate.sideChip));
+    expect(ask.chips, contains(Advocate.newTopicChip));
     expect(ask.text, contains('ماجرای جداگانه'));
-    c.respond(Advocate.sideChip);
+    c.respond(Advocate.newTopicChip);
     expect(c.file.topic, 'injury');
     expect(c.file.get('kind'), 'other');
     // ولی وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌معطلی می‌رود.

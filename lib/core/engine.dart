@@ -21,6 +21,10 @@ class KnowledgeEngine {
   final Map<String, double> _idf = {};
   final Map<String, List<int>> _postings = {};
   final Map<String, List<int>> _byTitle = {};
+
+  /// فهرست «شناسهٔ قانون + عنوان ماده» → شمارهٔ chunk؛ یک بار ساخته می‌شود
+  /// تا یافتن متن یک ماده در هر پیام روی کل بانک خطی نگردد.
+  Map<String, int>? _articleIndex;
   double _avgLen = 1.0;
   double _maxIdf = 1.0;
 
@@ -255,6 +259,7 @@ Future<void> load() async {
   _idf.clear();
   _postings.clear();
   _byTitle.clear();
+  _articleIndex = null;
   _lawCounts.clear();
   catalog.clear();
   categoryNames.clear();
@@ -486,6 +491,24 @@ static String _faArticleLabel(RegExpMatch m) {
   return '$num$mk';
 }
 
+/// شمارهٔ chunk یک ماده از روی (شناسهٔ قانون، عنوان ماده)؛ یا `null`.
+///
+/// همتای O(1) پیمایش خطیِ `for (final c in engine.chunks)` که در تطبیق
+/// واژه‌ها و برگ‌های مسیر موضوعی استفاده می‌شد. فهرست با اولین فراخوانی
+/// ساخته و با هر بار `load()` دور انداخته می‌شود.
+int? chunkOf(String lawId, String title) {
+  var idx = _articleIndex;
+  if (idx == null) {
+    idx = <String, int>{};
+    for (var i = 0; i < _chunks.length; i++) {
+      final c = _chunks[i];
+      idx.putIfAbsent('${c.lawId}\u0000${c.title}', () => i);
+    }
+    _articleIndex = idx;
+  }
+  return idx['$lawId\u0000$title'];
+}
+
 /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
 /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
 Chunk? findArticle(String law, String article) {
@@ -597,7 +620,9 @@ String _lawListText() {
 
 String format(Chunk c) {
   final sb = StringBuffer();
-  sb.write(c.title);
+  // عنوان در فایل‌های قانون با ارقام لاتین است («ماده 10»)؛ در متن فارسی
+  // باید با ارقام فارسی بیاید.
+  sb.write(PersianText.toFaDigits(c.title));
   if (c.body != c.title) sb.write('\n${c.body}');
   if (c.obsolete) {
     sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');
@@ -987,7 +1012,8 @@ RankResult rank(String question, {int k = 3}) {
         if (others.isNotEmpty) {
           res += '\n\nمواد نزدیک دیگر:';
           for (final h in others) {
-            res += '\n• ${h.chunk.title} — ${h.chunk.source}';
+            res +=
+                '\n• ${PersianText.toFaDigits(h.chunk.title)} — ${h.chunk.source}';
           }
         }
       }

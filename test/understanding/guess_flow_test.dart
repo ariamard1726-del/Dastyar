@@ -84,7 +84,8 @@ void main() {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: unsure('labor', 'rent'));
     expect(a.file.topic, isEmpty);
-    expect(r.chips, ['کار و کارفرما', 'اجاره و ودیعه', Advocate.noneChip]);
+    expect(r.chips,
+        ['کار و کارفرما', 'اجاره و ودیعه', Advocate.noneChip, Advocate.leaveChip]);
     expect(r.text, contains('کدام نزدیک‌تر'));
     expect(a.wantsGuess('کار و کارفرما'), isFalse);
     a.respond('اجاره و ودیعه');
@@ -94,7 +95,8 @@ void main() {
   test('حدسِ نامطمئن با یک گزینه: «بله» همان را باز می‌کند', () {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: unsure('labor', 'general'));
-    expect(r.chips, ['کار و کارفرما', Advocate.noneChip]);
+    expect(r.chips,
+        ['کار و کارفرما', Advocate.noneChip, Advocate.leaveChip]);
     a.respond('بله');
     expect(a.file.topic, 'labor');
   });

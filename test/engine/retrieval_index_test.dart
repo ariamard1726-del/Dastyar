@@ -53,7 +53,7 @@ void main() {
       expect(hit!.normTitle, 'ماده 21 مکرر');
 
       final ans = engine.answer('ماده ۲۱ مکرر قانون صدور چک');
-      expect(ans, startsWith('ماده 21 مکرر'));
+      expect(ans, startsWith('ماده ۲۱ مکرر'));
       expect(ans, contains('قانون صدور چک'));
 
       // بررسی تطابق خروجی query تک‌مرحله‌ای با answer و alternatives

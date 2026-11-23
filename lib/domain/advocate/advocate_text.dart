@@ -59,7 +59,9 @@ String _shortLaw(String source) {
   return source;
 }
 
-String _snippet(String body) {
+/// متنِ ماده، از حاشیه‌های غیرقانونیِ بانک پاک‌شده و بی‌برش (برای «متن
+/// قانون را ببینم» که کاربر خودِ متن را می‌خواهد، نه چکیده).
+String _lawBody(String body) {
   var b = body.trim();
   final nl = b.indexOf('\n');
   if (b.startsWith('(') && nl > 0 && nl < 60) b = b.substring(nl + 1);
@@ -67,11 +69,6 @@ String _snippet(String body) {
   // حاشیه‌های غیرقانونیِ بانک (مثل «نظر مجلس») جزو متن ماده نیست.
   final note = b.indexOf('نظر مجلس');
   if (note > 20) b = b.substring(0, note).trim();
-  if (b.length > 190) {
-    var cut = b.lastIndexOf(' ', 190);
-    if (cut < 90) cut = 190;
-    b = '${b.substring(0, cut).trim()}…';
-  }
   return Sense.fa(b);
 }
 

@@ -19,7 +19,7 @@ void main() {
 
   test('ماده ۱۷۲ قانون کار با منبع و تبصره پیدا می‌شود', () {
     final a = e.answer('ماده ۱۷۲ قانون کار');
-    expect(a, startsWith('ماده 172'));
+    expect(a, startsWith('ماده ۱۷۲'));
     expect(a, contains('کار اجباری'));
     expect(a, contains('تبصره'));
     expect(a, contains('منبع: قانون کار'));

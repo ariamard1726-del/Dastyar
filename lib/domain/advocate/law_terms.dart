@@ -189,14 +189,10 @@ class LawTerms {
       }
     }
     if (bestPhrase == null || bestEntry == null) return null;
-    Chunk? target;
-    for (final c in engine.chunks) {
-      if (c.lawId == bestEntry['law'] && c.title == bestEntry['title']) {
-        target = c;
-        break;
-      }
-    }
-    if (target == null) return null;
+    final at = engine.chunkOf(
+        (bestEntry['law'] ?? '').toString(), (bestEntry['title'] ?? '').toString());
+    if (at == null) return null;
+    final target = engine.chunks[at];
     return TermMatch(
       accepted: true,
       chunk: target,

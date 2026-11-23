@@ -208,7 +208,12 @@ class _ChatPageState extends State<ChatPage> {
                       : SelectionArea(
                           child: ListView.builder(
                             controller: _scroll,
-                            scrollCacheExtent: ScrollCacheExtent.pixels(1e6),
+                            // فقط چند صفحه پیش و پس ساخته می‌شود. پیش‌تر
+                            // این عدد یک‌میلیون پیکسل بود تا «انتخاب همه»
+                            // کل گفتگو را بگیرد؛ هزینه‌اش ساخت هم‌زمان همهٔ
+                            // حباب‌ها و انیمیشن‌هایشان بود. کپی کل گفتگو
+                            // دکمهٔ جداگانه دارد و به این کار نیاز ندارد.
+                            scrollCacheExtent: ScrollCacheExtent.pixels(4000),
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             itemCount: msgs.length,
                             itemBuilder: (context, i) {

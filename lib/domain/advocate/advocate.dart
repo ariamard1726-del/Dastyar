@@ -1,4 +1,5 @@
 import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/jalali.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
@@ -25,12 +26,62 @@ part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
 
+/// از کدام مسیر دانش، این پاسخ ساخته شد؟
+///
+/// این برچسب فقط برای شفافیت و آزمون است: ترتیب اولویت مسیرها در
+/// [Advocate.pipelineOrder] نوشته شده و `test/advocate/answer_source_test.dart`
+/// همان را می‌سنجد. متن پاسخ هیچ‌جا از مدل نمی‌آید؛ برچسب می‌گوید از کدام
+/// منبعِ صریح آمده است.
+enum AnswerSource {
+  /// پیام اضطراری ایمنی (خشونت خانگی، تماس با اورژانس).
+  safety,
+
+  /// پروندهٔ موضوع‌ها: پرسش، استدلال، جمع‌بندی، دادخواست.
+  topic,
+
+  /// مسیر تصمیم موضوعی از `assets/brain/topics/*.json`.
+  topicFlow,
+
+  /// تطبیق واژه‌های پیام با متن قوانین (`LawTerms`).
+  lawTerms,
+
+  /// واژه‌نامهٔ اصطلاحات حقوقی.
+  glossary,
+
+  /// راهنمای ازپیش‌نوشتهٔ وکیل (`legal_guides`).
+  guide,
+
+  /// حدسِ خوانندهٔ موضوع (Noql) که پرونده را باز کرد.
+  guess,
+
+  /// نظر دوم طبقه‌بند سبک نیت (`IntentNet`).
+  intentNet,
+
+  /// بانک پرسش‌وپاسخ (`assets/qa`).
+  qaBank,
+
+  /// بازیابی BM25F از متن قوانین.
+  engine,
+
+  /// پاسخ برچسب‌نخورده؛ نباید در پاسخ‌های نهایی دیده شود.
+  unknown,
+}
+
 /// پاسخ وکیل به یک پیام.
 class AdvocateReply {
   final String text;
   final List<String> chips;
   final List<LawText> laws;
-  AdvocateReply(this.text, {this.chips = const [], this.laws = const []});
+
+  /// مسیر دانشی که این پاسخ را ساخت (برای شفافیت و آزمون).
+  final AnswerSource source;
+
+  AdvocateReply(
+    this.text, {
+    this.chips = const [],
+    this.laws = const [],
+    this.source = AnswerSource.unknown,
+  });
 }
 
 /// یک پرسشِ وکیل و گزینه‌های جوابش.
@@ -79,6 +130,25 @@ class Advocate {
 
   /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
   static const double netMin = 0.6;
+
+  /// ترتیب اولویت مسیرهای دانش، همان‌طور که در [respond] اجرا می‌شود.
+  ///
+  /// این فهرست «قرارداد» است، نه تزئین: هر مسیر تازه باید جای خودش را در
+  /// همین فهرست بگیرد و `test/advocate/answer_source_test.dart` هر پاسخ را
+  /// با برچسب [AdvocateReply.source] می‌سنجد. تغییر ترتیب = تغییر رفتار،
+  /// پس تغییرش باید همراه با به‌روزکردن همین فهرست و آزمون باشد.
+  static const List<AnswerSource> pipelineOrder = [
+    AnswerSource.safety,
+    AnswerSource.topic,
+    AnswerSource.lawTerms,
+    AnswerSource.glossary,
+    AnswerSource.guide,
+    AnswerSource.topicFlow,
+    AnswerSource.guess,
+    AnswerSource.intentNet,
+    AnswerSource.qaBank,
+    AnswerSource.engine,
+  ];
 
   /// دسته‌های خوانندهٔ موضوع → موضوع‌های هم‌معنا در [topics] به ترتیب
   /// اولویت. دسته‌های crime، general، chat و other پرونده‌ای ندارند و با
@@ -154,6 +224,15 @@ class Advocate {
   /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
   String _prevN = '';
 
+  /// آیا پیام ایمنی (خشونت/اورژانس) را در همین پرونده یک بار گفته‌ام؟
+  /// یک بار کافی است تا گفتگو در حلقه نیفتد؛ با بسته‌شدن پرونده صفر می‌شود.
+  bool _safetyShown = false;
+
+  /// پیامی که پاسخ ایمنی جایش را گرفت، برای اینکه موضوعش گم نشود.
+  /// در نوبت بعد فقط وقتی به حساب می‌آید که پیام تازه خودش موضوع روشنی
+  /// نداشته باشد.
+  String _safetyCarry = '';
+
   /// دکمهٔ پیشنهادیِ مرتبط با پیام همین نوبت (اگر باشد).
   String _relevantChip = '';
 
@@ -198,6 +277,10 @@ class Advocate {
   /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
   List<LawText> _lastLaws = const [];
 
+  /// همین نوبت‌قبل، دکمه‌های دستهٔ مشکل («حقوقی/کیفری/اداری/نمی‌دانم/انصراف»)
+  /// نشان داده شده است؛ فقط در همان نوبتِ بعد معنا دارند.
+  bool _branchAsked = false;
+
   /// پیام نامفهومِ قبلی (نقل کوتاه) و نوبتش: اگر پیام بعدی هم نامفهوم بود،
   /// دیگر نمی‌پرسد، می‌گوید جوابی ندارد.
   String _unclearPhrase = '';
@@ -239,6 +322,18 @@ class Advocate {
   /// پاسخ کاربر به «به همین ماجرای قبلی مربوط است؟».
   static const String relatedChip = 'به همین ماجرای قبلی مربوط است';
 
+  /// پاسخ‌های پرسشِ «موضوع تازه است یا به قبلی مربوط؟» وقتی فقط همین پرسش
+  /// روی میز است.
+  static const String newTopicYesChip = 'بله';
+
+  static const String newTopicNoChip = 'خیر';
+
+  /// همان پاسخ‌ها وقتی پرسش همراهِ پرسشِ خودِ پرونده می‌آید؛ «بله/خیر» تنها
+  /// با جوابِ پرسش‌های پرونده اشتباه می‌شود.
+  static const String newTopicChip = 'بله، موضوع تازه است';
+
+  static const String sameCaseChip = 'خیر، به همان ماجرا مربوط است';
+
   /// خروج از موضوع فقط با این دکمه (یا «انصراف» نوشته‌شده) انجام می‌شود.
   static const String leaveChip = 'انصراف';
 
@@ -267,6 +362,29 @@ class Advocate {
     'کارفرما اخراجم کرده',
     'چکم برگشت خورده',
     'می‌خواهم طلاق بگیرم',
+  ];
+
+  /// دکمه‌های «دستهٔ مشکل» که بعد از سلام نشان داده می‌شوند.
+  ///
+  /// پیش‌تر پاسخِ سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ برای
+  /// کاربری که تازه سلام کرده، این نمی‌گفت از کجا شروع کند. حالا اول شاخهٔ
+  /// کار روشن می‌شود و بعد ماجرا پرسیده می‌شود.
+  static const String civilChip = 'حقوقی';
+
+  static const String criminalChip = 'کیفری';
+
+  static const String adminChip = 'اداری';
+
+  static const String unsureChip = 'نمی‌دانم';
+
+  /// دکمهٔ خروج، همان [leaveChip] است: هم موضوعِ باز را می‌بندد، هم در آغاز
+  /// گفتگو راهِ انصراف است.
+  static const List<String> branchChips = [
+    civilChip,
+    criminalChip,
+    adminChip,
+    unsureChip,
+    leaveChip,
   ];
 
   bool get hasCase => file.topic.isNotEmpty || _guide != null;
@@ -308,9 +426,25 @@ class Advocate {
     return null;
   }
 
+  /// آیا پیام می‌گوید «همین حالا» کسی در خطر است؟
+  ///
+  /// این حالت به پرونده و به اینکه پیش‌تر هشدار داده‌ام یا نه گره نمی‌خورد؛
+  /// هر بار که کاربر این را بگوید، پاسخ فوری می‌گیرد.
+  bool _asksDanger(String n) => Sense.has(n,
+      'الان در خطر(?: هستم|یم)?(?! نیست)|همین حالا در خطر|در خطر فوری|هنوز در خطر|کسی در خطر');
+
   /// خشونت (کتک، پرت‌کردن چیزی، تهدید) در خانواده، یا گزارش تماس با اورژانس.
   /// پاسخ امنیت را می‌دهد و پرونده را نمی‌بندد.
   AdvocateReply? _safety(String n) {
+    // «الان در خطر هستم» جوابِ پرسش خودِ ماست و باید سریع‌ترین راه را بدهد.
+    if (_asksDanger(n)) {
+      return _out(
+        'اگر همین حالا کسی در خطر است، اول از محل دور شوید و ۱۱۰ یا ۱۱۵ را بگیرید. اگر درگیری خانوادگی است، اورژانس اجتماعی ۱۲۳ هم شبانه‌روزی پاسخ می‌دهد. تا وقتی امن نشده، هیچ فرایند حقوقی را شروع نکنید؛ هرچه اتفاق افتاد را با تاریخ و ساعت یادداشت کنید و اگر آسیب جسمی دارید، پیش از محو شدن اثرش به پزشکی قانونی بروید.',
+        ask: 'آیا الان جای امنی هستید و کسی همراهتان است؟',
+        chips: const ['الان امن هستم', 'هنوز در خطر هستم'],
+        source: AnswerSource.safety,
+      );
+    }
     final called = Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
         Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
     final violent = Sense.has(n,
@@ -322,6 +456,7 @@ class Advocate {
         'خوب کردید که زنگ زدید. اگر درگیری ادامه دارد، از جای امن دور شوید و دوباره ۱۱۰ یا ۱۱۵ را بگیرید. اگر ماجرا در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند.',
         ask: 'الان وضعیت چطور است؟ آیا کسی هنوز در خطر است؟',
         chips: const ['الان در خطر هستم', 'الان امن است'],
+        source: AnswerSource.safety,
       );
     }
     if (violent) {
@@ -329,6 +464,7 @@ class Advocate {
         'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.',
         ask: 'الان کسی در خطر است؟',
         chips: const ['الان در خطر هستم', 'الان امن است'],
+        source: AnswerSource.safety,
       );
     }
     return null;
@@ -347,6 +483,8 @@ class Advocate {
     _relevantChip = '';
     file.turns = 0;
     file.disclaimed = false;
+    _safetyShown = false;
+    _safetyCarry = '';
     _said.clear();
     _loose.clear();
     unresolved.clear();
@@ -360,6 +498,7 @@ class Advocate {
     _rest = '';
     _offeredMore = false;
     _lastLaws = const [];
+    _branchAsked = false;
     _unclearPhrase = '';
     _unclearTurn = -10;
   }
@@ -381,7 +520,23 @@ class Advocate {
 
   /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
   /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
-  AdvocateReply respond(String raw, {TopicGuess? guess}) {
+  AdvocateReply respond(String raw, {TopicGuess? guess}) =>
+      _withLeave(_reply(raw, guess: guess));
+
+  /// «انصراف» آخرین دکمهٔ **هر** پاسخ است، در هر مرحله‌ای از گفتگو؛ وگرنه
+  /// کاربر از وسط ماجرا راه خروج ندارد (بعضی مسیرها مثل جست‌وجوی متن قانون،
+  /// پاسخ را مستقیم می‌سازند و از [_out] نمی‌گذرند).
+  AdvocateReply _withLeave(AdvocateReply r) {
+    if (r.chips.isNotEmpty && r.chips.last == leaveChip) return r;
+    return AdvocateReply(
+      r.text,
+      chips: [...r.chips.where((c) => c != leaveChip), leaveChip],
+      laws: r.laws,
+      source: r.source,
+    );
+  }
+
+  AdvocateReply _reply(String raw, {TopicGuess? guess}) {
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
@@ -390,9 +545,11 @@ class Advocate {
     final choices = _choices;
     final choiceText = _choiceText;
     final guessed = _guessed;
+    final branchAsked = _branchAsked;
     _choices = const [];
     _choiceText = '';
     _guessed = false;
+    _branchAsked = false;
     if (raw.trim() == newCaseChip) {
       _closeCase();
       _loose.clear();
@@ -409,14 +566,112 @@ class Advocate {
         chips: const [newCaseChip],
       );
     }
+    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
+    // قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» به‌عنوان ادامهٔ پروندهٔ
+    // قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
+    final pend = _pendingTopic;
+    final pendText = _pendingText;
+    _pendingTopic = null;
+    _pendingText = '';
+    if (pend != null) {
+      if (raw.trim() == Advocate.newTopicYesChip ||
+          raw.trim() == sideChip ||
+          (Sense.words(n) <= 6 &&
+              Sense.has(n,
+                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
+        return _open(pend, Sense.norm(pendText), switched: true);
+      }
+      final curTopic = _current();
+      if (curTopic != null &&
+          (raw.trim() == Advocate.newTopicNoChip ||
+              raw.trim() == relatedChip ||
+              (Sense.words(n) <= 6 &&
+                  Sense.has(n,
+                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
+        final pn = Sense.norm(pendText);
+        final r = _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+        // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
+        // برنامه سرگردان شده است.
+        return AdvocateReply(
+          'باشد، همین پرونده را ادامه می‌دهیم.\n\n${r.text}',
+          chips: r.chips,
+          laws: r.laws,
+          source: r.source,
+        );
+      }
+    }
+    // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
+    final branch = _branchReply(raw, n, asked: branchAsked);
+    if (branch != null) return branch;
     // «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته می‌شود.
     if (Drafting.isLeave(raw)) {
       _closeCase();
       _loose.clear();
+      _branchAsked = true;
       return _out(
         'باشد، این موضوع را کنار گذاشتم.',
         ask: 'موضوع تازه‌تان چیست؟',
-        chips: _starters(),
+        chips: Advocate.branchChips,
+      );
+    }
+    // ایمنی، پیش از هر چیز و مستقل از امتیاز موضوع.
+    //
+    // پیش‌تر این بررسی فقط وقتی اجرا می‌شد که هیچ موضوعی امتیاز ۴ به بالا
+    // نگرفته باشد؛ یعنی درست همان پیام‌های روشنِ خشونت (که واژه‌های طلاق یا
+    // مهریه هم دارند و امتیاز بالا می‌گیرند) پیام اضطراری را از دست
+    // می‌دادند. ایمنی به تشخیص موضوع گره نمی‌خورد. در هر پرونده یک بار
+    // گفته می‌شود تا گفتگو در حلقه نیفتد؛ ولی اگر کاربر خودش بگوید «الان
+    // در خطر هستم»، هر بار جواب فوری می‌گیرد.
+    if (!_safetyShown || _asksDanger(n)) {
+      final safe = _safety(n);
+      if (safe != null) {
+        // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید
+        // پرونده را دوباره باز کند.
+        if (!hasCase && !_safetyShown) {
+          // پیامِ خشونت اغلب موضوع روشنی هم دارد («زد و می‌خوام طلاق
+          // بگیرم»). پاسخِ این نوبت ایمنی است، ولی پرونده را بی‌صدا باز
+          // می‌کنیم تا نوبت بعد از سرِ همان موضوع ادامه پیدا کند و کاربر
+          // مجبور نشود ماجرا را دوباره بگوید.
+          Topic? pick;
+          var score = 0;
+          for (final t in topics) {
+            final sc = _score(t, n);
+            if (sc > score) {
+              pick = t;
+              score = sc;
+            }
+          }
+          if (pick != null && score >= 3) {
+            _open(pick, n);
+            // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
+            _askChips = safe.chips;
+          } else {
+            _safetyCarry = n;
+          }
+        }
+        // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر
+        // می‌کند.
+        _safetyShown = true;
+        return safe;
+      }
+    }
+    // دعوای لفظی: تا وقتی تهدید یا برخورد فیزیکی نبوده، خودِ «جر و بحث»
+    // جرم نیست؛ ولی باید بدانیم کدامش پیش آمده. پیش‌تر این جمله به حدسِ
+    // «دفاع در برابر شکایت» یا پاسخ «در پایگاه نیست» می‌رسید.
+    if (!hasCase &&
+        !Sense.has(n,
+            'کتک|مشت|لگد|چاقو|زخم|ضرب|جرح|هل داد|هلم داد|بیمارستان|پزشکی قانونی') &&
+        // «دعوا سر کرایه خانه» یا «با مستاجر درگیر شدم» ماجرای موضوع‌دار است و
+        // باید به موضوع خودش برسد، نه به پاسخ عمومیِ دعوای لفظی.
+        !_anyTopicCue(n) &&
+        Sense.has(n,
+            'جر ?و ?بحث|بگو ?مگو|دعوای لفظی|دعوا(?:م|مون)? (?:شد|کردم)|بحث(?:م|مون)? (?:شد|کردیم|کردم)')) {
+      return _out(
+        'دعوای لفظی به‌تنهایی جرم نیست؛ دادگاه برای «حرف زدن» پرونده باز نمی‌کند. '
+        'اگر در همان دعوا تهدید، توهین یا برخورد فیزیکی هم بوده، هر کدام مسیر '
+        'جداگانه‌ای دارد و باید بگویید کدام پیش آمده.',
+        ask: 'در آن دعوا چه چیزی اتفاق افتاد؛ فقط حرف بود، تهدید شد، یا برخورد فیزیکی هم شد؟',
+        chips: const ['فقط حرف بود', 'تهدید شد', 'برخورد فیزیکی شد'],
       );
     }
     // جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
@@ -431,11 +686,12 @@ class Advocate {
       }
       if (raw.trim() == noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
+        _branchAsked = true;
         return _out(
           'باشد.',
           ask:
               'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
-          chips: _starters(),
+          chips: Advocate.branchChips,
         );
       }
     }
@@ -451,7 +707,7 @@ class Advocate {
         'ببخشید، اشتباه برداشت کردم.',
         ask:
             'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
-        chips: _starters(),
+        chips: _branchStart(),
       );
     }
     final short = Sense.words(n) <= 4;
@@ -499,7 +755,7 @@ class Advocate {
               'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
         }
         file.turns--;
-        return respond(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
+        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
       }
       if (t0 != null && (Sense.saysNo(n) || unsure)) {
         clearOffer();
@@ -521,28 +777,6 @@ class Advocate {
             Sense.saysNo(n))) {
       return _finish(t1, [_pick(Say.fine)]);
     }
-    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟».
-    final pend = _pendingTopic;
-    final pendText = _pendingText;
-    _pendingTopic = null;
-    _pendingText = '';
-    if (pend != null) {
-      if (raw.trim() == sideChip ||
-          (Sense.words(n) <= 6 &&
-              Sense.has(n,
-                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
-        return _open(pend, Sense.norm(pendText), switched: true);
-      }
-      final curTopic = _current();
-      if (curTopic != null &&
-          (raw.trim() == relatedChip ||
-              (Sense.words(n) <= 6 &&
-                  Sense.has(n,
-                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
-        final pn = Sense.norm(pendText);
-        return _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-      }
-    }
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = _side;
     final sideText = _sideText;
@@ -550,11 +784,24 @@ class Advocate {
     _sideText = '';
     if (side != null &&
         (raw.trim() == sideChip ||
+            raw.trim() == Advocate.newTopicChip ||
             (Sense.words(n) <= 4 &&
                 Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
       return _open(side, Sense.norm(sideText), switched: true);
     }
+    if (side != null && raw.trim() == Advocate.sameCaseChip) {
+      // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
+      final cur = _current();
+      if (cur != null) {
+        return _out('باشد، همین پرونده را ادامه می‌دهیم.',
+            ask: _askText.isEmpty ? 'ادامه بدهید.' : _askText, chips: _askChips);
+      }
+    }
     final topic = _current();
+    // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
+    // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
+    final carry = _safetyCarry;
+    _safetyCarry = '';
     Topic? best;
     var bestScore = 0;
     final scores = <String, int>{};
@@ -566,7 +813,38 @@ class Advocate {
         bestScore = s;
       }
     }
+    if (bestScore < 4 && carry.isNotEmpty) {
+      for (final t in topics) {
+        final s = _score(t, '$n $carry');
+        if (s > bestScore) {
+          best = t;
+          bestScore = s;
+        }
+        scores[t.id] = s;
+      }
+    }
 
+    // حساب تاریخ پایان مهلت: کاربر هم تاریخ ابلاغ را داده هم مدت را و
+    // فقط حساب تقویمی می‌خواهد. پیش‌تر در همین حالت جواب کلی می‌داد و همان
+    // تاریخ را دوباره می‌پرسید. این حساب است، نه فتوا؛ ولی چون مدت را قانون
+    // تعیین می‌کند، همان هشدار را هم می‌دهیم.
+    if (!hasCase &&
+        Sense.has(n, 'مهلت|آخرین روز|چه تاریخی|چه تاریخ|تا کی|تاریخ پایان|پایان مهلت') &&
+        Sense.has(n, 'ابلاغ|رأی|رای|دادنامه|اعتراض|تجدیدنظر|واخواهی|فرجام')) {
+      final due = computeDeadline(raw);
+      if (due != null) {
+        final span = due.span.label;
+        final end = due.end.fa;
+        return _out(
+          'حساب تقویمی‌اش این می‌شود: ${due.start.fa} به‌اضافهٔ $span می‌شود $end. '
+          'در مهلت‌های قانونی معمولاً روز ابلاغ حساب نمی‌شود؛ با آن قاعده مهلت از ${due.startNext.fa} شروع می‌شود و آخرین روزش $end است. '
+          'ولی اینکه این مهلت در قانون $span است یا نه، به نوع رأی و مرجع ابلاغ‌کننده بستگی دارد و متن آن را در بانک ندارم؛ '
+          'پس همین عدد را با متن قانون یا دفتر خدمات قضایی تطبیق دهید.',
+          ask: 'این مهلت مربوط به اعتراض، تجدیدنظر یا فرجام است؟',
+          chips: const ['اعتراض', 'تجدیدنظر', 'فرجام'],
+        );
+      }
+    }
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
@@ -634,11 +912,6 @@ class Advocate {
       );
     }
 
-    // خشونت خانوادگی یا تماس با اورژانس: پیش از هر موضوع، امنیت آدم.
-    if (best == null || bestScore < 4) {
-      final safe = _safety(n);
-      if (safe != null) return safe;
-    }
     if (Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
       return _out('درست است؛ این گفتگو با خود همین برنامه است. هر ماجرایی دارید، بگویید.',
           ask: 'چه چیزی را بررسی کنیم؟');
@@ -665,17 +938,35 @@ class Advocate {
       return _out(
         'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
         ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
-        chips: _starters(),
+        chips: _branchStart(),
       );
     }
 
     if (topic == null) {
       if (best != null && bestScore >= 3) {
-        for (final t in topics) {
-          if (t.id != best.id && (scores[t.id] ?? 0) >= 4) {
-            _also = t;
-            break;
-          }
+        final others = <Topic>[
+          for (final t in topics)
+            if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
+        ];
+        if (others.isNotEmpty) _also = others.first;
+        // پیامِ چندموضوعی: پیش‌تر فقط به یکی از موضوع‌ها جواب می‌داد و بقیه
+        // بی‌صدا می‌ماند. حالا موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع
+        // کنیم؛ هر کدام پرونده و مهلت جدا دارد.
+        final asksOrder = Sense.has(n,
+            'اول کدام|کدوم را اول|کدام را اول|از کجا شروع|اول (?:چی|کدام)|چی را اول');
+        if (others.isNotEmpty &&
+            (asksOrder || (others.length >= 2 && Sense.words(n) >= 14))) {
+          _choices = <Topic>[best, ...others].take(3).toList();
+          _choiceText = n;
+          final lines = [
+            for (final t in _choices) '• ${t.title}',
+          ];
+          return _out(
+            'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
+            'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
+            'سطحی می‌شود. از کدام شروع کنیم؟',
+            chips: [for (final t in _choices) t.title, noneChip],
+          );
         }
         return _open(best, n);
       }
@@ -702,7 +993,8 @@ class Advocate {
       final g = _glossary(n);
       if (g != null) {
         return _out(g,
-            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '');
+            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+            source: AnswerSource.glossary);
       }
       final guide = _guide;
       if (guide != null) {
@@ -733,7 +1025,10 @@ class Advocate {
         final hint = _secondOpinion(raw, n);
         if (hint != null) {
           _loose.removeLast();
-          return _open(hint, n);
+          // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
+          final r = _open(hint, n);
+          return AdvocateReply(r.text,
+              chips: r.chips, laws: r.laws, source: AnswerSource.intentNet);
         }
       }
       final hopeless = _hopeless(n);
@@ -777,6 +1072,10 @@ class Advocate {
       // فقط با نشانهٔ خیلی قوی می‌پرسم.
       final hint = topic.id == 'accused' ? 6 : 4;
       if (bestScore >= hint && issue == null && !answers) {
+        // جملهٔ کامل دربارهٔ موضوع دیگری: به‌جای نگه‌داشتنِ بی‌صدا، اعلام
+        // می‌کنیم و از خودِ کاربر می‌پرسیم؛ اشارهٔ کوتاه («قولنامه داریم»)
+        // فقط کنار گذاشته می‌شود.
+        if (Sense.words(n) >= 5) return _askSwitch(best, raw);
         _side = best;
         _sideText = raw;
       }
@@ -791,10 +1090,16 @@ class Advocate {
     _pendingTopic = t;
     _pendingText = raw;
     final curTitle = _current()?.title ?? 'موضوع قبلی';
+    // پرسشِ خودِ پرونده کنار می‌رود تا در این نوبت فقط یک پرسش باشد و
+    // «بله/خیر» دو معنا نداشته باشد.
+    file.pending = '';
+    _askText = '';
+    _askChips = const [];
     return _out(
-      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است.',
-      ask: 'این موضوع تازه است، یا به همین ماجرای قبلی مربوط است؟',
-      chips: const [Advocate.sideChip, Advocate.relatedChip],
+      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
+      'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
+      ask: 'این موضوع تازه است یا به همان ماجرای قبلی مربوط است؟',
+      chips: const [Advocate.newTopicYesChip, Advocate.newTopicNoChip],
     );
   }
 
@@ -848,6 +1153,7 @@ class Advocate {
     String ask = '',
     bool full = false,
     int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
   }) {
     final laws = <LawText>[];
     final seen = <String>{};
@@ -869,7 +1175,10 @@ class Advocate {
         final label = '$kind $num ${c.source}';
         final nums = byLaw.putIfAbsent(c.source, () => <String>[]);
         if (!nums.contains(num)) nums.add(num);
-        if (seen.add(key)) laws.add(LawText(label, c.source, c.body, ''));
+        if (seen.add(key)) {
+          laws.add(LawText(label, c.source, c.body, '',
+              status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
+        }
       }
       if (byLaw.isEmpty) return '';
       final names = <String>[];
@@ -918,13 +1227,8 @@ class Advocate {
     all
       ..clear()
       ..addAll(uniq);
-    // «انصراف» همیشه آخرین دکمه است؛ تا کاربر آن را نزند، موضوع عوض نمی‌شود.
-    if (hasCase) {
-      all
-        ..remove(leaveChip)
-        ..add(leaveChip);
-    }
-    return AdvocateReply(body, chips: all, laws: laws);
+    // «انصراف» را [_withLeave] آخرین دکمهٔ هر پاسخ می‌کند.
+    return AdvocateReply(body, chips: all, laws: laws, source: source);
   }
 }
 

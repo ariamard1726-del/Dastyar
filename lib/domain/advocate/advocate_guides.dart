@@ -29,7 +29,8 @@ extension _Guides on Advocate {
       final kind = law == 'constitution' ? 'اصل' : 'ماده';
       final c = engine.findArticle(law, '$kind $art');
       if (c == null) continue;
-      laws.add(LawText('$kind ${Sense.fa(art)} ${c.source}', c.source, c.body, ''));
+      laws.add(LawText('$kind ${Sense.fa(art)} ${c.source}', c.source, c.body, '',
+          status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
     }
     if (laws.isNotEmpty) _lastLaws = laws;
     // پرسش‌های هم‌موضوع، تا گفتگو از همان جا ادامه پیدا کند.
@@ -44,6 +45,7 @@ extension _Guides on Advocate {
         if (laws.isNotEmpty) Advocate.lawChip,
       ],
       laws: laws,
+      source: AnswerSource.qaBank,
     );
   }
 
@@ -80,7 +82,8 @@ extension _Guides on Advocate {
       if (_isLawHit(r)) {
         final laws = [
           for (final h in r.contextHits.where(_isLaw).take(2))
-            LawText(h.chunk.title, h.chunk.source, h.chunk.body, ''),
+            LawText(h.chunk.title, h.chunk.source, h.chunk.body, '',
+                status: engine.meta[h.chunk.lawId]?['status']?.toString() ?? ''),
         ];
         final lead = direct
             ? 'این متنِ همان ماده در بانک قوانین من است:'
@@ -89,8 +92,11 @@ extension _Guides on Advocate {
         _offeredMore = false;
         return AdvocateReply(
           '$lead\n\n${r.text}\n\n'
-          'این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.',
+          // اگر ماجرای کاربر را از پیش می‌دانیم، پرسیدنِ «چه شده؟» یعنی
+          // فراموش‌کردنِ حرف‌هایش؛ پس همان را به پروندهٔ باز وصل می‌کنیم.
+          '${hasCase ? 'همین را روی ماجرای خودتان می‌سنجم؛ بگویید کدام بخشش به کارتان می‌آید.' : 'این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.'}',
           laws: laws,
+          source: AnswerSource.engine,
         );
       }
     }
@@ -101,7 +107,7 @@ extension _Guides on Advocate {
       );
     }
     if (Sense.words(n) < 2 || !Sense.has(n, '[\u0600-\u06FF]{2}')) {
-      return _out(_unclearText(raw));
+      return _unclearReply(raw);
     }
     return _curious(raw, n);
   }
@@ -129,7 +135,10 @@ extension _Guides on Advocate {
     _lastBody = g.answer;
     _guideAsked = g.followUp.isNotEmpty;
     _guideStepped = false;
-    return _out(sb.toString(), chips: _guideChips(g), ask: g.followUp);
+    return _out(sb.toString(),
+        chips: _guideChips(g),
+        ask: g.followUp,
+        source: AnswerSource.guide);
   }
 
   String _guideSteps(LegalGuide g) {
@@ -157,7 +166,9 @@ extension _Guides on Advocate {
 
   AdvocateReply? _guideFollow(LegalGuide g, String n) {
     final gl = _glossary(n);
-    if (gl != null) return _out(gl, chips: _guideChips(g));
+    if (gl != null) {
+      return _out(gl, chips: _guideChips(g), source: AnswerSource.glossary);
+    }
     final kind = Sense.followKind(n);
     if (kind == 'next' && g.steps.isNotEmpty) {
       _guideAsked = false;
@@ -167,15 +178,19 @@ extension _Guides on Advocate {
           'قدم‌ها همان‌هاست که گفتم. از اولی شروع کنید: ${g.steps.first}',
           ask: 'کجای کار گیر کرده‌اید یا نگران کدام قدم هستید؟',
           chips: _guideChips(g),
+          source: AnswerSource.guide,
         );
       }
       _guideStepped = true;
       return _out('برای «${g.title}»${_guideSteps(g).replaceFirst('\n\n', ' ')}',
           ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
           chips: _guideChips(g),
-          budget: _roomyBudget);
+          budget: _roomyBudget,
+          source: AnswerSource.guide);
     }
-    if (kind == 'lawyer') return _out(anyLawyer, chips: _guideChips(g));
+    if (kind == 'lawyer') {
+      return _out(anyLawyer, chips: _guideChips(g), source: AnswerSource.guide);
+    }
     final soc = _social(n, null);
     if (soc != null) return soc;
     if (kind.isNotEmpty || Sense.isQuestion(n)) {
@@ -186,8 +201,10 @@ extension _Guides on Advocate {
           chips: _guideChips(g),
           laws: [
             for (final h in r.contextHits.where(_isLaw).take(2))
-              LawText(h.chunk.title, h.chunk.source, h.chunk.body, ''),
+              LawText(h.chunk.title, h.chunk.source, h.chunk.body, '',
+                  status: engine.meta[h.chunk.lawId]?['status']?.toString() ?? ''),
           ],
+          source: AnswerSource.engine,
         );
       }
     }
@@ -197,7 +214,8 @@ extension _Guides on Advocate {
       _guideStepped = true;
       return _out('${_pick(Say.fine)} با این حساب${_guideSteps(g).replaceFirst('\n\n', ' ')}',
           ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
-          chips: _guideChips(g));
+          chips: _guideChips(g),
+          source: AnswerSource.guide);
     }
     return null;
   }
@@ -266,7 +284,11 @@ extension _LawTermsReply on Advocate {
       return AdvocateReply(
         'در «$lawName» ${PersianText.toFaDigits(c.title)} واژه‌های $words با هم آمده‌اند.$gap\n\n${c.body}\n\n'
         'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.',
-        laws: [LawText(c.title, c.source, c.body, '')],
+        laws: [
+          LawText(c.title, c.source, c.body, '',
+              status: engine.meta[c.lawId]?['status']?.toString() ?? ''),
+        ],
+        source: AnswerSource.lawTerms,
       );
     }
     final unknown = tm.unknown;
@@ -314,12 +336,11 @@ extension _TopicFlowReply on Advocate {
     for (final a in (leaf['articles'] as List? ?? const []).cast<Map>()) {
       final lawId = a['law'].toString();
       final title = a['title'].toString();
-      for (final c in engine.chunks) {
-        if (c.lawId == lawId && c.title == title) {
-          laws.add(LawText(c.title, c.source, c.body, ''));
-          break;
-        }
-      }
+      final at = engine.chunkOf(lawId, title);
+      if (at == null) continue;
+      final c = engine.chunks[at];
+      laws.add(LawText(c.title, c.source, c.body, '',
+          status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
     }
     final refs = laws.map((l) => '«${l.title}»').join('، ');
     final text = '${leaf['title']}\n\n${leaf['text']}'
@@ -327,6 +348,6 @@ extension _TopicFlowReply on Advocate {
         '${flow['disclaimer'] ?? ''}';
     _rest = '';
     _offeredMore = false;
-    return AdvocateReply(text, laws: laws);
+    return AdvocateReply(text, laws: laws, source: AnswerSource.topicFlow);
   }
 }

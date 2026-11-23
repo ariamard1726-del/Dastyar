@@ -61,6 +61,13 @@ class ChatController extends ChangeNotifier {
   DraftSession? _draft;
   bool _disposed = false;
 
+  /// شمارهٔ نسل گفتگو؛ با هر «گفتگوی جدید» یا بازکردن گفتگوی دیگر یکی
+  /// زیاد می‌شود تا پیام‌های در صف به گفتگوی تازه نچسبند.
+  int _generation = 0;
+
+  /// خطاهای زمان اجرا (فقط روی همین گوشی، برای عیب‌یابی).
+  final List<String> problems = [];
+
   /// قالب‌هایی که از کاربر پرسیده‌ام «کدام را می‌خواهید؟».
   List<LegalTemplate> _pendingList = [];
 
@@ -115,17 +122,49 @@ class ChatController extends ChangeNotifier {
   }
 
   Future<void> submit(String rawText) {
-    final next = _queue.then((_) => _submit(rawText));
+    // نسلِ گفتگو در لحظهٔ ارسال قفل می‌شود. اگر کاربر پیش از پردازش،
+    // «گفتگوی جدید» بزند یا گفتگوی دیگری باز کند، این پیام دیگر به گفتگوی
+    // تازه نمی‌چسبد.
+    final gen = _generation;
+    final next = _queue.then((_) => _submit(rawText, gen));
     _queue = next.catchError((Object _) {});
     return next;
   }
 
-  Future<void> _submit(String rawText) async {
+  Future<void> _submit(String rawText, int gen) async {
     final text = rawText.trim();
-    if (text.isEmpty || _disposed) return;
+    if (text.isEmpty || _disposed || gen != _generation) return;
     for (final m in messages) {
       m.chips = const [];
     }
+    final before = messages.length;
+    try {
+      await _process(text, gen);
+    } catch (e) {
+      _reportFailure(text, before, e);
+    }
+  }
+
+  /// خطای پردازش را به کاربر نشان می‌دهد؛ پیام بی‌توضیح گم نمی‌شود.
+  void _reportFailure(String text, int before, Object e) {
+    if (_disposed) return;
+    thinking = false;
+    problems.add('$e');
+    if (problems.length > 20) problems.removeAt(0);
+    if (messages.length == before) {
+      messages.add(ChatMessage(text, true));
+    }
+    messages.add(ChatMessage(
+      'این پیام را نتوانستم درست پردازش کنم. اگر دوباره بفرستید یا کمی ساده‌تر '
+      'بنویسید، از نو امتحان می‌کنم. اگر تکرار شد، از منوی «اطلاعات و وضعیت '
+      'داده‌ها» وضعیت بارگذاری را ببینید.',
+      false,
+    ));
+    _notify();
+    _requestScroll();
+  }
+
+  Future<void> _process(String text, int gen) async {
     if (_draft != null) {
       // «انصراف» یا «می‌خواهم از این بحث بیرون بیایم» در فرم هم کار کند؛
       // وگرنه کاربر در فرم گیر می‌افتد.
@@ -149,7 +188,6 @@ class ChatController extends ChangeNotifier {
     if (read != null && advocate.wantsGuess(text)) {
       // خواندن جمله با مدل روی گوشی کمی طول می‌کشد؛ پیام کاربر همان لحظه
       // نشان داده می‌شود و جواب بعد از آن می‌آید.
-      final session = _sessionId;
       messages.add(ChatMessage(text, true));
       shown = true;
       thinking = true;
@@ -157,12 +195,13 @@ class ChatController extends ChangeNotifier {
       _requestScroll();
       try {
         guess = await read(text);
-      } catch (_) {
+      } catch (e) {
+        problems.add('خواندن موضوع: $e');
         guess = null;
       }
       thinking = false;
       if (_disposed) return;
-      if (session != _sessionId) {
+      if (gen != _generation) {
         // در این فاصله گفتگو عوض شده است؛ این پیام دیگر جایی ندارد.
         _notify();
         return;
@@ -433,6 +472,7 @@ class ChatController extends ChangeNotifier {
   // ------------------------------------------------------------- گفتگوها
 
   void newChat() {
+    _generation++;
     _sessionId = _newId();
     _resetFlow();
     if (settings.saveDraftProgress) {
@@ -443,6 +483,7 @@ class ChatController extends ChangeNotifier {
   }
 
   void loadSession(ChatSession s) {
+    _generation++;
     _sessionId = s.id;
     _resetFlow();
     if (settings.saveDraftProgress) {
@@ -465,6 +506,8 @@ class ChatController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    // نوشتن‌های در صف تاریخچه تا آخرین پیام ادامه یابند.
+    unawaited(history.flush());
     super.dispose();
   }
 }
