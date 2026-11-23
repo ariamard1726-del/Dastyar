@@ -55,7 +55,7 @@ jobs:
       - name: Analyzer errors
         if: steps.analyze.outcome == 'failure'
         run: |
-          grep -E " error • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null \
+          grep -E " (error|warning) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null \
             | sed 's#/home/runner/work/Dastyar/Dastyar/##' \
             | sed 's#^#::error::#' | cut -c1-300 | head -n 40 || true
       - name: Short report
