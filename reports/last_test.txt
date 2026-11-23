@@ -1,7 +1,7 @@
-commit: 1369fe8
-🎉 398 tests passed.
+commit: fa5c150
+🎉 412 tests passed.
 --- analyze ---
-4 issues found. (ran in 8.7s)
+4 issues found. (ran in 13.3s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
