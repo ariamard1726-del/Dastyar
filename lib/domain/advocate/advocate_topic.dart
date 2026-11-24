@@ -12,8 +12,6 @@ extension _TopicPicking on Advocate {
 
   bool _answers(Topic t, String n) => _picker.answers(t, n);
 
-  String _sideNote() => _picker.sideNote();
-
   bool _guessable(String n) => _picker.guessable(n);
 
   AdvocateReply? _fromGuess(

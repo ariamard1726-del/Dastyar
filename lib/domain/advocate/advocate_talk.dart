@@ -66,8 +66,6 @@ extension _Talk on Advocate {
 
   bool _anyTopicCue(String n) => _talk.anyTopicCue(n);
 
-  String _unclearText(String raw) => _talk.unclearText(raw);
-
   AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) =>
       _talk.unclearReply(raw, chips: chips);
 
