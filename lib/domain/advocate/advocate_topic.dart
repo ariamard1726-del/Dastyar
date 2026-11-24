@@ -16,11 +16,6 @@ extension _TopicPicking on Advocate {
 
   bool _guessable(String n) => _picker.guessable(n);
 
-  bool _generalChoice(String n) => _picker.generalChoice(n);
-
-  Topic? _guessTopic(String label, String n, Map<String, int> scores) =>
-      _picker.guessTopic(label, n, scores);
-
   AdvocateReply? _fromGuess(
           TopicGuess g, String raw, String n, Map<String, int> scores) =>
       _picker.fromGuess(g, raw, n, scores);
