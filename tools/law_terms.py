@@ -154,14 +154,17 @@ def word_report(q, e=None):
 
 GLOSSARY = os.path.join(ROOT, 'assets', 'brain', 'legal_terms.json')
 
-_PERSIAN_FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه'})
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
+from common import spaced as _norm_spaced  # noqa: E402  (tools/contracts/text_norm.json)
 
 
 def _spaced(s):
-    """متن را برای جست‌وجوی عبارت یکدست می‌کند (همان قاعدهٔ لایهٔ دارت)."""
-    s = s.translate(_PERSIAN_FIX)
-    s = _PUNCT_RE.sub(' ', s)
-    return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
+    """متن را برای جست‌وجوی عبارت یکدست می‌کند (همان قاعدهٔ لایهٔ دارت).
+
+    پیش‌تر جدولِ خودش را داشت؛ حالا نسخهٔ `terms` از قرارداد متن می‌آید و با
+    `tests/text_norm_golden.json` قفل است.
+    """
+    return _norm_spaced(s, 'terms')
 
 
 def glossary_match(q, e=None):

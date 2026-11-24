@@ -12,7 +12,8 @@
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
 | ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python tools/check.py meta` | `tests/python/` |
-| نرمال‌سازی متن (بدهی موقت) | `tests/normalize_cases.json` | `tests/python/test_normalize_parity.py` (نگاشت نویسه‌ها هم) | `test/core/normalize_fixture_test.dart` |
+| قاعده‌های متن | `tools/contracts/text_norm.json` | `python3 tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
+| خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
 | آینهٔ پایتون ↔ دارت (بدهی موقت) | ایست‌واژه‌ها و آستانه‌های `law_terms.dart` و `tools/law_terms.py` | `tests/python/test_law_terms_parity.py` | همان فایل |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط

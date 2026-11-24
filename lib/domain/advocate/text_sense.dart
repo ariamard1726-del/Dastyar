@@ -1,4 +1,5 @@
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/text_norm_rules.dart';
 
 /// فهم سطحی متن محاوره‌ای فارسی، بدون هیچ مدل آماری یا زبانی: فقط
 /// یکسان‌سازی نویسه‌ها، الگوهای منظم و چند تجزیه‌گر کوچک (مبلغ، مدت).
@@ -19,37 +20,28 @@ class Sense {
   static bool word(String n, String alts) =>
       rx('$_lb(?:$alts)$_rb').hasMatch(n);
 
-  static final RegExp _punct = RegExp(r'[،؛,!«»"()\[\]{}:;_\-/\\*…]+');
-  static final RegExp _dot = RegExp(r'(?<![0-9])\.|\.(?![0-9])');
+  // نشانه‌ها و بازنویسی‌ها از قرارداد `tools/contracts/text_norm.json` می‌آیند
+  // (`lib/core/text_norm_rules.dart`)؛ آینهٔ پایتونی‌اش `brain/common.py:norm`.
+  static final RegExp _punct = RegExp(TextNormRules.normPunct);
+  static final RegExp _dot = RegExp(TextNormRules.normDot);
   static final RegExp _ws = RegExp(r'\s+');
-  static final RegExp _mi = RegExp(r'(^| )(ن?می) (?=[\u0600-\u06FF])');
+  static final RegExp _mi = RegExp(TextNormRules.normJoinMi);
 
-  static const List<List<String>> _canon = [
-    ['چی ?کار|چکار|چه کار', 'چه کار'],
-    ['صاب ?خونه|صاحب ?خونه|صاحب ?خانه', 'صاحبخونه'],
-    ['خانه', 'خونه'],
-    ['تومن', 'تومان'],
-    ['ملیون', 'میلیون'],
-    ['ملیارد', 'میلیارد'],
-    ['بازم', 'باز هم'],
-    [' اگه ', ' اگر '],
-    [' واسه ', ' برای '],
-    ['سؤال', 'سوال'],
-    ['کارفرمام', 'کارفرما من'],
-    ['شکواییه', 'شکوائیه'],
-    ['اجراییه', 'اجرائیه'],
-  ];
+  static const List<List<String>> _canon = TextNormRules.canon;
 
   /// متن را برای تطبیق الگو آماده می‌کند: نویسه‌ها یکسان، ارقام لاتین،
   /// علائم حذف، «می/نمی» به فعل چسبیده و دو سرِ متن فاصله‌دار.
   static String norm(String s) {
     var t = PersianText.normalize(s);
-    t = t.replaceAll('?', '؟').replaceAll('؟', ' ؟ ');
+    t = t.replaceAll(
+        TextNormRules.questionMarkFrom, TextNormRules.questionMarkTo);
+    t = t.replaceAll(
+        TextNormRules.questionMarkTo, ' ${TextNormRules.questionMarkTo} ');
     t = t.replaceAll(_punct, ' ');
     t = t.replaceAll(_dot, ' ');
     t = t.replaceAll(_ws, ' ').trim();
     t = t.replaceAllMapped(_mi, (m) => '${m[1]}${m[2]}');
-    t = ' $t ';
+    if (TextNormRules.normPad) t = ' $t ';
     for (final c in _canon) {
       t = t.replaceAll(rx(c[0]), c[1]);
     }

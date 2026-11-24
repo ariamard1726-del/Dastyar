@@ -21,15 +21,18 @@ TOPIC_DIR = os.path.join(ROOT, 'assets', 'brain', 'topics')
 LAB_DIR = os.path.join(ROOT, 'lab', 'topics')
 TEST_DIR = os.path.join(ROOT, 'tests', 'topics')
 
-_FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه', 'ؤ': 'و', 'أ': 'ا', 'ء': ''})
-_PUNCT = re.compile(r'[،,.;:!?؟()\[\]«»"\-/]+')
-_DIACRITICS = re.compile('[\u064B-\u065F\u0670]')
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
+from common import spaced as _spaced  # noqa: E402  (قاعده‌ها: tools/contracts/text_norm.json)
 
 
 def spaced(s):
-    s = _DIACRITICS.sub('', s.translate(_FIX))
-    s = _PUNCT.sub(' ', s)
-    return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
+    """یکدست‌سازی متن برای تطبیق قاعده‌ها.
+
+    پیش‌تر جدول و الگوی جداگانهٔ خودش را داشت (نسخهٔ سومِ همان قاعده در مخزن)؛
+    حالا از قرارداد `tools/contracts/text_norm.json` می‌آید و رفتارش با
+    `tests/text_norm_golden.json` قفل است.
+    """
+    return _spaced(s, 'tools')
 
 
 def _has(text, words):

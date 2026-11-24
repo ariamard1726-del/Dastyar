@@ -10,7 +10,9 @@ sys.path.insert(0, os.path.join(ROOT, 'brain'))
 import common  # noqa: E402
 
 FIXTURE = os.path.join(ROOT, 'tests', 'normalize_cases.json')
-DART = os.path.join(ROOT, 'lib', 'core', 'persian_text.dart')
+# نگاشت دیگر در `persian_text.dart` دستی نوشته نمی‌شود؛ از قرارداد تولید
+# می‌شود. این آزمون نگهبانِ لایهٔ پایه است، نه نگهبانِ محلِ نگاشت.
+DART = os.path.join(ROOT, 'lib', 'core', 'text_norm_rules.dart')
 
 
 def cases():
@@ -22,7 +24,7 @@ def dart_map():
     """نگاشت نویسه‌ها را از سورس دارت می‌خواند."""
     with open(DART, encoding='utf-8') as f:
         s = f.read()
-    start = s.index('const map = {')
+    start = s.index('charMap = <String, String>{')
     end = s.index('};', start)
     pairs = re.findall(r"'([^'])'\s*:\s*'([^'])'", s[start:end])
     return {a: b for a, b in pairs}

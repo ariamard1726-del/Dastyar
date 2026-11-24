@@ -75,8 +75,30 @@
 | تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `tools/law_terms.py` | `tests/python/test_law_terms_parity.py` (ایست‌واژه‌ها + آستانه‌ها)، `tests/law_terms/cases.json` روی هر دو | یکی از دو حذف شود یا فهرست/آستانه از یک فایل JSON خوانده شود |
 | موتور بازیابی | `lib/core/engine.dart` ↔ `tools/eval_py.py` | `tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
 | مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
-| نرمال‌سازی متن | `PersianText.normalize`، `Sense.norm` (داخل دارت)، `brain/common.py normalize`، `tools/topic_flow.py spaced` | `tests/normalize_cases.json` + `tests/python/test_normalize_parity.py` (نگاشت نویسه‌ها هم سنجیده می‌شود) + `test/core/normalize_fixture_test.dart` | یک تابع مشترک با نمونه‌های ثابتِ آزمون در `tests/` |
 | دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `tools/sync_meta.py` | `tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
+
+### پرداخت‌شده: قاعده‌های متن
+
+نرمال‌سازی از این فهرست بیرون رفت. پیش‌تر همان قاعده در پنج جا نوشته شده بود
+(`persian_text.dart`، `text_sense.dart`، `brain/common.py`، `tools/topic_flow.py`،
+`tools/law_terms.py`). حالا:
+
+- **یک مرجع:** `tools/contracts/text_norm.json` — نگاشت نویسه، ارقام، اعراب،
+  نویسه‌های فاصله‌ای، نشانه‌ها، قاعدهٔ نقطه، چسباندن «می/نمی» و بازنویسی‌های
+  محاوره.
+- **تولید:** `python3 tools/gen_text_norm.py --write` دو فایل می‌سازد
+  (`lib/core/text_norm_rules.dart`، `brain/text_norm_rules.py`)؛
+  `python3 tools/check.py textnorm` کهنه‌بودنشان را خطا می‌دهد.
+- **یک پیاده‌سازی در پایتون:** `common.normalize` / `common.norm` /
+  `common.spaced(s, variant)`؛ `topic_flow` و `law_terms` فقط صدایش می‌زنند.
+- **قفل رفتاری:** `tests/text_norm_golden.json` (خروجی پیش از تغییر) و
+  `tests/text_norm_norm_cases.json`؛ سنجیده در
+  `tests/python/test_text_norm_parity.py` و `test/core/text_norm_rules_test.dart`.
+
+**آن‌چه باقی است (🟡):** خودِ *منطق* یکسان‌سازی دو بار نوشته شده — یک بار در
+دارت (`Sense.norm`) و یک بار در پایتون (`common.norm`). این تقلیدِ بین‌زبانی
+با تولید کد رفع نمی‌شود؛ نگهبانش همان دو فایلِ نمونهٔ بالاست و رفعِ کاملش
+یعنی یکی از دو زبان از معادله بیرون برود (مثلاً ارزیابی روی خروجی خودِ اپ).
 
 **هشدار:** بدهی بدون نگهبان، همان «خطای بی‌صدا»یی است که در بازبینی اول آمده
 بود. قاعده: تا وقتی یک پیاده‌سازی دوگانه رفع نشده، باید دست‌کم یک آزمون مشترک

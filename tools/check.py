@@ -6,6 +6,10 @@
   meta     اعتبار فیلدهای _meta.json + تازگی مشتق‌ها (laws_catalog.json و data_info.json)
   intent   اعتبار و دقت مدل نیت (assets/brain/intent_model.json)
   parity   تازگی استاندارد طلایی برابری پایتون↔دارت (brain/parity_expected.json)
+  pipeline ترتیب و آستانه‌های مسیر پاسخ (assets/pipeline.json)
+  topics   طرح‌وارهٔ مسیرهای موضوعی (tools/schemas/topic_flow.schema.json)
+  refs     هر ارجاع قانونی در داده، در متن قوانین هست
+  textnorm قاعده‌های متن تازه‌اند (tools/contracts/text_norm.json)
   all      همهٔ موارد بالا (پیش‌فرض)
 
 اجرا: python3 tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
@@ -443,6 +447,13 @@ def cmd_parity():
     return parity.main()
 
 
+# ---------------------------------------------------------------- textnorm
+def cmd_textnorm():
+    """فایل‌های قاعدهٔ متن از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_text_norm
+    return gen_text_norm.main(['--check'])
+
+
 # ---------------------------------------------------------------- pipeline
 def cmd_pipeline():
     import pipeline_check
@@ -471,6 +482,7 @@ COMMANDS = {
     'pipeline': cmd_pipeline,
     'topics': cmd_topics,
     'refs': cmd_refs,
+    'textnorm': cmd_textnorm,
 }
 
 
