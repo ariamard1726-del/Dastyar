@@ -463,17 +463,8 @@ extension _CaseFlow on Advocate {
   /// پرسش بعدی: از میان پرسش‌هایی که هنوز جا دارند، آن‌که نتیجهٔ ادعاهای
   /// روی میز را زودتر روشن می‌کند. در موضوع‌هایی که شرط‌هایشان به پرسش‌ها
   /// گره نخورده، همان ترتیب موضوع است.
-  Slot? _nextSlot(Topic t) {
-    final askable = <Slot>[];
-    for (final s in t.slots) {
-      if (s.ask.isEmpty || file.touched(s.id)) continue;
-      final w = s.when;
-      if (w != null && !w(file)) continue;
-      if ((file.askCount[s.id] ?? 0) >= 2) continue;
-      askable.add(s);
-    }
-    return Reasoner.nextQuestion(t, file, askable);
-  }
+  /// پرسش بعدی؛ منطقش در `case_plan.dart` است تا بی‌نیاز از وکیل آزمون شود.
+  Slot? _nextSlot(Topic t) => CasePlan.nextSlot(t, file);
 
   /// اگر تکلیفِ همهٔ شرط‌های ادعای اصلی روشن شده باشد، وضع آن را می‌دهد؛
   /// هرچند هنوز پرسش‌های فرعی (مبلغ، خواسته‌های دیگر) مانده باشد. تا وقتی

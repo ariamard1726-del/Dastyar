@@ -3,6 +3,7 @@ import 'package:dastyar/core/jalali.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
+import 'package:dastyar/domain/advocate/case_plan.dart';
 import 'package:dastyar/domain/advocate/dialogue_state.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
 import 'package:dastyar/domain/advocate/law_terms.dart';
@@ -10,6 +11,7 @@ import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/reply_voice.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topic_score.dart';
 import 'package:dastyar/domain/advocate/topic_flow.dart';
 import 'package:dastyar/domain/advocate/topics/all.dart';
 import 'package:dastyar/domain/advocate/topics/shared.dart';
@@ -456,12 +458,16 @@ class Advocate {
     );
   }
 
-  AdvocateReply _reply(String raw, {TopicGuess? guess}) {
+  /// [again] یعنی «این پیام را من خودم ساختم»: وکیل برای «بگویم؟» جواب
+  /// کاربر را به پرسشِ تازه ترجمه می‌کند («بگو» ← «استدلالت چیه؟»). آن پیام
+  /// نوبتِ کاربر نیست، پس شمارهٔ نوبت را جلو نمی‌برد. پیش‌تر این کار با
+  /// `file.turns--` بعد از فراخوانیِ بازگشتی انجام می‌شد؛ حالا صریح است.
+  AdvocateReply _reply(String raw, {TopicGuess? guess, bool again = false}) {
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
     voice.relevantChip = Understanding.relevantChip(raw) ?? '';
-    file.turns++;
+    if (!again) file.turns++;
     final choices = dialog.choices;
     final choiceText = dialog.choiceText;
     final guessed = dialog.guessed;

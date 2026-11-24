@@ -22,6 +22,9 @@ ADVOCATE = os.path.join(ADVOCATE_DIR, 'advocate.dart')
 VOICE = os.path.join(ADVOCATE_DIR, 'reply_voice.dart')
 DIALOGUE = os.path.join(ADVOCATE_DIR, 'dialogue_state.dart')
 ROUTES = os.path.join(ADVOCATE_DIR, 'advocate_routes.dart')
+TOPIC_SCORE = os.path.join(ADVOCATE_DIR, 'topic_score.dart')
+CASE_PLAN = os.path.join(ADVOCATE_DIR, 'case_plan.dart')
+ISOLATION_TEST = os.path.join(ROOT, 'test', 'advocate', 'isolation_test.dart')
 
 # سقف‌های امروز؛ عبور از آن‌ها یعنی بازگشت به عقب.
 MAX_STATE_FIELDS = 13
@@ -154,6 +157,36 @@ class ShapeTests(unittest.TestCase):
                         bad.append('%s:%d %s' % (os.path.relpath(path, ROOT), i,
                                                  line.strip()[:90]))
         self.assertEqual(bad, [], '\n'.join(bad))
+
+    def test_detection_and_plan_stand_alone(self):
+        """«کدام موضوع؟» و «چه بپرسم؟» باید بیرون از `Advocate` زندگی کنند.
+
+        تا وقتی این دو متدِ `_`دارِ کلاس بودند، آزمودنشان یعنی ساختنِ یک
+        `Advocate` و اجرای یک گفتگو؛ یعنی هیچ‌وقت مستقیم آزموده نمی‌شدند.
+        """
+        self.assertIn('static int of(Topic t, String n)', _read(TOPIC_SCORE))
+        self.assertIn('static Slot? nextSlot(Topic t, CaseFile f)',
+                      _read(CASE_PLAN))
+        self.assertTrue(os.path.exists(ISOLATION_TEST),
+                        'آزمونِ مستقلِ تشخیص/پرسش نیست')
+        # منطق نباید دوباره داخلِ کلاس برگردد.
+        self.assertNotIn('t.cues.entries', _read(os.path.join(ADVOCATE_DIR, 'advocate_topic.dart')))
+        for name in ('advocate.dart', 'advocate_case.dart'):
+            src = _read(os.path.join(ADVOCATE_DIR, name))
+            self.assertNotIn('Reasoner.nextQuestion', src,
+                             '%s دوباره نقشهٔ پرسش را خودش می‌چیند' % name)
+
+    def test_turn_count_is_not_rewound(self):
+        """`respond` نباید خودش را با ترفندِ `file.turns--` صدا بزند.
+
+        پیامی که وکیل خودش می‌سازد («بگو» ← «استدلالت چیه؟») با
+        `again: true` رد می‌شود؛ شمارشِ نوبت دستکاری نمی‌شود.
+        """
+        code = '\n'.join(l for l in _read(ADVOCATE).split('\n')
+                         if not l.strip().startswith('///'))
+        self.assertNotIn('turns--', code)
+        self.assertIn('bool again = false', code)
+        self.assertIn('again: true', _read(ROUTES))
 
     def test_part_files_exist(self):
         for part in re.findall(r"^part '([^']+)'", self.src, re.M):

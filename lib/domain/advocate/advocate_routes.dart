@@ -191,8 +191,8 @@ extension _Routes on Advocate {
           return _out(
               'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
         }
-        file.turns--;
-        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
+        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟',
+            again: true);
       }
       if (t0 != null && (Sense.saysNo(n) || unsure)) {
         clearOffer();
