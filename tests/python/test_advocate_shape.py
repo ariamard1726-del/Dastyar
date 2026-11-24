@@ -160,6 +160,20 @@ class ShapeTests(unittest.TestCase):
                                                  line.strip()[:90]))
         self.assertEqual(bad, [], '\n'.join(bad))
 
+    def test_rent_topic_is_not_one_wall_of_text(self):
+        """موضوعِ اجاره ۲٬۶۷۹ خط بود در یک فایل؛ این خودش گاد-فایل بود."""
+        topics = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'topics')
+        rent = _read(os.path.join(topics, 'rent.dart'))
+        self.assertLess(len(rent.split('\n')), 40, 'rent.dart دوباره پر شد')
+        parts = re.findall(r"part '([^']+)';", rent)
+        self.assertGreaterEqual(len(parts), 6)
+        for name in parts:
+            path = os.path.join(topics, name)
+            self.assertTrue(os.path.exists(path), name)
+            body = _read(path)
+            self.assertTrue(body.startswith("part of 'rent.dart';"), name)
+            self.assertLess(len(body.split('\n')), 900, '%s دوباره غول شد' % name)
+
     def test_chat_controller_is_not_the_draft_form(self):
         """جریانِ نوشتنِ سند نباید دوباره داخلِ کنترلرِ گفتگو برگردد."""
         controller = _read(CONTROLLER)
