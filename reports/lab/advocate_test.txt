@@ -107,12 +107,12 @@
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
+✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
+✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
-✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
-✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار حرف در پروندهٔ باز پاسخ ادامه می‌دهد، نه پرسش از اول
 ✅ test/advocate/understanding_test.dart: ثبت طلاق با امتناع زوجه به مواد ۳۴ و ۳۵ مستند است
 ✅ test/advocate/understanding_test.dart: پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد
