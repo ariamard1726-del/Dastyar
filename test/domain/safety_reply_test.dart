@@ -1,12 +1,14 @@
 // ایمنی، مستقل از وکیل آزموده می‌شود.
 //
+// `SafetyReply` در بخشِ `safety_reply.dart` از کتابخانهٔ `advocate.dart` است؛
+// پس همان کتابخانه وارد می‌شود (بخش‌ها را نمی‌شود جدا import کرد).
+//
 // پیش‌تر تنها راهِ آزمودنِ پاسخِ خشونت این بود که یک `Advocate` کامل با موتور
 // بارشده ساخته شود و پیام فرستاده شود؛ حالا خودِ قاعده یک واحد است.
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/reply_voice.dart';
-import 'package:dastyar/domain/advocate/safety_reply.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:flutter_test/flutter_test.dart';
 
