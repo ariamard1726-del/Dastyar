@@ -24,8 +24,8 @@ ROUTES = os.path.join(ADVOCATE_DIR, 'advocate_routes.dart')
 
 # سقف‌های امروز؛ عبور از آن‌ها یعنی بازگشت به عقب.
 MAX_STATE_FIELDS = 42
-MAX_REPLY_LINES = 470
-MIN_ROUTES = 6
+MAX_REPLY_LINES = 345
+MIN_ROUTES = 12
 
 
 def _read(path):

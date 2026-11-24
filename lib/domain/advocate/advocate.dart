@@ -627,91 +627,13 @@ class Advocate {
     if (_routeWrongGuess(raw, n, guessed) case final r?) return r;
     final short = Sense.words(n) <= 4;
     // ادامهٔ حرفِ قبلی، وقتی کاربر خودش بخواهد.
-    final rest = voice.rest;
-    if (rest.isNotEmpty &&
-        (raw.trim() == moreChip ||
-            (short &&
-                Sense.has(n,
-                    'ادامه|بقیه|بیشتر (?:بگو|توضیح|باز)|کامل(?:ش|ترش)? (?:بگو|کن)')) ||
-            (voice.offeredMore && short && Sense.saysYes(n)))) {
-      var ask = _askText;
-      var chips = _askChips;
-      final t0 = _current();
-      if (ask.isEmpty && t0 != null && cutText(rest, _budget)[1].isEmpty) {
-        final a = _nextAsk(t0);
-        _askText = ask = a.text;
-        _askChips = chips = a.chips;
-      }
-      return _out(rest, ask: ask, chips: chips);
-    }
-    if (voice.offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
-      final t0 = _current();
-      if (t0 != null) return _finish(t0, [_pick(Say.fine)]);
-      return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
-    }
+    if (_routeMore(raw, n, short) case final r?) return r;
     // لمس دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
     final wanted = filingFor(raw);
     if (wanted != null) return _filing(wanted);
-    // جواب به پیشنهادی که به شکل پرسش داده بودم.
-    if (_offer.isNotEmpty && short) {
-      final t0 = _current();
-      final offer = _offer;
-      // «نمی‌دانم» در جوابِ «بگویم؟» یعنی تصمیم با خودت: می‌گویم. ولی
-      // برای نوشتنِ سند، بی‌خواستِ روشنِ کاربر دست به کار نمی‌شوم.
-      final unsure = Sense.saysDontKnow(n);
-      if (t0 != null &&
-          (Sense.saysYes(n) ||
-              (unsure && offer != 'draft') ||
-              raw.trim() == moreChip ||
-              Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
-        clearOffer();
-        if (offer == 'draft') {
-          return _out(
-              'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
-        }
-        file.turns--;
-        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟');
-      }
-      if (t0 != null && (Sense.saysNo(n) || unsure)) {
-        clearOffer();
-        return _finish(t0, [_pick(Say.fine)]);
-      }
-    }
-    // «باشه»، «نه» یا «ادامه بده» وقتی پرسشی روی میز نیست: گفتگو را با
-    // پرسش بعدی جلو می‌برم، نه با «متوجه نشدم».
-    final t1 = _current();
-    if (t1 != null &&
-        rest.isEmpty &&
-        _offer.isEmpty &&
-        file.pending.isEmpty &&
-        _side == null &&
-        Sense.words(n) <= 3 &&
-        (raw.trim() == moreChip ||
-            Sense.has(n, '^ ادامه ') ||
-            Sense.saysYes(n) ||
-            Sense.saysNo(n))) {
-      return _finish(t1, [_pick(Say.fine)]);
-    }
-    // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
-    final side = _side;
-    final sideText = _sideText;
-    _side = null;
-    _sideText = '';
-    if (side != null &&
-        (raw.trim() == sideChip ||
-            raw.trim() == Advocate.newTopicChip ||
-            (Sense.words(n) <= 4 &&
-                Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
-      return _open(side, Sense.norm(sideText), switched: true);
-    }
-    if (side != null && raw.trim() == Advocate.sameCaseChip) {
-      // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
-      final cur = _current();
-      if (cur != null) {
-        return _out('باشد، همین پرونده را ادامه می‌دهیم.',
-            ask: _askText.isEmpty ? 'ادامه بدهید.' : _askText, chips: _askChips);
-      }
-    }
+    if (_routeOffer(raw, n, short) case final r?) return r;
+    if (_routeBareAck(raw, n) case final r?) return r;
+    if (_routeSide(raw, n) case final r?) return r;
     final topic = _current();
     // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
     // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
@@ -739,57 +661,13 @@ class Advocate {
       }
     }
 
-    // حساب تاریخ پایان مهلت: کاربر هم تاریخ ابلاغ را داده هم مدت را و
-    // فقط حساب تقویمی می‌خواهد. پیش‌تر در همین حالت جواب کلی می‌داد و همان
-    // تاریخ را دوباره می‌پرسید. این حساب است، نه فتوا؛ ولی چون مدت را قانون
-    // تعیین می‌کند، همان هشدار را هم می‌دهیم.
-    if (!hasCase &&
-        Sense.has(n, 'مهلت|آخرین روز|چه تاریخی|چه تاریخ|تا کی|تاریخ پایان|پایان مهلت') &&
-        Sense.has(n, 'ابلاغ|رأی|رای|دادنامه|اعتراض|تجدیدنظر|واخواهی|فرجام')) {
-      final due = computeDeadline(raw);
-      if (due != null) {
-        final span = due.span.label;
-        final end = due.end.fa;
-        return _out(
-          'حساب تقویمی‌اش این می‌شود: ${due.start.fa} به‌اضافهٔ $span می‌شود $end. '
-          'در مهلت‌های قانونی معمولاً روز ابلاغ حساب نمی‌شود؛ با آن قاعده مهلت از ${due.startNext.fa} شروع می‌شود و آخرین روزش $end است. '
-          'ولی اینکه این مهلت در قانون $span است یا نه، به نوع رأی و مرجع ابلاغ‌کننده بستگی دارد و متن آن را در بانک ندارم؛ '
-          'پس همین عدد را با متن قانون یا دفتر خدمات قضایی تطبیق دهید.',
-          ask: 'این مهلت مربوط به اعتراض، تجدیدنظر یا فرجام است؟',
-          chips: const ['اعتراض', 'تجدیدنظر', 'فرجام'],
-        );
-      }
-    }
+    if (_routeDeadline(raw, n, hasCase) case final r?) return r;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
 
-    // کاربر همان حرف قبلی‌اش را دوباره فرستاده: دوباره از اول نمی‌پرسیم.
-    if (hasCase && Understanding.isRepeat(prevN, n)) {
-      return _out(
-        'این را پیش‌تر گفته‌اید و چیز تازه‌ای در آن نیست؛ همان ماجرا را در نظر دارم و از همان‌جا ادامه می‌دهم.',
-        ask: _askText.isEmpty
-            ? 'چه تغییری کرده، یا دقیقاً چه می‌خواهید بدانید؟'
-            : _askText,
-        chips: _askChips,
-      );
-    }
-
-    // ثبت طلاق و تعارض قوانین: پاسخ مستند به متن قانون.
-    final divorce = Understanding.divorceRegistration(n);
-    if (divorce != null) {
-      return _out(divorce,
-          ask: 'گواهی عدم امکان سازش را گرفته‌اید، و آیا به دفترخانه تسلیم کرده‌اید؟',
-          full: true);
-    }
-    // قاعدهٔ تعارض پیش از فهرست مواد: پرسشی که شرط قرارداد و حق قانونی را
-    // با هم دارد، باید با همان قاعده جواب بگیرد، نه با یک ارجاع ساده.
-    final rule = Understanding.conflictRule(n);
-    if (rule != null) {
-      return _out(rule,
-          ask: 'این حکم برای همین پرونده است؟ اگر بگویید چه شده، همان را روی متن قانون می‌سنجم.',
-          full: true);
-    }
+    if (_routeRepeat(prevN, n, hasCase) case final r?) return r;
+    if (_routeFixedRules(n) case final r?) return r;
     // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
     // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
     if (!hasCase && Sense.has(n, 'مهلت') && Sense.has(n, 'اعتراض|ابلاغ')) {
