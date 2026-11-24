@@ -1,6 +1,11 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
+  error • Undefined name '_glossary'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate.dart:222:15 • undefined_identifier
+warning • The declaration '_pick' isn't referenced. Try removing the declaration of '_pick' • lib/domain/advocate/advocate.dart:945:10 • unused_element
+warning • The declaration '_curious' isn't referenced. Try removing the declaration of '_curious' • lib/domain/advocate/advocate_talk.dart:63:17 • unused_element
+warning • The declaration '_unclearReply' isn't referenced. Try removing the declaration of '_unclearReply' • lib/domain/advocate/advocate_talk.dart:79:17 • unused_element
+  error • Undefined class 'LegalEngine'. Try changing the name to the name of an existing class, or creating a class with the name 'LegalEngine' • lib/domain/advocate/guide_reply.dart:28:9 • undefined_class
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
@@ -8,4 +13,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 12.4s)
+12 issues found. (ran in 10.6s)
