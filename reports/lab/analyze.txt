@@ -1,5 +1,6 @@
 Analyzing Dastyar...                                            
 
+  error • Undefined name '_index'. Try correcting the name to one that is defined, or defining the name • lib/core/law_text.dart:63:15 • undefined_identifier
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
@@ -7,5 +8,9 @@ Analyzing Dastyar...
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
+  error • Const variables must be initialized with a constant value. Try changing the initializer to be a constant expression • test/core/law_text_test.dart:21:17 • const_initialized_with_non_constant_value
+  error • The constructor being called isn't a const constructor. Try removing 'const' from the constructor invocation • test/core/law_text_test.dart:21:17 • const_with_non_const
+  error • Const variables must be initialized with a constant value. Try changing the initializer to be a constant expression • test/core/law_text_test.dart:33:17 • const_initialized_with_non_constant_value
+  error • The constructor being called isn't a const constructor. Try removing 'const' from the constructor invocation • test/core/law_text_test.dart:33:17 • const_with_non_const
 
-7 issues found. (ran in 12.7s)
+12 issues found. (ran in 13.1s)
