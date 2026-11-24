@@ -32,6 +32,7 @@ part 'advocate_chips.dart';
 part 'advocate_meta.dart';
 part 'law_answer.dart';
 part 'talk_reply.dart';
+part 'talk_route.dart';
 part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
@@ -231,6 +232,18 @@ class Advocate {
     voice: voice,
     intentNet: intentNet,
     chipPlan: () => _chipPlan,
+  );
+
+  /// مسیرِ گفت‌وگوی عمومی: سلام، سوگ، خلاصه، دستهٔ مشکل، «خارج شدم و برگشتم».
+  late final TalkRoute _talkRoute = TalkRoute(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    engine: engine,
+    talk: _talk,
+    picker: _picker,
+    chipPlan: () => _chipPlan,
+    closeCase: () => _case.closeCase(),
   );
 
   /// پاسخ‌های «دربارهٔ برنامه» و «ماجرای حقوقی نیست».

@@ -72,7 +72,8 @@ STATE_FIELD = re.compile(
 # نوع‌ها روی Advocate باشد، یعنی وکیل فقط آن‌ها را به هم وصل می‌کند.
 COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
                  'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet',
-                 'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow']
+                 'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow',
+                 'TalkRoute']
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
@@ -149,6 +150,22 @@ class ShapeTests(unittest.TestCase):
             n = len(_read(os.path.join(topics, f)).split('\n'))
             self.assertLessEqual(n, 820, '%s دوباره بزرگ شد (%d خط)' % (f, n))
 
+    def test_talk_route_is_its_own_class(self):
+        """مسیرِ گفت‌وگوی عمومی (سلام/سوگ/خلاصه/دستهٔ مشکل) نباید متدِ Advocate باشد."""
+        route = _read(os.path.join(ADVOCATE_DIR, 'talk_route.dart'))
+        part = _read(os.path.join(ADVOCATE_DIR, 'advocate_talk.dart'))
+        self.assertIn('class TalkRoute {', route)
+        for sig in ('AdvocateReply? meta(String n, Topic? topic',
+                    'List<String> branchStart() {',
+                    'AdvocateReply? branchReply(String raw, String n',
+                    'AdvocateReply intake(String raw) =>'):
+            self.assertIn(sig, route, sig)
+        # پوستهٔ talk نباید دوباره بدنه داشته باشد
+        self.assertLess(len(part.split('\n')), 130, 'advocate_talk دوباره پر شد')
+        self.assertIn('_talkRoute.meta(', part)
+        self.assertNotIn('_idleChips()', part)
+        self.assertIn('TalkRoute _talkRoute', self.src)
+
     def test_case_flow_is_its_own_class(self):
         """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود."""
         flow = _read(os.path.join(ADVOCATE_DIR, 'case_flow.dart'))
@@ -170,7 +187,8 @@ class ShapeTests(unittest.TestCase):
         for name in ('DialogueState dialog', 'ReplyVoice voice',
                      'CaseArgument _argument', 'MetaReply _metaReplyBot',
                      'LawAnswer _lawAnswer', 'TalkReply _talk',
-                     'TopicPicker _picker', 'CaseFlow _case'):
+                     'TopicPicker _picker', 'CaseFlow _case',
+                     'TalkRoute _talkRoute'):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):
