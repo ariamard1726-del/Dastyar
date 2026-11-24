@@ -641,13 +641,7 @@ extension _CaseFlow on Advocate {
         chips: chips, ask: a.text, budget: roomy ? _roomyBudget : _budget);
   }
 
-  /// برداشت وکیل از واقعیت‌هایی که تا اینجا شنیده است.
-  List<String> _recap(Topic t) {
-    final r = t.recap;
-    if (r == null) return const [];
-    return [
-      for (final x in r(file))
-        if (x.trim().isNotEmpty) x.trim(),
-    ];
-  }
+  /// برداشت وکیل از واقعیت‌هایی که تا اینجا شنیده است؛ منطقش در
+  /// `case_recap.dart` است تا بی‌نیاز از وکیل آزمون شود.
+  List<String> _recap(Topic t) => recapOf(t, file);
 }

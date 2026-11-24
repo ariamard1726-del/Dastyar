@@ -194,6 +194,18 @@ class ShapeTests(unittest.TestCase):
                      'List<LegalTemplate> get pendingChoices'):
             self.assertIn(keep, controller)
 
+    def test_chips_and_recap_stand_alone(self):
+        """دکمه‌ها و خلاصه باید تابع/کلاسِ خودشان را داشته باشند."""
+        chips = _read(os.path.join(ADVOCATE_DIR, 'advocate_chips.dart'))
+        plan = _read(os.path.join(ADVOCATE_DIR, 'chip_plan.dart'))
+        recap = _read(os.path.join(ADVOCATE_DIR, 'case_recap.dart'))
+        self.assertIn('class ChipPlan {', plan)
+        self.assertIn('List<String> recapOf(Topic t, CaseFile f)', recap)
+        self.assertLess(len(chips.split('\n')), 40, 'advocate_chips دوباره پر شد')
+        self.assertNotIn('final near = <String, int>{};', chips)
+        self.assertTrue(os.path.exists(
+            os.path.join(ROOT, 'test', 'advocate', 'chip_plan_test.dart')))
+
     def test_argument_is_its_own_class(self):
         """استدلال باید کلاسِ خودش را داشته باشد، نه متدهای `Advocate`."""
         argue = _read(os.path.join(ADVOCATE_DIR, 'advocate_argue.dart'))

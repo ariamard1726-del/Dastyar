@@ -25,6 +25,8 @@ import 'package:dastyar/domain/understanding/topic_guess.dart';
 part 'advocate_topic.dart';
 part 'advocate_case.dart';
 part 'advocate_argue.dart';
+part 'case_recap.dart';
+part 'chip_plan.dart';
 part 'advocate_chips.dart';
 part 'advocate_meta.dart';
 part 'advocate_talk.dart';
@@ -182,7 +184,7 @@ class Advocate {
   /// ساختِ پاسخ‌ها: استناد، برش، سقفِ تکرارِ پرسش و چیدمان دکمه‌ها.
   /// وضعیتِ «چه گفتیم و چه پرسیدیم» این‌جاست، نه روی خودِ وکیل.
   /// استدلال: مقایسهٔ ادعاها با واقعیت‌های پرونده و گفتنِ نتیجه.
-  late final CaseArgument _argument = CaseArgument(file, voice, _recap, _flips);
+  late final CaseArgument _argument = CaseArgument(file, voice, (t) => recapOf(t, file), _flips);
 
   late final ReplyVoice voice =
       ReplyVoice(engine: engine, file: file, unresolved: unresolved,
