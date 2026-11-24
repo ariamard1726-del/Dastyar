@@ -1,1 +1,2 @@
-🎉 470 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود (failed)
+::error::470 tests passed, 1 failed.
