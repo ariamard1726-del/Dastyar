@@ -1,28 +1,11 @@
 
-lib/domain/advocate/talk_route.dart:80:32: Error: The getter '_rudePattern' isn't defined for the type 'TalkRoute'.
- - 'TalkRoute' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_rudePattern'.
-    if (w <= 5 && Sense.has(n, _rudePattern)) {
-                               ^^^^^^^^^^^^
-lib/domain/advocate/talk_route.dart:320:20: Error: The getter 'hasCase' isn't defined for the type 'TalkRoute'.
- - 'TalkRoute' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    if (!asked && (hasCase || dialog.loose.isNotEmpty)) return null;
-                   ^^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/talk_route.dart:80:32: Error: The getter '_rudePattern' isn't defined for the type 'TalkRoute'.
- - 'TalkRoute' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_rudePattern'.
-    if (w <= 5 && Sense.has(n, _rudePattern)) {
-                               ^^^^^^^^^^^^
-lib/domain/advocate/talk_route.dart:320:20: Error: The getter 'hasCase' isn't defined for the type 'TalkRoute'.
- - 'TalkRoute' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    if (!asked && (hasCase || dialog.loose.isNotEmpty)) return null;
-                   ^^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
