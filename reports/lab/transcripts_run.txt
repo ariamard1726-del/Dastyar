@@ -1,30 +1,11 @@
 
-lib/domain/advocate/guide_reply.dart:28:9: Error: Type 'LegalEngine' not found.
-  final LegalEngine engine;
-        ^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:222:15: Error: The getter '_glossary' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_glossary'.
-    glossary: _glossary,
-              ^^^^^^^^^
-lib/domain/advocate/guide_reply.dart:28:9: Error: 'LegalEngine' isn't a type.
-  final LegalEngine engine;
-        ^^^^^^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/guide_reply.dart:28:9: Error: Type 'LegalEngine' not found.
-  final LegalEngine engine;
-        ^^^^^^^^^^^
-lib/domain/advocate/advocate.dart:222:15: Error: The getter '_glossary' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_glossary'.
-    glossary: _glossary,
-              ^^^^^^^^^
-lib/domain/advocate/guide_reply.dart:28:9: Error: 'LegalEngine' isn't a type.
-  final LegalEngine engine;
-        ^^^^^^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
