@@ -1,11 +1,48 @@
 
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+lib/domain/advocate/advocate_argue.dart:97:9: Error: The getter '_flips' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_flips'.
+    if (_flips.isEmpty) return '';
+        ^^^^^^
+lib/domain/advocate/advocate_argue.dart:98:17: Error: The method '_recap' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_recap'.
+    final now = _recap(t);
+                ^^^^^^
+lib/domain/advocate/advocate_argue.dart:99:21: Error: The getter '_flips' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_flips'.
+    for (final e in _flips.entries) {
+                    ^^^^^^
+lib/domain/advocate/advocate_argue.dart:103:19: Error: The method '_recap' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_recap'.
+      final was = _recap(t);
+                  ^^^^^^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate_argue.dart:97:9: Error: The getter '_flips' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_flips'.
+    if (_flips.isEmpty) return '';
+        ^^^^^^
+lib/domain/advocate/advocate_argue.dart:98:17: Error: The method '_recap' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_recap'.
+    final now = _recap(t);
+                ^^^^^^
+lib/domain/advocate/advocate_argue.dart:99:21: Error: The getter '_flips' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_flips'.
+    for (final e in _flips.entries) {
+                    ^^^^^^
+lib/domain/advocate/advocate_argue.dart:103:19: Error: The method '_recap' isn't defined for the type 'CaseArgument'.
+ - 'CaseArgument' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_recap'.
+      final was = _recap(t);
+                  ^^^^^^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
