@@ -19,9 +19,4 @@ extension _CaseFlow on Advocate {
 
   AdvocateReply _inCase(Topic t, String raw, String n, Issue? issue) =>
       _case.inCase(t, raw, n, issue);
-
-  _Ask _nextAsk(Topic t) => _case.nextAsk(t);
-
-  AdvocateReply _finish(Topic t, List<String> parts, {String lead = ''}) =>
-      _case.finish(t, parts, lead: lead);
 }
