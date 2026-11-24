@@ -40,8 +40,8 @@ extension _CaseFlow on Advocate {
     _arguedOn = '';
     _heard = '';
     _askText = '';
-    _lastAsk = '';
-    _askRepeats = 0;
+    voice.lastAsk = '';
+    voice.askRepeats = 0;
     _askChips = const [];
     _guideAsked = false;
     clearOffer();

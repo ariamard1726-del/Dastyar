@@ -10,7 +10,7 @@ extension _Routes on Advocate {
   /// «موضوع تازه‌ای دارم»: پروندهٔ جاری بسته می‌شود، بی‌آنکه چیزی از آن
   /// در پاسخ‌های بعدی بمانَد.
   AdvocateReply? _routeNewCase(String raw) {
-    if (raw.trim() == newCaseChip) {
+    if (raw.trim() == Advocate.newCaseChip) {
       _closeCase();
       _loose.clear();
       return _out(
@@ -28,7 +28,7 @@ extension _Routes on Advocate {
       return _out(
         'درست می‌گویید؛ راه خروج را روشن نگفته بودم. برای بیرون آمدن از این موضوع، «انصراف» یا «موضوع تازه‌ای دارم» را بزنید یا همان را بنویسید.',
         ask: 'می‌خواهید این موضوع را کنار بگذاریم یا ادامه دهیم؟',
-        chips: const [newCaseChip],
+        chips: const [Advocate.newCaseChip],
       );
     }
     return null;
@@ -111,7 +111,7 @@ extension _Routes on Advocate {
       if (choices.length == 1 && Sense.words(n) <= 3 && Sense.saysYes(n)) {
         return _open(choices.first, Sense.norm(choiceText));
       }
-      if (raw.trim() == noneChip ||
+      if (raw.trim() == Advocate.noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
         _branchAsked = true;
         return _out(
@@ -129,7 +129,7 @@ extension _Routes on Advocate {
   AdvocateReply? _routeWrongGuess(String raw, String n, bool guessed) {
     // پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
     if (guessed &&
-        (raw.trim() == wrongChip ||
+        (raw.trim() == Advocate.wrongChip ||
             (Sense.words(n) <= 7 &&
                 Sense.has(n,
                     'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
