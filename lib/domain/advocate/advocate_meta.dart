@@ -66,6 +66,10 @@ class MetaReply {
   /// آیا پیام به موضوعی نشانهٔ روشن دارد؟
   final bool Function(String n) anyTopicCue;
 
+  /// آیا پرونده یا راهنمایی روی میز است؟ همان تعریفِ وکیل، اینجا از دو
+  /// همکارش ساخته می‌شود.
+  bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
+
   AdvocateReply _out(
     String text, {
     List<String> chips = const [],
