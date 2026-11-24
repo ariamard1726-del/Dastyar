@@ -73,6 +73,21 @@ class LegalGuidesJsonTests(unittest.TestCase):
                 self.assertTrue(note['cues'] and note['text'])
             self.assertIsInstance(g.get('priority', 0), int)
 
+    def test_the_app_actually_loads_them(self):
+        """آزمون‌ها با config بار می‌شوند؛ برنامه باید جای خودش بار کند.
+
+        اگر این سیم‌کشی بیفتد، همهٔ آزمون‌ها سبز می‌مانند و برنامه بی‌صدا
+        راهنما ندارد — بدترین حالتِ ممکن. پس وجودش آزمون دارد.
+        """
+        with open(os.path.join(ROOT, 'lib', 'main.dart'), encoding='utf-8') as f:
+            main = f.read()
+        self.assertEqual(main.count('await loadLegalGuides();'), 1,
+                         'بارگذاری راهنماها در main.dart یک جا و صریح باشد')
+        self.assertIn("import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';",
+                      main)
+        # و گرنه به فهرستِ مشکلاتِ بارگذاری اضافه می‌شود (نه سکوت).
+        self.assertIn('راهنماهای آماده بار نشدند', main)
+
     def test_counts_match_what_the_app_had(self):
         self.assertEqual(sum(len(g.get('refs', [])) for g in self.guides), 89)
         self.assertEqual(sum(len(g.get('notes', [])) for g in self.guides), 19)
