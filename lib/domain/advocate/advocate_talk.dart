@@ -58,8 +58,6 @@ extension _Talk on Advocate {
   // فقط پوستهٔ نازک‌اند تا بقیهٔ بخش‌ها همان نام‌های پیشین را صدا بزنند.
   AdvocateReply? _hopeless(String n) => _talk.hopeless(n);
 
-  AdvocateReply _summary(Topic? topic) => _talk.summary(topic);
-
   AdvocateReply? _social(String n, Topic? topic) => _talk.social(n, topic);
 
   AdvocateReply _curious(String raw, String n) => _talk.curious(raw, n);
