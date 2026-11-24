@@ -136,7 +136,7 @@
 |---|---|
 | وضعیتِ «روی میز» | `dialogue_state.dart` / `DialogueState` — ۲۵ فیلد، با `clearCase()` و `reset()` |
 | ساختِ پاسخ | `reply_voice.dart` / `ReplyVoice` — استناد، برش، سقفِ تکرارِ پرسش، چیدن دکمه‌ها |
-| مسیرهای `_reply` | ۱۲ مسیرِ نام‌دار در `advocate_routes.dart`؛ `_reply` ۵۶۰ → ۳۳۴ خط |
+| مسیرهای `_reply` | ۱۲ مسیرِ نام‌دار در `reply_routes.dart`؛ `_reply` ۵۶۰ → ۳۳۴ خط |
 | فیلدهای حالتیِ `Advocate` | ۴۶ → ۱۲ |
 | تشخیص موضوع | `topic_score.dart` / `TopicScore.of(t, n)` — خالص |
 | پرسش بعدی | `case_plan.dart` / `CasePlan.nextSlot(t, f)` — خالص |
@@ -155,6 +155,7 @@
 | روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
 | موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
 | مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
+| مسیرهای یک‌نوبتیِ پاسخ | `reply_routes.dart` / `class ReplyRoutes` — ۱۳ مسیر؛ `advocate_routes.dart` (۳۱۴ خط) حذف و ترتیب در `_reply` ماند |
 
 نگهبان: `tests/python/test_advocate_shape.py` سقفِ فیلدها (۱۳)، سقفِ خطوطِ
 `_reply` (۳۴۵)، شمارِ مسیرها (۱۲)، صاحب‌داشتنِ حالت و صدا، مستقل‌بودنِ
@@ -171,7 +172,7 @@
 پرونده، صدا، خلاصه (`_recap`) و برعکس‌شدن‌ها را از بیرون می‌گیرد.
 
 **باقی‌مانده (صادقانه):** ۸۵ متد روی بخش‌های `Advocate` مانده، عمدتاً در دو جا:
-`advocate_routes.dart` (۱۳ مسیرِ `_reply`، ۳۱۴ خط) و `_guideFollow` در
+`reply_routes.dart` (۱۳ مسیرِ `_reply`، ۳۱۴ خط) و `_guideFollow` در
 `advocate_guides.dart`. هر دو خودِ زنجیرهٔ تصمیم‌اند: ده‌ها تابعِ دیگر را با
 ترتیبِ مشخص صدا می‌زنند و جداکردنشان بدونِ جدولِ مسیر (`AnswerCandidate` +
 arbiter، گام ۱ در همین سند) فقط جابه‌جا کردنِ همان زنجیره است. اینها همان جایی‌اند که «هماهنگ‌کردن» است —

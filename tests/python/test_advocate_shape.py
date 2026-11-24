@@ -21,7 +21,7 @@ ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
 ADVOCATE = os.path.join(ADVOCATE_DIR, 'advocate.dart')
 VOICE = os.path.join(ADVOCATE_DIR, 'reply_voice.dart')
 DIALOGUE = os.path.join(ADVOCATE_DIR, 'dialogue_state.dart')
-ROUTES = os.path.join(ADVOCATE_DIR, 'advocate_routes.dart')
+ROUTES = os.path.join(ADVOCATE_DIR, 'reply_routes.dart')
 TOPIC_SCORE = os.path.join(ADVOCATE_DIR, 'topic_score.dart')
 CASE_PLAN = os.path.join(ADVOCATE_DIR, 'case_plan.dart')
 ISOLATION_TEST = os.path.join(ROOT, 'test', 'advocate', 'isolation_test.dart')
@@ -217,10 +217,12 @@ class ShapeTests(unittest.TestCase):
 
     def test_single_turn_routes_are_named(self):
         routes = _read(ROUTES)
-        handlers = re.findall(r'AdvocateReply\? (_route\w+)\(', routes)
+        self.assertIn('class ReplyRoutes {', routes)
+        handlers = re.findall(r'^  AdvocateReply\? (\w+)\(', routes, re.M)
         self.assertGreaterEqual(len(handlers), MIN_ROUTES, handlers)
         for h in handlers:
-            self.assertIn('%s(' % h, self.src, 'مسیر %s از _reply صدا زده نمی‌شود' % h)
+            self.assertIn('_routes.%s(' % h, self.src,
+                          'مسیر %s از _reply صدا زده نمی‌شود' % h)
         # دوباره‌چپاندنِ همین بلوک‌ها در `_reply` نباید ممکن باشد.
         reply = _method(self.src, 'AdvocateReply _reply(String raw')
         for marker in ['isComplaintNoOption', 'wrongChip', 'فقط حرف بود']:

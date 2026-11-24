@@ -37,7 +37,7 @@ part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
-part 'advocate_routes.dart';
+part 'reply_routes.dart';
 
 /// از کدام مسیر دانش، این پاسخ ساخته شد؟
 ///
@@ -232,6 +232,18 @@ class Advocate {
     voice: voice,
     intentNet: intentNet,
     chipPlan: () => _chipPlan,
+  );
+
+  /// مسیرهای یک‌نوبتیِ پاسخ (سیزده مسیرِ نام‌دار).
+  late final ReplyRoutes _routes = ReplyRoutes(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    flow: _case,
+    picker: _picker,
+    talk: _talk,
+    talkRoute: _talkRoute,
+    reply: (raw, {bool again = true}) => _reply(raw, again: again),
   );
 
   /// مسیرِ گفت‌وگوی عمومی: سلام، سوگ، خلاصه، دستهٔ مشکل، «خارج شدم و برگشتم».
@@ -540,12 +552,12 @@ class Advocate {
     dialog.choiceText = '';
     dialog.guessed = false;
     dialog.branchAsked = false;
-    if (_routeNewCase(raw) case final r?) return r;
-    if (_routeNoOption(raw) case final r?) return r;
+    if (_routes.newCase(raw) case final r?) return r;
+    if (_routes.noOption(raw) case final r?) return r;
     // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
     // قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» به‌عنوان ادامهٔ پروندهٔ
     // قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
-    if (_routePending(raw, n) case final r?) return r;
+    if (_routes.pending(raw, n) case final r?) return r;
     // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
     final branch = _branchReply(raw, n, asked: branchAsked);
     if (branch != null) return branch;
@@ -607,18 +619,18 @@ class Advocate {
     // خطر هرگز زیر این پاسخ نماند.
     final aside = _metaReplyBot.metaReply(raw, n);
     if (aside != null) return aside;
-    if (_routeFight(n, hasCase) case final r?) return r;
-    if (_routeChoice(raw, n, choices, choiceText) case final r?) return r;
-    if (_routeWrongGuess(raw, n, guessed) case final r?) return r;
+    if (_routes.fight(n, hasCase) case final r?) return r;
+    if (_routes.choice(raw, n, choices, choiceText) case final r?) return r;
+    if (_routes.wrongGuess(raw, n, guessed) case final r?) return r;
     final short = Sense.words(n) <= 4;
     // ادامهٔ حرفِ قبلی، وقتی کاربر خودش بخواهد.
-    if (_routeMore(raw, n, short) case final r?) return r;
+    if (_routes.more(raw, n, short) case final r?) return r;
     // لمس دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
     final wanted = filingFor(raw);
     if (wanted != null) return _filing(wanted);
-    if (_routeOffer(raw, n, short) case final r?) return r;
-    if (_routeBareAck(raw, n) case final r?) return r;
-    if (_routeSide(raw, n) case final r?) return r;
+    if (_routes.offer(raw, n, short) case final r?) return r;
+    if (_routes.bareAck(raw, n) case final r?) return r;
+    if (_routes.side(raw, n) case final r?) return r;
     final topic = _current();
     // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
     // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
@@ -646,13 +658,13 @@ class Advocate {
       }
     }
 
-    if (_routeDeadline(raw, n, hasCase) case final r?) return r;
+    if (_routes.deadline(raw, n, hasCase) case final r?) return r;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
 
-    if (_routeRepeat(prevN, n, hasCase) case final r?) return r;
-    if (_routeFixedRules(n) case final r?) return r;
+    if (_routes.repeat(prevN, n, hasCase) case final r?) return r;
+    if (_routes.fixedRules(n) case final r?) return r;
     // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
     // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
     if (!hasCase && Sense.has(n, 'مهلت') && Sense.has(n, 'اعتراض|ابلاغ')) {

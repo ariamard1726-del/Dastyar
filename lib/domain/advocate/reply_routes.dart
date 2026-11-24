@@ -1,6 +1,58 @@
 part of 'advocate.dart';
 
-extension _Routes on Advocate {
+// مسیرهای یک‌نوبتیِ پاسخ: هر کدام یا جواب می‌دهد یا `null`.
+//
+// پیش‌تر این سیزده متد، متدهای خصوصیِ `Advocate` بودند؛ یعنی برای سنجیدنِ
+// «کاربر گفت "نمی‌دانم" سرِ پیشنهادِ سند» باید یک وکیلِ کامل ساخته می‌شد.
+// حالا `ReplyRoutes` همکارهایش را در سازنده می‌گیرد و هر مسیر یک متدِ نام‌دار
+// است. **ترتیبِ** صدا زدن‌شان همچنان در `Advocate._reply` نوشته شده، چون آن
+// ترتیب خودِ تصمیمِ معماری است و باید در یک نگاه دیده شود.
+
+/// مسیرهای یک‌نوبتیِ پاسخ، بی‌نیاز از خودِ وکیل.
+class ReplyRoutes {
+  ReplyRoutes({
+    required this.file,
+    required this.dialog,
+    required this.voice,
+    required this.flow,
+    required this.picker,
+    required this.talk,
+    required this.talkRoute,
+    required this.reply,
+  });
+
+  final CaseFile file;
+  final DialogueState dialog;
+  final ReplyVoice voice;
+
+  /// روندِ پرونده: بازکردن، بستن، پاسخِ داخلِ پرونده، جمع‌بندی.
+  final CaseFlow flow;
+
+  /// موضوعِ باز و تطبیقِ بحث.
+  final TopicPicker picker;
+
+  /// پاسخِ «آیا این پیام نشانهٔ روشنِ موضوعی دارد؟».
+  final TalkReply talk;
+
+  /// دکمه‌های دستهٔ مشکل.
+  final TalkRoute talkRoute;
+
+  /// بازگشت به `_reply` برای پیامی که خودِ وکیل ساخته («قدم بعدی چیست؟»).
+  final AdvocateReply Function(String raw, {bool again}) reply;
+
+  AdvocateReply _out(
+    String text, {
+    List<String> chips = const [],
+    String ask = '',
+    bool full = false,
+    int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
+  }) =>
+      voice.out(text,
+          chips: chips, ask: ask, full: full, budget: budget, source: source);
+
+  String _pick(List<String> options) => voice.pick(options);
+
   // مسیرهای یک‌نوبتیِ پاسخ: هر کدام یا جواب می‌دهد یا `null`.
   //
   // پیش‌تر این‌ها پشتِ سرِ هم داخل `_reply` بودند و یک تابعِ چندصدخطی
@@ -9,9 +61,9 @@ extension _Routes on Advocate {
 
   /// «موضوع تازه‌ای دارم»: پروندهٔ جاری بسته می‌شود، بی‌آنکه چیزی از آن
   /// در پاسخ‌های بعدی بمانَد.
-  AdvocateReply? _routeNewCase(String raw) {
+  AdvocateReply? newCase(String raw) {
     if (raw.trim() == Advocate.newCaseChip) {
-      _closeCase();
+      flow.closeCase();
       dialog.loose.clear();
       return _out(
         'باشد، آن موضوع را کنار می‌گذارم.',
@@ -22,7 +74,7 @@ extension _Routes on Advocate {
   }
 
   /// اعتراضِ «گزینه‌ای برای بیرون آمدن نیست»: راه خروج نشان داده می‌شود.
-  AdvocateReply? _routeNoOption(String raw) {
+  AdvocateReply? noOption(String raw) {
     // «گزینه‌ای وجود ندارد»: اعتراض به نبودن راه خروج. راه خروج را نشان می‌دهیم.
     if (Drafting.isComplaintNoOption(raw)) {
       return _out(
@@ -38,7 +90,7 @@ extension _Routes on Advocate {
   ///
   /// این پرسش پیش از هر قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» ادامهٔ
   /// پروندهٔ قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
-  AdvocateReply? _routePending(String raw, String n) {
+  AdvocateReply? pending(String raw, String n) {
     final pend = dialog.pendingTopic;
     final pendText = dialog.pendingText;
     dialog.pendingTopic = null;
@@ -49,9 +101,9 @@ extension _Routes on Advocate {
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
-        return _open(pend, Sense.norm(pendText), switched: true);
+        return flow.open(pend, Sense.norm(pendText), switched: true);
       }
-      final curTopic = _current();
+      final curTopic = picker.current();
       if (curTopic != null &&
           (raw.trim() == Advocate.newTopicNoChip ||
               raw.trim() == Advocate.relatedChip ||
@@ -59,7 +111,7 @@ extension _Routes on Advocate {
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
         final pn = Sense.norm(pendText);
-        final r = _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
+        final r = flow.inCase(curTopic, pendText, pn, picker.matchIssue(curTopic, pn));
         // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
         // برنامه سرگردان شده است.
         return AdvocateReply(
@@ -75,7 +127,7 @@ extension _Routes on Advocate {
 
   /// دعوای لفظی: تا وقتی تهدید یا برخورد فیزیکی نبوده، خودِ «جر و بحث»
   /// جرم نیست؛ ولی باید بدانیم کدامش پیش آمده.
-  AdvocateReply? _routeFight(String n, bool hasCase) {
+  AdvocateReply? fight(String n, bool hasCase) {
     // دعوای لفظی: تا وقتی تهدید یا برخورد فیزیکی نبوده، خودِ «جر و بحث»
     // جرم نیست؛ ولی باید بدانیم کدامش پیش آمده. پیش‌تر این جمله به حدسِ
     // «دفاع در برابر شکایت» یا پاسخ «در پایگاه نیست» می‌رسید.
@@ -84,7 +136,7 @@ extension _Routes on Advocate {
             'کتک|مشت|لگد|چاقو|زخم|ضرب|جرح|هل داد|هلم داد|بیمارستان|پزشکی قانونی') &&
         // «دعوا سر کرایه خانه» یا «با مستاجر درگیر شدم» ماجرای موضوع‌دار است و
         // باید به موضوع خودش برسد، نه به پاسخ عمومیِ دعوای لفظی.
-        !_anyTopicCue(n) &&
+        !talk.anyTopicCue(n) &&
         Sense.has(n,
             'جر ?و ?بحث|بگو ?مگو|دعوای لفظی|دعوا(?:م|مون)? (?:شد|کردم)|بحث(?:م|مون)? (?:شد|کردیم|کردم)')) {
       return _out(
@@ -99,17 +151,17 @@ extension _Routes on Advocate {
   }
 
   /// جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
-  AdvocateReply? _routeChoice(
+  AdvocateReply? choice(
       String raw, String n, List<Topic> choices, String choiceText) {
     // جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
     if (choices.isNotEmpty) {
       for (final t in choices) {
         if (n == Sense.norm(t.title)) {
-          return _open(t, Sense.norm(choiceText));
+          return flow.open(t, Sense.norm(choiceText));
         }
       }
       if (choices.length == 1 && Sense.words(n) <= 3 && Sense.saysYes(n)) {
-        return _open(choices.first, Sense.norm(choiceText));
+        return flow.open(choices.first, Sense.norm(choiceText));
       }
       if (raw.trim() == Advocate.noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
@@ -126,27 +178,27 @@ extension _Routes on Advocate {
   }
 
   /// پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
-  AdvocateReply? _routeWrongGuess(String raw, String n, bool guessed) {
+  AdvocateReply? wrongGuess(String raw, String n, bool guessed) {
     // پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
     if (guessed &&
         (raw.trim() == Advocate.wrongChip ||
             (Sense.words(n) <= 7 &&
                 Sense.has(n,
                     'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
-      _closeCase();
+      flow.closeCase();
       dialog.loose.clear();
       return _out(
         'ببخشید، اشتباه برداشت کردم.',
         ask:
             'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
-        chips: _branchStart(),
+        chips: talkRoute.branchStart(),
       );
     }
     return null;
   }
 
   /// «ادامه بده» یا «بیشتر بگو»: متنی که در پاسخ قبلی جا نشد.
-  AdvocateReply? _routeMore(String raw, String n, bool short) {
+  AdvocateReply? more(String raw, String n, bool short) {
     final rest = voice.rest;
     if (rest.isNotEmpty &&
         (raw.trim() == Advocate.moreChip ||
@@ -156,27 +208,27 @@ extension _Routes on Advocate {
             (voice.offeredMore && short && Sense.saysYes(n)))) {
       var ask = dialog.askText;
       var chips = dialog.askChips;
-      final t0 = _current();
+      final t0 = picker.current();
       if (ask.isEmpty && t0 != null && cutText(rest, _budget)[1].isEmpty) {
-        final a = _nextAsk(t0);
+        final a = flow.nextAsk(t0);
         dialog.askText = ask = a.text;
         dialog.askChips = chips = a.chips;
       }
       return _out(rest, ask: ask, chips: chips);
     }
     if (voice.offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
-      final t0 = _current();
-      if (t0 != null) return _finish(t0, [_pick(Say.fine)]);
+      final t0 = picker.current();
+      if (t0 != null) return flow.finish(t0, [_pick(Say.fine)]);
       return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
     }
     return null;
   }
 
   /// پاسخ به پیشنهادی که خودم به شکل پرسش داده بودم («بگویم؟»).
-  AdvocateReply? _routeOffer(String raw, String n, bool short) {
+  AdvocateReply? offer(String raw, String n, bool short) {
     // جواب به پیشنهادی که به شکل پرسش داده بودم.
     if (dialog.offer.isNotEmpty && short) {
-      final t0 = _current();
+      final t0 = picker.current();
       final offer = dialog.offer;
       // «نمی‌دانم» در جوابِ «بگویم؟» یعنی تصمیم با خودت: می‌گویم. ولی
       // برای نوشتنِ سند، بی‌خواستِ روشنِ کاربر دست به کار نمی‌شوم.
@@ -186,17 +238,17 @@ extension _Routes on Advocate {
               (unsure && offer != 'draft') ||
               raw.trim() == Advocate.moreChip ||
               Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
-        clearOffer();
+        flow.clearOffer();
         if (offer == 'draft') {
           return _out(
               'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
         }
-        return _reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟',
+        return reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟',
             again: true);
       }
       if (t0 != null && (Sense.saysNo(n) || unsure)) {
-        clearOffer();
-        return _finish(t0, [_pick(Say.fine)]);
+        flow.clearOffer();
+        return flow.finish(t0, [_pick(Say.fine)]);
       }
     }
     return null;
@@ -204,10 +256,10 @@ extension _Routes on Advocate {
 
   /// «باشه»/«نه» وقتی پرسشی روی میز نیست: پرسش بعدی می‌آید، نه
   /// «متوجه نشدم».
-  AdvocateReply? _routeBareAck(String raw, String n) {
+  AdvocateReply? bareAck(String raw, String n) {
     // «باشه»، «نه» یا «ادامه بده» وقتی پرسشی روی میز نیست: گفتگو را با
     // پرسش بعدی جلو می‌برم، نه با «متوجه نشدم».
-    final t1 = _current();
+    final t1 = picker.current();
     if (t1 != null &&
         voice.rest.isEmpty &&
         dialog.offer.isEmpty &&
@@ -218,14 +270,14 @@ extension _Routes on Advocate {
             Sense.has(n, '^ ادامه ') ||
             Sense.saysYes(n) ||
             Sense.saysNo(n))) {
-      return _finish(t1, [_pick(Say.fine)]);
+      return flow.finish(t1, [_pick(Say.fine)]);
     }
     return null;
   }
 
   /// اشارهٔ کناری به موضوعی دیگر («قولنامه داریم») و پرسش «موضوع
   /// جداست؟». پروندهٔ فعلی تا پاسخ کاربر دست‌نخورده می‌ماند.
-  AdvocateReply? _routeSide(String raw, String n) {
+  AdvocateReply? side(String raw, String n) {
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
     final side = dialog.side;
     final sideText = dialog.sideText;
@@ -236,11 +288,11 @@ extension _Routes on Advocate {
             raw.trim() == Advocate.newTopicChip ||
             (Sense.words(n) <= 4 &&
                 Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
-      return _open(side, Sense.norm(sideText), switched: true);
+      return flow.open(side, Sense.norm(sideText), switched: true);
     }
     if (side != null && raw.trim() == Advocate.sameCaseChip) {
       // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
-      final cur = _current();
+      final cur = picker.current();
       if (cur != null) {
         return _out('باشد، همین پرونده را ادامه می‌دهیم.',
             ask: dialog.askText.isEmpty ? 'ادامه بدهید.' : dialog.askText, chips: dialog.askChips);
@@ -251,7 +303,7 @@ extension _Routes on Advocate {
 
   /// حساب تاریخ پایان مهلت، وقتی کاربر هم تاریخ ابلاغ را داده و هم
   /// مدت را. این حساب است، نه فتوا؛ هشدارش هم با آن می‌آید.
-  AdvocateReply? _routeDeadline(String raw, String n, bool hasCase) {
+  AdvocateReply? deadline(String raw, String n, bool hasCase) {
     // حساب تاریخ پایان مهلت: کاربر هم تاریخ ابلاغ را داده هم مدت را و
     // فقط حساب تقویمی می‌خواهد. پیش‌تر در همین حالت جواب کلی می‌داد و همان
     // تاریخ را دوباره می‌پرسید. این حساب است، نه فتوا؛ ولی چون مدت را قانون
@@ -277,7 +329,7 @@ extension _Routes on Advocate {
   }
 
   /// کاربر همان حرف قبلی‌اش را دوباره فرستاده: از اول نمی‌پرسیم.
-  AdvocateReply? _routeRepeat(String prevN, String n, bool hasCase) {
+  AdvocateReply? repeat(String prevN, String n, bool hasCase) {
     // کاربر همان حرف قبلی‌اش را دوباره فرستاده: دوباره از اول نمی‌پرسیم.
     if (hasCase && Understanding.isRepeat(prevN, n)) {
       return _out(
@@ -292,7 +344,7 @@ extension _Routes on Advocate {
   }
 
   /// قاعده‌های مستندِ بی‌نیاز از پرونده: ثبت طلاق و تعارض قوانین.
-  AdvocateReply? _routeFixedRules(String n) {
+  AdvocateReply? fixedRules(String n) {
     // ثبت طلاق و تعارض قوانین: پاسخ مستند به متن قانون.
     final divorce = Understanding.divorceRegistration(n);
     if (divorce != null) {

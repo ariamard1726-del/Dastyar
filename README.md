@@ -87,7 +87,7 @@
 **۱۳. گاد-آبجکت `Advocate` شکست (گام ۱)**
 - وضعیتِ «چه چیزی روی میز است» (۲۵ فیلد: پرسشِ جاری، پیشنهادِ معلق، موضوعِ منتظرِ تأیید، راهنمای باز، ایمنی، حرف‌های شنیده‌شده) به `lib/domain/advocate/dialogue_state.dart` رفت.
 - ساختِ پاسخ (استناد، برش، سقفِ تکرارِ پرسش، چیدن دکمه‌ها، استنادهای آخر) به `lib/domain/advocate/reply_voice.dart` رفت؛ `Advocate._out` فقط یک پاس‌دهنده است.
-- ۱۲ مسیر یک‌نوبتی از `_reply` بیرون آمد و در `advocate_routes.dart` نام گرفت؛ `_reply` از ۵۶۰ به ۳۳۴ خط رسید و فیلدهای حالتیِ `Advocate` از ۴۶ به ۱۲.
+- ۱۲ مسیر یک‌نوبتی از `_reply` بیرون آمد و در `reply_routes.dart` نام گرفت؛ `_reply` از ۵۶۰ به ۳۳۴ خط رسید و فیلدهای حالتیِ `Advocate` از ۴۶ به ۱۲.
 - نگهبان عددی: `tests/python/test_advocate_shape.py` (سقفِ فیلدها و خطوطِ `_reply`، صاحب‌داشتنِ حالت، اینکه مسیرها دوباره چپانده نشوند، و اینکه `$dialog.x` به‌جای `${dialog.x}` نوشته نشود — همان اشتباهی که یک بار متنِ پاسخ را «Instance of 'DialogueState'…» کرد).
 - تشخیص موضوع (`topic_score.dart`) و پرسش بعدی (`case_plan.dart`) از کلاس بیرون آمدند: دو تابعِ خالص که `test/advocate/isolation_test.dart` بدونِ ساختنِ `Advocate` می‌سنجدشان.
 - فراخوانیِ بازگشتیِ `respond` با `file.turns--` حذف شد؛ پیامِ ساختگیِ خودِ وکیل با `again: true` رد می‌شود.
@@ -126,8 +126,9 @@
 | ۱۲ | مسیرِ گفت‌وگوی عمومی (سلام/توهین/دستهٔ مشکل) | `TalkRoute` | `_meta` ۲۲۹ خط؛ ۳۹۰ → ۱۰۰ |
 | ۱۳ | موتورِ قوانین (ایندکس/رتبه/متن) | `LawIndex`/`LawRanker`/`LawText` | ۱٬۱۷۸ → ۶۳۸ خط |
 | ۱۴ | موضوع‌های بزرگ | `rent` ۶ تکه، `labor`/`family` ۴ تکه | ۵۷۸ → ۱۲ خطِ سرِ فایل |
+| ۱۵ | مسیرهای یک‌نوبتیِ پاسخ | `ReplyRoutes` | ۱۳ مسیر؛ `advocate_routes.dart` ۳۱۴ → ۰ |
 
-- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۸۵**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
+- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۷۲**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
 - هر همکار آزمونِ خودش را دارد: `isolation_test`، `chip_plan_test`، `topic_picker_test`،
   `labor_test`، `family_test` و چهار آزمونِ بی‌داراییِ موتور
@@ -136,8 +137,8 @@
   بودِ هر همکار (`CaseArgument`، `ChipPlan`، `MetaReply`، `LawAnswer`، `TalkReply`،
   `TopicPicker`، `CaseFlow`، `TalkRoute`)، اینکه پوسته‌ها دوباره منطق نگیرند، تکه‌بودنِ
   موضوع‌ها، و اینکه راهنماها داده بمانند و متد نگیرند.
-- **باقی‌مانده (🟡):** دو دیسپچر: `_reply` (۱۳ مسیر در `advocate_routes.dart`) و
-  `_guideFollow` در `advocate_guides.dart`. جداکردنشان بدونِ جدولِ مسیر
+- **باقی‌مانده (🟡):** `_guideFollow` در `advocate_guides.dart` و خودِ ترتیبِ
+  مسیرها در `_reply`. جداکردنشان بدونِ جدولِ مسیر
   (`AnswerCandidate` + arbiter، گام ۱ در `docs/CODE_REVIEW.md`) فقط همان زنجیره را
   جابه‌جا می‌کند. `legal_guides.dart` هم داده است، نه رفتار؛ انتقالش به JSON تصمیمِ
   صاحبِ پروژه است.
