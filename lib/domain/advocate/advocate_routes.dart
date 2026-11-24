@@ -45,7 +45,7 @@ extension _Routes on Advocate {
     _pendingText = '';
     if (pend != null) {
       if (raw.trim() == Advocate.newTopicYesChip ||
-          raw.trim() == sideChip ||
+          raw.trim() == Advocate.sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
@@ -54,7 +54,7 @@ extension _Routes on Advocate {
       final curTopic = _current();
       if (curTopic != null &&
           (raw.trim() == Advocate.newTopicNoChip ||
-              raw.trim() == relatedChip ||
+              raw.trim() == Advocate.relatedChip ||
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
