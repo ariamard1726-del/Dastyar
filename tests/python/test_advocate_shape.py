@@ -122,15 +122,18 @@ class ShapeTests(unittest.TestCase):
             os.path.join(ROOT, 'test', 'advocate', 'topic_picker_test.dart')))
 
     def test_guides_stay_data(self):
-        """راهنماها داده‌اند، نه رفتار: اگر متد پیدا کنند، راهِ گاد-آبجکت باز است."""
-        guides = _read(os.path.join(ROOT, 'lib', 'domain', 'lawyer',
-                                    'legal_guides.dart'))
+        """راهنمای آماده در کد نیست: مدل و ثبت، نه متن و نه رفتار."""
+        path = os.path.join(ROOT, 'lib', 'domain', 'lawyer', 'legal_guides.dart')
+        self.assertTrue(os.path.exists(path))
+        guides = _read(path)
         methods = re.findall(r'^  (?:static\s+)?[\w<>?,\[\] ]+?\s+\w+\([^)]*\)\s*'
                              r'(?:async\s*)?(?:\{|=>)', guides, re.M)
         self.assertEqual(methods, [], 'legal_guides.dart متد گرفت: %r' % methods[:3])
-        self.assertEqual(guides.count('const List<LegalGuide> legalGuides = ['), 1)
-        self.assertGreaterEqual(guides.count('LegalGuide('), 30,
-                                'راهنماها کم شدند؛ جابه‌جاییِ داده است یا حذف؟')
+        self.assertLess(len(guides.split('\n')), 140,
+                        'داده دوباره داخلِ کد نوشته شد (%d خط)' % len(guides.split('\n')))
+        self.assertEqual(guides.count("    id: '"), 0, 'رکوردِ راهنما در کد ماند')
+        self.assertIn('List<LegalGuide> get legalGuides', guides)
+        self.assertIn('void installLegalGuides(', guides)
 
     def test_topics_are_split(self):
         """موضوع‌های بزرگ نباید یک فایلِ هزارخطی باشند."""

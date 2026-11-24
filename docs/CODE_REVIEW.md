@@ -155,7 +155,7 @@
 | روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
 | موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
 | مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
-| دادهٔ راهنماها (آمادهٔ مهاجرت) | `tools/gen_legal_guides.py` + `tools/data/legal_guides.json`؛ قفلِ دوطرفه: `tests/python/test_legal_guides_json.py` و `test/domain/legal_guides_json_test.dart`. بارگذار عمداً عوض نشد (نقشه‌های `static final` در `LawyerVoice` + بارگذاریِ ناهمگام) |
+| دادهٔ راهنماها | `assets/brain/guides/legal_guides.json` + `legal_guides_loader.dart`؛ `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط (فقط مدل و ثبت). قفل: اثرِ انگشتِ sha256، شمارش‌های ساختاری، و آزمونِ دارتِ «نقشه‌های `LawyerVoice` با نصبِ فهرستِ تازه بازساخته می‌شوند» |
 | جداسازیِ محاسبه از تصمیم | `topic_read.dart` / `class TopicRead` + `_readTopics`، `_correctionReply`، `_noCaseReply`، `_inCaseReply`؛ `_reply` ۲۸۷ → ۱۰۴ خط |
 | ترتیبِ پاسخ‌ها | `answer_candidate.dart` — `AnswerCandidate` + `AnswerArbiter`؛ ۱۸ کاندیدِ نام‌دار، `_reply` ۳۳۴ → ۲۸۷ خط |
 | پاسخ‌های واژه‌محور | `term_reply.dart` / `class TermReply` — `_lawTermsReply`، `_topicReply`، `_topicLeafReply`؛ `advocate_guides.dart` حذف شد (۱۰۲ → ۰)؛ ثابتِ نشانه‌های حقوقی به همان فایل رفت |

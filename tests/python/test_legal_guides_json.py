@@ -1,99 +1,83 @@
-"""قفلِ دادهٔ راهنماها: JSON باید دقیقاً همان چیزی باشد که در Dart نوشته شده.
+"""قفلِ دادهٔ راهنماها: از وقتی متن از کد بیرون رفت، این آزمون نگهبانِ متن است.
 
-این آزمون دو کار می‌کند:
-  ۱. نمی‌گذارد JSON از کد جدا بیفتد (هر تغییر در یکی، دیگری را قرمز می‌کند).
-  ۲. ثابت می‌کند هیچ حرفی از متنِ حقوقی در ترجمه عوض نشده: هر رشته، بی‌کم‌وکاست،
-     در فایلِ Dart پیدا می‌شود.
-
-ترجمه با `tools/gen_legal_guides.py` انجام می‌شود؛ همان ابزار هم این‌جا اجرا
-می‌شود، پس اگر کسی JSON را دستی ویرایش کند یا متنِ کد را عوض کند، قرمز می‌شود.
+سه کار می‌کند:
+  ۱. نمی‌گذارد متنِ حقوقی بی‌آنکه کسی متوجه شود عوض شود (اثرِ انگشتِ sha256).
+  ۲. نمی‌گذارد کسی داده را دوباره داخلِ فایلِ Dart بنویسد.
+  ۳. نمی‌گذارد فایل از `pubspec.yaml` بیفتد (که در APK نباشد و برنامه بی‌صدا
+     راهنما نداشته باشد).
 """
+import hashlib
+import json
 import os
 import re
-import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
 
-import gen_legal_guides  # noqa: E402
-
+ASSET = os.path.join(ROOT, 'assets', 'brain', 'guides', 'legal_guides.json')
 SOURCE = os.path.join(ROOT, 'lib', 'domain', 'lawyer', 'legal_guides.dart')
+PUBSPEC = os.path.join(ROOT, 'pubspec.yaml')
+
+# اثرِ انگشتِ متنِ راهنماها. تغییرِ عمدی؟ همین عدد را به‌روز کنید — و بدانید
+# که دارید متنِ حقوقی را عوض می‌کنید.
+GOLDEN_SHA256 = '050e64c9026b9b394dba9ba321e169c08e95704a382b11781680fb237473f5b8'
 
 ALLOWED = {'id', 'title', 'triggers', 'excludes', 'priority', 'empathy', 'brief',
            'answer', 'steps', 'cautions', 'refs', 'followUp', 'templateIds', 'notes'}
 REQUIRED = ('id', 'title', 'triggers', 'empathy', 'brief', 'answer', 'followUp')
 
 
-def _dart():
-    with open(SOURCE, encoding='utf-8') as f:
-        return f.read()
-
-
-def _escaped(text):
-    """همان شکلی که متن در فایلِ Dart نوشته شده است."""
-    return (text.replace('\\', '\\\\').replace("'", "\\'")
-            .replace('\n', '\\n').replace('\t', '\\t'))
-
-
 class LegalGuidesJsonTests(unittest.TestCase):
     def setUp(self):
-        self.src = _dart()
-        self.file = gen_legal_guides.load_json()
-        self.guides = self.file['guides']
+        with open(ASSET, encoding='utf-8') as f:
+            self.raw = f.read()
+        self.guides = json.loads(self.raw)['guides']
+        with open(SOURCE, encoding='utf-8') as f:
+            self.dart = f.read()
 
-    def test_json_is_what_the_generator_makes(self):
-        """JSON نباید دستی ویرایش شده باشد."""
-        self.assertEqual(gen_legal_guides.build(), self.file)
+    def test_text_has_not_drifted(self):
+        digest = hashlib.sha256(self.raw.encode('utf-8')).hexdigest()
+        self.assertEqual(digest, GOLDEN_SHA256,
+                         'متنِ راهنماها عوض شده است؛ اگر عمدی بود اثرِ انگشت را به‌روز کنید')
 
-    def test_every_guide_of_the_code_is_in_json(self):
-        ids = re.findall(r"^    id: '([^']+)',", self.src, re.M)
-        self.assertGreaterEqual(len(ids), 30, ids)
-        self.assertEqual(ids, [g['id'] for g in self.guides])
+    def test_data_no_longer_lives_in_dart(self):
+        # تنها «LegalGuide(» باقی‌مانده سازندهٔ کلاس است؛ بارگذار در فایلِ دیگری است.
+        self.assertEqual(self.dart.count("    id: '"), 0)
+        self.assertEqual(self.dart.count('LegalGuide('), 1)  # فقط سازنده
+        self.assertNotIn('const List<LegalGuide> legalGuides', self.dart)
+        self.assertLess(len(self.dart.split('\n')), 220, 'داده دوباره در کد نوشته شد')
+
+    def test_asset_is_bundled(self):
+        with open(PUBSPEC, encoding='utf-8') as f:
+            pubspec = f.read()
+        self.assertIn('- assets/brain/guides/', pubspec)
+        self.assertTrue(os.path.exists(ASSET))
+
+    def test_guides_are_well_formed(self):
+        self.assertEqual(len(self.guides), 34)
+        ids = [g['id'] for g in self.guides]
         self.assertEqual(len(set(ids)), len(ids), 'شناسهٔ تکراری')
-
-    def test_no_legal_text_was_altered(self):
-        """هر رشتهٔ متنیِ JSON باید عیناً در فایلِ Dart باشد."""
-        for g in self.guides:
-            for key in ('title', 'empathy', 'brief', 'answer', 'followUp'):
-                text = g.get(key)
-                self.assertTrue(text, '%s.%s خالی است' % (g['id'], key))
-                self.assertIn(_escaped(text), self.src, '%s.%s' % (g['id'], key))
-            for text in g.get('steps', []) + g.get('cautions', []):
-                self.assertIn(_escaped(text), self.src, '%s: %s' % (g['id'], text[:30]))
-            for note in g.get('notes', []):
-                self.assertIn(_escaped(note['text']), self.src, '%s note' % g['id'])
-
-    def test_refs_and_notes_are_all_there(self):
-        # یکی از هر کدام، خودِ سازنده در فایل است.
-        self.assertEqual(len(self.src.split('LegalRef(')) - 2,
-                         sum(len(g.get('refs', [])) for g in self.guides))
-        self.assertEqual(len(self.src.split('GuideNote(')) - 2,
-                         sum(len(g.get('notes', [])) for g in self.guides))
-
-    def test_schema_is_explicit_and_closed(self):
         for g in self.guides:
             self.assertLessEqual(set(g), ALLOWED, g['id'])
             for key in REQUIRED:
-                self.assertIn(key, g, g['id'])
+                self.assertTrue(g.get(key), '%s.%s خالی است' % (g['id'], key))
             self.assertTrue(g['triggers'], '%s: بی‌نشانه' % g['id'])
             for group in g['triggers']:
                 self.assertTrue(group, '%s: گروهِ خالی' % g['id'])
-                for word in group:
-                    self.assertIsInstance(word, str)
             for ref in g.get('refs', []):
                 self.assertEqual(set(ref), {'law', 'article'})
                 self.assertTrue(re.fullmatch(r'[0-9]+', ref['article']),
                                 '%s: شمارهٔ مادهٔ نامعتبر %r' % (g['id'], ref['article']))
             for note in g.get('notes', []):
                 self.assertEqual(set(note), {'cues', 'text'})
-                self.assertTrue(note['cues'])
+                self.assertTrue(note['cues'] and note['text'])
             self.assertIsInstance(g.get('priority', 0), int)
 
-    def test_json_is_not_bundled_in_the_app(self):
-        """تا وقتی بارگذار عوض نشده، این فایل نباید داخلِ APK برود."""
-        self.assertFalse(os.path.exists(os.path.join(ROOT, 'assets', 'brain', 'guides')),
-                         'JSON بدونِ بارگذار به assets رفت')
+    def test_counts_match_what_the_app_had(self):
+        self.assertEqual(sum(len(g.get('refs', [])) for g in self.guides), 89)
+        self.assertEqual(sum(len(g.get('notes', [])) for g in self.guides), 19)
+        self.assertEqual(sum(len(g.get('steps', [])) for g in self.guides), 115)
+        self.assertEqual(sum(len(g.get('cautions', [])) for g in self.guides), 30)
 
 
 if __name__ == '__main__':
