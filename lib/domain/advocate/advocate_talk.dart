@@ -81,9 +81,6 @@ extension _Talk on Advocate {
   AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) =>
       _talk.unclearReply(raw, chips: chips);
 
-  /// توهین‌های کوتاهی که پاسخ آرام می‌خواهند (در `_meta`).
-  static const String _rudePattern = 'فهم نداری|بی ?[ ‌]?ارزش|بی فهم';
-
   bool _vague(String n) =>
       Sense.words(n) <= 9 &&
       Sense.has(n,

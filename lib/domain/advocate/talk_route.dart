@@ -36,6 +36,13 @@ class TalkRoute {
   /// بستنِ پرونده، وقتی کاربر موضوع تازه‌ای را انتخاب می‌کند.
   final void Function() closeCase;
 
+  /// آیا پرونده‌ای باز است؟ (همان تعریفِ وکیل، از دو همکارِ خودش.)
+  bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
+
+  /// توهین‌های کوتاهی که پاسخِ آرام می‌خواهند. پیش‌تر عضوِ خصوصیِ extension
+  /// بود و از این کلاس دیده نمی‌شد.
+  static const String _rudePattern = 'فهم نداری|بی ?[ ‌]?ارزش|بی فهم';
+
   AdvocateReply _out(
     String text, {
     List<String> chips = const [],
