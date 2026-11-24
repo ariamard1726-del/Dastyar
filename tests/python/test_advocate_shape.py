@@ -131,6 +131,30 @@ class ShapeTests(unittest.TestCase):
                 '%s نباید به Advocate برگردد' % name)
         self.assertIn('final DialogueState dialog', self.src)
 
+    def test_interpolations_are_braced(self):
+        """`'$dialog.x'` در دارت «Instance of 'DialogueState'.x» چاپ می‌کند.
+
+        دارت `$name` را تا نویسهٔ غیرِنام ادامه می‌دهد؛ پس `$dialog.x` یعنی
+        `${dialog}.x`. همین یک اشتباه در بازچینشِ وضعیت رخ داد و متنِ پاسخ
+        شد «Instance of 'DialogueState'.unclearPhrase»؛ فقط سناریوی گفتگو
+        آن را گرفت. حالا پیش از CI گرفته می‌شود.
+        """
+        bad = []
+        holders = ('dialog', 'voice', 'file', 'engine')
+        pattern = re.compile(r'\$(?:%s)\.[A-Za-z_]' % '|'.join(holders))
+        for base, _dirs, files in os.walk(os.path.join(ROOT, 'lib')):
+            for f in files:
+                if not f.endswith('.dart'):
+                    continue
+                path = os.path.join(base, f)
+                for i, line in enumerate(_read(path).split('\n'), 1):
+                    if re.search(r'//.*$', line):
+                        line = re.sub(r'//.*$', '', line)
+                    if pattern.search(line):
+                        bad.append('%s:%d %s' % (os.path.relpath(path, ROOT), i,
+                                                 line.strip()[:90]))
+        self.assertEqual(bad, [], '\n'.join(bad))
+
     def test_part_files_exist(self):
         for part in re.findall(r"^part '([^']+)'", self.src, re.M):
             self.assertTrue(os.path.exists(os.path.join(ADVOCATE_DIR, part)), part)
