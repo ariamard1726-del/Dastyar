@@ -128,7 +128,7 @@
 | ۱۴ | موضوع‌های بزرگ | `rent` ۶ تکه، `labor`/`family` ۴ تکه | ۵۷۸ → ۱۲ خطِ سرِ فایل |
 | ۱۵ | مسیرهای یک‌نوبتیِ پاسخ | `ReplyRoutes` | ۱۳ مسیر؛ `advocate_routes.dart` ۳۱۴ → ۰ |
 
-- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۷۲**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
+- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۷۰**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
 - هر همکار آزمونِ خودش را دارد: `isolation_test`، `chip_plan_test`، `topic_picker_test`،
   `labor_test`، `family_test` و چهار آزمونِ بی‌داراییِ موتور
