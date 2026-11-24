@@ -71,7 +71,8 @@ STATE_FIELD = re.compile(
 # همکارها نه وضعیت‌اند نه گاد-آبجکت: خودشان صاحبِ داده‌اند. اگر فیلدی از این
 # نوع‌ها روی Advocate باشد، یعنی وکیل فقط آن‌ها را به هم وصل می‌کند.
 COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
-                 'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet']
+                 'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet',
+                 'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow']
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
@@ -148,12 +149,28 @@ class ShapeTests(unittest.TestCase):
             n = len(_read(os.path.join(topics, f)).split('\n'))
             self.assertLessEqual(n, 820, '%s دوباره بزرگ شد (%d خط)' % (f, n))
 
+    def test_case_flow_is_its_own_class(self):
+        """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود."""
+        flow = _read(os.path.join(ADVOCATE_DIR, 'case_flow.dart'))
+        shell = _read(os.path.join(ADVOCATE_DIR, 'advocate_case.dart'))
+        self.assertIn('class CaseFlow {', flow)
+        for sig in ('AdvocateReply inCase(Topic t, String raw, String n, Issue? issue) {',
+                    'AdvocateReply open(Topic t, String n,',
+                    'AdvocateReply finish(Topic t, List<String> parts',
+                    'List<Slot> absorb(Topic t, String n, {bool live = true}) {'):
+            self.assertIn(sig, flow, sig)
+        # پوسته نباید دوباره منطق داشته باشد
+        self.assertLess(len(shell.split('\n')), 90, 'advocate_case دوباره پر شد')
+        for bad in ('file.pending', 'dialog.loose', 'voice.said'):
+            self.assertNotIn(bad, shell)
+        self.assertIn('CaseFlow _case', self.src)
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',
                      'CaseArgument _argument', 'MetaReply _metaReplyBot',
                      'LawAnswer _lawAnswer', 'TalkReply _talk',
-                     'TopicPicker _picker'):
+                     'TopicPicker _picker', 'CaseFlow _case'):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):

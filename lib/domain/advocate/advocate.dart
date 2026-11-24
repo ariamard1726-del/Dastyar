@@ -24,6 +24,7 @@ import 'package:dastyar/domain/understanding/topic_guess.dart';
 
 part 'advocate_topic.dart';
 part 'advocate_case.dart';
+part 'case_flow.dart';
 part 'advocate_argue.dart';
 part 'case_recap.dart';
 part 'chip_plan.dart';
@@ -202,6 +203,37 @@ class Advocate {
     voice: () => voice,
   );
 
+  /// روندِ پرونده: بازکردن، خواندنِ واقعیت‌ها، پرسشِ بعدی و جمع‌بندی.
+  late final CaseFlow _case = CaseFlow(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    argument: _argument,
+    picker: _picker,
+    talk: _talk,
+    law: _lawAnswer,
+    chipPlan: () => _chipPlan,
+    filings: () => filings,
+    draftTitles: _draftTitles,
+    echo: _echo,
+    flips: _flips,
+    glossary: _glossary,
+    openGuide: (g, raw, n, {bool switched = false}) =>
+        _openGuide(g, raw, n, switched: switched),
+    out: (text,
+            {List<String> chips = const [],
+            String ask = '',
+            bool full = false,
+            int budget = _budget,
+            AnswerSource source = AnswerSource.topic}) =>
+        _out(text,
+            chips: chips,
+            ask: ask,
+            full: full,
+            budget: budget,
+            source: source),
+  );
+
   /// گفت‌وگوی انسانی: خلاصه، احوال‌پرسی، سوگ، «منظورتان چیست؟».
   late final TalkReply _talk = TalkReply(
     file: file,
@@ -269,15 +301,6 @@ class Advocate {
 
   /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
   void clearOffer() => dialog.clearOffer();
-
-  String _factsKey() {
-    final keys = file.facts.keys.toList()..sort();
-    final sb = StringBuffer(file.topic);
-    for (final k in keys) {
-      sb.write('|$k=${file.facts[k]}');
-    }
-    return sb.toString();
-  }
 
   static const String newCaseChip = 'موضوع تازه‌ای دارم';
 

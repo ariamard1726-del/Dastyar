@@ -1,0 +1,746 @@
+part of 'advocate.dart';
+
+// روندِ پرونده: بازکردن، خواندنِ واقعیت‌ها، پرسشِ بعدی، واکنش و جمع‌بندی.
+//
+// این ۱۳ متد (و `inCase` در ۲۰۲ خط) پیش‌تر متدهای خصوصیِ `Advocate` بودند: برای
+// سنجیدنِ «اگر کاربر بعد از اخراج بگوید بیمه هم نبوده، وکیل چه می‌گوید؟» باید یک
+// وکیلِ کامل با موتور و بانک قوانین ساخته می‌شد و پیام پشتِ پیام فرستاده می‌شد.
+// حالا روندِ پرونده کلاسِ خودش را دارد و هر چه از بیرون می‌خواهد، در سازنده
+// صریح گفته شده است: پرونده، گفتگو، صدا، استدلال، تشخیصِ بحث، گفت‌وگوی انسانی،
+// بانک قوانین، دکمه‌ها، واژه‌نامه، راهنما و یک تابع برای «پاسخِ آماده بساز».
+//
+// چیزی که این‌جا *نیست* و نباید باشد: تصمیمِ «این پیام مالِ کدام مسیر است».
+
+/// آیا مقدارِ تازهٔ یک واقعیتِ محوری از مقدارِ فعلی مهم‌تر است؟
+bool _outranks(Slot s, String now, String old) {
+  final a = s.priority.indexOf(now);
+  final b = s.priority.indexOf(old);
+  return a >= 0 && (b < 0 || a < b);
+}
+
+/// آیا کاربر همین مقدار را صریح و از زبان خودش گفته است؟
+bool _saidSure(Slot s, String n, String v) {
+  final r = s.readSure;
+  return r != null && r(n) == v;
+}
+
+String _join(List<String> items) {
+  if (items.isEmpty) return '';
+  if (items.length == 1) return items.first;
+  return '${items.sublist(0, items.length - 1).join('، ')} و ${items.last}';
+}
+
+/// روندِ پروندهٔ باز، بی‌نیاز از خودِ وکیل.
+class CaseFlow {
+  CaseFlow({
+    required this.file,
+    required this.dialog,
+    required this.voice,
+    required this.argument,
+    required this.picker,
+    required this.talk,
+    required this.law,
+    required this.chipPlan,
+    required this.filings,
+    required this.draftTitles,
+    required this.echo,
+    required this.flips,
+    required this.glossary,
+    required this.openGuide,
+    required this.out,
+  });
+
+  final CaseFile file;
+  final DialogueState dialog;
+  final ReplyVoice voice;
+
+  /// استدلال: ارکانِ ادعاها، حکم، تغییرِ نتیجه و اصلاحِ برداشت.
+  final CaseArgument argument;
+
+  /// تشخیصِ بحث و راهنما از متن.
+  final TopicPicker picker;
+
+  /// گفت‌وگوی انسانی (احوال‌پرسی، نامفهوم).
+  final TalkReply talk;
+
+  /// پاسخ از بانک قوانین، وقتی حرفِ کاربر به متنِ قانون می‌خورد.
+  final LawAnswer law;
+
+  /// دکمه‌های پیشنهادی؛ سازنده‌اش هر بار از پروندهٔ جاری ساخته می‌شود.
+  final ChipPlan Function() chipPlan;
+
+  /// سندهایی که تا حالا تنظیم شده‌اند (برای پیشنهادِ بعدی).
+  final List<Filing> Function() filings;
+
+  /// عنوانِ هر قالب (برای دکمهٔ «تنظیم …»).
+  final Map<String, String> draftTitles;
+
+  /// واقعیت‌هایی که کاربر در همین گفتگو گفته (برای «شنیدم»).
+  final List<Slot> echo;
+
+  /// واقعیت‌هایی که در همین گفتگو برعکس شده‌اند.
+  final Map<String, String> flips;
+
+  /// معنیِ واژه، اگر واژه‌نامه بشناسدش.
+  final String? Function(String n) glossary;
+
+  /// بازکردنِ راهنمای آماده.
+  final AdvocateReply Function(LegalGuide g, String raw, String n,
+      {bool? switched}) openGuide;
+
+  /// ساختِ پاسخ از متنِ آماده (در وکیل: `_out`).
+  final AdvocateReply Function(
+    String text, {
+    List<String>? chips,
+    String? ask,
+    bool? full,
+    int? budget,
+    AnswerSource? source,
+  }) out;
+
+  bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
+
+  AdvocateReply _out(
+    String text, {
+    List<String> chips = const [],
+    String ask = '',
+    bool full = false,
+    int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
+  }) =>
+      out(text,
+          chips: chips, ask: ask, full: full, budget: budget, source: source);
+
+  String _pick(List<String> options) => voice.pick(options);
+
+  void clearOffer() => dialog.clearOffer();
+
+  /// پاسخِ آخرین راه: بانک قوانین، با همان پرونده‌ای که باز است.
+  AdvocateReply _lookup(String raw, String n) =>
+      law.lookup(raw, n, hasCase: hasCase, loose: dialog.loose.length);
+
+  String _factsKey() {
+    final keys = file.facts.keys.toList()..sort();
+    final sb = StringBuffer(file.topic);
+    for (final k in keys) {
+      sb.write('|$k=${file.facts[k]}');
+    }
+    return sb.toString();
+  }
+
+  void closeCase() {
+    file.clearCase();
+    dialog.clearCase();
+    voice.lastBody = '';
+    voice.lastAsk = '';
+    voice.askRepeats = 0;
+    flips.clear();
+  }
+
+  /// واقعیت‌های تازهٔ پیام را در پرونده می‌نشاند و فهرست تغییرها را می‌دهد.
+  ///
+  /// [live] یعنی این همان پیامی است که کاربر الان فرستاده (نه مرور پیام‌های
+  /// قبلی)؛ فقط در این حالت جوابِ کوتاه به پرسشِ معلق تفسیر می‌شود.
+  List<Slot> absorb(Topic t, String n, {bool live = true}) {
+    final out = <Slot>[];
+    if (live) {
+      echo.clear();
+      flips.clear();
+    }
+    final unsure = Sense.saysDontKnow(n);
+    final hedged = unsure && Sense.has(n, ' یا نه |شاید|مطمئن نیستم');
+    final reads = <String, String?>{for (final s in t.slots) s.id: s.read(n)};
+    // «آره مدتش تموم شده»: بله‌ای که پشتش واقعیتِ بله/نه‌ایِ دیگری آمده،
+    // جوابِ همان واقعیت است نه پرسشِ معلق.
+    var otherBool = false;
+    var otherAny = false;
+    for (final e in reads.entries) {
+      if (e.key == file.pending || e.value == null) continue;
+      otherAny = true;
+      if (e.value == 'yes' || e.value == 'no') otherBool = true;
+    }
+    for (final s in t.slots) {
+      var v = reads[s.id];
+      if (v != null && hedged && (v == 'yes' || v == 'no')) v = '?';
+      if (live && v == null && s.id == file.pending) {
+        final rp = s.readPending;
+        final r = rp == null ? null : rp(n);
+        if (r != null && !(otherBool && (r == 'yes' || r == 'no'))) v = r;
+        if (v == null) {
+          if (unsure) {
+            if (!otherAny) v = '?';
+          } else if (!otherBool) {
+            if (Sense.saysYes(n) && s.yesValue.isNotEmpty) {
+              v = s.yesValue;
+            } else if (Sense.saysNo(n) && s.noValue.isNotEmpty) {
+              v = s.noValue;
+            }
+          }
+        }
+      }
+      if (v == null) continue;
+      if (v == file.facts[s.id]) {
+        if (live && v != '?') echo.add(s);
+        continue;
+      }
+      if (v == '?' && file.has(s.id)) continue;
+      // محورِ پرونده با اشارهٔ گذرا به موضوعی دیگر عوض نمی‌شود.
+      if (s.sticky &&
+          v != '?' &&
+          file.has(s.id) &&
+          s.id != file.pending &&
+          !_outranks(s, v, file.get(s.id)) &&
+          !_saidSure(s, n, v) &&
+          !(live && Sense.has(n, _amend))) {
+        continue;
+      }
+      final old = file.facts[s.id];
+      if (live &&
+          old != null &&
+          (old == 'yes' || old == 'no') &&
+          (v == 'yes' || v == 'no')) {
+        flips[s.id] = old;
+      }
+      file.facts[s.id] = v;
+      if (v != '?') out.add(s);
+    }
+    return out;
+  }
+
+  /// پاسخ به دکمهٔ یک سند: می‌گویم با همین پرونده چه چیزی در آن می‌نویسم و
+  /// نوشتنش را پیشنهاد می‌کنم (در برنامه، لایهٔ بالاتر همین‌جا مستقیم
+  /// پرسش‌های سند را شروع می‌کند).
+  AdvocateReply filing(Filing g) {
+    final fill = fillFor(g.template);
+    final sb = StringBuffer(
+        '«${g.name}» را می‌شود با همین اطلاعاتی که داده‌اید نوشت؛ نام و نشانی دو طرف را هم موقع نوشتن می‌پرسم.');
+    for (final k in const [
+      'subject',
+      'basis_detail',
+      'ground_detail',
+      'merits_defense',
+      'statement_body',
+    ]) {
+      final v = fill[k];
+      if (v != null && v.isNotEmpty) {
+        sb.write('\nمتنی که برای شرح آن پیشنهاد می‌کنم: «$v»');
+        break;
+      }
+    }
+    final papers = fill['evidence'] ?? fill['attachments'] ?? '';
+    if (papers.isNotEmpty) sb.write('\nپیوست‌ها: $papers.');
+    const ask = 'همین حالا بنویسمش؟';
+    const chips = ['بله، بنویس', 'نه، لازم نیست'];
+    file.covered.add('o:draft');
+    dialog.askText = ask;
+    dialog.askChips = chips;
+    final r = _out(sb.toString(), ask: ask, chips: chips, budget: _roomyBudget);
+    dialog.offer = 'draft';
+    dialog.offerDraft = g.template;
+    return r;
+  }
+
+  bool roleUnknown(Topic t) {
+    for (final s in t.slots) {
+      if (s.id == 'role') return !file.has('role');
+    }
+    return false;
+  }
+
+  AdvocateReply open(Topic t, String n,
+      {bool switched = false, bool guessed = false}) {
+    final earlier = switched ? const <String>[] : List<String>.of(dialog.loose);
+    dialog.loose.clear();
+    closeCase();
+    file.topic = t.id;
+    // حرف‌هایی که پیش از بازشدن پرونده زده شده هم جزو ماجراست.
+    for (final old in earlier) {
+      absorb(t, old, live: false);
+    }
+    final news = absorb(t, n);
+    dialog.heard = '${earlier.join(' ')} $n';
+    if (Sense.has(dialog.heard, _replySaid)) file.covered.add('q:reply');
+    if (Sense.has(dialog.heard, _goalSaid)) file.covered.add('q:goal');
+    final parts = <String>[];
+    // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
+    // همان‌جا می‌تواند اصلاحم کند.
+    final got = recapOf(t, file);
+    if (got.isNotEmpty) {
+      parts.add('${_pick(Say.understood)} ${_join(got)}.');
+    }
+    final open = t.opening(file);
+    final issue = picker.matchIssue(t, n);
+    var answered = false;
+    if (issue != null) {
+      if (roleUnknown(t)) {
+        dialog.deferred = issue.id;
+      } else {
+        // کاربر پرسش مشخصی دارد: اول جواب همان را می‌دهم، نه مقدمهٔ کلی.
+        final b = issue.body(file);
+        parts.add(b);
+        file.covered.add(issue.id);
+        voice.said.add(b);
+        voice.lastBody = b;
+        answered = true;
+      }
+    }
+    if (!answered && open.isNotEmpty) parts.add(open);
+    addEffects(parts, news, 1,
+        skip: dialog.deferred.isEmpty && issue != null ? issue.covers : const {});
+    noteAmount(parts, news, n);
+    if (voice.lastBody.isEmpty) {
+      // «ساده‌تر بگو» باید سراغ حرف قانون برود، نه بازگویی ماجرا.
+      if (open.isNotEmpty) {
+        voice.lastBody = open;
+      } else if (parts.isNotEmpty) {
+        voice.lastBody = parts.first;
+      }
+    }
+    var lead = '';
+    if (guessed) {
+      // پرونده با حدس باز شده؛ این را پنهان نمی‌کنم تا اگر غلط است بگوید.
+      lead =
+          'برداشتم این است که موضوع شما «${t.title}» است؛ اگر اشتباه گرفته‌ام بگویید.';
+    } else if (switched) {
+      lead = _pick(Say.switched);
+    } else if (LawyerVoice.expressesDistress(n) ||
+        Sense.has(n, 'کتک|میزنه| زد|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {
+      lead = _pick(Say.empathy);
+    }
+    final also = _also;
+    _also = null;
+    if (also != null && also.id != t.id) {
+      parts.add(
+          'به موضوع «${also.title}» هم اشاره کردید. آن پروندهٔ جدایی است؛ اول همین را روشن می‌کنیم و بعد، هر وقت گفته‌اید، سراغ آن می‌رویم.');
+    }
+    return finish(t, parts, lead: lead);
+  }
+
+  /// اثر حقوقیِ واقعیت‌های تازه را اضافه می‌کند؛ حرفی که قبلاً زده شده
+  /// تکرار نمی‌شود.
+  void addEffects(List<String> parts, List<Slot> news, int max,
+      {Set<String> skip = const {}}) {
+    var added = 0;
+    for (final s in news) {
+      if (skip.contains(s.id)) continue;
+      final fx = s.effect;
+      if (fx == null) continue;
+      final e = fx(file);
+      if (e.isEmpty || parts.contains(e) || voice.said.contains(e)) continue;
+      parts.add(e);
+      voice.said.add(e);
+      added++;
+      if (added >= max) break;
+    }
+  }
+
+  /// اگر مبلغ بدون واحد گفته شده («۳۰ تومن»)، برداشت خودم را شفاف می‌گویم.
+  void noteAmount(List<String> parts, List<Slot> news, String n) {
+    if (Sense.amountIsExplicit(n)) return;
+    for (final s in news) {
+      if (s.id != 'amount' && s.id != 'salary') continue;
+      final v = file.n(s.id);
+      if (v == null) continue;
+      parts.add(
+          'رقم را «${Sense.toman(v)}» فهمیدم؛ اگر منظورتان چیز دیگری بود، با واحدش بنویسید (مثلاً «۳۰ میلیون» یا «۵۰۰ هزار»).');
+      return;
+    }
+  }
+
+  AdvocateReply inCase(Topic t, String raw, String n, Issue? issue) {
+    final wasPending = file.pending;
+    final before = argument._standings(t);
+    final news = absorb(t, n);
+    // جملهٔ بلندِ بی‌ربط در وسط یک پرونده: به‌جای تکرار قدم‌های همان پرونده،
+    // کلمه‌های خودِ کاربر نقل و توضیح خواسته می‌شود.
+    if (news.isEmpty &&
+        !wasPending.startsWith('q:') &&
+        Sense.words(n) >= 4 &&
+        !Sense.isQuestion(n) &&
+        Sense.followKind(n).isEmpty &&
+        Advocate.topicOf(raw) == null &&
+        !Sense.has(n, _goalSaid) &&
+        !Sense.has(n, _replySaid) &&
+        picker.matchIssue(t, n) == null &&
+        glossary(n) == null) {
+      return talk.unclearReply(raw, chips: const [Advocate.newCaseChip]);
+    }
+    dialog.heard = '${dialog.heard} $n';
+    // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
+    final heardGoal = wasPending != 'q:goal' &&
+        !file.covered.contains('q:goal') &&
+        Sense.has(n, _goalSaid);
+    if (heardGoal) file.covered.add('q:goal');
+    if (wasPending != 'q:reply' &&
+        (Sense.has(n, _replySaid) ||
+            news.any((s) =>
+                file.has(s.id) && s.options.any((o) => o.contains('انکار'))))) {
+      file.covered.add('q:reply');
+    }
+    final parts = <String>[];
+    var understood = news.isNotEmpty || file.touched(file.pending);
+    var reasoned = false;
+    var asked = issue;
+    if (asked == null && dialog.deferred.isNotEmpty && !roleUnknown(t)) {
+      for (final i in t.issues) {
+        if (i.id != dialog.deferred) continue;
+        // حالا که نقش معلوم شده، بحثی که مالِ طرفِ دیگر است جواب داده
+        // نمی‌شود.
+        final w = i.when;
+        if (w == null || w(file)) asked = i;
+      }
+      dialog.deferred = '';
+    }
+    // اگر همین بحث قبلاً باز شده و کاربر حالا فقط یک واقعیت تازه می‌دهد
+    // (نه پرسش)، کل توضیح تکرار نمی‌شود؛ فقط اثرِ همان واقعیت گفته می‌شود.
+    final onlyFact = asked != null &&
+        file.covered.contains(asked.id) &&
+        !Sense.isQuestion(n) &&
+        news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
+    // «می‌توانم … بگیرم؟»: جوابِ پرسشِ بله/نه دربارهٔ یک خواسته، حکمِ همان
+    // خواسته روی واقعیت‌های همین پرونده است، نه توضیح کلی.
+    final focus = argument._askedClaim(t, n, asked);
+    if (focus != null) {
+      final b = argument._verdict(focus);
+      parts.add(b);
+      dialog.roomy = true;
+      voice.said.add(b);
+      voice.lastBody = b;
+      understood = true;
+      reasoned = true;
+    } else if (asked != null && !onlyFact) {
+      final b = asked.body(file);
+      parts.add(b);
+      file.covered.add(asked.id);
+      voice.said.add(b);
+      voice.lastBody = b;
+      understood = true;
+    } else if (onlyFact) {
+      understood = true;
+    } else {
+      final g = glossary(n);
+      if (g != null) {
+        parts.add(g);
+        understood = true;
+      } else {
+        final kind = Sense.followKind(n);
+        // استدلالی که با همین واقعیت‌ها گفته شده برای «شانسم چقدر است؟»
+        // تکرار نمی‌شود؛ با «استدلالت چیه؟» یا واقعیت تازه دوباره می‌آید.
+        final stale = kind == 'chance' && dialog.arguedOn == _factsKey();
+        final arg =
+            (kind == 'argue' || kind == 'chance') && !stale ? argument._argue(t) : null;
+        final fb = kind.isEmpty
+            ? null
+            : (t.follow[kind == 'argue' ? 'chance' : kind] ?? generic(kind));
+        if (arg != null) {
+          reasoned = true;
+          parts.add(arg);
+          dialog.roomy = true;
+          dialog.arguedOn = _factsKey();
+          file.covered.add('f:argue');
+          file.covered.add('f:chance');
+          voice.said.add(arg);
+          voice.lastBody = arg;
+          understood = true;
+        } else if (fb != null) {
+          final b = fb(file);
+          parts.add(b);
+          dialog.roomy = kind == 'next';
+          file.covered.add('f:$kind');
+          voice.said.add(b);
+          voice.lastBody = b;
+          understood = true;
+        }
+      }
+    }
+    // جوابِ پرسشِ بازِ خودم (طرف چه گفته؟ دنبال چه هستید؟) را بی‌واکنش
+    // نمی‌گذارم.
+    // «ادامه بده» جواب پرسش نیست؛ نباید به‌عنوان جواب، «خوب شد گفتید» بگیرد.
+    final isMore = Sense.has(n, ' (?:ادامه|بقیه)(?: |\$)');
+    if (wasPending.startsWith('q:') && parts.isEmpty && !isMore) {
+      if (news.isEmpty) {
+        final soc = talk.social(n, t);
+        if (soc != null) return soc;
+      }
+      // واقعیتِ تازه‌ای که به‌جای جواب آمده («اجاره‌نامه دارم»)، واکنشِ
+      // خودش را دارد؛ رویش «همین را هدف می‌گیرم» نمی‌گذارم.
+      final fact =
+          news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
+      if (!fact || heardGoal) {
+        parts.add(react(heardGoal ? 'q:goal' : wasPending, n));
+      }
+      understood = true;
+    } else if (heardGoal && parts.isEmpty) {
+      parts.add(react('q:goal', n));
+      understood = true;
+    }
+    addEffects(parts, news, 2,
+        skip: asked == null || onlyFact ? const {} : asked.covers);
+    if (onlyFact && parts.isEmpty) {
+      final b = asked.body(file);
+      parts.add(b);
+      voice.lastBody = b;
+    }
+    // حرف تازه اگر نتیجه را جابه‌جا کرده، همان‌جا می‌گویم؛ و اگر حرف قبلی
+    // را برعکس کرده، می‌گویم که برداشتم را عوض کرده‌ام.
+    if (!reasoned && news.isNotEmpty) {
+      final shift = argument._shift(t, before);
+      if (shift.isNotEmpty) parts.insert(0, shift);
+    }
+    final fix = argument._correction(t);
+    if (fix.isNotEmpty) parts.insert(0, fix);
+    noteAmount(parts, news, n);
+    if (!understood && echo.isNotEmpty) {
+      parts.add(_pick(Say.known));
+      understood = true;
+    }
+    if (!understood) {
+      final soc = talk.social(n, t);
+      if (soc != null) return soc;
+      final ask = picker.sideNote();
+      // حرفی که موضوعش چیز دیگری است، وسط این پرونده به راهنمای همان موضوع
+      // دیگر پرت نمی‌شود؛ جای آن، از کاربر توضیح می‌خواهیم و رشتهٔ پرونده
+      // می‌مانَد (کاربر گفته «مربوط به همان ماجرا نیست/هست» را هم همین‌جا
+      // جواب می‌دهیم).
+      final foreign = Advocate.topicOf(raw);
+      if (ask.isEmpty &&
+          Sense.words(n) >= 3 &&
+          (foreign == null || foreign == t.id)) {
+        final lg = picker.matchGuide(raw, n);
+        if (lg != null) {
+          if (dialog.askText.isEmpty) return openGuide(lg, raw, n, switched: true);
+          // وسطِ پرونده، حرفِ تازه را کوتاه جواب می‌دهم و رشتهٔ گفتگو را
+          // نگه می‌دارم.
+          return _out(
+            '${_relevant(lg.answer, n)}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
+            ask: 'برگردیم سر پروندهٔ خودمان: ${dialog.askText}',
+            chips: dialog.askChips,
+            full: true,
+          );
+        }
+      }
+      if (ask.isEmpty && Sense.has(n, 'ماده [0-9]+|قانون ')) {
+        return _lookup(raw, n);
+      }
+      file.pending = '';
+      clearOffer();
+      dialog.askText = '';
+      dialog.askChips = const [];
+      return _out(
+        parts.join('\n\n'),
+        ask: ask.isEmpty ? talk.unclearText(raw) : ask,
+        chips: [
+          if (ask.isNotEmpty) ...const [
+            Advocate.newTopicChip,
+            Advocate.sameCaseChip,
+          ],
+          ..._suggest(t),
+        ],
+      );
+    }
+    if (parts.isEmpty) parts.add(_pick(Say.fine));
+    // اگر حرف کاربر را در همین پرونده فهمیده‌ام، فقط برای پیام‌های بلند
+    // می‌پرسم که آیا ماجرای جدایی هم هست؛ وگرنه مزاحم گفتگو می‌شود.
+    final note = picker.sideNote();
+    if (note.isNotEmpty && Sense.words(n) >= 5) {
+      parts.add(note);
+    } else {
+      dialog.side = null;
+      dialog.sideText = '';
+    }
+    return finish(t, parts);
+  }
+
+  Body? generic(String kind) {
+    switch (kind) {
+      case 'lawyer':
+        return (f) => anyLawyer;
+      case 'cost':
+        return (f) => moneyCost;
+      default:
+        return null;
+    }
+  }
+
+  /// پرسش بعدی: از میان پرسش‌هایی که هنوز جا دارند، آن‌که نتیجهٔ ادعاهای
+  /// روی میز را زودتر روشن می‌کند. در موضوع‌هایی که شرط‌هایشان به پرسش‌ها
+  /// گره نخورده، همان ترتیب موضوع است.
+  /// پرسش بعدی؛ منطقش در `case_plan.dart` است تا بی‌نیاز از وکیل آزمون شود.
+  /// اگر تکلیفِ همهٔ شرط‌های ادعای اصلی روشن شده باشد، وضع آن را می‌دهد؛
+  /// هرچند هنوز پرسش‌های فرعی (مبلغ، خواسته‌های دیگر) مانده باشد. تا وقتی
+  /// شرطی از آن نامعلوم است null می‌دهد، چون همان شرط می‌تواند توصیه را
+  /// عوض کند.
+  Standing? leadSettled(Topic t) {
+    final views = Reasoner.assess(t, file);
+    if (views.isEmpty) return null;
+    final lead = views.first;
+    if (!lead.claim.elements.any((e) => e.needs.isNotEmpty)) return null;
+    return lead.open.isEmpty ? lead.standing : null;
+  }
+
+  /// پرسش بعدیِ من در این پرونده. اول واقعیت‌هایی که تحلیل به آن‌ها بسته
+  /// است؛ بعد کنجکاوی دربارهٔ برخورد طرف مقابل و خواستهٔ خودِ کاربر؛ و در
+  /// آخر پیشنهادِ تحلیل، نقشهٔ راه و نوشتن متن — هر کدام به شکل یک پرسش، تا
+  /// تصمیمش با کاربر باشد.
+  _Ask nextAsk(Topic t) {
+    clearOffer();
+    final q = CasePlan.nextSlot(t, file);
+    final settled = q == null ? null : leadSettled(t);
+    if (settled != null &&
+        !file.covered.contains('f:argue') &&
+        file.covered.add('o:argue')) {
+      // وکیل منتظر تمام‌شدن همهٔ پرسش‌ها نمی‌ماند: همین که تکلیف ادعای اصلی
+      // روشن شد، پیشنهاد می‌دهد نظرش را بگوید.
+      file.pending = '';
+      dialog.offer = 'argue';
+      return _Ask(
+          settled == Standing.strong
+              ? 'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟'
+              : 'با همین‌ها می‌توانم بگویم گرهِ کار کجاست و چطور باز می‌شود؛ بگویم؟',
+          _yesNo);
+    }
+    if (q != null) {
+      final c = file.askCount[q.id] ?? 0;
+      file.askCount[q.id] = c + 1;
+      file.pending = q.id;
+      // وقتی پرسش‌هایم از یک خواسته به خواستهٔ دیگر می‌رود، می‌گویم؛ تا
+      // کاربر بداند هر پرسش برای چیست.
+      final served = Reasoner.serves(t, file, q.id)?.label ?? '';
+      var lead = '';
+      if (served.isNotEmpty) {
+        if (c == 0 && dialog.lastServed.isNotEmpty && served != dialog.lastServed) {
+          lead = 'حالا دربارهٔ «$served»: ';
+        }
+        dialog.lastServed = served;
+      }
+      return _Ask(
+          c == 0 ? '$lead${q.ask}' : '${_pick(Say.askAgain)} ${q.ask}',
+          q.options);
+    }
+    file.pending = '';
+    if (_adversarial.contains(t.id) && file.covered.add('q:reply')) {
+      // موضوع می‌تواند این پرسش را به زبانِ همان وضعیت بپرسد، یا بگوید
+      // این‌جا جای پرسیدنش نیست.
+      final ask = t.askReply;
+      final own = ask == null ? null : ask(file);
+      if (own == null) {
+        file.pending = 'q:reply';
+        return _Ask(_pick(Say.askReply), _replyChips);
+      }
+      if (own.text.isNotEmpty) {
+        file.pending = 'q:reply';
+        return _Ask(own.text, own.chips);
+      }
+    }
+    if (file.covered.add('q:goal')) {
+      file.pending = 'q:goal';
+      return _Ask(_pick(Say.askGoal), _goalChips);
+    }
+    final claim = argument._claim(t);
+    if (claim != null &&
+        claim.elements.isNotEmpty &&
+        !file.covered.contains('f:argue') &&
+        file.covered.add('o:argue')) {
+      dialog.offer = 'argue';
+      return const _Ask(
+          'می‌خواهید بگویم از نظر قانون دست شما چقدر پر است؟', _yesNo);
+    }
+    if (t.follow['next'] != null &&
+        !file.covered.contains('f:next') &&
+        file.covered.add('o:next')) {
+      dialog.offer = 'next';
+      return const _Ask('قدم‌های عملی را به ترتیب بگویم؟', _yesNo);
+    }
+    if (!file.covered.contains('o:draft')) {
+      for (final id in draftIds) {
+        final title = draftTitles[id];
+        if (title == null) continue;
+        file.covered.add('o:draft');
+        dialog.offer = 'draft';
+        dialog.offerDraft = id;
+        return _Ask('می‌خواهید «$title» را با همین اطلاعات برایتان بنویسم؟',
+            const ['بله، بنویس', 'نه، لازم نیست']);
+      }
+    }
+    return const _Ask('', []);
+  }
+
+  /// واکنش به جوابِ پرسش‌های باز.
+  String react(String id, String n) {
+    final unsure = Sense.words(n) <= 5 && Sense.saysDontKnow(n);
+    if (id == 'q:reply') {
+      if (unsure) {
+        return 'اشکالی ندارد. اگر بعداً حرفی زد یا پیامی داد، نگهش دارید؛ به کار می‌آید.';
+      }
+      if (Sense.has(n,
+          'جواب ن|تلفن|بلاک|غیب|گم و گور|در دسترس|پیداش|خاموش|فرار|رفته')) {
+        return 'پس عملاً در دسترس نیست. نگران این نباشید؛ ابلاغ رسمی برای همین وقت‌هاست و غیبت او جلوی کار شما را نمی‌گیرد.';
+      }
+      if (Sense.has(n,
+          'انکار|قبول ن|زیر بار|حاشا|گردن ن|نمیدم|نمیده |نمیدهد|دروغ|منکر')) {
+        return 'پس زیر بار نمی‌رود؛ یعنی با حرف حل نمی‌شود و همه‌چیز به مدرک شما برمی‌گردد.';
+      }
+      if (Sense.has(n,
+          'امروز و فردا|امروز فردا|قول|میدم|میده |میدهد|صبر|وقت بده|مهلت|ندارم|نداره|دستم خالی|وضعم')) {
+        return 'پس اصل حرف شما را رد نمی‌کند و فقط عقب می‌اندازد. این به نفع شماست: هر پیام یا قولی که داده نگه دارید، چون نشان می‌دهد خودش هم حق شما را قبول دارد.';
+      }
+      if (Sense.has(n, 'تهدید|فحش|فحاشی|دعوا|داد و بیداد|کتک|توهین')) {
+        return 'این برخورد را جدی بگیرید و هر پیام یا صدایی که دارید نگه دارید؛ خودش می‌تواند موضوع شکایت جداگانه باشد.';
+      }
+      if (Sense.has(n,
+          'هیچی|چیزی نگفت|حرف نزد|نگفتم|نگفته ام|هنوز ن|خبر نداره|نپرسیدم')) {
+        return 'پس هنوز رسماً از او نخواسته‌اید. معمولاً قدم اول همین است که خواسته‌تان را طوری به او برسانید که بعداً قابل اثبات باشد.';
+      }
+      return 'خوب شد که گفته‌اید؛ این را کنار بقیهٔ ماجرا یادداشت کردم.';
+    }
+    if (unsure) {
+      return 'اشکالی ندارد؛ لازم نیست همین حالا تصمیم بگیرید. هر دو راه را جلوی شما می‌گذارم: اول توافق، و اگر جواب نداد مسیر قانونی.';
+    }
+    if (Sense.has(n,
+        'توافق|سازش|صلح|دوستانه|مسالمت|کنار بیا|زود|بی دردسر|آبرو|کدخدامنشی')) {
+      return 'پس اول راهِ توافق را امتحان می‌کنیم: خواسته‌تان را رسمی ولی محترمانه اعلام می‌کنید و مهلت می‌دهید. اگر جواب نداد، مسیر قانونی سر جایش است.';
+    }
+    if (Sense.has(n,
+        'قانونی|شکایت|دادگاه|تا آخر|تا اخر|تا ته|حقمو|حقم|کوتاه نمیام|محکوم')) {
+      return 'پس مسیر رسمی را می‌رویم؛ از همین حالا باید مدرک‌ها را مرتب کنیم.';
+    }
+    return 'متوجه شدم؛ همین را هدف می‌گیرم.';
+  }
+
+  AdvocateReply finish(Topic t, List<String> parts, {String lead = ''}) {
+    var body = parts.join('\n\n');
+    if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
+    voice.said.addAll(parts);
+    final a = nextAsk(t);
+    dialog.askText = a.text;
+    dialog.askChips = a.chips;
+    final chips = <String>[...a.chips];
+    if (a.text.isEmpty) {
+      // دیگر پرسشی ندارم؛ در را باز می‌گذارم.
+      if (parts.length <= 1 && body.length < 40) {
+        body =
+            '$body هر وقت سؤال دیگری داشتید یا اتفاق تازه‌ای افتاد، همین‌جا بگویید.';
+      }
+      chips.addAll(chipPlan().suggest(t));
+    } else if (chips.isEmpty) {
+      // با دادخواست و لایحه سه دکمه می‌شود: پرسش، دادخواست، لایحه.
+      chips.addAll(chipPlan().suggest(t).take(filings().isEmpty ? 2 : 3));
+    } else {
+      // جوابِ پرسش جلوتر است؛ ولی دادخواست و لایحهٔ همین پرونده هم دمِ
+      // دست می‌ماند.
+      for (final g in filings()) {
+        if (!chips.contains(g.chip)) chips.add(g.chip);
+      }
+    }
+    if (dialog.side != null) {
+      chips.insertAll(0, const [Advocate.newTopicChip, Advocate.sameCaseChip]);
+    }
+    final roomy = dialog.roomy;
+    dialog.roomy = false;
+    return _out(body,
+        chips: chips, ask: a.text, budget: roomy ? _roomyBudget : _budget);
+  }
+
+  /// برداشت وکیل از واقعیت‌هایی که تا اینجا شنیده است؛ منطقش در
+  /// `case_recap.dart` است تا بی‌نیاز از وکیل آزمون شود.
+}
