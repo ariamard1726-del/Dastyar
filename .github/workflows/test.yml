@@ -53,10 +53,18 @@ jobs:
         run: python tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
       - name: Analyzer errors
         if: steps.analyze.outcome == 'failure'
+        # اگر تحلیل‌گر با خطِ « error • » شکست بخورد، همان‌ها آنوتیشن می‌شوند؛ ولی
+        # اگر لاگ از الگوی همیشگی بیرون باشد (خرابیِ خودِ ابزار، خروجیِ خالی)،
+        # آنوتیشن خالی می‌ماند و عیب‌یابی حدس می‌شود. در آن حالت تهٔ لاگ چاپ
+        # می‌شود تا هر شکستی نام و علت داشته باشد.
         run: |
-          grep -E " (error|warning) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null \
-            | sed 's#/home/runner/work/Dastyar/Dastyar/##' \
-            | sed 's#^#::error::#' | cut -c1-300 | head -n 40 || true
+          hits=$(grep -E " (error|warning) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            printf '%s\n' "$hits"
+          else
+            echo "analyze: خطِ « error • » نبود؛ تهٔ لاگ:"
+            tail -n 25 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
+          fi | sed 's#/home/runner/work/Dastyar/Dastyar/##' | sed 's#^#::error::#' | cut -c1-300 | head -n 40 || true
       - name: Short report
         if: always()
         env:
