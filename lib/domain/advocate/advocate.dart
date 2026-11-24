@@ -31,6 +31,7 @@ part 'advocate_chips.dart';
 part 'advocate_meta.dart';
 part 'law_answer.dart';
 part 'talk_reply.dart';
+part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
@@ -190,6 +191,14 @@ class Advocate {
     engine: engine,
     voice: voice,
     party: _party,
+  );
+
+  /// تشخیص موضوع و بحث (کدام پرونده به این پیام می‌خورد).
+  late final TopicPicker _picker = TopicPicker(
+    file: file,
+    dialog: dialog,
+    intentNet: intentNet,
+    open: (t, n, {bool guessed = false}) => _open(t, n, guessed: guessed),
   );
 
   /// گفت‌وگوی انسانی: خلاصه، احوال‌پرسی، سوگ، «منظورتان چیست؟».

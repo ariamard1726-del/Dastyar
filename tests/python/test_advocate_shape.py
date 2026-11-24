@@ -104,11 +104,27 @@ class ShapeTests(unittest.TestCase):
         self.assertLess(len(part.split('\n')), 420, 'advocate_talk دوباره پر شد')
         self.assertIn('TalkReply _talk', self.src)
 
+    def test_topic_picking_is_its_own_class(self):
+        """تشخیصِ موضوع نباید دوباره متدهای Advocate شود."""
+        pick = _read(os.path.join(ADVOCATE_DIR, 'topic_picker.dart'))
+        part = _read(os.path.join(ADVOCATE_DIR, 'advocate_topic.dart'))
+        self.assertIn('class TopicPicker {', pick)
+        for sig in ('Topic? current() {', 'bool answers(Topic t, String n) {',
+                    'Topic? secondOpinion(String raw, String n) {',
+                    'LegalGuide? matchGuide(String raw, String n) {'):
+            self.assertIn(sig, pick, sig)
+        self.assertNotIn('Topic? _secondOpinion(String raw, String n) {', part)
+        self.assertLess(len(part.split('\n')), 90, 'advocate_topic دوباره پر شد')
+        self.assertIn('TopicPicker _picker', self.src)
+        self.assertTrue(os.path.exists(
+            os.path.join(ROOT, 'test', 'advocate', 'topic_picker_test.dart')))
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',
                      'CaseArgument _argument', 'MetaReply _metaReplyBot',
-                     'LawAnswer _lawAnswer', 'TalkReply _talk'):
+                     'LawAnswer _lawAnswer', 'TalkReply _talk',
+                     'TopicPicker _picker'):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):
