@@ -69,7 +69,8 @@
 | لحنِ دلداریِ دروغ و وعدهٔ بی‌مدرک در راهنماها | ✅ | «خوشبختانه»، «موقعیت شما معمولاً قوی است»، «تخلیه سریع است» از `lib/domain/lawyer/legal_guides.dart` رفتند؛ نگهبان: `tests/python/test_tone_guard.py` |
 | جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
 | `Advocate` گاد-آبجکت نباشد | ✅ | وضعیتِ «روی میز» در `dialogue_state.dart` (۲۵ فیلد)، ساختِ پاسخ در `reply_voice.dart`، ۱۲ مسیرِ نام‌دار در `advocate_routes.dart` (`_reply` ۵۶۰ → ۳۳۴ خط)، فیلدهای حالتیِ `Advocate` ۴۶ → ۱۲. تشخیص موضوع (`TopicScore`) و پرسش بعدی (`CasePlan`) از کلاس بیرون آمدند و `test/advocate/isolation_test.dart` بدونِ ساختنِ `Advocate` می‌سنجدشان. ترفندِ `file.turns--` رفت. `chat_controller.dart` ۵۳۰ → ۳۱۲ خط با `draft_flow.dart`. `rent.dart` ۲٬۶۷۹ خط → شش تکه. موتور: `law_mention.dart`. نگهبان عددی: `tests/python/test_advocate_shape.py` |
-| موتورِ قوانین هم شکسته شود | 🟡 باقی | `LawMention` جدا شد؛ ولی ایندکس، BM25F و قالب‌بندیِ پاسخ هنوز در `engine.dart` (۱٬۱۲۰ خط) کنارِ هم‌اند |
+| موتورِ قوانین هم شکسته شود | ✅ | `engine.dart` ۱٬۱۷۸ → **۶۳۸** خط: `LawIndex` (ایندکس + خواندنِ متن)، `LawRanker` (BM25F)، `LawText` (نوشتنِ متن)، `LawMention`، `ArticleQuery`. هر چهار با آزمونِ بی‌نیاز از دارایی‌ها (`test/core/law_*_test.dart`). در موتور چیزی جز بارگذاری و تصمیمِ پاسخ نماند |
+| رفتارهای `Advocate` هم همکار داشته باشند | 🟡 باقی | ۹ فایلِ `part` هنوز ~۲۵۰ متد روی یک نوع‌اند (حالت و صدا و مسیرها جدا شده‌اند، ولی رفتارها نه). قدمِ بعد: `CaseArgument` و `CaseFlow` با `(CaseFile, DialogueState, ReplyVoice)` صریح |
 | گفتگوهای گزارش‌شده خودکار آزمون شوند | ✅ | `test/audit/conversations_reported.txt` در فهرست ورودیِ `conversation_audit_test.dart` |
 
 ## بدهی‌های موقتِ ثبت‌شده
