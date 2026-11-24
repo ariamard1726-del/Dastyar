@@ -6,6 +6,7 @@ import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
 import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
+import 'package:dastyar/domain/advocate/reply_voice.dart';
 import 'package:dastyar/domain/advocate/reasoner.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/topic_flow.dart';
@@ -26,6 +27,7 @@ part 'advocate_meta.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
+part 'advocate_routes.dart';
 
 /// از کدام مسیر دانش، این پاسخ ساخته شد؟
 ///
@@ -174,6 +176,12 @@ class Advocate {
 
   final KnowledgeEngine engine;
 
+  /// ساختِ پاسخ‌ها: استناد، برش، سقفِ تکرارِ پرسش و چیدمان دکمه‌ها.
+  /// وضعیتِ «چه گفتیم و چه پرسیدیم» این‌جاست، نه روی خودِ وکیل.
+  late final ReplyVoice voice =
+      ReplyVoice(engine: engine, file: file, unresolved: unresolved,
+          defaultBudget: _budget);
+
   late final LawTerms _terms = LawTerms(engine);
 
   /// شناسهٔ قالب سند → عنوان آن (برای دکمهٔ «تهیهٔ متن»).
@@ -194,15 +202,10 @@ class Advocate {
   /// نام ادعایی که آخرین پرسشِ من برای روشن‌شدنِ آن بود.
   String _lastServed = '';
 
-  /// حرف‌هایی که تا اینجا در گفتگو زده‌ام (برای تکرارنکردن).
-  final Set<String> _said = {};
-
   /// پیام‌های کاربر پیش از بازشدن پرونده (حداکثر سه تای آخر).
   final List<String> _loose = [];
 
   LegalGuide? _guide;
-
-  String _lastBody = '';
 
   String _deferred = '';
 
@@ -235,8 +238,6 @@ class Advocate {
   String _safetyCarry = '';
 
   /// دکمهٔ پیشنهادیِ مرتبط با پیام همین نوبت (اگر باشد).
-  String _relevantChip = '';
-
   /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
   /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
   List<Topic> _choices = const [];
@@ -247,11 +248,7 @@ class Advocate {
   bool _guessed = false;
 
   /// بخشی از پاسخ قبلی که برای کوتاه‌ماندنِ حرف، نگفته مانده است.
-  String _rest = '';
-
   /// آیا در پاسخ قبلی پرسیده‌ام «ادامه‌اش را هم بگویم؟»
-  bool _offeredMore = false;
-
   /// پیشنهادی که در پاسخ قبلی به شکل پرسش داده‌ام: `argue`، `next` یا
   /// `draft` (خالی = هیچ).
   String _offer = '';
@@ -264,10 +261,6 @@ class Advocate {
   /// همان پرسش چند بارِ پشتِ‌سرهم بی‌جواب تکرار شده است. در یک گفتگوی واقعی
   /// یک پرسش سه بار پشتِ پاسخ‌های دیگر تکرار شد؛ بار سوم پرسیدن، آزار است نه
   /// کمک. سقف: دو بار.
-  String _lastAsk = '';
-
-  int _askRepeats = 0;
-
   List<String> _askChips = const [];
 
   /// پاسخ بعدی توضیحی است که خودِ کاربر خواسته (استدلال، نقشهٔ راه) و جای
@@ -283,8 +276,6 @@ class Advocate {
   String _heard = '';
 
   /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
-  List<LawText> _lastLaws = const [];
-
   /// همین نوبت‌قبل، دکمه‌های دستهٔ مشکل («حقوقی/کیفری/اداری/نمی‌دانم/انصراف»)
   /// نشان داده شده است؛ فقط در همان نوبتِ بعد معنا دارند.
   bool _branchAsked = false;
@@ -299,7 +290,7 @@ class Advocate {
   static const String lawChip = 'متن قانون را ببینم';
 
   /// آیا از پاسخ قبلی چیزی نگفته مانده است؟
-  bool get hasMore => _rest.isNotEmpty;
+  bool get hasMore => voice.rest.isNotEmpty;
 
   /// قالبی که در پاسخ قبلی پیشنهاد نوشتنش را داده‌ام (یا `null`).
   String? get offeredDraft =>
@@ -319,8 +310,6 @@ class Advocate {
     }
     return sb.toString();
   }
-
-  int _vary = 0;
 
   static const String newCaseChip = 'موضوع تازه‌ای دارم';
 
@@ -488,12 +477,11 @@ class Advocate {
   void reset() {
     _closeCase();
     _prevN = '';
-    _relevantChip = '';
+    voice.relevantChip = '';
     file.turns = 0;
     file.disclaimed = false;
     _safetyShown = false;
     _safetyCarry = '';
-    _said.clear();
     _loose.clear();
     unresolved.clear();
     _also = null;
@@ -502,10 +490,7 @@ class Advocate {
     _choices = const [];
     _choiceText = '';
     _guessed = false;
-    _vary = 0;
-    _rest = '';
-    _offeredMore = false;
-    _lastLaws = const [];
+    voice.reset();
     _branchAsked = false;
     _unclearPhrase = '';
     _unclearTurn = -10;
@@ -560,7 +545,7 @@ class Advocate {
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
-    _relevantChip = Understanding.relevantChip(raw) ?? '';
+    voice.relevantChip = Understanding.relevantChip(raw) ?? '';
     file.turns++;
     final choices = _choices;
     final choiceText = _choiceText;
@@ -570,56 +555,12 @@ class Advocate {
     _choiceText = '';
     _guessed = false;
     _branchAsked = false;
-    if (raw.trim() == newCaseChip) {
-      _closeCase();
-      _loose.clear();
-      return _out(
-        'باشد، آن موضوع را کنار می‌گذارم.',
-        ask: 'ماجرای تازه چیست؟ از هر جا که راحت‌ترید شروع کنید.',
-      );
-    }
-    // «گزینه‌ای وجود ندارد»: اعتراض به نبودن راه خروج. راه خروج را نشان می‌دهیم.
-    if (Drafting.isComplaintNoOption(raw)) {
-      return _out(
-        'درست می‌گویید؛ راه خروج را روشن نگفته بودم. برای بیرون آمدن از این موضوع، «انصراف» یا «موضوع تازه‌ای دارم» را بزنید یا همان را بنویسید.',
-        ask: 'می‌خواهید این موضوع را کنار بگذاریم یا ادامه دهیم؟',
-        chips: const [newCaseChip],
-      );
-    }
+    if (_routeNewCase(raw) case final r?) return r;
+    if (_routeNoOption(raw) case final r?) return r;
     // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
     // قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» به‌عنوان ادامهٔ پروندهٔ
     // قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
-    final pend = _pendingTopic;
-    final pendText = _pendingText;
-    _pendingTopic = null;
-    _pendingText = '';
-    if (pend != null) {
-      if (raw.trim() == Advocate.newTopicYesChip ||
-          raw.trim() == sideChip ||
-          (Sense.words(n) <= 6 &&
-              Sense.has(n,
-                  'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
-        return _open(pend, Sense.norm(pendText), switched: true);
-      }
-      final curTopic = _current();
-      if (curTopic != null &&
-          (raw.trim() == Advocate.newTopicNoChip ||
-              raw.trim() == relatedChip ||
-              (Sense.words(n) <= 6 &&
-                  Sense.has(n,
-                      'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
-        final pn = Sense.norm(pendText);
-        final r = _inCase(curTopic, pendText, pn, _matchIssue(curTopic, pn));
-        // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
-        // برنامه سرگردان شده است.
-        return AdvocateReply(
-          'باشد، همین پرونده را ادامه می‌دهیم.\n\n${r.text}',
-          chips: r.chips,
-          laws: r.laws,
-          source: r.source,
-        );
-      }
-    }
+    if (_routePending(raw, n) case final r?) return r;
     // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
     final branch = _branchReply(raw, n, asked: branchAsked);
     if (branch != null) return branch;
@@ -681,81 +622,29 @@ class Advocate {
     // خطر هرگز زیر این پاسخ نماند.
     final aside = _metaReply(raw, n);
     if (aside != null) return aside;
-    // دعوای لفظی: تا وقتی تهدید یا برخورد فیزیکی نبوده، خودِ «جر و بحث»
-    // جرم نیست؛ ولی باید بدانیم کدامش پیش آمده. پیش‌تر این جمله به حدسِ
-    // «دفاع در برابر شکایت» یا پاسخ «در پایگاه نیست» می‌رسید.
-    if (!hasCase &&
-        !Sense.has(n,
-            'کتک|مشت|لگد|چاقو|زخم|ضرب|جرح|هل داد|هلم داد|بیمارستان|پزشکی قانونی') &&
-        // «دعوا سر کرایه خانه» یا «با مستاجر درگیر شدم» ماجرای موضوع‌دار است و
-        // باید به موضوع خودش برسد، نه به پاسخ عمومیِ دعوای لفظی.
-        !_anyTopicCue(n) &&
-        Sense.has(n,
-            'جر ?و ?بحث|بگو ?مگو|دعوای لفظی|دعوا(?:م|مون)? (?:شد|کردم)|بحث(?:م|مون)? (?:شد|کردیم|کردم)')) {
-      return _out(
-        'دعوای لفظی به‌تنهایی جرم نیست؛ دادگاه برای «حرف زدن» پرونده باز نمی‌کند. '
-        'اگر در همان دعوا تهدید، توهین یا برخورد فیزیکی هم بوده، هر کدام مسیر '
-        'جداگانه‌ای دارد و باید بگویید کدام پیش آمده.',
-        ask: 'در آن دعوا چه چیزی اتفاق افتاد؛ فقط حرف بود، تهدید شد، یا برخورد فیزیکی هم شد؟',
-        chips: const ['فقط حرف بود', 'تهدید شد', 'برخورد فیزیکی شد'],
-      );
-    }
-    // جواب به «ماجرای شما به کدام نزدیک‌تر است؟».
-    if (choices.isNotEmpty) {
-      for (final t in choices) {
-        if (n == Sense.norm(t.title)) {
-          return _open(t, Sense.norm(choiceText));
-        }
-      }
-      if (choices.length == 1 && Sense.words(n) <= 3 && Sense.saysYes(n)) {
-        return _open(choices.first, Sense.norm(choiceText));
-      }
-      if (raw.trim() == noneChip ||
-          (Sense.words(n) <= 3 && Sense.saysNo(n))) {
-        _branchAsked = true;
-        return _out(
-          'باشد.',
-          ask:
-              'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
-          chips: Advocate.branchChips,
-        );
-      }
-    }
-    // پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
-    if (guessed &&
-        (raw.trim() == wrongChip ||
-            (Sense.words(n) <= 7 &&
-                Sense.has(n,
-                    'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
-      _closeCase();
-      _loose.clear();
-      return _out(
-        'ببخشید، اشتباه برداشت کردم.',
-        ask:
-            'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
-        chips: _branchStart(),
-      );
-    }
+    if (_routeFight(n, hasCase) case final r?) return r;
+    if (_routeChoice(raw, n, choices, choiceText) case final r?) return r;
+    if (_routeWrongGuess(raw, n, guessed) case final r?) return r;
     final short = Sense.words(n) <= 4;
     // ادامهٔ حرفِ قبلی، وقتی کاربر خودش بخواهد.
-    final rest = _rest;
+    final rest = voice.rest;
     if (rest.isNotEmpty &&
         (raw.trim() == moreChip ||
             (short &&
                 Sense.has(n,
                     'ادامه|بقیه|بیشتر (?:بگو|توضیح|باز)|کامل(?:ش|ترش)? (?:بگو|کن)')) ||
-            (_offeredMore && short && Sense.saysYes(n)))) {
+            (voice.offeredMore && short && Sense.saysYes(n)))) {
       var ask = _askText;
       var chips = _askChips;
       final t0 = _current();
-      if (ask.isEmpty && t0 != null && _cut(rest, _budget)[1].isEmpty) {
+      if (ask.isEmpty && t0 != null && cutText(rest, _budget)[1].isEmpty) {
         final a = _nextAsk(t0);
         _askText = ask = a.text;
         _askChips = chips = a.chips;
       }
       return _out(rest, ask: ask, chips: chips);
     }
-    if (_offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
+    if (voice.offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
       final t0 = _current();
       if (t0 != null) return _finish(t0, [_pick(Say.fine)]);
       return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
@@ -1164,34 +1053,11 @@ class Advocate {
   /// دکمه‌های پیشنهادی برای وضعیت فعلی گفتگو.
   List<String> get idleChips => _idleChips();
 
-  String _pick(List<String> options) {
-    final v = options[_vary % options.length];
-    _vary++;
-    return v;
-  }
+  String _pick(List<String> options) => voice.pick(options);
 
   /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
   /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
   /// پایان می‌گذارد تا گفتگو دوطرفه بماند.
-  /// هستهٔ پرسش، بی‌پیشوند.
-  ///
-  /// پیشوندها دو جورند: چرخشی («و سؤال خودم:»، «اجازه بدهید دوباره بپرسم:»)
-  /// و موردی («سؤالم این بود:»، «برگردیم سر پروندهٔ خودمان:»). اگر متنِ کامل
-  /// مقایسه شود، هر پیشوند یک پرسش تازه حساب می‌شود و شمارنده هیچ‌وقت به سقف
-  /// نمی‌رسد — همان چیزی که در آزمون اولِ همین تغییر دیدیم.
-  static String _askKey(String ask) {
-    var t = ask;
-    for (final p in Say.askAgain) {
-      if (t.startsWith('$p ')) {
-        t = t.substring(p.length + 1);
-        break;
-      }
-    }
-    final colon = t.lastIndexOf(': ');
-    if (colon > 0 && colon < 60) t = t.substring(colon + 2);
-    return t;
-  }
-
   AdvocateReply _out(
     String text, {
     List<String> chips = const [],
@@ -1199,101 +1065,9 @@ class Advocate {
     bool full = false,
     int budget = _budget,
     AnswerSource source = AnswerSource.topic,
-  }) {
-    final laws = <LawText>[];
-    final seen = <String>{};
-    var body = text.replaceAllMapped(_refRun, (m) {
-      // مواد یک قانون کنار هم می‌آیند: «مواد ۵۲۲ و ۵۱۹ قانون …».
-      final byLaw = <String, List<String>>{};
-      for (final r in _refOne.allMatches(m[0] ?? '')) {
-        final law = r[1] ?? '';
-        final rep = (r[3] ?? '').isNotEmpty;
-        final art = r[2] ?? '';
-        final key = '$law:$art${rep ? 'm' : ''}';
-        final kind = law == 'constitution' ? 'اصل' : 'ماده';
-        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
-        if (c == null) {
-          if (!unresolved.contains(key)) unresolved.add(key);
-          continue;
-        }
-        final num = '${Sense.fa(art)}${rep ? ' مکرر' : ''}';
-        final label = '$kind $num ${c.source}';
-        final nums = byLaw.putIfAbsent(c.source, () => <String>[]);
-        if (!nums.contains(num)) nums.add(num);
-        if (seen.add(key)) {
-          laws.add(LawText(label, c.source, c.body, '',
-              status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
-        }
-      }
-      if (byLaw.isEmpty) return '';
-      final names = <String>[];
-      byLaw.forEach((source, nums) {
-        final basic = source.contains('قانون اساسی');
-        final one = basic ? 'اصل' : 'ماده';
-        final many = basic ? 'اصول' : 'مواد';
-        names.add(nums.length == 1
-            ? '$one ${nums.first} ${_shortLaw(source)}'
-            : '$many ${nums.join(' و ')} ${_shortLaw(source)}');
-      });
-      return ' (${names.join('؛ ')})';
-    });
-    body = body.trim();
-    _rest = '';
-    _offeredMore = false;
-    if (!full) {
-      final cut = _cut(body, budget);
-      body = cut[0];
-      _rest = cut[1];
-    }
-    if (laws.isNotEmpty) _lastLaws = laws;
-    var tail = ask;
-    // سقفِ تکرارِ پرسشِ بی‌جواب: بار سوم جای پرسش، یک جملهٔ صریح می‌آید و
-    // بعد از آن دیگر پرسیده نمی‌شود.
-    var droppedAsk = false;
-    if (tail.isNotEmpty) {
-      // تکراری‌بودنِ پرسش را با «هستهٔ» آن می‌سنجیم، نه با متنِ کامل: پیشوندِ
-      // چرخشی («و سؤال خودم:»، «اجازه بدهید دوباره بپرسم:») هر بار عوض می‌شود
-      // و اگر متنِ کامل مقایسه شود، شمارنده همیشه صفر می‌ماند.
-      final key = _askKey(tail);
-      if (key == _lastAsk) {
-        _askRepeats++;
-      } else {
-        _lastAsk = key;
-        _askRepeats = 0;
-      }
-      if (_askRepeats >= 2) {
-        droppedAsk = true;
-        tail = _askRepeats == 2 ? _askDropped : '';
-      }
-    }
-    if (!droppedAsk && tail.isEmpty && _rest.isNotEmpty) {
-      tail = _pick(Say.more);
-      _offeredMore = true;
-    }
-    final first = laws.isNotEmpty && !file.disclaimed;
-    if (first) {
-      file.disclaimed = true;
-      body = '$body\n\n${Say.disclaimer}';
-    }
-    if (tail.isNotEmpty) body = body.isEmpty ? tail : '$body\n\n$tail';
-    // دکمهٔ مرتبط با حرف کاربر، جلوی بقیهٔ دکمه‌ها؛ بدون تکرار.
-    final all = <String>[
-      if (_offeredMore) ..._yesNo,
-      if (_relevantChip.isNotEmpty) _relevantChip,
-      ...chips,
-      if (_rest.isNotEmpty && !_offeredMore) moreChip,
-      if (laws.isNotEmpty && (first || chips.isEmpty)) lawChip,
-    ];
-    final uniq = <String>[];
-    for (final c in all) {
-      if (!uniq.contains(c)) uniq.add(c);
-    }
-    all
-      ..clear()
-      ..addAll(uniq);
-    // «انصراف» را [_withLeave] آخرین دکمهٔ هر پاسخ می‌کند.
-    return AdvocateReply(body, chips: all, laws: laws, source: source);
-  }
+  }) =>
+      voice.out(text,
+          chips: chips, ask: ask, full: full, budget: budget, source: source);
 }
 
 // ---- ثابت‌ها و نشانه‌های مشترک
@@ -1301,13 +1075,9 @@ class Advocate {
 /// سقف طول متنِ هر پاسخ (بدون پرسشِ پایانی)؛ بقیه با «ادامه بده» می‌آید.
 const int _budget = 380;
 
-/// جای پرسشی که دو بار بی‌جواب مانده است.
-const String _askDropped =
-    'این پرسش را دو بار پرسیدم و جواب ندادید؛ از آن می‌گذرم. هر وقت خواستید، خودتان بگویید.';
-
 const int _roomyBudget = 760;
 
-const List<String> _yesNo = ['بله، بگو', 'نه، لازم نیست'];
+const List<String> _yesNo = yesNoChips;
 
 const List<String> _replyChips = [
   'انکار می‌کند',

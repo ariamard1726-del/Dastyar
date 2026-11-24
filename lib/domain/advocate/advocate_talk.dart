@@ -188,20 +188,20 @@ extension _Talk on Advocate {
     }
     if (!explicit && w <= 7 &&
         !Sense.has(n, '(?:ماده|اصل) [0-9]+') &&
-        _lastLaws.isNotEmpty &&
+        voice.lastLaws.isNotEmpty &&
         Sense.has(n,
             'متن (?:قانون|ماده)|کدوم ماده|کدام ماده|طبق کدوم|طبق کدام|ماده ?(?:اش|ش) (?:چی|رو|را)|مستند(?:ت|ش)? چی|سندت چیه')) {
       // «متن قانون را ببینم» یعنی خودِ متن، نه چکیده؛ و همهٔ موادی که پاسخ
       // پیشین به آن‌ها استناد کرده بود. پیش‌تر فقط دو ماده و آن هم بریده
       // می‌آمد و عنوانشان با ارقام لاتین («ماده 10»).
-      final shown = _lastLaws.take(3).toList();
+      final shown = voice.lastLaws.take(3).toList();
       final lines = [
         for (final l in shown)
           '• ${PersianText.toFaDigits(l.title)}'
               '${l.source.trim().isEmpty ? '' : ' — ${l.source.trim()}'}:\n'
               '«${_lawBody(l.body)}»',
       ];
-      final rest = _lastLaws.length - shown.length;
+      final rest = voice.lastLaws.length - shown.length;
       if (rest > 0) {
         lines.add('و ${PersianText.toFaDigits('$rest')} مادهٔ دیگر هم بود؛ '
             'شماره‌اش را بگویید تا همان را بیاورم.');
@@ -269,12 +269,12 @@ extension _Talk on Advocate {
     if (w <= 6 &&
         Sense.has(n,
             'ساده ?تر|ساده بگو|نفهمیدم|متوجه نشدم|گیج شدم|پیچیده|دوباره بگو|یه بار دیگه|نگرفتم')) {
-      if (_lastBody.isEmpty) {
+      if (voice.lastBody.isEmpty) {
         return _out('هنوز چیزی نگفته‌ام که پیچیده باشد.',
             ask: 'چه مشکلی پیش آمده؟', chips: _idleChips());
       }
       final lines = <String>[
-        for (final l in _strip(_lastBody).split('\n'))
+        for (final l in _strip(voice.lastBody).split('\n'))
           if (l.trim().isNotEmpty) _brief(l.trim()),
       ];
       return _out(
@@ -294,8 +294,8 @@ extension _Talk on Advocate {
         sb.write('\n\n${n2(file)}');
         file.covered.add('f:next');
       }
-      _lastBody = sb.toString();
-      return _out(_lastBody, chips: _suggest(topic));
+      voice.lastBody = sb.toString();
+      return _out(voice.lastBody, chips: _suggest(topic));
     }
     return null;
   }

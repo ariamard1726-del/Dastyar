@@ -35,7 +35,7 @@ extension _CaseFlow on Advocate {
     _safetyShown = false;
     _safetyCarry = '';
     _guide = null;
-    _lastBody = '';
+    voice.lastBody = '';
     _deferred = '';
     _arguedOn = '';
     _heard = '';
@@ -189,8 +189,8 @@ extension _CaseFlow on Advocate {
         final b = issue.body(file);
         parts.add(b);
         file.covered.add(issue.id);
-        _said.add(b);
-        _lastBody = b;
+        voice.said.add(b);
+        voice.lastBody = b;
         answered = true;
       }
     }
@@ -198,12 +198,12 @@ extension _CaseFlow on Advocate {
     _addEffects(parts, news, 1,
         skip: _deferred.isEmpty && issue != null ? issue.covers : const {});
     _noteAmount(parts, news, n);
-    if (_lastBody.isEmpty) {
+    if (voice.lastBody.isEmpty) {
       // «ساده‌تر بگو» باید سراغ حرف قانون برود، نه بازگویی ماجرا.
       if (open.isNotEmpty) {
-        _lastBody = open;
+        voice.lastBody = open;
       } else if (parts.isNotEmpty) {
-        _lastBody = parts.first;
+        voice.lastBody = parts.first;
       }
     }
     var lead = '';
@@ -236,9 +236,9 @@ extension _CaseFlow on Advocate {
       final fx = s.effect;
       if (fx == null) continue;
       final e = fx(file);
-      if (e.isEmpty || parts.contains(e) || _said.contains(e)) continue;
+      if (e.isEmpty || parts.contains(e) || voice.said.contains(e)) continue;
       parts.add(e);
-      _said.add(e);
+      voice.said.add(e);
       added++;
       if (added >= max) break;
     }
@@ -314,16 +314,16 @@ extension _CaseFlow on Advocate {
       final b = _verdict(focus);
       parts.add(b);
       _roomy = true;
-      _said.add(b);
-      _lastBody = b;
+      voice.said.add(b);
+      voice.lastBody = b;
       understood = true;
       reasoned = true;
     } else if (asked != null && !onlyFact) {
       final b = asked.body(file);
       parts.add(b);
       file.covered.add(asked.id);
-      _said.add(b);
-      _lastBody = b;
+      voice.said.add(b);
+      voice.lastBody = b;
       understood = true;
     } else if (onlyFact) {
       understood = true;
@@ -349,16 +349,16 @@ extension _CaseFlow on Advocate {
           _arguedOn = _factsKey();
           file.covered.add('f:argue');
           file.covered.add('f:chance');
-          _said.add(arg);
-          _lastBody = arg;
+          voice.said.add(arg);
+          voice.lastBody = arg;
           understood = true;
         } else if (fb != null) {
           final b = fb(file);
           parts.add(b);
           _roomy = kind == 'next';
           file.covered.add('f:$kind');
-          _said.add(b);
-          _lastBody = b;
+          voice.said.add(b);
+          voice.lastBody = b;
           understood = true;
         }
       }
@@ -389,7 +389,7 @@ extension _CaseFlow on Advocate {
     if (onlyFact && parts.isEmpty) {
       final b = asked.body(file);
       parts.add(b);
-      _lastBody = b;
+      voice.lastBody = b;
     }
     // حرف تازه اگر نتیجه را جابه‌جا کرده، همان‌جا می‌گویم؛ و اگر حرف قبلی
     // را برعکس کرده، می‌گویم که برداشتم را عوض کرده‌ام.
@@ -631,7 +631,7 @@ extension _CaseFlow on Advocate {
   AdvocateReply _finish(Topic t, List<String> parts, {String lead = ''}) {
     var body = parts.join('\n\n');
     if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
-    _said.addAll(parts);
+    voice.said.addAll(parts);
     final a = _nextAsk(t);
     _askText = a.text;
     _askChips = a.chips;

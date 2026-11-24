@@ -32,11 +32,11 @@ extension _Guides on Advocate {
       laws.add(LawText('$kind ${Sense.fa(art)} ${c.source}', c.source, c.body, '',
           status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
     }
-    if (laws.isNotEmpty) _lastLaws = laws;
+    if (laws.isNotEmpty) voice.lastLaws = laws;
     // پرسش‌های هم‌موضوع، تا گفتگو از همان جا ادامه پیدا کند.
     final next = [for (final q in engine.qa.related(qa)) q.question];
-    _rest = '';
-    _offeredMore = false;
+    voice.rest = '';
+    voice.offeredMore = false;
     return AdvocateReply(
       '${qa.answer}$src\n\n'
       'این پاسخ عمومی است. اگر بگویید ماجرای شما دقیقاً چیست، آن را با وضعیت خودتان تطبیق می‌دهم.',
@@ -88,8 +88,8 @@ extension _Guides on Advocate {
         final lead = direct
             ? 'این متنِ همان ماده در بانک قوانین من است:'
             : 'تحلیل آماده‌ای برای این پرسش ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:';
-        _rest = '';
-        _offeredMore = false;
+        voice.rest = '';
+        voice.offeredMore = false;
         return AdvocateReply(
           '$lead\n\n${r.text}\n\n'
           // اگر ماجرای کاربر را از پیش می‌دانیم، پرسیدنِ «چه شده؟» یعنی
@@ -135,7 +135,7 @@ extension _Guides on Advocate {
     }
     final refs = [for (final r in g.refs) '[[${r.lawId}:${r.article}]]'];
     if (refs.isNotEmpty) sb.write('\n\nمستند این حرف‌ها ${refs.join(' ')} است.');
-    _lastBody = g.answer;
+    voice.lastBody = g.answer;
     _guideAsked = g.followUp.isNotEmpty;
     _guideStepped = false;
     return _out(sb.toString(),
@@ -282,8 +282,8 @@ extension _LawTermsReply on Advocate {
       final gap = tm.missing.isEmpty
           ? ''
           : ' واژهٔ ${tm.missing.map((w) => '«$w»').join('، ')} در این ماده نیست.';
-      _rest = '';
-      _offeredMore = false;
+      voice.rest = '';
+      voice.offeredMore = false;
       return AdvocateReply(
         'در «$lawName» ${PersianText.toFaDigits(c.title)} واژه‌های $words با هم آمده‌اند.$gap\n\n${c.body}\n\n'
         'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.',
@@ -353,8 +353,8 @@ extension _TopicFlowReply on Advocate {
     final text = '${leaf['title']}\n\n${leaf['text']}'
         '${refs.isEmpty ? '' : '\n\nمواد مستند: ${PersianText.toFaDigits(refs)}'}\n\n'
         '${flow['disclaimer'] ?? ''}';
-    _rest = '';
-    _offeredMore = false;
+    voice.rest = '';
+    voice.offeredMore = false;
     return AdvocateReply(text, laws: laws, source: AnswerSource.topicFlow);
   }
 }
