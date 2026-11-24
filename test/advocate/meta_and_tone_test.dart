@@ -94,6 +94,20 @@ void main() {
     expect(fourth, isNot(contains(pend)));
   });
 
+  test('واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد', () {
+    final a = fresh();
+    final out = answer(a, 'دو تا مگس بهم مشت انداختند');
+    expect(out, isNot(contains('۶۱۴')));
+    expect(out, isNot(contains('۶۱۵')));
+    expect(out, contains('چه کسی'));
+  });
+
+  test('ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد', () {
+    final a = fresh();
+    final out = answer(a, 'همسایه‌ام کتکم زد و سرم شکسته');
+    expect(out, contains('۶۱۴'));
+  });
+
   test('پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد', () {
     final a = fresh();
     final r = a.respond('هوم');

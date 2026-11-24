@@ -335,6 +335,11 @@ class Topic {
 
   /// اگر یکی از این‌ها در متن باشد، موضوع رد می‌شود.
   final String anti;
+
+  /// شرطِ بازشدن: امتیازِ واژه‌ها به‌تنهایی کافی نیست. برای موضوعی که یک
+  /// واژهٔ عمومی‌اش در جملهٔ بی‌ربط هم می‌آید («مشت» در یک جملهٔ بی‌معنا) و
+  /// بدون شرط، برنامه بی‌آنکه کسی را بشناسد حکم و ماده می‌داد.
+  final bool Function(String n)? gate;
   final List<Slot> slots;
   final List<Issue> issues;
 
@@ -383,6 +388,7 @@ class Topic {
     required this.opening,
     required this.follow,
     this.anti = '',
+    this.gate,
     this.drafts,
     this.claims = const [],
     this.recap,

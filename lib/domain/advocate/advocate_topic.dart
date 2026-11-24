@@ -5,6 +5,16 @@ part of 'advocate.dart';
 /// امتیاز یک موضوع برای متنِ نرمال‌شده: جمع وزن نشانه‌هایی که در متن هست.
 int _score(Topic t, String n) {
   if (t.anti.isNotEmpty && Sense.has(n, t.anti)) return 0;
+  // شرطِ بازشدن، پیش از امتیاز: موضوعی که واژه‌اش در جملهٔ بی‌ربط هم می‌آید
+  // باید «کسی/آسیبی» ببیند، وگرنه امتیازش صفر است و به حکم نمی‌رسد.
+  if (t.gate != null && !t.gate!(n)) return 0;
+  return _scoreIgnoringGate(t, n);
+}
+
+/// همان امتیازِ واژه‌ها، بدون شرطِ بازشدن؛ برای تشخیصِ «به این موضوع نزدیک
+/// است ولی هنوز شرطش را ندارد» تا به‌جای حکم، سؤال کوتاه پرسیده شود.
+int _scoreIgnoringGate(Topic t, String n) {
+  if (t.anti.isNotEmpty && Sense.has(n, t.anti)) return 0;
   var s = 0;
   for (final e in t.cues.entries) {
     if (Sense.has(n, e.key)) s += e.value;

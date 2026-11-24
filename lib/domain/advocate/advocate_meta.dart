@@ -91,6 +91,32 @@ extension _AdvocateMeta on Advocate {
     );
   }
 
+  /// موضوعی که پیام به آن نزدیک است ولی شرطِ بازشدنش را ندارد
+  /// ([Topic.gate]). به‌جای حکم و ماده، یک سؤال کوتاه می‌پرسیم.
+  Topic? _gatedTopic(String n) {
+    Topic? best;
+    var bestScore = 0;
+    for (final t in Advocate.topics) {
+      if (t.gate == null) continue;
+      if (t.gate!(n)) continue;
+      final s = _scoreIgnoringGate(t, n);
+      if (s > bestScore) {
+        best = t;
+        bestScore = s;
+      }
+    }
+    return bestScore >= 4 ? best : null;
+  }
+
+  /// پاسخ به پیامی که فقط واژهٔ موضوع را دارد، نه ماجرا را.
+  AdvocateReply _gatedReply(Topic t) => _out(
+        'این حرف به «${t.title}» نزدیک است، ولی از همین جمله نمی‌فهمم چه کسی '
+        'چه کاری کرده و آیا کسی آسیب دیده است. در این حالت حکم و شمارهٔ ماده '
+        'نمی‌دهم؛ حدس در این‌جا می‌تواند به ضرر شما باشد.',
+        ask: 'چه کسی به چه کسی ضربه زد، و آیا کسی آسیب دید یا به بیمارستان رفت؟',
+        chips: const ['کتک‌کاری شد', 'فقط تهدید بود', 'کسی آسیب ندید'],
+      );
+
   /// جملهٔ کوتاهِ سوگ: نه تحلیل حقوقی می‌سازیم، نه نقش همراه عاطفی بازی
   /// می‌کنیم؛ فقط صادقانه می‌گوییم چه کاری از ما برمی‌آید.
   AdvocateReply _lossReply() {
