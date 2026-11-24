@@ -219,7 +219,7 @@ class Advocate {
     draftTitles: _draftTitles,
     echo: _echo,
     flips: _flips,
-    glossary: _glossary,
+    glossary: _guides.glossary,
     openGuide: (g, raw, n, {bool? switched}) =>
         _guides.openGuide(g, raw, n, switched: switched ?? false),
     fillFor: fillFor,

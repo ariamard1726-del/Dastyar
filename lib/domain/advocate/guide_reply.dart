@@ -25,7 +25,7 @@ class GuideReply {
   final CaseFile file;
   final DialogueState dialog;
   final ReplyVoice voice;
-  final LegalEngine engine;
+  final KnowledgeEngine engine;
 
   /// گفت‌وگوی انسانی: «منظورتان چیست؟»، پرسشِ کنجکاو، پاسخِ SOCIAL.
   final TalkReply talk;
