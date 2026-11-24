@@ -194,10 +194,21 @@ class ShapeTests(unittest.TestCase):
                      'List<LegalTemplate> get pendingChoices'):
             self.assertIn(keep, controller)
 
+    def test_engine_only_orchestrates(self):
+        """موتور باید بارگذاری + پاسخ‌سازی باشد؛ نوشتن و امتیازدهی همکار دارد."""
+        engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
+        text = _read(os.path.join(ROOT, 'lib', 'core', 'law_text.dart'))
+        for owned in ('String format(Chunk c)', 'String lawList()',
+                      'String notFound()'):
+            self.assertIn(owned, text)
+        for gone in ('String _lawListText(', 'String _notFound('):
+            self.assertNotIn(gone, engine)
+        self.assertIn('String format(Chunk c) => _text.format(c);', engine)
+
     def test_engine_does_not_own_law_names(self):
         """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
         engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
-        self.assertLess(len(engine.split('\n')), 700,
+        self.assertLess(len(engine.split('\n')), 650,
                         'engine.dart دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)

@@ -7,6 +7,7 @@ import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/article_query.dart';
 import 'package:dastyar/core/law_index.dart';
 import 'package:dastyar/core/law_ranker.dart';
+import 'package:dastyar/core/law_text.dart';
 import 'package:dastyar/core/law_mention.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
@@ -98,6 +99,17 @@ class KnowledgeEngine {
   List<Map<String, dynamic>> get topicFlows => _topicFlows;
   Map<String, int> get lawCounts => _index.lawCounts;
   bool isLoaded(String id) => (_index.lawCounts[id] ?? 0) > 0;
+
+  /// نوشتنِ متنِ ماده و فهرستِ قوانین؛ صاحبش [LawText] است.
+  late final LawText _text = LawText(
+    meta: meta,
+    replies: replies,
+    catalog: catalog,
+    lawCountOf: (id) => _index.lawCounts[id] ?? 0,
+  );
+
+  /// متنِ آمادهٔ یک ماده، با منبع و تاریخ. پاس‌دهنده به [LawText].
+  String format(Chunk c) => _text.format(c);
 
   /// رتبه‌بندیِ پرسش؛ پاس‌دهنده به [LawRanker].
   RankResult rank(String question, {int k = 3}) => _ranker.rank(question, k: k);
@@ -366,50 +378,6 @@ List<CatalogLaw> _loadedLaws() => _mention.loaded();
 
 bool _asksLawList(String n) => _mention.asksLawList(n);
 
-String _lawListText() {
-  final loaded = _loadedLaws();
-  if (loaded.isEmpty) return replies.get('no_laws');
-  final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
-  for (final l in loaded) {
-    final n = _index.lawCounts[l.id] ?? 0;
-    sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
-  }
-  final rest = catalog.length - loaded.length;
-  if (rest > 0) {
-    sb.write(
-      '\n\n${PersianText.toFaDigits(rest.toString())} قانون دیگر در فهرست هست ولی متنشان هنوز وارد نشده است.',
-    );
-  }
-  return sb.toString();
-}
-
-String format(Chunk c) {
-  final sb = StringBuffer();
-  // عنوان در فایل‌های قانون با ارقام لاتین است («ماده 10»)؛ در متن فارسی
-  // باید با ارقام فارسی بیاید.
-  sb.write(PersianText.toFaDigits(c.title));
-  if (c.body != c.title) sb.write('\n${c.body}');
-  if (c.obsolete) {
-    sb.write('\n\nتوجه: این ماده در متن رسمی منسوخ‌شده علامت خورده است.');
-  }
-  if (c.source.isNotEmpty) {
-    sb.write('\n\nمنبع: ${c.source}');
-    if (c.chapter.isNotEmpty) sb.write(' — ${c.chapter}');
-    final date = (meta[c.lawId]?['date'] ?? '').toString().trim();
-    if (date.isNotEmpty) {
-      sb.write('\nتاریخ دریافت متن: ${PersianText.toFaDigits(date)}');
-    }
-    final amended = (meta[c.lawId]?['amended'] ?? '').toString().trim();
-    if (amended.isNotEmpty) {
-      sb.write('\nآخرین اصلاح قانون: ${PersianText.toFaDigits(amended)}');
-    }
-    if ((meta[c.lawId]?['status'] ?? '').toString().trim() != 'verified') {
-      sb.write('\nاین متن هنوز با منبع رسمی تطبیق داده نشده است.');
-    }
-  }
-  return sb.toString();
-}
-
 /// چه کسری از وزن واژه‌های پرسش در این ماده (یا با کمک مترادف‌ها) پیدا می‌شود.
 /// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
 /// گسترش پیشوند در زمان O(log V + |t| + matches) به‌جای پیمایش خطی کل واژگان.
@@ -435,7 +403,7 @@ String format(Chunk c) {
     }
 
     if (_asksLawList(n)) {
-      return EngineReply(text: _lawListText());
+      return EngineReply(text: _text.lawList());
     }
 
     final mentioned = _mentionedLaws(question);
@@ -482,7 +450,7 @@ String format(Chunk c) {
     }
 
     if (top4.isEmpty || top4.first.score < 0.3) {
-      return EngineReply(text: _notFound(), alternatives: alts);
+      return EngineReply(text: _text.notFound(), alternatives: alts);
     }
 
     // صریح‌بودنِ پرسش (درخواست مستقیم ماده) از مسیرِ انتخابِ زیر عبور می‌کند:
@@ -506,7 +474,7 @@ String format(Chunk c) {
       }
       if (bestCov < _lowCover) {
         return EngineReply(
-          text: _notFound(),
+          text: _text.notFound(),
           contextHits: ctx,
           alternatives: alts,
         );
@@ -516,7 +484,7 @@ String format(Chunk c) {
     }
 
     if (art == null && _hitsUnloadedDomain(n, mentioned, bestHit.chunk)) {
-      return EngineReply(text: _notFound(), alternatives: alts);
+      return EngineReply(text: _text.notFound(), alternatives: alts);
     }
 
     final topChunk = bestHit.chunk;
@@ -667,7 +635,4 @@ String format(Chunk c) {
     return _alternativesFromRank(n, mentioned, r, max: max);
   }
 
-  String _notFound() {
-    return replies.get('not_found');
-  }
 }
