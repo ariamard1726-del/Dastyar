@@ -6,8 +6,6 @@ part of 'advocate.dart';
 /// آزمون‌شدنی باشد.
 int _score(Topic t, String n) => TopicScore.of(t, n);
 
-int _scoreIgnoringGate(Topic t, String n) => TopicScore.ignoringGate(t, n);
-
 extension _TopicPicking on Advocate {
   Topic? _current() {
     for (final t in Advocate.topics) {
