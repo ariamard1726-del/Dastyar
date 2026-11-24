@@ -1,3 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/text_norm_rules_test.dart: Sense.norm با نمونه‌های پایتون یکی است (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/text_norm_rules_test.dart: نیم‌فاصله، ارقام و بازنویسی‌ها (failed)
-::error::468 tests passed, 2 failed.
+🎉 470 tests passed.
