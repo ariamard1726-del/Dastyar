@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/case_recap.dart';
-import 'package:dastyar/domain/advocate/chip_plan.dart';
 import 'package:dastyar/domain/advocate/dialogue_state.dart';
 import 'package:dastyar/domain/advocate/topics/rent.dart';
 
