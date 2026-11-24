@@ -14,6 +14,7 @@ void main() {
         dialog: dialog ?? DialogueState(),
         intentNet: null,
         open: (t, n, {bool guessed = false}) => AdvocateReply('باز شد'),
+        voice: () => throw UnimplementedError('این آزمون صدایی لازم ندارد'),
       );
 
   test('موضوعِ باز از پرونده خوانده می‌شود، نه از وکیل', () {

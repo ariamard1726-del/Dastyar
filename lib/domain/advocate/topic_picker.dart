@@ -15,6 +15,7 @@ class TopicPicker {
     required this.dialog,
     required this.intentNet,
     required this.open,
+    required this.voice,
   });
 
   final CaseFile file;
@@ -25,6 +26,20 @@ class TopicPicker {
 
   /// بازکردنِ پرونده با موضوعی که حدس زده‌ام؛ خودِ روندِ پرونده کارِ وکیل است.
   final AdvocateReply Function(Topic t, String n, {bool guessed}) open;
+
+  /// صدا؛ تنبل می‌گیریمش تا آزمونِ تشخیصِ موضوع به صدای واقعی نیاز نداشته باشد.
+  final ReplyVoice Function() voice;
+
+  AdvocateReply _out(
+    String text, {
+    List<String> chips = const [],
+    String ask = '',
+    bool full = false,
+    int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
+  }) =>
+      voice().out(text,
+          chips: chips, ask: ask, full: full, budget: budget, source: source);
 
   Topic? current() {
     for (final t in Advocate.topics) {
@@ -57,7 +72,7 @@ class TopicPicker {
       dialog.guide == null &&
       Sense.words(n) >= 3 &&
       !Sense.has(n, '(?:ماده|اصل) [0-9]+') &&
-      !_generalChoice(n);
+      !generalChoice(n);
 
   /// «بهترین کتاب برای برنامه‌نویسی کدام است؟» پرسش عمومی است، نه ماجرای
   /// حقوقی؛ حدسِ موضوع و پرسش «کدام نزدیک‌تر است؟» برایش نمی‌آید تا به

@@ -199,6 +199,7 @@ class Advocate {
     dialog: dialog,
     intentNet: intentNet,
     open: (t, n, {bool guessed = false}) => _open(t, n, guessed: guessed),
+    voice: () => voice,
   );
 
   /// گفت‌وگوی انسانی: خلاصه، احوال‌پرسی، سوگ، «منظورتان چیست؟».
