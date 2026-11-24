@@ -75,6 +75,23 @@ void main() {
     expect(out, isNot(contains('خوشبختانه')));
   });
 
+  test('پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود', () {
+    final a = fresh();
+    final first = answer(a, 'دو تا مگس بهم مشت انداختند');
+    final pend = first.split('\n\n').last.trim();
+    expect(pend.endsWith('؟'), isTrue, reason: pend);
+
+    final second = answer(a, 'چه مدرکی لازم است؟');
+    expect(second, contains(pend), reason: 'بار دوم تکرار مجاز است');
+
+    final third = answer(a, 'چقدر طول می‌کشد؟');
+    expect(third, isNot(contains(pend)), reason: 'بار سوم باید رها شود');
+    expect(third, contains('از آن می‌گذرم'));
+
+    final fourth = answer(a, 'هزینه‌اش چقدر است؟');
+    expect(fourth, isNot(contains(pend)));
+  });
+
   test('پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد', () {
     final a = fresh();
     final r = a.respond('هوم');

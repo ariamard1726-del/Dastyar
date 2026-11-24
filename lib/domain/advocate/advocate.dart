@@ -261,6 +261,13 @@ class Advocate {
   /// آخرین پرسشی که از کاربر کرده‌ام و گزینه‌های جوابش.
   String _askText = '';
 
+  /// همان پرسش چند بارِ پشتِ‌سرهم بی‌جواب تکرار شده است. در یک گفتگوی واقعی
+  /// یک پرسش سه بار پشتِ پاسخ‌های دیگر تکرار شد؛ بار سوم پرسیدن، آزار است نه
+  /// کمک. سقف: دو بار.
+  String _lastAsk = '';
+
+  int _askRepeats = 0;
+
   List<String> _askChips = const [];
 
   /// پاسخ بعدی توضیحی است که خودِ کاربر خواسته (استدلال، نقشهٔ راه) و جای
@@ -1166,6 +1173,14 @@ class Advocate {
   /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
   /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
   /// پایان می‌گذارد تا گفتگو دوطرفه بماند.
+  /// پرسش بدون پیشوندِ چرخشیِ «دوباره می‌پرسم».
+  static String _askKey(String ask) {
+    for (final p in Say.askAgain) {
+      if (ask.startsWith('$p ')) return ask.substring(p.length + 1);
+    }
+    return ask;
+  }
+
   AdvocateReply _out(
     String text, {
     List<String> chips = const [],
@@ -1221,7 +1236,26 @@ class Advocate {
     }
     if (laws.isNotEmpty) _lastLaws = laws;
     var tail = ask;
-    if (tail.isEmpty && _rest.isNotEmpty) {
+    // سقفِ تکرارِ پرسشِ بی‌جواب: بار سوم جای پرسش، یک جملهٔ صریح می‌آید و
+    // بعد از آن دیگر پرسیده نمی‌شود.
+    var droppedAsk = false;
+    if (tail.isNotEmpty) {
+      // تکراری‌بودنِ پرسش را با «هستهٔ» آن می‌سنجیم، نه با متنِ کامل: پیشوندِ
+      // چرخشی («و سؤال خودم:»، «اجازه بدهید دوباره بپرسم:») هر بار عوض می‌شود
+      // و اگر متنِ کامل مقایسه شود، شمارنده همیشه صفر می‌ماند.
+      final key = _askKey(tail);
+      if (key == _lastAsk) {
+        _askRepeats++;
+      } else {
+        _lastAsk = key;
+        _askRepeats = 0;
+      }
+      if (_askRepeats >= 2) {
+        droppedAsk = true;
+        tail = _askRepeats == 2 ? _askDropped : '';
+      }
+    }
+    if (!droppedAsk && tail.isEmpty && _rest.isNotEmpty) {
       tail = _pick(Say.more);
       _offeredMore = true;
     }
@@ -1255,6 +1289,10 @@ class Advocate {
 
 /// سقف طول متنِ هر پاسخ (بدون پرسشِ پایانی)؛ بقیه با «ادامه بده» می‌آید.
 const int _budget = 380;
+
+/// جای پرسشی که دو بار بی‌جواب مانده است.
+const String _askDropped =
+    'این پرسش را دو بار پرسیدم و جواب ندادید؛ از آن می‌گذرم. هر وقت خواستید، خودتان بگویید.';
 
 const int _roomyBudget = 760;
 

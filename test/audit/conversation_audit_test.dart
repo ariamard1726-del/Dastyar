@@ -34,7 +34,8 @@ void main() {
           as Map<String, dynamic>,
     );
     final inputs = (Platform.environment['AUDIT_IN'] ??
-            'test/audit/conversations.txt,test/audit/conversations_followup.txt')
+            'test/audit/conversations.txt,test/audit/conversations_followup.txt,'
+            'test/audit/conversations_reported.txt')
         .split(',');
     final convs = [
       for (final p in inputs)
