@@ -81,14 +81,16 @@ void main() {
     final pend = first.split('\n\n').last.trim();
     expect(pend.endsWith('؟'), isTrue, reason: pend);
 
-    final second = answer(a, 'چه مدرکی لازم است؟');
+    // «چرا می‌پرسی؟» مسیری است که پرسشِ روی میز را بی‌تغییر برمی‌گرداند؛
+    // پس برای شمردنِ تکرار، قابل‌اتکاتر از سؤال‌های موضوعی است.
+    final second = answer(a, 'چرا می‌پرسی؟');
     expect(second, contains(pend), reason: 'بار دوم تکرار مجاز است');
 
-    final third = answer(a, 'چقدر طول می‌کشد؟');
+    final third = answer(a, 'چرا این را می‌پرسی؟');
     expect(third, isNot(contains(pend)), reason: 'بار سوم باید رها شود');
     expect(third, contains('از آن می‌گذرم'));
 
-    final fourth = answer(a, 'هزینه‌اش چقدر است؟');
+    final fourth = answer(a, 'باز هم چرا می‌پرسی؟');
     expect(fourth, isNot(contains(pend)));
   });
 
