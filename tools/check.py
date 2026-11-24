@@ -11,6 +11,7 @@
   refs     هر ارجاع قانونی در داده، در متن قوانین هست
   textnorm قاعده‌های متن تازه‌اند (tools/contracts/text_norm.json)
   lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (tools/contracts/law_terms.json)
+  debt     هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (tools/contracts/duplicated_logic.json)
   all      همهٔ موارد بالا (پیش‌فرض)
 
 اجرا: python3 tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
@@ -448,6 +449,13 @@ def cmd_parity():
     return parity.main()
 
 
+# ---------------------------------------------------------------- debt
+def cmd_debt():
+    """هر جفتِ «یک چیز، دو پیاده‌سازی» هنوز نگهبانِ دوطرفه دارد؟"""
+    import debt_check
+    return debt_check.main(['--check'])
+
+
 # ---------------------------------------------------------------- lawterms
 def cmd_lawterms():
     """فایل‌های قاعدهٔ تطبیق واژه‌ها از قرارداد تولید شده‌اند و تازه‌اند؟"""
@@ -492,6 +500,7 @@ COMMANDS = {
     'refs': cmd_refs,
     'textnorm': cmd_textnorm,
     'lawterms': cmd_lawterms,
+    'debt': cmd_debt,
 }
 
 

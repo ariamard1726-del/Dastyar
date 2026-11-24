@@ -66,6 +66,8 @@
 | ایست‌واژه‌های گفتاری در پاسخ نیایند | ✅ | ۵۵ واژهٔ روزمره (توانم، اگر، کاری…) به هر دو فهرست |
 | پرسشِ بی‌جواب سه بار تکرار نشود | ✅ | سقفِ دو بار در `_out`؛ بار سوم جملهٔ صریح («از آن می‌گذرم») — `test/advocate/meta_and_tone_test.dart` |
 | واژهٔ موضوع، بی‌ماجرا، حکم نگیرد | ✅ | `Topic.gate` + `fightGate` در `topics/fight.dart`: بی‌آدم/نقش/آسیب، پرسش به‌جای ماده — `test/advocate/meta_and_tone_test.dart` |
+| لحنِ دلداریِ دروغ و وعدهٔ بی‌مدرک در راهنماها | ✅ | «خوشبختانه»، «موقعیت شما معمولاً قوی است»، «تخلیه سریع است» از `lib/domain/lawyer/legal_guides.dart` رفتند؛ نگهبان: `tests/python/test_tone_guard.py` |
+| جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
 | گفتگوهای گزارش‌شده خودکار آزمون شوند | ✅ | `test/audit/conversations_reported.txt` در فهرست ورودیِ `conversation_audit_test.dart` |
 
 ## بدهی‌های موقتِ ثبت‌شده
@@ -73,8 +75,15 @@
 این‌ها **رفع نشده‌اند**؛ فقط نگهبان گرفته‌اند تا سکوت نکنند. اگر روزی یکی از
 این‌ها عوض شود و آزمونش قرمز نشود، یعنی نگهبان هم از کار افتاده.
 
+جدولِ زیر داده هم شده است: `tools/contracts/duplicated_logic.json` +
+`python3 tools/check.py debt` بررسی می‌کند هر جفت هنوز همان مجموعهٔ نمونه را
+از **هر دو زبان** می‌خواند و هنوز در همین بخشِ ROADMAP هست. حذف یک ردیف از
+اینجا بی‌آن‌که جفتش از قرارداد برود، CI را قرمز می‌کند؛ و برعکس.
+
 | بدهی | دو/چند پیاده‌سازی | نگهبان | رفع واقعی |
 |---|---|---|---|
+| الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `tools/law_terms.py` | فهرست و آستانه‌ها یک‌جا شد (`check.py lawterms`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
+| یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `brain/common.py` | قاعده‌ها یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
 | موتور بازیابی | `lib/core/engine.dart` ↔ `tools/eval_py.py` | `tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
 | مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
 | دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `tools/sync_meta.py` | `tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |

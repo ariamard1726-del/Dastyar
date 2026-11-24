@@ -14,6 +14,7 @@
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python tools/check.py meta` | `tests/python/` |
 | قاعده‌های متن | `tools/contracts/text_norm.json` | `python3 tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
+| جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `tools/contracts/duplicated_logic.json` | `python3 tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
 | ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها | `tools/contracts/law_terms.json` | `python3 tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
@@ -104,3 +105,19 @@ python tools/check.py refs
 آزمون: `tests/python/test_law_terms_parity.py` (تازگیِ تولید، یکی‌بودن فهرست،
 یکی‌بودن آستانه‌ها و نگاشت `افحش→فاحش`)، و `tools/law_terms.py --check` روی
 ۳۵ نمونهٔ `tests/law_terms/cases.json`.
+
+## ۶. جدولِ بدهی‌های موقت (`tools/contracts/duplicated_logic.json`)
+
+هر جا یک چیز در دو زبان پیاده شده است، در این فایل یک ردیف دارد: فایلِ دارت،
+فایلِ پایتون، مجموعهٔ نمونهٔ مشترک، توضیح و «رفع واقعی». `check.py debt` سه
+چیز را می‌سنجد:
+
+1. هر مسیرِ نوشته‌شده وجود دارد؛
+2. هر مجموعهٔ نمونه از هر دو زبان خوانده می‌شود (نامش در کدِ هر دو طرف هست)
+   — اگر یک طرف دست بکشد، دوئیت به یک پیاده‌سازیِ بی‌نگهبان تبدیل می‌شود؛
+3. جفت هنوز در `docs/ROADMAP.md` بخش «بدهی‌های موقتِ ثبت‌شده» ذکر شده است.
+
+پس دو کار با هم انجام می‌شود: رفع واقعی (یکی از دو طرف حذف/تولید شود) و حذف
+ردیف از هر دو جا در یک جا. جفتِ تازه = ردیفِ تازه این‌جا، نه فقط یک خط در سند.
+
+آزمون: `tests/python/test_debt_check.py`.
