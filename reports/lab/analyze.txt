@@ -1,6 +1,24 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
+  error • The argument type 'AdvocateReply Function(LegalGuide, String, String, {bool switched})' can't be assigned to the parameter type 'AdvocateReply Function(LegalGuide, String, String, {bool? switched})'.  • lib/domain/advocate/advocate.dart:221:16 • argu
+  error • The argument type 'AdvocateReply Function(String, {String ask, int budget, List<String> chips, bool full, AnswerSource source})' can't be assigned to the parameter type 'AdvocateReply Function(String, {String? ask, int? budget, List<String>? chips, b
+warning • The declaration '_absorb' isn't referenced. Try removing the declaration of '_absorb' • lib/domain/advocate/advocate_case.dart:14:14 • unused_element
+warning • The declaration '_roleUnknown' isn't referenced. Try removing the declaration of '_roleUnknown' • lib/domain/advocate/advocate_case.dart:19:8 • unused_element
+warning • The declaration '_addEffects' isn't referenced. Try removing the declaration of '_addEffects' • lib/domain/advocate/advocate_case.dart:25:8 • unused_element
+warning • The declaration '_noteAmount' isn't referenced. Try removing the declaration of '_noteAmount' • lib/domain/advocate/advocate_case.dart:29:8 • unused_element
+warning • The declaration '_generic' isn't referenced. Try removing the declaration of '_generic' • lib/domain/advocate/advocate_case.dart:35:9 • unused_element
+warning • The declaration '_leadSettled' isn't referenced. Try removing the declaration of '_leadSettled' • lib/domain/advocate/advocate_case.dart:37:13 • unused_element
+warning • The declaration '_react' isn't referenced. Try removing the declaration of '_react' • lib/domain/advocate/advocate_case.dart:41:10 • unused_element
+warning • The declaration '_unclearText' isn't referenced. Try removing the declaration of '_unclearText' • lib/domain/advocate/advocate_talk.dart:69:10 • unused_element
+  error • The method '_recap' isn't defined for the type 'Advocate'. Try correcting the name to the name of an existing method, or defining a method named '_recap' • lib/domain/advocate/advocate_talk.dart:226:54 • undefined_method
+warning • The declaration '_sideNote' isn't referenced. Try removing the declaration of '_sideNote' • lib/domain/advocate/advocate_topic.dart:15:10 • unused_element
+  error • A value of type 'AdvocateReply?' can't be returned from the method '_lookup' because it has a return type of 'AdvocateReply' • lib/domain/advocate/case_flow.dart:120:7 • return_of_invalid_type
+  error • The method 'fillFor' isn't defined for the type 'CaseFlow'. Try correcting the name to the name of an existing method, or defining a method named 'fillFor' • lib/domain/advocate/case_flow.dart:214:18 • undefined_method
+  error • Undefined name '_also'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/case_flow.dart:310:18 • undefined_identifier
+  error • Undefined name '_also'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/case_flow.dart:311:5 • undefined_identifier
+  error • The method '_suggest' isn't defined for the type 'CaseFlow'. Try correcting the name to the name of an existing method, or defining a method named '_suggest' • lib/domain/advocate/case_flow.dart:537:14 • undefined_method
+  error • Undefined name 'draftIds'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/case_flow.dart:655:24 • undefined_identifier
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
@@ -8,4 +26,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 10.7s)
+25 issues found. (ran in 9.4s)
