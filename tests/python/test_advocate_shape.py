@@ -166,6 +166,22 @@ class ShapeTests(unittest.TestCase):
         self.assertNotIn('_idleChips()', part)
         self.assertIn('TalkRoute _talkRoute', self.src)
 
+    def test_reply_is_one_ordered_list(self):
+        """ترتیبِ پاسخ‌ها باید خواندنی باشد، نه زنجیرهٔ `if`های پشتِ‌سرِهم."""
+        ac = _read(os.path.join(ADVOCATE_DIR, 'answer_candidate.dart'))
+        self.assertIn('class AnswerCandidate {', ac)
+        self.assertIn('class AnswerArbiter {', ac)
+        self.assertIn('_arbiter.pick(', self.src)
+        names = re.findall(r"AnswerCandidate\('([^']+)'", self.src)
+        self.assertGreaterEqual(len(names), 15, names)
+        self.assertEqual(names[0], 'موضوعِ تازه', names[:2])
+        # سبکِ پیشین: هر مسیر با `if` جدا و پراکنده در `_reply` — برنگردد.
+        self.assertNotIn('if (_routes.', self.src)
+        self.assertNotIn('final branch = _branchReply(', self.src)
+        # ایمنی و انصراف هم کاندید شدند، نه بلوکِ درون‌خطی.
+        self.assertIn('_leaveReply(', self.src)
+        self.assertIn('_safetyReply(', self.src)
+
     def test_term_reply_is_its_own_class(self):
         """پاسخ‌های واژه‌محور نباید دوباره متدِ Advocate شوند."""
         tr = _read(os.path.join(ADVOCATE_DIR, 'term_reply.dart'))

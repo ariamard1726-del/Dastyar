@@ -36,6 +36,7 @@ part 'talk_route.dart';
 part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'term_reply.dart';
+part 'answer_candidate.dart';
 part 'guide_reply.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
@@ -288,6 +289,9 @@ class Advocate {
           defaultBudget: _budget);
 
   late final LawTerms _terms = LawTerms(engine);
+
+  /// داورِ فهرستِ پاسخ‌ها؛ ترتیب = اولویت.
+  static const AnswerArbiter _arbiter = AnswerArbiter();
 
   /// پاسخ‌های واژه‌محور: متنِ مواد و مسیرِ موضوع.
   late final TermReply _termReply = TermReply(
@@ -557,6 +561,75 @@ class Advocate {
     );
   }
 
+  /// «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته
+  /// می‌شود و از کاربر موضوعِ تازه خواسته می‌شود.
+  AdvocateReply? _leaveReply(String raw) {
+    if (!Drafting.isLeave(raw)) return null;
+    _closeCase();
+    dialog.loose.clear();
+    dialog.branchAsked = true;
+    return _out(
+      'باشد، این موضوع را کنار گذاشتم.',
+      ask: 'موضوع تازه‌تان چیست؟',
+      chips: Advocate.branchChips,
+    );
+  }
+
+  /// لمسِ دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
+  AdvocateReply? _filingReply(String raw) {
+    final wanted = filingFor(raw);
+    return wanted == null ? null : _filing(wanted);
+  }
+
+  /// مهلتِ اعتراض یا ابلاغ، وقتی پرونده‌ای باز نیست: مدت دقیق به نوع رأی و
+  /// مرجع بستگی دارد و متن آن در بانک نیست؛ ولی بی‌پاسخ هم رها نمی‌شود.
+  AdvocateReply? _objectionDeadline(String n) {
+    if (hasCase) return null;
+    if (!Sense.has(n, 'مهلت') || !Sense.has(n, 'اعتراض|ابلاغ')) return null;
+    return _out(
+      'مهلت اعتراض معمولاً از تاریخ ابلاغ شمرده می‌شود، ولی مدت دقیق به نوع رأی و مرجع بستگی دارد و متن آن قانون در بانک من نیست. '
+      'برای همین، ابلاغ‌نامه و تاریخ دقیق آن را نگه دارید و پیش از گذشتن مهلت، با وکیل یا دفتر خدمات قضایی تأیید کنید.',
+      ask: 'رأی یا تصمیمی که ابلاغ شده از کدام مرجع است؟ تاریخ ابلاغ را هم بگویید.',
+      full: true,
+    );
+  }
+
+  /// ایمنی، پیش از هر چیز و مستقل از امتیازِ موضوع. یک بار در هر پرونده گفته
+  /// می‌شود تا گفتگو در حلقه نیفتد؛ ولی اگر کاربر خودش بگوید «الان در خطر
+  /// هستم»، هر بار جوابِ فوری می‌گیرد.
+  AdvocateReply? _safetyReply(String n) {
+    if (dialog.safetyShown && !_asksDanger(n)) return null;
+    final safe = _safety(n);
+    if (safe == null) return null;
+    // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید پرونده را
+    // دوباره باز کند.
+    if (!hasCase && !dialog.safetyShown) {
+      // پیامِ خشونت اغلب موضوع روشنی هم دارد («زد و می‌خوام طلاق بگیرم»).
+      // پاسخِ این نوبت ایمنی است، ولی پرونده را بی‌صدا باز می‌کنیم تا نوبت بعد
+      // از سرِ همان موضوع ادامه پیدا کند و کاربر مجبور نشود ماجرا را دوباره
+      // بگوید.
+      Topic? pick;
+      var score = 0;
+      for (final t in topics) {
+        final sc = _score(t, n);
+        if (sc > score) {
+          pick = t;
+          score = sc;
+        }
+      }
+      if (pick != null && score >= 3) {
+        _open(pick, n);
+        // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
+        dialog.askChips = safe.chips;
+      } else {
+        dialog.safetyCarry = n;
+      }
+    }
+    // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر می‌کند.
+    dialog.safetyShown = true;
+    return safe;
+  }
+
   /// [again] یعنی «این پیام را من خودم ساختم»: وکیل برای «بگویم؟» جواب
   /// کاربر را به پرسشِ تازه ترجمه می‌کند («بگو» ← «استدلالت چیه؟»). آن پیام
   /// نوبتِ کاربر نیست، پس شمارهٔ نوبت را جلو نمی‌برد. پیش‌تر این کار با
@@ -575,86 +648,35 @@ class Advocate {
     dialog.choiceText = '';
     dialog.guessed = false;
     dialog.branchAsked = false;
-    if (_routes.newCase(raw) case final r?) return r;
-    if (_routes.noOption(raw) case final r?) return r;
-    // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
-    // قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» به‌عنوان ادامهٔ پروندهٔ
-    // قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
-    if (_routes.pending(raw, n) case final r?) return r;
-    // پاسخ به دکمه‌های دستهٔ مشکل، درست در همان نوبتی که نشان داده شده‌اند.
-    final branch = _branchReply(raw, n, asked: branchAsked);
-    if (branch != null) return branch;
-    // «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته می‌شود.
-    if (Drafting.isLeave(raw)) {
-      _closeCase();
-      dialog.loose.clear();
-      dialog.branchAsked = true;
-      return _out(
-        'باشد، این موضوع را کنار گذاشتم.',
-        ask: 'موضوع تازه‌تان چیست؟',
-        chips: Advocate.branchChips,
-      );
-    }
-    // ایمنی، پیش از هر چیز و مستقل از امتیاز موضوع.
-    //
-    // پیش‌تر این بررسی فقط وقتی اجرا می‌شد که هیچ موضوعی امتیاز ۴ به بالا
-    // نگرفته باشد؛ یعنی درست همان پیام‌های روشنِ خشونت (که واژه‌های طلاق یا
-    // مهریه هم دارند و امتیاز بالا می‌گیرند) پیام اضطراری را از دست
-    // می‌دادند. ایمنی به تشخیص موضوع گره نمی‌خورد. در هر پرونده یک بار
-    // گفته می‌شود تا گفتگو در حلقه نیفتد؛ ولی اگر کاربر خودش بگوید «الان
-    // در خطر هستم»، هر بار جواب فوری می‌گیرد.
-    if (!dialog.safetyShown || _asksDanger(n)) {
-      final safe = _safety(n);
-      if (safe != null) {
-        // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید
-        // پرونده را دوباره باز کند.
-        if (!hasCase && !dialog.safetyShown) {
-          // پیامِ خشونت اغلب موضوع روشنی هم دارد («زد و می‌خوام طلاق
-          // بگیرم»). پاسخِ این نوبت ایمنی است، ولی پرونده را بی‌صدا باز
-          // می‌کنیم تا نوبت بعد از سرِ همان موضوع ادامه پیدا کند و کاربر
-          // مجبور نشود ماجرا را دوباره بگوید.
-          Topic? pick;
-          var score = 0;
-          for (final t in topics) {
-            final sc = _score(t, n);
-            if (sc > score) {
-              pick = t;
-              score = sc;
-            }
-          }
-          if (pick != null && score >= 3) {
-            _open(pick, n);
-            // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
-            dialog.askChips = safe.chips;
-          } else {
-            dialog.safetyCarry = n;
-          }
-        }
-        // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر
-        // می‌کند.
-        dialog.safetyShown = true;
-        return safe;
-      }
-    }
-    // پیام «دربارهٔ خودِ برنامه» («از برنامه خارج شدم») یا جملهٔ کوتاهِ سوگ،
-    // ماجرای حقوقی نیست ولی پرسش واقعی دارد؛ پیش از «منظورتان چیست؟» و پیش
-    // از حدسِ موضوع، پاسخ صریح می‌گیرد. بعد از بررسی ایمنی می‌آید تا پیام
-    // خطر هرگز زیر این پاسخ نماند.
-    final aside = _metaReplyBot.metaReply(raw, n);
-    if (aside != null) return aside;
-    if (_routes.fight(n, hasCase) case final r?) return r;
-    if (_routes.choice(raw, n, choices, choiceText) case final r?) return r;
-    if (_routes.wrongGuess(raw, n, guessed) case final r?) return r;
     final short = Sense.words(n) <= 4;
-    // ادامهٔ حرفِ قبلی، وقتی کاربر خودش بخواهد.
-    if (_routes.more(raw, n, short) case final r?) return r;
-    // لمس دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
-    final wanted = filingFor(raw);
-    if (wanted != null) return _filing(wanted);
-    if (_routes.offer(raw, n, short) case final r?) return r;
-    if (_routes.bareAck(raw, n) case final r?) return r;
-    if (_routes.side(raw, n) case final r?) return r;
-    final topic = _current();
+    // از این‌جا تا «موضوعِ کنارِ هم»، ترتیب خودِ تصمیم است: هر ورودی نام دارد
+    // و داور اولین پاسخ‌دهنده را برمی‌گرداند. جای زنجیرهٔ `if`ها، فهرست خوانده
+    // می‌شود. ترتیب دقیقاً همان ترتیبِ پیشین است.
+    final hit = _arbiter.pick(<AnswerCandidate>[
+      AnswerCandidate('موضوعِ تازه', () => _routes.newCase(raw)),
+      AnswerCandidate('«هیچ‌کدام»', () => _routes.noOption(raw)),
+      // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟» پیش از هر قاعدهٔ دیگر؛
+      // وگرنه «بله»/«خیر» ادامهٔ پروندهٔ قبلی خوانده می‌شود.
+      AnswerCandidate('تازه است یا مربوط؟', () => _routes.pending(raw, n)),
+      AnswerCandidate('دکمهٔ دستهٔ مشکل',
+          () => _branchReply(raw, n, asked: branchAsked)),
+      AnswerCandidate('کنار گذاشتنِ موضوع', () => _leaveReply(raw)),
+      // ایمنی پیش از هر چیز و مستقل از امتیازِ موضوع.
+      AnswerCandidate('ایمنی', () => _safetyReply(n)),
+      // «از برنامه خارج شدم» و جملهٔ کوتاهِ سوگ: پرسشِ واقعی، ولی نه ماجرای
+      // حقوقی؛ پس از ایمنی می‌آید تا پیامِ خطر زیرش نماند.
+      AnswerCandidate('دربارهٔ برنامه', () => _metaReplyBot.metaReply(raw, n)),
+      AnswerCandidate('دعوا و شکایت', () => _routes.fight(n, hasCase)),
+      AnswerCandidate('انتخابِ موضوع',
+          () => _routes.choice(raw, n, choices, choiceText)),
+      AnswerCandidate('حدسِ اشتباه', () => _routes.wrongGuess(raw, n, guessed)),
+      AnswerCandidate('ادامهٔ حرفِ قبلی', () => _routes.more(raw, n, short)),
+      AnswerCandidate('تنظیمِ سند', () => _filingReply(raw)),
+      AnswerCandidate('پیشنهادِ پاسخ', () => _routes.offer(raw, n, short)),
+      AnswerCandidate('«باشه»', () => _routes.bareAck(raw, n)),
+      AnswerCandidate('موضوعِ کنارِ هم', () => _routes.side(raw, n)),
+    ]);
+    if (hit != null) return hit;    final topic = _current();
     // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
     // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
     final carry = dialog.safetyCarry;
@@ -681,23 +703,25 @@ class Advocate {
       }
     }
 
-    if (_routes.deadline(raw, n, hasCase) case final r?) return r;
+    // دُمِ مسیرها: پیش از امتیاززدنِ موضوع، «مهلت» و «موضوعِ صریح» جای خودشان
+    // را دارند؛ پس داور یک بار تنها با «مهلت» صدا زده می‌شود، بعد پاسخِ
+    // موضوعی می‌آید و بعد داورِ دوم.
+    final due = _arbiter.pick(<AnswerCandidate>[
+      AnswerCandidate('مهلت', () => _routes.deadline(raw, n, hasCase)),
+    ]);
+    if (due != null) return due;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
     if (meta != null) return meta;
 
-    if (_routes.repeat(prevN, n, hasCase) case final r?) return r;
-    if (_routes.fixedRules(n) case final r?) return r;
-    // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
-    // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
-    if (!hasCase && Sense.has(n, 'مهلت') && Sense.has(n, 'اعتراض|ابلاغ')) {
-      return _out(
-        'مهلت اعتراض معمولاً از تاریخ ابلاغ شمرده می‌شود، ولی مدت دقیق به نوع رأی و مرجع بستگی دارد و متن آن قانون در بانک من نیست. '
-        'برای همین، ابلاغ‌نامه و تاریخ دقیق آن را نگه دارید و پیش از گذشتن مهلت، با وکیل یا دفتر خدمات قضایی تأیید کنید.',
-        ask: 'رأی یا تصمیمی که ابلاغ شده از کدام مرجع است؟ تاریخ ابلاغ را هم بگویید.',
-        full: true,
-      );
-    }
+    final tail = _arbiter.pick(<AnswerCandidate>[
+      AnswerCandidate('تکرارِ حرفِ قبلی', () => _routes.repeat(prevN, n, hasCase)),
+      AnswerCandidate('قاعدهٔ ثابت', () => _routes.fixedRules(n)),
+      // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
+      // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
+      AnswerCandidate('مهلتِ اعتراض', () => _objectionDeadline(n)),
+    ]);
+    if (tail != null) return tail;
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
     if (!hasCase && bestScore < 3) {
