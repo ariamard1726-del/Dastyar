@@ -1,6 +1,18 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:58:23 • unqualified_reference_to_static_member_of_ex
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:99:17 • unqualified_reference_to_static_member_of_ex
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:132:17 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:140:18 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:194:21 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:203:23 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:218:23 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'class Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:219:19 • unqualified_reference_to_static_membe
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:222:21 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:248:25 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:268:60 • unqualified_reference_to_static_member_of_e
+  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_reply.dart:281:23 • unqualified_reference_to_static_member_of_e
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
@@ -8,4 +20,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 8.5s)
+19 issues found. (ran in 16.1s)

@@ -1,11 +1,80 @@
-
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+        for (final t in topics)
+                        ^^^^^^
+lib/domain/advocate/advocate_reply.dart:268:60: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
+          chips: [for (final t in dialog.choices) t.title, noneChip],
+                                                           ^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:281:23: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+      for (final t in topics) {
+                      ^^^^^^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate_reply.dart:58:23: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+      for (final t in topics) {
+                      ^^^^^^
+lib/domain/advocate/advocate_reply.dart:99:17: Error: The getter '_arbiter' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_arbiter'.
+    final hit = _arbiter.pick(<AnswerCandidate>[
+                ^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:132:17: Error: The getter '_arbiter' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_arbiter'.
+    final due = _arbiter.pick(<AnswerCandidate>[
+                ^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:140:18: Error: The getter '_arbiter' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_arbiter'.
+    final tail = _arbiter.pick(<AnswerCandidate>[
+                 ^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:194:21: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+lib/domain/advocate/advocate_reply.dart:203:23: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+      for (final t in topics) {
+                      ^^^^^^
+lib/domain/advocate/advocate_reply.dart:218:23: Error: The getter '_correctionPattern' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named '_correctionPattern'.
+    if (!Sense.has(n, _correctionPattern)) return null;
+                      ^^^^^^^^^^^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:219:19: Error: The method '_afterCorrection' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_afterCorrection'.
+    final fixed = _afterCorrection(n);
+                  ^^^^^^^^^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:222:21: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+    for (final t in topics) {
+                    ^^^^^^
+lib/domain/advocate/advocate_reply.dart:248:25: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+        for (final t in topics)
+                        ^^^^^^
+lib/domain/advocate/advocate_reply.dart:268:60: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
+          chips: [for (final t in dialog.choices) t.title, noneChip],
+                                                           ^^^^^^^^
+lib/domain/advocate/advocate_reply.dart:281:23: Error: The getter 'topics' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
+      for (final t in topics) {
+                      ^^^^^^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
