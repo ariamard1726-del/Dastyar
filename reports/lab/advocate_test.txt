@@ -1,3 +1,14 @@
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
+✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
+✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
@@ -22,18 +33,7 @@
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
-::endgroup::
-::group::❌ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود (failed)
-Expected: contains 'چه کسی به چه کسی ضربه زد، و آیا کسی آسیب دید یا به بیمارستان رفت؟'
-  Actual: 'برای اینکه جوابم به وضعیت خودِ شما بخورد، نه یک توضیح کلی. در حقوق یک جزئیات کوچک، مثل یک تاریخ یا یک امضا، می‌تواند نتیجه را عوض کند.'
-   Which: does not contain 'چه کسی به چه کسی ضربه زد، و آیا کسی آسیب دید یا به بیمارستان رفت؟'
-بار دوم تکرار مجاز است
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/meta_and_tone_test.dart 87:5          main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
@@ -94,15 +94,15 @@ test/advocate/meta_and_tone_test.dart 87:5          main.<fn>
 ✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
 ✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
-✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
-✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
-✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
 ✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
 ✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
+✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
+✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
+✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
 ✅ test/advocate/pipeline_contract_test.dart: فایل خط لوله در دسترس و دارای order است
 ✅ test/advocate/pipeline_contract_test.dart: ترتیب Dart با pipeline.json یکی است
 ✅ test/advocate/pipeline_contract_test.dart: netMin در Dart با pipeline.json یکی است
@@ -144,6 +144,7 @@ test/advocate/meta_and_tone_test.dart 87:5          main.<fn>
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه بعد از پرسش‌های پرونده، از برخورد طرف مقابل و خواستهٔ کاربر می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه تحلیل و نقشهٔ راه را پیشنهاد می‌کند و با «بله» همان را می‌گوید
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه حرفی که موضوعش را نمی‌شناسد: نمونه‌های بی‌ربط نشان نمی‌دهد و می‌پرسد
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
 ✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
@@ -173,7 +174,6 @@ test/advocate/meta_and_tone_test.dart 87:5          main.<fn>
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
@@ -197,4 +197,4 @@ test/advocate/meta_and_tone_test.dart 87:5          main.<fn>
 ✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ::endgroup::
 
-::error::213 tests passed, 1 failed.
+🎉 214 tests passed.
