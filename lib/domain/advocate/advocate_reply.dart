@@ -55,7 +55,7 @@ extension _ReplyPipeline on Advocate {
       // بگوید.
       Topic? pick;
       var score = 0;
-      for (final t in topics) {
+      for (final t in Advocate.topics) {
         final sc = _score(t, n);
         if (sc > score) {
           pick = t;
@@ -96,7 +96,7 @@ extension _ReplyPipeline on Advocate {
     // از این‌جا تا «موضوعِ کنارِ هم»، ترتیب خودِ تصمیم است: هر ورودی نام دارد
     // و داور اولین پاسخ‌دهنده را برمی‌گرداند. جای زنجیرهٔ `if`ها، فهرست خوانده
     // می‌شود. ترتیب دقیقاً همان ترتیبِ پیشین است.
-    final hit = _arbiter.pick(<AnswerCandidate>[
+    final hit = Advocate._arbiter.pick(<AnswerCandidate>[
       AnswerCandidate('موضوعِ تازه', () => _routes.newCase(raw)),
       AnswerCandidate('«هیچ‌کدام»', () => _routes.noOption(raw)),
       // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟» پیش از هر قاعدهٔ دیگر؛
@@ -129,7 +129,7 @@ extension _ReplyPipeline on Advocate {
     // دُمِ مسیرها: پیش از امتیاززدنِ موضوع، «مهلت» و «موضوعِ صریح» جای خودشان
     // را دارند؛ پس داور یک بار تنها با «مهلت» صدا زده می‌شود، بعد پاسخِ
     // موضوعی می‌آید و بعد داورِ دوم.
-    final due = _arbiter.pick(<AnswerCandidate>[
+    final due = Advocate._arbiter.pick(<AnswerCandidate>[
       AnswerCandidate('مهلت', () => _routes.deadline(raw, n, hasCase)),
     ]);
     if (due != null) return due;
@@ -137,7 +137,7 @@ extension _ReplyPipeline on Advocate {
     final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= 5);
     if (meta != null) return meta;
 
-    final tail = _arbiter.pick(<AnswerCandidate>[
+    final tail = Advocate._arbiter.pick(<AnswerCandidate>[
       AnswerCandidate('تکرارِ حرفِ قبلی', () => _routes.repeat(prevN, n, hasCase)),
       AnswerCandidate('قاعدهٔ ثابت', () => _routes.fixedRules(n)),
       // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
@@ -191,7 +191,7 @@ extension _ReplyPipeline on Advocate {
     Topic? best;
     var bestScore = 0;
     final scores = <String, int>{};
-    for (final t in topics) {
+    for (final t in Advocate.topics) {
       final s = _score(t, n);
       scores[t.id] = s;
       if (s > bestScore) {
@@ -200,7 +200,7 @@ extension _ReplyPipeline on Advocate {
       }
     }
     if (bestScore < 4 && carry.isNotEmpty) {
-      for (final t in topics) {
+      for (final t in Advocate.topics) {
         final s = _score(t, '$n $carry');
         if (s > bestScore) {
           best = t;
@@ -215,11 +215,11 @@ extension _ReplyPipeline on Advocate {
   /// موضوعِ قبلی رها می‌شود و فقط بخشِ اصلاح‌شده سنجیده می‌شود.
   AdvocateReply? _correctionReply(String n, Topic? topic) {
     if (topic == null || Sense.words(n) > 40) return null;
-    if (!Sense.has(n, _correctionPattern)) return null;
-    final fixed = _afterCorrection(n);
+    if (!Sense.has(n, Advocate._correctionPattern)) return null;
+    final fixed = Advocate._afterCorrection(n);
     Topic? nb;
     var ns = 0;
-    for (final t in topics) {
+    for (final t in Advocate.topics) {
       final s = fixed.isEmpty ? 0 : _score(t, fixed);
       if (s > ns) {
         nb = t;
@@ -245,7 +245,7 @@ extension _ReplyPipeline on Advocate {
     final scores = read.scores;
     if (best != null && bestScore >= 3) {
       final others = <Topic>[
-        for (final t in topics)
+        for (final t in Advocate.topics)
           if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
       ];
       if (others.isNotEmpty) dialog.also = others.first;
@@ -265,7 +265,7 @@ extension _ReplyPipeline on Advocate {
           'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
           'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
           'سطحی می‌شود. از کدام شروع کنیم؟',
-          chips: [for (final t in dialog.choices) t.title, noneChip],
+          chips: [for (final t in dialog.choices) t.title, Advocate.noneChip],
         );
       }
       return _open(best, n);
@@ -278,7 +278,7 @@ extension _ReplyPipeline on Advocate {
       final joined = dialog.loose.join(' ');
       Topic? jb;
       var js = 0;
-      for (final t in topics) {
+      for (final t in Advocate.topics) {
         final sc = _score(t, joined);
         if (sc > js) {
           jb = t;
