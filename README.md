@@ -132,7 +132,7 @@
 | ۱۸ | ترتیبِ پاسخ‌ها: از زنجیرهٔ `if` به فهرستِ نام‌دار | `AnswerCandidate` / `AnswerArbiter` | ۱۸ کاندید؛ `_reply` ۳۳۴ → ۲۸۷ خط |
 | ۱۹ | جداسازیِ «خواندنِ موضوع» از تصمیم | `TopicRead` | `_reply` ۲۸۷ → ۱۰۴ خط |
 
-- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۵۷**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
+- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۶۴** (۲۵ تای آن خودِ کلاس است، ۳۹ پوستهٔ نازک؛ گام ۱۹ عمداً هشت متدِ نام‌دار اضافه کرد و شمارش را بالا برد — معیارِ درست، خطِ `_reply` است: ۳۳۴ → ۱۰۴). فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
 - هر همکار آزمونِ خودش را دارد: `isolation_test`، `chip_plan_test`، `topic_picker_test`،
   `labor_test`، `family_test` و چهار آزمونِ بی‌داراییِ موتور
