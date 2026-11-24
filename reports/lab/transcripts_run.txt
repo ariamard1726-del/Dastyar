@@ -1,18 +1,11 @@
 
-lib/core/law_text.dart:63:15: Error: The getter '_index' isn't defined for the type 'LawText'.
- - 'LawText' is from 'package:dastyar/core/law_text.dart' ('lib/core/law_text.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_index'.
-    final n = _index.lawCounts[l.id] ?? 0;
-              ^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/core/law_text.dart:63:15: Error: The getter '_index' isn't defined for the type 'LawText'.
- - 'LawText' is from 'package:dastyar/core/law_text.dart' ('lib/core/law_text.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_index'.
-    final n = _index.lawCounts[l.id] ?? 0;
-              ^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
