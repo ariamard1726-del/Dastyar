@@ -182,7 +182,7 @@ class Advocate {
   /// ساختِ پاسخ‌ها: استناد، برش، سقفِ تکرارِ پرسش و چیدمان دکمه‌ها.
   /// وضعیتِ «چه گفتیم و چه پرسیدیم» این‌جاست، نه روی خودِ وکیل.
   /// استدلال: مقایسهٔ ادعاها با واقعیت‌های پرونده و گفتنِ نتیجه.
-  late final CaseArgument _argument = CaseArgument(file, voice);
+  late final CaseArgument _argument = CaseArgument(file, voice, _recap, _flips);
 
   late final ReplyVoice voice =
       ReplyVoice(engine: engine, file: file, unresolved: unresolved,
