@@ -77,7 +77,9 @@ void main() {
 
   test('پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود', () {
     final a = fresh();
-    final first = answer(a, 'دو تا مگس بهم مشت انداختند');
+    // پروندهٔ اجاره با پرسشِ روشن باز می‌شود؛ ضرب‌وجرحِ بی‌آدم دیگر پرونده
+    // باز نمی‌کند و پرسشِ ثابتی برای شمردن نمی‌گذارد.
+    final first = answer(a, 'صاحب‌خانه پول پیشم را نمی‌دهد');
     final pend = first.split('\n\n').last.trim();
     expect(pend.endsWith('؟'), isTrue, reason: pend);
 
