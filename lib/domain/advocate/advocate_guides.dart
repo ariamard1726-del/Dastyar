@@ -67,7 +67,7 @@ extension _Guides on Advocate {
     }
     if (legalish &&
         Sense.words(n) >= 2 &&
-        (direct || Sense.isQuestion(n) || _loose.length >= 3)) {
+        (direct || Sense.isQuestion(n) || dialog.loose.length >= 3)) {
       final r = engine.query(raw);
       // نزدیک‌ترینِ موتور گاهی فقط به‌خاطر یک شماره (مثلاً «۱۷») آمده است.
       // اگر هیچ واژهٔ معنادار پرسش در متنش نیست، آن را جواب ندانیم.
@@ -118,7 +118,7 @@ extension _Guides on Advocate {
   AdvocateReply _openGuide(LegalGuide g, String raw, String n,
       {bool switched = false}) {
     _closeCase();
-    _guide = g;
+    dialog.guide = g;
     final sb = StringBuffer();
     if (switched) {
       sb.write('این موضوعِ جداگانه‌ای است؛ پس آن را جدا بررسی می‌کنم.\n\n');
@@ -136,8 +136,8 @@ extension _Guides on Advocate {
     final refs = [for (final r in g.refs) '[[${r.lawId}:${r.article}]]'];
     if (refs.isNotEmpty) sb.write('\n\nمستند این حرف‌ها ${refs.join(' ')} است.');
     voice.lastBody = g.answer;
-    _guideAsked = g.followUp.isNotEmpty;
-    _guideStepped = false;
+    dialog.guideAsked = g.followUp.isNotEmpty;
+    dialog.guideStepped = false;
     return _out(sb.toString(),
         chips: _guideChips(g),
         ask: g.followUp,
@@ -174,9 +174,9 @@ extension _Guides on Advocate {
     }
     final kind = Sense.followKind(n);
     if (kind == 'next' && g.steps.isNotEmpty) {
-      _guideAsked = false;
-      if (_guideStepped) {
-        _guideStepped = false;
+      dialog.guideAsked = false;
+      if (dialog.guideStepped) {
+        dialog.guideStepped = false;
         return _out(
           'قدم‌ها همان‌هاست که گفتم. از اولی شروع کنید: ${g.steps.first}',
           ask: 'کجای کار گیر کرده‌اید یا نگران کدام قدم هستید؟',
@@ -184,7 +184,7 @@ extension _Guides on Advocate {
           source: AnswerSource.guide,
         );
       }
-      _guideStepped = true;
+      dialog.guideStepped = true;
       return _out('برای «${g.title}»${_guideSteps(g).replaceFirst('\n\n', ' ')}',
           ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
           chips: _guideChips(g),
@@ -212,9 +212,9 @@ extension _Guides on Advocate {
       }
     }
     // جوابِ پرسشی که خودم آخرِ راهنما پرسیده بودم: حالا نوبت قدم‌هاست.
-    if (_guideAsked && g.steps.isNotEmpty && !Sense.isQuestion(n)) {
-      _guideAsked = false;
-      _guideStepped = true;
+    if (dialog.guideAsked && g.steps.isNotEmpty && !Sense.isQuestion(n)) {
+      dialog.guideAsked = false;
+      dialog.guideStepped = true;
       return _out('${_pick(Say.fine)} با این حساب${_guideSteps(g).replaceFirst('\n\n', ' ')}',
           ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
           chips: _guideChips(g),

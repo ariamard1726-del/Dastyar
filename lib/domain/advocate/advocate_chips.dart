@@ -24,9 +24,9 @@ extension _Chips on Advocate {
     final near = <String, int>{};
     for (var k = 0; k < cand.length; k++) {
       final i = cand[k];
-      var sc = Sense.has(_heard, i.cues) ? 3 : 0;
+      var sc = Sense.has(dialog.heard, i.cues) ? 3 : 0;
       for (final w in Sense.norm(i.chip).split(' ')) {
-        if (w.length >= 4 && _heard.contains(w)) sc++;
+        if (w.length >= 4 && dialog.heard.contains(w)) sc++;
       }
       sc += 2 * (fit[i.id] ?? 0);
       // در تساوی، ترتیبِ خودِ موضوع حفظ می‌شود.
@@ -51,7 +51,7 @@ extension _Chips on Advocate {
       ];
     }
     final ripe = _nextSlot(t) == null ||
-        Sense.has(_heard, 'شکایت|دادخواست|اظهارنامه|لایحه|شکوائیه|بنویس');
+        Sense.has(dialog.heard, 'شکایت|دادخواست|اظهارنامه|لایحه|شکوائیه|بنویس');
     final d = t.drafts;
     if (d != null && ripe) {
       for (final id in d(file)) {
@@ -74,7 +74,7 @@ extension _Chips on Advocate {
 
   /// نمونه‌های آغاز گفتگو؛ فقط وقتی کاربر هنوز هیچ ماجرایی نگفته است.
   List<String> _starters() =>
-      _loose.length <= 1 && _guide == null && file.topic.isEmpty
+      dialog.loose.length <= 1 && dialog.guide == null && file.topic.isEmpty
           ? Advocate.starterChips
           : const [];
 }

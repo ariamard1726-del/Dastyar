@@ -12,7 +12,7 @@ extension _Routes on Advocate {
   AdvocateReply? _routeNewCase(String raw) {
     if (raw.trim() == Advocate.newCaseChip) {
       _closeCase();
-      _loose.clear();
+      dialog.loose.clear();
       return _out(
         'باشد، آن موضوع را کنار می‌گذارم.',
         ask: 'ماجرای تازه چیست؟ از هر جا که راحت‌ترید شروع کنید.',
@@ -39,10 +39,10 @@ extension _Routes on Advocate {
   /// این پرسش پیش از هر قاعدهٔ دیگری بررسی می‌شود؛ وگرنه «بله»/«خیر» ادامهٔ
   /// پروندهٔ قبلی خوانده می‌شود و پرونده عوض نمی‌شود.
   AdvocateReply? _routePending(String raw, String n) {
-    final pend = _pendingTopic;
-    final pendText = _pendingText;
-    _pendingTopic = null;
-    _pendingText = '';
+    final pend = dialog.pendingTopic;
+    final pendText = dialog.pendingText;
+    dialog.pendingTopic = null;
+    dialog.pendingText = '';
     if (pend != null) {
       if (raw.trim() == Advocate.newTopicYesChip ||
           raw.trim() == Advocate.sideChip ||
@@ -113,7 +113,7 @@ extension _Routes on Advocate {
       }
       if (raw.trim() == Advocate.noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
-        _branchAsked = true;
+        dialog.branchAsked = true;
         return _out(
           'باشد.',
           ask:
@@ -134,7 +134,7 @@ extension _Routes on Advocate {
                 Sense.has(n,
                     'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
       _closeCase();
-      _loose.clear();
+      dialog.loose.clear();
       return _out(
         'ببخشید، اشتباه برداشت کردم.',
         ask:
@@ -154,13 +154,13 @@ extension _Routes on Advocate {
                 Sense.has(n,
                     'ادامه|بقیه|بیشتر (?:بگو|توضیح|باز)|کامل(?:ش|ترش)? (?:بگو|کن)')) ||
             (voice.offeredMore && short && Sense.saysYes(n)))) {
-      var ask = _askText;
-      var chips = _askChips;
+      var ask = dialog.askText;
+      var chips = dialog.askChips;
       final t0 = _current();
       if (ask.isEmpty && t0 != null && cutText(rest, _budget)[1].isEmpty) {
         final a = _nextAsk(t0);
-        _askText = ask = a.text;
-        _askChips = chips = a.chips;
+        dialog.askText = ask = a.text;
+        dialog.askChips = chips = a.chips;
       }
       return _out(rest, ask: ask, chips: chips);
     }
@@ -175,9 +175,9 @@ extension _Routes on Advocate {
   /// پاسخ به پیشنهادی که خودم به شکل پرسش داده بودم («بگویم؟»).
   AdvocateReply? _routeOffer(String raw, String n, bool short) {
     // جواب به پیشنهادی که به شکل پرسش داده بودم.
-    if (_offer.isNotEmpty && short) {
+    if (dialog.offer.isNotEmpty && short) {
       final t0 = _current();
-      final offer = _offer;
+      final offer = dialog.offer;
       // «نمی‌دانم» در جوابِ «بگویم؟» یعنی تصمیم با خودت: می‌گویم. ولی
       // برای نوشتنِ سند، بی‌خواستِ روشنِ کاربر دست به کار نمی‌شوم.
       final unsure = Sense.saysDontKnow(n);
@@ -210,9 +210,9 @@ extension _Routes on Advocate {
     final t1 = _current();
     if (t1 != null &&
         voice.rest.isEmpty &&
-        _offer.isEmpty &&
+        dialog.offer.isEmpty &&
         file.pending.isEmpty &&
-        _side == null &&
+        dialog.side == null &&
         Sense.words(n) <= 3 &&
         (raw.trim() == Advocate.moreChip ||
             Sense.has(n, '^ ادامه ') ||
@@ -227,10 +227,10 @@ extension _Routes on Advocate {
   /// جداست؟». پروندهٔ فعلی تا پاسخ کاربر دست‌نخورده می‌ماند.
   AdvocateReply? _routeSide(String raw, String n) {
     // پیشنهادِ «موضوع جداست؟» فقط برای همان پیامِ بعدی معتبر است.
-    final side = _side;
-    final sideText = _sideText;
-    _side = null;
-    _sideText = '';
+    final side = dialog.side;
+    final sideText = dialog.sideText;
+    dialog.side = null;
+    dialog.sideText = '';
     if (side != null &&
         (raw.trim() == Advocate.sideChip ||
             raw.trim() == Advocate.newTopicChip ||
@@ -243,7 +243,7 @@ extension _Routes on Advocate {
       final cur = _current();
       if (cur != null) {
         return _out('باشد، همین پرونده را ادامه می‌دهیم.',
-            ask: _askText.isEmpty ? 'ادامه بدهید.' : _askText, chips: _askChips);
+            ask: dialog.askText.isEmpty ? 'ادامه بدهید.' : dialog.askText, chips: dialog.askChips);
       }
     }
     return null;
@@ -282,10 +282,10 @@ extension _Routes on Advocate {
     if (hasCase && Understanding.isRepeat(prevN, n)) {
       return _out(
         'این را پیش‌تر گفته‌اید و چیز تازه‌ای در آن نیست؛ همان ماجرا را در نظر دارم و از همان‌جا ادامه می‌دهم.',
-        ask: _askText.isEmpty
+        ask: dialog.askText.isEmpty
             ? 'چه تغییری کرده، یا دقیقاً چه می‌خواهید بدانید؟'
-            : _askText,
-        chips: _askChips,
+            : dialog.askText,
+        chips: dialog.askChips,
       );
     }
     return null;

@@ -20,10 +20,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
 ADVOCATE = os.path.join(ADVOCATE_DIR, 'advocate.dart')
 VOICE = os.path.join(ADVOCATE_DIR, 'reply_voice.dart')
+DIALOGUE = os.path.join(ADVOCATE_DIR, 'dialogue_state.dart')
 ROUTES = os.path.join(ADVOCATE_DIR, 'advocate_routes.dart')
 
 # سقف‌های امروز؛ عبور از آن‌ها یعنی بازگشت به عقب.
-MAX_STATE_FIELDS = 42
+MAX_STATE_FIELDS = 13
 MAX_REPLY_LINES = 345
 MIN_ROUTES = 12
 
@@ -110,6 +111,25 @@ class ShapeTests(unittest.TestCase):
         reply = _method(self.src, 'AdvocateReply _reply(String raw')
         for marker in ['isComplaintNoOption', 'wrongChip', 'فقط حرف بود']:
             self.assertNotIn(marker, reply, marker)
+
+    def test_dialogue_state_has_its_own_owner(self):
+        """«چه چیزی روی میز است» نباید دوباره فیلدهای Advocate شود."""
+        dialog = _read(DIALOGUE)
+        moved = ['askText', 'askChips', 'offer', 'offerDraft', 'choices',
+                 'choiceText', 'guessed', 'pendingTopic', 'pendingText', 'side',
+                 'sideText', 'branchAsked', 'guide', 'guideAsked',
+                 'guideStepped', 'deferred', 'lastServed', 'arguedOn', 'heard',
+                 'roomy', 'unclearPhrase', 'unclearTurn', 'safetyCarry',
+                 'safetyShown', 'loose']
+        body = '\n'.join(_class_body(self.src))
+        for name in moved:
+            self.assertRegex(dialog, r'\n  [^(\n]*\b%s\b[^(\n]*[=;]' % name,
+                             '%s باید در DialogueState باشد' % name)
+            self.assertNotRegex(
+                body, r'\n  (?:final|late final|bool|int|String|List<[^>]*>|'
+                      r'Topic\??)\s+_%s\b\s*[=;]' % name,
+                '%s نباید به Advocate برگردد' % name)
+        self.assertIn('final DialogueState dialog', self.src)
 
     def test_part_files_exist(self):
         for part in re.findall(r"^part '([^']+)'", self.src, re.M):

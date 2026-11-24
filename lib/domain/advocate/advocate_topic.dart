@@ -45,13 +45,13 @@ extension _TopicPicking on Advocate {
 
   /// یادآوریِ موضوعِ دیگری که کاربر وسط پرونده به آن اشاره کرد.
   String _sideNote() {
-    final s = _side;
+    final s = dialog.side;
     if (s == null) return '';
     return 'به «${s.title}» هم اشاره کردید. این ماجرای جداگانه‌ای است، یا به همین پرونده مربوط می‌شود؟';
   }
 
   bool _guessable(String n) =>
-      _guide == null &&
+      dialog.guide == null &&
       Sense.words(n) >= 3 &&
       !Sense.has(n, '(?:ماده|اصل) [0-9]+') &&
       !_generalChoice(n);
@@ -92,9 +92,9 @@ extension _TopicPicking on Advocate {
     final first = _guessTopic(g.label, n, scores);
     if (first == null) return null;
     if (g.confident) {
-      _loose.removeLast();
+      dialog.loose.removeLast();
       final r = _open(first, n, guessed: true);
-      _guessed = true;
+      dialog.guessed = true;
       return AdvocateReply(r.text,
           chips: [Advocate.wrongChip, ...r.chips],
           laws: r.laws,
@@ -105,9 +105,9 @@ extension _TopicPicking on Advocate {
       first,
       if (second != null && second.id != first.id) second,
     ];
-    _loose.removeLast();
-    _choices = list;
-    _choiceText = raw;
+    dialog.loose.removeLast();
+    dialog.choices = list;
+    dialog.choiceText = raw;
     return _out(
       'می‌خواهم مطمئن شوم موضوع را درست گرفته‌ام.',
       ask: list.length == 1
@@ -120,7 +120,7 @@ extension _TopicPicking on Advocate {
   /// نظر دوم از طبقه‌بند نیت، وقتی قاعده‌ها موضوع را نشناخته‌اند.
   Topic? _secondOpinion(String raw, String n) {
     final net = intentNet;
-    if (net == null || _guide != null || Sense.words(n) < 3) return null;
+    if (net == null || dialog.guide != null || Sense.words(n) < 3) return null;
     if (Sense.has(n, '(?:ماده|اصل) [0-9]+')) return null;
     final top = net.classify(raw);
     if (top.score < Advocate.netMin) return null;

@@ -28,23 +28,11 @@ String _join(List<String> items) {
 extension _CaseFlow on Advocate {
   void _closeCase() {
     file.clearCase();
-    _pendingTopic = null;
-    _pendingText = '';
-    _lastServed = '';
-    _flips.clear();
-    _safetyShown = false;
-    _safetyCarry = '';
-    _guide = null;
+    dialog.clearCase();
     voice.lastBody = '';
-    _deferred = '';
-    _arguedOn = '';
-    _heard = '';
-    _askText = '';
     voice.lastAsk = '';
     voice.askRepeats = 0;
-    _askChips = const [];
-    _guideAsked = false;
-    clearOffer();
+    _flips.clear();
   }
 
   /// واقعیت‌های تازهٔ پیام را در پرونده می‌نشاند و فهرست تغییرها را می‌دهد.
@@ -142,11 +130,11 @@ extension _CaseFlow on Advocate {
     const ask = 'همین حالا بنویسمش؟';
     const chips = ['بله، بنویس', 'نه، لازم نیست'];
     file.covered.add('o:draft');
-    _askText = ask;
-    _askChips = chips;
+    dialog.askText = ask;
+    dialog.askChips = chips;
     final r = _out(sb.toString(), ask: ask, chips: chips, budget: _roomyBudget);
-    _offer = 'draft';
-    _offerDraft = g.template;
+    dialog.offer = 'draft';
+    dialog.offerDraft = g.template;
     return r;
   }
 
@@ -159,8 +147,8 @@ extension _CaseFlow on Advocate {
 
   AdvocateReply _open(Topic t, String n,
       {bool switched = false, bool guessed = false}) {
-    final earlier = switched ? const <String>[] : List<String>.of(_loose);
-    _loose.clear();
+    final earlier = switched ? const <String>[] : List<String>.of(dialog.loose);
+    dialog.loose.clear();
     _closeCase();
     file.topic = t.id;
     // حرف‌هایی که پیش از بازشدن پرونده زده شده هم جزو ماجراست.
@@ -168,9 +156,9 @@ extension _CaseFlow on Advocate {
       _absorb(t, old, live: false);
     }
     final news = _absorb(t, n);
-    _heard = '${earlier.join(' ')} $n';
-    if (Sense.has(_heard, _replySaid)) file.covered.add('q:reply');
-    if (Sense.has(_heard, _goalSaid)) file.covered.add('q:goal');
+    dialog.heard = '${earlier.join(' ')} $n';
+    if (Sense.has(dialog.heard, _replySaid)) file.covered.add('q:reply');
+    if (Sense.has(dialog.heard, _goalSaid)) file.covered.add('q:goal');
     final parts = <String>[];
     // اول نشان می‌دهم حرف کاربر را چطور فهمیده‌ام؛ اگر اشتباه گرفته باشم
     // همان‌جا می‌تواند اصلاحم کند.
@@ -183,7 +171,7 @@ extension _CaseFlow on Advocate {
     var answered = false;
     if (issue != null) {
       if (_roleUnknown(t)) {
-        _deferred = issue.id;
+        dialog.deferred = issue.id;
       } else {
         // کاربر پرسش مشخصی دارد: اول جواب همان را می‌دهم، نه مقدمهٔ کلی.
         final b = issue.body(file);
@@ -196,7 +184,7 @@ extension _CaseFlow on Advocate {
     }
     if (!answered && open.isNotEmpty) parts.add(open);
     _addEffects(parts, news, 1,
-        skip: _deferred.isEmpty && issue != null ? issue.covers : const {});
+        skip: dialog.deferred.isEmpty && issue != null ? issue.covers : const {});
     _noteAmount(parts, news, n);
     if (voice.lastBody.isEmpty) {
       // «ساده‌تر بگو» باید سراغ حرف قانون برود، نه بازگویی ماجرا.
@@ -275,7 +263,7 @@ extension _CaseFlow on Advocate {
         _glossary(n) == null) {
       return _unclearReply(raw, chips: const [Advocate.newCaseChip]);
     }
-    _heard = '$_heard $n';
+    dialog.heard = '$dialog.heard $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
     final heardGoal = wasPending != 'q:goal' &&
         !file.covered.contains('q:goal') &&
@@ -291,15 +279,15 @@ extension _CaseFlow on Advocate {
     var understood = news.isNotEmpty || file.touched(file.pending);
     var reasoned = false;
     var asked = issue;
-    if (asked == null && _deferred.isNotEmpty && !_roleUnknown(t)) {
+    if (asked == null && dialog.deferred.isNotEmpty && !_roleUnknown(t)) {
       for (final i in t.issues) {
-        if (i.id != _deferred) continue;
+        if (i.id != dialog.deferred) continue;
         // حالا که نقش معلوم شده، بحثی که مالِ طرفِ دیگر است جواب داده
         // نمی‌شود.
         final w = i.when;
         if (w == null || w(file)) asked = i;
       }
-      _deferred = '';
+      dialog.deferred = '';
     }
     // اگر همین بحث قبلاً باز شده و کاربر حالا فقط یک واقعیت تازه می‌دهد
     // (نه پرسش)، کل توضیح تکرار نمی‌شود؛ فقط اثرِ همان واقعیت گفته می‌شود.
@@ -313,7 +301,7 @@ extension _CaseFlow on Advocate {
     if (focus != null) {
       final b = _verdict(focus);
       parts.add(b);
-      _roomy = true;
+      dialog.roomy = true;
       voice.said.add(b);
       voice.lastBody = b;
       understood = true;
@@ -336,7 +324,7 @@ extension _CaseFlow on Advocate {
         final kind = Sense.followKind(n);
         // استدلالی که با همین واقعیت‌ها گفته شده برای «شانسم چقدر است؟»
         // تکرار نمی‌شود؛ با «استدلالت چیه؟» یا واقعیت تازه دوباره می‌آید.
-        final stale = kind == 'chance' && _arguedOn == _factsKey();
+        final stale = kind == 'chance' && dialog.arguedOn == _factsKey();
         final arg =
             (kind == 'argue' || kind == 'chance') && !stale ? _argue(t) : null;
         final fb = kind.isEmpty
@@ -345,8 +333,8 @@ extension _CaseFlow on Advocate {
         if (arg != null) {
           reasoned = true;
           parts.add(arg);
-          _roomy = true;
-          _arguedOn = _factsKey();
+          dialog.roomy = true;
+          dialog.arguedOn = _factsKey();
           file.covered.add('f:argue');
           file.covered.add('f:chance');
           voice.said.add(arg);
@@ -355,7 +343,7 @@ extension _CaseFlow on Advocate {
         } else if (fb != null) {
           final b = fb(file);
           parts.add(b);
-          _roomy = kind == 'next';
+          dialog.roomy = kind == 'next';
           file.covered.add('f:$kind');
           voice.said.add(b);
           voice.lastBody = b;
@@ -418,13 +406,13 @@ extension _CaseFlow on Advocate {
           (foreign == null || foreign == t.id)) {
         final lg = _matchGuide(raw, n);
         if (lg != null) {
-          if (_askText.isEmpty) return _openGuide(lg, raw, n, switched: true);
+          if (dialog.askText.isEmpty) return _openGuide(lg, raw, n, switched: true);
           // وسطِ پرونده، حرفِ تازه را کوتاه جواب می‌دهم و رشتهٔ گفتگو را
           // نگه می‌دارم.
           return _out(
             '${_relevant(lg.answer, n)}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
-            ask: 'برگردیم سر پروندهٔ خودمان: $_askText',
-            chips: _askChips,
+            ask: 'برگردیم سر پروندهٔ خودمان: $dialog.askText',
+            chips: dialog.askChips,
             full: true,
           );
         }
@@ -434,8 +422,8 @@ extension _CaseFlow on Advocate {
       }
       file.pending = '';
       clearOffer();
-      _askText = '';
-      _askChips = const [];
+      dialog.askText = '';
+      dialog.askChips = const [];
       return _out(
         parts.join('\n\n'),
         ask: ask.isEmpty ? _unclearText(raw) : ask,
@@ -455,8 +443,8 @@ extension _CaseFlow on Advocate {
     if (note.isNotEmpty && Sense.words(n) >= 5) {
       parts.add(note);
     } else {
-      _side = null;
-      _sideText = '';
+      dialog.side = null;
+      dialog.sideText = '';
     }
     return _finish(t, parts);
   }
@@ -513,7 +501,7 @@ extension _CaseFlow on Advocate {
       // وکیل منتظر تمام‌شدن همهٔ پرسش‌ها نمی‌ماند: همین که تکلیف ادعای اصلی
       // روشن شد، پیشنهاد می‌دهد نظرش را بگوید.
       file.pending = '';
-      _offer = 'argue';
+      dialog.offer = 'argue';
       return _Ask(
           settled == Standing.strong
               ? 'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟'
@@ -529,10 +517,10 @@ extension _CaseFlow on Advocate {
       final served = Reasoner.serves(t, file, q.id)?.label ?? '';
       var lead = '';
       if (served.isNotEmpty) {
-        if (c == 0 && _lastServed.isNotEmpty && served != _lastServed) {
+        if (c == 0 && dialog.lastServed.isNotEmpty && served != dialog.lastServed) {
           lead = 'حالا دربارهٔ «$served»: ';
         }
-        _lastServed = served;
+        dialog.lastServed = served;
       }
       return _Ask(
           c == 0 ? '$lead${q.ask}' : '${_pick(Say.askAgain)} ${q.ask}',
@@ -562,14 +550,14 @@ extension _CaseFlow on Advocate {
         claim.elements.isNotEmpty &&
         !file.covered.contains('f:argue') &&
         file.covered.add('o:argue')) {
-      _offer = 'argue';
+      dialog.offer = 'argue';
       return const _Ask(
           'می‌خواهید بگویم از نظر قانون دست شما چقدر پر است؟', _yesNo);
     }
     if (t.follow['next'] != null &&
         !file.covered.contains('f:next') &&
         file.covered.add('o:next')) {
-      _offer = 'next';
+      dialog.offer = 'next';
       return const _Ask('قدم‌های عملی را به ترتیب بگویم؟', _yesNo);
     }
     if (!file.covered.contains('o:draft')) {
@@ -577,8 +565,8 @@ extension _CaseFlow on Advocate {
         final title = _draftTitles[id];
         if (title == null) continue;
         file.covered.add('o:draft');
-        _offer = 'draft';
-        _offerDraft = id;
+        dialog.offer = 'draft';
+        dialog.offerDraft = id;
         return _Ask('می‌خواهید «$title» را با همین اطلاعات برایتان بنویسم؟',
             const ['بله، بنویس', 'نه، لازم نیست']);
       }
@@ -633,8 +621,8 @@ extension _CaseFlow on Advocate {
     if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
     voice.said.addAll(parts);
     final a = _nextAsk(t);
-    _askText = a.text;
-    _askChips = a.chips;
+    dialog.askText = a.text;
+    dialog.askChips = a.chips;
     final chips = <String>[...a.chips];
     if (a.text.isEmpty) {
       // دیگر پرسشی ندارم؛ در را باز می‌گذارم.
@@ -653,11 +641,11 @@ extension _CaseFlow on Advocate {
         if (!chips.contains(g.chip)) chips.add(g.chip);
       }
     }
-    if (_side != null) {
+    if (dialog.side != null) {
       chips.insertAll(0, const [Advocate.newTopicChip, Advocate.sameCaseChip]);
     }
-    final roomy = _roomy;
-    _roomy = false;
+    final roomy = dialog.roomy;
+    dialog.roomy = false;
     return _out(body,
         chips: chips, ask: a.text, budget: roomy ? _roomyBudget : _budget);
   }

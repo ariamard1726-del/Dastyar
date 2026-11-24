@@ -3,6 +3,7 @@ import 'package:dastyar/core/jalali.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
+import 'package:dastyar/domain/advocate/dialogue_state.dart';
 import 'package:dastyar/domain/advocate/glossary.dart';
 import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
@@ -199,91 +200,16 @@ class Advocate {
   /// قبلی)؛ وکیل باید بگوید برداشتش را عوض کرده است.
   final Map<String, String> _flips = {};
 
-  /// نام ادعایی که آخرین پرسشِ من برای روشن‌شدنِ آن بود.
-  String _lastServed = '';
-
-  /// پیام‌های کاربر پیش از بازشدن پرونده (حداکثر سه تای آخر).
-  final List<String> _loose = [];
-
-  LegalGuide? _guide;
-
-  String _deferred = '';
+  /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
+  String _prevN = '';
 
   /// موضوع دومی که کاربر در همان پیام به آن اشاره کرده است.
   Topic? _also;
 
-  /// واقعیت‌هایی که آخرین استدلال روی آن‌ها بنا شده بود.
-  String _arguedOn = '';
-
-  /// موضوع دیگری که وسط پرونده به آن اشاره شد ولی مطمئن نیستم ماجرای
-  /// جدایی باشد؛ به‌جای پریدنِ خودسرانه از کاربر می‌پرسم.
-  Topic? _side;
-
-  String _sideText = '';
-
-  /// موضوعی که پیام کاربر به آن اشاره کرده، ولی هنوز تأیید نشده است.
-  Topic? _pendingTopic;
-  String _pendingText = '';
-
-  /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
-  String _prevN = '';
-
-  /// آیا پیام ایمنی (خشونت/اورژانس) را در همین پرونده یک بار گفته‌ام؟
-  /// یک بار کافی است تا گفتگو در حلقه نیفتد؛ با بسته‌شدن پرونده صفر می‌شود.
-  bool _safetyShown = false;
-
-  /// پیامی که پاسخ ایمنی جایش را گرفت، برای اینکه موضوعش گم نشود.
-  /// در نوبت بعد فقط وقتی به حساب می‌آید که پیام تازه خودش موضوع روشنی
-  /// نداشته باشد.
-  String _safetyCarry = '';
-
-  /// دکمهٔ پیشنهادیِ مرتبط با پیام همین نوبت (اگر باشد).
-  /// موضوع‌هایی که با حدسِ نامطمئنِ مدل از کاربر پرسیده‌ام «کدام؟»، و پیامی
-  /// که این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
-  List<Topic> _choices = const [];
-
-  String _choiceText = '';
-
-  /// پروندهٔ جاری با حدسِ مدل باز شده و کاربر هنوز تأییدش نکرده است.
-  bool _guessed = false;
-
-  /// بخشی از پاسخ قبلی که برای کوتاه‌ماندنِ حرف، نگفته مانده است.
-  /// آیا در پاسخ قبلی پرسیده‌ام «ادامه‌اش را هم بگویم؟»
-  /// پیشنهادی که در پاسخ قبلی به شکل پرسش داده‌ام: `argue`، `next` یا
-  /// `draft` (خالی = هیچ).
-  String _offer = '';
-
-  String _offerDraft = '';
-
-  /// آخرین پرسشی که از کاربر کرده‌ام و گزینه‌های جوابش.
-  String _askText = '';
-
-  /// همان پرسش چند بارِ پشتِ‌سرهم بی‌جواب تکرار شده است. در یک گفتگوی واقعی
-  /// یک پرسش سه بار پشتِ پاسخ‌های دیگر تکرار شد؛ بار سوم پرسیدن، آزار است نه
-  /// کمک. سقف: دو بار.
-  List<String> _askChips = const [];
-
-  /// پاسخ بعدی توضیحی است که خودِ کاربر خواسته (استدلال، نقشهٔ راه) و جای
-  /// بیشتری می‌گیرد.
-  bool _roomy = false;
-
-  /// آیا پرسشِ پایانِ راهنما هنوز بی‌جواب است؟
-  bool _guideAsked = false;
-
-  bool _guideStepped = false;
-
-  /// همهٔ حرف‌های کاربر در پروندهٔ جاری (برای پیشنهادهای متناسب).
-  String _heard = '';
-
-  /// مواد قانونیِ آخرین پاسخی که استناد داشت (برای «متن قانون را ببینم»).
-  /// همین نوبت‌قبل، دکمه‌های دستهٔ مشکل («حقوقی/کیفری/اداری/نمی‌دانم/انصراف»)
-  /// نشان داده شده است؛ فقط در همان نوبتِ بعد معنا دارند.
-  bool _branchAsked = false;
-
-  /// پیام نامفهومِ قبلی (نقل کوتاه) و نوبتش: اگر پیام بعدی هم نامفهوم بود،
-  /// دیگر نمی‌پرسد، می‌گوید جوابی ندارد.
-  String _unclearPhrase = '';
-  int _unclearTurn = -10;
+  /// چه چیزی روی میز است: پرسشِ جاری، پیشنهادِ معلق، موضوعِ منتظر تأیید،
+  /// راهنمای باز و پروندهٔ کمکی. این وضعیت صاحبِ جدا دارد؛ پیش‌تر ۲۵ فیلد
+  /// آن، کنارِ موتور و پرونده، روی خودِ همین شیء بود.
+  final DialogueState dialog = DialogueState();
 
   static const String moreChip = 'ادامه بده';
 
@@ -294,13 +220,12 @@ class Advocate {
 
   /// قالبی که در پاسخ قبلی پیشنهاد نوشتنش را داده‌ام (یا `null`).
   String? get offeredDraft =>
-      _offer == 'draft' && _offerDraft.isNotEmpty ? _offerDraft : null;
+      dialog.offer == 'draft' && dialog.offerDraft.isNotEmpty
+          ? dialog.offerDraft
+          : null;
 
   /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
-  void clearOffer() {
-    _offer = '';
-    _offerDraft = '';
-  }
+  void clearOffer() => dialog.clearOffer();
 
   String _factsKey() {
     final keys = file.facts.keys.toList()..sort();
@@ -384,7 +309,7 @@ class Advocate {
     leaveChip,
   ];
 
-  bool get hasCase => file.topic.isNotEmpty || _guide != null;
+  bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
 
   /// شناسهٔ قالب‌های سندی که به پروندهٔ جاری می‌خورد (به ترتیب اولویت).
   List<String> get draftIds {
@@ -397,7 +322,7 @@ class Advocate {
       }
       return out;
     }
-    return _guide?.templateIds ?? const [];
+    return dialog.guide?.templateIds ?? const [];
   }
 
   /// سندهایی که به وضعیتِ همین پرونده می‌خورد: اول دادخواست، بعد لایحه.
@@ -476,24 +401,14 @@ class Advocate {
 
   void reset() {
     _closeCase();
+    dialog.reset();
     _prevN = '';
+    _also = null;
     voice.relevantChip = '';
+    voice.reset();
     file.turns = 0;
     file.disclaimed = false;
-    _safetyShown = false;
-    _safetyCarry = '';
-    _loose.clear();
     unresolved.clear();
-    _also = null;
-    _side = null;
-    _sideText = '';
-    _choices = const [];
-    _choiceText = '';
-    _guessed = false;
-    voice.reset();
-    _branchAsked = false;
-    _unclearPhrase = '';
-    _unclearTurn = -10;
   }
 
   /// بازسازی حافظه از پیام‌های قبلی کاربر (هنگام بازکردن گفتگوی ذخیره‌شده).
@@ -547,14 +462,14 @@ class Advocate {
     _prevN = n;
     voice.relevantChip = Understanding.relevantChip(raw) ?? '';
     file.turns++;
-    final choices = _choices;
-    final choiceText = _choiceText;
-    final guessed = _guessed;
-    final branchAsked = _branchAsked;
-    _choices = const [];
-    _choiceText = '';
-    _guessed = false;
-    _branchAsked = false;
+    final choices = dialog.choices;
+    final choiceText = dialog.choiceText;
+    final guessed = dialog.guessed;
+    final branchAsked = dialog.branchAsked;
+    dialog.choices = const [];
+    dialog.choiceText = '';
+    dialog.guessed = false;
+    dialog.branchAsked = false;
     if (_routeNewCase(raw) case final r?) return r;
     if (_routeNoOption(raw) case final r?) return r;
     // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟». این پرسش پیش از هر
@@ -567,8 +482,8 @@ class Advocate {
     // «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته می‌شود.
     if (Drafting.isLeave(raw)) {
       _closeCase();
-      _loose.clear();
-      _branchAsked = true;
+      dialog.loose.clear();
+      dialog.branchAsked = true;
       return _out(
         'باشد، این موضوع را کنار گذاشتم.',
         ask: 'موضوع تازه‌تان چیست؟',
@@ -583,12 +498,12 @@ class Advocate {
     // می‌دادند. ایمنی به تشخیص موضوع گره نمی‌خورد. در هر پرونده یک بار
     // گفته می‌شود تا گفتگو در حلقه نیفتد؛ ولی اگر کاربر خودش بگوید «الان
     // در خطر هستم»، هر بار جواب فوری می‌گیرد.
-    if (!_safetyShown || _asksDanger(n)) {
+    if (!dialog.safetyShown || _asksDanger(n)) {
       final safe = _safety(n);
       if (safe != null) {
         // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید
         // پرونده را دوباره باز کند.
-        if (!hasCase && !_safetyShown) {
+        if (!hasCase && !dialog.safetyShown) {
           // پیامِ خشونت اغلب موضوع روشنی هم دارد («زد و می‌خوام طلاق
           // بگیرم»). پاسخِ این نوبت ایمنی است، ولی پرونده را بی‌صدا باز
           // می‌کنیم تا نوبت بعد از سرِ همان موضوع ادامه پیدا کند و کاربر
@@ -605,14 +520,14 @@ class Advocate {
           if (pick != null && score >= 3) {
             _open(pick, n);
             // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
-            _askChips = safe.chips;
+            dialog.askChips = safe.chips;
           } else {
-            _safetyCarry = n;
+            dialog.safetyCarry = n;
           }
         }
         // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر
         // می‌کند.
-        _safetyShown = true;
+        dialog.safetyShown = true;
         return safe;
       }
     }
@@ -637,8 +552,8 @@ class Advocate {
     final topic = _current();
     // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
     // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
-    final carry = _safetyCarry;
-    _safetyCarry = '';
+    final carry = dialog.safetyCarry;
+    dialog.safetyCarry = '';
     Topic? best;
     var bestScore = 0;
     final scores = <String, int>{};
@@ -726,7 +641,7 @@ class Advocate {
         }
       }
       _closeCase();
-      _loose.clear();
+      dialog.loose.clear();
       if (nb != null && ns >= 3) return _open(nb, fixed);
       return _out(
         'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
@@ -749,26 +664,26 @@ class Advocate {
             'اول کدام|کدوم را اول|کدام را اول|از کجا شروع|اول (?:چی|کدام)|چی را اول');
         if (others.isNotEmpty &&
             (asksOrder || (others.length >= 2 && Sense.words(n) >= 14))) {
-          _choices = <Topic>[best, ...others].take(3).toList();
-          _choiceText = n;
+          dialog.choices = <Topic>[best, ...others].take(3).toList();
+          dialog.choiceText = n;
           final lines = [
-            for (final t in _choices) '• ${t.title}',
+            for (final t in dialog.choices) '• ${t.title}',
           ];
           return _out(
             'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
             'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
             'سطحی می‌شود. از کدام شروع کنیم؟',
-            chips: [for (final t in _choices) t.title, noneChip],
+            chips: [for (final t in dialog.choices) t.title, noneChip],
           );
         }
         return _open(best, n);
       }
-      _loose.add(n);
-      if (_loose.length > 3) _loose.removeAt(0);
+      dialog.loose.add(n);
+      if (dialog.loose.length > 3) dialog.loose.removeAt(0);
       // دو سه پیامِ کوتاهِ پشت‌سرهم با هم یک ماجرا هستند: اگر روی‌هم موضوع
       // را روشن کنند، همان پرونده باز می‌شود.
-      if (_loose.length > 1 && bestScore >= 1) {
-        final joined = _loose.join(' ');
+      if (dialog.loose.length > 1 && bestScore >= 1) {
+        final joined = dialog.loose.join(' ');
         Topic? jb;
         var js = 0;
         for (final t in topics) {
@@ -779,17 +694,17 @@ class Advocate {
           }
         }
         if (jb != null && js >= 3 && (scores[jb.id] ?? 0) >= 1) {
-          _loose.removeLast();
+          dialog.loose.removeLast();
           return _open(jb, n);
         }
       }
       final g = _glossary(n);
       if (g != null) {
         return _out(g,
-            ask: _guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+            ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
             source: AnswerSource.glossary);
       }
-      final guide = _guide;
+      final guide = dialog.guide;
       if (guide != null) {
         final r = _guideFollow(guide, n);
         if (r != null) return r;
@@ -817,7 +732,7 @@ class Advocate {
       if (guess == null) {
         final hint = _secondOpinion(raw, n);
         if (hint != null) {
-          _loose.removeLast();
+          dialog.loose.removeLast();
           // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
           final r = _open(hint, n);
           return AdvocateReply(r.text,
@@ -869,8 +784,8 @@ class Advocate {
         // می‌کنیم و از خودِ کاربر می‌پرسیم؛ اشارهٔ کوتاه («قولنامه داریم»)
         // فقط کنار گذاشته می‌شود.
         if (Sense.words(n) >= 5) return _askSwitch(best, raw);
-        _side = best;
-        _sideText = raw;
+        dialog.side = best;
+        dialog.sideText = raw;
       }
     }
     return _inCase(topic, raw, n, issue);
@@ -880,14 +795,14 @@ class Advocate {
   /// است. پیش از عوض‌کردن پرونده می‌پرسیم؛ تا وقتی کاربر «انصراف» نزده، از
   /// موضوع فعلی خارج نمی‌شویم.
   AdvocateReply _askSwitch(Topic t, String raw) {
-    _pendingTopic = t;
-    _pendingText = raw;
+    dialog.pendingTopic = t;
+    dialog.pendingText = raw;
     final curTitle = _current()?.title ?? 'موضوع قبلی';
     // پرسشِ خودِ پرونده کنار می‌رود تا در این نوبت فقط یک پرسش باشد و
     // «بله/خیر» دو معنا نداشته باشد.
     file.pending = '';
-    _askText = '';
-    _askChips = const [];
+    dialog.askText = '';
+    dialog.askChips = const [];
     return _out(
       'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
       'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
@@ -916,7 +831,7 @@ class Advocate {
   /// گوشی زمان می‌برد؛ فقط وقتی خواسته می‌شود که پرونده‌ای باز نیست و
   /// قاعده‌ها خودشان موضوع را نشناخته‌اند.
   bool wantsGuess(String raw) {
-    if (file.topic.isNotEmpty || _guide != null || _choices.isNotEmpty) {
+    if (file.topic.isNotEmpty || dialog.guide != null || dialog.choices.isNotEmpty) {
       return false;
     }
     if (raw.trim() == newCaseChip) return false;

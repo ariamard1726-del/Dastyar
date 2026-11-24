@@ -78,22 +78,22 @@ extension _Talk on Advocate {
     if (w <= 4 && Sense.has(n, r'(?<![^ ])نفهمی(?![^ ])')) {
       return _out(
         'اگر حرفم روشن نبوده، بگویید کدام بخشش را نفهمیدید؛ همان را ساده‌تر و با مثال توضیح می‌دهم.',
-        ask: topic == null ? 'کدام قسمت برایتان نامفهوم بود؟' : _askText,
-        chips: topic == null ? _idleChips() : _askChips,
+        ask: topic == null ? 'کدام قسمت برایتان نامفهوم بود؟' : dialog.askText,
+        chips: topic == null ? _idleChips() : dialog.askChips,
       );
     }
     if (w <= 5 && Sense.has(n, 'خیلی خل|خیلی خر|خیلی احمق|خنگ')) {
       return _out(
         'ناراحت شدنتان را می‌فهمم. اگر کمی توضیح بدهید ماجرا چیست، کمکتان می‌کنم.',
-        ask: topic == null ? 'چه اتفاقی افتاده؟' : _askText,
-        chips: topic == null ? _idleChips() : _askChips,
+        ask: topic == null ? 'چه اتفاقی افتاده؟' : dialog.askText,
+        chips: topic == null ? _idleChips() : dialog.askChips,
       );
     }
     if (w <= 5 && Sense.has(n, _rudePattern)) {
       return _out(
         'ناراحت شدنتان را می‌فهمم. اگر بگویید ماجرا چیست، تا جایی که بتوانم کمک می‌کنم.',
-        ask: topic == null ? 'چه اتفاقی افتاده؟' : _askText,
-        chips: topic == null ? _idleChips() : _askChips,
+        ask: topic == null ? 'چه اتفاقی افتاده؟' : dialog.askText,
+        chips: topic == null ? _idleChips() : dialog.askChips,
       );
     }
     // حق دسترسی به اطلاعات عمومی: قانون انتشار و دسترسی آزاد به اطلاعات
@@ -112,8 +112,8 @@ extension _Talk on Advocate {
     if (w <= 3 && Sense.has(n, r'(?<![^ ])زن داری(?![^ ])|(?<![^ ])زن دارم(?![^ ])')) {
       return _out(
         'منظورتان را درست نگرفتم. آیا می‌خواهید دربارهٔ ازدواج مجدد یا همسر دوم بپرسید، یا ماجرای شما درباره‌ی همسرتان است؟',
-        ask: topic == null ? 'کدام را می‌خواهید؟' : _askText,
-        chips: topic == null ? _branchStart() : _askChips,
+        ask: topic == null ? 'کدام را می‌خواهید؟' : dialog.askText,
+        chips: topic == null ? _branchStart() : dialog.askChips,
       );
     }
     // «شکایت کرده‌ام»: خودِ کاربر شاکی است، نه طرف شکایت.
@@ -132,8 +132,8 @@ extension _Talk on Advocate {
             'تو وکیلی|شما وکیل|وکیل هستی|وکیلی ؟|کی هستی|چی هستی|رباتی|ربات هستی|هوش مصنوعی|آدم واقعی|ادم واقعی|آدمی یا|اسمت چیه')) {
       return _out(
         'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که روی همین گوشی و بدون اینترنت کار می‌کند و حرف‌هایتان جایی نمی‌رود. کارم این است که ماجرا را بشنوم، سؤال بپرسم و بر پایهٔ متن قانون راهنمایی کنم؛ جای وکیل در دادگاه را نمی‌گیرم.',
-        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
-        chips: topic == null ? _branchStart() : _askChips,
+        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : dialog.askText,
+        chips: topic == null ? _branchStart() : dialog.askChips,
         full: true,
       );
     }
@@ -146,8 +146,8 @@ extension _Talk on Advocate {
       final v = engine.replies.variants('capabilities');
       return _out(
         _pick(v),
-        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : _askText,
-        chips: topic == null ? _branchStart() : _askChips,
+        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : dialog.askText,
+        chips: topic == null ? _branchStart() : dialog.askChips,
         full: true,
       );
     }
@@ -158,8 +158,8 @@ extension _Talk on Advocate {
             'وکیل (?:کجا|کدوم|کجاست|چطور|چگونه|بگیرم|بگیریم|لازمه|لازم|پیدا|خوبی)|پیدا کردن وکیل|(?:هزینه|حق ?الوکاله|حق ?وکالت|دستمزد) (?:وکیل|وکالت)|(?:مشاوره|وکالت|کمک حقوقی) (?:رایگان|مجانی|ارزون|ارزان)')) {
       return _out(
         'برای پیدا کردن وکیل می‌توانید از فهرست وکلای کانون وکلای دادگستری شهرتان استفاده کنید، یا به مراکز مشاوره حقوقی رایگان و دفاتر خدمات حقوقی مراجعه کنید. هزینهٔ وکالت را پیش از امضای قرارداد با وکیل روشن و کتبی کنید. اگر توان پرداخت ندارید، درباره‌اش هم بپرسید تا راه‌های کمک را بگویم.',
-        ask: topic == null ? 'ماجرای شما چیست؟ اگر بگویید، می‌گویم برایش چه مدارکی لازم است.' : _askText,
-        chips: topic == null ? _branchStart() : _askChips,
+        ask: topic == null ? 'ماجرای شما چیست؟ اگر بگویید، می‌گویم برایش چه مدارکی لازم است.' : dialog.askText,
+        chips: topic == null ? _branchStart() : dialog.askChips,
         full: true,
       );
     }
@@ -181,8 +181,8 @@ extension _Talk on Advocate {
             'میشه (?:[^ ]+ ){0,3}اعتماد|اعتماد کنم|قابل اعتماد|مطمئنی|از کجا میدونی|از کجا معلوم|درست میگی|حرف(?:ات|هات) درست|منبع(?:ت)? چیه|دروغ نمیگی')) {
       return _out(
         'سؤال به‌جایی است. هر ماده‌ای که نام می‌برم واقعاً در بانک قوانین برنامه هست و هر وقت بخواهید متنش را نشانتان می‌دهم؛ از خودم ماده نمی‌سازم. ولی سه محدودیت دارم: مدارکتان را ندیده‌ام، ممکن است قانون تازه‌تر شده باشد، و رویهٔ دادگاه‌ها را یک وکیل حضوری بهتر می‌داند. برای تصمیم‌های بزرگ حرف آخر را با وکیل دادگستری چک کنید.',
-        ask: _askText,
-        chips: _askText.isEmpty ? _idleChips() : _askChips,
+        ask: dialog.askText,
+        chips: dialog.askText.isEmpty ? _idleChips() : dialog.askChips,
         full: true,
       );
     }
@@ -208,8 +208,8 @@ extension _Talk on Advocate {
       }
       return _out(
         'متن قانونی که به آن تکیه کردم:\n${lines.join('\n')}',
-        ask: _askText,
-        chips: _askChips,
+        ask: dialog.askText,
+        chips: dialog.askChips,
         full: true,
       );
     }
@@ -222,10 +222,10 @@ extension _Talk on Advocate {
           topic == null
               ? 'هنوز ماجرای مشخصی از شما نشنیده‌ام که بگویم چه فهمیده‌ام.'
               : 'می‌دانم موضوع «${topic.title}» است، ولی هنوز جزئیات کافی ندارم.',
-          ask: topic == null || _askText.isEmpty
+          ask: topic == null || dialog.askText.isEmpty
               ? 'دقیقاً چه اتفاقی افتاده است؟'
-              : _askText,
-          chips: topic == null ? _idleChips() : _askChips,
+              : dialog.askText,
+          chips: topic == null ? _idleChips() : dialog.askChips,
         );
       }
       return _out(
@@ -258,8 +258,8 @@ extension _Talk on Advocate {
               : 'برای اینکه جوابم به وضعیت خودِ شما بخورد، نه یک توضیح کلی. در حقوق یک جزئیات کوچک، مثل یک تاریخ یا یک امضا، می‌تواند نتیجه را عوض کند.';
       return _out(
         why,
-        ask: _askText,
-        chips: _askText.isEmpty ? _idleChips() : _askChips,
+        ask: dialog.askText,
+        chips: dialog.askText.isEmpty ? _idleChips() : dialog.askChips,
         full: true,
       );
     }
@@ -301,7 +301,7 @@ extension _Talk on Advocate {
   }
 
   AdvocateReply _summary(Topic? topic) {
-    final g = _guide;
+    final g = dialog.guide;
     if (topic == null && g != null) {
       return _out(g.brief.isNotEmpty ? g.brief : _sentences(g.answer).take(2).join(' '),
           chips: const [Advocate.newCaseChip]);
@@ -346,7 +346,7 @@ extension _Talk on Advocate {
       return _out(
         topic == null
             ? 'خواهش می‌کنم. هر وقت سؤالی بود، همین‌جا هستم.'
-            : _askText.isNotEmpty
+            : dialog.askText.isNotEmpty
                 ? 'خواهش می‌کنم.'
                 : 'خواهش می‌کنم. اگر در ادامهٔ کار به مشکلی خوردید یا طرف مقابل حرکت تازه‌ای کرد، همین‌جا بگویید تا قدم بعد را با هم بچینیم.',
         chips: _idleChips(),
@@ -358,12 +358,12 @@ extension _Talk on Advocate {
     if (Sense.has(n, '^ (?:سلام|درود|وقت بخیر|صبح بخیر|عصر بخیر|شب بخیر|خسته نباشی)')) {
       if (topic != null) {
         return _out('سلام دوباره. پرونده‌تان را به خاطر دارم.',
-            ask: _askText, chips: _askChips);
+            ask: dialog.askText, chips: dialog.askChips);
       }
       // پیش‌تر سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ کاربر تازه
       // نمی‌دانست از کجا شروع کند. حالا اول شاخهٔ کار روشن می‌شود
       // (حقوقی/کیفری/اداری/نمی‌دانم) و راهِ انصراف هم روی دکمه‌ها هست.
-      _branchAsked = true;
+      dialog.branchAsked = true;
       return _out(
         'سلام، خوش آمدید.',
         ask: 'مشکلتان چیست؟',
@@ -386,12 +386,12 @@ extension _Talk on Advocate {
       final i = file.turns > 0 ? file.turns - 1 : 0;
       if (topic == null) {
         // همان جهت‌دهیِ سلام: اول شاخهٔ کار، بعد ماجرا.
-        _branchAsked = true;
+        dialog.branchAsked = true;
         return _out(replies[i % replies.length],
             ask: asks[i % asks.length], chips: Advocate.branchChips);
       }
       return _out(replies[i % replies.length],
-          ask: _askText, chips: _askChips);
+          ask: dialog.askText, chips: dialog.askChips);
     }
     return null;
   }
@@ -400,7 +400,7 @@ extension _Talk on Advocate {
   /// اداری/نمی‌دانم/انصراف)، نه چهار ماجرای آمادهٔ دیگران که کاربر را از حرف
   /// خودش دور می‌کند.
   List<String> _branchStart() {
-    _branchAsked = true;
+    dialog.branchAsked = true;
     return Advocate.branchChips;
   }
 
@@ -420,14 +420,14 @@ extension _Talk on Advocate {
         return null;
       }
       _closeCase();
-      _loose.clear();
+      dialog.loose.clear();
       return _out(
         'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
       );
     }
-    if (!asked && (hasCase || _loose.isNotEmpty)) return null;
+    if (!asked && (hasCase || dialog.loose.isNotEmpty)) return null;
     _closeCase();
-    _loose.clear();
+    dialog.loose.clear();
     if (label == Advocate.leaveChip) {
       return _out(
         'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
@@ -468,7 +468,7 @@ extension _Talk on Advocate {
   /// وقتی موضوع را نمی‌شناسم: به‌جای «متوجه نشدم»، نشان می‌دهم چه شنیده‌ام
   /// و مثل هر وکیلی دربارهٔ ماجرا می‌پرسم تا تصویر روشن شود.
   AdvocateReply _curious(String raw, String n) {
-    final all = _loose.join(' ');
+    final all = dialog.loose.join(' ');
     final who = _party(all);
     var area = '';
     final net = intentNet;
@@ -486,7 +486,7 @@ extension _Talk on Advocate {
     final heard = who.isNotEmpty
         ? 'پس طرفِ ماجرا $who است.'
         : 'گفتید «${_clip(raw)}».';
-    final k = _loose.length;
+    final k = dialog.loose.length;
     if (k <= 1) {
       return _out(area.isEmpty ? heard : '$heard $area',
           ask: who.isNotEmpty
@@ -532,9 +532,9 @@ extension _Talk on Advocate {
   /// پیش‌تر بار دوم، حرفِ *پیام قبلی* را نقل می‌کرد و می‌گفت جوابی ندارد؛
   /// هم به پیام تازه ربطی نداشت، هم دست کاربر را خالی می‌گذاشت.
   String _unclearText(String raw) {
-    if (_unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1) {
-      _unclearPhrase = '';
-      _unclearTurn = -10;
+    if (dialog.unclearPhrase.isNotEmpty && dialog.unclearTurn == file.turns - 1) {
+      dialog.unclearPhrase = '';
+      dialog.unclearTurn = -10;
       return 'هنوز مطمئن نیستم چه اتفاقی را بررسی کنیم، و حدس‌زدن هم به ضرر '
           'شماست. من در این موضوع‌ها کار می‌کنم: اجاره و ودیعه، کار و حقوق، '
           'چک و طلب، خانواده، ارث، همسایه و ملک، خرید و مصرف‌کننده، تصادف، '
@@ -542,15 +542,15 @@ extension _Talk on Advocate {
           'بگویید چه کسی چه کاری کرد؛ اگر نیست، صادقانه بگویم که تحلیل '
           'آماده‌ای برایش ندارم و باید با وکیل مشورت کنید.';
     }
-    _unclearPhrase = _quoteWords(raw);
-    _unclearTurn = file.turns;
-    return 'منظورتان از «$_unclearPhrase» چیست؟ کمی بیشتر توضیح می‌دهید؟';
+    dialog.unclearPhrase = _quoteWords(raw);
+    dialog.unclearTurn = file.turns;
+    return 'منظورتان از «$dialog.unclearPhrase» چیست؟ کمی بیشتر توضیح می‌دهید؟';
   }
 
   /// همان پاسخِ نامفهوم، ولی این بار با دکمه‌های شروع تا کاربر در بن‌بست
   /// نماند.
   AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) {
-    final stuck = _unclearPhrase.isNotEmpty && _unclearTurn == file.turns - 1;
+    final stuck = dialog.unclearPhrase.isNotEmpty && dialog.unclearTurn == file.turns - 1;
     final text = _unclearText(raw);
     // پیامِ نامفهومِ کوتاه («سگم مرده»، «هوم») کاربر را همان‌جا گیر می‌اندازد؛
     // پس از بار اول هم راهِ خروج نشان داده می‌شود. برای جملهٔ بلندِ نامفهوم،

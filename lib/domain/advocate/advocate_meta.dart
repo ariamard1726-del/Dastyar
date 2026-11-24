@@ -78,8 +78,8 @@ extension _AdvocateMeta on Advocate {
         'خوب برگشتید. گفتگو و پاسخ‌های «$title» روی همین دستگاه ذخیره می‌شود؛ '
         'بستن یا باز کردن برنامه چیزی را از بین نمی‌برد. '
         'اگر بخشی از حرف‌های قبلی را نمی‌بینید، همان را یک بار دیگر بگویید تا در پرونده ثبت شود.',
-        ask: _askText.isEmpty ? 'از کجا ادامه دهیم؟' : _askText,
-        chips: _askChips,
+        ask: dialog.askText.isEmpty ? 'از کجا ادامه دهیم؟' : dialog.askText,
+        chips: dialog.askChips,
       );
     }
     return _out(
@@ -125,8 +125,8 @@ extension _AdvocateMeta on Advocate {
         'تسلیت می‌گویم. من فقط در مسائل حقوقی می‌توانم کمک کنم و برای این‌گونه '
         'داغ‌ها حرفِ به‌کاری ندارم؛ اگر این ماجرا پیامد حقوقی دارد (مثل خسارت یا '
         'شکایت)، همان طرفش را بررسی می‌کنیم. اگر نه، همان پروندهٔ قبلی را ادامه دهیم.',
-        ask: _askText.isEmpty ? 'موضوع حقوقی را ادامه دهیم؟' : _askText,
-        chips: _askChips,
+        ask: dialog.askText.isEmpty ? 'موضوع حقوقی را ادامه دهیم؟' : dialog.askText,
+        chips: dialog.askChips,
       );
     }
     return _out(
