@@ -119,6 +119,17 @@ class ShapeTests(unittest.TestCase):
         self.assertTrue(os.path.exists(
             os.path.join(ROOT, 'test', 'advocate', 'topic_picker_test.dart')))
 
+    def test_guides_stay_data(self):
+        """راهنماها داده‌اند، نه رفتار: اگر متد پیدا کنند، راهِ گاد-آبجکت باز است."""
+        guides = _read(os.path.join(ROOT, 'lib', 'domain', 'lawyer',
+                                    'legal_guides.dart'))
+        methods = re.findall(r'^  (?:static\s+)?[\w<>?,\[\] ]+?\s+\w+\([^)]*\)\s*'
+                             r'(?:async\s*)?(?:\{|=>)', guides, re.M)
+        self.assertEqual(methods, [], 'legal_guides.dart متد گرفت: %r' % methods[:3])
+        self.assertEqual(guides.count('const List<LegalGuide> legalGuides = ['), 1)
+        self.assertGreaterEqual(guides.count('LegalGuide('), 30,
+                                'راهنماها کم شدند؛ جابه‌جاییِ داده است یا حذف؟')
+
     def test_topics_are_split(self):
         """موضوع‌های بزرگ نباید یک فایلِ هزارخطی باشند."""
         topics = os.path.join(ADVOCATE_DIR, 'topics')
