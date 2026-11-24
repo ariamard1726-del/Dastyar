@@ -1,80 +1,11 @@
-Try correcting the name to the name of an existing method, or defining a method named 'fillFor'.
-    final fill = fillFor(g.template);
-                 ^^^^^^^
-lib/domain/advocate/case_flow.dart:310:18: Error: The getter '_also' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_also'.
-    final also = _also;
-                 ^^^^^
-lib/domain/advocate/case_flow.dart:311:5: Error: The setter '_also' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_also'.
-    _also = null;
-    ^^^^^
-lib/domain/advocate/case_flow.dart:537:14: Error: The method '_suggest' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_suggest'.
-          ..._suggest(t),
-             ^^^^^^^^
-lib/domain/advocate/case_flow.dart:655:24: Error: The getter 'draftIds' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'draftIds'.
-      for (final id in draftIds) {
-                       ^^^^^^^^
-lib/domain/advocate/advocate_talk.dart:226:54: Error: The method '_recap' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_recap'.
-      final got = topic == null ? const <String>[] : _recap(topic);
-                                                     ^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate.dart:221:16: Error: The argument type 'AdvocateReply Function(LegalGuide, String, String, {bool switched})' can't be assigned to the parameter type 'AdvocateReply Function(LegalGuide, String, String, {bool? switched})'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
- - 'LegalGuide' is from 'package:dastyar/domain/lawyer/legal_guides.dart' ('lib/domain/lawyer/legal_guides.dart').
-    openGuide: (g, raw, n, {bool switched = false}) =>
-               ^
-lib/domain/advocate/advocate.dart:223:10: Error: The argument type 'AdvocateReply Function(String, {String ask, int budget, List<String> chips, bool full, AnswerSource source})' can't be assigned to the parameter type 'AdvocateReply Function(String, {String? ask, int? budget, List<String>? chips, bool? full, AnswerSource? source})'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
- - 'List' is from 'dart:core'.
- - 'AnswerSource' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-    out: (text,
-         ^
-lib/domain/advocate/case_flow.dart:120:11: Error: A value of type 'AdvocateReply?' can't be returned from a function with return type 'AdvocateReply'.
- - 'AdvocateReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-      law.lookup(raw, n, hasCase: hasCase, loose: dialog.loose.length);
-          ^
-lib/domain/advocate/case_flow.dart:214:18: Error: The method 'fillFor' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'fillFor'.
-    final fill = fillFor(g.template);
-                 ^^^^^^^
-lib/domain/advocate/case_flow.dart:310:18: Error: The getter '_also' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_also'.
-    final also = _also;
-                 ^^^^^
-lib/domain/advocate/case_flow.dart:311:5: Error: The setter '_also' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_also'.
-    _also = null;
-    ^^^^^
-lib/domain/advocate/case_flow.dart:537:14: Error: The method '_suggest' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_suggest'.
-          ..._suggest(t),
-             ^^^^^^^^
-lib/domain/advocate/case_flow.dart:655:24: Error: The getter 'draftIds' isn't defined for the type 'CaseFlow'.
- - 'CaseFlow' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'draftIds'.
-      for (final id in draftIds) {
-                       ^^^^^^^^
-lib/domain/advocate/advocate_talk.dart:226:54: Error: The method '_recap' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named '_recap'.
-      final got = topic == null ? const <String>[] : _recap(topic);
-                                                     ^^^^^^
-.
+
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
