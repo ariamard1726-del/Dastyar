@@ -119,6 +119,24 @@ class ShapeTests(unittest.TestCase):
         self.assertTrue(os.path.exists(
             os.path.join(ROOT, 'test', 'advocate', 'topic_picker_test.dart')))
 
+    def test_topics_are_split(self):
+        """موضوع‌های بزرگ نباید یک فایلِ هزارخطی باشند."""
+        topics = os.path.join(ADVOCATE_DIR, 'topics')
+        for main in ('rent.dart', 'labor.dart', 'family.dart'):
+            src = _read(os.path.join(topics, main))
+            parts = re.findall(r"part '([^']+)';", src)
+            self.assertGreaterEqual(len(parts), 3, main)
+            for p in parts:
+                path = os.path.join(topics, p)
+                self.assertTrue(os.path.exists(path), path)
+                self.assertIn("part of '%s';" % main, _read(path), path)
+        # هیچ فایلی در topics نباید دوباره غول شود
+        for f in sorted(os.listdir(topics)):
+            if not f.endswith('.dart'):
+                continue
+            n = len(_read(os.path.join(topics, f)).split('\n'))
+            self.assertLessEqual(n, 820, '%s دوباره بزرگ شد (%d خط)' % (f, n))
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',
