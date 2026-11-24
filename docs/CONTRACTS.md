@@ -14,10 +14,11 @@
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python tools/check.py meta` | `tests/python/` |
 | قاعده‌های متن | `tools/contracts/text_norm.json` | `python3 tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
-| آینهٔ پایتون ↔ دارت (بدهی موقت) | ایست‌واژه‌ها و آستانه‌های `law_terms.dart` و `tools/law_terms.py` | `tests/python/test_law_terms_parity.py` | همان فایل |
+| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها | `tools/contracts/law_terms.json` | `python3 tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
-> از جداافتادن‌شان جلوگیری می‌کند. فهرست کامل بدهی‌های موقت و نگهبان‌هایشان
+> از جداافتادن‌شان جلوگیری می‌کند. ایست‌واژه‌ها و آستانه‌ها از این قاعده بیرون
+> رفتند (بالا)؛ منطقِ پردازش هنوز دو جاست. فهرست کامل بدهی‌های موقت و نگهبان‌هایشان
 > در `docs/ROADMAP.md` بخش «بدهی‌های موقتِ ثبت‌شده» است.
 
 ## ۱. خط لولهٔ پاسخ (`assets/pipeline.json`)
@@ -82,3 +83,24 @@ python tools/check.py refs
   پروندهٔ تازه ادامه می‌یابد.
 
 آزمون: `test/advocate/case_file_json_test.dart`.
+
+## ۵. ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها (`tools/contracts/law_terms.json`)
+
+پرسش کوتاهِ کاربر با متن مواد سنجیده می‌شود و پیش از سنجش، واژه‌های گفتاری
+(«بود»، «خیلی»، «میشه»…) از پرسش در می‌آیند؛ وگرنه هر پرسشی با هر ماده‌ای
+«پوشش» پیدا می‌کند. این فهرست و آستانه‌ها (کمینهٔ طول واژه، شمار نامزدهای
+برتر، پوشش لازم، dfِ «نادر»، بیشترین فاصلهٔ عبارت، کمینهٔ idfِ عبارت) پیش‌تر
+دستی در دو جا نوشته شده بود.
+
+- **یک مرجع:** `tools/contracts/law_terms.json`.
+- **تولید:** `python3 tools/gen_law_terms.py --write` →
+  `lib/domain/advocate/law_terms_rules.dart` و `brain/law_terms_rules.py`.
+- **بررسی:** `python3 tools/check.py lawterms` (و در `check.py all`) کهنه‌بودن را
+  خطا می‌دهد. افزودن واژهٔ تازه: اول JSON، بعد `--write`؛ ویرایش فایل‌های
+  تولیدشده در بازبینی رد می‌شود.
+- **منطق هنوز دو جاست** (موتور دارت و آینهٔ پایتون). این بدهی در `docs/ROADMAP.md`
+  مانده؛ چیزی که یک‌جا شد، خودِ داده (فهرست و آستانه‌ها) است، نه الگوریتم.
+
+آزمون: `tests/python/test_law_terms_parity.py` (تازگیِ تولید، یکی‌بودن فهرست،
+یکی‌بودن آستانه‌ها و نگاشت `افحش→فاحش`)، و `tools/law_terms.py --check` روی
+۳۵ نمونهٔ `tests/law_terms/cases.json`.

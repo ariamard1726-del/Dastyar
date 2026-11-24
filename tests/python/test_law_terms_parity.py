@@ -1,16 +1,26 @@
-"""آینهٔ پایتون و دارتِ تطبیق واژه‌ها باید یکی بماند.
+"""قاعده‌های تطبیق واژه‌ها یک‌جا هستند و دو فایل تولیدشده تازه‌اند.
 
-`lib/domain/advocate/law_terms.dart` و `tools/law_terms.py` دو پیاده‌سازی از
-یک قاعده‌اند. اگر فهرست ایست‌واژه‌ها یا آستانه‌ها فقط در یکی عوض شود،
-ارزیابی پایتون نتیجهٔ دیگری از برنامه می‌دهد و آزمون‌های سبز، دروغ می‌شوند.
+پیش‌تر فهرست ۱۵۳ واژه‌ای و آستانه‌ها در `law_terms.dart` و `law_terms.py`
+دستی نگه داشته می‌شد و این آزمون فقط «واگرایی نکنند» را می‌سنجید؛ خودِ
+دوتا‌بودن رفع نشده بود. حالا مرجع `tools/contracts/law_terms.json` است.
 """
+
+import json
 import os
 import re
+import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+
+import gen_law_terms  # noqa: E402
+import law_terms_rules  # noqa: E402
+
 DART = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms.dart')
-PY = os.path.join(ROOT, 'tools', 'law_terms.py')
+DART_RULES = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms_rules.dart')
+CONTRACT = os.path.join(ROOT, 'tools', 'contracts', 'law_terms.json')
 
 
 def _read(path):
@@ -18,58 +28,63 @@ def _read(path):
         return f.read()
 
 
+def _contract():
+    return json.loads(_read(CONTRACT))
+
+
 def _dart_generic():
-    s = _read(DART)
-    start = s.index('static const Set<String> generic = {')
+    s = _read(DART_RULES)
+    start = s.index('static const Set<String> generic = <String>{')
     end = s.index('};', start)
     return set(re.findall(r"'([^']+)'", s[start:end]))
 
 
-def _py_generic():
-    s = _read(PY)
-    start = s.index('GENERIC = {')
-    end = s.index('\n}', start)
-    return set(re.findall(r"'([^']+)'", s[start:end]))
-
-
 def _dart_number(name):
-    s = _read(DART)
-    m = re.search(r'static const (?:int|double) %s = ([0-9.]+);' % name, s)
+    m = re.search(r'static const (?:int|double) %s = ([0-9.]+);' % name, _read(DART_RULES))
     return float(m.group(1)) if m else None
 
 
-def _py_number(name):
-    s = _read(PY)
-    m = re.search(r'^%s = ([0-9.]+)$' % name, s, re.M)
-    return float(m.group(1)) if m else None
+class GeneratedTests(unittest.TestCase):
+    def test_files_are_fresh(self):
+        for path, text in gen_law_terms.targets().items():
+            self.assertEqual(_read(path), text,
+                             'کهنه است: %s — python3 tools/gen_law_terms.py --write'
+                             % os.path.relpath(path, ROOT))
 
-
-class LawTermsParityTests(unittest.TestCase):
-    def test_generic_sets_are_identical(self):
-        dart, py = _dart_generic(), _py_generic()
-        self.assertTrue(dart)
-        self.assertEqual(sorted(dart - py), [], 'فقط در دارت')
-        self.assertEqual(sorted(py - dart), [], 'فقط در پایتون')
+    def test_word_lists_are_one(self):
+        contract = set(_contract()['generic'])
+        self.assertEqual(len(contract), 153)
+        self.assertEqual(_dart_generic(), contract)
+        self.assertEqual(set(law_terms_rules.GENERIC), contract)
 
     def test_thresholds_match(self):
-        pairs = [
-            ('minLen', 'MIN_LEN'),
-            ('topCount', 'TOP'),
-            ('rareDf', 'RARE_DF'),
-            ('minCover', 'MIN_COVER'),
-            ('phraseMinIdf', 'PHRASE_MIN_IDF'),
-            ('maxSpan', 'MAX_SPAN'),
-        ]
-        for dart_name, py_name in pairs:
-            self.assertEqual(_dart_number(dart_name), _py_number(py_name),
-                             '%s/%s' % (dart_name, py_name))
+        th = _contract()['thresholds']
+        self.assertEqual(law_terms_rules.MIN_LEN, th['minLen'])
+        self.assertEqual(law_terms_rules.TOP, th['top'])
+        self.assertEqual(law_terms_rules.MIN_COVER, th['minCover'])
+        self.assertEqual(law_terms_rules.RARE_DF, th['rareDf'])
+        self.assertEqual(law_terms_rules.MAX_SPAN, th['maxSpan'])
+        self.assertEqual(law_terms_rules.PHRASE_MIN_IDF, th['phraseMinIdf'])
+        self.assertEqual(_dart_number('minLen'), th['minLen'])
+        self.assertEqual(_dart_number('topCount'), th['top'])
+        self.assertEqual(_dart_number('rareDf'), th['rareDf'])
+        self.assertEqual(_dart_number('minCover'), th['minCover'])
+        self.assertEqual(_dart_number('maxSpan'), th['maxSpan'])
+        self.assertEqual(_dart_number('phraseMinIdf'), th['phraseMinIdf'])
 
-    def test_everyday_words_are_not_offered_as_legal_terms(self):
-        # این واژه‌ها در گفتار روزمره‌اند و نباید در پاسخ بیایند که
-        # «در قوانین من نیست»; فقط وقتی واژهٔ حقوقی باشند معنا دارند.
-        for w in ('توانم', 'اگر', 'کاری', 'انجام', 'باشد', 'برای'):
-            self.assertIn(w, _dart_generic(), w)
-            self.assertIn(w, _py_generic(), w)
+    def test_alias_match(self):
+        alias = _contract()['alias']
+        self.assertEqual(law_terms_rules.ALIAS, alias)
+        dart = _read(DART_RULES)
+        for k, v in alias.items():
+            self.assertIn("'%s': '%s'" % (k, v), dart,
+                          'نگاشت %s→%s در فایل تولیدشدهٔ دارت نیست' % (k, v))
+
+    def test_no_second_hand_written_list(self):
+        # اگر کسی فهرست را دستی به law_terms.dart برگرداند، این آزمون می‌گیرد.
+        dart = _read(DART)
+        self.assertNotIn('static const Set<String> generic = {', dart)
+        self.assertNotIn('static const Map<String, String> alias = {', dart)
 
 
 if __name__ == '__main__':

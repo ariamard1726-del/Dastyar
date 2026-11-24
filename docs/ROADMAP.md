@@ -62,7 +62,7 @@
 | جداکردن `brain/` و `tools/` پژوهشی | ⬜ | ۷٬۱۴۲ خط با اپ قاطی است |
 | توقف کامیت خودکار گزارش‌ها | ✅ (از پیش) | `commit-reports` فقط روی موفقیت |
 | حذف کامنت/کد مرده | ⬜ | `docs/DEAD_CODE.md` فهرست دارد |
-| آینهٔ پایتون ↔ دارت برای تطبیق واژه‌ها | 🟡 بدهی موقت | آزمون آینه (`tests/python/test_law_terms_parity.py`) فقط مطمئن می‌شود دو پیاده‌سازی از هم جدا نیفتند؛ خودِ دوتا‌بودن رفع نشده. رفع واقعی: تولید یکی از دیگری یا حذف آینهٔ پایتون — به بخش «بدهی‌های موقت» نگاه کنید |
+| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها یک منبع داشته باشند | ✅ | `tools/contracts/law_terms.json` مرجع است؛ `tools/gen_law_terms.py --write` دو فایل تولیدشده می‌سازد و `check.py lawterms` کهنه‌بودنشان را خطا می‌دهد — `tests/python/test_law_terms_parity.py` |
 | ایست‌واژه‌های گفتاری در پاسخ نیایند | ✅ | ۵۵ واژهٔ روزمره (توانم، اگر، کاری…) به هر دو فهرست |
 | پرسشِ بی‌جواب سه بار تکرار نشود | ✅ | سقفِ دو بار در `_out`؛ بار سوم جملهٔ صریح («از آن می‌گذرم») — `test/advocate/meta_and_tone_test.dart` |
 | واژهٔ موضوع، بی‌ماجرا، حکم نگیرد | ✅ | `Topic.gate` + `fightGate` در `topics/fight.dart`: بی‌آدم/نقش/آسیب، پرسش به‌جای ماده — `test/advocate/meta_and_tone_test.dart` |
@@ -75,10 +75,25 @@
 
 | بدهی | دو/چند پیاده‌سازی | نگهبان | رفع واقعی |
 |---|---|---|---|
-| تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `tools/law_terms.py` | `tests/python/test_law_terms_parity.py` (ایست‌واژه‌ها + آستانه‌ها)، `tests/law_terms/cases.json` روی هر دو | یکی از دو حذف شود یا فهرست/آستانه از یک فایل JSON خوانده شود |
 | موتور بازیابی | `lib/core/engine.dart` ↔ `tools/eval_py.py` | `tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
 | مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
 | دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `tools/sync_meta.py` | `tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
+
+### پرداخت‌شده: ایست‌واژه‌های تطبیق واژه‌ها
+
+پیش‌تر فهرست ۱۵۳ ایست‌واژه و آستانه‌ها (کمینهٔ طول، df، پوشش، idf) دو بار
+دستی نوشته شده بود: `lib/domain/advocate/law_terms.dart` و `tools/law_terms.py`.
+آزمون آینه فقط جلوی جداافتادنشان را می‌گرفت؛ خودِ دوتا‌بودن بدهی بود.
+
+- **یک مرجع:** `tools/contracts/law_terms.json` (ایست‌واژه‌ها، نگاشت `افحش→فاحش`،
+  آستانه‌ها، نام منبع عمومیِ پاسخ).
+- **تولید:** `python3 tools/gen_law_terms.py --write` دو فایل می‌سازد
+  (`lib/domain/advocate/law_terms_rules.dart`، `brain/law_terms_rules.py`)؛
+  `python3 tools/check.py lawterms` کهنه‌بودنشان را خطا می‌دهد و `check.py all`
+  هم آن را با خود دارد.
+- **دو پیاده‌سازی منطق می‌مانند** (موتور دارت و آینهٔ پایتون) ولی هیچ فهرست یا
+  عددی دیگر دستی نوشته نمی‌شود؛ آزمون `test_no_second_hand_written_list` جلوی
+  برگشتنِ فهرست دستی را می‌گیرد.
 
 ### پرداخت‌شده: قاعده‌های متن
 

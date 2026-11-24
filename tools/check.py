@@ -10,6 +10,7 @@
   topics   طرح‌وارهٔ مسیرهای موضوعی (tools/schemas/topic_flow.schema.json)
   refs     هر ارجاع قانونی در داده، در متن قوانین هست
   textnorm قاعده‌های متن تازه‌اند (tools/contracts/text_norm.json)
+  lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (tools/contracts/law_terms.json)
   all      همهٔ موارد بالا (پیش‌فرض)
 
 اجرا: python3 tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
@@ -447,6 +448,13 @@ def cmd_parity():
     return parity.main()
 
 
+# ---------------------------------------------------------------- lawterms
+def cmd_lawterms():
+    """فایل‌های قاعدهٔ تطبیق واژه‌ها از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_law_terms
+    return gen_law_terms.main(['--check'])
+
+
 # ---------------------------------------------------------------- textnorm
 def cmd_textnorm():
     """فایل‌های قاعدهٔ متن از قرارداد تولید شده‌اند و تازه‌اند؟"""
@@ -483,6 +491,7 @@ COMMANDS = {
     'topics': cmd_topics,
     'refs': cmd_refs,
     'textnorm': cmd_textnorm,
+    'lawterms': cmd_lawterms,
 }
 
 
