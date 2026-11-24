@@ -2,10 +2,15 @@ Analyzing Dastyar...
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
+  error • The imported library 'package:dastyar/domain/advocate/case_recap.dart' can't have a part-of directive. Try importing the library that the part is a part of • test/advocate/chip_plan_test.dart:3:8 • import_of_non_library
+  error • The imported library 'package:dastyar/domain/advocate/chip_plan.dart' can't have a part-of directive. Try importing the library that the part is a part of • test/advocate/chip_plan_test.dart:4:8 • import_of_non_library
+  error • Undefined class 'ChipPlan'. Try changing the name to the name of an existing class, or creating a class with the name 'ChipPlan' • test/advocate/chip_plan_test.dart:11:3 • undefined_class
+  error • The function 'ChipPlan' isn't defined. Try importing the library that defines 'ChipPlan', correcting the name to the name of an existing function, or defining a function named 'ChipPlan' • test/advocate/chip_plan_test.dart:11:57 • undefined_function
+  error • The function 'recapOf' isn't defined. Try importing the library that defines 'recapOf', correcting the name to the name of an existing function, or defining a function named 'recapOf' • test/advocate/chip_plan_test.dart:35:21 • undefined_function
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-7 issues found. (ran in 9.6s)
+12 issues found. (ran in 13.3s)
