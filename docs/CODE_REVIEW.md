@@ -155,7 +155,7 @@
 | روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
 | موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
 | مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
-| راهنما و واژه‌نامه | `guide_reply.dart` / `class GuideReply` — `_lookup`، `_glossary`، `_openGuide`، `_guideFollow`؛ `advocate_guides.dart` ۲۳۴ → ۱۰۳ |
+| راهنما و واژه‌نامه | `guide_reply.dart` / `class GuideReply` — `_lookup`، `_glossary`، `_openGuide`، `_guideFollow`؛ `advocate_guides.dart` ۲۳۴ → ۱۰۲ |
 | مسیرهای یک‌نوبتیِ پاسخ | `reply_routes.dart` / `class ReplyRoutes` — ۱۳ مسیر؛ `advocate_routes.dart` (۳۱۴ خط) حذف و ترتیب در `_reply` ماند |
 
 نگهبان: `tests/python/test_advocate_shape.py` سقفِ فیلدها (۱۳)، سقفِ خطوطِ
