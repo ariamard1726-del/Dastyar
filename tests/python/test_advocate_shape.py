@@ -73,7 +73,7 @@ STATE_FIELD = re.compile(
 COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
                  'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet',
                  'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow',
-                 'TalkRoute', 'ReplyRoutes', 'GuideReply']
+                 'TalkRoute', 'ReplyRoutes', 'GuideReply', 'TermReply']
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
@@ -165,6 +165,22 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('_talkRoute.meta(', part)
         self.assertNotIn('_idleChips()', part)
         self.assertIn('TalkRoute _talkRoute', self.src)
+
+    def test_term_reply_is_its_own_class(self):
+        """پاسخ‌های واژه‌محور نباید دوباره متدِ Advocate شوند."""
+        tr = _read(os.path.join(ADVOCATE_DIR, 'term_reply.dart'))
+        shell = _read(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart'))
+        self.assertIn('class TermReply {', tr)
+        for sig in ('AdvocateReply? lawTerms(String raw, String n)',
+                    'AdvocateReply? topicFlow(String raw, String n)',
+                    'AdvocateReply? _topicLeaf(Map<String, dynamic> flow'):
+            self.assertIn(sig, tr, sig)
+        self.assertIn('TermReply _termReply', self.src)
+        self.assertIn('_termReply.lawTerms(', self.src)
+        self.assertIn('_termReply.topicFlow(', self.src)
+        # از این خانواده چیزی جز ثابتِ نشانه‌ها نباید در پوسته بماند.
+        self.assertLess(len(shell.split('\n')), 20, 'advocate_guides دوباره پر شد')
+        self.assertNotIn('extension _LawTermsReply', shell)
 
     def test_guide_reply_is_its_own_class(self):
         """راهنما و واژه‌نامه نباید دوباره متدِ Advocate شوند."""

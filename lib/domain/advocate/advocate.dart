@@ -36,6 +36,7 @@ part 'talk_route.dart';
 part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
+part 'term_reply.dart';
 part 'guide_reply.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
@@ -288,6 +289,15 @@ class Advocate {
           defaultBudget: _budget);
 
   late final LawTerms _terms = LawTerms(engine);
+
+  /// پاسخ‌های واژه‌محور: متنِ مواد و مسیرِ موضوع.
+  late final TermReply _termReply = TermReply(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    engine: engine,
+    terms: _terms,
+  );
 
   /// شناسهٔ قالب سند → عنوان آن (برای دکمهٔ «تهیهٔ متن»).
   final Map<String, String> _draftTitles;
@@ -694,7 +704,7 @@ class Advocate {
     if (!hasCase && bestScore < 3) {
       // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
       final confidentGuess = guess != null && guess.confident;
-      final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _lawTermsReply(raw, n);
+      final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);
       if (lt != null) return lt;
       final refs = Understanding.linkedArticles(n);
       if (refs.isNotEmpty) {
@@ -809,9 +819,9 @@ class Advocate {
       // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
       // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
       if (guide == null && (guess == null || !guess.confident)) {
-        final tf = _topicReply(raw, n);
+        final tf = _termReply.topicFlow(raw, n);
         if (tf != null) return tf;
-        final lt = _lawTermsReply(raw, n);
+        final lt = _termReply.lawTerms(raw, n);
         if (lt != null) return lt;
       }
       // حدسِ مطمئنِ مدل بر راهنماهای آماده مقدم است: آن‌ها با یک واژه
