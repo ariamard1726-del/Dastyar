@@ -29,6 +29,7 @@ part 'case_recap.dart';
 part 'chip_plan.dart';
 part 'advocate_chips.dart';
 part 'advocate_meta.dart';
+part 'law_answer.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
@@ -183,6 +184,13 @@ class Advocate {
 
   /// ساختِ پاسخ‌ها: استناد، برش، سقفِ تکرارِ پرسش و چیدمان دکمه‌ها.
   /// وضعیتِ «چه گفتیم و چه پرسیدیم» این‌جاست، نه روی خودِ وکیل.
+  /// پاسخ از بانک پرسش‌وپاسخ و متن قوانین.
+  late final LawAnswer _lawAnswer = LawAnswer(
+    engine: engine,
+    voice: voice,
+    party: _party,
+  );
+
   /// پاسخ‌های «دربارهٔ برنامه» و «ماجرای حقوقی نیست».
   late final MetaReply _metaReplyBot = MetaReply(
     file: file,

@@ -93,7 +93,8 @@ class ShapeTests(unittest.TestCase):
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',
-                     'CaseArgument _argument', 'MetaReply _metaReplyBot'):
+                     'CaseArgument _argument', 'MetaReply _metaReplyBot',
+                     'LawAnswer _lawAnswer'):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):
