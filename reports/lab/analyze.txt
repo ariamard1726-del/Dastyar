@@ -1,13 +1,7 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
-warning • The declaration '_absorb' isn't referenced. Try removing the declaration of '_absorb' • lib/domain/advocate/advocate_case.dart:14:14 • unused_element
-warning • The declaration '_roleUnknown' isn't referenced. Try removing the declaration of '_roleUnknown' • lib/domain/advocate/advocate_case.dart:19:8 • unused_element
-warning • The declaration '_addEffects' isn't referenced. Try removing the declaration of '_addEffects' • lib/domain/advocate/advocate_case.dart:25:8 • unused_element
-warning • The declaration '_noteAmount' isn't referenced. Try removing the declaration of '_noteAmount' • lib/domain/advocate/advocate_case.dart:29:8 • unused_element
-warning • The declaration '_generic' isn't referenced. Try removing the declaration of '_generic' • lib/domain/advocate/advocate_case.dart:35:9 • unused_element
-warning • The declaration '_leadSettled' isn't referenced. Try removing the declaration of '_leadSettled' • lib/domain/advocate/advocate_case.dart:37:13 • unused_element
-warning • The declaration '_react' isn't referenced. Try removing the declaration of '_react' • lib/domain/advocate/advocate_case.dart:41:10 • unused_element
+warning • The declaration '_react' isn't referenced. Try removing the declaration of '_react' • lib/domain/advocate/advocate_case.dart:25:10 • unused_element
 warning • The declaration '_unclearText' isn't referenced. Try removing the declaration of '_unclearText' • lib/domain/advocate/advocate_talk.dart:69:10 • unused_element
 warning • The declaration '_sideNote' isn't referenced. Try removing the declaration of '_sideNote' • lib/domain/advocate/advocate_topic.dart:15:10 • unused_element
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
@@ -17,4 +11,4 @@ warning • The declaration '_sideNote' isn't referenced. Try removing the decla
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-16 issues found. (ran in 9.2s)
+10 issues found. (ran in 11.8s)
