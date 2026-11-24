@@ -11,30 +11,14 @@ const String _amend =
 extension _CaseFlow on Advocate {
   void _closeCase() => _case.closeCase();
 
-  List<Slot> _absorb(Topic t, String n, {bool live = true}) =>
-      _case.absorb(t, n, live: live);
-
   AdvocateReply _filing(Filing g) => _case.filing(g);
-
-  bool _roleUnknown(Topic t) => _case.roleUnknown(t);
 
   AdvocateReply _open(Topic t, String n,
           {bool switched = false, bool guessed = false}) =>
       _case.open(t, n, switched: switched, guessed: guessed);
 
-  void _addEffects(List<String> parts, List<Slot> news, int max,
-          {Set<String> skip = const {}}) =>
-      _case.addEffects(parts, news, max, skip: skip);
-
-  void _noteAmount(List<String> parts, List<Slot> news, String n) =>
-      _case.noteAmount(parts, news, n);
-
   AdvocateReply _inCase(Topic t, String raw, String n, Issue? issue) =>
       _case.inCase(t, raw, n, issue);
-
-  Body? _generic(String kind) => _case.generic(kind);
-
-  Standing? _leadSettled(Topic t) => _case.leadSettled(t);
 
   _Ask _nextAsk(Topic t) => _case.nextAsk(t);
 
