@@ -1,8 +1,6 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
-  error • Undefined name 'hasCase'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate_meta.dart:109:22 • undefined_identifier
-  error • Undefined name 'hasCase'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate_meta.dart:158:9 • undefined_identifier
 warning • The declaration '_scoreIgnoringGate' isn't referenced. Try removing the declaration of '_scoreIgnoringGate' • lib/domain/advocate/advocate_topic.dart:9:5 • unused_element
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
@@ -11,4 +9,4 @@ warning • The declaration '_scoreIgnoringGate' isn't referenced. Try removing 
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-10 issues found. (ran in 8.6s)
+8 issues found. (ran in 9.2s)

@@ -1,28 +1,11 @@
 
-lib/domain/advocate/advocate_meta.dart:109:22: Error: The getter 'hasCase' isn't defined for the type 'MetaReply'.
- - 'MetaReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    final caseOpen = hasCase;
-                     ^^^^^^^
-lib/domain/advocate/advocate_meta.dart:158:9: Error: The getter 'hasCase' isn't defined for the type 'MetaReply'.
- - 'MetaReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    if (hasCase) {
-        ^^^^^^^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/advocate_meta.dart:109:22: Error: The getter 'hasCase' isn't defined for the type 'MetaReply'.
- - 'MetaReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    final caseOpen = hasCase;
-                     ^^^^^^^
-lib/domain/advocate/advocate_meta.dart:158:9: Error: The getter 'hasCase' isn't defined for the type 'MetaReply'.
- - 'MetaReply' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase'.
-    if (hasCase) {
-        ^^^^^^^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
