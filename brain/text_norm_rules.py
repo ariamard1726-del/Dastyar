@@ -24,6 +24,7 @@ LOWERCASE = True
 
 QUESTION_MARK_FROM = '?'
 QUESTION_MARK_TO = '؟'
+QUESTION_MARK_PAD = True
 NORM_PUNCT = r'[،؛,!«»"()\[\]{}:;_\-/\\*…]+'
 NORM_DOT = r'(?<![0-9])\.|\.(?![0-9])'
 NORM_JOIN_MI = r'(^| )(ن?می) (?=[\u0600-\u06FF])'

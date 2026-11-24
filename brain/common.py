@@ -58,6 +58,10 @@ def norm(s):
     """
     t = normalize(s)
     t = t.replace(_R.QUESTION_MARK_FROM, _R.QUESTION_MARK_TO)
+    if _R.QUESTION_MARK_PAD:
+        # دارت «؟» را با فاصلهٔ دو طرف جایگزین می‌کند («کنم ؟»)؛ همان رفتار را
+        # نگه می‌داریم تا خروجی دو زبان یکی بماند.
+        t = t.replace(_R.QUESTION_MARK_TO, ' %s ' % _R.QUESTION_MARK_TO)
     t = re.sub(_R.NORM_PUNCT, ' ', t)
     t = re.sub(_R.NORM_DOT, ' ', t)
     t = re.sub(r'\s+', ' ', t).strip()

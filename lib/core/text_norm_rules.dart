@@ -46,6 +46,7 @@ class TextNormRules {
 
   static const String questionMarkFrom = '?';
   static const String questionMarkTo = '؟';
+  static const bool questionMarkPad = true;
   static const String normPunct = r'[،؛,!«»"()\[\]{}:;_\-/\\*…]+';
   static const String normDot = r'(?<![0-9])\.|\.(?![0-9])';
   static const String normJoinMi = r'(^| )(ن?می) (?=[\u0600-\u06FF])';

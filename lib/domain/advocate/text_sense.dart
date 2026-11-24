@@ -35,8 +35,10 @@ class Sense {
     var t = PersianText.normalize(s);
     t = t.replaceAll(
         TextNormRules.questionMarkFrom, TextNormRules.questionMarkTo);
-    t = t.replaceAll(
-        TextNormRules.questionMarkTo, ' ${TextNormRules.questionMarkTo} ');
+    if (TextNormRules.questionMarkPad) {
+      t = t.replaceAll(
+          TextNormRules.questionMarkTo, ' ${TextNormRules.questionMarkTo} ');
+    }
     t = t.replaceAll(_punct, ' ');
     t = t.replaceAll(_dot, ' ');
     t = t.replaceAll(_ws, ' ').trim();

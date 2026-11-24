@@ -55,6 +55,6 @@ void main() {
     expect(PersianText.normalize('مي‌خواهم'), 'می خواهم');
     expect(PersianText.normalize('ماده ١٢٣'), 'ماده 123');
     expect(Sense.norm('می خواهم'), ' میخواهم ');
-    expect(Sense.norm('چکار کنم؟'), ' چه کار کنم؟ ');
+    expect(Sense.norm('چکار کنم؟'), ' چه کار کنم ؟ ');
   });
 }

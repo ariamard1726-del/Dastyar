@@ -120,6 +120,8 @@ class TextNormRules {
     out.append('')
     out.append('  static const String questionMarkFrom = %s;' % _dart_str(nm['questionMarkFrom']))
     out.append('  static const String questionMarkTo = %s;' % _dart_str(nm['questionMarkTo']))
+    out.append('  static const bool questionMarkPad = %s;' %
+               ('true' if nm['questionMarkPad'] else 'false'))
     out.append('  static const String normPunct = %s;' % _dart_raw(nm['punct']))
     out.append('  static const String normDot = %s;' % _dart_raw(nm['dot']))
     out.append('  static const String normJoinMi = %s;' % _dart_raw(nm['joinMi']))
@@ -157,6 +159,7 @@ def render_py(c):
     out.append('')
     out.append('QUESTION_MARK_FROM = %s' % _py_str(nm['questionMarkFrom']))
     out.append('QUESTION_MARK_TO = %s' % _py_str(nm['questionMarkTo']))
+    out.append('QUESTION_MARK_PAD = %s' % ('True' if nm['questionMarkPad'] else 'False'))
     out.append('NORM_PUNCT = %s' % _py_raw(nm['punct']))
     out.append('NORM_DOT = %s' % _py_raw(nm['dot']))
     out.append('NORM_JOIN_MI = %s' % _py_raw(nm['joinMi']))

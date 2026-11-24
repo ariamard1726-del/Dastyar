@@ -46,6 +46,7 @@
     "description": "لایهٔ دوم: همان کاری که Sense.norm در دارت می‌کند و common.norm آینهٔ آن است.",
     "questionMarkFrom": "?",
     "questionMarkTo": "؟",
+    "questionMarkPad": true,
     "punct": "[،؛,!«»\"()\\[\\]{}:;_\\-/\\\\*…]+",
     "dot": "(?<![0-9])\\.|\\.(?![0-9])",
     "joinMi": "(^| )(ن?می) (?=[\\u0600-\\u06FF])",

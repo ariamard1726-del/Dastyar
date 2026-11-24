@@ -65,7 +65,7 @@ class GoldenTests(unittest.TestCase):
 
     def test_norm_basics(self):
         self.assertEqual(common.norm('می خواهم'), ' میخواهم ')
-        self.assertEqual(common.norm('چکار کنم؟'), ' چه کار کنم؟ ')
+        self.assertEqual(common.norm('چکار کنم؟'), ' چه کار کنم ؟ ')
         self.assertEqual(common.norm('خانه'), ' خونه ')
 
 
