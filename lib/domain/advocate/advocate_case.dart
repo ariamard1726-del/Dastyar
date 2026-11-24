@@ -263,7 +263,7 @@ extension _CaseFlow on Advocate {
         _glossary(n) == null) {
       return _unclearReply(raw, chips: const [Advocate.newCaseChip]);
     }
-    dialog.heard = '$dialog.heard $n';
+    dialog.heard = '${dialog.heard} $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
     final heardGoal = wasPending != 'q:goal' &&
         !file.covered.contains('q:goal') &&
@@ -411,7 +411,7 @@ extension _CaseFlow on Advocate {
           // نگه می‌دارم.
           return _out(
             '${_relevant(lg.answer, n)}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
-            ask: 'برگردیم سر پروندهٔ خودمان: $dialog.askText',
+            ask: 'برگردیم سر پروندهٔ خودمان: ${dialog.askText}',
             chips: dialog.askChips,
             full: true,
           );

@@ -544,7 +544,7 @@ extension _Talk on Advocate {
     }
     dialog.unclearPhrase = _quoteWords(raw);
     dialog.unclearTurn = file.turns;
-    return 'منظورتان از «$dialog.unclearPhrase» چیست؟ کمی بیشتر توضیح می‌دهید؟';
+    return 'منظورتان از «${dialog.unclearPhrase}» چیست؟ کمی بیشتر توضیح می‌دهید؟';
   }
 
   /// همان پاسخِ نامفهوم، ولی این بار با دکمه‌های شروع تا کاربر در بن‌بست
