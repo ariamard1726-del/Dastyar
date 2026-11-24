@@ -24,7 +24,7 @@ class LawText {
   /// چند ماده از این قانون در بانک هست.
   final int Function(String lawId) lawCountOf;
 
-String format(Chunk c) {
+  String format(Chunk c) {
   final sb = StringBuffer();
   // عنوان در فایل‌های قانون با ارقام لاتین است («ماده 10»)؛ در متن فارسی
   // باید با ارقام فارسی بیاید.
@@ -55,12 +55,12 @@ String format(Chunk c) {
     return replies.get('not_found');
   }
 
-String lawList() {
+  String lawList() {
   final loaded = _loaded();
   if (loaded.isEmpty) return replies.get('no_laws');
   final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
   for (final l in loaded) {
-    final n = _index.lawCounts[l.id] ?? 0;
+    final n = lawCountOf(l.id);
     sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
   }
   final rest = catalog.length - loaded.length;

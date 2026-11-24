@@ -18,7 +18,7 @@ void main() {
     lawCountOf: (id) => id == 'labor' ? 2 : 0,
   );
 
-  const chunk = Chunk('labor', 'قانون کار', 'فصل اول', 'ماده ۱', 'متن ماده',
+  final chunk = Chunk('labor', 'قانون کار', 'فصل اول', 'ماده ۱', 'متن ماده',
       false, {}, {}, {}, 3);
 
   test('ماده با منبع و تاریخ نوشته می‌شود', () {
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('نوشتهٔ ناتأیید اعلام می‌شود', () {
-    const raw = Chunk('penal', 'قانون مجازات', '', 'ماده ۲', 'متن', false, {}, {},
+    final raw = Chunk('penal', 'قانون مجازات', '', 'ماده ۲', 'متن', false, {}, {},
         {}, 2);
     expect(text.format(raw), contains('تطبیق داده نشده'));
   });
