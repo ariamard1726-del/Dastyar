@@ -197,10 +197,18 @@ class ShapeTests(unittest.TestCase):
     def test_engine_does_not_own_law_names(self):
         """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
         engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
-        self.assertLess(len(engine.split('\n')), 960,
+        self.assertLess(len(engine.split('\n')), 700,
                         'engine.dart دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)
+        ranker = _read(os.path.join(ROOT, 'lib', 'core', 'law_ranker.dart'))
+        for owned in ('RankResult rankInternal(', 'double coverage(',
+                      'static int _lowerBound(', 'void _addPrefixTerms('):
+            self.assertIn(owned, ranker)
+        for gone in ('_rankInternal', '_defQ', '_addPrefixTerms', '_promoteDefinitions'):
+            self.assertNotIn(gone, engine, 'موتور دوباره %s را دارد' % gone)
+        self.assertTrue(os.path.exists(
+            os.path.join(ROOT, 'test', 'core', 'law_ranker_test.dart')))
         index = _read(os.path.join(ROOT, 'lib', 'core', 'law_index.dart'))
         for owned in ('void parseInto', 'static IndexBuild build(',
                       'void adopt(IndexBuild b)'):

@@ -4,7 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/law_topic_prior.dart';
+import 'package:dastyar/core/article_query.dart';
 import 'package:dastyar/core/law_index.dart';
+import 'package:dastyar/core/law_ranker.dart';
 import 'package:dastyar/core/law_mention.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
@@ -26,34 +28,14 @@ class KnowledgeEngine {
   static const double _lowCover = 0.4;
 
   // پرسش‌های «X چیست / کیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
-  static final RegExp _defQ = RegExp(
-    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن|گفته می شود',
-  );
-  static const Set<String> _defWords = {
-    'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
-    'گویند', 'کسی', 'کیست', 'گفته', 'شود',
-  };
-  static const Set<String> _defMetaPrefixes = {
-    'مجازات', 'مجازاتی', 'شرایط', 'حکم', 'مهلت', 'موارد', 'نحوه', 'میزان',
-  };
-  static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند|حاصل');
-  static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // الگوهای ازپیش‌کامپایل‌شده برای جلوگیری از ساخت مکرر RegExp
-  static final RegExp _artQueryRe = RegExp(
-    r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))',
-  );
   static final RegExp _punctOnlyRe = RegExp(r'[\p{P}]', unicode: true);
   static final RegExp _articleTitleRe = RegExp(
     r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
 
   // پارامترهای BM25F: اشباع بسامد، نرمال‌سازی طول، و وزن عنوان / متن / زمینه.
-  final double _k1 = 0.9;
-  final double _b = 0.7;
-  final double _wT = 3.0;
-  final double _wB = 1.0;
-  final double _wC = 0.5;
 
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
@@ -61,6 +43,16 @@ class KnowledgeEngine {
   /// شناسایی نام قانون در متن؛ جدا از ایندکس و رتبه‌بندی.
   late final LawMention _mention =
       LawMention(catalog: catalog, isLoaded: isLoaded);
+
+  /// امتیازدهیِ BM25F و گسترشِ پیشوند؛ منطقش در `law_ranker.dart` است.
+  late final LawRanker _ranker = LawRanker(
+    index: _index,
+    mention: _mention,
+    isLoaded: isLoaded,
+    topicFactors: (q) => _lawPrior.factors(q),
+    expand: _expand,
+    synonyms: _syn,
+  );
 
   final ConflictsService _conflictsService = ConflictsService();
   Map<String, dynamic> _relationships = const {};
@@ -106,6 +98,12 @@ class KnowledgeEngine {
   List<Map<String, dynamic>> get topicFlows => _topicFlows;
   Map<String, int> get lawCounts => _index.lawCounts;
   bool isLoaded(String id) => (_index.lawCounts[id] ?? 0) > 0;
+
+  /// رتبه‌بندیِ پرسش؛ پاس‌دهنده به [LawRanker].
+  RankResult rank(String question, {int k = 3}) => _ranker.rank(question, k: k);
+
+  /// چه کسری از وزن واژه‌های پرسش در این ماده پیدا می‌شود (۰ تا ۱).
+  double coverage(String question, Chunk c) => _ranker.coverage(question, c);
 
   // لایهٔ متن به persian_text.dart رفته؛ اینجا فقط نام‌های قدیمی نگه داشته شده‌اند.
   static String normalize(String s) => PersianText.normalize(s);
@@ -328,34 +326,6 @@ List<String> _expand(String question) {
   return out;
 }
 
-static String _canonicalArticleTitle(String rawArticle) {
-  var a = _collapse(normalize(rawArticle));
-  if (a.isEmpty) return '';
-  if (!a.startsWith('ماده ') && !a.startsWith('اصل ')) a = 'ماده $a';
-  return _collapse(a);
-}
-
-static String _wantedArticleFromMatch(RegExpMatch m) {
-  final kind = m.group(1) == 'اصل' ? 'اصل' : 'ماده';
-  if (m.group(2) != null) return '$kind واحده';
-  final num = m.group(3)!;
-  final mk = m.group(4) != null
-      ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر')
-      : '';
-  return '$kind $num$mk';
-}
-
-static String _faArticleLabel(RegExpMatch m) {
-  if (m.group(2) != null) return 'واحده';
-  final num = PersianText.toFaDigits(m.group(3)!);
-  final mk = m.group(4) != null
-      ? (m.group(5) != null
-          ? ' مکرر ${PersianText.toFaDigits(m.group(5)!)}'
-          : ' مکرر')
-      : '';
-  return '$num$mk';
-}
-
 /// شمارهٔ chunk یک ماده از روی (شناسهٔ قانون، عنوان ماده)؛ یا `null`.
 ///
 /// همتای O(1) پیمایش خطیِ `for (final c in engine.chunks)` که در تطبیق
@@ -365,7 +335,7 @@ static String _faArticleLabel(RegExpMatch m) {
 /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
 Chunk? findArticle(String law, String article) {
   final lawN = _collapse(normalize(law));
-  final want = _canonicalArticleTitle(article);
+  final want = ArticleQuery.canonical(article);
   if (want.isEmpty || lawN.isEmpty) return null;
   var indices = _index.byTitle[want];
   if (indices == null && want.startsWith('ماده ')) {
@@ -442,248 +412,7 @@ String format(Chunk c) {
 
 /// چه کسری از وزن واژه‌های پرسش در این ماده (یا با کمک مترادف‌ها) پیدا می‌شود.
 /// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
-double coverage(String question, Chunk c) {
-  final qt = tokenizeIndex(question).toSet().toList();
-  if (qt.isEmpty || _index.idf.isEmpty) return 0.0;
-  bool has(String t) =>
-      c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
-  var den = 0.0;
-  var got = 0.0;
-  final covered = <String>{};
-  for (final t in qt) {
-    den += _index.idf[t] ?? _index.maxIdf;
-    if (has(t)) {
-      covered.add(t);
-      got += _index.idf[t] ?? _index.maxIdf;
-    } else if (!_index.idf.containsKey(t) && t.length >= 3) {
-      var pref = false;
-      for (final m in [c.tfT, c.tfB, c.tfC]) {
-        for (final v in m.keys) {
-          if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
-            pref = true;
-            break;
-          }
-        }
-        if (pref) break;
-      }
-      if (pref) {
-        covered.add(t);
-        got += 0.5 * _index.maxIdf;
-      }
-    }
-  }
-  final n = ' ${_phrase(question)} ';
-  for (final r in _syn) {
-    if (!n.contains(' ${r[0]} ')) continue;
-    if (!tokenizeIndex(r[1]).any(has)) continue;
-    for (final t in tokenizeIndex(r[0])) {
-      if (qt.contains(t) && !covered.contains(t)) {
-        covered.add(t);
-        got += _index.idf[t] ?? _index.maxIdf;
-      }
-    }
-  }
-  return den > 0 ? got / den : 0.0;
-}
-
-static int _lowerBound(List<String> sorted, String target) {
-  var lo = 0;
-  var hi = sorted.length;
-  while (lo < hi) {
-    final mid = (lo + hi) >> 1;
-    if (sorted[mid].compareTo(target) < 0) {
-      lo = mid + 1;
-    } else {
-      hi = mid;
-    }
-  }
-  return lo;
-}
-
 /// گسترش پیشوند در زمان O(log V + |t| + matches) به‌جای پیمایش خطی کل واژگان.
-void _addPrefixTerms(String t, Map<String, double> terms) {
-  for (var len = 3; len < t.length; len++) {
-    final sub = t.substring(0, len);
-    if (_index.idf.containsKey(sub)) {
-      terms[sub] = math.max(terms[sub] ?? 0, 0.5);
-    }
-  }
-  var i = _lowerBound(_index.vocab, t);
-  while (i < _index.vocab.length && _index.vocab[i].startsWith(t)) {
-    final v = _index.vocab[i];
-    terms[v] = math.max(terms[v] ?? 0, 0.5);
-    i++;
-  }
-}
-
-RankResult rank(String question, {int k = 3}) {
-  return _rankInternal(question, k: k);
-}
-  RankResult _rankInternal(
-    String question, {
-    List<CatalogLaw>? mentioned,
-    int k = 3,
-  }) {
-    if (_index.chunks.isEmpty) return RankResult([]);
-    final q = normalize(question);
-    final qTokens = tokenizeIndex(question).toSet().toList();
-
-    final laws = mentioned ?? _mentionedLaws(question);
-    final ids = laws.where((l) => isLoaded(l.id)).map((l) => l.id).toSet();
-
-    final art = _artQueryRe.firstMatch(q);
-    if (art != null) {
-      final want = _collapse(_wantedArticleFromMatch(art));
-      final titleIndices = _index.byTitle[want];
-      if (titleIndices != null && titleIndices.isNotEmpty) {
-        final found = <Chunk>[];
-        for (final idx in titleIndices) {
-          final c = _index.chunks[idx];
-          if (ids.isEmpty || ids.contains(c.lawId)) {
-            found.add(c);
-          }
-        }
-        if (found.isNotEmpty) {
-          Chunk pick = found.first;
-          var bestOverlap = -1;
-          for (final c in found) {
-            final st = tokenizeIndex(c.source).toSet();
-            final ov = qTokens.where(st.contains).length;
-            if (ov > bestOverlap) {
-              bestOverlap = ov;
-              pick = c;
-            }
-          }
-          var note = '';
-          if (found.length > 1 && bestOverlap <= 0) {
-            final others = found
-                .where((c) => c != pick && c.source.isNotEmpty)
-                .map((c) => c.source)
-                .take(3)
-                .join('، ');
-            if (others.isNotEmpty) {
-              note =
-                  'همین شمارهٔ ماده در این منابع هم هست: $others. نام قانون را هم بنویسید.';
-            }
-          }
-          return RankResult([Hit(pick, 99)], note);
-        }
-      }
-    }
-
-    if (qTokens.isEmpty) return RankResult([]);
-
-    final terms = <String, double>{};
-    double total = 0;
-    for (final t in qTokens) {
-      total += _index.idf[t] ?? 1.0;
-      if (_index.idf.containsKey(t)) {
-        terms[t] = 1.0;
-      } else if (t.length >= 3) {
-        _addPrefixTerms(t, terms);
-      }
-    }
-    for (final t in _expand(question)) {
-      if (_index.idf.containsKey(t)) terms[t] = math.max(terms[t] ?? 0, 1.0);
-    }
-    if (terms.isEmpty) return RankResult([]);
-
-    // استفاده از نمایهٔ معکوس (Inverted Index) به‌جای پیمایش همهٔ چانک‌ها
-    final candSet = <int>{};
-    for (final t in terms.keys) {
-      final list = _index.postings[t];
-      if (list != null) candSet.addAll(list);
-    }
-    if (candSet.isEmpty) return RankResult([]);
-    final candIndices = candSet.toList()..sort();
-
-    // ضریب موضوعی قانون‌ها؛ وقتی کاربر نام قانون را آورده، بی‌اثر است.
-    final factors =
-        ids.isEmpty ? _lawPrior.factors(question) : const <String, double>{};
-    final hits = <Hit>[];
-    for (final idx in candIndices) {
-      final c = _index.chunks[idx];
-      if (ids.isNotEmpty && !ids.contains(c.lawId)) continue;
-      double s = 0;
-      final lenNorm = 1 - _b + _b * c.len / _index.avgLen;
-      terms.forEach((t, w) {
-        final tf = _wT * (c.tfT[t] ?? 0) +
-            _wB * (c.tfB[t] ?? 0) +
-            _wC * (c.tfC[t] ?? 0);
-        if (tf > 0) {
-          final tfn = tf / lenNorm;
-          s += w * (_index.idf[t] ?? 1.0) * tfn * (_k1 + 1) / (tfn + _k1);
-        }
-      });
-      if (s <= 0) continue;
-      s = s / (total > 0 ? total : 1.0);
-      if (c.obsolete) s *= 0.1;
-      s *= factors[c.lawId] ?? 1.0;
-      hits.add(Hit(c, s));
-    }
-    hits.sort((a, b) => b.score.compareTo(a.score));
-    return RankResult(
-      _promoteDefinitions(question, hits, factors).take(k).toList(),
-    );
-  }
-
-  /// اگر پرسش از نوع «X چیست» بود، تا دو مادهٔ منسوخ‌نشده‌ای که متنشان با
-  /// همان واژه شروع می‌شود و حالت تعریفی دارد («عقدی است…»، «عبارت است…»)
-  /// به ابتدای فهرست می‌آیند. دانش عمومی و ماده‌های منسوخ هیچ‌وقت نمی‌آیند.
-  List<Hit> _promoteDefinitions(
-    String question,
-    List<Hit> hits, [
-    Map<String, double> factors = const {},
-  ]) {
-    if (hits.isEmpty || !_defQ.hasMatch(normalize(question))) return hits;
-    final boosted = {
-      for (final e in factors.entries)
-        if (e.value > 1.0) e.key,
-    };
-    var toks =
-        tokenizeIndex(question).where((t) => !_defWords.contains(t)).toList();
-    if (toks.length >= 2 && _defMetaPrefixes.contains(toks.first)) {
-      toks = toks.skip(1).toList();
-    }
-    if (toks.isEmpty) return hits;
-    var cands = <Hit>[];
-    for (final n in [2, 1]) {
-      if (toks.length < n) continue;
-      final term = toks.take(n).join(' ');
-      final strong = <Hit>[];
-      final weak = <Hit>[];
-      for (final h in hits) {
-        final c = h.chunk;
-        if (c.lawId == 'knowledge' || c.obsolete) continue;
-        // تعریفِ قانونِ نامرتبط با موضوع پرسش جلو نمی‌آید.
-        if ((factors[c.lawId] ?? 1.0) < 1.0) continue;
-        if (boosted.isNotEmpty && !boosted.contains(c.lawId)) continue;
-        final body = LawIndex.cleanBody(c.body);
-        final p = body.startsWith(term)
-            ? term
-            : (body.startsWith('عقد $term') ? 'عقد $term' : null);
-        if (p == null) continue;
-        final end = math.min(body.length, p.length + 30);
-        final tail = body.substring(p.length, end);
-        if (!_defMark.hasMatch(tail)) continue;
-        (_defStrong.hasMatch(tail) ? strong : weak).add(h);
-      }
-      cands = [...strong, ...weak];
-      if (cands.isNotEmpty) break;
-    }
-    if (cands.isEmpty) return hits;
-    final picked = cands.take(2).toList();
-    final top = hits.first.score;
-    final out = <Hit>[
-      Hit(picked[0].chunk, math.max(picked[0].score, top)),
-      ...picked.skip(1),
-    ];
-    for (final h in hits) {
-      if (!picked.any((p) => identical(p.chunk, h.chunk))) out.add(h);
-    }
-    return out;
-  }
-
   /// پردازش یکپارچهٔ پرسش با یک‌بار اجرای رتبه‌بندی (پاسخ نهایی + زمینهٔ LLM + پیشنهادهای نزدیک).
   EngineReply query(String question, {int maxAlternatives = 3}) {
     final n = normalize(question);
@@ -693,7 +422,7 @@ RankResult rank(String question, {int k = 3}) {
     if (QueryRouter.asksOutcomePrediction(n)) {
       return EngineReply(text: replies.get('outcome_prediction'));
     }
-    final art = _artQueryRe.firstMatch(n);
+    final art = ArticleQuery.re.firstMatch(n);
     final qTokens = tokenize(question);
     if (qTokens.every((t) => t.replaceAll(_punctOnlyRe, '').isEmpty) &&
         art == null) {
@@ -733,7 +462,7 @@ RankResult rank(String question, {int k = 3}) {
     }
 
     final rankK = maxAlternatives > 0 ? math.max(12, maxAlternatives * 4) : 4;
-    final r = _rankInternal(question, mentioned: mentioned, k: rankK);
+    final r = _ranker.rankInternal(question, mentioned: mentioned, k: rankK);
     final top4 = r.hits.take(4).toList();
     final ctx = top4.where((h) => h.score >= 0.3).toList();
     final alts = maxAlternatives > 0
@@ -744,7 +473,7 @@ RankResult rank(String question, {int k = 3}) {
         loaded.isNotEmpty &&
         (top4.isEmpty || top4.first.score < 99)) {
       final kind = art.group(1) == 'اصل' ? 'اصل' : 'ماده';
-      final num = _faArticleLabel(art);
+      final num = ArticleQuery.label(art);
       return EngineReply(
         text:
             '$kind $num در متن «${loaded.first.title}» که در برنامه است پیدا نشد. ممکن است چنین مادهٔ معتبری نباشد یا متن برنامه ناقص باشد. شمارهٔ ماده را دوباره بررسی کنید.${missingNote.isEmpty ? '' : '\n\n$missingNote'}',
@@ -764,12 +493,12 @@ RankResult rank(String question, {int k = 3}) {
     // مادهٔ دیگری از برترین‌ها پوششِ پرسش را به‌مراتب (حاشیهٔ ۰٫۲۵) بهتر
     // بدهد، همان پاسخ می‌دهد. اگر هیچ ماده‌ای به آستانهٔ پوشش نرسد، صادقانه
     // «پیدا نکردم» گفته می‌شود.
-    final topCov = explicit ? 1.0 : coverage(question, top4.first.chunk);
+    final topCov = explicit ? 1.0 : _ranker.coverage(question, top4.first.chunk);
     var bestCov = topCov;
     Hit bestHit = top4.first;
     if (!explicit) {
       for (final h in top4.skip(1)) {
-        final c = coverage(question, h.chunk);
+        final c = _ranker.coverage(question, h.chunk);
         if (c > bestCov) {
           bestCov = c;
           bestHit = h;
@@ -872,7 +601,7 @@ RankResult rank(String question, {int k = 3}) {
   List<String> conflictChainsFor(Chunk c) {
     final articles = _relationships['articles'];
     if (articles is! Map<String, dynamic> || articles.isEmpty) return const [];
-    final m = _artQueryRe.firstMatch(c.normTitle);
+    final m = ArticleQuery.re.firstMatch(c.normTitle);
     if (m == null) return const [];
     final key = _collapse(m.group(2) ??
         '${m.group(3) ?? ''}${m.group(4) != null ? (m.group(5) != null ? ' مکرر ${m.group(5)}' : ' مکرر') : ''}');
@@ -906,7 +635,7 @@ RankResult rank(String question, {int k = 3}) {
     RankResult r, {
     int max = 3,
   }) {
-    if (_artQueryRe.hasMatch(normQuestion)) return [];
+    if (ArticleQuery.re.hasMatch(normQuestion)) return [];
     if (_asksLawList(normQuestion)) return [];
     if (mentioned.any((l) => !isLoaded(l.id))) return [];
     if (r.hits.length < 2) return [];
@@ -930,11 +659,11 @@ RankResult rank(String question, {int k = 3}) {
   /// همان ماده دقیقاً پیدا می‌شود. در موارد نامطمئن فهرست خالی است.
   List<String> alternatives(String question, {int max = 3}) {
     final n = normalize(question);
-    if (_artQueryRe.hasMatch(n)) return [];
+    if (ArticleQuery.re.hasMatch(n)) return [];
     if (_asksLawList(n)) return [];
     final mentioned = _mentionedLaws(question);
     if (mentioned.any((l) => !isLoaded(l.id))) return [];
-    final r = _rankInternal(question, mentioned: mentioned, k: 12);
+    final r = _ranker.rankInternal(question, mentioned: mentioned, k: 12);
     return _alternativesFromRank(n, mentioned, r, max: max);
   }
 
