@@ -68,6 +68,13 @@ STATE_FIELD = re.compile(
     r'^  (?:final|late final|late)\s+[\w<>?, ]+\s+\w+\s*(?:=|;)'
     r'|^  (?:bool|int|double|String|List<[^>]*>|Map<[^>]*>|Set<[^>]*>|Topic\?)\s+\w+\s*(?:=|;)')
 
+# همکارها نه وضعیت‌اند نه گاد-آبجکت: خودشان صاحبِ داده‌اند. اگر فیلدی از این
+# نوع‌ها روی Advocate باشد، یعنی وکیل فقط آن‌ها را به هم وصل می‌کند.
+COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
+                 'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet']
+COLLABORATOR_FIELD = re.compile(
+    r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
+
 MOVED_FIELDS = ['_rest', '_offeredMore', '_lastAsk', '_askRepeats',
                 '_relevantChip', '_vary', '_said', '_lastBody', '_lastLaws']
 
@@ -77,10 +84,17 @@ class ShapeTests(unittest.TestCase):
         self.src = _read(ADVOCATE)
 
     def test_state_fields_do_not_grow(self):
-        fields = [l for l in _class_body(self.src) if STATE_FIELD.match(l)]
+        fields = [l for l in _class_body(self.src)
+                  if STATE_FIELD.match(l) and not COLLABORATOR_FIELD.match(l)]
         self.assertLessEqual(
             len(fields), MAX_STATE_FIELDS,
             'فیلد حالتیِ Advocate زیاد شد (%d):\n%s' % (len(fields), '\n'.join(fields)))
+
+    def test_collaborators_are_wired(self):
+        """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
+        for name in ('DialogueState dialog', 'ReplyVoice voice',
+                     'CaseArgument _argument', 'MetaReply _metaReplyBot'):
+            self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):
         body = _method(self.src, 'AdvocateReply _reply(String raw')

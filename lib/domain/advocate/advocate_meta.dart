@@ -41,28 +41,63 @@ const String _lossWords =
     '|(?:مان|تان|شان) (?:مرده|مرد|مُرد)(?![ا-ی])'
     '|فوت (?:کرد|شد|کرده)|تلف شد|از دست (?:دادم|دادیم|رفت)|خاکش کردیم|خاک کردند';
 
-extension _AdvocateMeta on Advocate {
+/// پاسخ‌های «دربارهٔ خودِ برنامه» و «ماجرای حقوقی نیست» — بی‌نیاز از وکیل.
+///
+/// این پاسخ‌ها پیش‌تر متدهای `Advocate` بودند: برای گفتنِ «فهمیدم برنامه را بستید
+/// و باز کردید» لازم نبود وکیلِ کامل در دست باشد، فقط پرونده، وضعیتِ روی میز و
+/// صدا. حالا کلاسِ خودش را دارند و `current` و `anyTopicCue` را از بیرون
+/// می‌گیرند.
+class MetaReply {
+  MetaReply({
+    required this.file,
+    required this.dialog,
+    required this.voice,
+    required this.current,
+    required this.anyTopicCue,
+  });
+
+  final CaseFile file;
+  final DialogueState dialog;
+  final ReplyVoice voice;
+
+  /// موضوعِ بازِ فعلی (برای نام‌بردن در پاسخ).
+  final Topic? Function() current;
+
+  /// آیا پیام به موضوعی نشانهٔ روشن دارد؟
+  final bool Function(String n) anyTopicCue;
+
+  AdvocateReply _out(
+    String text, {
+    List<String> chips = const [],
+    String ask = '',
+    bool full = false,
+    int budget = _budget,
+    AnswerSource source = AnswerSource.topic,
+  }) =>
+      voice.out(text,
+          chips: chips, ask: ask, full: full, budget: budget, source: source);
+
   /// پاسخ به پیام‌های «دربارهٔ برنامه» و پیام‌های شخصیِ غیرحقوقی؛ `null` یعنی
   /// این پیام از این دسته نیست و مسیر عادی ادامه پیدا می‌کند.
-  AdvocateReply? _metaReply(String raw, String n) {
+  AdvocateReply? metaReply(String raw, String n) {
     final legal = Sense.has(n, _legalCues);
 
     // جملهٔ کوتاهِ سوگ پیش از هر حدسِ موضوعی بررسی می‌شود: «سگم مرده» به یک
     // نشانهٔ ضعیف در موضوع‌های دیگر می‌خورد و همان نشانه کافی بود که این پیام
     // به «منظورتان چیست؟» برسد. تنها نگهبانِ لازم، نشانهٔ حقوقی است.
     if (!legal && Sense.words(n) <= 8 && Sense.has(n, _lossWords)) {
-      return _lossReply();
+      return lossReply();
     }
 
     // نشانهٔ حقوقی، یا موضوعِ شناخته‌شده، یعنی ماجرای واقعی: کاری به آن نداریم.
     if (legal) return null;
     if (Advocate.topicOf(raw) != null) return null;
-    if (_anyTopicCue(n)) return null;
+    if (anyTopicCue(n)) return null;
 
     final aboutApp =
         (Sense.word(n, _appWords) && Sense.has(n, _appActs)) ||
             Sense.has(n, _historyWords);
-    if (aboutApp) return _appMetaReply();
+    if (aboutApp) return appMetaReply();
 
     return null;
   }
@@ -70,10 +105,10 @@ extension _AdvocateMeta on Advocate {
   /// «برنامه را بستم و برگشتم» یک پرسش واقعی دارد: حرف‌های پیشین چه شد؟
   /// پاسخش کوتاه و راست است، چون وضعیت ذخیره‌سازی واقعاً همین است:
   /// تاریخچه در همین دستگاه و رمزنگاری‌شده می‌ماند (`HistoryStore`).
-  AdvocateReply _appMetaReply() {
+  AdvocateReply appMetaReply() {
     final caseOpen = hasCase;
     if (caseOpen) {
-      final title = _current()?.title ?? 'همین موضوع';
+      final title = current()?.title ?? 'همین موضوع';
       return _out(
         'خوب برگشتید. گفتگو و پاسخ‌های «$title» روی همین دستگاه ذخیره می‌شود؛ '
         'بستن یا باز کردن برنامه چیزی را از بین نمی‌برد. '
@@ -93,13 +128,13 @@ extension _AdvocateMeta on Advocate {
 
   /// موضوعی که پیام به آن نزدیک است ولی شرطِ بازشدنش را ندارد
   /// ([Topic.gate]). به‌جای حکم و ماده، یک سؤال کوتاه می‌پرسیم.
-  Topic? _gatedTopic(String n) {
+  Topic? gatedTopic(String n) {
     Topic? best;
     var bestScore = 0;
     for (final t in Advocate.topics) {
       if (t.gate == null) continue;
       if (t.gate!(n)) continue;
-      final s = _scoreIgnoringGate(t, n);
+      final s = TopicScore.ignoringGate(t, n);
       if (s > bestScore) {
         best = t;
         bestScore = s;
@@ -109,7 +144,7 @@ extension _AdvocateMeta on Advocate {
   }
 
   /// پاسخ به پیامی که فقط واژهٔ موضوع را دارد، نه ماجرا را.
-  AdvocateReply _gatedReply(Topic t) => _out(
+  AdvocateReply gatedReply(Topic t) => _out(
         'این حرف به «${t.title}» نزدیک است، ولی از همین جمله نمی‌فهمم چه کسی '
         'چه کاری کرده و آیا کسی آسیب دیده است. در این حالت حکم و شمارهٔ ماده '
         'نمی‌دهم؛ حدس در این‌جا می‌تواند به ضرر شما باشد.',
@@ -119,7 +154,7 @@ extension _AdvocateMeta on Advocate {
 
   /// جملهٔ کوتاهِ سوگ: نه تحلیل حقوقی می‌سازیم، نه نقش همراه عاطفی بازی
   /// می‌کنیم؛ فقط صادقانه می‌گوییم چه کاری از ما برمی‌آید.
-  AdvocateReply _lossReply() {
+  AdvocateReply lossReply() {
     if (hasCase) {
       return _out(
         'تسلیت می‌گویم. من فقط در مسائل حقوقی می‌توانم کمک کنم و برای این‌گونه '

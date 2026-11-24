@@ -183,6 +183,14 @@ class Advocate {
 
   /// ساختِ پاسخ‌ها: استناد، برش، سقفِ تکرارِ پرسش و چیدمان دکمه‌ها.
   /// وضعیتِ «چه گفتیم و چه پرسیدیم» این‌جاست، نه روی خودِ وکیل.
+  /// پاسخ‌های «دربارهٔ برنامه» و «ماجرای حقوقی نیست».
+  late final MetaReply _metaReplyBot = MetaReply(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    current: _current,
+    anyTopicCue: _anyTopicCue,
+  );
   /// استدلال: مقایسهٔ ادعاها با واقعیت‌های پرونده و گفتنِ نتیجه.
   late final CaseArgument _argument = CaseArgument(file, voice, (t) => recapOf(t, file), _flips);
 
@@ -546,7 +554,7 @@ class Advocate {
     // ماجرای حقوقی نیست ولی پرسش واقعی دارد؛ پیش از «منظورتان چیست؟» و پیش
     // از حدسِ موضوع، پاسخ صریح می‌گیرد. بعد از بررسی ایمنی می‌آید تا پیام
     // خطر هرگز زیر این پاسخ نماند.
-    final aside = _metaReply(raw, n);
+    final aside = _metaReplyBot.metaReply(raw, n);
     if (aside != null) return aside;
     if (_routeFight(n, hasCase) case final r?) return r;
     if (_routeChoice(raw, n, choices, choiceText) case final r?) return r;

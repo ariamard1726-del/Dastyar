@@ -110,8 +110,8 @@ extension _Guides on Advocate {
       return _unclearReply(raw);
     }
     // واژهٔ یک موضوع بدون شرطِ بازشدنش: پرسش، نه حکم.
-    final gated = _gatedTopic(n);
-    if (gated != null) return _gatedReply(gated);
+    final gated = _metaReplyBot.gatedTopic(n);
+    if (gated != null) return _metaReplyBot.gatedReply(gated);
     return _curious(raw, n);
   }
 
