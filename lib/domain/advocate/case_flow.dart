@@ -47,7 +47,8 @@ class CaseFlow {
     required this.flips,
     required this.glossary,
     required this.openGuide,
-    required this.out,
+    required this.fillFor,
+    required this.draftIds,
   });
 
   final CaseFile file;
@@ -88,15 +89,11 @@ class CaseFlow {
   final AdvocateReply Function(LegalGuide g, String raw, String n,
       {bool? switched}) openGuide;
 
-  /// ساختِ پاسخ از متنِ آماده (در وکیل: `_out`).
-  final AdvocateReply Function(
-    String text, {
-    List<String>? chips,
-    String? ask,
-    bool? full,
-    int? budget,
-    AnswerSource? source,
-  }) out;
+  /// متنِ فیلدهای دادخواست برای یک قالب (در وکیل: `fillFor`).
+  final Map<String, String> Function(String templateId) fillFor;
+
+  /// شناسهٔ قالب‌هایی که عنوان دارند، به ترتیبِ پیشنهاد.
+  final List<String> draftIds;
 
   bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
 
@@ -108,7 +105,7 @@ class CaseFlow {
     int budget = _budget,
     AnswerSource source = AnswerSource.topic,
   }) =>
-      out(text,
+      voice.out(text,
           chips: chips, ask: ask, full: full, budget: budget, source: source);
 
   String _pick(List<String> options) => voice.pick(options);
@@ -116,7 +113,7 @@ class CaseFlow {
   void clearOffer() => dialog.clearOffer();
 
   /// پاسخِ آخرین راه: بانک قوانین، با همان پرونده‌ای که باز است.
-  AdvocateReply _lookup(String raw, String n) =>
+  AdvocateReply? _lookup(String raw, String n) =>
       law.lookup(raw, n, hasCase: hasCase, loose: dialog.loose.length);
 
   String _factsKey() {
@@ -307,8 +304,8 @@ class CaseFlow {
         Sense.has(n, 'کتک|میزنه| زد|اخراج|تهدید|بیچاره|بدبخت|نگران|میترسم|استرس')) {
       lead = _pick(Say.empathy);
     }
-    final also = _also;
-    _also = null;
+    final also = dialog.also;
+    dialog.also = null;
     if (also != null && also.id != t.id) {
       parts.add(
           'به موضوع «${also.title}» هم اشاره کردید. آن پروندهٔ جدایی است؛ اول همین را روشن می‌کنیم و بعد، هر وقت گفته‌اید، سراغ آن می‌رویم.');
@@ -520,7 +517,8 @@ class CaseFlow {
         }
       }
       if (ask.isEmpty && Sense.has(n, 'ماده [0-9]+|قانون ')) {
-        return _lookup(raw, n);
+        final hit = _lookup(raw, n);
+        if (hit != null) return hit;
       }
       file.pending = '';
       clearOffer();
@@ -534,7 +532,7 @@ class CaseFlow {
             Advocate.newTopicChip,
             Advocate.sameCaseChip,
           ],
-          ..._suggest(t),
+          ...chipPlan().suggest(t),
         ],
       );
     }

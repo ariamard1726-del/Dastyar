@@ -39,6 +39,10 @@ class DialogueState {
   Topic? side;
   String sideText = '';
 
+  /// موضوعِ دومی که کاربر در همان پیام به آن اشاره کرده («همچنین همسایه‌ام…»).
+  /// پیش‌تر فیلدِ `_also` روی خودِ `Advocate` بود.
+  Topic? also;
+
   /// دکمه‌های دستهٔ مشکل در همین نوبتِ بعد معنا دارند.
   bool branchAsked = false;
 
@@ -107,6 +111,7 @@ class DialogueState {
     guessed = false;
     side = null;
     sideText = '';
+    also = null;
     branchAsked = false;
     unclearPhrase = '';
     unclearTurn = -10;

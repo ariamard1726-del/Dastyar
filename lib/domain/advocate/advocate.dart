@@ -218,20 +218,10 @@ class Advocate {
     echo: _echo,
     flips: _flips,
     glossary: _glossary,
-    openGuide: (g, raw, n, {bool switched = false}) =>
-        _openGuide(g, raw, n, switched: switched),
-    out: (text,
-            {List<String> chips = const [],
-            String ask = '',
-            bool full = false,
-            int budget = _budget,
-            AnswerSource source = AnswerSource.topic}) =>
-        _out(text,
-            chips: chips,
-            ask: ask,
-            full: full,
-            budget: budget,
-            source: source),
+    openGuide: (g, raw, n, {bool? switched}) =>
+        _openGuide(g, raw, n, switched: switched ?? false),
+    fillFor: fillFor,
+    draftIds: draftIds,
   );
 
   /// گفت‌وگوی انسانی: خلاصه، احوال‌پرسی، سوگ، «منظورتان چیست؟».
@@ -277,9 +267,6 @@ class Advocate {
 
   /// پیام پیشین کاربر (نرمال‌شده)، برای تشخیص تکرار حرف.
   String _prevN = '';
-
-  /// موضوع دومی که کاربر در همان پیام به آن اشاره کرده است.
-  Topic? _also;
 
   /// چه چیزی روی میز است: پرسشِ جاری، پیشنهادِ معلق، موضوعِ منتظر تأیید،
   /// راهنمای باز و پروندهٔ کمکی. این وضعیت صاحبِ جدا دارد؛ پیش‌تر ۲۵ فیلد
@@ -469,7 +456,7 @@ class Advocate {
     _closeCase();
     dialog.reset();
     _prevN = '';
-    _also = null;
+    dialog.also = null;
     voice.relevantChip = '';
     voice.reset();
     file.turns = 0;
@@ -726,7 +713,7 @@ class Advocate {
           for (final t in topics)
             if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
         ];
-        if (others.isNotEmpty) _also = others.first;
+        if (others.isNotEmpty) dialog.also = others.first;
         // پیامِ چندموضوعی: پیش‌تر فقط به یکی از موضوع‌ها جواب می‌داد و بقیه
         // بی‌صدا می‌ماند. حالا موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع
         // کنیم؛ هر کدام پرونده و مهلت جدا دارد.

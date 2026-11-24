@@ -223,7 +223,7 @@ extension _Talk on Advocate {
     if (w <= 8 &&
         Sense.has(n,
             'چی فهمیدی|چه فهمیدی|متوجه (?:شدی|حرفم)|فهمیدی چی|حرف(?:م|مو|م رو) فهمیدی|گرفتی چی|میفهمی چی')) {
-      final got = topic == null ? const <String>[] : _recap(topic);
+      final got = topic == null ? const <String>[] : recapOf(topic, file);
       if (topic == null || got.isEmpty) {
         return _out(
           topic == null
