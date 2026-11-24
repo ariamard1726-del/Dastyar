@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/law_topic_prior.dart';
+import 'package:dastyar/core/law_mention.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
@@ -70,6 +71,10 @@ class KnowledgeEngine {
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
   final Map<String, Map<String, dynamic>> meta = {};
+  /// شناسایی نام قانون در متن؛ جدا از ایندکس و رتبه‌بندی.
+  late final LawMention _mention =
+      LawMention(catalog: catalog, isLoaded: isLoaded);
+
   final ConflictsService _conflictsService = ConflictsService();
   Map<String, dynamic> _relationships = const {};
 
@@ -531,75 +536,12 @@ Chunk? findArticle(String law, String article) {
   return null;
 }
 
-List<CatalogLaw> _mentionedLaws(String q) {
-  final n = _collapse(normalize(q));
-  final matched = <CatalogLaw>[];
+/// نام‌های قانون در متن: کارش به [LawMention] سپرده شده است.
+List<CatalogLaw> _mentionedLaws(String q) => _mention.mentioned(q);
 
-  for (final l in catalog) {
-    var hit = false;
-    for (final name in [l.title, ...l.aliases]) {
-      final full = _collapse(normalize(name));
-      if (full.isEmpty) continue;
+List<CatalogLaw> _loadedLaws() => _mention.loaded();
 
-      final isLawName =
-          full.startsWith('قانون ') || full.startsWith('لایحه ');
-      if (!isLawName) continue;
-
-      if (n.contains(full)) {
-        hit = true;
-        break;
-      }
-
-      final short =
-          full.startsWith('قانون ') ? full.substring(6).trim() : '';
-      if (short.length >= 5 && n.contains('قانون $short')) {
-        hit = true;
-        break;
-      }
-    }
-    if (hit) matched.add(l);
-  }
-
-  if (matched.length < 2) return matched;
-
-  final matchedNames = <String, String>{};
-  for (final l in matched) {
-    for (final name in [l.title, ...l.aliases]) {
-      final full = _collapse(normalize(name));
-      if (full.isNotEmpty && n.contains(full)) {
-        matchedNames[l.id] = full;
-        break;
-      }
-    }
-  }
-
-  return matched.where((law) {
-    final ownName = matchedNames[law.id];
-    if (ownName == null) return true;
-
-    for (final other in matched) {
-      if (other.id == law.id) continue;
-      final otherName = matchedNames[other.id];
-      if (otherName != null &&
-          otherName.length > ownName.length &&
-          otherName.contains(ownName)) {
-        return false;
-      }
-    }
-    return true;
-  }).toList();
-}
-
-List<CatalogLaw> _loadedLaws() =>
-    catalog.where((l) => isLoaded(l.id)).toList();
-
-bool _asksLawList(String n) {
-  return n.contains('چه قوانین') ||
-      n.contains('کدام قوانین') ||
-      n.contains('فهرست قوانین') ||
-      n.contains('قوانین موجود') ||
-      n.contains('چه قانون');
-}
+bool _asksLawList(String n) => _mention.asksLawList(n);
 
 String _lawListText() {
   final loaded = _loadedLaws();

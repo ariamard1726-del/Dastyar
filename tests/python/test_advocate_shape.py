@@ -158,6 +158,16 @@ class ShapeTests(unittest.TestCase):
                                                  line.strip()[:90]))
         self.assertEqual(bad, [], '\n'.join(bad))
 
+    def test_engine_does_not_own_law_names(self):
+        """شناساییِ نام قانون باید همکارِ موتور باشد، نه عضوی از آن."""
+        engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
+        self.assertLess(len(engine.split('\n')), 1150,
+                        'engine.dart دوباره بزرگ شد')
+        self.assertIn('LawMention(catalog: catalog', engine)
+        self.assertNotIn('final short = full.startsWith', engine)
+        self.assertTrue(os.path.exists(
+            os.path.join(ROOT, 'test', 'core', 'law_mention_test.dart')))
+
     def test_detection_and_plan_stand_alone(self):
         """«کدام موضوع؟» و «چه بپرسم؟» باید بیرون از `Advocate` زندگی کنند.
 
