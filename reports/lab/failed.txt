@@ -1,2 +1,1 @@
-::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/domain/safety_reply_test.dart (failed)
-::error::507 tests passed, 1 failed.
+🎉 512 tests passed.

@@ -7,6 +7,5 @@ Analyzing Dastyar...
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:67:13 • unnecessary_null_checks
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
-  error • The imported library 'package:dastyar/domain/advocate/safety_reply.dart' can't have a part-of directive. Try importing the library that the part is a part of • test/domain/safety_reply_test.dart:9:8 • import_of_non_library
 
-8 issues found. (ran in 9.0s)
+7 issues found. (ran in 12.7s)
