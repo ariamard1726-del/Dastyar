@@ -194,6 +194,20 @@ class ShapeTests(unittest.TestCase):
                      'List<LegalTemplate> get pendingChoices'):
             self.assertIn(keep, controller)
 
+    def test_argument_is_its_own_class(self):
+        """استدلال باید کلاسِ خودش را داشته باشد، نه متدهای `Advocate`."""
+        argue = _read(os.path.join(ADVOCATE_DIR, 'advocate_argue.dart'))
+        self.assertIn('class CaseArgument {', argue)
+        self.assertNotIn('extension _Arguing on Advocate', argue)
+        self.assertIn('final CaseFile file;', argue)
+        self.assertIn('final ReplyVoice voice;', argue)
+        advocate = _read(ADVOCATE)
+        self.assertIn('CaseArgument(file, voice)', advocate)
+        # صداگذارنده نباید دوباره متدهای استدلال را خودش داشته باشد.
+        for gone in ('String _argueOne(', 'String _verdict(ClaimView v)',
+                     'ClaimView? _askedClaim('):
+            self.assertNotIn(gone, advocate)
+
     def test_engine_only_orchestrates(self):
         """موتور باید بارگذاری + پاسخ‌سازی باشد؛ نوشتن و امتیازدهی همکار دارد."""
         engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))

@@ -21,7 +21,19 @@ const String _entitled =
 const String _howAsked =
     'چقدر|چند |مبلغ|حساب کن|چطور|چجوری|چه جوری|چگونه|کجا|کی |چه مدرک|چیکار|چه کار';
 
-extension _Arguing on Advocate {
+/// سنجشِ ادعاها و گفتنِ نظرِ وکیل: «ارکانش را دارید یا نه، و چرا».
+///
+/// این رفتار پیش‌تر متدهای `Advocate` بود؛ ولی هیچ‌کدام به حالتِ گفتگو
+/// کاری نداشتند — فقط پرونده و صدا را می‌خواندند. حالا کلاسِ خودش را دارند و
+/// همان دو چیز را می‌گیرند.
+class CaseArgument {
+  CaseArgument(this.file, this.voice);
+
+  final CaseFile file;
+  final ReplyVoice voice;
+
+  String _pick(List<String> options) => voice.pick(options);
+
   /// ادعایی که به وضعیت فعلی پرونده می‌خورد.
   Claim? _claim(Topic t) {
     for (final c in t.claims) {

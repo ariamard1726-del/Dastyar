@@ -247,7 +247,7 @@ extension _CaseFlow on Advocate {
 
   AdvocateReply _inCase(Topic t, String raw, String n, Issue? issue) {
     final wasPending = file.pending;
-    final before = _standings(t);
+    final before = _argument._standings(t);
     final news = _absorb(t, n);
     // جملهٔ بلندِ بی‌ربط در وسط یک پرونده: به‌جای تکرار قدم‌های همان پرونده،
     // کلمه‌های خودِ کاربر نقل و توضیح خواسته می‌شود.
@@ -297,9 +297,9 @@ extension _CaseFlow on Advocate {
         news.any((s) => s.effect != null && s.effect!(file).isNotEmpty);
     // «می‌توانم … بگیرم؟»: جوابِ پرسشِ بله/نه دربارهٔ یک خواسته، حکمِ همان
     // خواسته روی واقعیت‌های همین پرونده است، نه توضیح کلی.
-    final focus = _askedClaim(t, n, asked);
+    final focus = _argument._askedClaim(t, n, asked);
     if (focus != null) {
-      final b = _verdict(focus);
+      final b = _argument._verdict(focus);
       parts.add(b);
       dialog.roomy = true;
       voice.said.add(b);
@@ -326,7 +326,7 @@ extension _CaseFlow on Advocate {
         // تکرار نمی‌شود؛ با «استدلالت چیه؟» یا واقعیت تازه دوباره می‌آید.
         final stale = kind == 'chance' && dialog.arguedOn == _factsKey();
         final arg =
-            (kind == 'argue' || kind == 'chance') && !stale ? _argue(t) : null;
+            (kind == 'argue' || kind == 'chance') && !stale ? _argument._argue(t) : null;
         final fb = kind.isEmpty
             ? null
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? _generic(kind));
@@ -382,10 +382,10 @@ extension _CaseFlow on Advocate {
     // حرف تازه اگر نتیجه را جابه‌جا کرده، همان‌جا می‌گویم؛ و اگر حرف قبلی
     // را برعکس کرده، می‌گویم که برداشتم را عوض کرده‌ام.
     if (!reasoned && news.isNotEmpty) {
-      final shift = _shift(t, before);
+      final shift = _argument._shift(t, before);
       if (shift.isNotEmpty) parts.insert(0, shift);
     }
-    final fix = _correction(t);
+    final fix = _argument._correction(t);
     if (fix.isNotEmpty) parts.insert(0, fix);
     _noteAmount(parts, news, n);
     if (!understood && _echo.isNotEmpty) {
@@ -536,7 +536,7 @@ extension _CaseFlow on Advocate {
       file.pending = 'q:goal';
       return _Ask(_pick(Say.askGoal), _goalChips);
     }
-    final claim = _claim(t);
+    final claim = _argument._claim(t);
     if (claim != null &&
         claim.elements.isNotEmpty &&
         !file.covered.contains('f:argue') &&
