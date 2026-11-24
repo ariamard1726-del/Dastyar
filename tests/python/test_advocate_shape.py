@@ -202,7 +202,7 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('final CaseFile file;', argue)
         self.assertIn('final ReplyVoice voice;', argue)
         advocate = _read(ADVOCATE)
-        self.assertIn('CaseArgument(file, voice)', advocate)
+        self.assertIn('CaseArgument(file, voice,', advocate)
         # صداگذارنده نباید دوباره متدهای استدلال را خودش داشته باشد.
         for gone in ('String _argueOne(', 'String _verdict(ClaimView v)',
                      'ClaimView? _askedClaim('):
