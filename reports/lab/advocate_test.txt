@@ -110,8 +110,8 @@
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
-✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
 ✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
+✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
 ✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار حرف در پروندهٔ باز پاسخ ادامه می‌دهد، نه پرسش از اول
 ✅ test/advocate/understanding_test.dart: ثبت طلاق با امتناع زوجه به مواد ۳۴ و ۳۵ مستند است
@@ -161,6 +161,7 @@
 ✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
 ✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
@@ -178,7 +179,6 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
