@@ -195,14 +195,23 @@ class ShapeTests(unittest.TestCase):
             self.assertIn(keep, controller)
 
     def test_engine_does_not_own_law_names(self):
-        """شناساییِ نام قانون باید همکارِ موتور باشد، نه عضوی از آن."""
+        """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
         engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
-        self.assertLess(len(engine.split('\n')), 1150,
+        self.assertLess(len(engine.split('\n')), 960,
                         'engine.dart دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)
-        self.assertTrue(os.path.exists(
-            os.path.join(ROOT, 'test', 'core', 'law_mention_test.dart')))
+        index = _read(os.path.join(ROOT, 'lib', 'core', 'law_index.dart'))
+        for owned in ('void parseInto', 'static IndexBuild build(',
+                      'void adopt(IndexBuild b)'):
+            self.assertIn(owned, index)
+            self.assertNotIn(owned, engine,
+                             'موتور دوباره %s را خودش دارد' % owned)
+        # `chunkOf` رابطِ عمومیِ موتور است؛ فقط باید پاس‌دهنده باشد.
+        self.assertIn('=> _index.chunkOf(', engine)
+        for test in ('law_mention_test.dart', 'law_index_test.dart'):
+            self.assertTrue(os.path.exists(
+                os.path.join(ROOT, 'test', 'core', test)), test)
 
     def test_detection_and_plan_stand_alone(self):
         """«کدام موضوع؟» و «چه بپرسم؟» باید بیرون از `Advocate` زندگی کنند.

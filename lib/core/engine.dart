@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/law_topic_prior.dart';
+import 'package:dastyar/core/law_index.dart';
 import 'package:dastyar/core/law_mention.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
@@ -18,16 +18,9 @@ export 'models.dart';
 class KnowledgeEngine {
   /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
   final Replies replies = Replies();
-  final List<Chunk> _chunks = [];
-  final Map<String, double> _idf = {};
-  final Map<String, List<int>> _postings = {};
-  final Map<String, List<int>> _byTitle = {};
-
-  /// فهرست «شناسهٔ قانون + عنوان ماده» → شمارهٔ chunk؛ یک بار ساخته می‌شود
-  /// تا یافتن متن یک ماده در هر پیام روی کل بانک خطی نگردد.
-  Map<String, int>? _articleIndex;
-  double _avgLen = 1.0;
-  double _maxIdf = 1.0;
+  /// متنِ قوانین، نمایهٔ واژه‌ها، ایندکسِ مواد و شمارشِ هر قانون؛
+  /// صاحبش `LawIndex` است تا موتور فقط بارگذاری و پاسخ‌سازی کند.
+  final LawIndex _index = LawIndex();
 
   // زیر این پوشش، پاسخ با هشدار «مطمئن نیستم» نشان داده می‌شود.
   static const double _lowCover = 0.4;
@@ -47,14 +40,10 @@ class KnowledgeEngine {
   static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
 
   // الگوهای ازپیش‌کامپایل‌شده برای جلوگیری از ساخت مکرر RegExp
-  static final RegExp _obsoleteTrimRe = RegExp(r'^[\(\[\s]+');
-  static final RegExp _paraSplitRe = RegExp(r'\n\s*\n');
-  static final RegExp _hashPrefixRe = RegExp(r'^#+\s*');
   static final RegExp _artQueryRe = RegExp(
     r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))',
   );
   static final RegExp _punctOnlyRe = RegExp(r'[\p{P}]', unicode: true);
-  static final RegExp _cleanBodyRe = RegExp(r'^[\(\[][^)\]]*[\)\]]\s*-?\s*');
   static final RegExp _articleTitleRe = RegExp(
     r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
@@ -65,8 +54,6 @@ class KnowledgeEngine {
   final double _wT = 3.0;
   final double _wB = 1.0;
   final double _wC = 0.5;
-  final Map<String, int> _lawCounts = {};
-  List<String> _vocab = [];
 
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
@@ -105,20 +92,20 @@ class KnowledgeEngine {
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
   final List<String> warnings = [];
 
-  int get size => _chunks.length;
+  int get size => _index.chunks.length;
 
   /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
-  List<Chunk> get chunks => _chunks;
-  Map<String, List<int>> get postings => _postings;
-  Map<String, double> get idf => _idf;
+  List<Chunk> get chunks => _index.chunks;
+  Map<String, List<int>> get postings => _index.postings;
+  Map<String, double> get idf => _index.idf;
   /// بانک پرسش‌وپاسخ حقوقی (اجاره)؛ پس از [load] پر می‌شود.
   QaBank get qa => _qaBank;
   /// فهرست واژه‌های حقوقی با ماده؛ پس از [load] پر می‌شود.
   Map<String, dynamic> get legalTerms => _legalTerms;
   /// مسیرهای تصمیم موضوعی (assets/brain/topics/index.json)؛ پس از [load] پر می‌شود.
   List<Map<String, dynamic>> get topicFlows => _topicFlows;
-  Map<String, int> get lawCounts => _lawCounts;
-  bool isLoaded(String id) => (_lawCounts[id] ?? 0) > 0;
+  Map<String, int> get lawCounts => _index.lawCounts;
+  bool isLoaded(String id) => (_index.lawCounts[id] ?? 0) > 0;
 
   // لایهٔ متن به persian_text.dart رفته؛ اینجا فقط نام‌های قدیمی نگه داشته شده‌اند.
   static String normalize(String s) => PersianText.normalize(s);
@@ -129,15 +116,6 @@ class KnowledgeEngine {
 
   static List<String> tokenize(String s) => PersianText.tokenize(s);
 
-  static bool _isObsolete(String body) {
-    var n = _collapse(normalize(body));
-    if (n.length > 300) return false;
-    n = n.replaceFirst(_obsoleteTrimRe, '');
-    return n.startsWith('منسوخ') ||
-        n.startsWith('ملغی') ||
-        n.startsWith('ملغا') ||
-        n.startsWith('حذف شد');
-  }
 Future<void> _loadCatalog() async {
   try {
     final t = await rootBundle.loadString('assets/laws_catalog.json');
@@ -260,12 +238,7 @@ Future<List<String>?> _loadKnowledgeChunk() async {
 }
 
 Future<void> load() async {
-  _chunks.clear();
-  _idf.clear();
-  _postings.clear();
-  _byTitle.clear();
-  _articleIndex = null;
-  _lawCounts.clear();
+  _index.clear();
   catalog.clear();
   categoryNames.clear();
   meta.clear();
@@ -314,126 +287,13 @@ Future<void> load() async {
     if (item != null) raw.add(item);
   }
 
-  _Built built;
+  IndexBuild built;
   try {
-    built = await _buildAsync(raw);
+    built = await LawIndex.buildAsync(raw);
   } catch (_) {
-    built = _build(raw); // اگر Isolate شکست خورد، روی همین رشته
+    built = LawIndex.build(raw); // اگر Isolate شکست خورد، روی همین رشته
   }
-  _chunks
-    ..clear()
-    ..addAll(built.chunks);
-  _lawCounts
-    ..clear()
-    ..addAll(built.lawCounts);
-  _idf
-    ..clear()
-    ..addAll(built.idf);
-  _postings
-    ..clear()
-    ..addAll(built.postings);
-  _byTitle
-    ..clear()
-    ..addAll(built.byTitle);
-  _avgLen = built.avgLen;
-  _maxIdf = built.maxIdf;
-  _vocab = built.vocab;
-}
-
-static Future<_Built> _buildAsync(List<List<String>> raw) =>
-    Isolate.run(() => _build(raw));
-
-static _Built _build(List<List<String>> raw) {
-  final chunks = <Chunk>[];
-  final counts = <String, int>{};
-  for (final r in raw) {
-    _parseInto(r[2], r[1], r[0], chunks, counts);
-  }
-  final df = <String, int>{};
-  final postings = <String, List<int>>{};
-  final byTitle = <String, List<int>>{};
-  var totalLen = 0;
-  for (var i = 0; i < chunks.length; i++) {
-    final c = chunks[i];
-    totalLen += c.len;
-    byTitle.putIfAbsent(c.normTitle, () => <int>[]).add(i);
-    final seen = <String>{...c.tfT.keys, ...c.tfB.keys, ...c.tfC.keys};
-    for (final t in seen) {
-      df[t] = (df[t] ?? 0) + 1;
-      postings.putIfAbsent(t, () => <int>[]).add(i);
-    }
-  }
-  final n = chunks.length;
-  final avg = n == 0 ? 1.0 : math.max(1.0, totalLen / n);
-  final idf = <String, double>{};
-  var maxIdf = 1.0;
-  df.forEach((t, d) {
-    final v = math.log((n + 1) / (d + 1)) + 1.0;
-    idf[t] = v;
-    if (v > maxIdf) maxIdf = v;
-  });
-  final vocab = df.keys.toList()..sort();
-  return _Built(chunks, counts, idf, postings, byTitle, avg, maxIdf, vocab);
-}
-
-static void _parseInto(
-  String text,
-  String defaultSource,
-  String lawId,
-  List<Chunk> out,
-  Map<String, int> counts,
-) {
-  var source = defaultSource;
-  var chapter = '';
-  final parts = text.replaceAll('\r', '').split(_paraSplitRe);
-  for (final p in parts) {
-    final lines = p.trim().split('\n');
-    if (lines.isEmpty || lines.first.trim().isEmpty) continue;
-    final first = lines.first.trim();
-    if (first.startsWith('##')) {
-      chapter = first.replaceFirst(_hashPrefixRe, '').trim();
-      continue;
-    }
-    if (first.startsWith('#')) {
-      source = first.replaceFirst(_hashPrefixRe, '').trim();
-      chapter = '';
-      continue;
-    }
-    final body = lines.length > 1 ? lines.sublist(1).join('\n').trim() : first;
-    final tfT = <String, int>{};
-    final tfB = <String, int>{};
-    final tfC = <String, int>{};
-    var len = 0;
-    for (final t in tokenizeIndex(first)) {
-      tfT[t] = (tfT[t] ?? 0) + 1;
-      len++;
-    }
-    for (final t in tokenizeIndex(body)) {
-      tfB[t] = (tfB[t] ?? 0) + 1;
-      len++;
-    }
-    for (final t in tokenizeIndex(chapter)) {
-      tfC[t] = (tfC[t] ?? 0) + 1;
-      len++;
-    }
-    for (final t in tokenizeIndex(source)) {
-      tfC[t] = (tfC[t] ?? 0) + 1;
-      len++;
-    }
-    out.add(Chunk(
-      lawId,
-      source,
-      chapter,
-      first,
-      body,
-      body != first && _isObsolete(body),
-      tfT,
-      tfB,
-      tfC,
-      len,
-    ));
-    counts[lawId] = (counts[lawId] ?? 0) + 1;
-  }
+  _index.adopt(built);
 }
 
 final List<List<String>> _syn = [];
@@ -501,33 +361,20 @@ static String _faArticleLabel(RegExpMatch m) {
 /// همتای O(1) پیمایش خطیِ `for (final c in engine.chunks)` که در تطبیق
 /// واژه‌ها و برگ‌های مسیر موضوعی استفاده می‌شد. فهرست با اولین فراخوانی
 /// ساخته و با هر بار `load()` دور انداخته می‌شود.
-int? chunkOf(String lawId, String title) {
-  var idx = _articleIndex;
-  if (idx == null) {
-    idx = <String, int>{};
-    for (var i = 0; i < _chunks.length; i++) {
-      final c = _chunks[i];
-      idx.putIfAbsent('${c.lawId}\u0000${c.title}', () => i);
-    }
-    _articleIndex = idx;
-  }
-  return idx['$lawId\u0000$title'];
-}
-
 /// متن رسمی یک ماده را با نام قانون و شمارهٔ ماده پیدا می‌کند.
 /// اگر در بستهٔ قوانین نباشد null برمی‌گرداند و هرگز متنی نمی‌سازد.
 Chunk? findArticle(String law, String article) {
   final lawN = _collapse(normalize(law));
   final want = _canonicalArticleTitle(article);
   if (want.isEmpty || lawN.isEmpty) return null;
-  var indices = _byTitle[want];
+  var indices = _index.byTitle[want];
   if (indices == null && want.startsWith('ماده ')) {
-    indices = _byTitle['اصل ${want.substring(5)}'];
+    indices = _index.byTitle['اصل ${want.substring(5)}'];
   }
   if (indices == null) return null;
   final mentionedIds = _mentionedLaws(law).map((l) => l.id).toSet();
   for (final idx in indices) {
-    final c = _chunks[idx];
+    final c = _index.chunks[idx];
     if (c.lawId == lawN || mentionedIds.contains(c.lawId)) return c;
     final s = c.normSource;
     if (s.isEmpty) continue;
@@ -535,6 +382,12 @@ Chunk? findArticle(String law, String article) {
   }
   return null;
 }
+
+/// شمارهٔ بخشِ یک ماده از روی (شناسهٔ قانون، عنوان ماده)؛ یا `null`.
+///
+/// همتای O(1)ِ پیمایشِ خطیِ `for (final c in engine.chunks)` که در تطبیقِ
+/// واژه‌ها و برگ‌های مسیرِ موضوعی استفاده می‌شد.
+int? chunkOf(String lawId, String title) => _index.chunkOf(lawId, title);
 
 /// نام‌های قانون در متن: کارش به [LawMention] سپرده شده است.
 List<CatalogLaw> _mentionedLaws(String q) => _mention.mentioned(q);
@@ -548,7 +401,7 @@ String _lawListText() {
   if (loaded.isEmpty) return replies.get('no_laws');
   final sb = StringBuffer('قوانینی که متنشان در برنامه است:');
   for (final l in loaded) {
-    final n = _lawCounts[l.id] ?? 0;
+    final n = _index.lawCounts[l.id] ?? 0;
     sb.write('\n• ${l.title} (${PersianText.toFaDigits(n.toString())} ماده)');
   }
   final rest = catalog.length - loaded.length;
@@ -591,18 +444,18 @@ String format(Chunk c) {
 /// عددی بین ۰ و ۱؛ هرچه کمتر، احتمال بی‌ربط‌بودن ماده بیشتر است.
 double coverage(String question, Chunk c) {
   final qt = tokenizeIndex(question).toSet().toList();
-  if (qt.isEmpty || _idf.isEmpty) return 0.0;
+  if (qt.isEmpty || _index.idf.isEmpty) return 0.0;
   bool has(String t) =>
       c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
   var den = 0.0;
   var got = 0.0;
   final covered = <String>{};
   for (final t in qt) {
-    den += _idf[t] ?? _maxIdf;
+    den += _index.idf[t] ?? _index.maxIdf;
     if (has(t)) {
       covered.add(t);
-      got += _idf[t] ?? _maxIdf;
-    } else if (!_idf.containsKey(t) && t.length >= 3) {
+      got += _index.idf[t] ?? _index.maxIdf;
+    } else if (!_index.idf.containsKey(t) && t.length >= 3) {
       var pref = false;
       for (final m in [c.tfT, c.tfB, c.tfC]) {
         for (final v in m.keys) {
@@ -615,7 +468,7 @@ double coverage(String question, Chunk c) {
       }
       if (pref) {
         covered.add(t);
-        got += 0.5 * _maxIdf;
+        got += 0.5 * _index.maxIdf;
       }
     }
   }
@@ -626,7 +479,7 @@ double coverage(String question, Chunk c) {
     for (final t in tokenizeIndex(r[0])) {
       if (qt.contains(t) && !covered.contains(t)) {
         covered.add(t);
-        got += _idf[t] ?? _maxIdf;
+        got += _index.idf[t] ?? _index.maxIdf;
       }
     }
   }
@@ -651,13 +504,13 @@ static int _lowerBound(List<String> sorted, String target) {
 void _addPrefixTerms(String t, Map<String, double> terms) {
   for (var len = 3; len < t.length; len++) {
     final sub = t.substring(0, len);
-    if (_idf.containsKey(sub)) {
+    if (_index.idf.containsKey(sub)) {
       terms[sub] = math.max(terms[sub] ?? 0, 0.5);
     }
   }
-  var i = _lowerBound(_vocab, t);
-  while (i < _vocab.length && _vocab[i].startsWith(t)) {
-    final v = _vocab[i];
+  var i = _lowerBound(_index.vocab, t);
+  while (i < _index.vocab.length && _index.vocab[i].startsWith(t)) {
+    final v = _index.vocab[i];
     terms[v] = math.max(terms[v] ?? 0, 0.5);
     i++;
   }
@@ -671,7 +524,7 @@ RankResult rank(String question, {int k = 3}) {
     List<CatalogLaw>? mentioned,
     int k = 3,
   }) {
-    if (_chunks.isEmpty) return RankResult([]);
+    if (_index.chunks.isEmpty) return RankResult([]);
     final q = normalize(question);
     final qTokens = tokenizeIndex(question).toSet().toList();
 
@@ -681,11 +534,11 @@ RankResult rank(String question, {int k = 3}) {
     final art = _artQueryRe.firstMatch(q);
     if (art != null) {
       final want = _collapse(_wantedArticleFromMatch(art));
-      final titleIndices = _byTitle[want];
+      final titleIndices = _index.byTitle[want];
       if (titleIndices != null && titleIndices.isNotEmpty) {
         final found = <Chunk>[];
         for (final idx in titleIndices) {
-          final c = _chunks[idx];
+          final c = _index.chunks[idx];
           if (ids.isEmpty || ids.contains(c.lawId)) {
             found.add(c);
           }
@@ -723,22 +576,22 @@ RankResult rank(String question, {int k = 3}) {
     final terms = <String, double>{};
     double total = 0;
     for (final t in qTokens) {
-      total += _idf[t] ?? 1.0;
-      if (_idf.containsKey(t)) {
+      total += _index.idf[t] ?? 1.0;
+      if (_index.idf.containsKey(t)) {
         terms[t] = 1.0;
       } else if (t.length >= 3) {
         _addPrefixTerms(t, terms);
       }
     }
     for (final t in _expand(question)) {
-      if (_idf.containsKey(t)) terms[t] = math.max(terms[t] ?? 0, 1.0);
+      if (_index.idf.containsKey(t)) terms[t] = math.max(terms[t] ?? 0, 1.0);
     }
     if (terms.isEmpty) return RankResult([]);
 
     // استفاده از نمایهٔ معکوس (Inverted Index) به‌جای پیمایش همهٔ چانک‌ها
     final candSet = <int>{};
     for (final t in terms.keys) {
-      final list = _postings[t];
+      final list = _index.postings[t];
       if (list != null) candSet.addAll(list);
     }
     if (candSet.isEmpty) return RankResult([]);
@@ -749,17 +602,17 @@ RankResult rank(String question, {int k = 3}) {
         ids.isEmpty ? _lawPrior.factors(question) : const <String, double>{};
     final hits = <Hit>[];
     for (final idx in candIndices) {
-      final c = _chunks[idx];
+      final c = _index.chunks[idx];
       if (ids.isNotEmpty && !ids.contains(c.lawId)) continue;
       double s = 0;
-      final lenNorm = 1 - _b + _b * c.len / _avgLen;
+      final lenNorm = 1 - _b + _b * c.len / _index.avgLen;
       terms.forEach((t, w) {
         final tf = _wT * (c.tfT[t] ?? 0) +
             _wB * (c.tfB[t] ?? 0) +
             _wC * (c.tfC[t] ?? 0);
         if (tf > 0) {
           final tfn = tf / lenNorm;
-          s += w * (_idf[t] ?? 1.0) * tfn * (_k1 + 1) / (tfn + _k1);
+          s += w * (_index.idf[t] ?? 1.0) * tfn * (_k1 + 1) / (tfn + _k1);
         }
       });
       if (s <= 0) continue;
@@ -773,9 +626,6 @@ RankResult rank(String question, {int k = 3}) {
       _promoteDefinitions(question, hits, factors).take(k).toList(),
     );
   }
-
-  static String _cleanBody(String body) =>
-      _collapse(normalize(body)).replaceFirst(_cleanBodyRe, '');
 
   /// اگر پرسش از نوع «X چیست» بود، تا دو مادهٔ منسوخ‌نشده‌ای که متنشان با
   /// همان واژه شروع می‌شود و حالت تعریفی دارد («عقدی است…»، «عبارت است…»)
@@ -808,7 +658,7 @@ RankResult rank(String question, {int k = 3}) {
         // تعریفِ قانونِ نامرتبط با موضوع پرسش جلو نمی‌آید.
         if ((factors[c.lawId] ?? 1.0) < 1.0) continue;
         if (boosted.isNotEmpty && !boosted.contains(c.lawId)) continue;
-        final body = _cleanBody(c.body);
+        final body = LawIndex.cleanBody(c.body);
         final p = body.startsWith(term)
             ? term
             : (body.startsWith('عقد $term') ? 'عقد $term' : null);
@@ -851,7 +701,7 @@ RankResult rank(String question, {int k = 3}) {
           n.contains('سلام') ? replies.get('greeting') : replies.get('ask_more');
       return EngineReply(text: txt);
     }
-    if (_chunks.isEmpty) {
+    if (_index.chunks.isEmpty) {
       return EngineReply(text: replies.get('no_knowledge'));
     }
 
@@ -970,9 +820,6 @@ RankResult rank(String question, {int k = 3}) {
     );
   }
 
-  static bool _chunkHasTerm(Chunk c, String t) =>
-      c.tfT.containsKey(t) || c.tfB.containsKey(t) || c.tfC.containsKey(t);
-
   /// تشخیص عمومی پرسش‌هایی که موضوع اصلی آن‌ها متعلق به قوانین واردنشده است
   /// یا با مادهٔ بازیابی‌شده صرفاً اشتراک واژه‌های عمومی دارند.
   bool _hitsUnloadedDomain(
@@ -995,7 +842,7 @@ RankResult rank(String question, {int k = 3}) {
           cn.contains('محاسبه مالیات') ||
           cn.contains('نرخ مالیات') ||
           cn.contains('معافیت مالیاتی') ||
-          (!_chunkHasTerm(top, 'مالیات') &&
+          (!LawIndex.chunkHasTerm(top, 'مالیات') &&
               !top.normSource.contains('مالیات'))) {
         return true;
       }
@@ -1012,7 +859,7 @@ RankResult rank(String question, {int k = 3}) {
     final qWords = ' ${_phrase(normQuestion)} ';
     for (final (trigger, requiredAny) in _anchorGroups) {
       if (qWords.contains(' $trigger ')) {
-        if (!requiredAny.any((r) => _chunkHasTerm(top, r))) {
+        if (!requiredAny.any((r) => LawIndex.chunkHasTerm(top, r))) {
           return true;
         }
       }
@@ -1094,27 +941,4 @@ RankResult rank(String question, {int k = 3}) {
   String _notFound() {
     return replies.get('not_found');
   }
-}
-
-/// نتیجهٔ ساخت نمایه که از Isolate به رشتهٔ اصلی برمی‌گردد.
-class _Built {
-  final List<Chunk> chunks;
-  final Map<String, int> lawCounts;
-  final Map<String, double> idf;
-  final Map<String, List<int>> postings;
-  final Map<String, List<int>> byTitle;
-  final double avgLen;
-  final double maxIdf;
-  final List<String> vocab;
-
-  _Built(
-    this.chunks,
-    this.lawCounts,
-    this.idf,
-    this.postings,
-    this.byTitle,
-    this.avgLen,
-    this.maxIdf,
-    this.vocab,
-  );
 }
