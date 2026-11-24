@@ -60,9 +60,7 @@ extension _Talk on Advocate {
 
   AdvocateReply? _social(String n, Topic? topic) => _talk.social(n, topic);
 
-  AdvocateReply _curious(String raw, String n) => _talk.curious(raw, n);
-
-  // مسیرِ گفت‌وگوی عمومی در `TalkRoute` (talk_route.dart) است؛ این‌ها پوستهٔ
+    // مسیرِ گفت‌وگوی عمومی در `TalkRoute` (talk_route.dart) است؛ این‌ها پوستهٔ
   // نازک‌اند تا بقیهٔ بخش‌ها همان نام‌های پیشین را صدا بزنند.
   AdvocateReply? _meta(String n, Topic? topic, {bool explicit = false}) =>
       _talkRoute.meta(n, topic, explicit: explicit);
@@ -76,10 +74,7 @@ extension _Talk on Advocate {
 
   bool _anyTopicCue(String n) => _talk.anyTopicCue(n);
 
-  AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) =>
-      _talk.unclearReply(raw, chips: chips);
-
-  bool _vague(String n) =>
+    bool _vague(String n) =>
       Sense.words(n) <= 9 &&
       Sense.has(n,
           'مشکل(?:ی)? (?:حقوقی |قانونی )?(?:دارم|پیش اومده|برام)|سوال(?:ی)? (?:حقوقی )?(?:داشتم|دارم)|مشاوره|کمک(?:م)? (?:کن|میخوام|کنید)|راهنمایی(?:م)? (?:کن|میخوام|کنید)|گرفتار شدم|یه مسئله');
