@@ -90,11 +90,25 @@ class ShapeTests(unittest.TestCase):
             len(fields), MAX_STATE_FIELDS,
             'فیلد حالتیِ Advocate زیاد شد (%d):\n%s' % (len(fields), '\n'.join(fields)))
 
+    def test_talk_lives_in_talk_reply(self):
+        """خلاصه/احوال‌پرسی/«منظورتان چیست» نباید دوباره متدِ Advocate شود."""
+        talk = _read(os.path.join(ADVOCATE_DIR, 'talk_reply.dart'))
+        part = _read(os.path.join(ADVOCATE_DIR, 'advocate_talk.dart'))
+        self.assertIn('class TalkReply {', talk)
+        for sig in ('AdvocateReply summary(Topic? topic) {',
+                    'AdvocateReply? social(String n, Topic? topic) {',
+                    'AdvocateReply unclearReply(String raw',
+                    'bool anyTopicCue(String n) {'):
+            self.assertIn(sig, talk, sig)
+            self.assertNotIn(sig.replace(' {', ''), part)
+        self.assertLess(len(part.split('\n')), 420, 'advocate_talk دوباره پر شد')
+        self.assertIn('TalkReply _talk', self.src)
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',
                      'CaseArgument _argument', 'MetaReply _metaReplyBot',
-                     'LawAnswer _lawAnswer'):
+                     'LawAnswer _lawAnswer', 'TalkReply _talk'):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):

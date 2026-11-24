@@ -30,6 +30,7 @@ part 'chip_plan.dart';
 part 'advocate_chips.dart';
 part 'advocate_meta.dart';
 part 'law_answer.dart';
+part 'talk_reply.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
 part 'advocate_text.dart';
@@ -189,6 +190,15 @@ class Advocate {
     engine: engine,
     voice: voice,
     party: _party,
+  );
+
+  /// گفت‌وگوی انسانی: خلاصه، احوال‌پرسی، سوگ، «منظورتان چیست؟».
+  late final TalkReply _talk = TalkReply(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    intentNet: intentNet,
+    chipPlan: () => _chipPlan,
   );
 
   /// پاسخ‌های «دربارهٔ برنامه» و «ماجرای حقوقی نیست».
