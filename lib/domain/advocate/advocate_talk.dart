@@ -24,6 +24,10 @@ const List<List<String>> _parties = [
 ];
 
 /// طرفِ ماجرا، اگر کاربر نامش را برده باشد.
+/// عبارت‌های ناامیدی؛ هم در `_meta` (وقتی موضوع باز است) و هم در `TalkReply`.
+const String _hopelessPattern =
+    'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی';
+
 String _party(String n) {
   for (final p in _parties) {
     if (Sense.has(n, p[0])) return p[1];
@@ -66,10 +70,6 @@ extension _Talk on Advocate {
 
   AdvocateReply _unclearReply(String raw, {List<String> chips = const []}) =>
       _talk.unclearReply(raw, chips: chips);
-
-  /// عبارت‌های ناامیدی؛ هم در `_meta` (وقتی موضوع باز است) و هم در `_hopeless`.
-  static const String _hopelessPattern =
-      'هیچ راهی|راهی نیست|راهی نداره|پولم رفت|کاری نمیشه کرد|یعنی هیچی|بیچاره شدم|بدبخت شدم|امیدی نیست|دستم به جایی';
 
   /// توهین‌های کوتاهی که پاسخ آرام می‌خواهند (در `_meta`).
   static const String _rudePattern = 'فهم نداری|بی ?[ ‌]?ارزش|بی فهم';
