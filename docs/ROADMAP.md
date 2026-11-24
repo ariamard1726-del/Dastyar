@@ -68,7 +68,8 @@
 | واژهٔ موضوع، بی‌ماجرا، حکم نگیرد | ✅ | `Topic.gate` + `fightGate` در `topics/fight.dart`: بی‌آدم/نقش/آسیب، پرسش به‌جای ماده — `test/advocate/meta_and_tone_test.dart` |
 | لحنِ دلداریِ دروغ و وعدهٔ بی‌مدرک در راهنماها | ✅ | «خوشبختانه»، «موقعیت شما معمولاً قوی است»، «تخلیه سریع است» از `lib/domain/lawyer/legal_guides.dart` رفتند؛ نگهبان: `tests/python/test_tone_guard.py` |
 | جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
-| `Advocate` گاد-آبجکت نباشد (گام ۱) | 🟡 نیمه | وضعیتِ «روی میز» به `DialogueState` (۲۵ فیلد) و ساختِ پاسخ به `ReplyVoice` رفت؛ ۱۲ مسیر از `_reply` جدا شد (۵۶۰ → ۳۳۴ خط). فیلدهای حالتی: ۴۶ → ۱۲. نگهبان: `tests/python/test_advocate_shape.py`. **باقی‌مانده:** `respond` هنوز خودش را با `file.turns--` صدا می‌زند، `rent.dart` ۲٬۶۷۹ خط است و پرسش بعدی مستقل آزمون نمی‌شود |
+| `Advocate` گاد-آبجکت نباشد | ✅ | وضعیتِ «روی میز» در `dialogue_state.dart` (۲۵ فیلد)، ساختِ پاسخ در `reply_voice.dart`، ۱۲ مسیرِ نام‌دار در `advocate_routes.dart` (`_reply` ۵۶۰ → ۳۳۴ خط)، فیلدهای حالتیِ `Advocate` ۴۶ → ۱۲. تشخیص موضوع (`TopicScore`) و پرسش بعدی (`CasePlan`) از کلاس بیرون آمدند و `test/advocate/isolation_test.dart` بدونِ ساختنِ `Advocate` می‌سنجدشان. ترفندِ `file.turns--` رفت. `chat_controller.dart` ۵۳۰ → ۳۱۲ خط با `draft_flow.dart`. `rent.dart` ۲٬۶۷۹ خط → شش تکه. موتور: `law_mention.dart`. نگهبان عددی: `tests/python/test_advocate_shape.py` |
+| موتورِ قوانین هم شکسته شود | 🟡 باقی | `LawMention` جدا شد؛ ولی ایندکس، BM25F و قالب‌بندیِ پاسخ هنوز در `engine.dart` (۱٬۱۲۰ خط) کنارِ هم‌اند |
 | گفتگوهای گزارش‌شده خودکار آزمون شوند | ✅ | `test/audit/conversations_reported.txt` در فهرست ورودیِ `conversation_audit_test.dart` |
 
 ## بدهی‌های موقتِ ثبت‌شده
