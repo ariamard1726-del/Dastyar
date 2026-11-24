@@ -1,7 +1,7 @@
-commit: 7e0db9f
+commit: 0e40467
 🎉 473 tests passed.
 --- analyze ---
-7 issues found. (ran in 7.7s)
+7 issues found. (ran in 9.1s)
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/co
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
