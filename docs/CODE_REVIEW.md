@@ -155,6 +155,7 @@
 | روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
 | موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
 | مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
+| پاسخِ ایمنی | `safety_reply.dart` / `class SafetyReply` — `_safety` و `_asksDanger` از `Advocate` رفتند و اولین بار است که «خشونت خانگی» مستقل آزموده می‌شود (`test/domain/safety_reply_test.dart`) |
 | دادهٔ راهنماها | `assets/brain/guides/legal_guides.json` + `legal_guides_loader.dart`؛ `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط (فقط مدل و ثبت). قفل: اثرِ انگشتِ sha256، شمارش‌های ساختاری، و آزمونِ دارتِ «نقشه‌های `LawyerVoice` با نصبِ فهرستِ تازه بازساخته می‌شوند» |
 | جداسازیِ محاسبه از تصمیم | `topic_read.dart` / `class TopicRead` + `_readTopics`، `_correctionReply`، `_noCaseReply`، `_inCaseReply`؛ `_reply` ۲۸۷ → ۱۰۴ خط |
 | ترتیبِ پاسخ‌ها | `answer_candidate.dart` — `AnswerCandidate` + `AnswerArbiter`؛ ۱۸ کاندیدِ نام‌دار، `_reply` ۳۳۴ → ۲۸۷ خط |

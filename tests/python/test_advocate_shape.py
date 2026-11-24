@@ -73,7 +73,7 @@ STATE_FIELD = re.compile(
 COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
                  'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet',
                  'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow',
-                 'TalkRoute', 'ReplyRoutes', 'GuideReply', 'TermReply']
+                 'TalkRoute', 'ReplyRoutes', 'GuideReply', 'TermReply', 'SafetyReply']
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
@@ -168,6 +168,20 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('_talkRoute.meta(', part)
         self.assertNotIn('_idleChips()', part)
         self.assertIn('TalkRoute _talkRoute', self.src)
+
+    def test_safety_reply_is_its_own_class(self):
+        """ایمنی باید یک واحدِ آزمون‌پذیر باشد، نه متدِ خصوصیِ وکیل."""
+        sr = _read(os.path.join(ADVOCATE_DIR, 'safety_reply.dart'))
+        self.assertIn('class SafetyReply {', sr)
+        self.assertIn('AdvocateReply? reply(String n) {', sr)
+        self.assertIn('bool asksDanger(String n) =>', sr)
+        self.assertIn('source: AnswerSource.safety', sr)
+        self.assertIn('SafetyReply _safetyBot', self.src)
+        # قاعدهٔ خشونت نباید دوباره داخلِ Advocate بنشیند.
+        self.assertNotIn('چاقو', self.src)
+        self.assertNotIn('AdvocateReply? _safety(String n)', self.src)
+        self.assertTrue(os.path.exists(
+            os.path.join(ROOT, 'test', 'domain', 'safety_reply_test.dart')))
 
     def test_reply_is_one_ordered_list(self):
         """ترتیبِ پاسخ‌ها باید خواندنی باشد، نه زنجیرهٔ `if`های پشتِ‌سرِهم."""
