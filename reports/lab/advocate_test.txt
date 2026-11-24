@@ -1,3 +1,5 @@
+✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
+✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
 ✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
@@ -29,17 +31,15 @@
 ::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
 ::notice title=intent::130 از 130 سناریو درست است
 ::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
-::endgroup::
 ::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
 ::endgroup::
 ::group::✅ Passing tests
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
+✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
 ✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
 ✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
@@ -107,20 +107,20 @@
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
+✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
 ✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
-✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/understanding_test.dart: تکرار حرف در پروندهٔ باز پاسخ ادامه می‌دهد، نه پرسش از اول
 ✅ test/advocate/understanding_test.dart: ثبت طلاق با امتناع زوجه به مواد ۳۴ و ۳۵ مستند است
 ✅ test/advocate/understanding_test.dart: پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد
 ✅ test/advocate/understanding_test.dart: تعارض تخفیف: ماده ۳۸ و ماده خاص، یک جهت یک‌بار حساب می‌شود
 ✅ test/advocate/understanding_test.dart: غبن: اسقاط صریح و غبن فاحش، با مواد ۴۱۶ و ۴۲۰ و بدون ادعای اصطلاح غیرقانونی
 ✅ test/advocate/understanding_test.dart: واژه‌های پیوند: مهریه و ودیعه به مادهٔ درست می‌روند
-✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/understanding_test.dart: پیام عادی قاعدهٔ تعارض نمی‌گیرد
-✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
 ✅ test/advocate/understanding_test.dart: واژهٔ قانونیِ تنها بدون پرونده، ماده را نشان می‌دهد یا موضوع را باز می‌کند
-✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
