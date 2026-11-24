@@ -149,6 +149,9 @@
 | دکمه‌های پیشنهادی | `chip_plan.dart` / `ChipPlan.suggest(t)` و `ChipPlan.starters()`؛ `advocate_chips.dart` ۱۶۰ → ۲۳ خط |
 | خلاصهٔ پرونده | `case_recap.dart` / `recapOf(t, f)` — تابعِ آزاد، هم `Advocate` و هم `CaseArgument` از آن می‌گیرند |
 | پاسخ‌های «دربارهٔ برنامه» | `advocate_meta.dart` / `class MetaReply` — چهار متدِ بسامد‌بالا از `Advocate` رفت |
+| بانک پرسش‌وپاسخ و متن قوانین | `law_answer.dart` / `class LawAnswer` — `_lookup` ۶۵ خطی و `_qaReply` از `Advocate` رفتند؛ `advocate_guides.dart` ۳۶۰ → ۲۳۳ |
+| گفت‌وگوی انسانی | `talk_reply.dart` / `class TalkReply` — هفت متد؛ `advocate_talk.dart` ۵۸۲ → ۳۹۱ |
+| تشخیص موضوع | `topic_picker.dart` / `class TopicPicker` — ده متد؛ `advocate_topic.dart` ۱۳۷ → ۲۹ |
 
 نگهبان: `tests/python/test_advocate_shape.py` سقفِ فیلدها (۱۳)، سقفِ خطوطِ
 `_reply` (۳۴۵)، شمارِ مسیرها (۱۲)، صاحب‌داشتنِ حالت و صدا، مستقل‌بودنِ
@@ -164,10 +167,11 @@
 **استدلال هم جدا شد:** `advocate_argue.dart` حالا `class CaseArgument` است و
 پرونده، صدا، خلاصه (`_recap`) و برعکس‌شدن‌ها را از بیرون می‌گیرد.
 
-**باقی‌مانده (صادقانه):** چهار گروه از رفتارها هنوز متدهای `Advocate`اند (بر
-پایهٔ شمارشِ ماشینی ~۱۰۳ متد): `advocate_talk.dart` (`_Talk`)،
-`advocate_case.dart` (`_CaseFlow`)، `advocate_routes.dart` (`_Routes`) و
-`advocate_guides.dart` (`_Guides`). اینها همان جایی‌اند که «هماهنگ‌کردن» است —
+**باقی‌مانده (صادقانه):** رفتارها هنوز متدهای `Advocate`اند (بر پایهٔ شمارشِ
+ماشینی ۹۹ متد)، عمدتاً در سه جا: `advocate_case.dart` (روندِ پرونده: `_inCase`
+۲۰۲ خط، `_open`، `_nextAsk`)، `advocate_routes.dart` (مسیرهای `_reply`) و
+`_meta` در `advocate_talk.dart` (۲۲۸ خط). `advocate_guides.dart` هم راهنمای
+آماده و `_guideFollow` را دارد. اینها همان جایی‌اند که «هماهنگ‌کردن» است —
 هر چهار گروه `_out`، پرونده، گفتگو و صدا را با هم می‌خواهند و جداکردنشان بدونِ
 ساختنِ لایهٔ سوم یعنی همان دست‌به‌دست‌کردنِ وابستگی. ادعا نمی‌کنیم تمام شده.
 هم‌چنین منطق→پایتون آینه دارد (A5).
