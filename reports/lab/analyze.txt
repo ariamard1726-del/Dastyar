@@ -1,14 +1,8 @@
 Analyzing Dastyar...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • lib/core/privacy.dart:3:8 • unnecessary_import
-  error • Undefined name '_lastAsk'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate_case.dart:43:5 • undefined_identifier
-  error • Undefined name '_askRepeats'. Try correcting the name to one that is defined, or defining the name • lib/domain/advocate/advocate_case.dart:44:5 • undefined_identifier
-  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:13:23 • unqualified_reference_to_static_member_of_e
-  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:31:23 • unqualified_reference_to_static_member_of_e
   error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:48:25 • unqualified_reference_to_static_member_of_e
   error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:57:29 • unqualified_reference_to_static_member_of_e
-  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:114:25 • unqualified_reference_to_static_member_of_
-  error • Static members from the extended type or one of its superclasses must be qualified by the name of the defining type. Try adding 'Advocate.' before the name • lib/domain/advocate/advocate_routes.dart:132:24 • unqualified_reference_to_static_member_of_
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/chat_page.dart:216:48 • prefer_const_constructors
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:42:13 • unnecessary_null_checks
    info • Unnecessary use of a null check ('!'). Try removing the null check • test/advocate/understanding_test.dart:58:13 • unnecessary_null_checks
@@ -16,4 +10,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:54:19 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/core/jalali_reference_test.dart:55:17 • prefer_const_constructors
 
-15 issues found. (ran in 8.7s)
+9 issues found. (ran in 11.7s)

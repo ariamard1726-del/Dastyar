@@ -1,38 +1,5 @@
-dart:async/zone_root.dart 48:47                  _rootRunUnary
-dart:async/zone.dart 816:35                      _CustomZone.runUnary
-dart:async/future_impl.dart 948:45               Future._propagateToListeners.handleValueCallback
-dart:async/future_impl.dart 977:13               Future._propagateToListeners
-dart:async/future_impl.dart 862:9                Future._propagateToListeners
-dart:async/future_impl.dart 720:5                Future._completeWithValue
-dart:async/future_impl.dart 804:7                Future._asyncCompleteWithValue.<fn>
-dart:async/zone_root.dart 35:13                  _rootRun
-dart:async/zone.dart 810:35                      _CustomZone.run
-dart:async/zone.dart 702:7                       _CustomZone.runGuarded
-dart:async/zone.dart 743:23                      _CustomZone.bindCallbackGuarded.<fn>
-dart:async/schedule_microtask.dart 40:35         _microtaskLoop
-dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
-dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
-dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
-::endgroup::
-lib/domain/advocate/advocate_case.dart:43:5: Error: The setter '_lastAsk' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_lastAsk'.
-    _lastAsk = '';
-    ^^^^^^^^
-lib/domain/advocate/advocate_case.dart:44:5: Error: The setter '_askRepeats' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_askRepeats'.
-    _askRepeats = 0;
-    ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:13:23: Error: The getter 'newCaseChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'newCaseChip'.
-    if (raw.trim() == newCaseChip) {
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:31:23: Error: Not a constant expression.
-        chips: const [newCaseChip],
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+Failed to load "test/advocate/answer_source_test.dart":
+Compilation failed for testPath=test/advocate/answer_source_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
           raw.trim() == sideChip ||
@@ -42,97 +9,9 @@ lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' 
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
               raw.trim() == relatedChip ||
                             ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:114:25: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
-      if (raw.trim() == noneChip ||
-                        ^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:132:24: Error: The getter 'wrongChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'wrongChip'.
-        (raw.trim() == wrongChip ||
-                       ^^^^^^^^^
-::group::❌ loading test/advocate/reasoner_test.dart (failed)
-Failed to load "test/advocate/reasoner_test.dart":
-Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/advocate_case.dart:43:5: Error: The setter '_lastAsk' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_lastAsk'.
-    _lastAsk = '';
-    ^^^^^^^^
-lib/domain/advocate/advocate_case.dart:44:5: Error: The setter '_askRepeats' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_askRepeats'.
-    _askRepeats = 0;
-    ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:13:23: Error: The getter 'newCaseChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'newCaseChip'.
-    if (raw.trim() == newCaseChip) {
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:31:23: Error: Not a constant expression.
-        chips: const [newCaseChip],
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
-          raw.trim() == sideChip ||
-                        ^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
-              raw.trim() == relatedChip ||
-                            ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:114:25: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
-      if (raw.trim() == noneChip ||
-                        ^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:132:24: Error: The getter 'wrongChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'wrongChip'.
-        (raw.trim() == wrongChip ||
-                       ^^^^^^^^^
 .
 
 ::endgroup::
-::group::❌ loading test/advocate/rent_test.dart (failed after test completion)
-Error: The Dart compiler exited unexpectedly.
-package:flutter_tools/src/base/common.dart 34:3  throwToolExit
-package:flutter_tools/src/compile.dart 1024:11   DefaultResidentCompiler._compile.<fn>
-dart:async/zone_root.dart 48:47                  _rootRunUnary
-dart:async/zone.dart 816:35                      _CustomZone.runUnary
-dart:async/future_impl.dart 948:45               Future._propagateToListeners.handleValueCallback
-dart:async/future_impl.dart 977:13               Future._propagateToListeners
-dart:async/future_impl.dart 862:9                Future._propagateToListeners
-dart:async/future_impl.dart 720:5                Future._completeWithValue
-dart:async/future_impl.dart 804:7                Future._asyncCompleteWithValue.<fn>
-dart:async/zone_root.dart 35:13                  _rootRun
-dart:async/zone.dart 810:35                      _CustomZone.run
-dart:async/zone.dart 702:7                       _CustomZone.runGuarded
-dart:async/zone.dart 743:23                      _CustomZone.bindCallbackGuarded.<fn>
-dart:async/schedule_microtask.dart 40:35         _microtaskLoop
-dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
-dart:isolate-patch/isolate_patch.dart 127:13     _runPendingImmediateCallback
-dart:isolate-patch/isolate_patch.dart 193:5      _RawReceivePort._handleMessage
-::endgroup::
-lib/domain/advocate/advocate_case.dart:43:5: Error: The setter '_lastAsk' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_lastAsk'.
-    _lastAsk = '';
-    ^^^^^^^^
-lib/domain/advocate/advocate_case.dart:44:5: Error: The setter '_askRepeats' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_askRepeats'.
-    _askRepeats = 0;
-    ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:13:23: Error: The getter 'newCaseChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'newCaseChip'.
-    if (raw.trim() == newCaseChip) {
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:31:23: Error: Not a constant expression.
-        chips: const [newCaseChip],
-                      ^^^^^^^^^^^
 lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
@@ -143,36 +22,21 @@ lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' 
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
               raw.trim() == relatedChip ||
                             ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:114:25: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
-      if (raw.trim() == noneChip ||
-                        ^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:132:24: Error: The getter 'wrongChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'wrongChip'.
-        (raw.trim() == wrongChip ||
-                       ^^^^^^^^^
 ::group::❌ loading test/advocate/reply_contract_test.dart (failed)
 Failed to load "test/advocate/reply_contract_test.dart":
-Compilation failed for testPath=test/advocate/reply_contract_test.dart: lib/domain/advocate/advocate_case.dart:43:5: Error: The setter '_lastAsk' isn't defined for the type 'Advocate'.
+Compilation failed for testPath=test/advocate/reply_contract_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_lastAsk'.
-    _lastAsk = '';
-    ^^^^^^^^
-lib/domain/advocate/advocate_case.dart:44:5: Error: The setter '_askRepeats' isn't defined for the type 'Advocate'.
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing setter, or defining a setter or field named '_askRepeats'.
-    _askRepeats = 0;
-    ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:13:23: Error: The getter 'newCaseChip' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'newCaseChip'.
-    if (raw.trim() == newCaseChip) {
-                      ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:31:23: Error: Not a constant expression.
-        chips: const [newCaseChip],
-                      ^^^^^^^^^^^
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
 lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
@@ -183,18 +47,154 @@ lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' 
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
               raw.trim() == relatedChip ||
                             ^^^^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:114:25: Error: The getter 'noneChip' isn't defined for the type 'Advocate'.
+::group::❌ loading test/advocate/conversation_fixes_test.dart (failed)
+Failed to load "test/advocate/conversation_fixes_test.dart":
+Compilation failed for testPath=test/advocate/conversation_fixes_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'noneChip'.
-      if (raw.trim() == noneChip ||
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
                         ^^^^^^^^
-lib/domain/advocate/advocate_routes.dart:132:24: Error: The getter 'wrongChip' isn't defined for the type 'Advocate'.
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
  - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'wrongChip'.
-        (raw.trim() == wrongChip ||
-                       ^^^^^^^^^
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
+lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+::group::❌ loading test/advocate/understanding_test.dart (failed)
+Failed to load "test/advocate/understanding_test.dart":
+Compilation failed for testPath=test/advocate/understanding_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
+lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+::group::❌ loading test/advocate/safety_test.dart (failed)
+Failed to load "test/advocate/safety_test.dart":
+Compilation failed for testPath=test/advocate/safety_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
+lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+::group::❌ loading test/advocate/intent_hint_test.dart (failed)
+Failed to load "test/advocate/intent_hint_test.dart":
+Compilation failed for testPath=test/advocate/intent_hint_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
+lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+::group::❌ loading test/advocate/conversation_control_test.dart (failed)
+Failed to load "test/advocate/conversation_control_test.dart":
+Compilation failed for testPath=test/advocate/conversation_control_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+.
+
+::endgroup::
+lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
+::group::✅ Passing tests
+✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
+✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی هم سالم می‌چرخد
+✅ test/advocate/case_file_json_test.dart: نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش
+✅ test/advocate/case_file_json_test.dart: ورودی بدشکل پروندهٔ خالی می‌دهد، نه کرش
+✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
+✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
+✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
+::endgroup::
+::group::❌ loading test/advocate/reasoner_test.dart (failed)
+Failed to load "test/advocate/reasoner_test.dart":
+Compilation failed for testPath=test/advocate/reasoner_test.dart: lib/domain/advocate/advocate_routes.dart:48:25: Error: The getter 'sideChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'sideChip'.
+          raw.trim() == sideChip ||
+                        ^^^^^^^^
+lib/domain/advocate/advocate_routes.dart:57:29: Error: The getter 'relatedChip' isn't defined for the type 'Advocate'.
+ - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'relatedChip'.
+              raw.trim() == relatedChip ||
+                            ^^^^^^^^^^^
 .
 
 ::endgroup::
 
-::error::10 tests passed, 18 failed.
+::error::10 tests passed, 19 failed.
