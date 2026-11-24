@@ -37,6 +37,7 @@ part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'term_reply.dart';
 part 'answer_candidate.dart';
+part 'topic_read.dart';
 part 'guide_reply.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
@@ -676,32 +677,11 @@ class Advocate {
       AnswerCandidate('«باشه»', () => _routes.bareAck(raw, n)),
       AnswerCandidate('موضوعِ کنارِ هم', () => _routes.side(raw, n)),
     ]);
-    if (hit != null) return hit;    final topic = _current();
-    // پیامِ پیشینی که پاسخ ایمنی جایش را گرفته بود، فقط وقتی به حساب
-    // می‌آید که پیام تازه خودش موضوع روشنی نداشته باشد.
-    final carry = dialog.safetyCarry;
-    dialog.safetyCarry = '';
-    Topic? best;
-    var bestScore = 0;
-    final scores = <String, int>{};
-    for (final t in topics) {
-      final s = _score(t, n);
-      scores[t.id] = s;
-      if (s > bestScore) {
-        best = t;
-        bestScore = s;
-      }
-    }
-    if (bestScore < 4 && carry.isNotEmpty) {
-      for (final t in topics) {
-        final s = _score(t, '$n $carry');
-        if (s > bestScore) {
-          best = t;
-          bestScore = s;
-        }
-        scores[t.id] = s;
-      }
-    }
+    if (hit != null) return hit;
+    final topic = _current();
+    // محاسبهٔ موضوع از تصمیم جدا شد: این‌جا فقط خوانده می‌شود، بعد تصمیم
+    // گرفته می‌شود.
+    final read = _readTopics(n);
 
     // دُمِ مسیرها: پیش از امتیاززدنِ موضوع، «مهلت» و «موضوعِ صریح» جای خودشان
     // را دارند؛ پس داور یک بار تنها با «مهلت» صدا زده می‌شود، بعد پاسخِ
@@ -711,7 +691,7 @@ class Advocate {
     ]);
     if (due != null) return due;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
-    final meta = _meta(n, topic, explicit: topic == null && bestScore >= 5);
+    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= 5);
     if (meta != null) return meta;
 
     final tail = _arbiter.pick(<AnswerCandidate>[
@@ -724,7 +704,7 @@ class Advocate {
     if (tail != null) return tail;
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
-    if (!hasCase && bestScore < 3) {
+    if (!hasCase && read.bestScore < 3) {
       // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
       final confidentGuess = guess != null && guess.confident;
       final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);
@@ -754,136 +734,186 @@ class Advocate {
           ask: 'چه چیزی را بررسی کنیم؟');
     }
 
-    // اصلاحِ کاربر («من اصلا در مورد طلاق صحبت نکردم، در مورد دستبرد بود»):
-    // موضوعِ قبلی رها می‌شود و فقط بخشِ اصلاح‌شده سنجیده می‌شود.
-    if (topic != null &&
-        Sense.words(n) <= 40 &&
-        Sense.has(n, _correctionPattern)) {
-      final fixed = _afterCorrection(n);
-      Topic? nb;
-      var ns = 0;
+    final corrected = _correctionReply(n, topic);
+    if (corrected != null) return corrected;
+    if (topic == null) return _noCaseReply(raw, n, read, guess);
+    return _inCaseReply(raw, n, topic, read);
+  }
+
+  /// خواندنِ موضوع از پیام: امتیازِ هر موضوع، و امتیازِ «پیامِ پیشینی که پاسخِ
+  /// ایمنی جایش را گرفته بود» (`safetyCarry`) فقط وقتی پیامِ تازه خودش ضعیف
+  /// است. هیچ تصمیمی این‌جا گرفته نمی‌شود.
+  TopicRead _readTopics(String n) {
+    final carry = dialog.safetyCarry;
+    dialog.safetyCarry = '';
+    Topic? best;
+    var bestScore = 0;
+    final scores = <String, int>{};
+    for (final t in topics) {
+      final s = _score(t, n);
+      scores[t.id] = s;
+      if (s > bestScore) {
+        best = t;
+        bestScore = s;
+      }
+    }
+    if (bestScore < 4 && carry.isNotEmpty) {
       for (final t in topics) {
-        final s = fixed.isEmpty ? 0 : _score(t, fixed);
-        if (s > ns) {
-          nb = t;
-          ns = s;
+        final s = _score(t, '$n $carry');
+        if (s > bestScore) {
+          best = t;
+          bestScore = s;
         }
+        scores[t.id] = s;
       }
-      _closeCase();
-      dialog.loose.clear();
-      if (nb != null && ns >= 3) return _open(nb, fixed);
-      return _out(
-        'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
-        ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
-        chips: _branchStart(),
-      );
     }
+    return TopicRead(best: best, bestScore: bestScore, scores: scores);
+  }
 
-    if (topic == null) {
-      if (best != null && bestScore >= 3) {
-        final others = <Topic>[
-          for (final t in topics)
-            if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
+  /// اصلاحِ کاربر («من اصلا در مورد طلاق صحبت نکردم، در مورد دستبرد بود»):
+  /// موضوعِ قبلی رها می‌شود و فقط بخشِ اصلاح‌شده سنجیده می‌شود.
+  AdvocateReply? _correctionReply(String n, Topic? topic) {
+    if (topic == null || Sense.words(n) > 40) return null;
+    if (!Sense.has(n, _correctionPattern)) return null;
+    final fixed = _afterCorrection(n);
+    Topic? nb;
+    var ns = 0;
+    for (final t in topics) {
+      final s = fixed.isEmpty ? 0 : _score(t, fixed);
+      if (s > ns) {
+        nb = t;
+        ns = s;
+      }
+    }
+    _closeCase();
+    dialog.loose.clear();
+    if (nb != null && ns >= 3) return _open(nb, fixed);
+    return _out(
+      'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
+      ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
+      chips: _branchStart(),
+    );
+
+  }
+
+  /// پرونده‌ای باز نیست: از بازکردنِ موضوعِ روشن تا پاسخِ واژه‌محور و پرسشِ
+  /// کنجکاو. تنها ورودیِ محاسبه‌شده‌اش [read] است، پس دیگر با امتیاززدن و
+  /// تصمیم‌گیریِ `_reply` قاطی نمی‌شود.
+  AdvocateReply _noCaseReply(String raw, String n, TopicRead read, TopicGuess? guess) {
+    final best = read.best;
+    final bestScore = read.bestScore;
+    final scores = read.scores;
+    if (best != null && bestScore >= 3) {
+      final others = <Topic>[
+        for (final t in topics)
+          if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
+      ];
+      if (others.isNotEmpty) dialog.also = others.first;
+      // پیامِ چندموضوعی: پیش‌تر فقط به یکی از موضوع‌ها جواب می‌داد و بقیه
+      // بی‌صدا می‌ماند. حالا موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع
+      // کنیم؛ هر کدام پرونده و مهلت جدا دارد.
+      final asksOrder = Sense.has(n,
+          'اول کدام|کدوم را اول|کدام را اول|از کجا شروع|اول (?:چی|کدام)|چی را اول');
+      if (others.isNotEmpty &&
+          (asksOrder || (others.length >= 2 && Sense.words(n) >= 14))) {
+        dialog.choices = <Topic>[best, ...others].take(3).toList();
+        dialog.choiceText = n;
+        final lines = [
+          for (final t in dialog.choices) '• ${t.title}',
         ];
-        if (others.isNotEmpty) dialog.also = others.first;
-        // پیامِ چندموضوعی: پیش‌تر فقط به یکی از موضوع‌ها جواب می‌داد و بقیه
-        // بی‌صدا می‌ماند. حالا موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع
-        // کنیم؛ هر کدام پرونده و مهلت جدا دارد.
-        final asksOrder = Sense.has(n,
-            'اول کدام|کدوم را اول|کدام را اول|از کجا شروع|اول (?:چی|کدام)|چی را اول');
-        if (others.isNotEmpty &&
-            (asksOrder || (others.length >= 2 && Sense.words(n) >= 14))) {
-          dialog.choices = <Topic>[best, ...others].take(3).toList();
-          dialog.choiceText = n;
-          final lines = [
-            for (final t in dialog.choices) '• ${t.title}',
-          ];
-          return _out(
-            'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
-            'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
-            'سطحی می‌شود. از کدام شروع کنیم؟',
-            chips: [for (final t in dialog.choices) t.title, noneChip],
-          );
-        }
-        return _open(best, n);
+        return _out(
+          'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
+          'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
+          'سطحی می‌شود. از کدام شروع کنیم؟',
+          chips: [for (final t in dialog.choices) t.title, noneChip],
+        );
       }
-      dialog.loose.add(n);
-      if (dialog.loose.length > 3) dialog.loose.removeAt(0);
-      // دو سه پیامِ کوتاهِ پشت‌سرهم با هم یک ماجرا هستند: اگر روی‌هم موضوع
-      // را روشن کنند، همان پرونده باز می‌شود.
-      if (dialog.loose.length > 1 && bestScore >= 1) {
-        final joined = dialog.loose.join(' ');
-        Topic? jb;
-        var js = 0;
-        for (final t in topics) {
-          final sc = _score(t, joined);
-          if (sc > js) {
-            jb = t;
-            js = sc;
-          }
-        }
-        if (jb != null && js >= 3 && (scores[jb.id] ?? 0) >= 1) {
-          dialog.loose.removeLast();
-          return _open(jb, n);
-        }
-      }
-      final g = _guides.glossary(n);
-      if (g != null) {
-        return _out(g,
-            ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
-            source: AnswerSource.glossary);
-      }
-      final guide = dialog.guide;
-      if (guide != null) {
-        final r = _guides.follow(guide, n);
-        if (r != null) return r;
-      }
-      // واژه‌های پرسش را با متن قوانین می‌سنجیم: ماده‌ای که واژه‌ها را با هم
-      // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
-      // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
-      if (guide == null && (guess == null || !guess.confident)) {
-        final tf = _termReply.topicFlow(raw, n);
-        if (tf != null) return tf;
-        final lt = _termReply.lawTerms(raw, n);
-        if (lt != null) return lt;
-      }
-      // حدسِ مطمئنِ مدل بر راهنماهای آماده مقدم است: آن‌ها با یک واژه
-      // انتخاب می‌شوند («حقوقم» در «بانک از حقوقم کسر می‌کند») و مدل کل
-      // جمله را می‌بیند. «یک سؤال حقوقی دارم» موضوعی ندارد که حدس زده شود.
-      final usable = guess != null && !_vague(n) ? guess : null;
-      if (usable != null && usable.confident) {
-        final r = _fromGuess(usable, raw, n, scores);
-        if (r != null) return r;
-      }
-      // نظر دوم IntentNet پیش از راهنماهای ثابت: راهنماها با جفت واژه‌ها
-      // تطبیق می‌یابند (مثلاً «حقوق» و «نداده») و «کارگاه حقوقم را نداده»
-      // را به قاعدهٔ حقوق معوق می‌برند، پیش از آنکه موضوع ماجرا روشن شود.
-      if (guess == null) {
-        final hint = _secondOpinion(raw, n);
-        if (hint != null) {
-          dialog.loose.removeLast();
-          // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
-          final r = _open(hint, n);
-          return AdvocateReply(r.text,
-              chips: r.chips, laws: r.laws, source: AnswerSource.intentNet);
-        }
-      }
-      final hopeless = _hopeless(n);
-      if (hopeless != null) return hopeless;
-      final lg = _matchGuide(raw, n);
-      if (lg != null) return _guides.openGuide(lg, raw, n);
-      final soc = _social(n, null);
-      if (soc != null) return soc;
-      if (guess != null) {
-        final r = usable == null || usable.confident
-            ? null
-            : _fromGuess(usable, raw, n, scores);
-        if (r != null) return r;
-      }
-      if (_vague(n)) return _intake(raw);
-      return _guides.lookup(raw, n);
+      return _open(best, n);
     }
+    dialog.loose.add(n);
+    if (dialog.loose.length > 3) dialog.loose.removeAt(0);
+    // دو سه پیامِ کوتاهِ پشت‌سرهم با هم یک ماجرا هستند: اگر روی‌هم موضوع
+    // را روشن کنند، همان پرونده باز می‌شود.
+    if (dialog.loose.length > 1 && bestScore >= 1) {
+      final joined = dialog.loose.join(' ');
+      Topic? jb;
+      var js = 0;
+      for (final t in topics) {
+        final sc = _score(t, joined);
+        if (sc > js) {
+          jb = t;
+          js = sc;
+        }
+      }
+      if (jb != null && js >= 3 && (scores[jb.id] ?? 0) >= 1) {
+        dialog.loose.removeLast();
+        return _open(jb, n);
+      }
+    }
+    final g = _guides.glossary(n);
+    if (g != null) {
+      return _out(g,
+          ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+          source: AnswerSource.glossary);
+    }
+    final guide = dialog.guide;
+    if (guide != null) {
+      final r = _guides.follow(guide, n);
+      if (r != null) return r;
+    }
+    // واژه‌های پرسش را با متن قوانین می‌سنجیم: ماده‌ای که واژه‌ها را با هم
+    // دارد نشان داده می‌شود، و اگر نداشت، گفته می‌شود کدام واژه‌ها در قوانین
+    // هست؛ پیش از حدس‌های کلی و پرسش «کدام نزدیک‌تر است؟».
+    if (guide == null && (guess == null || !guess.confident)) {
+      final tf = _termReply.topicFlow(raw, n);
+      if (tf != null) return tf;
+      final lt = _termReply.lawTerms(raw, n);
+      if (lt != null) return lt;
+    }
+    // حدسِ مطمئنِ مدل بر راهنماهای آماده مقدم است: آن‌ها با یک واژه
+    // انتخاب می‌شوند («حقوقم» در «بانک از حقوقم کسر می‌کند») و مدل کل
+    // جمله را می‌بیند. «یک سؤال حقوقی دارم» موضوعی ندارد که حدس زده شود.
+    final usable = guess != null && !_vague(n) ? guess : null;
+    if (usable != null && usable.confident) {
+      final r = _fromGuess(usable, raw, n, scores);
+      if (r != null) return r;
+    }
+    // نظر دوم IntentNet پیش از راهنماهای ثابت: راهنماها با جفت واژه‌ها
+    // تطبیق می‌یابند (مثلاً «حقوق» و «نداده») و «کارگاه حقوقم را نداده»
+    // را به قاعدهٔ حقوق معوق می‌برند، پیش از آنکه موضوع ماجرا روشن شود.
+    if (guess == null) {
+      final hint = _secondOpinion(raw, n);
+      if (hint != null) {
+        dialog.loose.removeLast();
+        // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
+        final r = _open(hint, n);
+        return AdvocateReply(r.text,
+            chips: r.chips, laws: r.laws, source: AnswerSource.intentNet);
+      }
+    }
+    final hopeless = _hopeless(n);
+    if (hopeless != null) return hopeless;
+    final lg = _matchGuide(raw, n);
+    if (lg != null) return _guides.openGuide(lg, raw, n);
+    final soc = _social(n, null);
+    if (soc != null) return soc;
+    if (guess != null) {
+      final r = usable == null || usable.confident
+          ? null
+          : _fromGuess(usable, raw, n, scores);
+      if (r != null) return r;
+    }
+    if (_vague(n)) return _intake(raw);
+    return _guides.lookup(raw, n);
 
+  }
+
+  /// پرونده باز است: عوض‌کردنِ موضوع (با پرسش یا با نشانهٔ روشن) یا ادامهٔ
+  /// همان پرونده.
+  AdvocateReply _inCaseReply(String raw, String n, Topic topic, TopicRead read) {
+    final best = read.best;
+    final bestScore = read.bestScore;
+    final scores = read.scores;
     final cur = scores[topic.id] ?? 0;
     final issue = _matchIssue(topic, n);
     // پیامی که موضوع دیگری را با نشانهٔ روشن می‌آورد، پروندهٔ فعلی را که

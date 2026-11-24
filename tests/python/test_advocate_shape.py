@@ -182,6 +182,22 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('_leaveReply(', self.src)
         self.assertIn('_safetyReply(', self.src)
 
+    def test_reply_no_longer_mixes_counting_with_deciding(self):
+        """محاسبهٔ موضوع باید از تصمیمِ `_reply` جدا بماند و `_reply` کوتاه بماند."""
+        tr = _read(os.path.join(ADVOCATE_DIR, 'topic_read.dart'))
+        self.assertIn('class TopicRead {', tr)
+        self.assertIn('final Topic? best;', tr)
+        self.assertIn('final Map<String, int> scores;', tr)
+        reply = _method(self.src, 'AdvocateReply _reply(String raw')
+        self.assertLess(reply.count('\n'), 140, '_reply دوباره پر شد: %d خط' % reply.count('\n'))
+        self.assertIn('_readTopics(n)', reply)
+        # حلقه‌های امتیازدهی و اصلاحِ کاربر نباید دوباره در `_reply` نوشته شوند.
+        self.assertNotIn('for (final t in topics)', reply)
+        self.assertNotIn('_afterCorrection(', reply)
+        self.assertIn('_noCaseReply(raw, n, read, guess)', reply)
+        self.assertIn('_inCaseReply(raw, n, topic, read)', reply)
+        self.assertIn('TopicRead _readTopics(String n)', self.src)
+
     def test_term_reply_is_its_own_class(self):
         """پاسخ‌های واژه‌محور نباید دوباره متدِ Advocate شوند."""
         tr = _read(os.path.join(ADVOCATE_DIR, 'term_reply.dart'))
