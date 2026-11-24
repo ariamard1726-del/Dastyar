@@ -128,7 +128,7 @@
 | ۱۴ | موضوع‌های بزرگ | `rent` ۶ تکه، `labor`/`family` ۴ تکه | ۵۷۸ → ۱۲ خطِ سرِ فایل |
 | ۱۵ | مسیرهای یک‌نوبتیِ پاسخ | `ReplyRoutes` | ۱۳ مسیر؛ `advocate_routes.dart` ۳۱۴ → ۰ |
 | ۱۶ | راهنما، واژه‌نامه و آخرین راه | `GuideReply` | `advocate_guides.dart` ۲۳۴ → ۱۰۲ |
-| ۱۷ | پاسخ‌های واژه‌محور (متنِ مواد، مسیرِ موضوع) | `TermReply` | `advocate_guides.dart` ۱۰۲ → ۱۰ |
+| ۱۷ | پاسخ‌های واژه‌محور (متنِ مواد، مسیرِ موضوع) | `TermReply` | `advocate_guides.dart` حذف شد؛ ۱۰۲ → ۰ |
 
 - متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۵۷**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.

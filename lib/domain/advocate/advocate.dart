@@ -35,7 +35,6 @@ part 'talk_reply.dart';
 part 'talk_route.dart';
 part 'topic_picker.dart';
 part 'advocate_talk.dart';
-part 'advocate_guides.dart';
 part 'term_reply.dart';
 part 'guide_reply.dart';
 part 'advocate_text.dart';

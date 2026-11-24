@@ -155,7 +155,7 @@
 | روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
 | موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
 | مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
-| پاسخ‌های واژه‌محور | `term_reply.dart` / `class TermReply` — `_lawTermsReply`، `_topicReply`، `_topicLeafReply`؛ `advocate_guides.dart` ۱۰۲ → ۱۰ (فقط ثابتِ نشانه‌های حقوقی) |
+| پاسخ‌های واژه‌محور | `term_reply.dart` / `class TermReply` — `_lawTermsReply`، `_topicReply`، `_topicLeafReply`؛ `advocate_guides.dart` حذف شد (۱۰۲ → ۰)؛ ثابتِ نشانه‌های حقوقی به همان فایل رفت |
 | راهنما و واژه‌نامه | `guide_reply.dart` / `class GuideReply` — `_lookup`، `_glossary`، `_openGuide`، `_guideFollow`؛ `advocate_guides.dart` ۲۳۴ → ۱۰۲ |
 | مسیرهای یک‌نوبتیِ پاسخ | `reply_routes.dart` / `class ReplyRoutes` — ۱۳ مسیر؛ `advocate_routes.dart` (۳۱۴ خط) حذف و ترتیب در `_reply` ماند |
 
@@ -175,9 +175,9 @@
 
 **باقی‌مانده (صادقانه):** ۸۵ متد روی بخش‌های `Advocate` مانده، عمدتاً در دو جا:
 `reply_routes.dart` (۱۳ مسیرِ `_reply`، ۳۱۴ خط) و `_guideFollow` در
-`advocate_guides.dart`. هر دو خودِ زنجیرهٔ تصمیم‌اند: ده‌ها تابعِ دیگر را با
-ترتیبِ مشخص صدا می‌زنند و جداکردنشان بدونِ جدولِ مسیر (`AnswerCandidate` +
-arbiter، گام ۱ در همین سند) فقط جابه‌جا کردنِ همان زنجیره است. اینها همان جایی‌اند که «هماهنگ‌کردن» است —
+`_reply`. هر دو خودِ زنجیرهٔ تصمیم‌اند: ده‌ها تابعِ دیگر را با ترتیبِ مشخص صدا
+می‌زنند و جداکردنشان بدونِ جدولِ مسیر (`AnswerCandidate` + arbiter، گام ۱ در همین
+سند) فقط جابه‌جا کردنِ همان زنجیره است. اینها همان جایی‌اند که «هماهنگ‌کردن» است —
 هر چهار گروه `_out`، پرونده، گفتگو و صدا را با هم می‌خواهند و جداکردنشان بدونِ
 ساختنِ لایهٔ سوم یعنی همان دست‌به‌دست‌کردنِ وابستگی. ادعا نمی‌کنیم تمام شده.
 هم‌چنین منطق→پایتون آینه دارد (A5).

@@ -169,7 +169,6 @@ class ShapeTests(unittest.TestCase):
     def test_term_reply_is_its_own_class(self):
         """پاسخ‌های واژه‌محور نباید دوباره متدِ Advocate شوند."""
         tr = _read(os.path.join(ADVOCATE_DIR, 'term_reply.dart'))
-        shell = _read(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart'))
         self.assertIn('class TermReply {', tr)
         for sig in ('AdvocateReply? lawTerms(String raw, String n)',
                     'AdvocateReply? topicFlow(String raw, String n)',
@@ -178,14 +177,15 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('TermReply _termReply', self.src)
         self.assertIn('_termReply.lawTerms(', self.src)
         self.assertIn('_termReply.topicFlow(', self.src)
-        # از این خانواده چیزی جز ثابتِ نشانه‌ها نباید در پوسته بماند.
-        self.assertLess(len(shell.split('\n')), 20, 'advocate_guides دوباره پر شد')
-        self.assertNotIn('extension _LawTermsReply', shell)
+        # فایلِ پوسته حذف شد؛ اگر کسی پاسخِ واژه‌محور را برگرداند، این می‌گیردش.
+        self.assertFalse(
+            os.path.exists(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart')),
+            'advocate_guides دوباره ساخته شد')
+        self.assertNotIn('_lawTermsReply(', self.src)
 
     def test_guide_reply_is_its_own_class(self):
         """راهنما و واژه‌نامه نباید دوباره متدِ Advocate شوند."""
         bg = _read(os.path.join(ADVOCATE_DIR, 'guide_reply.dart'))
-        part = _read(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart'))
         self.assertIn('class GuideReply {', bg)
         for sig in ('AdvocateReply lookup(String raw, String n)',
                     'String? glossary(String n)',
@@ -194,9 +194,7 @@ class ShapeTests(unittest.TestCase):
             self.assertIn(sig, bg, sig)
         self.assertIn('GuideReply _guides', self.src)
         self.assertIn('_guides.lookup(', self.src)
-        # پوستهٔ راهنما فقط دو پاسخِ واژه‌محور را نگه می‌دارد.
-        self.assertLess(len(part.split('\n')), 120, 'advocate_guides دوباره پر شد')
-        self.assertNotIn('AdvocateReply _lookup(String raw, String n)', part)
+        self.assertNotIn('AdvocateReply? _guideFollow(', self.src)
 
     def test_case_flow_is_its_own_class(self):
         """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود."""

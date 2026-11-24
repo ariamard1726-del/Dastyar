@@ -50,7 +50,6 @@
   - `topic_picker.dart` (`class TopicPicker`): تشخیص موضوع و بحث — «این پیام جوابِ همان پرسشِ باز است؟»، حدسِ موضوع از طبقه‌بند، و تطبیقِ بحث/راهنما. برای بازکردنِ پرونده یک تابع از بیرون می‌گیرد.
   - `case_recap.dart` (`recapOf`): خلاصهٔ پرونده از روی موضوع و پرونده، بی‌نیاز از وکیل؛ همان چیزی که به `CaseArgument` هم داده می‌شود.
   - `advocate_talk.dart`: گفت‌وگوی انسانی (احوال‌پرسی، خلاصه، حرف مبهم).
-  - `advocate_guides.dart`: واژه‌نامه، نمایش متن ماده و راهنماهای آماده.
   - `advocate_text.dart`: جمله‌بندی و بریدنِ متن برای پاسخ.
 - `topic_score.dart` (`TopicScore`) و `case_plan.dart` (`CasePlan`): «این پیام کدام موضوع است؟» و «حالا چه بپرسم؟» — دو تابعِ خالص، بی‌نیاز از `Advocate` و بی‌نیاز از بانک قوانین؛ `test/advocate/isolation_test.dart` مستقیم صدایشان می‌زند.
 - `topics/rent.dart` فقط سرِ کتابخانه است؛ خودِ موضوع در شش تکه: `rent_patterns.dart` (الگوها و استخراج)، `rent_bodies.dart` (متنِ پاسخِ هر بحث)، `rent_plan.dart` (طرح دعوا، مدرک، مهلت، جمع‌بندی)، `rent_claims.dart` (ادعاها)، `rent_fill.dart` (متنِ فیلدهای دادخواست)، `rent_issues.dart` (بحث‌ها، پرسش‌ها و تعریفِ `Topic`). موضوع‌های «کار» و «خانواده» هم به همین قرارداد شکسته شده‌اند: `labor_patterns/claims/bodies/issues` (۵۷۸ → ۱۳+۱۱۵+۱۵۲+۷۴+۲۴۹) و `family_patterns/claims/bodies/issues` (۳۵۰ → ۱۱+۵۰+۳۲+۶۶+۲۱۱). آزمون‌های `test/advocate/labor_test.dart` و `family_test.dart` پیش از شکستن نوشته شدند تا رفتار قفل باشد.
