@@ -73,7 +73,7 @@ STATE_FIELD = re.compile(
 COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
                  'MetaReply', 'LawTerms', 'KnowledgeEngine', 'IntentNet',
                  'LawAnswer', 'TalkReply', 'TopicPicker', 'CaseFlow',
-                 'TalkRoute']
+                 'TalkRoute', 'ReplyRoutes', 'GuideReply']
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
@@ -165,6 +165,22 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('_talkRoute.meta(', part)
         self.assertNotIn('_idleChips()', part)
         self.assertIn('TalkRoute _talkRoute', self.src)
+
+    def test_guide_reply_is_its_own_class(self):
+        """راهنما و واژه‌نامه نباید دوباره متدِ Advocate شوند."""
+        bg = _read(os.path.join(ADVOCATE_DIR, 'guide_reply.dart'))
+        part = _read(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart'))
+        self.assertIn('class GuideReply {', bg)
+        for sig in ('AdvocateReply lookup(String raw, String n)',
+                    'String? glossary(String n)',
+                    'AdvocateReply openGuide(LegalGuide g, String raw, String n',
+                    'AdvocateReply? follow(LegalGuide g, String n)'):
+            self.assertIn(sig, bg, sig)
+        self.assertIn('GuideReply _guides', self.src)
+        self.assertIn('_guides.lookup(', self.src)
+        # پوستهٔ راهنما فقط دو پاسخِ واژه‌محور را نگه می‌دارد.
+        self.assertLess(len(part.split('\n')), 120, 'advocate_guides دوباره پر شد')
+        self.assertNotIn('AdvocateReply _lookup(String raw, String n)', part)
 
     def test_case_flow_is_its_own_class(self):
         """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود."""

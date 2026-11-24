@@ -127,8 +127,9 @@
 | ۱۳ | موتورِ قوانین (ایندکس/رتبه/متن) | `LawIndex`/`LawRanker`/`LawText` | ۱٬۱۷۸ → ۶۳۸ خط |
 | ۱۴ | موضوع‌های بزرگ | `rent` ۶ تکه، `labor`/`family` ۴ تکه | ۵۷۸ → ۱۲ خطِ سرِ فایل |
 | ۱۵ | مسیرهای یک‌نوبتیِ پاسخ | `ReplyRoutes` | ۱۳ مسیر؛ `advocate_routes.dart` ۳۱۴ → ۰ |
+| ۱۶ | راهنما، واژه‌نامه و آخرین راه | `GuideReply` | `advocate_guides.dart` ۲۳۴ → ۱۰۳ |
 
-- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۷۰**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
+- متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۶۴**. فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
 - هر همکار آزمونِ خودش را دارد: `isolation_test`، `chip_plan_test`، `topic_picker_test`،
   `labor_test`، `family_test` و چهار آزمونِ بی‌داراییِ موتور
@@ -137,8 +138,8 @@
   بودِ هر همکار (`CaseArgument`، `ChipPlan`، `MetaReply`، `LawAnswer`، `TalkReply`،
   `TopicPicker`، `CaseFlow`، `TalkRoute`)، اینکه پوسته‌ها دوباره منطق نگیرند، تکه‌بودنِ
   موضوع‌ها، و اینکه راهنماها داده بمانند و متد نگیرند.
-- **باقی‌مانده (🟡):** `_guideFollow` در `advocate_guides.dart` و خودِ ترتیبِ
-  مسیرها در `_reply`. جداکردنشان بدونِ جدولِ مسیر
+- **باقی‌مانده (🟡):** خودِ ترتیبِ مسیرها در `_reply` و آنچه در `Advocate` مانده:
+  پاسخ‌های واژه‌محور (`_lawTermsReply`، `_topicReply`) و `_social`/`_curious`. جداکردنشان بدونِ جدولِ مسیر
   (`AnswerCandidate` + arbiter، گام ۱ در `docs/CODE_REVIEW.md`) فقط همان زنجیره را
   جابه‌جا می‌کند. `legal_guides.dart` هم داده است، نه رفتار؛ انتقالش به JSON تصمیمِ
   صاحبِ پروژه است.

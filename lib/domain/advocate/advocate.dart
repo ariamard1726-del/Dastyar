@@ -36,6 +36,7 @@ part 'talk_route.dart';
 part 'topic_picker.dart';
 part 'advocate_talk.dart';
 part 'advocate_guides.dart';
+part 'guide_reply.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
 
@@ -220,7 +221,7 @@ class Advocate {
     flips: _flips,
     glossary: _glossary,
     openGuide: (g, raw, n, {bool? switched}) =>
-        _openGuide(g, raw, n, switched: switched ?? false),
+        _guides.openGuide(g, raw, n, switched: switched ?? false),
     fillFor: fillFor,
     draftIds: draftIds,
   );
@@ -232,6 +233,19 @@ class Advocate {
     voice: voice,
     intentNet: intentNet,
     chipPlan: () => _chipPlan,
+  );
+
+  /// راهنما، واژه‌نامه و آخرین راه (بانک و متن قوانین).
+  late final GuideReply _guides = GuideReply(
+    file: file,
+    dialog: dialog,
+    voice: voice,
+    engine: engine,
+    talk: _talk,
+    lawAnswer: _lawAnswer,
+    metaReplies: _metaReplyBot,
+    draftTitles: _draftTitles,
+    closeCase: () => _case.closeCase(),
   );
 
   /// مسیرهای یک‌نوبتیِ پاسخ (سیزده مسیرِ نام‌دار).
@@ -780,7 +794,7 @@ class Advocate {
           return _open(jb, n);
         }
       }
-      final g = _glossary(n);
+      final g = _guides.glossary(n);
       if (g != null) {
         return _out(g,
             ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
@@ -788,7 +802,7 @@ class Advocate {
       }
       final guide = dialog.guide;
       if (guide != null) {
-        final r = _guideFollow(guide, n);
+        final r = _guides.follow(guide, n);
         if (r != null) return r;
       }
       // واژه‌های پرسش را با متن قوانین می‌سنجیم: ماده‌ای که واژه‌ها را با هم
@@ -824,7 +838,7 @@ class Advocate {
       final hopeless = _hopeless(n);
       if (hopeless != null) return hopeless;
       final lg = _matchGuide(raw, n);
-      if (lg != null) return _openGuide(lg, raw, n);
+      if (lg != null) return _guides.openGuide(lg, raw, n);
       final soc = _social(n, null);
       if (soc != null) return soc;
       if (guess != null) {
@@ -834,7 +848,7 @@ class Advocate {
         if (r != null) return r;
       }
       if (_vague(n)) return _intake(raw);
-      return _lookup(raw, n);
+      return _guides.lookup(raw, n);
     }
 
     final cur = scores[topic.id] ?? 0;
