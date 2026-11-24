@@ -94,15 +94,15 @@
 ✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
 ✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
+✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
+✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
+✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
 ✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
 ✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
-✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
-✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
-✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
 ✅ test/advocate/pipeline_contract_test.dart: فایل خط لوله در دسترس و دارای order است
 ✅ test/advocate/pipeline_contract_test.dart: ترتیب Dart با pipeline.json یکی است
 ✅ test/advocate/pipeline_contract_test.dart: netMin در Dart با pipeline.json یکی است
