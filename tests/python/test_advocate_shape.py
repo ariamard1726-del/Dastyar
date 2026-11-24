@@ -25,6 +25,8 @@ ROUTES = os.path.join(ADVOCATE_DIR, 'advocate_routes.dart')
 TOPIC_SCORE = os.path.join(ADVOCATE_DIR, 'topic_score.dart')
 CASE_PLAN = os.path.join(ADVOCATE_DIR, 'case_plan.dart')
 ISOLATION_TEST = os.path.join(ROOT, 'test', 'advocate', 'isolation_test.dart')
+CONTROLLER = os.path.join(ROOT, 'lib', 'ui', 'chat_controller.dart')
+DRAFT_FLOW = os.path.join(ROOT, 'lib', 'ui', 'draft_flow.dart')
 
 # سقف‌های امروز؛ عبور از آن‌ها یعنی بازگشت به عقب.
 MAX_STATE_FIELDS = 13
@@ -157,6 +159,26 @@ class ShapeTests(unittest.TestCase):
                         bad.append('%s:%d %s' % (os.path.relpath(path, ROOT), i,
                                                  line.strip()[:90]))
         self.assertEqual(bad, [], '\n'.join(bad))
+
+    def test_chat_controller_is_not_the_draft_form(self):
+        """جریانِ نوشتنِ سند نباید دوباره داخلِ کنترلرِ گفتگو برگردد."""
+        controller = _read(CONTROLLER)
+        flow = _read(DRAFT_FLOW)
+        self.assertLess(len(controller.split('\n')), 340,
+                        'chat_controller.dart دوباره بزرگ شد')
+        self.assertIn('DraftFlow(', controller)
+        for moved in ('_withCaseHelp', '_botFromReply',
+                      'void start(String userText, LegalTemplate t)',
+                      'void step(String text)', 'DraftSession(t)'):
+            self.assertIn(moved, flow, 'منطقِ پیش‌نویس به %s برنگشته' % moved)
+        for gone in ('_withCaseHelp', '_botFromReply', '_startDraft',
+                     '_draftStep', 'DraftSession(t)'):
+            self.assertNotIn(gone, controller,
+                             'کنترلر دوباره %s را خودش دارد' % gone)
+        # رابطِ عمومیِ کنترلر برای صفحه و آزمون‌ها باید سر جایش باشد.
+        for keep in ('bool get isDrafting', 'DraftSession? get draft',
+                     'List<LegalTemplate> get pendingChoices'):
+            self.assertIn(keep, controller)
 
     def test_engine_does_not_own_law_names(self):
         """شناساییِ نام قانون باید همکارِ موتور باشد، نه عضوی از آن."""
