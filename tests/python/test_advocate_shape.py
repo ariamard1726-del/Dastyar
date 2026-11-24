@@ -84,6 +84,12 @@ MOVED_FIELDS = ['_rest', '_offeredMore', '_lastAsk', '_askRepeats',
 class ShapeTests(unittest.TestCase):
     def setUp(self):
         self.src = _read(ADVOCATE)
+        # کتابخانهٔ وکیل از چند بخش ساخته می‌شود؛ `self.src` فقط فایلِ کلاس است
+        # و `self.lib` همهٔ بخش‌ها. ادعاهای ساختاری روی `src` و ادعاهای
+        # «کجا صدا زده می‌شود» روی `lib` نوشته می‌شوند.
+        parts = [os.path.join(ADVOCATE_DIR, name)
+                 for name in re.findall(r"^part '([^']+)'", self.src, re.M)]
+        self.lib = '\n'.join([self.src] + [_read(q) for q in parts])
 
     def test_state_fields_do_not_grow(self):
         fields = [l for l in _class_body(self.src)
@@ -188,16 +194,16 @@ class ShapeTests(unittest.TestCase):
         ac = _read(os.path.join(ADVOCATE_DIR, 'answer_candidate.dart'))
         self.assertIn('class AnswerCandidate {', ac)
         self.assertIn('class AnswerArbiter {', ac)
-        self.assertIn('_arbiter.pick(', self.src)
-        names = re.findall(r"AnswerCandidate\('([^']+)'", self.src)
+        self.assertIn('_arbiter.pick(', self.lib)
+        names = re.findall(r"AnswerCandidate\('([^']+)'", self.lib)
         self.assertGreaterEqual(len(names), 15, names)
         self.assertEqual(names[0], 'موضوعِ تازه', names[:2])
         # سبکِ پیشین: هر مسیر با `if` جدا و پراکنده در `_reply` — برنگردد.
-        self.assertNotIn('if (_routes.', self.src)
-        self.assertNotIn('final branch = _branchReply(', self.src)
+        self.assertNotIn('if (_routes.', self.lib)
+        self.assertNotIn('final branch = _branchReply(', self.lib)
         # ایمنی و انصراف هم کاندید شدند، نه بلوکِ درون‌خطی.
-        self.assertIn('_leaveReply(', self.src)
-        self.assertIn('_safetyReply(', self.src)
+        self.assertIn('_leaveReply(', self.lib)
+        self.assertIn('_safetyReply(', self.lib)
 
     def test_reply_no_longer_mixes_counting_with_deciding(self):
         """محاسبهٔ موضوع باید از تصمیمِ `_reply` جدا بماند و `_reply` کوتاه بماند."""
@@ -205,7 +211,7 @@ class ShapeTests(unittest.TestCase):
         self.assertIn('class TopicRead {', tr)
         self.assertIn('final Topic? best;', tr)
         self.assertIn('final Map<String, int> scores;', tr)
-        reply = _method(self.src, 'AdvocateReply _reply(String raw')
+        reply = _method(self.lib, 'AdvocateReply _reply(String raw')
         self.assertLess(reply.count('\n'), 140, '_reply دوباره پر شد: %d خط' % reply.count('\n'))
         self.assertIn('_readTopics(n)', reply)
         # حلقه‌های امتیازدهی و اصلاحِ کاربر نباید دوباره در `_reply` نوشته شوند.
@@ -213,7 +219,7 @@ class ShapeTests(unittest.TestCase):
         self.assertNotIn('_afterCorrection(', reply)
         self.assertIn('_noCaseReply(raw, n, read, guess)', reply)
         self.assertIn('_inCaseReply(raw, n, topic, read)', reply)
-        self.assertIn('TopicRead _readTopics(String n)', self.src)
+        self.assertIn('TopicRead _readTopics(String n)', self.lib)
 
     def test_term_reply_is_its_own_class(self):
         """پاسخ‌های واژه‌محور نباید دوباره متدِ Advocate شوند."""
@@ -224,13 +230,13 @@ class ShapeTests(unittest.TestCase):
                     'AdvocateReply? _topicLeaf(Map<String, dynamic> flow'):
             self.assertIn(sig, tr, sig)
         self.assertIn('TermReply _termReply', self.src)
-        self.assertIn('_termReply.lawTerms(', self.src)
-        self.assertIn('_termReply.topicFlow(', self.src)
+        self.assertIn('_termReply.lawTerms(', self.lib)
+        self.assertIn('_termReply.topicFlow(', self.lib)
         # فایلِ پوسته حذف شد؛ اگر کسی پاسخِ واژه‌محور را برگرداند، این می‌گیردش.
         self.assertFalse(
             os.path.exists(os.path.join(ADVOCATE_DIR, 'advocate_guides.dart')),
             'advocate_guides دوباره ساخته شد')
-        self.assertNotIn('_lawTermsReply(', self.src)
+        self.assertNotIn('_lawTermsReply(', self.lib)
 
     def test_guide_reply_is_its_own_class(self):
         """راهنما و واژه‌نامه نباید دوباره متدِ Advocate شوند."""
@@ -242,7 +248,7 @@ class ShapeTests(unittest.TestCase):
                     'AdvocateReply? follow(LegalGuide g, String n)'):
             self.assertIn(sig, bg, sig)
         self.assertIn('GuideReply _guides', self.src)
-        self.assertIn('_guides.lookup(', self.src)
+        self.assertIn('_guides.lookup(', self.lib)
         self.assertNotIn('AdvocateReply? _guideFollow(', self.src)
 
     def test_case_flow_is_its_own_class(self):
@@ -271,7 +277,7 @@ class ShapeTests(unittest.TestCase):
             self.assertIn(name, self.src, name)
 
     def test_reply_does_not_grow(self):
-        body = _method(self.src, 'AdvocateReply _reply(String raw')
+        body = _method(self.lib, 'AdvocateReply _reply(String raw')
         n = len(body.split('\n'))
         self.assertLessEqual(n, MAX_REPLY_LINES,
                              '_reply دوباره بزرگ شد: %d خط' % n)
@@ -300,10 +306,10 @@ class ShapeTests(unittest.TestCase):
         handlers = re.findall(r'^  AdvocateReply\? (\w+)\(', routes, re.M)
         self.assertGreaterEqual(len(handlers), MIN_ROUTES, handlers)
         for h in handlers:
-            self.assertIn('_routes.%s(' % h, self.src,
+            self.assertIn('_routes.%s(' % h, self.lib,
                           'مسیر %s از _reply صدا زده نمی‌شود' % h)
         # دوباره‌چپاندنِ همین بلوک‌ها در `_reply` نباید ممکن باشد.
-        reply = _method(self.src, 'AdvocateReply _reply(String raw')
+        reply = _method(self.lib, 'AdvocateReply _reply(String raw')
         for marker in ['isComplaintNoOption', 'wrongChip', 'فقط حرف بود']:
             self.assertNotIn(marker, reply, marker)
 
@@ -472,7 +478,7 @@ class ShapeTests(unittest.TestCase):
         پیامی که وکیل خودش می‌سازد («بگو» ← «استدلالت چیه؟») با
         `again: true` رد می‌شود؛ شمارشِ نوبت دستکاری نمی‌شود.
         """
-        code = '\n'.join(l for l in _read(ADVOCATE).split('\n')
+        code = '\n'.join(l for l in self.lib.split('\n')
                          if not l.strip().startswith('///'))
         self.assertNotIn('turns--', code)
         self.assertIn('bool again = false', code)

@@ -133,6 +133,8 @@
 | ۱۹ | جداسازیِ «خواندنِ موضوع» از تصمیم | `TopicRead` | `_reply` ۲۸۷ → ۱۰۴ خط |
 | ۲۰ | دادهٔ راهنماها از کد بیرون رفت | `legal_guides_loader.dart` + `assets/brain/guides/legal_guides.json` | `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط |
 | ۲۱ | ایمنی و ثابت‌ها | `SafetyReply` + `advocate_constants.dart` | `advocate.dart` ۱٬۰۷۰ → ۹۸۹ خط |
+| ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
+| ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
 
 - متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۶۴** (۲۵ تای آن خودِ کلاس است، ۳۹ پوستهٔ نازک؛ گام ۱۹ عمداً هشت متدِ نام‌دار اضافه کرد و شمارش را بالا برد — معیارِ درست، خطِ `_reply` است: ۳۳۴ → ۱۰۴). فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
