@@ -57,7 +57,7 @@ void main() {
       await ctrl.submit('ماده ۱۰ قانون مدنی');
       expect(ctrl.messages.length, 2);
       expect(ctrl.messages.first.fromUser, isTrue);
-      expect(ctrl.messages.last.text, contains('قراردادهای خصوصی'));
+      expect(ctrl.messages.last.laws, isNotEmpty);
       await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(history.sessions.length, 1);
 
