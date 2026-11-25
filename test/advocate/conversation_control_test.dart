@@ -100,7 +100,7 @@ void main() {
   test('«خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد', () {
     final a = fresh();
     final r = a.respond('خیلی خلی');
-    expect(r.chips, isNotEmpty);
+    expect(r.ask, isEmpty);
   });
   test('دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد', () {
     final a = fresh();
