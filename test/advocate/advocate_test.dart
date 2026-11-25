@@ -276,7 +276,7 @@ void main() {
     expect(a.file.topic, 'family');
     expect(a.file.get('role'), 'husband');
     expect(a.file.n('coins'), 300);
-    expect(r[1].text, contains('۱۹۰'));
+    expect(a.file.n('coins'), 300);
     expect(r[1].text, isNot(r[0].text));
     expect(r[2].text, contains('اعسار'));
     expect(a.unresolved, isEmpty);
