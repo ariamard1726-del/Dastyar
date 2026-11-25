@@ -533,7 +533,7 @@ void main() {
       expect(r.laws, isNotEmpty);
       expect(r.text, isNot(contains('«')));
       final law = a.respond(ChipTexts.lawChip);
-      expect(law.text, contains('ماده'));
+    expectCited(law);
       expect(law.text, contains('«'));
       expect(a.file.topic, 'rent');
     });
