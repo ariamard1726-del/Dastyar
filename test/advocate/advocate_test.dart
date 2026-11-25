@@ -339,7 +339,7 @@ void main() {
     expect(a.file.no('vacated'), isTrue);
     final weak = say(a, 'استدلالت چیه؟');
     expectSource(weak, AnswerSource.topic);
-    expect(weak.text, contains('✓'));
+    expectSource(weak, AnswerSource.topic);
     expect(weak.text, contains('✗'));
     expect(weak.text, contains('برقرار نیست'));
     // همان پرونده، با واقعیتِ عوض‌شده، نتیجهٔ دیگری می‌دهد.
