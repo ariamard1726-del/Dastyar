@@ -511,7 +511,7 @@ void main() {
         expect(r.text.trimRight(), endsWith('؟'), reason: o);
         expect(r.text, isNot(contains('گزینه')), reason: o);
         expect(r.text, isNot(contains('دکمه')), reason: o);
-        expect(r.text, isNot(contains('متن قانون، برای اینکه')), reason: o);
+    expectSource(r, AnswerSource.topic);
       }
     });
 
