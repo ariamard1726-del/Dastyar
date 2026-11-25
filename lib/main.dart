@@ -234,6 +234,7 @@ class _LoaderState extends State<Loader> {
       // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
       // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
       LegacyCleanup.run(),
+      PrivacyService.discardLegacyKey(),
     ]);
     // [HistoryStore.load] خطا را می‌بلعد و در `lastError` می‌گذارد.
     final historyError = _history.lastError;

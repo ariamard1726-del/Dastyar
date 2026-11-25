@@ -18,7 +18,7 @@ class PrivacyService {
 
   static const String nativePrefix = 'enc1:';
   static const String fallbackPrefix = 'encf1:';
-  static const String _fallbackKeyPref = '__dastyar_local_key_v1';
+  static const String legacyFallbackKeyPref = '__dastyar_local_key_v1';
 
   /// مسیر جایگزین به کار افتاد؟ فراخوانندهها (صفحهٔ وضعیت) حق دارند بدانند
   /// که «رمزنگاری سختافزاری» تنها یک شعار نماند.
@@ -31,7 +31,8 @@ class PrivacyService {
     fallbackUsed = true;
     lastError = error == null
         ? 'رمزنگاری سختافزاری در دسترس نبود؛ از رمزنگاری جایگزین روی همین '
-            'دستگاه استفاده شد. کلید جایگزین در حافظهٔ محلی برنامه است.'
+            'دستگاه استفاده شد. کلید جایگزین فقط در حافظهٔ همین اجرای برنامه '
+            'است و دادهها پس از بستهشدن برنامه قابل خواندن نخواهند بود.'
         : 'رمزنگاری سختافزاری خطا داد ($error)؛ از مسیر جایگزین استفاده شد.';
   }
 
@@ -112,37 +113,38 @@ class PrivacyService {
 
   // ---------- رمزنگاری احرازهویت‌شدهٔ جایگزین (HMAC-SHA256 + CTR) ----------
 
-  static Future<Uint8List> _getOrCreateFallbackKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    final existing = prefs.getString(_fallbackKeyPref);
-    if (existing != null && existing.isNotEmpty) {
-      try {
-        final decoded = base64Decode(existing);
-        if (decoded.length == 32) return decoded;
-      } catch (_) {}
-    }
-    final rnd = _secureOrFallbackRandom();
-    final key = Uint8List.fromList(
+  /// کلید تنها در حافظهٔ همین isolate زندگی میکند: نه در SharedPreferences،
+  /// نه در دیسک. [Random.secure] در صورت نبود منبع تصادفی خطا میدهد و رمزنگاری
+  /// متوقف میشود؛ تولید کلید قابلپیشبینی راه حل نیست.
+  static Uint8List? _ephemeralKey;
+
+  static Uint8List _fallbackKey() {
+    if (_ephemeralKey != null) return _ephemeralKey!;
+    final rnd = Random.secure();
+    return _ephemeralKey = Uint8List.fromList(
       List<int>.generate(32, (_) => rnd.nextInt(256)),
     );
-    await prefs.setString(_fallbackKeyPref, base64Encode(key));
-    return key;
   }
 
-  static Random _secureOrFallbackRandom() {
-    try {
-      return Random.secure();
-    } catch (_) {
-      return Random();
+  /// شبیهسازِ «برنامه بسته و دوباره باز شد» در آزمونها. data-های مهرومومشدهٔ
+  /// اجرای قبل دیگر باز نمیشوند (fail-closed).
+  static void resetEphemeralKeyForTesting() => _ephemeralKey = null;
+
+  /// پاک کردن کلید قدیمی که نسخههای پیشین در SharedPreferences می نوشتند.
+  /// خواندن آن کلید دوباره رواج نمیدهد؛ فقط اثر امنیتی آن را حذف میکند.
+  static Future<void> discardLegacyKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey(legacyFallbackKeyPref)) {
+      await prefs.remove(legacyFallbackKeyPref);
     }
   }
 
   static Future<String> _fallbackSeal(String plain) async {
-    final masterKey = await _getOrCreateFallbackKey();
+    final masterKey = _fallbackKey();
     final encKey = hmacSha256(masterKey, utf8.encode('enc'));
     final macKey = hmacSha256(masterKey, utf8.encode('mac'));
 
-    final rnd = _secureOrFallbackRandom();
+    final rnd = Random.secure();
     final nonce = Uint8List.fromList(
       List<int>.generate(16, (_) => rnd.nextInt(256)),
     );
@@ -169,7 +171,7 @@ class PrivacyService {
       final tag = Uint8List.sublistView(raw, 16, 48);
       final ct = Uint8List.sublistView(raw, 48);
 
-      final masterKey = await _getOrCreateFallbackKey();
+      final masterKey = _fallbackKey();
       final encKey = hmacSha256(masterKey, utf8.encode('enc'));
       final macKey = hmacSha256(masterKey, utf8.encode('mac'));
 
