@@ -312,6 +312,25 @@ class ShapeTests(unittest.TestCase):
                          'ثابت‌های دکمه دوباره عضوِ Advocate شدند')
         self.assertIn("part 'chip_texts.dart';", self.src)
 
+    def test_the_data_tables_live_outside_the_class(self):
+        """جدول‌های داده (ترتیبِ مسیرها، نگاشتِ شبکهٔ نیت) عضوِ کلاس نباشند.
+
+        `pipelineOrder` فقط یک فهرست نیست؛ **ترتیبش رفتار است**: ایمنی پیش از
+        موضوع، و شبکهٔ نیت پس از راهنما. آزمون، هم محل را می‌سنجد و هم ترتیب را
+        حرف‌به‌حرف، تا جابه‌جاییِ جدول، رفتار را عوض نکند.
+        """
+        data = _read(os.path.join(ADVOCATE_DIR, 'advocate_data.dart'))
+        for name in ('netTopics', 'netMin', 'pipelineOrder', 'guessTopics'):
+            self.assertRegex(data, r'(?m)^const .*\b%s\b' % name,
+                             'جدولِ %s در advocate_data.dart نیست' % name)
+            self.assertNotIn('static const %s' % name, self.src)
+        order = ['safety', 'topic', 'lawTerms', 'glossary', 'guide',
+                 'topicFlow', 'guess', 'intentNet', 'qaBank', 'engine']
+        self.assertIn("part 'advocate_data.dart';", self.src)
+        seen = [l.strip().split('.')[-1].rstrip(',') for l in data.split('\n')
+                if l.strip().startswith('AnswerSource.')]
+        self.assertEqual(seen, order, 'ترتیبِ مسیرهای پاسخ عوض شد')
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',

@@ -34,7 +34,7 @@ void main() {
 
   test('برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل', () {
     final ids = Advocate.topics.map((t) => t.id).toSet();
-    Advocate.netTopics.forEach((label, id) {
+    netTopics.forEach((label, id) {
       expect(net.labels, contains(label));
       expect(ids, contains(id));
     });
@@ -62,8 +62,8 @@ void main() {
       hinted.respond(text);
       if (plain.file.topic.isNotEmpty || hinted.file.topic.isEmpty) continue;
       final top = net.classify(text);
-      expect(top.score, greaterThanOrEqualTo(Advocate.netMin), reason: text);
-      expect(hinted.file.topic, Advocate.netTopics[top.label], reason: text);
+      expect(top.score, greaterThanOrEqualTo(netMin), reason: text);
+      expect(hinted.file.topic, netTopics[top.label], reason: text);
     }
   });
 

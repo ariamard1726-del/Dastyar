@@ -161,6 +161,7 @@
 | پیش‌نویس‌ها در پنج صاحب | `drafting.dart` ۶۵۹ → ۱۹ (فقط `export`)؛ `draft_models` ۱۷۱، `draft_words` ۷۲، `draft_intent` ۲۰۳، `draft_step` ۲۲۸، `draft_laws` ۱۷. نام‌فضایِ `Drafting` حذف شد و ۵۶ ارجاع به صاحبِ خودش رفت؛ قفلش `tests/python/test_drafting_shape.py` پیش از تغییر نوشته شد |
 | موتور: خواندن از پاسخ جدا شد | `core/engine.dart` ۶۳۹ → ۱۸۸ (هفت پاس‌دهندهٔ یک‌خطی + وضعیت)؛ `engine_load.dart` ۲۰۸ (تنها خوانندهٔ دارایی)، `engine_query.dart` ۳۰۷. هر دو `part`ِ `engine.dart` و با `extension`؛ قفلش `tests/python/test_engine_shape.py` |
 | مدلِ پاسخ و برچسبِ دکمه‌ها | `advocate.dart` ۵۹۵ → ۴۵۳؛ `advocate_model.dart` (۹۰، `AnswerSource`/`AdvocateReply`/`_Ask`) و `chip_texts.dart` (۵۶، `ChipTexts`؛ ۸۵ ارجاع منتقل شد). `idleChips` عمداً در `Advocate` ماند چون تصمیم است |
+| جدول‌های داده بیرون رفتند | `advocate.dart` ۴۵۳ → ۴۰۰؛ `advocate_data.dart` (۶۲: نگاشتِ شبکهٔ نیت، آستانه، ترتیبِ مسیرها، نگاشتِ حدس). سه نگهبانِ پایتون حالا کلِ کتابخانه را می‌خوانند، نه یک فایل |
 | سقفِ اندازه | `tests/python/test_file_sizes.py` — ۴۲۰ خط؛ `DEBT` فقط کم می‌شود؛ جدولِ کامل در `docs/GOD_OBJECTS.md` |
 | پاسخِ ایمنی | `safety_reply.dart` / `class SafetyReply` — `_safety` و `_asksDanger` از `Advocate` رفتند و اولین بار است که «خشونت خانگی» مستقل آزموده می‌شود (`test/domain/safety_reply_test.dart`) |
 | دادهٔ راهنماها | `assets/brain/guides/legal_guides.json` + `legal_guides_loader.dart`؛ `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط (فقط مدل و ثبت). قفل: اثرِ انگشتِ sha256، شمارش‌های ساختاری، و آزمونِ دارتِ «نقشه‌های `LawyerVoice` با نصبِ فهرستِ تازه بازساخته می‌شوند» |

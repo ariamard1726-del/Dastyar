@@ -36,7 +36,7 @@ void main() {
 
   test('همهٔ موضوع‌های نگاشت‌شده در وکیل وجود دارند', () {
     final ids = Advocate.topics.map((t) => t.id).toSet();
-    Advocate.guessTopics.forEach((label, list) {
+    guessTopics.forEach((label, list) {
       expect(list, isNotEmpty, reason: label);
       for (final id in list) {
         expect(ids, contains(id), reason: label);
@@ -269,7 +269,7 @@ void main() {
     );
     // موضوع وکیل → دستهٔ سنجش.
     final labelOf = <String, String>{};
-    Advocate.guessTopics.forEach((label, ids) {
+    guessTopics.forEach((label, ids) {
       for (final id in ids) {
         labelOf[id] = label;
       }

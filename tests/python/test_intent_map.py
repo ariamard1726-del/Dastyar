@@ -7,8 +7,17 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def _library():
+    """کلِ کتابخانهٔ وکیل، نه فقط `advocate.dart`: جدول‌ها بخشِ جدا دارند."""
+    base = os.path.join(ROOT, 'lib', 'domain', 'advocate')
+    src = open(os.path.join(base, 'advocate.dart'), encoding='utf-8').read()
+    for name in re.findall(r"^part '([^']+)'", src, re.M):
+        src += '\n' + open(os.path.join(base, name), encoding='utf-8').read()
+    return src
+
+
 def _net_topics():
-    src = open(os.path.join(ROOT, 'lib/domain/advocate/advocate.dart'), encoding='utf-8').read()
+    src = _library()
     block = re.search(r'netTopics = \{(.*?)\};', src, re.S).group(1)
     return dict(re.findall(r"'([a-z_]+)':\s*'([a-z_]+)'", block))
 

@@ -38,10 +38,24 @@ def load_pipeline(path=PIPELINE_JSON):
         return json.load(f)
 
 
-def dart_pipeline_order(path=ADVOCATE_DART):
-    """فهرست pipelineOrder را از کد Dart می‌خواند (ترتیب واقعی)."""
+def library_text(path=ADVOCATE_DART):
+    """متنِ کلِ کتابخانهٔ وکیل: سرِ فایل به‌همراه همهٔ `part`ها.
+
+    جدول‌ها می‌توانند در بخشِ خودشان باشند (`advocate_data.dart`)؛ خواندنِ تنها
+    یک فایل، نگهبان را بی‌سبب قرمز می‌کند و آدم را وسوسه می‌کند جدول را برگرداند.
+    """
+    base = os.path.dirname(path)
     with open(path, encoding='utf-8') as f:
         text = f.read()
+    for name in re.findall(r"^part '([^']+)'", text, re.M):
+        with open(os.path.join(base, name), encoding='utf-8') as f:
+            text += '\n' + f.read()
+    return text
+
+
+def dart_pipeline_order(path=ADVOCATE_DART):
+    """فهرست pipelineOrder را از کد Dart می‌خواند (ترتیب واقعی)."""
+    text = library_text(path)
     m = re.search(r'pipelineOrder\s*=\s*\[(.*?)\];', text, re.S)
     if not m:
         raise ValueError('pipelineOrder در advocate.dart پیدا نشد')
@@ -49,8 +63,7 @@ def dart_pipeline_order(path=ADVOCATE_DART):
 
 
 def dart_net_min(path=ADVOCATE_DART):
-    with open(path, encoding='utf-8') as f:
-        text = f.read()
+    text = library_text(path)
     m = re.search(r'netMin\s*=\s*([0-9.]+)', text)
     if not m:
         raise ValueError('netMin در advocate.dart پیدا نشد')

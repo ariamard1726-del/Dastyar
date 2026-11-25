@@ -20,8 +20,6 @@ LIMIT = 420
 # بدهیِ شناخته‌شده: (سقفِ فعلی). هر عدد فقط اجازه دارد کم شود.
 DEBT = {
     'lib/domain/advocate/topics/rent_issues.dart': 814,
-    # سیم‌کشیِ بیست همکار + ثابت‌های دکمه‌ها؛ گامِ بعد ثابت‌ها را بیرون می‌برد.
-    'lib/domain/advocate/advocate.dart': 453,
     'lib/domain/advocate/topics/rent_patterns.dart': 537,
     'lib/domain/advocate/topics/rent_bodies.dart': 468,
 }

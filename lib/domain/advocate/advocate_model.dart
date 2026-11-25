@@ -9,7 +9,7 @@ part of 'advocate.dart';
 /// از کدام مسیر دانش، این پاسخ ساخته شد؟
 ///
 /// این برچسب فقط برای شفافیت و آزمون است: ترتیب اولویت مسیرها در
-/// [Advocate.pipelineOrder] نوشته شده و `test/advocate/answer_source_test.dart`
+/// [pipelineOrder] نوشته شده و `test/advocate/answer_source_test.dart`
 /// همان را می‌سنجد. متن پاسخ هیچ‌جا از مدل نمی‌آید؛ برچسب می‌گوید از کدام
 /// منبعِ صریح آمده است.
 enum AnswerSource {

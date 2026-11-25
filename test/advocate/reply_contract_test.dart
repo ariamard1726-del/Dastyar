@@ -85,9 +85,9 @@ void main() {
   });
 
   test('ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا', () {
-    expect(Advocate.pipelineOrder.first, AnswerSource.safety);
-    expect(Advocate.pipelineOrder.toSet().length,
-        Advocate.pipelineOrder.length);
-    expect(Advocate.pipelineOrder.last, AnswerSource.engine);
+    expect(pipelineOrder.first, AnswerSource.safety);
+    expect(pipelineOrder.toSet().length,
+        pipelineOrder.length);
+    expect(pipelineOrder.last, AnswerSource.engine);
   });
 }

@@ -7,7 +7,7 @@ import 'package:dastyar/domain/advocate/advocate.dart';
 /// قرارداد خط لوله: `assets/pipeline.json` تنها منبع حقیقت است و کد Dart
 /// باید دقیقاً همان ترتیب و همان آستانه‌ها را داشته باشد.
 ///
-/// پیش از این، ترتیب مسیرها فقط در `Advocate.pipelineOrder` بود و آستانه‌ها
+/// پیش از این، ترتیب مسیرها فقط در `pipelineOrder` بود و آستانه‌ها
 /// عدد جادویی وسط کد؛ هر تغییر بی‌هماهنگ بی‌صدا رفتار را عوض می‌کرد.
 void main() {
   late Map<String, dynamic> pipeline;
@@ -24,13 +24,13 @@ void main() {
 
   test('ترتیب Dart با pipeline.json یکی است', () {
     final want = [for (final s in pipeline['order'] as List) '$s'];
-    final got = [for (final s in Advocate.pipelineOrder) s.name];
+    final got = [for (final s in pipelineOrder) s.name];
     expect(got, want);
   });
 
   test('netMin در Dart با pipeline.json یکی است', () {
     final th = pipeline['thresholds'] as Map<String, dynamic>;
-    expect(Advocate.netMin, (th['netMin'] as num).toDouble());
+    expect(netMin, (th['netMin'] as num).toDouble());
   });
 
   test('هر مسیر pipeline.json به یک مقدار AnswerSource نگاشت می‌شود', () {

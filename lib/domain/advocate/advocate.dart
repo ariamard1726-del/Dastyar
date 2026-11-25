@@ -47,6 +47,7 @@ part 'advocate_reply.dart';
 part 'guide_reply.dart';
 part 'advocate_model.dart';
 part 'chip_texts.dart';
+part 'advocate_data.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
 
@@ -59,59 +60,6 @@ class Advocate {
 
   /// طبقه‌بند نیت (اختیاری). بدون آن هم وکیل کامل کار می‌کند.
   final IntentNet? intentNet;
-
-  /// برچسب‌های طبقه‌بند که موضوعِ هم‌معنا در [topics] دارند.
-  static const Map<String, String> netTopics = {
-    'cheque': 'cheque',
-    'debt': 'debt',
-    'family': 'family',
-    'labor': 'labor',
-    'lease': 'rent',
-    'fraud_cyber': 'cyber',
-  };
-
-  /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
-  static const double netMin = 0.6;
-
-  /// ترتیب اولویت مسیرهای دانش، همان‌طور که در [respond] اجرا می‌شود.
-  ///
-  /// این فهرست «قرارداد» است، نه تزئین: هر مسیر تازه باید جای خودش را در
-  /// همین فهرست بگیرد و `test/advocate/answer_source_test.dart` هر پاسخ را
-  /// با برچسب [AdvocateReply.source] می‌سنجد. تغییر ترتیب = تغییر رفتار،
-  /// پس تغییرش باید همراه با به‌روزکردن همین فهرست و آزمون باشد.
-  static const List<AnswerSource> pipelineOrder = [
-    AnswerSource.safety,
-    AnswerSource.topic,
-    AnswerSource.lawTerms,
-    AnswerSource.glossary,
-    AnswerSource.guide,
-    AnswerSource.topicFlow,
-    AnswerSource.guess,
-    AnswerSource.intentNet,
-    AnswerSource.qaBank,
-    AnswerSource.engine,
-  ];
-
-  /// دسته‌های خوانندهٔ موضوع → موضوع‌های هم‌معنا در [topics] به ترتیب
-  /// اولویت. دسته‌های crime، general، chat و other پرونده‌ای ندارند و با
-  /// آن‌ها وکیل مثل قبل رفتار می‌کند.
-  static const Map<String, List<String>> guessTopics = {
-    'rent': ['rent'],
-    'cheque': ['cheque'],
-    'debt': ['debt', 'enforce'],
-    'labor': ['labor'],
-    'family': ['family', 'child'],
-    'accused': ['accused'],
-    'injury': ['injury'],
-    'neighbor': ['neighbor'],
-    'consumer': ['consumer'],
-    'cyber': ['cyber'],
-    'inherit': ['inherit'],
-    'property': ['property'],
-    'company': ['company', 'partner'],
-    'guarantee': ['guarantee'],
-    'admin': ['admin'],
-  };
 
   final KnowledgeEngine engine;
 

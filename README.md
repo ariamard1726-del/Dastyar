@@ -136,6 +136,7 @@
 | ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
 | ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
 | ۲۴ | روندِ پرونده در چهار بخش | `case_facts` / `case_answer` / `case_text` | `case_flow.dart` ۷۴۴ → ۱۰۴ خط |
+| ۲۸ | جدول‌های داده بیرون رفتند | `advocate_data.dart` | `advocate.dart` ۴۵۳ → ۴۰۰ خط؛ آخرین فایلِ غیرداده زیرِ سقف |
 | ۲۷ | مدلِ پاسخ و متنِ دکمه‌ها | `advocate_model.dart` / `chip_texts.dart` | `advocate.dart` ۵۹۵ → ۴۵۳ خط |
 | ۲۶ | موتور: بارگذاری از پاسخ‌سازی جدا شد | `engine_load.dart` / `engine_query.dart` | `core/engine.dart` ۶۳۹ → ۱۸۸ خط |
 | ۲۵ | پیش‌نویس‌ها در پنج صاحب | `draft_models` / `draft_words` / `draft_intent` / `draft_step` / `draft_laws` | `drafting.dart` ۶۵۹ → ۱۹ خط (سرِ کتابخانه) |
@@ -170,7 +171,7 @@
   قفل کرده است. بارگذاری در `main.dart` و در `test/flutter_test_config.dart`
   انجام می‌شود (لایهٔ `core` عمداً به `domain` وابسته نمی‌شود) و اگر فایل نباشد
   خطا بالا می‌رود، نه فهرستِ خالی.
-- **باقی‌مانده (🟡)، با عددِ امروز:** `advocate.dart` **۵۹۵** خط است — سیم‌کشیِ
+- **باقی‌مانده (🟡)، با عددِ امروز:** `advocate.dart` **۴۰۰** خط است — سیم‌کشیِ
   بیست همکار، API عمومی و ثابت‌های دکمه‌ها. چند پوستهٔ نازک هم دارد (`_social`،
   `_curious`، `_open`، `_closeCase`) که تنه‌شان در همکارهاست، و `_reply` هنوز دو
   فهرستِ داور دارد (پیش و پس از پاسخِ موضوعی) چون «مهلت» و «موضوعِ صریح» عمداً

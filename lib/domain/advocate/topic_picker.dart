@@ -87,7 +87,7 @@ class TopicPicker {
   Topic? guessTopic(String label, String n, Map<String, int> scores) {
     Topic? pick;
     var top = -1;
-    for (final id in Advocate.guessTopics[label] ?? const <String>[]) {
+    for (final id in guessTopics[label] ?? const <String>[]) {
       for (final t in Advocate.topics) {
         if (t.id != id) continue;
         if (t.anti.isNotEmpty && Sense.has(n, t.anti)) continue;
@@ -141,8 +141,8 @@ class TopicPicker {
     if (net == null || dialog.guide != null || Sense.words(n) < 3) return null;
     if (Sense.has(n, '(?:ماده|اصل) [0-9]+')) return null;
     final top = net.classify(raw);
-    if (top.score < Advocate.netMin) return null;
-    final id = Advocate.netTopics[top.label];
+    if (top.score < netMin) return null;
+    final id = netTopics[top.label];
     if (id == null) return null;
     for (final t in Advocate.topics) {
       if (t.id != id) continue;
