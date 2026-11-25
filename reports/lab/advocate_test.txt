@@ -1,8 +1,38 @@
+✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
+::endgroup::
+::group::❌ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود (failed)
+Expected: 'q:goal'
+  Actual: ''
+   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: q:goal
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/rent_test.dart 323:7                  main.<fn>.<fn>
+::endgroup::
+::group::✅ Passing tests
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
-✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
+✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
 ✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
 ✅ test/advocate/meta_and_tone_test.dart: برنامه را بستن و باز کردن، پرسشِ «منظورتان چیست» نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
@@ -10,10 +40,10 @@
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
@@ -68,39 +98,9 @@ test/advocate/understanding_test.dart 52:5          main.<fn>
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
-::endgroup::
-::group::❌ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود (failed)
-Expected: AnswerSource:<AnswerSource.topic>
-  Actual: AnswerSource:<AnswerSource.engine>
-مسیر پاسخ: تحلیل آماده‌ای برای این پرسش ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:
-
-پاسخ این پرسش را در دانش خودم پیدا نکردم. پرسش را با کلمات دیگر بنویسید.
-
-این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/support/reply_shape.dart 9:3                   expectSource
-test/advocate/understanding_test.dart 114:5         main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
-::endgroup::
-::group::❌ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود (failed)
-Expected: AnswerSource:<AnswerSource.topic>
-  Actual: AnswerSource:<AnswerSource.engine>
-مسیر پاسخ: تحلیل آماده‌ای برای این پرسش ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:
-
-پاسخ این پرسش را در دانش خودم پیدا نکردم. پرسش را با کلمات دیگر بنویسید.
-
-این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/support/reply_shape.dart 9:3                   expectSource
-test/advocate/understanding_test.dart 126:5         main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/understanding_test.dart: مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید
 ✅ test/advocate/understanding_test.dart: غبن با اسقاط شرط: قاعدهٔ تعارض پیش از فهرست ماده‌ها جواب می‌دهد
@@ -197,4 +197,4 @@ test/advocate/conversation_control_test.dart 108:5  main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::217 tests passed, 23 failed.
+::error::232 tests passed, 8 failed.
