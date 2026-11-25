@@ -122,9 +122,9 @@
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
-✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
+✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
@@ -161,10 +161,10 @@
 ✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
 ✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: ادعاهای بی‌نام جایگزین هم‌اند: در موضوع‌های دیگر فقط یکی سنجیده می‌شود
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها اخراج بدون اخطار، بدون امضا، وسط قرارداد: محکم
 ✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها تمام‌شدن مدت قرارداد اخراج نیست
