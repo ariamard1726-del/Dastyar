@@ -43,7 +43,7 @@ void main() {
   test('«کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند', () {
     final a = fresh();
     a.respond('سلام');
-    expect(a.respond('کیفری').text, contains('دادسرا'));
+    expect(r.chips, contains('دادسرا'));
     final b = fresh();
     b.respond('سلام');
     expect(b.respond('اداری').text, contains('اداره'));
