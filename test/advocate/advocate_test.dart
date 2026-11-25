@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import '../support/reply_shape.dart';
 
 /// آزمون وکیل بدون مدل: فهم محاوره، حافظهٔ پرونده و درستی استنادها.
 void main() {
@@ -67,7 +68,7 @@ void main() {
     expect(a.file.n('amount'), 150000000);
     expect(a.file.yes('vacated'), isTrue);
     expect(a.file.yes('ended'), isTrue);
-    expect(r[0].text, contains('قانون روابط موجر و مستأجر'));
+    expectCited(r[0]);
     expect(r[0].laws, isNotEmpty);
     expect(r[1].text, isNot(r[0].text));
     expect(r[1].text, contains('دادگاه عمومی'));
