@@ -241,7 +241,7 @@ void main() {
 
     test('وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت', () {
       final a = fresh();
-      final r = a.respond(
+      a.respond(
           'میخوام قبل از پایان قرارداد بلند شم صاحبخونه قبول نمیکنه');
           expect(a.file.get('matter'), 'leave');
       expect(a.file.get('matter'), 'leave');
