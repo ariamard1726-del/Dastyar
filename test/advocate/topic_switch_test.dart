@@ -60,7 +60,7 @@ void main() {
     expect(a.file.topic, 'neighbor');
     final r = a.respond('کارفرمای من دو ماه است حقوقم را نداده و بیمه هم رد نکرده');
     expect(askedNewTopic(r), isTrue, reason: r.chips.join('،'));
-    expect(r.text, contains('فرق دارد'), reason: r.text);
+    expect(r.chips, contains(ChipTexts.newTopicYesChip));
     expect(r.chips, contains(ChipTexts.leaveChip));
     // تا پاسخ نیامده، پرونده عوض نشده است.
     expect(a.file.topic, 'neighbor');
