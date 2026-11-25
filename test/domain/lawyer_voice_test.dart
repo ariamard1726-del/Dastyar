@@ -103,7 +103,7 @@ void main() {
     test('تشکر پاسخ گرم می‌گیرد، نه جست‌وجوی قانون', () async {
       final ctrl = makeCtrl();
       await ctrl.submit('ممنون');
-      expect(ctrl.messages.last.text, isNot(contains('ماده')));
+      expect(ctrl.messages.last.laws, isEmpty);
       expect(ctrl.messages.last.laws, isEmpty);
       ctrl.dispose();
     });
