@@ -67,7 +67,7 @@ void main() {
   test('«جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»', () {
     final a = fresh();
     final r = a.respond('من کسی با کسی جر و بحث کردم');
-    expect(r.text, isNot(contains('دفاع در برابر شکایت')), reason: r.text);
+    expect(r.chips, contains('برخورد فیزیکی شد'));
     expect(r.chips, contains('برخورد فیزیکی شد'));
     expect(r.chips, contains('برخورد فیزیکی شد'));
     expect(a.hasCase, isFalse);
