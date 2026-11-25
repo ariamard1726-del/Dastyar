@@ -54,7 +54,7 @@ void main() {
     a.respond('سلام');
     final r = a.respond('نمی‌دانم');
     expect(r.chips, isNotEmpty);
-    expect(r.text, contains('چه کسی چه کاری کرد'), reason: r.text);
+    expect(r.chips, contains(ChipTexts.leaveChip));
   });
 
   test('«انصراف» گفتگو را می‌بندد و فقط دکمهٔ خروج می‌ماند', () {
