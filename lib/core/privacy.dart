@@ -155,9 +155,12 @@ class PrivacyService {
 
   static String? _openWithKey(List<int> raw, List<int> masterKey) {
     try {
-      final nonce = Uint8List.sublistView(raw, 0, 16);
-      final tag = Uint8List.sublistView(raw, 16, 48);
-      final ct = Uint8List.sublistView(raw, 48);
+      // `sublistView` فقط TypedData میپذیرد؛ `base64Decode` یک List<int> ساده
+      // برمیگرداند، پس ابتدا آن را به Uint8List تبدیل میکنیم.
+      final bytes = Uint8List.fromList(raw);
+      final nonce = Uint8List.sublistView(bytes, 0, 16);
+      final tag = Uint8List.sublistView(bytes, 16, 48);
+      final ct = Uint8List.sublistView(bytes, 48);
       final encKey = hmacSha256(masterKey, utf8.encode('enc'));
       final macKey = hmacSha256(masterKey, utf8.encode('mac'));
       final macInput = Uint8List(nonce.length + ct.length)
