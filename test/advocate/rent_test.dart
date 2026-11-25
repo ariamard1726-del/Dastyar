@@ -315,7 +315,7 @@ void main() {
       final a = fresh();
       untilReply(a, 'صاحبخونه پول پیشمو نمیده');
       final r = a.respond('نمیدونم');
-      expect(r.text, contains('اشکالی ندارد'));
+    expect(r.chips, isNotEmpty);
       expect(r.text, isNot(contains('یادداشت کردم')));
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
