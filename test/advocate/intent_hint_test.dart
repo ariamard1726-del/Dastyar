@@ -26,7 +26,7 @@ void main() {
     );
     samples = [
       for (final line
-          in File('brain/eval/intent_eval.txt').readAsLinesSync())
+          in File('eval/intent_eval.txt').readAsLinesSync())
         if (!line.startsWith('#') && line.indexOf('|') > 0)
           line.substring(line.indexOf('|') + 1).trim(),
     ];

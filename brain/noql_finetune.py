@@ -1,7 +1,7 @@
 """آزمایش: آیا تنظیم دقیق (fine-tune) مدل Noql فهم موضوع را بهتر می‌کند؟
 
 داده و محک همان‌هایی است که brain/embed_bench.py به کار می‌برد، تا عددها با
-brain/reports/embed_bench.md قابل مقایسه باشند. سه روش کنار هم سنجیده می‌شود:
+reports/embed_bench.md قابل مقایسه باشند. سه روش کنار هم سنجیده می‌شود:
   ۱. Noql دست‌نخورده، نزدیک‌ترین نمونه (همان ردیف گزارش قبلی)
   ۲. Noql دست‌نخورده + یک طبقه‌بند کوچک روی بردارها (بدنهٔ مدل عوض نمی‌شود)
   ۳. Noql تنظیم‌شده روی نمونه‌ها با زیان تقابلیِ نظارت‌شده، نزدیک‌ترین نمونه
@@ -10,7 +10,7 @@ brain/reports/embed_bench.md قابل مقایسه باشند. سه روش کن�
 با اعتبارسنجی متقابل روی خودِ نمونه‌ها (eval/topic_examples.tsv) برگزیده می‌شود.
 
 اجرا (در GitHub Actions):  python brain/noql_finetune.py
-خروجی: brain/reports/noql_finetune.md و (برای استفادهٔ بعدی) مدل int8 در SAVE_DIR
+خروجی: reports/noql_finetune.md و (برای استفادهٔ بعدی) مدل int8 در SAVE_DIR
 """
 
 import copy

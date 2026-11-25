@@ -31,10 +31,10 @@
 | `tools/laws_status.py` | منسوخ؛ `tools/law_registry.py status` همین کار را می‌کند |
 | `tools/ci_status.py` | بی‌ارجاع |
 | `tools/dupes.py` | بی‌ارجاع |
-| `brain/ngram_eval.py` | آزمایش تمام‌شده؛ خروجی آن `brain/reports/ngram.txt` حفظ شد |
-| `brain/eval/gold500.txt` | داده بی‌ارجاع؛ هیچ اسکریپت یا گردش‌کاری آن را نمی‌خواند |
+| `brain/ngram_eval.py` | آزمایش تمام‌شده؛ خروجی آن `reports/ngram.txt` حفظ شد |
+| `eval/gold500.txt` | داده بی‌ارجاع؛ هیچ اسکریپت یا گردش‌کاری آن را نمی‌خواند |
 | `eval/dialogues.txt` | داده بی‌ارجاع؛ `test/audit/conversations.txt` کار مشابه را می‌کند |
-| `brain/reports/embed_intfloat_multilingual-e5-small.txt`، `brain/reports/embed_sentence-transformers_paraphrase-multilingual-MiniLM-L12-v2.txt` | خروجی خام تکراری؛ نتیجه در `embed_bench.md` و `alt_bench.md` آمده |
+| `reports/embed_intfloat_multilingual-e5-small.txt`، `reports/embed_sentence-transformers_paraphrase-multilingual-MiniLM-L12-v2.txt` | خروجی خام تکراری؛ نتیجه در `embed_bench.md` و `alt_bench.md` آمده |
 
 **اثر:** حدود ۶۶۵ خط کد Dart و ۱۸۷ خط آزمون Dart حذف شد. رفتار اپ تغییر نکرده است، چون هیچ مسیر زنده‌ای به این کدها وصل نبود.
 
@@ -45,17 +45,17 @@
 | `tools/set_meta.py` | ابزار دستی ویرایش فیلدهای توصیفی `_meta.json`؛ بی‌ارجاع است ولی ابزار عملیاتی محسوب می‌شود. اگر نمی‌خواهید، بگویید تا حذف شود. |
 | `tools/synonyms/new_rows.txt` | پیش‌نویس مترادف‌های جدید که هنوز در `assets/synonyms.txt` ادغام نشده؛ حذفش داده را از بین می‌برد. |
 | `docs/review_guide.md` | راهنمای کارشناس حقوقی برای بازبینی قالب‌ها؛ سند انسانی است، نه کد مرده. |
-| `brain/reports/ngram.txt` | گزارش نتیجهٔ آزمایش n-gram. |
+| `reports/ngram.txt` | گزارش نتیجهٔ آزمایش n-gram. |
 
 ## ۳. ساختار تکراری (هنوز یکی نشده)
 
-- `eval/` و `brain/eval/`؛ `reports/` و `brain/reports/`: هر دو در گردش‌کارهای CI و آزمون‌های Dart ارجاع دارند. ادغام نیازمند به‌روزرسانی ۱۰+ گردش‌کار، ۸ آزمون Dart و ۱۲ اسکریپت پایتون است و باید در کامیت جدا با `flutter test` انجام شود.
+- ✅ دوقلوی `eval/` و `reports/` حذف شد؛ ورودیها در `eval/` و خروجیها در `reports/`اند (`tests/python/test_repo_hygiene.py`).
 
 ## ۴. موارد که مرده حساب نشده‌اند
 - `assets/templates/*.json`: با فهرست پوشه خوانده می‌شوند.
 - `android/**`: توسط Gradle و Flutter مصرف می‌شوند.
 - `raw/*.txt`: متن خام منابع قانونی؛ `docs/LAW_SOURCES.md` به آن‌ها ارجاع می‌دهد.
-- `test/lab/probe.txt`، `reports/lab/`، `brain/eval/debug_queries.txt`: ورودی گردش‌کارهای آزمایشگاه و آزمون رتبه‌بندی.
+- `test/lab/probe.txt`، `reports/lab/`، `eval/debug_queries.txt`: ورودی گردش‌کارهای آزمایشگاه و آزمون رتبه‌بندی.
 
 ## ۵. ممیزی دوم (نوامبر ۲۰۲۶)
 
@@ -72,7 +72,7 @@
 ### نگه‌داشته‌شده (عمداً)
 | مورد | دلیل |
 |---|---|
-| `tools/holdout_intent.py` و `brain/reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
+| `tools/holdout_intent.py` و `reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
 | `tests/python/test_intent_map.py`، `tests/python/test_law_registry.py` | `python -m unittest discover -s tests/python` در گردش‌کار `gemini-agent` همهٔ `test_*.py` را اجرا می‌کند؛ بی‌ارجاع نامی، ولی زنده‌اند. |
 | `raw/*.txt` | همان دلیل بخش ۴. |
 

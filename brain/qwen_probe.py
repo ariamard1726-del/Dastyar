@@ -15,7 +15,7 @@ STAGE=extra  سه وارسیِ تکمیلی تا نتیجه به یک تنظیم
              طبقه‌بند، و یک آموزشِ LoRA آرام‌تر با سنجش در میانهٔ راه.
 
 سنجه همان است که برای Noql به کار رفت: محک (۳۹) + مجموعهٔ ب (۶۲).
-خروجی: brain/reports/qwen_gguf.md، qwen_tuned.md و qwen_extra.md
+خروجی: reports/qwen_gguf.md، qwen_tuned.md و qwen_extra.md
     DRY=1 STAGE=gguf python brain/qwen_probe.py     # بدون مدل؛ فقط قالب گزارش
 """
 

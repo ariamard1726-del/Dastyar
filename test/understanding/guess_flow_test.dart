@@ -131,7 +131,7 @@ void main() {
 
   test('جایی که قاعده‌ها موضوع را شناخته‌اند حدس هیچ چیز را عوض نمی‌کند', () {
     final samples = [
-      for (final line in File('brain/eval/intent_eval.txt').readAsLinesSync())
+      for (final line in File('eval/intent_eval.txt').readAsLinesSync())
         if (!line.startsWith('#') && line.indexOf('|') > 0)
           line.substring(line.indexOf('|') + 1).trim(),
     ];

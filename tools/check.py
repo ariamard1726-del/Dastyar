@@ -263,7 +263,7 @@ def cmd_meta():
 
 # ---------------------------------------------------------------- intent
 INTENT_MODEL = os.path.join(ROOT, 'assets', 'brain', 'intent_model.json')
-INTENT_EVAL = os.path.join(ROOT, 'brain', 'eval', 'intent_eval.txt')
+INTENT_EVAL = os.path.join(ROOT, 'eval', 'intent_eval.txt')
 
 MIN_RAW_ACC = 0.90
 MIN_GROUP_ACC = 0.92

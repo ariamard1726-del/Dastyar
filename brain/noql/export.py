@@ -6,7 +6,7 @@
   assets/brain/noql_head.json    سرِ طبقه‌بند (۱۹ دسته) + آستانه‌ها + شناسنامه
   assets/brain/noql_licenses.txt پروانه‌های مدل (همان فایل‌های مخزن سازنده)
   test/understanding/noql_ref.json   خروجیِ مرجع برای تست‌های Dart
-  brain/reports/noql_export.md   گزارش
+  reports/noql_export.md   گزارش
 
 هیچ جملهٔ محک (eval/understanding_probe.tsv) یا مجموعهٔ ب در آموزشِ سر یا انتخاب
 آستانه‌ها به‌کار نمی‌رود؛ آن‌ها فقط سنجیده می‌شوند.

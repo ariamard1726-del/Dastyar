@@ -6,7 +6,7 @@
 
 اجرا (در GitHub Actions، چون مدل‌ها باید از اینترنت گرفته شوند):
     python brain/llm_bench.py
-خروجی: brain/reports/llm_bench.md
+خروجی: reports/llm_bench.md
 """
 
 import json
@@ -18,7 +18,7 @@ import traceback
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'eval', 'understanding_probe.tsv')
-OUT = os.path.join(ROOT, 'brain', 'reports', 'llm_bench.md')
+OUT = os.path.join(ROOT, 'reports', 'llm_bench.md')
 
 # (مخزن، الگوی نام فایل). فایل دقیق هنگام اجرا از فهرست مخزن پیدا می‌شود.
 MODELS = [

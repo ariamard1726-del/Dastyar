@@ -2,7 +2,7 @@ name: Alternative embedding models
 
 # آزمایش، نه بخشی از برنامه: مدل‌های برداری فارسی (fp32 و int8) را روی
 # eval/understanding_probe.tsv با نمونه‌های eval/topic_examples.tsv می‌سنجد و
-# گزارش را در brain/reports/alt_bench.md می‌گذارد. هیچ مدلی وارد مخزن یا APK نمی‌شود.
+# گزارش را در reports/alt_bench.md می‌گذارد. هیچ مدلی وارد مخزن یا APK نمی‌شود.
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/alt_bench.md || true
+          git add reports/alt_bench.md || true
           git commit -m "گزارش مدل‌های برداری جایگزین [skip ci]" || echo "nothing to commit"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/qwen_gguf.md || true
+          git add reports/qwen_gguf.md || true
           git commit -m "گزارش Qwen3-0.6B: Q4 در برابر Q8 [skip ci]" || echo "nothing to commit"
           for i in 1 2 3 4; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
@@ -75,7 +75,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/qwen_tuned.md || true
+          git add reports/qwen_tuned.md || true
           git commit -m "گزارش Qwen3-0.6B-fas: بدون آموزش و با LoRA [skip ci]" || echo "nothing to commit"
           for i in 1 2 3 4; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
@@ -105,7 +105,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/qwen_extra.md || true
+          git add reports/qwen_extra.md || true
           git commit -m "گزارش Qwen3-0.6B: وارسی‌های تکمیلی [skip ci]" || echo "nothing to commit"
           for i in 1 2 3 4; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break

@@ -8,7 +8,7 @@
 بخش‌ها:
   normalize/collapse/phrase/tokenize — لایهٔ متن (brain/common.py + tools/eval_py.py ↔ lib/core/persian_text.dart)
   conflicts — زنجیرهٔ تضادها (brain/engine.py ↔ ConflictsService)
-  rank — top-3 بازیابی برای پرسش‌های brain/eval/eval.txt (tools/eval_py.py ↔ KnowledgeEngine)
+  rank — top-3 بازیابی برای پرسش‌های eval/eval.txt (tools/eval_py.py ↔ KnowledgeEngine)
   terms — تطبیق واژه‌های پرسش با متن قوانین (tools/law_terms.py ↔ lib/domain/advocate/law_terms.dart)
 
 اجرا:
@@ -79,7 +79,7 @@ def conflicts_section():
 
 def rank_section():
     eng = Engine()
-    path = os.path.join(ROOT, 'brain', 'eval', 'eval.txt')
+    path = os.path.join(ROOT, 'eval', 'eval.txt')
     queries = []
     with open(path, encoding='utf-8') as f:
         for line in f:

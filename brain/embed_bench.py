@@ -9,7 +9,7 @@ n-gram نویسه‌ای روی همان نمونه‌ها) تا معلوم شو
 اجرا (در GitHub Actions، چون مدل‌ها باید از اینترنت گرفته شوند):
     python brain/embed_bench.py
     DRY=1 python brain/embed_bench.py     # بدون مدل؛ فقط شاهد و قالب گزارش
-خروجی: brain/reports/embed_bench.md
+خروجی: reports/embed_bench.md
 """
 
 import json
@@ -55,7 +55,7 @@ PAIRS = [
 ]
 
 RULES_OK = None  # از فایل محک خوانده می‌شود
-LLM_BEST = 'Gemma 3 4B / Gemma 3n E2B: 37/39 (brain/reports/llm_bench.md)'
+LLM_BEST = 'Gemma 3 4B / Gemma 3n E2B: 37/39 (reports/llm_bench.md)'
 
 
 def fix(s):
@@ -422,7 +422,7 @@ def write(data, control, over, models, fails):
              f'نمونه‌ها: {len(data.examples)} جمله در {len(set(k for k, _ in data.examples))} '
              'موضوع (`eval/topic_examples.tsv`). '
              f'محک دوم: {nb} جملهٔ قدیمیِ محاوره‌ای با برچسب تمیز '
-             '(`brain/eval/intent_eval.txt`).')
+             '(`eval/intent_eval.txt`).')
     L.append('روش اصلی: «نزدیک‌ترین نمونه» (موضوعِ شبیه‌ترین نمونه‌جمله). '
              'زمان روی پردازندهٔ GitHub Actions است و فقط برای مقایسهٔ مدل‌ها با هم معتبر است، نه گوشی.')
     L.append('')

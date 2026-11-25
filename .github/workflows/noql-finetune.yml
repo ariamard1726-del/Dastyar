@@ -2,7 +2,7 @@ name: Noql fine-tune experiment
 
 # آزمایش، نه بخشی از برنامه: Noql را روی eval/topic_examples.tsv تنظیم می‌کند و
 # پیش و پس را روی همان محک‌های embed-bench می‌سنجد. گزارش در
-# brain/reports/noql_finetune.md؛ مدل int8 تنظیم‌شده فقط به‌صورت artifact نگه داشته می‌شود.
+# reports/noql_finetune.md؛ مدل int8 تنظیم‌شده فقط به‌صورت artifact نگه داشته می‌شود.
 
 on:
   workflow_dispatch:
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/noql_finetune.md || true
+          git add reports/noql_finetune.md || true
           git commit -m "گزارش آزمایش تنظیم دقیق Noql [skip ci]" || echo "nothing to commit"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"

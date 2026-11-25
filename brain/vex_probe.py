@@ -6,7 +6,7 @@
      چقدر درست تشخیص می‌دهد (همان روش و همان نمونه‌های brain/embed_bench.py).
 
 اجرا (در GitHub Actions):  python brain/vex_probe.py
-خروجی: brain/reports/vex_probe.md
+خروجی: reports/vex_probe.md
 """
 
 import os
@@ -22,7 +22,7 @@ from embed_bench import Data, ngram_vectors, pct, score, unit  # noqa: E402
 
 REPO = 'DENLIAI/Vex-Base-3.5M-x1'
 OUT = os.path.join(HERE, 'reports', 'vex_probe.md')
-NOQL = 'Noql int8 (از brain/reports/embed_bench.md): محک اصلی 33/39، محک دوم 55/62'
+NOQL = 'Noql int8 (از reports/embed_bench.md): محک اصلی 33/39، محک دوم 55/62'
 
 
 def main():

@@ -1,7 +1,7 @@
 name: Vex model probe
 
 # آزمایش، نه بخشی از برنامه: مدل DENLIAI/Vex-Base-3.5M-x1 را روی جمله‌های محک اجرا
-# می‌کند و گزارش را در brain/reports/vex_probe.md می‌گذارد.
+# می‌کند و گزارش را در reports/vex_probe.md می‌گذارد.
 
 on:
   workflow_dispatch:
@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/vex_probe.md || true
+          git add reports/vex_probe.md || true
           git commit -m "گزارش بررسی مدل Vex [skip ci]" || echo "nothing to commit"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"

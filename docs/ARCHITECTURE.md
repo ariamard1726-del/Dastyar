@@ -91,7 +91,7 @@
 مدل برداری فارسی `shekar-ai/Noql` (ALBERT، ۱۲٫۷ میلیون پارامتر) دست‌نخورده، به‌علاوهٔ یک سرِ طبقه‌بندِ کوچک (رگرسیون لجستیک روی بردار ۷۶۸تایی، ۱۹ دسته، آموخته از `eval/topic_examples.tsv`). همه‌چیز Dart خالص است و کتابخانهٔ بومی ندارد:
 
 - `noql_tokenizer.dart`: توکن‌ساز Unigram مدل؛ `noql_encoder.dart`: گذر رو به جلو با وزن‌های int8 (`assets/brain/noql.bin`، حدود ۱۲ مگابایت)؛ `topic_reader.dart`: بردار → دسته و اطمینان؛ `reader_service.dart`: اجرای همین‌ها در Isolate جدا تا صفحه قفل نشود.
-- فایل‌های `assets/brain/noql*` و مرجع تست (`test/understanding/noql_ref.json`) را `brain/noql/export.py` می‌سازد (گردش‌کار «Noql export»). همان‌جا هستهٔ مرجع پایتون (`brain/noql/core.py`، همان الگوریتمِ کد Dart) با کتابخانه‌های اصلی مدل مقایسه می‌شود؛ گزارش در `brain/reports/noql_export.md`. `test/understanding/noql_test.dart` نگهبانِ برابری Dart با آن مرجع است.
+- فایل‌های `assets/brain/noql*` و مرجع تست (`test/understanding/noql_ref.json`) را `brain/noql/export.py` می‌سازد (گردش‌کار «Noql export»). همان‌جا هستهٔ مرجع پایتون (`brain/noql/core.py`، همان الگوریتمِ کد Dart) با کتابخانه‌های اصلی مدل مقایسه می‌شود؛ گزارش در `reports/noql_export.md`. `test/understanding/noql_test.dart` نگهبانِ برابری Dart با آن مرجع است.
 - آستانه‌ها (`open`، `margin`، `ask` در `noql_head.json`) فقط از اعتبارسنجی روی خودِ نمونه‌ها انتخاب می‌شوند، نه از جمله‌های محک.
 
 وکیل با حدس سه کار می‌کند (`_fromGuess` در `advocate_topic.dart`): حدسِ مطمئن پروندهٔ موضوعِ هم‌معنا را باز می‌کند، در جواب می‌گوید «برداشتم این است که…» و دکمهٔ «موضوعم این نیست» می‌گذارد؛ حدسِ نامطمئن به پرسش «ماجرای شما به کدام نزدیک‌تر است؟» با دو گزینه می‌رسد؛ حدسِ ضعیف یا دسته‌ای که پرونده ندارد (`crime`، `general`، `chat`، `other`) نادیده گرفته می‌شود. نگاشت دسته‌ها به موضوع‌ها در `Advocate.guessTopics` است. مدل هیچ واقعیتی نمی‌خواند (نفی را نمی‌فهمد) و هیچ متنی نمی‌نویسد. نتیجهٔ قاعده‌ها به‌تنهایی و قاعده‌ها + مدل روی `eval/understanding_probe.tsv` در هر اجرای تست در `reports/understanding.txt` نوشته می‌شود.
@@ -127,7 +127,7 @@
 | روابط/تضاد مواد | `assets/relationships.json` | دارت: `core/conflicts_service.dart`؛ پایتون: `brain/engine.py` |
 | طبقه‌بند نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `tools/check.py intent`؛ آموزش: `brain/train_intent.py` |
 | پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` (فقط ۸ کلید فعال موتور بازیابی) |
-| مجموعه‌های ارزیابی | `brain/eval/*.txt` و `eval/*.tsv` | ابزارهای ارزیابی و تست‌ها (ادغام در یک `eval/` در نقشهٔ بازآرایی است) |
+| مجموعههای ارزیابی | `eval/*.txt` و `eval/*.tsv` | ورودیهای سنجش در یک پوشه؛ خروجیها در `reports/` |
 | ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | دارت: `Advocate.pipelineOrder`/`netMin`؛ نگهبان: `tools/pipeline_check.py` و `python tools/check.py pipeline`؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
 | ساختار مسیر موضوعی | `tools/schemas/topic_flow.schema.json` | نگهبان: `tools/topic_schema.py` (`check.py topics`) |
 | ارجاع‌های قانونیِ داده | متن قوانین + `_meta.json` | نگهبان: `tools/data_refs.py` (`check.py refs`) برای `articles`، `lawRefs` و `refs` |
@@ -160,9 +160,9 @@
 ## نقاط ضعف شناخته‌شده و نقشهٔ بازآرایی مرحله‌ای
 
 1. **توسعهٔ دستی حوزه‌های حقوقی:** هر موضوع تازه در `lib/domain/advocate/topics/` نیازمند نوشتن دستی الگوها، پرسش‌ها و ادعاها، ثبت در `topics/all.dart`، افزودن قالب در `assets/templates/` و نمونه در `eval/` است.
-2. **محدودیت و هزینهٔ Noql:** Noql نفی را تشخیص نمی‌دهد (شباهت کسینوسی ۰٫۸۷ تا ۰٫۹۳ در `brain/reports/embed_bench.md`) و اجرای Dart خالص آن حدود ۴۰۰ میلی‌ثانیه روی CPU است؛ به همین دلیل فقط نقش «حدس موضوع پس از ناکامی قاعده‌ها» دارد. طبق محک `brain/reports/alt_bench.md`، جایگزین‌های چندزبانه مانند `intfloat/multilingual-e5-small` (۱۱۷٫۷M پارامتر، دقت ۸۳/۱۰۱) هم سنگین‌تر و هم ضعیف‌تر از Noql (۱۲٫۷M پارامتر، دقت ۹۰/۱۰۱) بوده‌اند؛ بررسی جایگزین‌های ایستا و سبک‌تر (مانند Model2Vec فارسی) برای آینده باز است.
+2. **محدودیت و هزینهٔ Noql:** Noql نفی را تشخیص نمی‌دهد (شباهت کسینوسی ۰٫۸۷ تا ۰٫۹۳ در `reports/embed_bench.md`) و اجرای Dart خالص آن حدود ۴۰۰ میلی‌ثانیه روی CPU است؛ به همین دلیل فقط نقش «حدس موضوع پس از ناکامی قاعده‌ها» دارد. طبق محک `reports/alt_bench.md`، جایگزین‌های چندزبانه مانند `intfloat/multilingual-e5-small` (۱۱۷٫۷M پارامتر، دقت ۸۳/۱۰۱) هم سنگین‌تر و هم ضعیف‌تر از Noql (۱۲٫۷M پارامتر، دقت ۹۰/۱۰۱) بوده‌اند؛ بررسی جایگزین‌های ایستا و سبک‌تر (مانند Model2Vec فارسی) برای آینده باز است.
 3. **بدهی‌های ساختاریِ قابل اصلاحِ مرحله‌ای (هر مرحله در یک کامیت جدا همراه با `flutter analyze` و `flutter test`):**
-   - یکپارچه‌سازی پوشه‌های دوقلوی `eval/` + `brain/eval/` و `reports/` + `brain/reports/` (همراه با به‌روزرسانی تست‌ها و گردش‌کارهای CI).
+   - ✅ یکپارچهای پوشههای دوقلوی سنجش انجام شد (`eval/` و `reports/`)؛ مرز اپ و ابزار آفلاین در `docs/REPO_LAYOUT.md` قفل شده است.
    - تفکیک منطقی لایهٔ `retrieval/` از `lib/core/` و لایهٔ `ml/` از `lib/domain/` به‌عنوان دو لایهٔ هم‌ترازِ بالای `core/` (بدون وابستگی `retrieval → ml` و با حفظ اصل «اول قاعده، بعد مدل» در `Advocate`).
    - جداسازی وابستگی `ChangeNotifier`/`ThemeMode` از `lib/domain/settings.dart` در صورت نیاز به دامنهٔ کاملاً مستقل از فلاتر.
    - سامان‌دهی `assets/brain/` به تفکیک مدل (`models/`) و داده (`data/`؛ از جمله انتقال `law_topics.json` به بخش داده).
@@ -194,7 +194,7 @@
 1. `lib/domain/settings.dart` هنوز `ChangeNotifier` و `ThemeMode` فلاتر را استفاده می‌کند. آزمون معماری این فایل را در فهرست مجاز نگه داشته و فایل‌های جدید domain را از وابستگی به UI منع می‌کند.
 2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`engine_load.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
 3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
-4. `eval/` و `brain/eval/`، `reports/` و `brain/reports/` تکراری‌اند (ادغام نیازمند کامیت جدا با `flutter test`).
+4. ✅ `eval/` و `reports/` دوقلو نبودند؛ ادغام شدند (`docs/REPO_LAYOUT.md`).
 5. `ChatController` (۳۱۲ خط) مسیرهای پیش‌نویس، حدس خواننده و پاسخ وکیل را کنار هم دارد؛ استخراج یک هماهنگ‌کنندهٔ خالص یک بازآرایی جداگانه است.
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۲ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `topics/rent_claims.dart` ۳۶۸ خط (متن و شرطِ ادعاها). `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 

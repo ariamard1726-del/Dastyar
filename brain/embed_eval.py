@@ -1,7 +1,7 @@
 """آزمایش: آیا یک مدل embedding کوچک بازیابی را بهتر می‌کند؟
 فقط اندازه‌گیری است؛ به اپ دست نمی‌زند.
 اجرا: MODEL=intfloat/multilingual-e5-small python brain/embed_eval.py
-خروجی: brain/reports/embed_<مدل>.txt"""
+خروجی: reports/embed_<مدل>.txt"""
 import os
 import re
 import sys

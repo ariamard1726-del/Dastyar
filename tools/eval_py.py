@@ -455,7 +455,7 @@ if __name__ == '__main__':
     }
     failed = False
     for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_all_laws.txt'):
-        p = os.path.join(ROOT, 'brain', 'eval', f)
+        p = os.path.join(ROOT, 'eval', f)
         if os.path.exists(p):
             r1, r5, mrr = run(e, p, verbose)
             if check_mode and f in thresholds:
@@ -466,7 +466,7 @@ if __name__ == '__main__':
                         f'min ({min_r1:.2f}, {min_r5:.2f}, {min_mrr:.3f})'
                     )
                     failed = True
-    p = os.path.join(ROOT, 'brain', 'eval', 'eval_everyday_laws.txt')
+    p = os.path.join(ROOT, 'eval', 'eval_everyday_laws.txt')
     if os.path.exists(p):
         acc = run_laws(e, p, verbose)
         if check_mode and acc < 0.90:

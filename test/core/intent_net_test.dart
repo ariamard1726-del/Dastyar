@@ -51,8 +51,8 @@ void main() {
       expect(net.metrics, isNotEmpty);
     });
 
-    test('دقت روی brain/eval/intent_eval.txt دست‌کم ۰٫۹۰ است (هم‌تراز CI پایتون)', () {
-      final rows = _loadRows('brain/eval/intent_eval.txt');
+    test('دقت روی eval/intent_eval.txt دست‌کم ۰٫۹۰ است (هم‌تراز CI پایتون)', () {
+      final rows = _loadRows('eval/intent_eval.txt');
       expect(rows.length, greaterThanOrEqualTo(140));
       var ok = 0;
       final wrong = <String>[];

@@ -11,7 +11,7 @@ import 'package:dastyar/domain/understanding/topic_reader.dart';
 /// کدِ Dart مدل Noql باید همان چیزی را بدهد که هستهٔ مرجع پایتون
 /// (`brain/noql/core.py`) داده و در `noql_ref.json` ثبت شده است. خودِ آن
 /// هسته روی CI با کتابخانه‌های اصلی مدل مقایسه می‌شود
-/// (`brain/reports/noql_export.md`).
+/// (`reports/noql_export.md`).
 void main() {
   late TopicReader reader;
   late Map<String, dynamic> ref;

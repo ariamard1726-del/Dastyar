@@ -89,7 +89,7 @@ class FeedbackStore {
     } catch (_) {}
   }
 
-  /// متنی که می‌شود مستقیم کنار brain/eval*.txt گذاشت:
+  /// متنی که می‌شود مستقیم کنار eval*.txt گذاشت:
   /// هر خطِ بدون # یک سطر ارزیابی است («پرسش | قانون | ماده»).
   static String exportText(List<FeedbackEntry> list) {
     final b = StringBuffer();
