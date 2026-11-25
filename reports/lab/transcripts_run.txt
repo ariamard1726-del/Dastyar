@@ -1,11 +1,38 @@
 
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+lib/core/privacy.dart:158:43: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final nonce = Uint8List.sublistView(raw, 0, 16);
+                                          ^
+lib/core/privacy.dart:159:41: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final tag = Uint8List.sublistView(raw, 16, 48);
+                                        ^
+lib/core/privacy.dart:160:40: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final ct = Uint8List.sublistView(raw, 48);
+                                       ^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/core/privacy.dart:158:43: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final nonce = Uint8List.sublistView(raw, 0, 16);
+                                          ^
+lib/core/privacy.dart:159:41: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final tag = Uint8List.sublistView(raw, 16, 48);
+                                        ^
+lib/core/privacy.dart:160:40: Error: The argument type 'List<int>' can't be assigned to the parameter type 'TypedData'.
+ - 'List' is from 'dart:core'.
+ - 'TypedData' is from 'dart:typed_data'.
+      final ct = Uint8List.sublistView(raw, 48);
+                                       ^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
