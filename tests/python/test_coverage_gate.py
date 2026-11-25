@@ -28,6 +28,8 @@ class CoverageGateTests(unittest.TestCase):
         wf = (ROOT / '.github' / 'workflows' / 'test.yml').read_text(encoding='utf-8')
         self.assertIn('flutter test --coverage', wf)
         self.assertIn('tools/coverage_gate.py coverage/lcov.info --min', wf)
+        self.assertIn('reports/coverage.txt', wf)
+        self.assertIn('run-id: ${{ github.run_id }}', wf)
 
 
 if __name__ == '__main__':

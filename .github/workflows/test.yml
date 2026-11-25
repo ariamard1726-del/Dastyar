@@ -44,8 +44,9 @@ jobs:
           set -o pipefail
           flutter test --coverage 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
       - name: Coverage gate
+        id: coverage
         if: steps.ft.outcome == 'success'
-        run: python tools/coverage_gate.py coverage/lcov.info --min 40
+        run: python tools/coverage_gate.py coverage/lcov.info --min 40 | tee reports/coverage.txt
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
@@ -81,6 +82,10 @@ jobs:
             tail -n 1 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
             grep -E " (info|warning|error) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 | head -n 30 || true
           } >> reports/last_test.txt
+          if [ -f reports/coverage.txt ]; then
+            echo "--- coverage ---" >> reports/last_test.txt
+            cat reports/coverage.txt >> reports/last_test.txt
+          fi
       - name: Near-miss report
         if: always()
         continue-on-error: true
@@ -96,6 +101,7 @@ jobs:
             reports/understanding.txt
             reports/noql_dart_speed.txt
             reports/near_miss.txt
+            reports/coverage.txt
       - name: Fail if anything failed
         if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
         run: exit 1
@@ -117,12 +123,16 @@ jobs:
         with:
           name: test-reports
           path: .
+          # بدون run-id، اکشن قدیمیترین اجرای موفق را میگرفت و report گام
+          # قبلی روی شاخه مینوشت (رفتار مشاهدهشده در 9ca34d1).
+          run-id: ${{ github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit reports
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
-          git add reports/understanding.txt reports/noql_dart_speed.txt 2>/dev/null || true
+          git add reports/understanding.txt reports/noql_dart_speed.txt reports/coverage.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
           # rebase ممکن است به‌خاطر push هم‌زمان شکست بخورد؛ ولی push دیگر
           # بی‌صدا رد نمی‌شود.
