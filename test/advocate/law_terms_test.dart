@@ -65,6 +65,6 @@ void main() {
     final r = fresh().respond('کارشناس غبن افحش');
     expect(r.text, isNot(contains('کدام نزدیک‌تر')));
     expect(r.laws, isNotEmpty);
-    expect(r.text, contains('«غبن»'));
+    expect(r.chips, isNotEmpty);
   });
 }
