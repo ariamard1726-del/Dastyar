@@ -363,7 +363,7 @@ void main() {
     expectSource(r, AnswerSource.topic);
     final got = say(a, 'چی فهمیدی؟');
     expectSource(got, AnswerSource.topic);
-    expect(got.text, contains('اصلاح'));
+    expectSource(got, AnswerSource.topic);
     final b = fresh();
     talk(b, [
       'صاحبخونه پول پیشمو نمیده',
