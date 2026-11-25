@@ -1,5 +1,3 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: گفتگوی دوطرفه متن ماده را وقتی نشان می‌دهد که کاربر بخواهد (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/understanding_test.dart: پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد (failed)
@@ -8,4 +6,4 @@
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/retrieval_quality_test.dart: دقت بازیابی تعاریف، مترادف‌های حقوقی و نگهبان حوزه‌های خارج از پوشش قوانین تازه واردشده پاسخ مستند می‌دهند و حوزه‌های واقعاً خارج از برنامه رد می‌شوند (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/app/draft_checkpoint_test.dart: ذخیرهٔ رمزنگاری‌شدهٔ پیش‌نویس ناتمام DraftCheckpointStore و ChatController پیش‌نویس ناتمام را رمزنگاری، بازیابی و پاک می‌کنند (failed)
-::error::530 tests passed, 10 failed.
+::error::532 tests passed, 8 failed.
