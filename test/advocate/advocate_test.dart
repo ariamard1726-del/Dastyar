@@ -311,7 +311,7 @@ void main() {
     expectSource(r[0], AnswerSource.topic);
     // نقشهٔ راه و استدلال را سرِ خود روی سر کاربر نمی‌ریزد.
     expect('۱)'.allMatches(r[2].text).length, 0);
-    expect(r[2].text, isNot(contains('شرط اول')));
+    expect('۱)'.allMatches(r[2].text).length, 0);
     // ولی وقتی خودش بخواهد، شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
     final arg = say(a, 'استدلالت چیه؟');
     expectSource(arg, AnswerSource.topic);
