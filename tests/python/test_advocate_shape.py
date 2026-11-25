@@ -252,8 +252,16 @@ class ShapeTests(unittest.TestCase):
         self.assertNotIn('AdvocateReply? _guideFollow(', self.src)
 
     def test_case_flow_is_its_own_class(self):
-        """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود."""
-        flow = _read(os.path.join(ADVOCATE_DIR, 'case_flow.dart'))
+        """روندِ پرونده نباید دوباره ۱۳ متدِ خصوصیِ Advocate شود.
+
+        روند در چهار فایلِ هم‌کتابخانه است (کلاس + سه `extension`)، پس متنِ هر
+        چهار با هم خوانده می‌شود؛ وگرنه جابه‌جا شدنِ یک متد به بخشِ دیگر، آزمون
+        را بی‌سبب قرمز می‌کند.
+        """
+        flow = '\n'.join(
+            _read(os.path.join(ADVOCATE_DIR, name))
+            for name in ('case_flow.dart', 'case_facts.dart',
+                         'case_answer.dart', 'case_text.dart'))
         shell = _read(os.path.join(ADVOCATE_DIR, 'advocate_case.dart'))
         self.assertIn('class CaseFlow {', flow)
         for sig in ('AdvocateReply inCase(Topic t, String raw, String n, Issue? issue) {',

@@ -135,6 +135,7 @@
 | ۲۱ | ایمنی و ثابت‌ها | `SafetyReply` + `advocate_constants.dart` | `advocate.dart` ۱٬۰۷۰ → ۹۸۹ خط |
 | ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
 | ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
+| ۲۴ | روندِ پرونده در چهار بخش | `case_facts` / `case_answer` / `case_text` | `case_flow.dart` ۷۴۴ → ۱۰۴ خط |
 
 - متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۶۴** (۲۵ تای آن خودِ کلاس است، ۳۹ پوستهٔ نازک؛ گام ۱۹ عمداً هشت متدِ نام‌دار اضافه کرد و شمارش را بالا برد — معیارِ درست، خطِ `_reply` است: ۳۳۴ → ۱۰۴). فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
