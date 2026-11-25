@@ -106,7 +106,7 @@ void main() {
     a.respond(unknown, guess: unsure('labor', 'rent'));
     final r = a.respond(ChipTexts.noneChip);
     expect(a.file.topic, isEmpty);
-    expect(r.text, contains('چه اتفاقی افتاده'));
+    expect(r.chips, contains(ChipTexts.leaveChip));
     // پرسشِ «کدام؟» دیگر معتبر نیست.
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, isNot('labor'));
