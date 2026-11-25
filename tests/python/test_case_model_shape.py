@@ -12,7 +12,13 @@
 
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from lines import line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
@@ -47,6 +53,11 @@ def _read(name):
         return f.read()
 
 
+def _lines(src):
+    """«شمارِ خط» با همان تعریفِ `tools/lines.py` (همان `wc -l`)."""
+    return src.count('\n')
+
+
 def _exists(name):
     return os.path.exists(os.path.join(ADVOCATE_DIR, name))
 
@@ -56,8 +67,8 @@ class CaseFileShapeTests(unittest.TestCase):
         """`case_file.dart` باید فقط دو export داشته باشد، نه کد."""
         self.assertTrue(_exists(GATE))
         src = _read(GATE)
-        self.assertLessEqual(len(src.split('\n')), MAX_LINES[GATE],
-                             'case_file دوباره کد شد: %d خط' % len(src.split('\n')))
+        self.assertLessEqual(_lines(src), MAX_LINES[GATE],
+                             'case_file دوباره کد شد: %d خط' % _lines(src))
         self.assertNotIn('class ', src, 'کلاس نباید در فایلِ دروازه تعریف شود')
         exports = re.findall(r"^export '([^']+)'", src, re.M)
         self.assertEqual(sorted(exports), sorted([STATE, MODEL]),
@@ -96,7 +107,7 @@ class CaseFileShapeTests(unittest.TestCase):
 
     def test_model_files_stay_under_the_ceiling(self):
         for name, cap in MAX_LINES.items():
-            self.assertLessEqual(len(_read(name).split('\n')), cap,
+            self.assertLessEqual(_lines(_read(name)), cap,
                                  '%s از سقفِ ثبت‌شده گذشت' % name)
 
     def test_the_file_that_owns_case_file_does_not_own_topics(self):

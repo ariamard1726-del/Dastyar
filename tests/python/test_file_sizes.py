@@ -12,7 +12,13 @@
 """
 import glob
 import os
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from lines import line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LIMIT = 420
@@ -40,8 +46,8 @@ LARGEST = {
 
 
 def _lines(path):
-    with open(path, encoding='utf-8') as f:
-        return len(f.read().split('\n'))
+    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `tools/lines.py`.
+    return line_count(path)
 
 
 class FileSizeBudgetTests(unittest.TestCase):

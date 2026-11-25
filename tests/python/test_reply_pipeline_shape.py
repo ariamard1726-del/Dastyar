@@ -11,7 +11,13 @@
 
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from lines import line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
@@ -69,7 +75,8 @@ def _read(name):
 
 
 def _lines(src):
-    return len(src.split('\n'))
+    """«شمارِ خط» با همان تعریفِ `tools/lines.py` (همان `wc -l`)."""
+    return src.count('\n')
 
 
 class ReplyPipelineShapeTests(unittest.TestCase):
