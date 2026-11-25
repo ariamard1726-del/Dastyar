@@ -122,7 +122,7 @@ void main() {
   test('پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود', () {
     final r = fresh().respond(
         'خریدار اول سند عادی دارد و ساکن است؛ خریدار دوم سند رسمی گرفته. کدام مقدم است؟');
-    expect(r.text, isNot(contains('مستاجر')));
+    expectSource(r, AnswerSource.topic);
     expect(r.chips, isNotEmpty);
   });
 
