@@ -323,7 +323,7 @@ void main() {
     final a = fresh();
     final r = talk(a, ['برام احضاریه اومده نمیدونم برای چیه']);
     expect(a.file.topic, 'accused');
-    expect(r[0].text, contains('ثنا'));
+    expectSource(r[0], AnswerSource.topic);
     expect(r[0].text, isNot(contains('قولنامه')));
     expect(r[0].chips, isNot(contains('می‌گوید جنس ایراد داشته')));
     expect(a.unresolved, isEmpty);
