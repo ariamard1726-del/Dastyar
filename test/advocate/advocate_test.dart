@@ -71,7 +71,7 @@ void main() {
     expectCited(r[0]);
     expect(r[0].laws, isNotEmpty);
     expect(r[1].text, isNot(r[0].text));
-    expect(r[1].text, contains('دادگاه عمومی'));
+    expectSource(r[1], AnswerSource.topic);
     expect(a.unresolved, isEmpty);
   });
 
