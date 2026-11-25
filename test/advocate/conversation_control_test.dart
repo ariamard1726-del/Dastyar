@@ -33,7 +33,7 @@ void main() {
     final a = fresh();
     a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
     final r = a.respond('گزینه ای وجود ندارد');
-    expect(r.text, contains('انصراف'));
+    expect(r.chips, contains(ChipTexts.leaveChip));
     expect(r.chips, contains(ChipTexts.newCaseChip));
   });
 
