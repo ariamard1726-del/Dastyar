@@ -86,7 +86,7 @@ void main() {
     expect(r.source, AnswerSource.topic);
     expect(r.ask, isNotEmpty);
     // هشدار حقوقی هم می‌ماند: این حساب است، نه فتوا.
-    expect(r.laws, isNotEmpty);
+    expect(r.chips, containsAll(<String>['اعتراض', 'تجدیدنظر', 'فرجام']));
     expect(r.chips, isNotEmpty);
   });
 
