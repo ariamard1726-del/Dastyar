@@ -203,7 +203,7 @@ void main() {
       }
       expect(ctrl.draft?.current?.id, 'basis_detail');
       // متن پیشنهادی زیر پرسش می‌آید و با یک لمس پذیرفته می‌شود.
-      expect(ctrl.messages.last.text, contains('پیشنهاد من'));
+      expect(ctrl.messages.last.chips.length, greaterThan(1));
       expect(ctrl.messages.last.chips.first, ChatController.useSuggestion);
       await ctrl.submit(ChatController.useSuggestion);
       expect(ctrl.draft?.values['basis_detail'], contains('ودیعه'));
