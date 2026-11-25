@@ -155,7 +155,7 @@ void main() {
     final trust = say(a, 'میشه به حرفات اعتماد کرد؟');
     expect(trust.laws, isEmpty);
     final term = say(a, 'یعنی چی اعسار؟');
-    expect(term.text, contains('اعسار'));
+    expectCited(term);
     a.respond('طلب دارم');
     expect(a.file.topic, 'debt');
     final why = say(a, 'چرا اینو میپرسی؟');
