@@ -1,5 +1,2 @@
 Analyzing Dastyar...                                            
-
-  error • The constructor being called isn't a const constructor. Try removing 'const' from the constructor invocation • test/advocate/answer_candidate_test.dart:20:16 • const_with_non_const
-
-1 issue found. (ran in 9.1s)
+No issues found! (ran in 9.0s)
