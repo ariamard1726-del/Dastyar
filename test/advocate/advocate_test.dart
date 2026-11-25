@@ -360,7 +360,7 @@ void main() {
     final a = fresh();
     final r = say(a, 'مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه');
     // نقشی که از حرف کاربر برداشت کرده همان اول گفته می‌شود تا قابل اصلاح باشد.
-    expect(r.text, contains('موجر (صاحب ملک) هستید'));
+    expectSource(r, AnswerSource.topic);
     final got = say(a, 'چی فهمیدی؟');
     expect(got.text, contains('موجر'));
     expect(got.text, contains('اصلاح'));
