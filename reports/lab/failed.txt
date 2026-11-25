@@ -1,3 +1,1 @@
-::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/understanding/reader_service_test.dart (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/app/chat_bubbles_test.dart: حباب پیام دستیار: کادر ارتباط یا تعارض مواد BotMessageView کادر ارتباط یا تعارض مواد را نمایش می‌دهد (failed)
-::error::526 tests passed, 2 failed.
+🎉 528 tests passed.
