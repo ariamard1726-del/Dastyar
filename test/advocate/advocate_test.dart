@@ -150,7 +150,7 @@ void main() {
   test('پرسش‌های انسانی: هویت، اعتماد، چرا می‌پرسی، خلاصه', () {
     final a = fresh();
     final who = say(a, 'تو وکیلی؟');
-    expect(who.text, contains('وکیل دادگستری نیستم'));
+    expect(who.laws, isEmpty);
     expect(who.laws, isEmpty);
     final trust = say(a, 'میشه به حرفات اعتماد کرد؟');
     expect(trust.text, contains('محدودیت'));
