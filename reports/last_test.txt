@@ -1,4 +1,4 @@
-commit: 4d12044
+commit: 0255845
 🎉 531 tests passed.
 --- analyze ---
-No issues found! (ran in 12.3s)
+No issues found! (ran in 11.1s)
