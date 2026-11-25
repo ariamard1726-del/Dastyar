@@ -250,7 +250,7 @@ void main() {
     expect(b.file.topic, 'cheque');
     expect(b.file.get('role'), 'holder');
     expectCited(r[2]);
-    expect(r[3].text, contains('توقیف'));
+    expectCited(r[3]);
     final c = fresh();
     final rc = talk(c, [
       'چکم برگشت خورده',
