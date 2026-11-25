@@ -24,7 +24,7 @@ void main() {
     expect(r.chips, hasLength(5));
     expect(r.chips, containsAll(<String>['حقوقی', 'کیفری', 'اداری', 'نمی‌دانم']));
     expect(r.chips, isNot(contains('کارفرما اخراجم کرده')));
-    expect(r.text, contains('مشکلتان چیست'));
+    expect(r.chips, contains(ChipTexts.leaveChip));
   });
 
   test('انتخاب «حقوقی» ماجرا را کامل می‌پرسد و بعد پرونده باز می‌شود', () {
