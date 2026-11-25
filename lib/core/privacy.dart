@@ -130,6 +130,51 @@ class PrivacyService {
   /// اجرای قبل دیگر باز نمیشوند (fail-closed).
   static void resetEphemeralKeyForTesting() => _ephemeralKey = null;
 
+  /// شبیهسازیِ کلیدِ نسخهٔ قدیمی برای آزمون مهاجرت.
+  static void setEphemeralKeyForTesting(List<int> key) =>
+      _ephemeralKey = Uint8List.fromList(key);
+
+  /// باز کردن payload قدیمی `encf1:` با کلیدی که نسخهٔ قبل در prefs میگذاشت.
+  /// فقط توسط لایهٔ مهاجرت یکبار خوانده میشود؛ مسیر عادی [open] هرگز از کلید
+  /// ذخیرهشده استفاده نمیکند.
+  static String? openLegacyPayload(String payload, List<int> masterKey) {
+    if (!payload.startsWith(fallbackPrefix)) return null;
+    final raw0 = _decodeFallback(payload);
+    if (raw0 == null) return null;
+    return _openWithKey(raw0, masterKey);
+  }
+
+  static List<int>? _decodeFallback(String payload) {
+    try {
+      final raw = base64Decode(payload.substring(fallbackPrefix.length));
+      return raw.length >= 48 ? raw : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String? _openWithKey(List<int> raw, List<int> masterKey) {
+    try {
+      final nonce = Uint8List.sublistView(raw, 0, 16);
+      final tag = Uint8List.sublistView(raw, 16, 48);
+      final ct = Uint8List.sublistView(raw, 48);
+      final encKey = hmacSha256(masterKey, utf8.encode('enc'));
+      final macKey = hmacSha256(masterKey, utf8.encode('mac'));
+      final macInput = Uint8List(nonce.length + ct.length)
+        ..setRange(0, nonce.length, nonce)
+        ..setRange(nonce.length, nonce.length + ct.length, ct);
+      final expectedTag = hmacSha256(macKey, macInput);
+      var diff = 0;
+      for (var i = 0; i < 32; i++) {
+        diff |= tag[i] ^ expectedTag[i];
+      }
+      if (diff != 0) return null;
+      return utf8.decode(_xorKeystream(encKey, nonce, ct));
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// پاک کردن کلید قدیمی که نسخههای پیشین در SharedPreferences می نوشتند.
   /// خواندن آن کلید دوباره رواج نمیدهد؛ فقط اثر امنیتی آن را حذف میکند.
   static Future<void> discardLegacyKey() async {
@@ -164,33 +209,8 @@ class PrivacyService {
   }
 
   static Future<String?> _fallbackOpen(String payload) async {
-    try {
-      final raw = base64Decode(payload.substring(fallbackPrefix.length));
-      if (raw.length < 48) return null;
-      final nonce = Uint8List.sublistView(raw, 0, 16);
-      final tag = Uint8List.sublistView(raw, 16, 48);
-      final ct = Uint8List.sublistView(raw, 48);
-
-      final masterKey = _fallbackKey();
-      final encKey = hmacSha256(masterKey, utf8.encode('enc'));
-      final macKey = hmacSha256(masterKey, utf8.encode('mac'));
-
-      final macInput = Uint8List(nonce.length + ct.length)
-        ..setRange(0, nonce.length, nonce)
-        ..setRange(nonce.length, nonce.length + ct.length, ct);
-      final expectedTag = hmacSha256(macKey, macInput);
-
-      var diff = 0;
-      for (var i = 0; i < 32; i++) {
-        diff |= tag[i] ^ expectedTag[i];
-      }
-      if (diff != 0) return null;
-
-      final pt = _xorKeystream(encKey, nonce, ct);
-      return utf8.decode(pt);
-    } catch (_) {
-      return null;
-    }
+    final raw = _decodeFallback(payload);
+    return raw == null ? null : _openWithKey(raw, _fallbackKey());
   }
 
   static Uint8List _xorKeystream(

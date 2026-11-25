@@ -11,6 +11,7 @@ import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
+import 'package:dastyar/core/privacy_migration.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/reader_service.dart';
@@ -204,6 +205,14 @@ class _LoaderState extends State<Loader> {
     // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
     // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
     final problems = <String>[];
+    // قبل از خواندن تاریخچه: کلید/دادهٔ نسخهٔ پیشین یکبار مهاجرت میشود.
+    final migration = await PrivacyMigration.run();
+    if (migration.migrated > 0) {
+      problems.add('${migration.migrated} رکورد قدیمی با کلید سختافزاری دوباره مهروموم شد.');
+    }
+    if (migration.dropped > 0) {
+      problems.add('${migration.dropped} رکورد قدیمی که کلیدش قابلاعتماد نبود حذف شد.');
+    }
     await Future.wait([
       _engine.load(startWorker: true).catchError((Object e) {
         problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
