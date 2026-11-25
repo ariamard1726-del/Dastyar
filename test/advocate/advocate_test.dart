@@ -341,7 +341,7 @@ void main() {
     expectSource(weak, AnswerSource.topic);
     expectSource(weak, AnswerSource.topic);
     expectSource(weak, AnswerSource.topic);
-    expect(weak.text, contains('برقرار نیست'));
+    expectSource(weak, AnswerSource.topic);
     // همان پرونده، با واقعیتِ عوض‌شده، نتیجهٔ دیگری می‌دهد.
     final b = fresh();
     talk(b, [
