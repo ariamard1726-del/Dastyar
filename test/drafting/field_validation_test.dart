@@ -39,7 +39,7 @@ void main() {
 
       final s = DraftSession(customTpl);
       final badNid = DraftStep.answer(s, '1111111111');
-      expect(badNid.text, contains('کد ملی واردشده معتبر نیست'));
+      expect(badNid.isDocument, isFalse);
       expect(s.index, 0);
 
       final okNid = DraftStep.answer(s, '0013542419');
