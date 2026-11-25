@@ -1,11 +1,80 @@
-
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+Try correcting the name to the name of an existing method, or defining a method named 'query'.
+      final r = engine.query(raw);
+                       ^^^^^
+lib/domain/advocate/law_answer.dart:154:24: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+      final c = engine.findArticle(law, '$kind $art');
+                       ^^^^^^^^^^^
+lib/domain/advocate/term_reply.dart:116:23: Error: The method 'chunkOf' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'chunkOf'.
+    final at = engine.chunkOf(lawId, title);
+                      ^^^^^^^
+lib/domain/advocate/guide_reply.dart:166:24: Error: The method 'query' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'query'.
+      final r = engine.query('${g.title} $n');
+                       ^^^^^
+lib/domain/advocate/law_terms.dart:188:23: Error: The method 'chunkOf' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'chunkOf'.
+    final at = engine.chunkOf(
+                      ^^^^^^^
+lib/domain/advocate/reply_voice.dart:181:26: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
+                         ^^^^^^^^^^^
+lib/domain/draft_laws.dart:10:19: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+      final c = e.findArticle(r.law, r.article);
+                  ^^^^^^^^^^^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: test/audit/conversation_audit_test.dart:27:18: Error: The method 'load' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'load'.
+    await engine.load();
+                 ^^^^
+lib/domain/advocate/law_answer.dart:99:24: Error: The method 'query' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'query'.
+      final r = engine.query(raw);
+                       ^^^^^
+lib/domain/advocate/law_answer.dart:154:24: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+      final c = engine.findArticle(law, '$kind $art');
+                       ^^^^^^^^^^^
+lib/domain/advocate/term_reply.dart:116:23: Error: The method 'chunkOf' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'chunkOf'.
+    final at = engine.chunkOf(lawId, title);
+                      ^^^^^^^
+lib/domain/advocate/guide_reply.dart:166:24: Error: The method 'query' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'query'.
+      final r = engine.query('${g.title} $n');
+                       ^^^^^
+lib/domain/advocate/law_terms.dart:188:23: Error: The method 'chunkOf' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'chunkOf'.
+    final at = engine.chunkOf(
+                      ^^^^^^^
+lib/domain/advocate/reply_voice.dart:181:26: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+        final c = engine.findArticle(law, '$kind $art${rep ? ' مکرر' : ''}');
+                         ^^^^^^^^^^^
+lib/domain/draft_laws.dart:10:19: Error: The method 'findArticle' isn't defined for the type 'KnowledgeEngine'.
+ - 'KnowledgeEngine' is from 'package:dastyar/core/engine.dart' ('lib/core/engine.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'findArticle'.
+      final c = e.findArticle(r.law, r.article);
+                  ^^^^^^^^^^^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
