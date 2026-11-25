@@ -49,7 +49,10 @@
 ✅ test/advocate/labor_test.dart: اخراج در برداشتِ وکیل می‌آید، حتی اگر بعدتر حرفِ بیمه پیش بیاید
 ✅ test/advocate/labor_test.dart: پروندهٔ تازه با پرسشِ «چه اتفاقی افتاده؟» شروع می‌شود
 ✅ test/advocate/labor_test.dart: پرسش‌های اصلی و کلیدواژه‌های موضوع سرِ جایشان‌اند
+✅ test/advocate/topic_picker_test.dart: موضوعِ باز از پرونده خوانده می‌شود، نه از وکیل
 ✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
+✅ test/advocate/topic_picker_test.dart: بی‌پرسشِ باز، هیچ پیامی «جواب» شمرده نمی‌شود
+✅ test/advocate/topic_picker_test.dart: واژهٔ تک‌افتاده به راهنمای نزدیکش نمی‌چسبد
 ✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
 ✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
 ✅ test/advocate/conversation_control_test.dart: «خروج از موضوع» پرونده را می‌بندد
@@ -66,9 +69,6 @@
 ✅ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد
 ✅ test/advocate/conversation_control_test.dart: «زن داری» پیش از حدس زدن، توضیح می‌خواهد
 ✅ test/advocate/conversation_control_test.dart: «شکایت کرده‌ام» یعنی کاربر شاکی است
-✅ test/advocate/topic_picker_test.dart: موضوعِ باز از پرونده خوانده می‌شود، نه از وکیل
-✅ test/advocate/topic_picker_test.dart: بی‌پرسشِ باز، هیچ پیامی «جواب» شمرده نمی‌شود
-✅ test/advocate/topic_picker_test.dart: واژهٔ تک‌افتاده به راهنمای نزدیکش نمی‌چسبد
 ✅ test/advocate/reply_stages_test.dart: ۱. ایمنی پیش از هر قاعدهٔ دیگر: پرونده بی‌صدا باز می‌شود
 ✅ test/advocate/reply_stages_test.dart: ۲. انصراف پرونده را کامل پاک می‌کند، نه نصفه
 ✅ test/advocate/reply_stages_test.dart: ۳. پرسشِ تغییرِ موضوع، پروندهٔ جاری را عوض نمی‌کند
@@ -148,9 +148,9 @@
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/case_model_test.dart: نُه نام، از یک import
 ✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
 ✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
