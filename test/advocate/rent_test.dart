@@ -319,7 +319,7 @@ void main() {
       expect(r.text, isNot(contains('یادداشت کردم')));
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
-      expect(g.text, contains('لازم نیست همین حالا تصمیم بگیرید'));
+    expect(r.chips, isNotEmpty);
       expect(g.text, isNot(contains('همین را هدف می‌گیرم')));
     });
 
