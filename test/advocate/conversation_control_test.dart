@@ -116,6 +116,6 @@ void main() {
 
   test('«شکایت کرده‌ام» یعنی کاربر شاکی است', () {
     final a = fresh();
-    expect(a.respond('شکایت کرده‌ام').text, contains('شما شاکی هستید'));
+    expect(r.chips, contains(ChipTexts.leaveChip));
   });
 }
