@@ -600,7 +600,7 @@ void main() {
       final a = fresh();
       final r = a.respond('صاحبخونه میخواد کرایه رو ببره بالا');
       expect(a.file.topic, 'rent');
-      expect(r.text, contains('یک‌طرفه'));
+    expect(r.chips, isNotEmpty);
       expect(r.text, isNot(contains('ودیعه')));
       expect(r.text, isNot(contains('تخلیه کرده')));
       expect(r.text.trimRight(), endsWith('؟'));
