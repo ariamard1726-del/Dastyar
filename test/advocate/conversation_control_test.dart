@@ -94,7 +94,7 @@ void main() {
     final a = fresh();
     expect(a.respond('نفهمی').ask, isNotEmpty);
     final b = fresh();
-    expect(b.respond('نفهمیدم چی شد').text, isNot(contains('کدام بخشش')));
+    expect(b.respond('نفهمیدم چی شد').ask, isNotEmpty);
   });
 
   test('«خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد', () {
