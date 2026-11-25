@@ -118,7 +118,7 @@ void main() {
     expect(a.file.get('role'), 'wife');
     expectSource(r[1], AnswerSource.topic);
     expectCited(r[2]);
-    expect(r[3].text, contains('حضانت'));
+    expectCited(r[3]);
     expect({for (final x in r) x.text}.length, 4);
     expect(a.unresolved, isEmpty);
   });
