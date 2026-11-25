@@ -22,13 +22,14 @@ import unittest
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     'tools'))
-from lines import line_count  # noqa: E402
+from library import dart_files, line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DOCS = [
     os.path.join(ROOT, 'docs', 'GOD_OBJECTS.md'),
     os.path.join(ROOT, 'docs', 'CODE_REVIEW.md'),
     os.path.join(ROOT, 'README.md'),
+    os.path.join(ROOT, 'docs', 'PHASES.md'),
 ]
 LIMIT = 420
 
@@ -52,10 +53,9 @@ def _doc_lines():
 
 class DocsNumberTests(unittest.TestCase):
     def setUp(self):
-        self.sizes = {}
-        for p in glob.glob(os.path.join(ROOT, 'lib', '**', '*.dart'),
-                           recursive=True):
-            self.sizes[os.path.basename(p)] = _lines(p)
+        # ادعاهای مستندات با نامِ فایل نوشته می‌شوند، نه مسیر.
+        self.sizes = {os.path.basename(rel): line_count(ROOT, rel)
+                      for rel in dart_files(ROOT)}
         self.largest = max(self.sizes.items(), key=lambda kv: kv[1])
 
     def _size(self, name):

@@ -21,7 +21,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from lines import line_count  # noqa: E402
+from library import dart_files, line_count, parts_of  # noqa: E402
 
 DOC = os.path.join(ROOT, 'docs', 'ARCHITECTURE.md')
 RENT = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'topics', 'rent.dart')
@@ -40,9 +40,7 @@ class ArchitectureDocTests(unittest.TestCase):
         with open(DOC, encoding='utf-8') as f:
             self.text = f.read()
         self.lines = self.text.split('\n')
-        self.lib = {os.path.basename(p)
-                    for p in glob.glob(os.path.join(ROOT, 'lib', '**', '*.dart'),
-                                       recursive=True)}
+        self.lib = {os.path.basename(rel) for rel in dart_files(ROOT)}
 
     def test_every_mentioned_file_exists(self):
         missing = []
@@ -60,8 +58,7 @@ class ArchitectureDocTests(unittest.TestCase):
                          'سند به فایلی اشاره می‌کند که نیست: %s' % missing)
 
     def test_rent_parts_match_reality(self):
-        with open(RENT, encoding='utf-8') as f:
-            parts = re.findall(r"^part '([^']+)'", f.read(), re.M)
+        parts = parts_of(ROOT, os.path.relpath(RENT, ROOT))
         self.assertGreaterEqual(len(parts), 10, parts)
         for name in parts:
             self.assertTrue('`%s`' % name in self.text,
@@ -81,10 +78,10 @@ class ArchitectureDocTests(unittest.TestCase):
             base = os.path.basename(name)
             if base not in self.lib:
                 continue
-            path = next(p for p in glob.glob(
-                os.path.join(ROOT, 'lib', '**', base), recursive=True))
+            rel = next(r for r in dart_files(ROOT)
+                       if os.path.basename(r) == base)
             checked += 1
-            self.assertEqual(line_count(path), _fa(num),
+            self.assertEqual(line_count(ROOT, rel), _fa(num),
                              'سند برای %s نوشته %s خط' % (base, num))
         self.assertGreaterEqual(checked, 8,
                                 'شمارِ خطِ کافی در سند پیدا نشد: %d' % checked)

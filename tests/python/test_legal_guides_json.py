@@ -10,7 +10,13 @@ import hashlib
 import json
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from library import read  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -79,8 +85,7 @@ class LegalGuidesJsonTests(unittest.TestCase):
         اگر این سیم‌کشی بیفتد، همهٔ آزمون‌ها سبز می‌مانند و برنامه بی‌صدا
         راهنما ندارد — بدترین حالتِ ممکن. پس وجودش آزمون دارد.
         """
-        with open(os.path.join(ROOT, 'lib', 'main.dart'), encoding='utf-8') as f:
-            main = f.read()
+        main = read(ROOT, 'lib/main.dart')
         self.assertEqual(main.count('await loadLegalGuides();'), 1,
                          'بارگذاری راهنماها در main.dart یک جا و صریح باشد')
         self.assertIn("import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';",

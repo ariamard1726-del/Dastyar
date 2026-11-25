@@ -14,7 +14,14 @@
 
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from library import (DartLibrary, class_body_of,  # noqa: E402
+                     extensions_on, read as lib_read)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
@@ -35,15 +42,12 @@ MIN_ROUTES = 12
 
 
 def _read(path):
-    with open(path, encoding='utf-8') as f:
-        return f.read()
+    """همهٔ خواندن‌ها از ابزارِ مشترکِ `tools/library.py`."""
+    return lib_read(path)
 
 
 def _class_body(src, name='Advocate'):
-    lines = src.split('\n')
-    start = next(i for i, l in enumerate(lines) if l.startswith('class %s {' % name))
-    end = next(i for i in range(start + 1, len(lines)) if lines[i] == '}')
-    return lines[start:end]
+    return class_body_of(src, name)
 
 
 def _method(src, signature):
@@ -90,17 +94,8 @@ MOVED_FIELDS = ['_rest', '_offeredMore', '_lastAsk', '_askRepeats',
 
 def _extensions_on_advocate(src):
     """متنِ همهٔ `extension … on Advocate { … }` در یک فایل."""
-    out = []
-    lines = src.split('\n')
-    for i, line in enumerate(lines):
-        if line.startswith('extension ') and ' on Advocate {' in line:
-            depth = 0
-            for k in range(i, len(lines)):
-                depth += lines[k].count('{') - lines[k].count('}')
-                if k > i and depth == 0:
-                    out.append('\n'.join(lines[i:k + 1]))
-                    break
-    return out
+    return extensions_on('Advocate', src)
+
 
 class ShapeTests(unittest.TestCase):
     def setUp(self):
@@ -108,10 +103,9 @@ class ShapeTests(unittest.TestCase):
         # کتابخانهٔ وکیل از چند بخش ساخته می‌شود؛ `self.src` فقط فایلِ کلاس است
         # و `self.lib` همهٔ بخش‌ها. ادعاهای ساختاری روی `src` و ادعاهای
         # «کجا صدا زده می‌شود» روی `lib` نوشته می‌شوند.
-        parts = [os.path.join(ADVOCATE_DIR, name)
-                 for name in re.findall(r"^part '([^']+)'", self.src, re.M)]
-        self.parts = [(os.path.basename(q), _read(q)) for q in parts]
-        self.lib = '\n'.join([self.src] + [src for _, src in self.parts])
+        self.library = DartLibrary(ROOT, ADVOCATE)
+        self.parts = self.library.parts
+        self.lib = self.library.text
 
     def test_state_fields_do_not_grow(self):
         fields = [l for l in _class_body(self.src)

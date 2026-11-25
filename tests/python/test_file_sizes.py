@@ -18,7 +18,7 @@ import unittest
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     'tools'))
-from lines import line_count  # noqa: E402
+from library import dart_files, line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LIMIT = 420
@@ -52,10 +52,7 @@ def _lines(path):
 
 class FileSizeBudgetTests(unittest.TestCase):
     def setUp(self):
-        self.sizes = {}
-        for p in glob.glob(os.path.join(ROOT, 'lib', '**', '*.dart'), recursive=True):
-            rel = os.path.relpath(p, ROOT).replace(os.sep, '/')
-            self.sizes[rel] = _lines(p)
+        self.sizes = {rel: line_count(ROOT, rel) for rel in dart_files(ROOT)}
 
     def test_no_file_is_a_god_object(self):
         over = {k: v for k, v in self.sizes.items()

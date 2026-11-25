@@ -18,7 +18,13 @@
 
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from library import parts_of  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 CORE = os.path.join(ROOT, 'lib', 'core')
@@ -104,7 +110,7 @@ class EngineShape(unittest.TestCase):
         self.assertEqual(bad, [], 'لایهٔ core به domain وابسته شد: %s' % bad)
 
     def test_the_split_parts_exist_and_are_listed(self):
-        parts = re.findall(r"^part '([^']+)'", self.src, re.M)
+        parts = parts_of(ROOT, os.path.relpath(ENGINE, ROOT))
         self.assertEqual(sorted(parts), ['engine_load.dart', 'engine_query.dart'])
         for p in parts:
             self.assertTrue(os.path.exists(os.path.join(CORE, p)), p)

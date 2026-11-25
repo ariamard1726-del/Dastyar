@@ -14,7 +14,13 @@
 
 import os
 import re
+import sys
 import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from library import parts_of  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
@@ -63,8 +69,8 @@ def _read(path):
 
 
 def _parts():
-    src = _read(ADVOCATE)
-    return [os.path.join(ADVOCATE_DIR, p) for p in re.findall(r"^part '([^']+)'", src, re.M)]
+    return [os.path.join(ADVOCATE_DIR, p)
+            for p in parts_of(ROOT, os.path.relpath(ADVOCATE, ROOT))]
 
 
 class CaseFlowShape(unittest.TestCase):

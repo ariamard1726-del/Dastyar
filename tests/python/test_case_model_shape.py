@@ -18,7 +18,7 @@ import unittest
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     'tools'))
-from lines import line_count  # noqa: E402
+from library import read as lib_read  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ADVOCATE_DIR = os.path.join(ROOT, 'lib', 'domain', 'advocate')
@@ -48,9 +48,8 @@ TYPEDEFS = ['Body', 'Reader', 'Cond', 'Tri']
 
 
 def _read(name):
-    path = os.path.join(ADVOCATE_DIR, name)
-    with open(path, encoding='utf-8') as f:
-        return f.read()
+    """یک فایلِ کتابخانهٔ وکیل، از ابزارِ مشترکِ `tools/library.py`."""
+    return lib_read(os.path.join(ADVOCATE_DIR, name))
 
 
 def _lines(src):
