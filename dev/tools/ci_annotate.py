@@ -76,12 +76,15 @@ def annotate(lines, limit=8):
         # گزارش‌گرِ همین مخزن گاهی خطِ ✅/❌ می‌دهد، نه نشانگرِ [E].
         found = cross_blocks(lines)
     if found:
-        for head, detail in found:
+        # گیت­هاب حداکثر ده آنوتیشن در هر گام نشان میدهد. دو بلوکِ نخست با
+        # علتِ شکست چاپ میشوند و بقیهٔ نامها در یک آنوتیشنِ خلاصه میآیند تا
+        # «چند آزمون شکست خورد؟» بیپاسخ نماند.
+        for head, detail in found[:2]:
             out.append('::error::' + head)
-            for d in detail:
+            for d in detail[:2]:
                 out.append('::error::    ' + d)
-            if len(out) >= limit:
-                break
+        names = ' | '.join(head.replace('::group::❌ ', '')[:160] for head, _ in found)
+        out.append('::error:: %d آزمون شکست خورد: %s' % (len(found), names[:6000]))
     else:
         tail = [l for l in lines
                 if l.strip() and not l.strip().startswith('::')][-6:]
