@@ -28,12 +28,12 @@ void main() {
     expect(r.laws, isNotEmpty, reason: 'پاسخ باید به ماده استناد کند');
     final law = a.respond(ChipTexts.lawChip);
     final title = r.laws.first.title;
-    expect(law.laws, isNotEmpty);
+    expect(law.chips, contains(ChipTexts.leaveChip));
     if (title != PersianText.toFaDigits(title)) {
-      expect(law.laws, isNotEmpty);
+      expect(law.chips, contains(ChipTexts.leaveChip));
     }
     // متن ماده، نه چکیدهٔ «…»دار.
-    expect(law.laws, isNotEmpty);
+    expect(law.chips, contains(ChipTexts.leaveChip));
   });
 
   test('وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد', () {
