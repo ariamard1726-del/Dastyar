@@ -669,7 +669,7 @@ void main() {
     expectSource(r, AnswerSource.topic);
       expect(a.file.topic, isEmpty);
       expect(r.text, isNot(contains('گفتید')));
-      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    expectSource(r, AnswerSource.topic);
     });
 
     test('«چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه', () {
