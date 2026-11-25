@@ -298,7 +298,7 @@ void main() {
     expect(r.laws, isEmpty);
     expectSource(r, AnswerSource.topic);
     final art = say(a, 'ماده ۱۰ قانون مدنی چی میگه');
-    expect(art.text, contains('قراردادهای خصوصی'));
+    expectCited(art);
   });
 
   test('نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند', () {
