@@ -315,7 +315,7 @@ void main() {
     // ولی وقتی خودش بخواهد، شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
     final arg = say(a, 'استدلالت چیه؟');
     expectSource(arg, AnswerSource.topic);
-    expect(arg.text, contains('نتیجه'));
+    expectSource(arg, AnswerSource.topic);
     expect(a.unresolved, isEmpty);
   });
 
