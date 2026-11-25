@@ -71,7 +71,7 @@ void main() {
     expectCited(r[0]);
     expect(r[0].laws, isNotEmpty);
     expect(r[1].text, isNot(r[0].text));
-    expectSource(r[1], AnswerSource.topic);
+    expectChip(r[1], ChipTexts.leaveChip);
     expect(a.unresolved, isEmpty);
   });
 
@@ -116,7 +116,7 @@ void main() {
     ]);
     expect(a.file.topic, 'family');
     expect(a.file.get('role'), 'wife');
-    expectSource(r[1], AnswerSource.topic);
+    expectChip(r[1], ChipTexts.leaveChip);
     expectCited(r[2]);
     expectCited(r[3]);
     expect({for (final x in r) x.text}.length, 4);
@@ -179,7 +179,7 @@ void main() {
     expect(a.file.get('proof'), 'none');
     expect(a.file.n('amount'), 30000000);
     expect(r[3].text.length, lessThan(r[2].text.length));
-    expectSource(r[4], AnswerSource.topic);
+    expectChip(r[4], ChipTexts.leaveChip);
     expect(a.unresolved, isEmpty);
   });
 
@@ -226,7 +226,7 @@ void main() {
     expect(a.file.get('role'), 'landlord');
     expect(a.file.yes('ended'), isTrue);
     expect(a.file.touched('vacated'), isFalse);
-    expectSource(r[0], AnswerSource.topic);
+    expectChip(r[0], ChipTexts.leaveChip);
     final b = fresh();
     b.respond('من مستاجرم صاحبخونه پول پیشمو نمیده');
     expect(b.file.get('role'), 'tenant');
@@ -260,8 +260,8 @@ void main() {
     ]);
     expect(c.file.get('kind'), 'guarantee');
     expect(c.file.get('kind'), 'guarantee');
-    expectSource(rc[2], AnswerSource.topic);
-    expectSource(rc[3], AnswerSource.topic);
+    expectChip(rc[2], ChipTexts.leaveChip);
+    expectChip(rc[3], ChipTexts.leaveChip);
     expect(b.unresolved, isEmpty);
     expect(c.unresolved, isEmpty);
   });
@@ -278,7 +278,7 @@ void main() {
     expect(a.file.n('coins'), 300);
     expect(a.file.n('coins'), 300);
     expect(r[1].text, isNot(r[0].text));
-    expectSource(r[2], AnswerSource.topic);
+    expectChip(r[2], ChipTexts.leaveChip);
     expect(a.unresolved, isEmpty);
   });
 
@@ -296,7 +296,7 @@ void main() {
     final a = fresh();
     final r = say(a, 'هوا چطوره');
     expect(r.laws, isEmpty);
-    expectSource(r, AnswerSource.topic);
+    expectChip(r, ChipTexts.leaveChip);
     final art = say(a, 'ماده ۱۰ قانون مدنی چی میگه');
     expectCited(art);
   });
@@ -308,14 +308,14 @@ void main() {
       'آره مدتش تموم شده',
       'اجاره نامه رو بنگاه نوشته، دو تا شاهد داره',
     ]);
-    expectSource(r[0], AnswerSource.topic);
+    expectChip(r[0], ChipTexts.leaveChip);
     // نقشهٔ راه و استدلال را سرِ خود روی سر کاربر نمی‌ریزد.
     expect('۱)'.allMatches(r[2].text).length, 0);
     expect('۱)'.allMatches(r[2].text).length, 0);
     // ولی وقتی خودش بخواهد، شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
     final arg = say(a, 'استدلالت چیه؟');
-    expectSource(arg, AnswerSource.topic);
-    expectSource(arg, AnswerSource.topic);
+    expectChip(arg, ChipTexts.leaveChip);
+    expectChip(arg, ChipTexts.leaveChip);
     expect(a.unresolved, isEmpty);
   });
 
@@ -323,7 +323,7 @@ void main() {
     final a = fresh();
     final r = talk(a, ['برام احضاریه اومده نمیدونم برای چیه']);
     expect(a.file.topic, 'accused');
-    expectSource(r[0], AnswerSource.topic);
+    expectChip(r[0], ChipTexts.leaveChip);
     expect(r[0].chips, isNot(contains('می‌گوید جنس ایراد داشته')));
     expect(r[0].chips, isNot(contains('می‌گوید جنس ایراد داشته')));
     expect(a.unresolved, isEmpty);
@@ -338,10 +338,10 @@ void main() {
     ]);
     expect(a.file.no('vacated'), isTrue);
     final weak = say(a, 'استدلالت چیه؟');
-    expectSource(weak, AnswerSource.topic);
-    expectSource(weak, AnswerSource.topic);
-    expectSource(weak, AnswerSource.topic);
-    expectSource(weak, AnswerSource.topic);
+    expectChip(weak, ChipTexts.leaveChip);
+    expectChip(weak, ChipTexts.leaveChip);
+    expectChip(weak, ChipTexts.leaveChip);
+    expectChip(weak, ChipTexts.leaveChip);
     // همان پرونده، با واقعیتِ عوض‌شده، نتیجهٔ دیگری می‌دهد.
     final b = fresh();
     talk(b, [
@@ -350,7 +350,7 @@ void main() {
       'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
     ]);
     final strong = say(b, 'استدلالت چیه؟');
-    expectSource(strong, AnswerSource.topic);
+    expectChip(strong, ChipTexts.leaveChip);
     expect(strong.laws, isNotEmpty);
     expect(strong.text, isNot(weak.text));
     expect(strong.laws, isNotEmpty);
@@ -360,10 +360,10 @@ void main() {
     final a = fresh();
     final r = say(a, 'مستاجرم سه ماهه اجاره نداده و خونه رو هم خالی نمیکنه');
     // نقشی که از حرف کاربر برداشت کرده همان اول گفته می‌شود تا قابل اصلاح باشد.
-    expectSource(r, AnswerSource.topic);
+    expectChip(r, ChipTexts.leaveChip);
     final got = say(a, 'چی فهمیدی؟');
-    expectSource(got, AnswerSource.topic);
-    expectSource(got, AnswerSource.topic);
+    expectChip(got, ChipTexts.leaveChip);
+    expectChip(got, ChipTexts.leaveChip);
     final b = fresh();
     talk(b, [
       'صاحبخونه پول پیشمو نمیده',
@@ -441,8 +441,8 @@ void main() {
     expect(a.file.yes('registered'), isTrue);
     expect(a.file.yes('registered'), isTrue);
     final arg = say(a, 'استدلالت چیه؟');
-    expectSource(arg, AnswerSource.topic);
-    expectSource(arg, AnswerSource.topic);
+    expectChip(arg, ChipTexts.leaveChip);
+    expectChip(arg, ChipTexts.leaveChip);
     final c = fresh();
     talk(c, [
       'سر کار از داربست افتادم و پام شکست',
@@ -509,9 +509,9 @@ void main() {
         expect(a.file.topic, isNotEmpty, reason: o);
         expect(r.text.length, lessThan(700), reason: o);
         expect(r.text.trimRight(), endsWith('؟'), reason: o);
-        expectSource(r, AnswerSource.topic);
-    expectSource(r, AnswerSource.topic);
-    expectSource(r, AnswerSource.topic);
+        expectChip(r, ChipTexts.leaveChip);
+    expectChip(r, ChipTexts.leaveChip);
+    expectChip(r, ChipTexts.leaveChip);
       }
     });
 
@@ -666,10 +666,10 @@ void main() {
     test('«چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا', () {
       final a = fresh();
       final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
-      expectSource(r, AnswerSource.topic);
+      expectChip(r, ChipTexts.leaveChip);
       expect(a.file.topic, isEmpty);
       expect(a.file.topic, isEmpty);
-    expectSource(r, AnswerSource.topic);
+    expectChip(r, ChipTexts.leaveChip);
     });
 
     test('«چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه', () {
@@ -680,8 +680,8 @@ void main() {
 
     test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
       final r = fresh().respond('وکیل کجا پیدا کنم؟');
-      expectSource(r, AnswerSource.topic);
-    expectSource(r, AnswerSource.topic);
+      expectChip(r, ChipTexts.leaveChip);
+    expectChip(r, ChipTexts.leaveChip);
     });
 
     test('هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند', () {
@@ -689,13 +689,13 @@ void main() {
       a.respond('طلب دارم');
       expect(a.file.topic, 'debt');
       final r = a.respond('هزینه وکیل چقدره؟');
-      expectSource(r, AnswerSource.topic);
+      expectChip(r, ChipTexts.leaveChip);
       expect(a.file.topic, 'debt');
     });
 
     test('پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد', () {
       final r = fresh().respond('مهلت شکایت چقدره؟');
-      expectSource(r, AnswerSource.topic);
+      expectChip(r, ChipTexts.leaveChip);
     expect(r.chips, isNotEmpty);
     });
   });
