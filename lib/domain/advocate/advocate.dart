@@ -44,6 +44,8 @@ part 'topic_read.dart';
 part 'safety_reply.dart';
 part 'advocate_constants.dart';
 part 'advocate_reply.dart';
+part 'advocate_reply_guard.dart';
+part 'advocate_reply_case.dart';
 part 'guide_reply.dart';
 part 'advocate_model.dart';
 part 'chip_texts.dart';
