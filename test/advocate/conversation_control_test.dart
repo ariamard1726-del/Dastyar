@@ -47,7 +47,7 @@ void main() {
       final a = fresh();
       a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
       expect(a.file.topic, isNotEmpty);
-      final r = a.respond(exit);
+      a.respond(exit);
       expect(a.hasCase, isFalse);
       expect(a.file.topic, isEmpty);
     });
