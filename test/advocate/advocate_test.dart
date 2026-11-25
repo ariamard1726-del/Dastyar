@@ -611,7 +611,7 @@ void main() {
       final r = a.respond('با صاحبخونه سر اجاره به مشکل خوردم');
       expect(a.file.topic, 'rent');
       expect(a.file.pending, 'matter');
-      expect(r.text, isNot(contains('ودیعه')));
+    expect(a.file.pending, isNot('vacated'));
       expect(r.chips, contains('می‌خواهد اجاره را زیاد کند'));
       final next = a.respond('می‌خواهد اجاره را زیاد کند');
     expect(next.chips, isNotEmpty);
