@@ -10,4 +10,4 @@ warning • The value of the local variable 'r' isn't used. Try removing the var
 warning • The value of the local variable 'g' isn't used. Try removing the variable or using it • test/advocate/rent_test.dart:321:13 • unused_local_variable
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • test/domain/safety_reply_test.dart:30:13 • unnecessary_non_null_assertion
 
-9 issues found. (ran in 10.2s)
+9 issues found. (ran in 12.3s)
