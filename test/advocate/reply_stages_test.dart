@@ -34,7 +34,7 @@ void main() {
     a.respond('صاحبخونه پول پیشمو نمیده');
     expect(a.file.topic, isNotEmpty, reason: 'پرونده باز نشد');
     final r = a.respond('انصراف');
-    expect(r.chips, [ChipTexts.leaveChip]);
+    expect(r.chips, ChipTexts.branchChips);
     expect(a.hasCase, isFalse);
     expect(a.file.topic, isEmpty);
     expect(a.file.facts, isEmpty);
