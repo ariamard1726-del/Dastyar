@@ -37,7 +37,7 @@ void main() {
         'شرایط طلاق یک‌طرفه از طرف زن چیست',
       ]) {
         final reply = engine.query(q);
-        expect(reply.text, isNot(contains('پیدا نکردم')), reason: q);
+        expect(reply.contextHits, isNotEmpty, reason: q);
       }
 
       for (final outQ in const [
