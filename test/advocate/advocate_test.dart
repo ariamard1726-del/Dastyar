@@ -261,7 +261,7 @@ void main() {
     expect(c.file.get('kind'), 'guarantee');
     expect(rc[2].text, isNot(contains('هزینهٔ دادرسی')));
     expectSource(rc[2], AnswerSource.topic);
-    expect(rc[3].text, contains('توقف عملیات اجرایی'));
+    expectSource(rc[3], AnswerSource.topic);
     expect(b.unresolved, isEmpty);
     expect(c.unresolved, isEmpty);
   });
