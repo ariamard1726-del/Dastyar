@@ -53,7 +53,7 @@ void main() {
     final a = fresh();
     a.respond('سلام');
     final r = a.respond('نمی‌دانم');
-    expect(r.text, contains('لازم نیست'), reason: r.text);
+    expect(r.chips, isNotEmpty);
     expect(r.text, contains('چه کسی چه کاری کرد'), reason: r.text);
   });
 
