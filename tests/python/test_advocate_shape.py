@@ -77,9 +77,30 @@ COLLABORATORS = ['DialogueState', 'ReplyVoice', 'CaseArgument', 'ChipPlan',
 COLLABORATOR_FIELD = re.compile(
     r'^  (?:late final|final|late)\s+(?:%s)\b' % '|'.join(COLLABORATORS))
 
+# API عمومی: این‌ها باید عضوِ خودِ کلاس باشند. عضوِ `extension` نیاز به
+# `import` کتابخانه در همان فایل دارد و از راهِ نوع (مثلاً `Advocate` که از
+# `ChatController` گرفته می‌شود) دیده نمی‌شود.
+PUBLIC_API = ['respond', 'reset', 'replay', 'restoreCase', 'filings',
+              'draftIds', 'fillFor', 'filingFor', 'hasCase', 'hasMore',
+              'offeredDraft', 'clearOffer', 'idleChips', 'wantsGuess']
+
 MOVED_FIELDS = ['_rest', '_offeredMore', '_lastAsk', '_askRepeats',
                 '_relevantChip', '_vary', '_said', '_lastBody', '_lastLaws']
 
+
+def _extensions_on_advocate(src):
+    """متنِ همهٔ `extension … on Advocate { … }` در یک فایل."""
+    out = []
+    lines = src.split('\n')
+    for i, line in enumerate(lines):
+        if line.startswith('extension ') and ' on Advocate {' in line:
+            depth = 0
+            for k in range(i, len(lines)):
+                depth += lines[k].count('{') - lines[k].count('}')
+                if k > i and depth == 0:
+                    out.append('\n'.join(lines[i:k + 1]))
+                    break
+    return out
 
 class ShapeTests(unittest.TestCase):
     def setUp(self):
@@ -89,7 +110,8 @@ class ShapeTests(unittest.TestCase):
         # «کجا صدا زده می‌شود» روی `lib` نوشته می‌شوند.
         parts = [os.path.join(ADVOCATE_DIR, name)
                  for name in re.findall(r"^part '([^']+)'", self.src, re.M)]
-        self.lib = '\n'.join([self.src] + [_read(q) for q in parts])
+        self.parts = [(os.path.basename(q), _read(q)) for q in parts]
+        self.lib = '\n'.join([self.src] + [src for _, src in self.parts])
 
     def test_state_fields_do_not_grow(self):
         fields = [l for l in _class_body(self.src)
@@ -395,6 +417,29 @@ class ShapeTests(unittest.TestCase):
                       r'Topic\??)\s+_%s\b\s*[=;]' % name,
                 '%s نباید به Advocate برگردد' % name)
         self.assertIn('final DialogueState dialog', self.src)
+
+    def test_public_api_stays_on_the_class(self):
+        """API عمومی روی خودِ کلاس بماند، نه در `extension`.
+
+        دلیلش رفتاری است، نه سلیقه: عضوِ `extension` فقط در فایلی دیده می‌شود
+        که کتابخانه را `import` کرده باشد. هر مصرف‌کننده‌ای که `Advocate` را از
+        راهِ دیگری بگیرد (مثل `ChatController.advocate`) `hasCase` و `respond`
+        را نمی‌بیند. این یک بار در گام ۳۲ انجام شد: فایل از ۴۰۳ به ۲۴۵ رسید و
+        `test/app/chat_controller_test.dart` قرمز شد. پس این نگهبان همان
+        وسوسه را می‌بندد.
+        """
+        body = '\n'.join(_class_body(self.src))
+        for name in PUBLIC_API:
+            self.assertRegex(
+                body, r'\n  [\w<>?, ]+ (?:get )?%s\b' % re.escape(name),
+                '%s از کلاس بیرون رفت؛ API عمومی در `extension` دیده نمی‌شود'
+                % name)
+        for path in self.parts:
+            for ext in _extensions_on_advocate(path[1]):
+                for name in PUBLIC_API:
+                    self.assertNotRegex(
+                        ext, r'^(?!\s*//).*\b%s\b' % re.escape(name),
+                        '%s در extensionِ %s تعریف شده' % (name, path[0]))
 
     def test_interpolations_are_braced(self):
         """`'$dialog.x'` در دارت «Instance of 'DialogueState'.x» چاپ می‌کند.
