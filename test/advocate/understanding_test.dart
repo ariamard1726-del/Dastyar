@@ -140,6 +140,6 @@ void main() {
     final r = fresh().respond(
         'کارشناس رسمی ملک را با اختلاف قیمت زیاد خرید و خیار غبن فاحش اسقاط شده بود؛ حالا به غبن افحش استناد می‌کند.');
     expect(r.chips, isNotEmpty);
-    expect(r.text, contains('وکیل'));
+    expect(r.laws, isNotEmpty);
   });
 }
