@@ -1,4 +1,4 @@
-commit: 1e44e53
+commit: 78932a1
 🎉 512 tests passed.
 --- analyze ---
-No issues found! (ran in 11.1s)
+No issues found! (ran in 8.5s)
