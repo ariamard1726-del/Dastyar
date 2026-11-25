@@ -46,6 +46,7 @@ part 'advocate_constants.dart';
 part 'advocate_reply.dart';
 part 'advocate_reply_guard.dart';
 part 'advocate_reply_case.dart';
+part 'advocate_api.dart';
 part 'guide_reply.dart';
 part 'advocate_model.dart';
 part 'chip_texts.dart';
@@ -205,18 +206,6 @@ class Advocate {
   /// آن، کنارِ موتور و پرونده، روی خودِ همین شیء بود.
   final DialogueState dialog = DialogueState();
 
-  /// آیا از پاسخ قبلی چیزی نگفته مانده است؟
-  bool get hasMore => voice.rest.isNotEmpty;
-
-  /// قالبی که در پاسخ قبلی پیشنهاد نوشتنش را داده‌ام (یا `null`).
-  String? get offeredDraft =>
-      dialog.offer == 'draft' && dialog.offerDraft.isNotEmpty
-          ? dialog.offerDraft
-          : null;
-
-  /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
-  void clearOffer() => dialog.clearOffer();
-
   /// همهٔ موضوع‌ها (فهرست در `topics/all.dart`).
   static final List<Topic> topics = allTopics;
 
@@ -231,124 +220,12 @@ class Advocate {
     return n.substring(ms.last.end).trim();
   }
 
-  bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
-
-  /// شناسهٔ قالب‌های سندی که به پروندهٔ جاری می‌خورد (به ترتیب اولویت).
-  List<String> get draftIds {
-    final t = _current();
-    if (t != null) {
-      final d = t.drafts;
-      final out = <String>[...?(d == null ? null : d(file))];
-      for (final g in filings) {
-        if (!out.contains(g.template)) out.add(g.template);
-      }
-      return out;
-    }
-    return dialog.guide?.templateIds ?? const [];
-  }
-
-  /// سندهایی که به وضعیتِ همین پرونده می‌خورد: اول دادخواست، بعد لایحه.
-  /// فقط قالب‌هایی که واقعاً در برنامه هستند.
-  List<Filing> get filings {
-    final t = _current();
-    if (t == null) return const [];
-    final out = <Filing>[];
-    for (final make in [t.petition, t.brief]) {
-      final g = make == null ? null : make(file);
-      if (g != null && _draftTitles.containsKey(g.template)) out.add(g);
-    }
-    return out;
-  }
-
-  /// اگر این متن دکمهٔ یکی از سندهای پیشنهادیِ همین پرونده باشد، همان را
-  /// می‌دهد.
-  Filing? filingFor(String raw) {
-    final key = Sense.norm(raw);
-    for (final g in filings) {
-      if (Sense.norm(g.chip) == key) return g;
-    }
-    return null;
-  }
-
-  /// آیا پیام می‌گوید «همین حالا» کسی در خطر است؟
-  ///
-  /// این حالت به پرونده و به اینکه پیش‌تر هشدار داده‌ام یا نه گره نمی‌خورد؛
-  /// هر بار که کاربر این را بگوید، پاسخ فوری می‌گیرد.
-
-
-  /// متن‌های پیشنهادی برای فیلدهای یک قالب، از روی واقعیت‌های همین پرونده
-  /// (شناسهٔ فیلد → متن).
-  Map<String, String> fillFor(String templateId) {
-    final fill = _current()?.fill;
-    return fill == null ? const {} : fill(file, templateId);
-  }
-
-  void reset() {
-    _closeCase();
-    dialog.reset();
-    _prevN = '';
-    dialog.also = null;
-    voice.relevantChip = '';
-    voice.reset();
-    file.turns = 0;
-    file.disclaimed = false;
-    unresolved.clear();
-  }
-
-  /// بازسازی حافظه از پیام‌های قبلی کاربر (هنگام بازکردن گفتگوی ذخیره‌شده).
-  ///
-  /// این راه، پرهزینه و شکننده است: هر پیام دوباره از کل خط لوله می‌گذرد،
-  /// پس اگر قاعده‌ای تغییر کرده باشد پروندهٔ بازیابی‌شده با پروندهٔ اصلی یکی
-  /// نیست. فقط برای گفتگوهای قدیمی که پروندهٔ ذخیره‌شده ندارند به کار
-  /// می‌رود؛ گفتگوهای تازه با [restoreCase] باز می‌شوند.
-  void replay(Iterable<String> userTexts) {
-    reset();
-    for (final t in userTexts) {
-      respond(t);
-    }
-  }
-
-  /// بازیابی پرونده از نسخهٔ ذخیره‌شده (JSON تاریخچه) بدون پخش دوبارهٔ پیام‌ها.
-  /// ورودی نامعتبر پروندهٔ خالی می‌دهد.
-  void restoreCase(Map<String, dynamic> json) {
-    reset();
-    file.copyFrom(CaseFile.fromJson(json));
-  }
-
   /// آیا کاربر صریحاً خواسته متنی برایش نوشته شود؟
   static bool wantsDraft(String raw) {
     final n = Sense.norm(raw);
     return Sense.has(n,
         r'بنویس(?:ش|ید|ی)?(?![\u0600-\u06FF])|تنظیم کن|آماده کن|تهیه کن|متن[^ ]* (?:رو |را )?(?:بده|میخوام|آماده)|پیش ?نویس|نمونه[^ ]* (?:بده|میخوام)');
   }
-
-  /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
-  /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
-  AdvocateReply respond(String raw, {TopicGuess? guess}) =>
-      _withLeave(_reply(raw, guess: guess));
-
-  /// «انصراف» آخرین دکمهٔ **هر** پاسخ است، در هر مرحله‌ای از گفتگو؛ وگرنه
-  /// کاربر از وسط ماجرا راه خروج ندارد (بعضی مسیرها مثل جست‌وجوی متن قانون،
-  /// پاسخ را مستقیم می‌سازند و از [_out] نمی‌گذرند).
-  AdvocateReply _withLeave(AdvocateReply r) {
-    if (r.chips.isNotEmpty && r.chips.last == ChipTexts.leaveChip) return r;
-    return AdvocateReply(
-      r.text,
-      chips: [...r.chips.where((c) => c != ChipTexts.leaveChip), ChipTexts.leaveChip],
-      laws: r.laws,
-      source: r.source,
-    );
-  }
-
-
-
-
-
-
-
-
-
-
 
   /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`. همان
   /// قاعدهٔ بازشدن پرونده است تا پیشنهادهای هنگام نوشتن هم از همین‌جا بیاید.
@@ -365,38 +242,4 @@ class Advocate {
     }
     return best != null && bestScore >= 3 ? best.id : null;
   }
-
-  /// آیا برای این پیام حدسِ خوانندهٔ موضوع به کار می‌آید؟ محاسبهٔ حدس روی
-  /// گوشی زمان می‌برد؛ فقط وقتی خواسته می‌شود که پرونده‌ای باز نیست و
-  /// قاعده‌ها خودشان موضوع را نشناخته‌اند.
-  bool wantsGuess(String raw) {
-    if (file.topic.isNotEmpty || dialog.guide != null || dialog.choices.isNotEmpty) {
-      return false;
-    }
-    if (raw.trim() == ChipTexts.newCaseChip) return false;
-    final n = Sense.norm(raw);
-    if (!_guessable(n)) return false;
-    for (final t in topics) {
-      if (_score(t, n) >= 3) return false;
-    }
-    return true;
-  }
-
-    /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
-  /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
-  /// پایان می‌گذارد تا گفتگو دوطرفه بماند.
-  AdvocateReply _out(
-    String text, {
-    List<String> chips = const [],
-    String ask = '',
-    bool full = false,
-    int budget = _budget,
-    AnswerSource source = AnswerSource.topic,
-  }) =>
-      voice.out(text,
-          chips: chips, ask: ask, full: full, budget: budget, source: source);
-  /// دکمه‌های پیشنهادی برای وضعیتِ فعلیِ گفتگو (تصمیم است، نه داده؛ برچسب‌ها
-  /// در `chip_texts.dart`).
-  List<String> get idleChips => _idleChips();
-
 }
