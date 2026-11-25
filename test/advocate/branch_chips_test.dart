@@ -69,7 +69,7 @@ void main() {
     final a = fresh();
     a.respond('کارفرما اخراجم کرده');
     expect(a.file.topic, 'labor');
-    final r = a.respond('نمی‌دانم');
+    a.respond('نمی‌دانم');
     expect(a.file.topic, 'labor');
     expect(a.file.topic, 'labor');
   });
