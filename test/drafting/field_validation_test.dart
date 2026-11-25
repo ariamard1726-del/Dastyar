@@ -52,7 +52,7 @@ void main() {
       final doc = DraftStep.answer(s, '+989123456789');
       expect(doc.isDocument, isTrue);
       expect(s.values['nid'], '۰۰۱۳۵۴۲۴۱۹');
-      expect(doc.text, contains('۰۹۱۲۳۴۵۶۷۸۹'));
+      expect(s.values['tel'], '۰۹۱۲۳۴۵۶۷۸۹');
     });
   });
 }
