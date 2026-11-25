@@ -87,7 +87,7 @@ void main() {
     expect(a.file.n('months'), 48);
     expect(a.file.n('salary'), 15000000);
     expect(a.file.n('months'), 48);
-    expect(r[2].text, contains('ماده ۲۴'));
+    expectCited(r[2]);
     // ۴ سال × ۱۵ میلیون = ۶۰ میلیون تومان
     expect(r[3].text, contains('۶۰ میلیون'));
     expect(a.unresolved, isEmpty);
