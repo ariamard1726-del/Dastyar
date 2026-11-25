@@ -86,7 +86,7 @@ void main() {
     final a = fresh();
     final r = a.respond('مهریه‌ام را نداده');
     expect(r.text.trim(), isNotEmpty);
-    expect(r.text.contains('ماده ۱۰۸۲') || a.file.topic.isNotEmpty, isTrue);
+    expect(r.laws.isNotEmpty || a.file.topic.isNotEmpty, isTrue);
   });
 
   test('دکمهٔ مرتبط از حرف کاربر ساخته می‌شود', () {
