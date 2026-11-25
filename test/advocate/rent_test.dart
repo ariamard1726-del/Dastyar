@@ -320,7 +320,7 @@ void main() {
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
     expect(r.chips, isNotEmpty);
-      expect(g.text, isNot(contains('همین را هدف می‌گیرم')));
+      expect(a.file.pending, 'q:goal');
     });
 
     test('خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند', () {
