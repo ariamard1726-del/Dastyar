@@ -1,2 +1,5 @@
 Analyzing Dastyar...                                            
-No issues found! (ran in 12.3s)
+
+  error • This expression has a type of 'void' so its value can't be used. Try checking to see if you're using the correct API; there might be a function or call that returns void you didn't expect. Also check type parameters and variables which might also be 
+
+1 issue found. (ran in 11.2s)
