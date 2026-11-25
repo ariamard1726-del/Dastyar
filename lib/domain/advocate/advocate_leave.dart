@@ -11,6 +11,7 @@ extension _LeaveChip on Advocate {
       chips: [...r.chips.where((c) => c != ChipTexts.leaveChip), ChipTexts.leaveChip],
       laws: r.laws,
       source: r.source,
+      ask: r.ask,
     );
   }
 }

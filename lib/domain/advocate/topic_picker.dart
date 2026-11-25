@@ -116,7 +116,8 @@ class TopicPicker {
       return AdvocateReply(r.text,
           chips: [ChipTexts.wrongChip, ...r.chips],
           laws: r.laws,
-          source: AnswerSource.guess);
+          source: AnswerSource.guess,
+          ask: r.ask);
     }
     final second = guessTopic(g.second, n, scores);
     final list = <Topic>[
