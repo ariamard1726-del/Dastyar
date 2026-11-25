@@ -78,7 +78,7 @@ void main() {
     final a = fresh();
     a.respond('سلام');
     a.respond('کیفری');
-    final r = a.respond('صاحبخونه پول پیشمو نمیده');
+    a.respond('صاحبخونه پول پیشمو نمیده');
     expect(a.file.topic, 'rent');
     expect(a.file.topic, 'rent');
   });
