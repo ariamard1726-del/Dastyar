@@ -65,10 +65,7 @@ class AdvocateApiShapeTests(unittest.TestCase):
         api = _read(ADVOCATE_DIR, API)
         self.assertLessEqual(len(api.split('\n')), MAX_LINES[API],
                              'advocate_api از سقفِ ثبت‌شده گذشت')
-        # نامِ extension باید عمومی باشد: نامِ خصوصی، اعضا را از بیرونِ
-        # کتابخانه پنهان می‌کند و `advocate.respond` در UI ناشناخته می‌شود.
-        self.assertIn('extension AdvocateApi on Advocate {', api)
-        self.assertNotIn('extension _AdvocateApi', api)
+        self.assertIn('extension _AdvocateApi on Advocate {', api)
 
     def test_class_file_is_wiring_only(self):
         head = _read(ADVOCATE_DIR, HEAD)

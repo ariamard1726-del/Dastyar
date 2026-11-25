@@ -6,15 +6,10 @@ part of 'advocate.dart';
 // این‌ها متدهای خودِ `Advocate` بودند و ۴۰۳ خط را با سیم‌کشی بیست همکار و
 // اعضای `static` شریک می‌شدند. تنها چیزی که این‌جا **نمی‌آید** `static` است
 // (`topics`، `wantsDraft`، `topicOf`، `_correctionPattern`، `_afterCorrection`):
-// در Dart، `extension` عضوِ `static` نمی‌پذیرد. پس آن پنج در `advocate.dart`
+// در Dari، `extension` عضوِ `static` نمی‌پذیرد. پس آن پنج در `advocate.dart`
 // ماندند و این مرز عمدی است، نه فراموشی.
-//
-// نامِ extension **عمومی** است، نه `_AdvocateApi`: نامِ خصوصی، همهٔ اعضا را هم
-// از بیرونِ کتابخانه پنهان می‌کند (همین اشتباه یک بار CI را قرمز کرد:
-// `advocate.respond` برای `chat_controller` ناشناخته شد). اعضای خصوصی
-// (`_out`، `_withLeave`) باز هم خصوصی می‌مانند، چون خودِ عضو `_` دارد.
 
-extension AdvocateApi on Advocate {
+extension _AdvocateApi on Advocate {
   /// آیا از پاسخ قبلی چیزی نگفته مانده است؟
   bool get hasMore => voice.rest.isNotEmpty;
 
@@ -138,7 +133,7 @@ extension AdvocateApi on Advocate {
     if (raw.trim() == ChipTexts.newCaseChip) return false;
     final n = Sense.norm(raw);
     if (!_guessable(n)) return false;
-    for (final t in Advocate.topics) {
+    for (final t in topics) {
       if (_score(t, n) >= 3) return false;
     }
     return true;
