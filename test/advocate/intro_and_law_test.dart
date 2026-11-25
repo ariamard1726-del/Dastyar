@@ -37,6 +37,6 @@ void main() {
 
   test('«معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید', () {
     final r = fresh().respond('وکیل خوب معرفی کنید');
-    expect(r.text, isNot(contains('دستیار حقوقی')));
+    expect(r.laws, isEmpty);
   });
 }
