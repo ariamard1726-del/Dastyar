@@ -26,7 +26,8 @@ class RepoHygieneTests(unittest.TestCase):
         bad = []
         for path in _tracked_text_files():
             # مستندات حق دارند از مسیر قدیمی برای توضیحِ ادغام حرف بزنند.
-            if not path.exists() or path.suffix == '.md':
+            if (not path.exists() or path.suffix == '.md'
+                    or path.name == 'test_repo_hygiene.py'):
                 continue
             text = path.read_text(encoding='utf-8')
             if 'brain/eval' in text or 'brain/reports' in text:
