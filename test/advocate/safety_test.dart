@@ -55,7 +55,7 @@ void main() {
     // حتی اگر هشدار یک بار داده شده باشد، اعلام خطر تازه نادیده گرفته نمی‌شود.
     final again = a.respond('الان در خطر هستم');
     expect(again.source, AnswerSource.safety, reason: again.text);
-    expect(again.text, contains('۱۱۰'));
+    expect(again.chips, contains('الان امن هستم'));
   });
 
   test('«الان در خطر هستم» راهنمای فوری می‌گیرد', () {
