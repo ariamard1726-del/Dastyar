@@ -1,4 +1,4 @@
-commit: a206287
+commit: da10c02
 🎉 521 tests passed.
 --- analyze ---
-No issues found! (ran in 11.3s)
+No issues found! (ran in 11.0s)
