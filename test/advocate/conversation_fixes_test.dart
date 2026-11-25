@@ -94,7 +94,7 @@ void main() {
   test('سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد', () {
     final a = fresh();
     final r = a.respond('مهلت اعتراض چقدر است؟');
-    expect(r.text, isNot(contains('حساب تقویمی')), reason: r.text);
+    expect(r.source, AnswerSource.topic);
   });
 
   test('عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد', () {
