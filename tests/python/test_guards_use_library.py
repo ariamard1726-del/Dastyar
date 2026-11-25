@@ -26,6 +26,33 @@ def _guard_files():
             yield name, f.read()
 
 
+class LawTextReaderTests(unittest.TestCase):
+    """تعریفِ «ماده» یک‌جا در `tools/lawtext.py` است، نه در هر ابزار."""
+
+    TOOLS = os.path.join(ROOT, 'tools')
+
+    def test_only_lawtext_defines_the_article_pattern(self):
+        bad = []
+        for name in sorted(os.listdir(self.TOOLS)):
+            if not name.endswith('.py') or name == 'lawtext.py':
+                continue
+            with open(os.path.join(self.TOOLS, name), encoding='utf-8') as f:
+                src = f.read()
+            if re.search(r'^ARTICLE\s*=', src, re.M):
+                bad.append(name)
+        self.assertEqual(bad, [], 'این ابزارها الگوی ماده را دوباره ساخته‌اند')
+
+    def test_doctor_and_law_diff_read_from_lawtext(self):
+        # import_law.py استثناست: متنِ خامِ چسبانده‌شده را با نشانهٔ «-» می‌خواند،
+        # نه فایلِ نهایی را؛ کارش درون‌ریزی است نه بخش‌بندی.
+        for name in ('doctor.py', 'law_diff.py'):
+            path = os.path.join(self.TOOLS, name)
+            with open(path, encoding='utf-8') as f:
+                src = f.read()
+            self.assertIn('from lawtext import', src,
+                          '%s از خوانندهٔ مشترک استفاده نمی‌کند' % name)
+
+
 class GuardHygieneTests(unittest.TestCase):
     def test_no_guard_opens_a_lib_file(self):
         """مسیرِ فایل‌های `lib/` فقط در ابزارِ مشترک باز می‌شود."""

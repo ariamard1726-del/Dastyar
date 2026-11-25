@@ -488,6 +488,13 @@ def cmd_refs():
     return data_refs.main([])
 
 
+# ---------------------------------------------------------------- text
+def cmd_text():
+    """هش‌نامهٔ متن: هیچ جملهٔ حقوقی بی‌اعلام عوض نشده باشد."""
+    import text_manifest
+    return text_manifest.main([])
+
+
 # ---------------------------------------------------------------- main
 COMMANDS = {
     'corpus': cmd_corpus,
@@ -501,6 +508,7 @@ COMMANDS = {
     'textnorm': cmd_textnorm,
     'lawterms': cmd_lawterms,
     'debt': cmd_debt,
+    'text': cmd_text,
 }
 
 

@@ -54,9 +54,10 @@
 | A9 ارجاع قانونیِ شکسته، بی‌صدا حذف می‌شد | ✅ رفع | `tools/data_refs.py` (`check.py refs`) ۱۹۷ ارجاع مسیرهای موضوعی، قالب‌ها و بانک QA را با متن واقعی می‌سنجد؛ آزمون: `tests/python/test_data_refs.py` |
 | A8b پروندهٔ گفتگو قابل‌ذخیره نبود | ✅ رفع | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion`؛ ورودی بدشکل ⇒ پروندهٔ خالی؛ آزمون: `test/advocate/case_file_json_test.dart` |
 | F11 پروانهٔ استفاده | ✅ رفع | `LICENSE` (MIT) + بند شخص ثالث Noql و وضعیت متن قوانین؛ README بخش «مجوز» |
+| A2b متنِ حقوقی بی‌هش و بی‌تفاضل بود | 🟡 تا حدی | `tools/text_manifest.py` (`check.py text`) برای ۳۶ فایلِ متن‌دار `sha256` می‌گیرد؛ `tools/law_diff.py --ref/--counts` تفاضلِ **ماده‌به‌ماده** و تطبیقِ شمارِ مواد با `_meta.json` را می‌دهد و `tools/lawtext.py` تنها تعریفِ «ماده» است. جابه‌جاییِ متن به داده منتظرِ تأییدِ مالک است |
 | A8 نسخه‌بندی و مهاجرت داده | 🟡 تا حدی | قالب تاریخچه `v:2` با مهاجرت خودکار؛ بقیهٔ ذخیره‌ها (پیش‌نویس، بازخورد، تنظیمات) نسخه‌بندی نشدند |
 
-**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۸۶ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)
+**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۲۴۳ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)
 
 ---
 
