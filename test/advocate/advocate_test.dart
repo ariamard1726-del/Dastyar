@@ -441,7 +441,7 @@ void main() {
     expect(a.file.yes('registered'), isTrue);
     expect(r.last.text, isNot(contains('ارزیابی من')));
     final arg = say(a, 'استدلالت چیه؟');
-    expect(arg.text, contains('شرط'));
+    expectSource(arg, AnswerSource.topic);
     expect(arg.text, contains('ارزیابی من'));
     final c = fresh();
     talk(c, [
