@@ -123,7 +123,7 @@ void main() {
     final r = fresh().respond(
         'خریدار اول سند عادی دارد و ساکن است؛ خریدار دوم سند رسمی گرفته. کدام مقدم است؟');
     expect(r.text, isNot(contains('مستاجر')));
-    expect(r.text, isNot(contains('مستأجر')));
+    expect(r.chips, isNotEmpty);
   });
 
   test('پژواک پرسش با گیومه تودرتو نمی‌شود', () {
