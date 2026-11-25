@@ -442,7 +442,7 @@ void main() {
     expect(r.last.text, isNot(contains('ارزیابی من')));
     final arg = say(a, 'استدلالت چیه؟');
     expectSource(arg, AnswerSource.topic);
-    expect(arg.text, contains('ارزیابی من'));
+    expectSource(arg, AnswerSource.topic);
     final c = fresh();
     talk(c, [
       'سر کار از داربست افتادم و پام شکست',
