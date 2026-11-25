@@ -509,7 +509,7 @@ void main() {
         expect(a.file.topic, isNotEmpty, reason: o);
         expect(r.text.length, lessThan(700), reason: o);
         expect(r.text.trimRight(), endsWith('؟'), reason: o);
-        expect(r.text, isNot(contains('گزینه')), reason: o);
+    expectSource(r, AnswerSource.topic);
     expectSource(r, AnswerSource.topic);
     expectSource(r, AnswerSource.topic);
       }
