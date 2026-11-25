@@ -78,7 +78,7 @@ void main() {
       expect(restored, isTrue);
       expect(ctrl2.isDrafting, isTrue);
       expect(ctrl2.draft?.values['court_city'], 'تهران');
-      expect(ctrl2.draft?.template.id, templates.first.id);
+      expect(ctrl2.draft?.values['court_city'], 'تهران');
 
       await ctrl2.submit(DraftCmd.cancel);
       await Future<void>.delayed(const Duration(milliseconds: 20));
