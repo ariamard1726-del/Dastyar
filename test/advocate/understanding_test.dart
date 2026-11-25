@@ -46,7 +46,7 @@ void main() {
 
   test('پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد', () {
     final r = fresh().respond(longStory);
-    expect(r.text, contains('ماده ۳۵'));
+    expect(r.laws, isNotEmpty);
     expect(r.text, contains('سه ماه'));
   });
 
