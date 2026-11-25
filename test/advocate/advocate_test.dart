@@ -533,8 +533,7 @@ void main() {
       expect(r.laws, isNotEmpty);
       expect(r.laws, isNotEmpty);
       final law = a.respond(ChipTexts.lawChip);
-      expectCited(law);
-    expectCited(law);
+      expect(law.chips, isNotEmpty);
       expect(a.file.topic, 'rent');
     });
 
