@@ -1,7 +1,2 @@
 Analyzing Dastyar...                                            
-
-  error • The getter 'hasCase' isn't defined for the type 'Advocate'. Try importing the library that defines 'hasCase', correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase' • test/app/chat_controller_test.dart:82
-  error • The getter 'draftIds' isn't defined for the type 'Advocate'. Try importing the library that defines 'draftIds', correcting the name to the name of an existing getter, or defining a getter or field named 'draftIds' • test/app/chat_controller_test.dart
-  error • The getter 'hasCase' isn't defined for the type 'Advocate'. Try importing the library that defines 'hasCase', correcting the name to the name of an existing getter, or defining a getter or field named 'hasCase' • test/app/chat_controller_test.dart:22
-
-3 issues found. (ran in 11.9s)
+No issues found! (ran in 9.9s)
