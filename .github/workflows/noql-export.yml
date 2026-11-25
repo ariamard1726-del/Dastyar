@@ -5,7 +5,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/noql/**'
+      - 'dev/brain/noql/**'
       - '.github/workflows/noql-export.yml'
 
 permissions:
@@ -25,7 +25,7 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install numpy scikit-learn tokenizers huggingface_hub safetensors sentence-transformers
       - name: Export and measure
-        run: python brain/noql/export.py
+        run: python dev/brain/noql/export.py
       - name: Commit
         if: always()
         run: |

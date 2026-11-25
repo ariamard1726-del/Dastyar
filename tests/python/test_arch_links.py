@@ -10,7 +10,7 @@
 1. هر نامِ `*.dart` که در سند با بک‌تیک آمده، در `lib/` هست (خطی که خودش
    می‌گوید «حذف شد» یا «بازگشت» استثناست — تاریخِ آگاهانه، نه نقشهٔ کهنه).
 2. فهرستِ تکه‌های `topics/rent.dart` در سند **همان** فهرستِ `part`های واقعی است.
-3. شمارِ خط‌هایی که سند برای فایل‌های `lib/` می‌آورد با `tools/lines.py` جور است.
+3. شمارِ خط‌هایی که سند برای فایل‌های `lib/` می‌آورد با `dev/tools/lines.py` جور است.
 """
 
 import glob
@@ -20,7 +20,7 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 from library import dart_files, line_count, parts_of  # noqa: E402
 
 DOC = os.path.join(ROOT, 'docs', 'ARCHITECTURE.md')

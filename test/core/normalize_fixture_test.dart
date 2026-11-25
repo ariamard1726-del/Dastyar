@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/persian_text.dart';
 
-/// نرمال‌سازی متن، هم در دارت هست هم در پایتون (`brain/common.py`).
+/// نرمال‌سازی متن، هم در دارت هست هم در پایتون (`dev/brain/common.py`).
 ///
 /// دو پیاده‌سازی داشتن یک بدهی است؛ کمترین کار این است که هر دو با یک فایل
 /// نمونهٔ مشترک سنجیده شوند تا از هم جدا نیفتند.

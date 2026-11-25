@@ -9,7 +9,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/alt_bench.py'
+      - 'dev/brain/alt_bench.py'
       - 'eval/topic_examples.tsv'
       - '.github/workflows/alt-bench.yml'
 
@@ -31,7 +31,7 @@ jobs:
           pip install numpy scikit-learn sentence-transformers huggingface_hub sentencepiece protobuf onnx onnxruntime onnxscript
           pip list 2>/dev/null | grep -i -E "^(torch|transformers|sentence-transformers|onnx|onnxruntime|onnxscript|tokenizers|numpy) "
       - name: Run benchmark
-        run: python brain/alt_bench.py
+        run: python dev/brain/alt_bench.py
       - name: Commit report
         if: always()
         run: |

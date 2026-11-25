@@ -2,10 +2,10 @@
 
 دو ابزار را می‌سنجد که فاز ۱ به آن‌ها تکیه دارد:
 
-1. `tools/text_manifest.py` — هر فایلِ متن‌دار (متنِ قوانین، راهنماها، بانک
+1. `dev/tools/text_manifest.py` — هر فایلِ متن‌دار (متنِ قوانین، راهنماها، بانک
    پرسش‌وپاسخ، و فایل‌های Dart که متنِ پاسخ در آن‌ها زندگی می‌کند) یک هش دارد.
    پس هیچ تغییرِ متنی بی‌اعلام نمی‌ماند.
-2. `tools/law_diff.py` — وقتی نسخهٔ اعتبارسنجی‌شدهٔ قانون می‌آید، تفاضل
+2. `dev/tools/law_diff.py` — وقتی نسخهٔ اعتبارسنجی‌شدهٔ قانون می‌آید، تفاضل
    **ماده‌به‌ماده** گزارش می‌شود، نه فایل‌به‌فایل.
 """
 
@@ -14,7 +14,7 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import law_diff  # noqa: E402
 import text_manifest  # noqa: E402

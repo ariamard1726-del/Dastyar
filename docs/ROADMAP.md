@@ -11,8 +11,8 @@
 |---|---|---|
 | مجوز پروژه | ✅ | `LICENSE` (MIT) + بندهای شخص ثالث (Noql، متن قوانین) |
 | شفاف‌بودن متن تأییدنشده | ✅ | از پیش در `KnowledgeEngine.format` و صفحهٔ «درباره» بود؛ حالا در README هم هست |
-| ارجاع‌های شکسته، خطا شوند | ✅ | `tools/data_refs.py` + `check.py refs` (۱۹۷ ارجاع) |
-| ساختار دادهٔ موضوع، نگهبان پیدا کند | ✅ | `tools/topic_schema.py` + اسکیما + `check.py topics` |
+| ارجاع‌های شکسته، خطا شوند | ✅ | `dev/tools/data_refs.py` + `check.py refs` (۱۹۷ ارجاع) |
+| ساختار دادهٔ موضوع، نگهبان پیدا کند | ✅ | `dev/tools/topic_schema.py` + اسکیما + `check.py topics` |
 | دادهٔ مرده آشکار شود | ✅ | `live:false` در بستهٔ برنامه خطاست؛ دو مسیر غیرفعال به `lab/topics/` رفتند (از APK بیرون) |
 | ترتیب خط لوله، تک‌منبع شود | ✅ | `assets/pipeline.json` + `pipeline_check.py` + آزمون Dart |
 | ساخت release فقط با کلید امضا | ✅ (از پیش) | `build.gradle.kts` بدون `ALLOW_DEBUG_SIGNING` می‌شکند |
@@ -21,7 +21,7 @@
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| اسکیمای مسیر موضوعی | ✅ | `tools/schemas/topic_flow.schema.json` |
+| اسکیمای مسیر موضوعی | ✅ | `dev/tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 3`) + `Advocate.restoreCase`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
 | انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | ⬜ | بزرگ‌ترین کار؛ نیاز به تبدیل `Slot/Issue/Claim` به داده |
@@ -58,16 +58,16 @@
 |---|---|---|
 | آزمون ساختاری بهجای `contains` | ⏳ | ابزار `test/support/reply_shape.dart` (مسیر پاسخ، دکمه، موضوع، استناد) و نمونهٔ استفاده در `test/advocate/reply_shape_test.dart`؛ سقف رشد `contains` در `tests/python/test_structure_tests.py` قفل شد |
 | تبدیل همهٔ ۴۸۵ `contains` به ساختاری | ⏳ | ۱۱۹ assertion متنمحور باقی مانده و سقف ثبت شد؛ هر موضوع هنگام لمس، تست خود را ساختارمند میکند |
-| دروازهٔ پوشش کد | ✅ | `flutter test --coverage` + `tools/coverage_gate.py --min 40` در CI (`tests/python/test_coverage_gate.py`) |
-| جداکردن `brain/` و `tools/` پژوهشی | ✅ | مرز اپ/ابزار در `docs/REPO_LAYOUT.md` و نگهبان بستهبندی (`tests/python/test_repo_hygiene.py`) قفل شد؛ پوشهها خارج از `pubspec` و APKاند |
+| دروازهٔ پوشش کد | ✅ | `flutter test --coverage` + `dev/tools/coverage_gate.py --min 40` در CI (`tests/python/test_coverage_gate.py`) |
+| جداکردن `dev/brain/` و `dev/tools/` پژوهشی | ✅ | مرز اپ/ابزار در `docs/REPO_LAYOUT.md` و نگهبان بستهبندی (`tests/python/test_repo_hygiene.py`) قفل شد؛ پوشهها خارج از `pubspec` و APKاند |
 | توقف کامیت خودکار گزارش‌ها | ✅ (از پیش) | `commit-reports` فقط روی موفقیت |
 | حذف کامنت/کد مرده | ⬜ | `docs/DEAD_CODE.md` فهرست دارد |
-| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها یک منبع داشته باشند | ✅ | `tools/contracts/law_terms.json` مرجع است؛ `tools/gen_law_terms.py --write` دو فایل تولیدشده می‌سازد و `check.py lawterms` کهنه‌بودنشان را خطا می‌دهد — `tests/python/test_law_terms_parity.py` |
+| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها یک منبع داشته باشند | ✅ | `dev/tools/contracts/law_terms.json` مرجع است؛ `dev/tools/gen_law_terms.py --write` دو فایل تولیدشده می‌سازد و `check.py lawterms` کهنه‌بودنشان را خطا می‌دهد — `tests/python/test_law_terms_parity.py` |
 | ایست‌واژه‌های گفتاری در پاسخ نیایند | ✅ | ۵۵ واژهٔ روزمره (توانم، اگر، کاری…) به هر دو فهرست |
 | پرسشِ بی‌جواب سه بار تکرار نشود | ✅ | سقفِ دو بار در `_out`؛ بار سوم جملهٔ صریح («از آن می‌گذرم») — `test/advocate/meta_and_tone_test.dart` |
 | واژهٔ موضوع، بی‌ماجرا، حکم نگیرد | ✅ | `Topic.gate` + `fightGate` در `topics/fight.dart`: بی‌آدم/نقش/آسیب، پرسش به‌جای ماده — `test/advocate/meta_and_tone_test.dart` |
 | لحنِ دلداریِ دروغ و وعدهٔ بی‌مدرک در راهنماها | ✅ | «خوشبختانه»، «موقعیت شما معمولاً قوی است»، «تخلیه سریع است» از `lib/domain/lawyer/legal_guides.dart` رفتند؛ نگهبان: `tests/python/test_tone_guard.py` |
-| جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
+| جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `dev/tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
 | `Advocate` گاد-آبجکت نباشد | ✅ | وضعیتِ «روی میز» در `dialogue_state.dart` (۲۵ فیلد)، ساختِ پاسخ در `reply_voice.dart`، ۱۲ مسیرِ نام‌دار در `reply_routes.dart` (`_reply` ۵۶۰ → ۳۳۴ خط)، فیلدهای حالتیِ `Advocate` ۴۶ → ۱۲. تشخیص موضوع (`TopicScore`) و پرسش بعدی (`CasePlan`) از کلاس بیرون آمدند و `test/advocate/isolation_test.dart` بدونِ ساختنِ `Advocate` می‌سنجدشان. ترفندِ `file.turns--` رفت. `chat_controller.dart` ۵۳۰ → ۳۱۲ خط با `draft_flow.dart`. `rent.dart` ۲٬۶۷۹ خط → شش تکه؛ `labor.dart` و `family.dart` هم به چهار تکه با آزمونِ پیش از شکستن. سه همکارِ تازه: `CaseArgument` (استدلال)، `ChipPlan` (دکمه‌ها؛ `advocate_chips.dart` ۱۶۰ → ۲۳ خط)، `MetaReply` (پاسخ‌های «دربارهٔ برنامه»)؛ خلاصهٔ پرونده تابعِ `recapOf` شد. متدهای باقی‌مانده روی بخش‌های `Advocate` از ۱۹۰ به ۵۷ رسید (`LawAnswer`، `TalkReply`، `TalkRoute`، `TopicPicker`، `CaseFlow`، `ReplyRoutes`، `GuideReply`، `TermReply` هم جدا شدند) — ترتیبِ پاسخ‌ها حالا فهرستِ نام‌دار است (`AnswerCandidate`/`AnswerArbiter`)، ولی نیمهٔ دومِ `_reply` هنوز محاسبه و تصمیم را در هم می‌بافد و ادعا نمی‌کنیم تمام شده. موتور: `law_mention.dart`. نگهبان عددی: `tests/python/test_advocate_shape.py` |
 | موتورِ قوانین هم شکسته شود | ✅ | `engine.dart` ۱٬۱۷۸ → **۶۳۸** خط: `LawIndex` (ایندکس + خواندنِ متن)، `LawRanker` (BM25F)، `LawText` (نوشتنِ متن)، `LawMention`، `ArticleQuery`. هر چهار با آزمونِ بی‌نیاز از دارایی‌ها (`test/core/law_*_test.dart`). در موتور چیزی جز بارگذاری و تصمیمِ پاسخ نماند |
 | رفتارهای `Advocate` هم همکار داشته باشند | 🟡 نیمه | جدا شده‌اند: `DialogueState` (حالت)، `ReplyVoice` (ساختِ پاسخ)، `_Routes` (مسیرها)، `CaseArgument` (استدلال: پرونده + صدا + خلاصه + برعکس‌شدن‌ها). هنوز ~۱۹۰ متد در ۸ فایلِ `part` روی خودِ `Advocate` است؛ قدمِ بعد: `CaseFlow` (روندِ پرونده) و `CaseTalk` (گفت‌وگوی انسانی) با همان الگو |
@@ -78,30 +78,30 @@
 این‌ها **رفع نشده‌اند**؛ فقط نگهبان گرفته‌اند تا سکوت نکنند. اگر روزی یکی از
 این‌ها عوض شود و آزمونش قرمز نشود، یعنی نگهبان هم از کار افتاده.
 
-جدولِ زیر داده هم شده است: `tools/contracts/duplicated_logic.json` +
-`python3 tools/check.py debt` بررسی می‌کند هر جفت هنوز همان مجموعهٔ نمونه را
+جدولِ زیر داده هم شده است: `dev/tools/contracts/duplicated_logic.json` +
+`python3 dev/tools/check.py debt` بررسی می‌کند هر جفت هنوز همان مجموعهٔ نمونه را
 از **هر دو زبان** می‌خواند و هنوز در همین بخشِ ROADMAP هست. حذف یک ردیف از
 اینجا بی‌آن‌که جفتش از قرارداد برود، CI را قرمز می‌کند؛ و برعکس.
 
 | بدهی | دو/چند پیاده‌سازی | نگهبان | رفع واقعی |
 |---|---|---|---|
-| الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `tools/law_terms.py` | فهرست و آستانه‌ها یک‌جا شد (`check.py lawterms`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
-| یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `brain/common.py` | قاعده‌ها یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
-| موتور بازیابی | `lib/core/engine.dart` ↔ `tools/eval_py.py` | `tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
-| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
-| دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `tools/sync_meta.py` | `tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
+| الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `dev/tools/law_terms.py` | فهرست و آستانه‌ها یک‌جا شد (`check.py lawterms`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
+| یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `dev/brain/common.py` | قاعده‌ها یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
+| موتور بازیابی | `lib/core/engine.dart` ↔ `dev/tools/eval_py.py` | `dev/tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
+| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `dev/tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
+| دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `dev/tools/sync_meta.py` | `dev/tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
 
 ### پرداخت‌شده: ایست‌واژه‌های تطبیق واژه‌ها
 
 پیش‌تر فهرست ۱۵۳ ایست‌واژه و آستانه‌ها (کمینهٔ طول، df، پوشش، idf) دو بار
-دستی نوشته شده بود: `lib/domain/advocate/law_terms.dart` و `tools/law_terms.py`.
+دستی نوشته شده بود: `lib/domain/advocate/law_terms.dart` و `dev/tools/law_terms.py`.
 آزمون آینه فقط جلوی جداافتادنشان را می‌گرفت؛ خودِ دوتا‌بودن بدهی بود.
 
-- **یک مرجع:** `tools/contracts/law_terms.json` (ایست‌واژه‌ها، نگاشت `افحش→فاحش`،
+- **یک مرجع:** `dev/tools/contracts/law_terms.json` (ایست‌واژه‌ها، نگاشت `افحش→فاحش`،
   آستانه‌ها، نام منبع عمومیِ پاسخ).
-- **تولید:** `python3 tools/gen_law_terms.py --write` دو فایل می‌سازد
-  (`lib/domain/advocate/law_terms_rules.dart`، `brain/law_terms_rules.py`)؛
-  `python3 tools/check.py lawterms` کهنه‌بودنشان را خطا می‌دهد و `check.py all`
+- **تولید:** `python3 dev/tools/gen_law_terms.py --write` دو فایل می‌سازد
+  (`lib/domain/advocate/law_terms_rules.dart`، `dev/brain/law_terms_rules.py`)؛
+  `python3 dev/tools/check.py lawterms` کهنه‌بودنشان را خطا می‌دهد و `check.py all`
   هم آن را با خود دارد.
 - **دو پیاده‌سازی منطق می‌مانند** (موتور دارت و آینهٔ پایتون) ولی هیچ فهرست یا
   عددی دیگر دستی نوشته نمی‌شود؛ آزمون `test_no_second_hand_written_list` جلوی
@@ -110,15 +110,15 @@
 ### پرداخت‌شده: قاعده‌های متن
 
 نرمال‌سازی از این فهرست بیرون رفت. پیش‌تر همان قاعده در پنج جا نوشته شده بود
-(`persian_text.dart`، `text_sense.dart`، `brain/common.py`، `tools/topic_flow.py`،
-`tools/law_terms.py`). حالا:
+(`persian_text.dart`، `text_sense.dart`، `dev/brain/common.py`، `dev/tools/topic_flow.py`،
+`dev/tools/law_terms.py`). حالا:
 
-- **یک مرجع:** `tools/contracts/text_norm.json` — نگاشت نویسه، ارقام، اعراب،
+- **یک مرجع:** `dev/tools/contracts/text_norm.json` — نگاشت نویسه، ارقام، اعراب،
   نویسه‌های فاصله‌ای، نشانه‌ها، قاعدهٔ نقطه، چسباندن «می/نمی» و بازنویسی‌های
   محاوره.
-- **تولید:** `python3 tools/gen_text_norm.py --write` دو فایل می‌سازد
-  (`lib/core/text_norm_rules.dart`، `brain/text_norm_rules.py`)؛
-  `python3 tools/check.py textnorm` کهنه‌بودنشان را خطا می‌دهد.
+- **تولید:** `python3 dev/tools/gen_text_norm.py --write` دو فایل می‌سازد
+  (`lib/core/text_norm_rules.dart`، `dev/brain/text_norm_rules.py`)؛
+  `python3 dev/tools/check.py textnorm` کهنه‌بودنشان را خطا می‌دهد.
 - **یک پیاده‌سازی در پایتون:** `common.normalize` / `common.norm` /
   `common.spaced(s, variant)`؛ `topic_flow` و `law_terms` فقط صدایش می‌زنند.
 - **قفل رفتاری:** `tests/text_norm_golden.json` (خروجی پیش از تغییر) و
@@ -138,6 +138,6 @@
 
 1. هر گام: ابزار بررسی + آزمون + یک خط در همین جدول.
 2. هیچ گام بدون `python -m unittest discover -s tests/python` و
-   `python tools/check.py all` سبز بسته نمی‌شود.
+   `python dev/tools/check.py all` سبز بسته نمی‌شود.
 3. تغییر Dart بدون `flutter analyze`/`flutter test` در CI پذیرفته نمی‌شود؛
    در محیط ابری که Dart SDK ندارد، تغییر Dart فقط افزایشی و آزمون‌دار است.

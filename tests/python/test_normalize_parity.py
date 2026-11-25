@@ -5,7 +5,7 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'brain'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 
 import common  # noqa: E402
 

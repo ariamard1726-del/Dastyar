@@ -1,7 +1,7 @@
 import 'package:dastyar/core/persian_text.dart';
 
 /// ضریب موضوعی قانون‌ها در رتبه‌بندی بازیابی (آینهٔ `law_factors` در
-/// `tools/eval_py.py`؛ هر دو از `assets/brain/law_topics.json` می‌خوانند).
+/// `dev/tools/eval_py.py`؛ هر دو از `assets/brain/law_topics.json` می‌خوانند).
 ///
 /// دو قاعده:
 /// ۱. قانون‌های «تخصصی» (مثل مالیات‌های مستقیم یا تأمین اجتماعی) فقط وقتی

@@ -7,7 +7,7 @@ import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/text_norm_rules.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 
-/// لایهٔ متن: قاعده‌ها از `tools/contracts/text_norm.json` تولید می‌شوند و
+/// لایهٔ متن: قاعده‌ها از `dev/tools/contracts/text_norm.json` تولید می‌شوند و
 /// خروجی‌شان با نمونه‌های مشترک قفل است.
 ///
 /// نمونه‌ها در پایتون تولید و این‌جا سنجیده می‌شوند؛ اگر یک طرف عوض شود و

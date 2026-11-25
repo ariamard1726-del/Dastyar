@@ -9,7 +9,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/noql_finetune.py'
+      - 'dev/brain/noql_finetune.py'
       - '.github/workflows/noql-finetune.yml'
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install numpy scikit-learn sentence-transformers huggingface_hub sentencepiece protobuf onnx onnxruntime onnxscript
       - name: Run experiment
-        run: python brain/noql_finetune.py
+        run: python dev/brain/noql_finetune.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:

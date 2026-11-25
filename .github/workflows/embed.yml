@@ -21,7 +21,7 @@ jobs:
       - name: Run models
         run: |
           for m in intfloat/multilingual-e5-small sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2; do
-            MODEL="$m" python brain/embed_eval.py || echo "failed: $m"
+            MODEL="$m" python dev/brain/embed_eval.py || echo "failed: $m"
           done
       - uses: actions/upload-artifact@v7
         if: always()

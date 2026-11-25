@@ -17,7 +17,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import read as lib_read  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -48,12 +48,12 @@ TYPEDEFS = ['Body', 'Reader', 'Cond', 'Tri']
 
 
 def _read(name):
-    """یک فایلِ کتابخانهٔ وکیل، از ابزارِ مشترکِ `tools/library.py`."""
+    """یک فایلِ کتابخانهٔ وکیل، از ابزارِ مشترکِ `dev/tools/library.py`."""
     return lib_read(os.path.join(ADVOCATE_DIR, name))
 
 
 def _lines(src):
-    """«شمارِ خط» با همان تعریفِ `tools/lines.py` (همان `wc -l`)."""
+    """«شمارِ خط» با همان تعریفِ `dev/tools/lines.py` (همان `wc -l`)."""
     return src.count('\n')
 
 

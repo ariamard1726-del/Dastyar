@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(ROOT / 'dev' / 'tools'))
 from coverage_gate import coverage, main  # noqa: E402
 
 
@@ -27,7 +27,7 @@ class CoverageGateTests(unittest.TestCase):
     def test_ci_runs_coverage(self):
         wf = (ROOT / '.github' / 'workflows' / 'test.yml').read_text(encoding='utf-8')
         self.assertIn('flutter test --coverage', wf)
-        self.assertIn('tools/coverage_gate.py coverage/lcov.info --min', wf)
+        self.assertIn('dev/tools/coverage_gate.py coverage/lcov.info --min', wf)
         self.assertIn('reports/coverage.txt', wf)
         self.assertIn('run-id: ${{ github.run_id }}', wf)
         self.assertIn('test-reports-${{ github.run_id }}', wf)

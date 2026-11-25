@@ -11,7 +11,7 @@
 
 | مورد | چرا | کجا رفت |
 |---|---|---|
-| `assets/brain/topics/rent.json`، `assets/brain/topics/labor_wages.json` | `live:false` بودند: در APK بسته‌بندی و در حافظه parse می‌شدند ولی هرگز در گفتگو جواب نمی‌دادند (دروازه‌هایشان هم عام بود: «خانه»، «پول»، «قرارداد»). | `lab/topics/`؛ در `pubspec.yaml` نیستند و نمونه‌های آزمونشان (`tests/topics/*_gold.json`) همچنان اجرا می‌شوند. `assets/brain/topics/index.json` حالا فقط موضوع‌های `live` را فهرست می‌کند و `live:false` در بستهٔ برنامه **خطا** است (`tools/topic_schema.py`). |
+| `assets/brain/topics/rent.json`، `assets/brain/topics/labor_wages.json` | `live:false` بودند: در APK بسته‌بندی و در حافظه parse می‌شدند ولی هرگز در گفتگو جواب نمی‌دادند (دروازه‌هایشان هم عام بود: «خانه»، «پول»، «قرارداد»). | `lab/topics/`؛ در `pubspec.yaml` نیستند و نمونه‌های آزمونشان (`tests/topics/*_gold.json`) همچنان اجرا می‌شوند. `assets/brain/topics/index.json` حالا فقط موضوع‌های `live` را فهرست می‌کند و `live:false` در بستهٔ برنامه **خطا** است (`dev/tools/topic_schema.py`). |
 
 ## ۱. حذف‌شده
 
@@ -21,17 +21,17 @@
 | `HybridIntentRouter` و کلاس‌های کمکی‌اش (`HybridRouterConfig`، `KeywordScores`، `RoutingDecision`، `RoutingSource`، `WeightedKeyword`، `StrictPhrase`، `_PreparedKeyword`، `_PreparedStrict`) در `lib/core/router.dart` | در اجرای برنامه صدا زده نمی‌شد؛ فقط آزمونش استفاده می‌کرد. `QueryRouter` (تنها بخش مصرف‌شده) نگه داشته شد. |
 | `test/core/hybrid_router_test.dart` (۱۸ آزمون) | آزمون کد حذف‌شده |
 | `lib/core/persian_normalizer.dart` و `test/core/persian_normalizer_test.dart` | تنها مصرف‌کنندهٔ آن `HybridIntentRouter` بود |
-| `lawFactors(String)` در `lib/core/engine.dart` | هیچ‌جا صدا زده نمی‌شد. نسخهٔ پایتونی آن در `tools/eval_py.py` (`law_factors`) فعال است و نگه داشته شد. |
+| `lawFactors(String)` در `lib/core/engine.dart` | هیچ‌جا صدا زده نمی‌شد. نسخهٔ پایتونی آن در `dev/tools/eval_py.py` (`law_factors`) فعال است و نگه داشته شد. |
 | `mentionedLaws(String)` در `lib/core/engine.dart` | پوشش عمومی بی‌مصرف روی `_mentionedLaws` |
 
 ### فایل‌های پایتون و داده
 | فایل | دلیل |
 |---|---|
-| `tools/make_icon.py` | تولید آیکون یک‌بار مصرف؛ آیکون در پروژه موجود است |
-| `tools/laws_status.py` | منسوخ؛ `tools/law_registry.py status` همین کار را می‌کند |
-| `tools/ci_status.py` | بی‌ارجاع |
-| `tools/dupes.py` | بی‌ارجاع |
-| `brain/ngram_eval.py` | آزمایش تمام‌شده؛ خروجی آن `reports/ngram.txt` حفظ شد |
+| `dev/tools/make_icon.py` | تولید آیکون یک‌بار مصرف؛ آیکون در پروژه موجود است |
+| `dev/tools/laws_status.py` | منسوخ؛ `dev/tools/law_registry.py status` همین کار را می‌کند |
+| `dev/tools/ci_status.py` | بی‌ارجاع |
+| `dev/tools/dupes.py` | بی‌ارجاع |
+| `dev/brain/ngram_eval.py` | آزمایش تمام‌شده؛ خروجی آن `reports/ngram.txt` حفظ شد |
 | `eval/gold500.txt` | داده بی‌ارجاع؛ هیچ اسکریپت یا گردش‌کاری آن را نمی‌خواند |
 | `eval/dialogues.txt` | داده بی‌ارجاع؛ `test/audit/conversations.txt` کار مشابه را می‌کند |
 | `reports/embed_intfloat_multilingual-e5-small.txt`، `reports/embed_sentence-transformers_paraphrase-multilingual-MiniLM-L12-v2.txt` | خروجی خام تکراری؛ نتیجه در `embed_bench.md` و `alt_bench.md` آمده |
@@ -42,8 +42,8 @@
 
 | مورد | دلیل نگه‌داشتن |
 |---|---|
-| `tools/set_meta.py` | ابزار دستی ویرایش فیلدهای توصیفی `_meta.json`؛ بی‌ارجاع است ولی ابزار عملیاتی محسوب می‌شود. اگر نمی‌خواهید، بگویید تا حذف شود. |
-| `tools/synonyms/new_rows.txt` | پیش‌نویس مترادف‌های جدید که هنوز در `assets/synonyms.txt` ادغام نشده؛ حذفش داده را از بین می‌برد. |
+| `dev/tools/set_meta.py` | ابزار دستی ویرایش فیلدهای توصیفی `_meta.json`؛ بی‌ارجاع است ولی ابزار عملیاتی محسوب می‌شود. اگر نمی‌خواهید، بگویید تا حذف شود. |
+| `dev/tools/synonyms/new_rows.txt` | پیش‌نویس مترادف‌های جدید که هنوز در `assets/synonyms.txt` ادغام نشده؛ حذفش داده را از بین می‌برد. |
 | `docs/review_guide.md` | راهنمای کارشناس حقوقی برای بازبینی قالب‌ها؛ سند انسانی است، نه کد مرده. |
 | `reports/ngram.txt` | گزارش نتیجهٔ آزمایش n-gram. |
 
@@ -72,7 +72,7 @@
 ### نگه‌داشته‌شده (عمداً)
 | مورد | دلیل |
 |---|---|
-| `tools/holdout_intent.py` و `reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
+| `dev/tools/holdout_intent.py` و `reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `dev/tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
 | `tests/python/test_intent_map.py`، `tests/python/test_law_registry.py` | `python -m unittest discover -s tests/python` در گردش‌کار `gemini-agent` همهٔ `test_*.py` را اجرا می‌کند؛ بی‌ارجاع نامی، ولی زنده‌اند. |
 | `raw/*.txt` | همان دلیل بخش ۴. |
 

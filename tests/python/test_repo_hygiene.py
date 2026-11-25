@@ -15,8 +15,10 @@ def _tracked_text_files():
 
 class RepoHygieneTests(unittest.TestCase):
     def test_twin_directories_are_gone(self):
-        self.assertFalse((ROOT / 'brain' / 'eval').exists(), 'brain/eval هنوز هست')
-        self.assertFalse((ROOT / 'brain' / 'reports').exists(), 'brain/reports هنوز هست')
+        self.assertFalse((ROOT / 'brain').exists(), 'پوشهٔ قدیمی brain هنوز هست')
+        self.assertFalse((ROOT / 'tools').exists(), 'پوشهٔ قدیمی tools هنوز هست')
+        self.assertTrue((ROOT / 'dev' / 'brain').is_dir())
+        self.assertTrue((ROOT / 'dev' / 'tools').is_dir())
         for name in ('eval.txt', 'intent_eval.txt', 'eval_none.txt'):
             self.assertTrue((ROOT / 'eval' / name).is_file(), name)
         for name in ('last_test.txt', 'intent_holdout.md', 'near_miss.txt'):
@@ -30,7 +32,7 @@ class RepoHygieneTests(unittest.TestCase):
                     or path.name == 'test_repo_hygiene.py'):
                 continue
             text = path.read_text(encoding='utf-8')
-            if 'brain/eval' in text or 'brain/reports' in text:
+            if 'dev/brain/eval' in text or 'dev/brain/reports' in text:
                 bad.append(str(path.relative_to(ROOT)))
         self.assertEqual(bad, [], 'مسیر دوقلوی قدیمی باقی مانده: %s' % bad)
 
@@ -43,9 +45,9 @@ class RepoHygieneTests(unittest.TestCase):
             self.assertTrue(entry.startswith('- assets/'), entry)
         dart = list((ROOT / 'lib').rglob('*.dart'))
         bad = [str(p.relative_to(ROOT)) for p in dart
-               if "'brain/eval" in p.read_text(encoding='utf-8')
-               or "'brain/reports" in p.read_text(encoding='utf-8')
-               or "'tools/" in p.read_text(encoding='utf-8')]
+               if "'dev/brain/eval" in p.read_text(encoding='utf-8')
+               or "'dev/brain/reports" in p.read_text(encoding='utf-8')
+               or "'dev/tools/" in p.read_text(encoding='utf-8')]
         self.assertEqual(bad, [], 'کد اپ به ابزار آفلاین وابسته شد: %s' % bad)
 
 

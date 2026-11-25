@@ -1,5 +1,5 @@
 # مجموعهٔ آزمون طبقه‌بند نیت (label|text) — جمله‌هایی که در آموزش نبوده‌اند.
-# tools/check_intent.py و test/intent_net_test.dart روی همین فایل دقت را می‌سنجند.
+# dev/tools/check_intent.py و test/intent_net_test.dart روی همین فایل دقت را می‌سنجند.
 cheque|چک صیادی صادر کردم و طرف برگشت زده
 cheque|وجه چک را بانک پرداخت نکرد و دارنده شاکی است
 cheque|برای چک تضمین اجاره مشکل خورده‌ام

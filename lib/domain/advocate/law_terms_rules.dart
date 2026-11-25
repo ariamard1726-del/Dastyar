@@ -1,12 +1,12 @@
-// تولیدشده از tools/contracts/law_terms.json — دستی ویرایش نکنید.
-// تولید دوباره: python3 tools/gen_law_terms.py --write
-// بررسی تازگی:  python3 tools/gen_law_terms.py --check
+// تولیدشده از dev/tools/contracts/law_terms.json — دستی ویرایش نکنید.
+// تولید دوباره: python3 dev/tools/gen_law_terms.py --write
+// بررسی تازگی:  python3 dev/tools/gen_law_terms.py --check
 
 
-/// قاعده‌های تطبیق واژه‌ها — تنها مرجع، `tools/contracts/law_terms.json`.
+/// قاعده‌های تطبیق واژه‌ها — تنها مرجع، `dev/tools/contracts/law_terms.json`.
 ///
-/// آینهٔ پایتونی‌اش `brain/law_terms_rules.py` است و از همین قرارداد تولید
-/// می‌شود؛ `python3 tools/check.py lawterms` کهنه‌بودن هر دو را خطا می‌دهد.
+/// آینهٔ پایتونی‌اش `dev/brain/law_terms_rules.py` است و از همین قرارداد تولید
+/// می‌شود؛ `python3 dev/tools/check.py lawterms` کهنه‌بودن هر دو را خطا می‌دهد.
 class LawTermsRules {
   LawTermsRules._();
 

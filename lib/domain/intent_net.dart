@@ -19,8 +19,8 @@ class IntentScore {
 /// شبکهٔ عصبی کوچکِ طبقه‌بندی نیت — ۱۰۰٪ آفلاین و بدون هیچ افزونهٔ بومی.
 ///
 /// وزن‌ها در assets/brain/intent_model.json قرار دارند (خروجی
-/// brain/train_intent.py، کوانتیدهٔ int8) و استنتاج دقیقاً همان ریاضیِ
-/// `tools/check.py intent` است:
+/// dev/brain/train_intent.py، کوانتیدهٔ int8) و استنتاج دقیقاً همان ریاضیِ
+/// `dev/tools/check.py intent` است:
 ///   ویژگی‌های هش‌شدهٔ واژه + n-gram حرفی (FNV-1a) → L1-normalize
 ///   → لایهٔ نهان relu → softmax.
 /// هیچ LLM، API خارجی یا کتابخانهٔ tflite در کار نیست.
@@ -158,7 +158,7 @@ class IntentNet {
     return sb.toString();
   }
 
-  /// FNV-1a ۳۲بیتی — دقیقاً هم‌الگوریتم با brain/common.py#fnv.
+  /// FNV-1a ۳۲بیتی — دقیقاً هم‌الگوریتم با dev/brain/common.py#fnv.
   static int _fnv(String s) {
     var h = 2166136261;
     for (var i = 0; i < s.length; i++) {
@@ -174,7 +174,7 @@ class IntentNet {
     return cleaned.split(' ').where((w) => w.isNotEmpty).toList();
   }
 
-  /// سطل‌های هش ویژگی (واژه + n-gramهای حرفی) — آینهٔ brain/common.py#feats.
+  /// سطل‌های هش ویژگی (واژه + n-gramهای حرفی) — آینهٔ dev/brain/common.py#feats.
   List<int> featureBuckets(String text) {
     final ids = <int>[];
     for (final w in _words(text)) {

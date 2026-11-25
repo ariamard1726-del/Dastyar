@@ -6,7 +6,7 @@
 
 در ترموکس:
 
-    python tools/export_review.py
+    python dev/tools/export_review.py
 
 فایل docs/review_templates.txt ساخته می‌شود. در آن هر «...» جای پاسخی است که کاربر وارد می‌کند.
 
@@ -44,14 +44,14 @@
 
 - متن را فقط از منبع رسمی بگیرید (شرح کامل در `docs/LAW_SOURCES.md`).
 - تبدیل و ثبت در مسیر دسته‌بندی‌شده:
-  `python tools/import_law.py raw/ID.txt --id ID --title "نام رسمی قانون" --source "منبع" --url "نشانی صفحه" --date "تاریخ" --out دسته/فایل.txt`
-  (یا برای قالب‌های دیگر: `python tools/convert.py ID raw/ID.txt "نام رسمی قانون" --source "منبع" --url "نشانی صفحه" --date "تاریخ" --out دسته/فایل.txt`)
+  `python dev/tools/import_law.py raw/ID.txt --id ID --title "نام رسمی قانون" --source "منبع" --url "نشانی صفحه" --date "تاریخ" --out دسته/فایل.txt`
+  (یا برای قالب‌های دیگر: `python dev/tools/convert.py ID raw/ID.txt "نام رسمی قانون" --source "منبع" --url "نشانی صفحه" --date "تاریخ" --out دسته/فایل.txt`)
 - متن تازه همیشه با وضعیت `unverified` ثبت می‌شود. برای تأیید:
-  `python tools/law_registry.py verify ID --url "نشانی صفحه" --raw raw/ID.txt --amended "تاریخ آخرین اصلاح"`
-- اگر پوشهٔ جدیدی زیر `assets/laws/` ساخته‌اید: `python tools/check.py assets --fix`
-- `python tools/sync_meta.py --write` را اجرا کنید: عنوان کاتالوگ و `lawsUpdated` از `_meta.json` (منبع یکتا) مشتق می‌شوند؛ `dataVersion` را دستی عوض کنید.
-- اگر متن قوانین عوض شد: `python tools/law_registry.py stamp` (اثر انگشت تازه شود) و `python tools/parity.py --write` (استاندارد طلایی برابری پایتون↔دارت تازه شود).
-- قبل از پوش حتماً اجرا کنید: `python tools/check.py all && python tools/doctor.py`
+  `python dev/tools/law_registry.py verify ID --url "نشانی صفحه" --raw raw/ID.txt --amended "تاریخ آخرین اصلاح"`
+- اگر پوشهٔ جدیدی زیر `assets/laws/` ساخته‌اید: `python dev/tools/check.py assets --fix`
+- `python dev/tools/sync_meta.py --write` را اجرا کنید: عنوان کاتالوگ و `lawsUpdated` از `_meta.json` (منبع یکتا) مشتق می‌شوند؛ `dataVersion` را دستی عوض کنید.
+- اگر متن قوانین عوض شد: `python dev/tools/law_registry.py stamp` (اثر انگشت تازه شود) و `python dev/tools/parity.py --write` (استاندارد طلایی برابری پایتون↔دارت تازه شود).
+- قبل از پوش حتماً اجرا کنید: `python dev/tools/check.py all && python dev/tools/doctor.py`
 
 ## ۶. چیزهایی که نباید انجام شود
 

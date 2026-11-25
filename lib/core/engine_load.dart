@@ -63,7 +63,7 @@ Future<void> _loadTopicFlows() async {
     }
     _topicFlows = out;
   } catch (e) {
-    warnings.add('brain/topics: $e');
+    warnings.add('dev/brain/topics: $e');
   }
 }
 
@@ -73,7 +73,7 @@ Future<void> _loadLegalTerms() async {
     final t = await rootBundle.loadString('assets/brain/legal_terms.json');
     _legalTerms = jsonDecode(t) as Map<String, dynamic>;
   } catch (e) {
-    warnings.add('brain/legal_terms.json: $e');
+    warnings.add('dev/brain/legal_terms.json: $e');
   }
 }
 

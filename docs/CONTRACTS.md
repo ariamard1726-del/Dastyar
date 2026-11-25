@@ -6,18 +6,18 @@
 
 | قرارداد | منبع حقیقت | بررسی | آزمون |
 |---|---|---|---|
-| ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | `python tools/check.py pipeline` | `tests/python/test_pipeline_check.py`، `test/advocate/pipeline_contract_test.dart` |
-| ساختار مسیرهای موضوعی | `tools/schemas/topic_flow.schema.json` | `python tools/check.py topics` | `tests/python/test_topic_schema.py` |
-| رسیدن هر ارجاع قانونی به متن واقعی | `assets/laws/_meta.json` + متن قوانین | `python tools/check.py refs` | `tests/python/test_data_refs.py` |
+| ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | `python dev/tools/check.py pipeline` | `tests/python/test_pipeline_check.py`، `test/advocate/pipeline_contract_test.dart` |
+| ساختار مسیرهای موضوعی | `dev/tools/schemas/topic_flow.schema.json` | `python dev/tools/check.py topics` | `tests/python/test_topic_schema.py` |
+| رسیدن هر ارجاع قانونی به متن واقعی | `assets/laws/_meta.json` + متن قوانین | `python dev/tools/check.py refs` | `tests/python/test_data_refs.py` |
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
 | ماندن پرونده در تاریخچه پس از راهاندازی مجدد | محمولهٔ رمزنگاریشدهٔ `history_v1:m:<id>` (`v: 3`) | `HistoryStore._readSession` | `test/app/case_persistence_test.dart` (با `HistoryStore` تازه) |
 | صدق تیک «محافظت از صفحه» | نتیجهٔ کانال بومی `setSecureScreen` | `AppSettings.applySecureScreenAtStartup` | `test/app/settings_failure_test.dart` |
-| ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
-| شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python tools/check.py meta` | `tests/python/` |
-| قاعده‌های متن | `tools/contracts/text_norm.json` | `python3 tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
+| ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python dev/tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
+| شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |
+| قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
-| جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `tools/contracts/duplicated_logic.json` | `python3 tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
-| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها | `tools/contracts/law_terms.json` | `python3 tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
+| جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `dev/tools/contracts/duplicated_logic.json` | `python3 dev/tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
+| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها | `dev/tools/contracts/law_terms.json` | `python3 dev/tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
 > از جداافتادن‌شان جلوگیری می‌کند. ایست‌واژه‌ها و آستانه‌ها از این قاعده بیرون
@@ -31,14 +31,14 @@
 عوض شود و اینجا نه، هیچ آزمونی نمی‌فهمید.
 
 ```
-python tools/check.py pipeline
+python dev/tools/check.py pipeline
 ```
 
-`tools/pipeline_check.py` فهرست `Advocate.pipelineOrder` و مقدار
+`dev/tools/pipeline_check.py` فهرست `Advocate.pipelineOrder` و مقدار
 `Advocate.netMin` را از `lib/domain/advocate/advocate.dart` می‌خواند و با JSON
 می‌سنجد. افزودن مسیر تازه: اول JSON، بعد enum و ترتیب در Dart.
 
-## ۲. ساختار مسیر موضوعی (`tools/schemas/topic_flow.schema.json`)
+## ۲. ساختار مسیر موضوعی (`dev/tools/schemas/topic_flow.schema.json`)
 
 دو پوشه داریم: `assets/brain/topics/` (در APK بسته‌بندی می‌شود؛ `live` الزامی و
 `live:false` **خطا**) و `lab/topics/` (در دست ساخت، در `pubspec.yaml` نیست؛ فقط
@@ -55,10 +55,10 @@ clarify/rules/leaves` را داشته باشد، هر قاعده به برگی �
 - برگی که هیچ قاعده‌ای به آن نمی‌رسد (دادهٔ مرده).
 
 ```
-python tools/check.py topics
+python dev/tools/check.py topics
 ```
 
-## ۳. یکپارچگی ارجاع‌های داده (`tools/data_refs.py`)
+## ۳. یکپارچگی ارجاع‌های داده (`dev/tools/data_refs.py`)
 
 هر ارجاع قانونی در داده باید به ماده‌ای برسد که واقعاً در متن قانون هست:
 
@@ -71,7 +71,7 @@ python tools/check.py topics
 و ارقام فارسی/عربی را هم می‌شناسد.
 
 ```
-python tools/check.py refs
+python dev/tools/check.py refs
 ```
 
 ## ۴. پروندهٔ گفتگو (`CaseFile`)
@@ -87,7 +87,7 @@ python tools/check.py refs
 
 آزمون: `test/advocate/case_file_json_test.dart`.
 
-## ۵. ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها (`tools/contracts/law_terms.json`)
+## ۵. ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها (`dev/tools/contracts/law_terms.json`)
 
 پرسش کوتاهِ کاربر با متن مواد سنجیده می‌شود و پیش از سنجش، واژه‌های گفتاری
 («بود»، «خیلی»، «میشه»…) از پرسش در می‌آیند؛ وگرنه هر پرسشی با هر ماده‌ای
@@ -95,20 +95,20 @@ python tools/check.py refs
 برتر، پوشش لازم، dfِ «نادر»، بیشترین فاصلهٔ عبارت، کمینهٔ idfِ عبارت) پیش‌تر
 دستی در دو جا نوشته شده بود.
 
-- **یک مرجع:** `tools/contracts/law_terms.json`.
-- **تولید:** `python3 tools/gen_law_terms.py --write` →
-  `lib/domain/advocate/law_terms_rules.dart` و `brain/law_terms_rules.py`.
-- **بررسی:** `python3 tools/check.py lawterms` (و در `check.py all`) کهنه‌بودن را
+- **یک مرجع:** `dev/tools/contracts/law_terms.json`.
+- **تولید:** `python3 dev/tools/gen_law_terms.py --write` →
+  `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py`.
+- **بررسی:** `python3 dev/tools/check.py lawterms` (و در `check.py all`) کهنه‌بودن را
   خطا می‌دهد. افزودن واژهٔ تازه: اول JSON، بعد `--write`؛ ویرایش فایل‌های
   تولیدشده در بازبینی رد می‌شود.
 - **منطق هنوز دو جاست** (موتور دارت و آینهٔ پایتون). این بدهی در `docs/ROADMAP.md`
   مانده؛ چیزی که یک‌جا شد، خودِ داده (فهرست و آستانه‌ها) است، نه الگوریتم.
 
 آزمون: `tests/python/test_law_terms_parity.py` (تازگیِ تولید، یکی‌بودن فهرست،
-یکی‌بودن آستانه‌ها و نگاشت `افحش→فاحش`)، و `tools/law_terms.py --check` روی
+یکی‌بودن آستانه‌ها و نگاشت `افحش→فاحش`)، و `dev/tools/law_terms.py --check` روی
 ۳۵ نمونهٔ `tests/law_terms/cases.json`.
 
-## ۶. جدولِ بدهی‌های موقت (`tools/contracts/duplicated_logic.json`)
+## ۶. جدولِ بدهی‌های موقت (`dev/tools/contracts/duplicated_logic.json`)
 
 هر جا یک چیز در دو زبان پیاده شده است، در این فایل یک ردیف دارد: فایلِ دارت،
 فایلِ پایتون، مجموعهٔ نمونهٔ مشترک، توضیح و «رفع واقعی». `check.py debt` سه

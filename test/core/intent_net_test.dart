@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/domain/intent_net.dart';
 
-/// این تست آینهٔ Dartِ `tools/check.py intent` است: همان مدل، همان مجموعهٔ
+/// این تست آینهٔ Dartِ `dev/tools/check.py intent` است: همان مدل، همان مجموعهٔ
 /// آزمون و همان نگهبان‌ها. اگر پیاده‌سازی Dart از ریاضی پایتون (هش FNV-1a،
 /// n-gramها، L1-normalize، relu، softmax، کوانتیزاسیون int8) مو به مو پیروی
 /// نکند، دقت به زمین می‌خورد و تست رد می‌شود.

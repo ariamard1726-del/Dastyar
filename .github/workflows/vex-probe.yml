@@ -8,7 +8,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/vex_probe.py'
+      - 'dev/brain/vex_probe.py'
       - '.github/workflows/vex-probe.yml'
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install numpy scikit-learn tokenizers huggingface_hub
       - name: Run
-        run: python brain/vex_probe.py
+        run: python dev/brain/vex_probe.py
       - name: Commit report
         if: always()
         run: |

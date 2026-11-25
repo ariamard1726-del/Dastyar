@@ -1,4 +1,4 @@
-"""نگهبانِ جدولِ بدهی‌های موقت (`tools/contracts/duplicated_logic.json`).
+"""نگهبانِ جدولِ بدهی‌های موقت (`dev/tools/contracts/duplicated_logic.json`).
 
 سه چیزی که باید همیشه درست بمانند:
 
@@ -16,7 +16,7 @@ import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import debt_check  # noqa: E402
 
@@ -61,7 +61,7 @@ class BrokenRepoTests(unittest.TestCase):
                 'shared': ['cases/x.json'], 'note': '', 'fix': 'یک منبع'}
 
     def _contract(self, pair, roadmap='a'):
-        self._write('tools/contracts/duplicated_logic.json',
+        self._write('dev/tools/contracts/duplicated_logic.json',
                     json.dumps({'version': 1, 'pairs': [pair]}, ensure_ascii=False))
         self._write('docs/ROADMAP.md', roadmap)
 

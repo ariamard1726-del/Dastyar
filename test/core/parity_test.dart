@@ -10,9 +10,9 @@ import 'package:dastyar/domain/advocate/law_terms.dart';
 
 /// برابری دوطرفهٔ پایتون↔دارت.
 ///
-/// استاندارد طلایی با `python3 tools/parity.py --write` از سمت پایتون
-/// (brain/common.py + tools/eval_py.py + brain/engine.py) تولید می‌شود و
-/// `python3 tools/check.py parity` در CI تازگی آن را تضمین می‌کند.
+/// استاندارد طلایی با `python3 dev/tools/parity.py --write` از سمت پایتون
+/// (dev/brain/common.py + dev/tools/eval_py.py + dev/brain/engine.py) تولید می‌شود و
+/// `python3 dev/tools/check.py parity` در CI تازگی آن را تضمین می‌کند.
 /// این تست همان ورودی‌ها را به سمت دارت می‌دهد و خروجی دقیقاً یکسان می‌خواهد؛
 /// پس اگر یکی از دو موتور بدون دیگری تغییر کند، CI قرمز می‌شود.
 void main() {
@@ -23,7 +23,7 @@ void main() {
 
   setUpAll(() async {
     golden = jsonDecode(
-      File('brain/parity_expected.json').readAsStringSync(),
+      File('dev/brain/parity_expected.json').readAsStringSync(),
     ) as Map<String, dynamic>;
     engine = KnowledgeEngine();
     await engine.load();
@@ -49,7 +49,7 @@ void main() {
     }
   });
 
-  test('زنجیرهٔ تضادها: ConflictsService با brain/engine.py یکسان است', () {
+  test('زنجیرهٔ تضادها: ConflictsService با dev/brain/engine.py یکسان است', () {
     final data = jsonDecode(
       File('assets/relationships.json').readAsStringSync(),
     ) as Map<String, dynamic>;
@@ -65,7 +65,7 @@ void main() {
     });
   });
 
-  test('رتبه‌بندی: top-3 موتور دارت با آینهٔ پایتون (tools/eval_py.py) یکسان است', () {
+  test('رتبه‌بندی: top-3 موتور دارت با آینهٔ پایتون (dev/tools/eval_py.py) یکسان است', () {
     final rows = (golden['rank'] as List).cast<Map<String, dynamic>>();
     expect(rows, isNotEmpty);
     for (final m in rows) {
@@ -82,7 +82,7 @@ void main() {
     }
   });
 
-  test('تطبیق واژه‌ها با متن قوانین: LawTerms با tools/law_terms.py یکسان است', () {
+  test('تطبیق واژه‌ها با متن قوانین: LawTerms با dev/tools/law_terms.py یکسان است', () {
     final rows = (golden['terms'] as List).cast<Map<String, dynamic>>();
     expect(rows, isNotEmpty);
     final terms = LawTerms(engine);

@@ -17,7 +17,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import dart_files, line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -46,7 +46,7 @@ LARGEST = {
 
 
 def _lines(path):
-    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `tools/lines.py`.
+    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `dev/tools/lines.py`.
     return line_count(path)
 
 

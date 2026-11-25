@@ -19,7 +19,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import (DartLibrary, class_body_of,  # noqa: E402
                      extensions_on, read as lib_read)
 
@@ -42,7 +42,7 @@ MIN_ROUTES = 12
 
 
 def _read(path):
-    """همهٔ خواندن‌ها از ابزارِ مشترکِ `tools/library.py`."""
+    """همهٔ خواندن‌ها از ابزارِ مشترکِ `dev/tools/library.py`."""
     return lib_read(path)
 
 

@@ -15,7 +15,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/qwen_probe.py'
+      - 'dev/brain/qwen_probe.py'
       - '.github/workflows/qwen-probe.yml'
 
 permissions:
@@ -39,7 +39,7 @@ jobs:
       - name: Run
         env:
           STAGE: gguf
-        run: python brain/qwen_probe.py
+        run: python dev/brain/qwen_probe.py
       - name: Commit report
         if: always()
         run: |
@@ -69,7 +69,7 @@ jobs:
       - name: Run
         env:
           STAGE: hf
-        run: python brain/qwen_probe.py
+        run: python dev/brain/qwen_probe.py
       - name: Commit report
         if: always()
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Run
         env:
           STAGE: extra
-        run: python brain/qwen_probe.py
+        run: python dev/brain/qwen_probe.py
       - name: Commit report
         if: always()
         run: |

@@ -84,14 +84,14 @@
 - وسط پرونده، یک نشانهٔ تنها باعث پرش به موضوع دیگر نمی‌شود؛ وکیل می‌پرسد که آیا ماجرای جداگانه‌ای است.
 - **ایمنی پیش از موضوع:** بررسی خشونت/اورژانس (`_safety`) پیش از سنجش موضوع و مستقل از امتیازش اجرا می‌شود؛ در هر پرونده یک بار. اگر همان پیام موضوع روشنی هم داشته باشد، پرونده بی‌صدا باز می‌شود تا گفتگو گم نشود؛ وگرنه متن پیام برای نوبت بعد نگه داشته می‌شود (`_safetyCarry`).
 
-**مسیر پاسخ (`AnswerSource`):** هر `AdvocateReply` برچسب دارد که از کدام مسیر دانش آمده — `safety`، `topic`، `lawTerms`، `glossary`، `guide`، `topicFlow`، `guess`، `intentNet`، `qaBank`، `engine`. ترتیب قراردادی در `assets/pipeline.json` ثبت شده و `Advocate.pipelineOrder` باید عیناً همان باشد (`tools/pipeline_check.py` این را می‌سنجد)؛ `test/advocate/answer_source_test.dart` این قرارداد را می‌سنجد. برچسب فقط برای شفافیت و آزمون است و هیچ فراخوانی مدل تازه‌ای اضافه نمی‌کند.
+**مسیر پاسخ (`AnswerSource`):** هر `AdvocateReply` برچسب دارد که از کدام مسیر دانش آمده — `safety`، `topic`، `lawTerms`، `glossary`، `guide`، `topicFlow`، `guess`، `intentNet`، `qaBank`، `engine`. ترتیب قراردادی در `assets/pipeline.json` ثبت شده و `Advocate.pipelineOrder` باید عیناً همان باشد (`dev/tools/pipeline_check.py` این را می‌سنجد)؛ `test/advocate/answer_source_test.dart` این قرارداد را می‌سنجد. برچسب فقط برای شفافیت و آزمون است و هیچ فراخوانی مدل تازه‌ای اضافه نمی‌کند.
 
 ### خوانندهٔ موضوع (`lib/domain/understanding/` + `assets/brain/noql*`)
 
 مدل برداری فارسی `shekar-ai/Noql` (ALBERT، ۱۲٫۷ میلیون پارامتر) دست‌نخورده، به‌علاوهٔ یک سرِ طبقه‌بندِ کوچک (رگرسیون لجستیک روی بردار ۷۶۸تایی، ۱۹ دسته، آموخته از `eval/topic_examples.tsv`). همه‌چیز Dart خالص است و کتابخانهٔ بومی ندارد:
 
 - `noql_tokenizer.dart`: توکن‌ساز Unigram مدل؛ `noql_encoder.dart`: گذر رو به جلو با وزن‌های int8 (`assets/brain/noql.bin`، حدود ۱۲ مگابایت)؛ `topic_reader.dart`: بردار → دسته و اطمینان؛ `reader_service.dart`: اجرای همین‌ها در Isolate جدا تا صفحه قفل نشود.
-- فایل‌های `assets/brain/noql*` و مرجع تست (`test/understanding/noql_ref.json`) را `brain/noql/export.py` می‌سازد (گردش‌کار «Noql export»). همان‌جا هستهٔ مرجع پایتون (`brain/noql/core.py`، همان الگوریتمِ کد Dart) با کتابخانه‌های اصلی مدل مقایسه می‌شود؛ گزارش در `reports/noql_export.md`. `test/understanding/noql_test.dart` نگهبانِ برابری Dart با آن مرجع است.
+- فایل‌های `assets/brain/noql*` و مرجع تست (`test/understanding/noql_ref.json`) را `dev/brain/noql/export.py` می‌سازد (گردش‌کار «Noql export»). همان‌جا هستهٔ مرجع پایتون (`dev/brain/noql/core.py`، همان الگوریتمِ کد Dart) با کتابخانه‌های اصلی مدل مقایسه می‌شود؛ گزارش در `reports/noql_export.md`. `test/understanding/noql_test.dart` نگهبانِ برابری Dart با آن مرجع است.
 - آستانه‌ها (`open`، `margin`، `ask` در `noql_head.json`) فقط از اعتبارسنجی روی خودِ نمونه‌ها انتخاب می‌شوند، نه از جمله‌های محک.
 
 وکیل با حدس سه کار می‌کند (`_fromGuess` در `advocate_topic.dart`): حدسِ مطمئن پروندهٔ موضوعِ هم‌معنا را باز می‌کند، در جواب می‌گوید «برداشتم این است که…» و دکمهٔ «موضوعم این نیست» می‌گذارد؛ حدسِ نامطمئن به پرسش «ماجرای شما به کدام نزدیک‌تر است؟» با دو گزینه می‌رسد؛ حدسِ ضعیف یا دسته‌ای که پرونده ندارد (`crime`، `general`، `chat`، `other`) نادیده گرفته می‌شود. نگاشت دسته‌ها به موضوع‌ها در `Advocate.guessTopics` است. مدل هیچ واقعیتی نمی‌خواند (نفی را نمی‌فهمد) و هیچ متنی نمی‌نویسد. نتیجهٔ قاعده‌ها به‌تنهایی و قاعده‌ها + مدل روی `eval/understanding_probe.tsv` در هر اجرای تست در `reports/understanding.txt` نوشته می‌شود.
@@ -123,22 +123,22 @@
 
 | داده | منبع یکتا | مصرف‌کننده‌ها |
 |---|---|---|
-| متادیتای قوانین | `assets/laws/_meta.json` | `laws_catalog.json` و `data_info.json` با `tools/sync_meta.py --write` مشتق می‌شوند؛ `tools/check.py meta` تازگی را می‌سنجد |
-| روابط/تضاد مواد | `assets/relationships.json` | دارت: `core/conflicts_service.dart`؛ پایتون: `brain/engine.py` |
-| طبقه‌بند نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `tools/check.py intent`؛ آموزش: `brain/train_intent.py` |
+| متادیتای قوانین | `assets/laws/_meta.json` | `laws_catalog.json` و `data_info.json` با `dev/tools/sync_meta.py --write` مشتق می‌شوند؛ `dev/tools/check.py meta` تازگی را می‌سنجد |
+| روابط/تضاد مواد | `assets/relationships.json` | دارت: `core/conflicts_service.dart`؛ پایتون: `dev/brain/engine.py` |
+| طبقه‌بند نیت | `assets/brain/intent_model.json` | دارت: `domain/intent_net.dart`؛ آینهٔ پایتون: `dev/tools/check.py intent`؛ آموزش: `dev/brain/train_intent.py` |
 | پاسخ‌های ثابت | `assets/replies.json` | `core/replies.dart` (فقط ۸ کلید فعال موتور بازیابی) |
 | مجموعههای ارزیابی | `eval/*.txt` و `eval/*.tsv` | ورودیهای سنجش در یک پوشه؛ خروجیها در `reports/` |
-| ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | دارت: `Advocate.pipelineOrder`/`netMin`؛ نگهبان: `tools/pipeline_check.py` و `python tools/check.py pipeline`؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
-| ساختار مسیر موضوعی | `tools/schemas/topic_flow.schema.json` | نگهبان: `tools/topic_schema.py` (`check.py topics`) |
-| ارجاع‌های قانونیِ داده | متن قوانین + `_meta.json` | نگهبان: `tools/data_refs.py` (`check.py refs`) برای `articles`، `lawRefs` و `refs` |
+| ترتیب مسیرهای پاسخ و آستانه‌ها | `assets/pipeline.json` | دارت: `Advocate.pipelineOrder`/`netMin`؛ نگهبان: `dev/tools/pipeline_check.py` و `python dev/tools/check.py pipeline`؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
+| ساختار مسیر موضوعی | `dev/tools/schemas/topic_flow.schema.json` | نگهبان: `dev/tools/topic_schema.py` (`check.py topics`) |
+| ارجاع‌های قانونیِ داده | متن قوانین + `_meta.json` | نگهبان: `dev/tools/data_refs.py` (`check.py refs`) برای `articles`، `lawRefs` و `refs` |
 
 ## وضعیت بازیابی مواد (BM25F در برابر مدل تعبیه‌ای)
 
-جست‌وجوی مواد در زمان اجرا (`lib/core/engine.dart`) صرفاً واژه‌ای و قطعی است: **BM25F** همراه با `assets/synonyms.txt`، `assets/brain/law_topics.json` (`LawTopicPrior`) و `assets/relationships.json` (`ConflictsService`). فایل‌های آزمایشی تعبیهٔ مواد (`emb_q8.bin`، `art_vecs.bin`، `art_ids.json`) فقط خروجی اسکریپت آفلاین `brain/train_brain.py` در پوشهٔ `brain_out/` (نادیده‌گرفته‌شده در `.gitignore`) هستند؛ در `pubspec.yaml` معرفی نشده‌اند، وارد APK نمی‌شوند و هیچ کدی در `lib/` آن‌ها را نمی‌خواند.
+جست‌وجوی مواد در زمان اجرا (`lib/core/engine.dart`) صرفاً واژه‌ای و قطعی است: **BM25F** همراه با `assets/synonyms.txt`، `assets/brain/law_topics.json` (`LawTopicPrior`) و `assets/relationships.json` (`ConflictsService`). فایل‌های آزمایشی تعبیهٔ مواد (`emb_q8.bin`، `art_vecs.bin`، `art_ids.json`) فقط خروجی اسکریپت آفلاین `dev/brain/train_brain.py` در پوشهٔ `brain_out/` (نادیده‌گرفته‌شده در `.gitignore`) هستند؛ در `pubspec.yaml` معرفی نشده‌اند، وارد APK نمی‌شوند و هیچ کدی در `lib/` آن‌ها را نمی‌خواند.
 
 ## برابری پایتون ↔ دارت
 
-آینهٔ پایتون (`tools/eval_py.py`، `brain/common.py`، `brain/engine.py`) برای ارزیابی سریع آفلاینِ موتور بازیابی است و باید هم‌رفتار دارت بماند: `tools/parity.py --write` خروجی پایتون را در `brain/parity_expected.json` ثبت می‌کند، `tools/check.py parity` تازگی آن را می‌سنجد و `test/core/parity_test.dart` همان ورودی‌ها را به دارت می‌دهد. تغییر یکی بدون دیگری ⇒ CI قرمز.
+آینهٔ پایتون (`dev/tools/eval_py.py`، `dev/brain/common.py`، `dev/brain/engine.py`) برای ارزیابی سریع آفلاینِ موتور بازیابی است و باید هم‌رفتار دارت بماند: `dev/tools/parity.py --write` خروجی پایتون را در `dev/brain/parity_expected.json` ثبت می‌کند، `dev/tools/check.py parity` تازگی آن را می‌سنجد و `test/core/parity_test.dart` همان ورودی‌ها را به دارت می‌دهد. تغییر یکی بدون دیگری ⇒ CI قرمز.
 
 ## هزینهٔ استارت‌آپ
 
@@ -148,14 +148,14 @@
 
 ## دروازه‌های CI (`.github/workflows/test.yml`)
 
-- داده: `tools/check.py all` (corpus، assets، meta، intent، parity) + `doctor.py` + `eval_py.py --check` + `eval_none.py --check`
+- داده: `dev/tools/check.py all` (corpus، assets، meta، intent، parity) + `doctor.py` + `eval_py.py --check` + `eval_none.py --check`
 - تحلیل: `flutter analyze --fatal-warnings`
 - تست: `flutter test`؛ گزارش در `reports/last_test.txt`
 - `lawyer-lab.yml`: رونوشت گفتگوهای `test/lab/probe.txt` با همان کنترلر برنامه در `reports/lab/transcripts.txt`
 
 قرارداد کامل داده/کد و این‌که هر کدام با چه ابزاری سنجیده می‌شوند: `docs/CONTRACTS.md`. وضعیت مراحل بازسازی: `docs/ROADMAP.md`.
 
-`build.yml` (دستی) همان زنجیره را پیش از ساخت APK اجرا می‌کند (`tools/build.sh` صرفاً اسکریپت کمکی ترموکس برای آغاز `build.yml` و دریافت APK است).
+`build.yml` (دستی) همان زنجیره را پیش از ساخت APK اجرا می‌کند (`dev/tools/build.sh` صرفاً اسکریپت کمکی ترموکس برای آغاز `build.yml` و دریافت APK است).
 
 ## نقاط ضعف شناخته‌شده و نقشهٔ بازآرایی مرحله‌ای
 

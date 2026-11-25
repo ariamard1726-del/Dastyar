@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "note": "هر جفتِ «یک چیز، دو پیاده‌سازی» با نگهبانش. اگر یک طرف از مجموعهٔ نمونه‌ها دست بردارد یا فایل نگهبان حذف شود، check.py debt قرمز می‌کند. حذف یک ردیف فقط وقتی درست است که یک منبع یگانهٔ واقعی جای دو پیاده‌سازی بنشیند.",
+  "pairs": [
+    {
+      "id": "law_terms",
+      "what": "الگوریتمِ تطبیق واژه‌های پرسش با متن مواد",
+      "dart": "lib/domain/advocate/law_terms.dart",
+      "py": "dev/tools/law_terms.py",
+      "shared": [
+        "tests/law_terms/cases.json"
+      ],
+      "note": "فهرست ایست‌واژه و آستانه‌ها یک‌جا شد (dev/tools/contracts/law_terms.json)؛ خودِ الگوریتم هنوز دو جاست.",
+      "fix": "ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون"
+    },
+    {
+      "id": "engine",
+      "what": "موتور بازیابی و idf",
+      "dart": "lib/core/engine.dart",
+      "py": "dev/tools/eval_py.py",
+      "shared": [
+        "dev/brain/parity_expected.json"
+      ],
+      "note": "استاندارد طلایی از سمت پایتون تولید می‌شود (dev/tools/parity.py --write).",
+      "fix": "ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون)"
+    },
+    {
+      "id": "topic_flow",
+      "what": "مسیر موضوعی و برگ‌ها",
+      "dart": "lib/domain/advocate/topic_flow.dart",
+      "py": "dev/tools/topic_flow.py",
+      "shared": [
+        "tests/topics/*_gold.json"
+      ],
+      "note": "همان نمونه‌های gold، هم در پایتون و هم در دارت اجرا می‌شوند.",
+      "fix": "همان موتور Dart از میز فرمان اجرا شود"
+    },
+    {
+      "id": "text_norm",
+      "what": "یکدست‌سازی متن (نویسه، ارقام، اعراب، محاوره)",
+      "dart": "lib/core/persian_text.dart",
+      "py": "dev/brain/common.py",
+      "shared": [
+        "tests/text_norm_golden.json",
+        "tests/text_norm_norm_cases.json"
+      ],
+      "note": "قاعده‌ها از dev/tools/contracts/text_norm.json تولید می‌شوند؛ کدِ اجراکننده هنوز دو جاست.",
+      "fix": "ارزیابی روی خروجی خودِ اپ"
+    }
+  ]
+}

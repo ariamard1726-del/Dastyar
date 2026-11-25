@@ -9,7 +9,7 @@ on:
   push:
     branches: ['arena/**']
     paths:
-      - 'brain/llm_bench.py'
+      - 'dev/brain/llm_bench.py'
       - 'eval/understanding_probe.tsv'
       - '.github/workflows/llm-bench.yml'
 
@@ -31,7 +31,7 @@ jobs:
           pip install llama-cpp-python --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
           python -c "import llama_cpp; print('llama_cpp', llama_cpp.__version__)"
       - name: Run benchmark
-        run: python brain/llm_bench.py
+        run: python dev/brain/llm_bench.py
       - name: Commit report
         if: always()
         run: |

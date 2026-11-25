@@ -58,7 +58,7 @@ void main() {
       }
     }
     var ok = 0, n = 0;
-    for (final r in rows('brain/intents.txt')) {
+    for (final r in rows('dev/brain/intents.txt')) {
       final want = r[0], text = r[1];
       final sug = DraftIntent.suggest(text, ts);
       final got = sug.template?.id ??

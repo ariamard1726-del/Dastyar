@@ -1,9 +1,9 @@
-// تولیدشده از tools/contracts/text_norm.json — دستی ویرایش نکنید.
-// تولید دوباره: python3 tools/gen_text_norm.py --write
-// بررسی تازگی:  python3 tools/gen_text_norm.py --check
+// تولیدشده از dev/tools/contracts/text_norm.json — دستی ویرایش نکنید.
+// تولید دوباره: python3 dev/tools/gen_text_norm.py --write
+// بررسی تازگی:  python3 dev/tools/gen_text_norm.py --check
 
 
-/// قاعده‌های یکدست‌سازی متن — تنها مرجع، `tools/contracts/text_norm.json`.
+/// قاعده‌های یکدست‌سازی متن — تنها مرجع، `dev/tools/contracts/text_norm.json`.
 ///
 /// پیش‌تر همین نگاشت‌ها و مجموعه‌ها در `persian_text.dart`، `text_sense.dart`
 /// و سه ابزار پایتون جدا نوشته شده بودند؛ تغییرِ یک قاعده یعنی ویرایشِ پنج

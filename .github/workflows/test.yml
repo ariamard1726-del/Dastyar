@@ -25,7 +25,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          (python tools/check.py all && python tools/doctor.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
+          (python dev/tools/check.py all && python dev/tools/doctor.py && python dev/tools/eval_py.py --check && python dev/tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
@@ -46,7 +46,7 @@ jobs:
       - name: Coverage gate
         id: coverage
         if: steps.ft.outcome == 'success'
-        run: python tools/coverage_gate.py coverage/lcov.info --min 40 | tee reports/coverage.txt
+        run: python dev/tools/coverage_gate.py coverage/lcov.info --min 40 | tee reports/coverage.txt
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
@@ -54,7 +54,7 @@ jobs:
         if: steps.ft.outcome == 'failure'
         # بلوکِ [E] و علتش (Expected/Actual) را با هم می‌آورد؛ اگر نشانگر نبود،
         # تهٔ خروجی چاپ می‌شود تا «۱ شکست» بی‌نام نماند.
-        run: python tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
+        run: python dev/tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
       - name: Analyzer errors
         if: steps.analyze.outcome == 'failure'
         # اگر تحلیل‌گر با خطِ « error • » شکست بخورد، همان‌ها آنوتیشن می‌شوند؛ ولی
@@ -73,7 +73,7 @@ jobs:
         if: always()
         env:
           DATA_FAILED: ${{ steps.data.outcome == 'failure' && '1' || '0' }}
-        run: python tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
+        run: python dev/tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
       - name: Append analyze
         if: always()
         run: |
@@ -132,7 +132,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           # اگر artifact همزمانی قدیمیتر باشد، گزارش تازه همان کامیت را مینویسیم
-          # تا `tools/go.py report` هرگز report کامیت دیگری را نشان ندهد.
+          # تا `dev/tools/go.py report` هرگز report کامیت دیگری را نشان ندهد.
           if ! head -n 1 reports/last_test.txt 2>/dev/null | grep -q "${GITHUB_SHA:0:7}"; then
             echo "commit: ${GITHUB_SHA:0:7}" > reports/last_test.txt
             echo "CI: test/lab/scenarios success" >> reports/last_test.txt

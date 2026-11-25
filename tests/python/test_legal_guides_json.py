@@ -15,7 +15,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import read  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,7 +26,7 @@ PUBSPEC = os.path.join(ROOT, 'pubspec.yaml')
 
 # اثرِ انگشتِ متنِ راهنماها. تغییرِ عمدی؟ همین عدد را به‌روز کنید — و بدانید
 # که دارید متنِ حقوقی را عوض می‌کنید.
-GOLDEN_SHA256 = '050e64c9026b9b394dba9ba321e169c08e95704a382b11781680fb237473f5b8'
+GOLDEN_SHA256 = '7484c4253a629ab9323ecad6d4d51b892160137e14cbca9d627d9e3e3684d4f8'
 
 ALLOWED = {'id', 'title', 'triggers', 'excludes', 'priority', 'empathy', 'brief',
            'answer', 'steps', 'cautions', 'refs', 'followUp', 'templateIds', 'notes'}

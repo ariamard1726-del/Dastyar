@@ -10,7 +10,7 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 from library import DartLibrary, dart_files, line_count, parts_of, read  # noqa: E402
 from lines import line_count as lines_count  # noqa: E402

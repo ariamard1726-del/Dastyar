@@ -36,7 +36,7 @@ class TermMatch {
   });
 }
 
-/// تطبیق واژه‌های متن کاربر با متن قوانین (نسخهٔ دارت آیینهٔ tools/law_terms.py).
+/// تطبیق واژه‌های متن کاربر با متن قوانین (نسخهٔ دارت آیینهٔ dev/tools/law_terms.py).
 ///
 /// هر پرسش به «دنباله‌های پیوسته» از واژه‌های معنادار شکسته می‌شود؛ ایست‌واژه،
 /// واژهٔ بی‌بار و علامت دنباله را می‌شکنند. سپس ماده‌ای انتخاب می‌شود که بیشترین
@@ -48,9 +48,9 @@ class LawTerms {
 
   final KnowledgeEngine engine;
 
-  // قاعده‌ها در `tools/contracts/law_terms.json` هستند و از آن‌جا تولید
+  // قاعده‌ها در `dev/tools/contracts/law_terms.json` هستند و از آن‌جا تولید
   // می‌شوند (`law_terms_rules.dart`). پیش‌تر فهرست ۱۵۳ واژه‌ای و آستانه‌ها
-  // این‌جا و در `tools/law_terms.py` دستی نگه داشته می‌شد و آزمون آینه فقط
+  // این‌جا و در `dev/tools/law_terms.py` دستی نگه داشته می‌شد و آزمون آینه فقط
   // از واگرایی جلوگیری می‌کرد، نه از خودِ دوتا‌بودن.
   /// املای محاوره‌ای یا عربیِ رایج که در متن قوانین جور دیگری است.
   static const Map<String, String> alias = LawTermsRules.alias;
@@ -167,7 +167,7 @@ class LawTerms {
     return f;
   }
 
-  /// همتای `glossary_match` در tools/law_terms.py: اگر عبارتی از فهرست واژه‌های
+  /// همتای `glossary_match` در dev/tools/law_terms.py: اگر عبارتی از فهرست واژه‌های
   /// حقوقی در پرسش باشد، ماده‌ٔ همان عبارت پذیرفته می‌شود (بلندترین عبارت برنده است).
   TermMatch? _glossary(String q) {
     final entries = engine.legalTerms['entries'];
@@ -281,7 +281,7 @@ class LawTerms {
     }
     final near = _span(bt, matched) <= maxSpan;
     // واژهٔ نادرِ پرسش که در ماده نیست یعنی ماده بخشی از پرسش را پوشش می‌دهد؛
-    // با عبارت یا عنوان پذیرفته نمی‌شود (همتای tools/law_terms.py).
+    // با عبارت یا عنوان پذیرفته نمی‌شود (همتای dev/tools/law_terms.py).
     final rareMissing = [
       for (final t in known)
         if ((postings[t]?.length ?? 0) <= rareDf && !matched.contains(t)) t

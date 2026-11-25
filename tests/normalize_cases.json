@@ -1,5 +1,5 @@
 {
-  "description": "نمونه‌های نرمال‌سازی متن: خروجی باید در دارت (PersianText.normalize) و پایتون (brain/common.py normalize) یکی باشد.",
+  "description": "نمونه‌های نرمال‌سازی متن: خروجی باید در دارت (PersianText.normalize) و پایتون (dev/brain/common.py normalize) یکی باشد.",
   "cases": [
     {
       "in": "سلام دنیا",
