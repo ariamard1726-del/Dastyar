@@ -1,2 +1,2 @@
-commit: beaf605
+commit: b00e70d
 CI: test/lab/scenarios success
