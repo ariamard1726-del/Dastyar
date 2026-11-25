@@ -296,7 +296,7 @@ void main() {
     final a = fresh();
     final r = say(a, 'هوا چطوره');
     expect(r.laws, isEmpty);
-    expect(r.text, contains('حوزهٔ کار من'));
+    expectSource(r, AnswerSource.topic);
     final art = say(a, 'ماده ۱۰ قانون مدنی چی میگه');
     expect(art.text, contains('قراردادهای خصوصی'));
   });
