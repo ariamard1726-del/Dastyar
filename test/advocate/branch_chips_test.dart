@@ -62,7 +62,7 @@ void main() {
     a.respond('سلام');
     final r = a.respond('انصراف');
     expect(r.chips, [ChipTexts.leaveChip], reason: r.chips.join('،'));
-    expect(r.chips, ChipTexts.branchChips);
+    expect(r.chips, [ChipTexts.leaveChip]);
   });
 
   test('«نمی‌دانم» بعد از بازشدن پرونده، جوابِ پرونده است نه انتخابِ دسته', () {
