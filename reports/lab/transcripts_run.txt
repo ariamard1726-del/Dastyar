@@ -1,32 +1,11 @@
 
-lib/core/engine_worker.dart:3:1: Error: The part-of directive must be the only directive in a part.
-Try removing the other directives, or moving them to the library for which this is a part.
-import 'dart:async';
-^^^^^^
-lib/core/engine_worker.dart:4:1: Error: The part-of directive must be the only directive in a part.
-Try removing the other directives, or moving them to the library for which this is a part.
-import 'dart:isolate';
-^^^^^^
-lib/core/engine_load.dart:210:46: Error: The argument type 'Map<String, dynamic>' can't be assigned to the parameter type 'Map<String, Map<String, dynamic>>'.
- - 'Map' is from 'dart:core'.
-  if (m is Map<String, dynamic>) meta.addAll(m);
-                                             ^
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart":
-Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/core/engine_worker.dart:3:1: Error: The part-of directive must be the only directive in a part.
-Try removing the other directives, or moving them to the library for which this is a part.
-import 'dart:async';
-^^^^^^
-lib/core/engine_worker.dart:4:1: Error: The part-of directive must be the only directive in a part.
-Try removing the other directives, or moving them to the library for which this is a part.
-import 'dart:isolate';
-^^^^^^
-lib/core/engine_load.dart:210:46: Error: The argument type 'Map<String, dynamic>' can't be assigned to the parameter type 'Map<String, Map<String, dynamic>>'.
- - 'Map' is from 'dart:core'.
-  if (m is Map<String, dynamic>) meta.addAll(m);
-                                             ^
-.
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
