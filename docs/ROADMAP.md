@@ -56,8 +56,8 @@
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| آزمون ساختاری بهجای `contains` | ⏳ | ابزار `test/support/reply_shape.dart` (مسیر پاسخ، دکمه، موضوع، استناد) و نمونهٔ استفاده در `test/advocate/reply_shape_test.dart`؛ سقف رشد `contains` در `tests/python/test_structure_tests.py` قفل شد |
-| تبدیل همهٔ ۴۸۵ `contains` به ساختاری | ⏳ | ۱۱۹ assertion متنمحور باقی مانده و سقف ثبت شد؛ هر موضوع هنگام لمس، تست خود را ساختارمند میکند |
+| آزمون ساختاری بهجای `contains` | ✅ | ابزار `test/support/reply_shape.dart` و میدان `ask` در `AdvocateReply`؛ نگهبان صفرتحمل `tests/python/test_structure_tests.py` هم شکل مثبت و هم منفی `contains` را قرمز میکند |
+| تبدیل assertion های متنی به ساختاری | ✅ | ۱۱۹ حالت اصلی بهعلاوهٔ ۵۱ شکل منفی و سه مورد `.text.contains` به صفر رسیدند؛ هر تبدیل کامیت جداگانه دارد |
 | دروازهٔ پوشش کد | ✅ | `flutter test --coverage` + `dev/tools/coverage_gate.py --min 40` در CI (`tests/python/test_coverage_gate.py`) |
 | جداکردن `dev/brain/` و `dev/tools/` پژوهشی | ✅ | مرز اپ/ابزار در `docs/REPO_LAYOUT.md` و نگهبان بستهبندی (`tests/python/test_repo_hygiene.py`) قفل شد؛ پوشهها خارج از `pubspec` و APKاند |
 | توقف کامیت خودکار گزارش‌ها | ✅ (از پیش) | `commit-reports` فقط روی موفقیت |
