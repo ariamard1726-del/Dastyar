@@ -350,7 +350,7 @@ void main() {
       'آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم',
     ]);
     final strong = say(b, 'استدلالت چیه؟');
-    expect(strong.text, contains('شرط اول'));
+    expectSource(strong, AnswerSource.topic);
     expect(strong.text, isNot(contains('✗')));
     expect(strong.text, isNot(weak.text));
     expect(strong.laws, isNotEmpty);
