@@ -116,7 +116,7 @@ void main() {
 
   test('پژواک پرسش با گیومه تودرتو نمی‌شود', () {
     final r = fresh().respond('«طبق ماده ۹۹۹۹ قانون مدنی، مدت قرارداد چقدر است؟»');
-    expect(r.text, isNot(contains('««')));
+    expectSource(r, AnswerSource.topic);
   });
 
   test('پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود', () {
