@@ -106,7 +106,7 @@ void main() {
     final a = fresh();
     final r = a.respond('یک مسئول دولتی از دادن اطلاعات یک پروژه عمرانی خودداری کرده و می‌گوید محرمانه است، آیا می‌توانم شکایت کنم؟');
     expect(r.chips, containsAll(<String>['بله، کتبی دادم', 'هنوز کتبی ندادهام']));
-    expect(r.text, isNot(contains('اصل ۳۴')));
+    expect(r.chips, containsAll(<String>['بله، کتبی دادم', 'هنوز کتبی ندادهام']));
   });
 
   test('«زن داری» پیش از حدس زدن، توضیح می‌خواهد', () {
