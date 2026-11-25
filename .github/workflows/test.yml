@@ -42,7 +42,10 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+          flutter test --coverage 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Coverage gate
+        if: steps.ft.outcome == 'success'
+        run: python tools/coverage_gate.py coverage/lcov.info --min 40
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.

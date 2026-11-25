@@ -56,10 +56,10 @@
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| آزمون ساختاری به‌جای `contains` (شروع) | ⏳ | `test/advocate/reply_contract_test.dart`: برچسب، دکمه، استناد، راه خروج — مستقل از جمله‌ها |
-| تبدیل همهٔ ۴۸۵ `contains` به ساختاری | ⬜ | کار تدریجی هر موضوع |
-| دروازهٔ پوشش کد | ⬜ | پایه ندارد |
-| جداکردن `brain/` و `tools/` پژوهشی | ⬜ | ۷٬۱۴۲ خط با اپ قاطی است |
+| آزمون ساختاری بهجای `contains` | ⏳ | ابزار `test/support/reply_shape.dart` (مسیر پاسخ، دکمه، موضوع، استناد) و نمونهٔ استفاده در `test/advocate/reply_shape_test.dart`؛ سقف رشد `contains` در `tests/python/test_structure_tests.py` قفل شد |
+| تبدیل همهٔ ۴۸۵ `contains` به ساختاری | ⏳ | ۱۱۹ assertion متنمحور باقی مانده و سقف ثبت شد؛ هر موضوع هنگام لمس، تست خود را ساختارمند میکند |
+| دروازهٔ پوشش کد | ✅ | `flutter test --coverage` + `tools/coverage_gate.py --min 40` در CI (`tests/python/test_coverage_gate.py`) |
+| جداکردن `brain/` و `tools/` پژوهشی | ✅ | مرز اپ/ابزار در `docs/REPO_LAYOUT.md` و نگهبان بستهبندی (`tests/python/test_repo_hygiene.py`) قفل شد؛ پوشهها خارج از `pubspec` و APKاند |
 | توقف کامیت خودکار گزارش‌ها | ✅ (از پیش) | `commit-reports` فقط روی موفقیت |
 | حذف کامنت/کد مرده | ⬜ | `docs/DEAD_CODE.md` فهرست دارد |
 | ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها یک منبع داشته باشند | ✅ | `tools/contracts/law_terms.json` مرجع است؛ `tools/gen_law_terms.py --write` دو فایل تولیدشده می‌سازد و `check.py lawterms` کهنه‌بودنشان را خطا می‌دهد — `tests/python/test_law_terms_parity.py` |
