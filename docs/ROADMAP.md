@@ -35,7 +35,7 @@
 | نوع `AnswerCandidate {source, confidence, why}` | ⬜ | جای `null`/بی‌برچسب |
 | جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها داده‌ای شد؛ اجرا هنوز `_reply` است |
 | تصمیم دربارهٔ `IntentNet` و `Noql` | ✅ | مقایسهٔ چهار مجموعهٔ نگهداشته (`reports/intent_holdout.md`) نتیجهٔ یکسانی با و بدون IntentNet داد (۵/۱۱، ۶/۹، ۵/۹، ۴/۸). اپ فقط Noql را بار میکند؛IntentNet و مدلش فقط برای سنجش قابلتکرار نگه داشته شدهاند (`tests/python/test_classifier_choice.py`) |
-| `NoqlEncoder` دست‌نویس → TFLite یا حذف | ⬜ | ۱۲ مگابایت وزن + پیاده‌سازی ALBERT در Dart |
+| `NoqlEncoder` دستنویس — **دارایی اصلی، حفظشده** | ✅ | مدل ۱۲٫۳ MB در `assets/brain/noql.bin` عمداً در APK میماند: تنها مسیر حدس موضوع است (در Isolate، بارگذاری تنبلی، ۱۲s تایمـاوت) و دقتش در `reports/noql_finetune.md` ثبت شده است. چهار فایل `assets/brain/noql*` توسط `check.py noql` و `tests/python/test_noql_assets_guard.py` نگهبانی میشوند. بهینهسازی حافظهٔ `embed` فعلاً انجام نمیشود (ریاضیات حساس، ۳۴۶ms در پسزمینه قابلقبول است) |
 
 ## مرحلهٔ ۳ — ذخیره‌سازی، رمزنگاری، رشتهٔ رابط کاربری
 
