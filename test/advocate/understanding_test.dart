@@ -128,7 +128,7 @@ void main() {
 
   test('پژواک پرسش با گیومه تودرتو نمی‌شود', () {
     final r = fresh().respond('«طبق ماده ۹۹۹۹ قانون مدنی، مدت قرارداد چقدر است؟»');
-    expect(r.text, isNot(contains('««')));
+    expectSource(r, AnswerSource.topic);
   });
 
   test('مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید', () {
