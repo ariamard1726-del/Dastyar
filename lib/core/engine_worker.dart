@@ -1,8 +1,5 @@
 part of 'engine.dart';
 
-import 'dart:async';
-import 'dart:isolate';
-
 /// پاسخسازیِ موتور در یک isolate دائمی.
 ///
 /// پیشتر تنها ساختِ ایندکس در isolate بود و پردازشِ هر پیام (`engine.query`)

@@ -207,7 +207,11 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
     ..addAll((data['catalog'] as List?)?.cast<CatalogLaw>() ?? const <CatalogLaw>[]);
   meta.clear();
   final m = data['meta'];
-  if (m is Map<String, dynamic>) meta.addAll(m);
+  if (m is Map<String, dynamic>) {
+    m.forEach((k, v) {
+      if (v is Map<String, dynamic>) meta[k] = v;
+    });
+  }
   _relationships = data['relationships'] is Map<String, dynamic>
       ? Map<String, dynamic>.from(data['relationships'] as Map<String, dynamic>)
       : const <String, dynamic>{};
