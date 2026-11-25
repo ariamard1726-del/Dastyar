@@ -73,40 +73,40 @@
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
+✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
+✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
-✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
-✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
 ✅ test/advocate/meta_and_tone_test.dart: برنامه را بستن و باز کردن، پرسشِ «منظورتان چیست» نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
 ✅ test/advocate/reply_contract_test.dart: هیچ پاسخی بی‌برچسب، خالی یا با رشتهٔ خالی نیست
-✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/reply_contract_test.dart: هر ماده‌ای که در پاسخ می‌آید، متن و عنوان دارد
+✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
+✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
+✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
+✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است
 ✅ test/advocate/conversation_fixes_test.dart: پیام چندموضوعی: موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع کنیم
-✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
 ✅ test/advocate/conversation_fixes_test.dart: «جر و بحث» دعوای لفظی است، نه «دفاع در برابر شکایت»
 ✅ test/advocate/conversation_fixes_test.dart: جر و بحث همراه کتک، به پاسخِ دعوای لفظی بسنده نمی‌کند
 ✅ test/advocate/conversation_fixes_test.dart: مهلت با تاریخ و مدت، حساب می‌شود
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
-✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
-✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
