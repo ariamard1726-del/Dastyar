@@ -278,7 +278,7 @@ void main() {
     expect(a.file.n('coins'), 300);
     expect(a.file.n('coins'), 300);
     expect(r[1].text, isNot(r[0].text));
-    expect(r[2].text, contains('اعسار'));
+    expectSource(r[2], AnswerSource.topic);
     expect(a.unresolved, isEmpty);
   });
 
