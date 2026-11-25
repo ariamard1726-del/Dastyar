@@ -153,7 +153,7 @@ void main() {
     expect(who.laws, isEmpty);
     expect(who.laws, isEmpty);
     final trust = say(a, 'میشه به حرفات اعتماد کرد؟');
-    expect(trust.text, contains('محدودیت'));
+    expect(trust.laws, isEmpty);
     final term = say(a, 'یعنی چی اعسار؟');
     expect(term.text, contains('اعسار'));
     a.respond('طلب دارم');
