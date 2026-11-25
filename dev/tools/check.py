@@ -495,6 +495,53 @@ def cmd_text():
     return text_manifest.main([])
 
 
+# ---------------------------------------------------------------- bundle
+BUNDLE_FORBIDDEN = ('dev/', 'tools/', 'brain/', 'eval/', 'reports/', 'lab/')
+
+
+def bundle_entries(pubspec_text):
+    """فهرست داراییهای بستهبندیشده از قطعهٔ `assets:` در pubspec."""
+    entries, inside = [], False
+    for line in pubspec_text.split('\n'):
+        if line.startswith('  assets:'):
+            inside = True
+            continue
+        if not inside:
+            continue
+        if not line.startswith('    '):
+            break
+        found = re.match(r'^    - (\S+)\s*$', line)
+        if found:
+            entries.append(found.group(1))
+    return entries
+
+
+def bundle_problems(entries, dart_sources):
+    bad = [e for e in entries
+           if not e.startswith('assets/') or '/..' in e or e.startswith('assets/../')]
+    for src in dart_sources:
+        for marker in BUNDLE_FORBIDDEN:
+            if "'" + marker in src or '"' + marker in src:
+                bad.append('lib: %s' % marker)
+    return bad
+
+
+def cmd_bundle():
+    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    dart = []
+    for directory, _, files in os.walk(os.path.join(ROOT, 'lib')):
+        for name in files:
+            if name.endswith('.dart'):
+                dart.append(open(os.path.join(directory, name), encoding='utf-8').read())
+    entries = bundle_entries(pubspec)
+    bad = bundle_problems(entries, dart)
+    if bad:
+        print('خطا: ابزار آفلاین وارد بسته میشود:', *bad, sep='\n  ')
+        return 1
+    print('bundle OK: %d دارایی، بدون dev/tools/brain/eval/reports/lab.' % len(entries))
+    return 0
+
+
 # ---------------------------------------------------------------- main
 COMMANDS = {
     'corpus': cmd_corpus,
@@ -509,6 +556,7 @@ COMMANDS = {
     'lawterms': cmd_lawterms,
     'debt': cmd_debt,
     'text': cmd_text,
+    'bundle': cmd_bundle,
 }
 
 
