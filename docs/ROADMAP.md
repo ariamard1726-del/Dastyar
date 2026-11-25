@@ -34,7 +34,7 @@
 |---|---|---|
 | نوع `AnswerCandidate {source, confidence, why}` | ⬜ | جای `null`/بی‌برچسب |
 | جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها داده‌ای شد؛ اجرا هنوز `_reply` است |
-| تصمیم دربارهٔ `IntentNet` و `Noql` | 🟡 | مدلها بار میشود و در هر نوبت فقط یکی حکم میدهد: Noql مقدم است، IntentNet فقط وقتی حدسی نیست (`tests/python/test_advocate_shape.py`)؛ حذف کامل یکی هنوز باز است |
+| تصمیم دربارهٔ `IntentNet` و `Noql` | ✅ | مقایسهٔ چهار مجموعهٔ نگهداشته (`reports/intent_holdout.md`) نتیجهٔ یکسانی با و بدون IntentNet داد (۵/۱۱، ۶/۹، ۵/۹، ۴/۸). اپ فقط Noql را بار میکند؛IntentNet و مدلش فقط برای سنجش قابلتکرار نگه داشته شدهاند (`tests/python/test_classifier_choice.py`) |
 | `NoqlEncoder` دست‌نویس → TFLite یا حذف | ⬜ | ۱۲ مگابایت وزن + پیاده‌سازی ALBERT در Dart |
 
 ## مرحلهٔ ۳ — ذخیره‌سازی، رمزنگاری، رشتهٔ رابط کاربری

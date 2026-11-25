@@ -9,7 +9,6 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
-import 'package:dastyar/domain/intent_net.dart';
 import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
@@ -125,7 +124,6 @@ class _LoaderState extends State<Loader> {
 
   /// طبقه‌بند سبک نیت (یک فایل JSON کوچک، نه مدل زبانی). وکیل فقط وقتی
   /// از آن کمک می‌گیرد که قاعده‌های خودش موضوع پیام را نشناخته باشند.
-  IntentNet? _intentNet;
 
   /// خوانندهٔ موضوع (مدل برداری Noql). در پس‌زمینه بار می‌شود تا بالاآمدن
   /// برنامه را کند نکند؛ تا آماده نشده، وکیل فقط با قاعده‌ها کار می‌کند.
@@ -225,12 +223,6 @@ class _LoaderState extends State<Loader> {
       _history.load().catchError((Object e) {
         problems.add('تاریخچهٔ گفتگوها بار نشد؛ گفتگوهای قبلی دیده نمی‌شوند.');
       }),
-      IntentNet.load().then((n) {
-        _intentNet = n;
-      }).catchError((Object e) {
-        // طبقه‌بند اختیاری است؛ نبودش فقط یعنی «نظر دوم» نداریم.
-        _intentNet = null;
-      }),
       // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
       // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
       LegacyCleanup.run(),
@@ -269,7 +261,6 @@ class _LoaderState extends State<Loader> {
       settings: widget.settings,
       loadError: _error,
       initialDraft: _initialDraft,
-      intentNet: _intentNet,
       guesser: _guess,
       readerNotes: _readerNotes,
     );
