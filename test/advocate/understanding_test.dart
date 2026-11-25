@@ -3,6 +3,7 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/advocate/understanding.dart';
+import '../support/reply_shape.dart';
 
 /// فهم متن کاربر: تکرار حرف، ثبت طلاق، پیوند واژه‌ها با مادهٔ قانون، و
 /// قاعدهٔ تعارض (خاص بر کلی، و شرط قرارداد در برابر حق قانونی).
