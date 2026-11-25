@@ -136,7 +136,6 @@
 | ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
 | ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
 | ۲۴ | روندِ پرونده در چهار بخش | `case_facts` / `case_answer` / `case_text` | `case_flow.dart` ۷۴۴ → ۱۰۴ خط |
-| ۳۲ | API وکیل از سیم‌کشی جدا شد | `advocate_api.dart` (۱۵۶، `extension _AdvocateApi on Advocate`) | `advocate.dart` ۴۰۳ → ۲۴۵؛ تنها فایلِ بالای ۴۲۰: هیچ |
 | ۳۱ | پرونده: وضعیت از مدل‌ها جدا شد | `case_file.dart` ۴۰۱ → ۹ (دروازه) + `case_state.dart` ۱۳۶ + `case_model.dart` ۲۸۳ | نُه مدل در یک فایل بودند؛ ترتیبِ `export` مسیرِ چهل `import` را نگه داشت |
 | ۳۰ | خطِ پاسخ در سه بخش: ترتیب، نگهبان، شاخه | `advocate_reply.dart` ۴۱۱ → ۱۲۱؛ `advocate_reply_guard.dart` ۱۳۰؛ `advocate_reply_case.dart` ۱۸۱ | نوزده کاندید به همان ترتیب؛ ۰ خطِ گم‌شده |
 | ۲۹ | موضوعِ اجاره، هشت تکهٔ صاحب‌دار | `rent_issues` ۸۱۴ → ۷۲؛ `rent_patterns` ۵۳۷ → ۳۳۴؛ `rent_bodies` ۴۶۸ → ۲۶۴ | **بدهیِ اندازهٔ فایل: صفر** |

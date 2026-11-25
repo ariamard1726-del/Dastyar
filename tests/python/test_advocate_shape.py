@@ -358,9 +358,7 @@ class ShapeTests(unittest.TestCase):
             self.assertNotIn('  bool %s =' % old, self.src, old)
 
     def test_out_is_a_delegate(self):
-        # `_out` از گام ۳۲ در `advocate_api.dart` است، نه در فایلِ کلاس؛ ادعا
-        # روی کلِ کتابخانه است، نه یک فایل.
-        body = _method(self.lib, 'AdvocateReply _out(')
+        body = _method(self.src, 'AdvocateReply _out(')
         self.assertIn('voice.out', body)
         # منطقِ استناد و برش نباید داخلِ Advocate برگردد.
         for moved in ['replaceAllMapped', 'refOne', 'askRepeats', 'cutText(']:
