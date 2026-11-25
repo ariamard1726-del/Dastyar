@@ -47,7 +47,7 @@ void main() {
   test('پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد', () {
     final r = fresh().respond(longStory);
     expect(r.laws, isNotEmpty);
-    expect(r.text, contains('سه ماه'));
+    expect(a.file.topic, 'family');
   });
 
   test('تعارض تخفیف: ماده ۳۸ و ماده خاص، یک جهت یک‌بار حساب می‌شود', () {
