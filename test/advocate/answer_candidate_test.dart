@@ -17,7 +17,7 @@ void main() {
       'ایمنی',
       () {
         called.add('ایمنی');
-        return const AdvocateReply('۱۱۰ بگیرید', source: AnswerSource.safety);
+        return AdvocateReply('p', source: AnswerSource.safety);
       },
       source: AnswerSource.safety,
       confidence: 0.95,
