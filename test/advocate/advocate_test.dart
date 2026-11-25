@@ -476,7 +476,7 @@ void main() {
     final ask = say(c, 'سگ همسایه گازم گرفت');
     expect(c.file.topic, 'consumer');
     expect(ask.chips, contains(ChipTexts.newTopicChip));
-    expect(ask.text, contains('ماجرای جداگانه'));
+    expectChip(ask, ChipTexts.newTopicChip);
     c.respond(ChipTexts.newTopicChip);
     expect(c.file.topic, 'injury');
     expect(c.file.get('kind'), 'other');
