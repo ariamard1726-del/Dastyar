@@ -28,8 +28,9 @@ class BotMessageView extends StatefulWidget {
 
 class _BotMessageViewState extends State<BotMessageView> {
   void _revealed() {
-    // والد (`ChatPage`) با `onRevealed` خودش بازسازی میشود؛ `setState`ِ محلی
-    // اینجا دوبارکاری بیهوده روی هر پیام بود.
+    // بازسازی محلی لازم است تا بخش «ارتباط یا تعارض» بعد از تمامشدن نگارش
+    // ظاهر شود؛ والد نیازی به بازسازی کل صفحه ندارد.
+    if (mounted) setState(() {});
     widget.onRevealed?.call();
   }
 

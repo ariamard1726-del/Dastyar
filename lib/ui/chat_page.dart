@@ -238,9 +238,6 @@ class _ChatPageState extends State<ChatPage> {
                               onCopy: _copy,
                               onShare: (t) => _share(t),
                               onRevealTick: _jumpDown,
-                              onRevealed: () {
-                                if (mounted) setState(() {});
-                              },
                             );
                           },
                           ),
