@@ -43,9 +43,9 @@
 |---|---|---|
 | SQLite + SQLCipher به‌جای SharedPreferences | ⬜ | کوئری، ایندکس و مهاجرت واقعی |
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
-| کلید فقط در Keystore (بدون fallback) | 🟡 | مسیر جایگزین هنوز کلید را در SharedPreferences می‌گذارد؛ ولی دیگر بی‌صدا نیست: `PrivacyService.fallbackUsed/lastError` + بنر وضعیت (`test/core/privacy_test.dart`). حذف fallback نیازمند سکوی بومی جدید است |
+| کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
 | خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند |
-| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | 🟡 | هنوز همگام‌اند؛ ولی قبل از محاسبه یک چرخه به UI فرصت رسم پیام کاربر می‌دهد (`chat_controller.dart`) و `test/engine/turn_budget_test.dart` سقف زمانی هر نوبت را نگه‌داری می‌کند |
+| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | 🟡 | `engine.query` در isolate دائمی (`core/engine_worker.dart`) اجرا میشود و API همگام قدیمی دستنخورده مانده؛ `LawTerms.match` هنوز PaLM از پیش ساخته را همگام میخواند (`domain/advocate/term_reply.dart`) |
 | ارزان‌کردن نمایش تدریجی متن | ✅ | بازسازی فقط با تغییر واژه/حالت، نه هر فریم (`chat_bubbles.dart`) |
 | حذف کامل انیمیشن نویسهبهنویسه | 🟡 | سقف ۲۴ → ۶ ثانیه و بازسازی کمتر (`tests/python/test_ui_budget.py`)؛ خود انیمیشن هنوز هست |
 | نگه‌داشتن دکمه‌های پیشنهادی در تاریخچه | ✅ | `StoredMsg.chips`؛ گفتگوی بازیابی‌شده دیگر بی‌دکمه نیست |
