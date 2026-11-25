@@ -18,17 +18,24 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 LIMIT = 420
 
 # بدهیِ شناخته‌شده: (سقفِ فعلی). هر عدد فقط اجازه دارد کم شود.
-DEBT = {
-    'lib/domain/advocate/topics/rent_issues.dart': 814,
-    'lib/domain/advocate/topics/rent_patterns.dart': 537,
-    'lib/domain/advocate/topics/rent_bodies.dart': 468,
-}
+#
+# امروز خالی است: هیچ فایلِ `lib/` بالای سقف نیست. اگر ردیفی برگردد، یعنی
+# کسی آگاهانه بدهیِ تازه پذیرفته است.
+DEBT = {}
 
-# فایل‌هایی که متنِ حقوقی‌اند و باید مثل راهنماها به دادهٔ بیرونی بروند.
+# فایل‌هایی که متنِ حقوقی‌اند، نه منطق: الگوهای واژگانی و متنِ پاسخ‌ها.
 DATA_FILES = {
-    'lib/domain/advocate/topics/rent_issues.dart',
     'lib/domain/advocate/topics/rent_patterns.dart',
     'lib/domain/advocate/topics/rent_bodies.dart',
+    'lib/domain/advocate/topics/rent_bodies_landlord.dart',
+}
+
+# سه فایلِ بزرگِ امروز با سقفشان. اگر فایلِ تازه‌ای به صدر آمد، این آزمون
+# می‌گوید آگاهانه ثبتش کنید؛ عوض شدنِ خاموشِ صدر، همان لغزشِ قبلی است.
+LARGEST = {
+    'lib/domain/advocate/advocate_reply.dart': 411,
+    'lib/domain/advocate/advocate.dart': 401,
+    'lib/domain/advocate/case_file.dart': 401,
 }
 
 
@@ -66,9 +73,15 @@ class FileSizeBudgetTests(unittest.TestCase):
     def test_largest_files_are_known(self):
         """اگر فایلِ تازه‌ای به صدر آمد، باید آگاهانه باشد."""
         top = sorted(self.sizes.items(), key=lambda kv: -kv[1])[:3]
-        names = [k for k, _ in top]
-        self.assertTrue(all(n in DEBT for n in names),
-                        'صدرِ فهرست عوض شد و در فهرستِ بدهی نیست: %r' % names)
+        for name, size in top:
+            self.assertIn(name, LARGEST,
+                          'فایلِ تازه‌ای صدرِ فهرست شد و ثبت نشده: %s' % name)
+            self.assertLessEqual(size, LARGEST[name],
+                                 '%s از سقفِ ثبت‌شده گذشت' % name)
+
+    def test_no_debt_is_left(self):
+        """بدهیِ صفر، خودش یک ادعاست؛ اگر ردیفی ماند، باید دلیل داشته باشد."""
+        self.assertEqual(DEBT, {}, 'فهرستِ بدهی دوباره پر شد: %r' % DEBT)
 
 
 if __name__ == '__main__':

@@ -432,7 +432,8 @@ class ShapeTests(unittest.TestCase):
             self.assertTrue(os.path.exists(path), name)
             body = _read(path)
             self.assertTrue(body.startswith("part of 'rent.dart';"), name)
-            self.assertLess(len(body.split('\n')), 900, '%s دوباره غول شد' % name)
+            self.assertLessEqual(len(body.split('\n')), 420,
+                                 '%s از سقفِ خط گذشت' % name)
 
     def test_chat_controller_is_not_the_draft_form(self):
         """جریانِ نوشتنِ سند نباید دوباره داخلِ کنترلرِ گفتگو برگردد."""

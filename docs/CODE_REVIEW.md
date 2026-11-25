@@ -162,7 +162,8 @@
 | موتور: خواندن از پاسخ جدا شد | `core/engine.dart` ۶۳۹ → ۱۸۸ (هفت پاس‌دهندهٔ یک‌خطی + وضعیت)؛ `engine_load.dart` ۲۰۸ (تنها خوانندهٔ دارایی)، `engine_query.dart` ۳۰۷. هر دو `part`ِ `engine.dart` و با `extension`؛ قفلش `tests/python/test_engine_shape.py` |
 | مدلِ پاسخ و برچسبِ دکمه‌ها | `advocate.dart` ۵۹۵ → ۴۵۳؛ `advocate_model.dart` (۹۰، `AnswerSource`/`AdvocateReply`/`_Ask`) و `chip_texts.dart` (۵۶، `ChipTexts`؛ ۸۵ ارجاع منتقل شد). `idleChips` عمداً در `Advocate` ماند چون تصمیم است |
 | جدول‌های داده بیرون رفتند | `advocate.dart` ۴۵۳ → ۴۰۰؛ `advocate_data.dart` (۶۲: نگاشتِ شبکهٔ نیت، آستانه، ترتیبِ مسیرها، نگاشتِ حدس). سه نگهبانِ پایتون حالا کلِ کتابخانه را می‌خوانند، نه یک فایل |
-| سقفِ اندازه | `tests/python/test_file_sizes.py` — ۴۲۰ خط؛ `DEBT` فقط کم می‌شود؛ جدولِ کامل در `docs/GOD_OBJECTS.md` |
+| موضوعِ اجاره در هشت بخش | `rent_issues` ۸۱۴ → ۷۲ (+ `rent_issue_both/tenant/landlord` ۵۹/۲۳۴/۱۷۷)، `rent_slots` ۲۲۹، `rent_effects` ۷۱، `rent_patterns` ۵۳۷ → ۳۳۴ (+ `rent_reads` ۱۶۶)، `rent_bodies` ۴۶۸ → ۲۶۴ (+ `rent_bodies_landlord` ۲۰۱). ترتیبِ فهرستِ بحث‌ها با پیوندِ سه‌تکه حفظ شد؛ ۰ خطِ گم‌شده |
+| سقفِ اندازه | `tests/python/test_file_sizes.py` — ۴۲۰ خط؛ `DEBT` **خالی** است؛ جدولِ کامل در `docs/GOD_OBJECTS.md` |
 | پاسخِ ایمنی | `safety_reply.dart` / `class SafetyReply` — `_safety` و `_asksDanger` از `Advocate` رفتند و اولین بار است که «خشونت خانگی» مستقل آزموده می‌شود (`test/domain/safety_reply_test.dart`) |
 | دادهٔ راهنماها | `assets/brain/guides/legal_guides.json` + `legal_guides_loader.dart`؛ `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط (فقط مدل و ثبت). قفل: اثرِ انگشتِ sha256، شمارش‌های ساختاری، و آزمونِ دارتِ «نقشه‌های `LawyerVoice` با نصبِ فهرستِ تازه بازساخته می‌شوند» |
 | جداسازیِ محاسبه از تصمیم | `topic_read.dart` / `class TopicRead` + `_readTopics`، `_correctionReply`، `_noCaseReply`، `_inCaseReply`؛ `_reply` ۲۸۷ → ۱۰۴ خط |
