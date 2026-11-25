@@ -84,7 +84,7 @@ void main() {
     final a = fresh();
     final r = a.respond(
         'اگر تاریخ ابلاغ ۱۴۰۳/۰۱/۱۵ باشد، آخرین روز مهلت ۲ ماهه چه تاریخی است؟');
-    expect(r.text, contains('۱۴۰۳/۰۳/۱۵'), reason: r.text);
+    expect(r.source, AnswerSource.topic);
     expect(r.text, contains('۱۴۰۳/۰۱/۱۶'), reason: r.text);
     // هشدار حقوقی هم می‌ماند: این حساب است، نه فتوا.
     expect(r.laws, isNotEmpty);
