@@ -1,2 +1,2 @@
-commit: 5a3ef39
+commit: 66f2625
 CI: test/lab/scenarios success
