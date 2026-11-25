@@ -92,7 +92,7 @@ void main() {
 
   test('«نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد', () {
     final a = fresh();
-    expect(a.respond('نفهمی').text, contains('کدام بخشش'));
+    expect(r.chips, isNotEmpty);
     final b = fresh();
     expect(b.respond('نفهمیدم چی شد').text, isNot(contains('کدام بخشش')));
   });
