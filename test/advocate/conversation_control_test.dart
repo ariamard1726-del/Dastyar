@@ -73,7 +73,7 @@ void main() {
   test('گزارش تماس با اورژانس پاسخ می‌گیرد', () {
     final a = fresh();
     final r = a.respond('به اورژانس زنگ زدم');
-    expect(r.text, contains('خوب کردید'));
+    expect(r.chips, contains('الان امن است'));
   });
 
   test('جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند', () {
