@@ -249,7 +249,7 @@ void main() {
     ]);
     expect(b.file.topic, 'cheque');
     expect(b.file.get('role'), 'holder');
-    expect(r[2].text, contains('صیاد'));
+    expectCited(r[2]);
     expect(r[3].text, contains('توقیف'));
     final c = fresh();
     final rc = talk(c, [
