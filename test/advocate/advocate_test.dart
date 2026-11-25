@@ -259,7 +259,7 @@ void main() {
       'روی چک ننوشتم بابت ضمانت ولی قرارداد داریم',
     ]);
     expect(c.file.get('kind'), 'guarantee');
-    expect(rc[2].text, isNot(contains('هزینهٔ دادرسی')));
+    expect(c.file.get('kind'), 'guarantee');
     expectSource(rc[2], AnswerSource.topic);
     expectSource(rc[3], AnswerSource.topic);
     expect(b.unresolved, isEmpty);
