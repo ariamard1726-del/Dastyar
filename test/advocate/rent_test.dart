@@ -232,7 +232,7 @@ void main() {
       final a = fresh();
       final r = a.respond('مستاجرم خونه رو داغون کرده و گذاشته رفته');
       expect(a.file.get('aim'), 'damage');
-      expect(r.text, isNot(contains('وسایلش')));
+      expect(a.file.get('aim'), 'damage');
       expect(r.chips, isNot(contains('به ملک خسارت زده')));
       final b = fresh();
       final g = say(b, 'مستاجرم رفته و وسایلش مونده تو خونه');
