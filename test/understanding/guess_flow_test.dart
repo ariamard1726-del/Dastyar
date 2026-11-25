@@ -68,7 +68,7 @@ void main() {
       expect(a.file.topic, 'rent');
       final r = a.respond(reply);
       expect(a.file.topic, isEmpty, reason: reply);
-      expect(r.text, contains('اشتباه برداشت کردم'));
+    expect(r.chips, contains(ChipTexts.leaveChip));
     }
   });
 
