@@ -9,7 +9,7 @@ TESTS = ROOT / 'test'
 
 # تعداد امروزِ `expect(x.text, contains('...'))`. هر کاهش خوب است؛ افزایش
 # یعنی کسی دوباره قرارداد پاسخ را به جملهٔ دقیق گره زده است.
-TEXT_CONTAINS_CAP = 109
+TEXT_CONTAINS_CAP = 50
 PATTERN = re.compile(r'expect\([^,]*\.text, contains\(')
 
 
