@@ -99,7 +99,7 @@ void main() {
   test('«خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد', () {
     final a = fresh();
     final r = a.respond('خیلی خلی');
-    expect(r.ask, isEmpty);
+    expect(r.chips, contains(ChipTexts.leaveChip));
   });
   test('دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد', () {
     final a = fresh();
