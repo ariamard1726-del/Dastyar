@@ -10,4 +10,4 @@ warning • The value of the local variable 'r' isn't used. Try removing the var
 warning • Unused import: '../support/reply_shape.dart'. Try removing the import directive • test/advocate/understanding_test.dart:6:8 • unused_import
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • test/domain/safety_reply_test.dart:30:13 • unnecessary_non_null_assertion
 
-9 issues found. (ran in 8.6s)
+9 issues found. (ran in 12.3s)

@@ -1,3 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/understanding_test.dart: پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/retrieval_quality_test.dart: دقت بازیابی تعاریف، مترادف‌های حقوقی و نگهبان حوزه‌های خارج از پوشش قوانین تازه واردشده پاسخ مستند می‌دهند و حوزه‌های واقعاً خارج از برنامه رد می‌شوند (failed)
-::error::538 tests passed, 2 failed.
+🎉 540 tests passed.
