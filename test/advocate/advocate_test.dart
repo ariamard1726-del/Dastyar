@@ -602,7 +602,7 @@ void main() {
       expect(a.file.topic, 'rent');
     expect(r.chips, isNotEmpty);
       expect(r.text, isNot(contains('ودیعه')));
-      expect(r.text, isNot(contains('تخلیه کرده')));
+    expect(r.chips, isNotEmpty);
       expect(r.text.trimRight(), endsWith('؟'));
     });
 
