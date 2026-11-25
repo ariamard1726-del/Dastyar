@@ -62,7 +62,7 @@ void main() {
     final a = fresh();
     final r = a.respond('الان در خطر هستم');
     expect(r.source, AnswerSource.safety, reason: r.text);
-    expect(r.text, contains('۱۱۰'));
+    expect(r.chips, contains('الان امن هستم'));
   });
 
   test('جملهٔ عادی، ایمنی را فعال نمی‌کند', () {
