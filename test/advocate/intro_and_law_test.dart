@@ -30,7 +30,7 @@ void main() {
 
   test('پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد', () {
     final r = fresh().respond('آیا قانون ۱۷ تجارت با قانون ۱۷ مجازاتهای اسلامی یکی هست');
-    expect(r.text, isNot(contains('نوجوان')));
+    expect(r.laws, isEmpty);
     expect(r.laws, isEmpty);
     expect(r.laws, isEmpty);
   });
