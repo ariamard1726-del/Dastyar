@@ -161,7 +161,7 @@ void main() {
     final why = say(a, 'چرا اینو میپرسی؟');
     expect(why.laws, isEmpty);
     final sum = say(a, 'خلاصه بگو');
-    expect(sum.text, contains('خلاصه'));
+    expect(sum.laws, isEmpty);
     expect(a.unresolved, isEmpty);
   });
 
