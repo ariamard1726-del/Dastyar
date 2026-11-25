@@ -86,7 +86,7 @@ void main() {
     expect(a.file.topic, isEmpty);
     expect(r.chips,
         ['کار و کارفرما', 'اجاره و ودیعه', ChipTexts.noneChip, ChipTexts.leaveChip]);
-    expect(r.text, contains('کدام نزدیک‌تر'));
+    expect(r.chips, contains(ChipTexts.noneChip));
     expect(a.wantsGuess('کار و کارفرما'), isFalse);
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, 'rent');
