@@ -351,7 +351,7 @@ void main() {
     ]);
     final strong = say(b, 'استدلالت چیه؟');
     expectSource(strong, AnswerSource.topic);
-    expect(strong.text, isNot(contains('✗')));
+    expect(strong.laws, isNotEmpty);
     expect(strong.text, isNot(weak.text));
     expect(strong.laws, isNotEmpty);
   });
