@@ -31,7 +31,7 @@ void main() {
     final a = fresh();
     a.respond('سلام');
     final r = a.respond('حقوقی');
-    expect(r.text, contains('حقوقی'));
+    expect(r.chips, contains('حقوقی'));
     expect(r.text, contains('کامل'), reason: r.text);
     expect(a.file.topic, isEmpty, reason: 'نباید بی‌ماجرا پرونده باز کند');
     expect(a.hasCase, isFalse);
