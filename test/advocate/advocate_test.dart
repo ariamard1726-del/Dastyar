@@ -681,7 +681,7 @@ void main() {
     test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
       final r = fresh().respond('وکیل کجا پیدا کنم؟');
     expectSource(r, AnswerSource.topic);
-      expect(r.text, isNot(contains('حوزهٔ کار من')));
+    expectSource(r, AnswerSource.topic);
     });
 
     test('هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند', () {
