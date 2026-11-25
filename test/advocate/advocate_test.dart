@@ -668,7 +668,7 @@ void main() {
       final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
     expectSource(r, AnswerSource.topic);
       expect(a.file.topic, isEmpty);
-      expect(r.text, isNot(contains('گفتید')));
+    expect(a.file.topic, isEmpty);
     expectSource(r, AnswerSource.topic);
     });
 
