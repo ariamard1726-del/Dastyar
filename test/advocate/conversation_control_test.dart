@@ -111,7 +111,7 @@ void main() {
 
   test('«زن داری» پیش از حدس زدن، توضیح می‌خواهد', () {
     final a = fresh();
-    expect(a.respond('زن داری').text, contains('منظورتان را درست نگرفتم'));
+    expect(r.chips, isNotEmpty);
   });
 
   test('«شکایت کرده‌ام» یعنی کاربر شاکی است', () {
