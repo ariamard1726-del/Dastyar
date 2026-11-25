@@ -51,8 +51,8 @@ void main() {
   });
 
   test('رفت‌وبرگشت سریال برای هر روز ۱۳۹۵ تا ۱۴۰۵ بی‌خطاست', () {
-    final start = JalaliDate(1395, 1, 1).serial;
-    final end = JalaliDate(1405, 12, 29).serial;
+    final start = const JalaliDate(1395, 1, 1).serial;
+    final end = const JalaliDate(1405, 12, 29).serial;
     expect(end, greaterThan(start));
     for (var s = start; s <= end; s++) {
       final d = JalaliDate.fromSerial(s);

@@ -39,7 +39,7 @@ void main() {
   test('ثبت طلاق با امتناع زوجه به مواد ۳۴ و ۳۵ مستند است', () {
     final r = Understanding.divorceRegistration(Sense.norm(longStory));
     expect(r, isNotNull);
-    expect(r!, contains('[[family_protection:35]]'));
+    expect(r, contains('[[family_protection:35]]'));
     expect(r, contains('[[family_protection:34]]'));
     expect(r, contains('[[family_protection:24]]'));
   });
@@ -55,7 +55,7 @@ void main() {
         'دادگاه بر اساس ماده ۳۸ مجازات را تخفیف می‌دهد و گذشت شاکی هم هست، اما ماده خاص هم جداگانه گذشت را تخفیف دانسته؛ دادستان می‌گوید دوبار تخفیف شده');
     final r = Understanding.conflictRule(n);
     expect(r, isNotNull);
-    expect(r!, contains('تبصرهٔ ۲ ماده ۳۸'));
+    expect(r, contains('تبصرهٔ ۲ ماده ۳۸'));
     expect(r, contains('[[penal:38]]'));
   });
 
@@ -64,7 +64,7 @@ void main() {
         'در قرارداد به‌صراحت خیار غبن فاحش اسقاط شده است. بعد متوجه شدم ارزش بازار بیشتر بوده و غبن افحش');
     final r = Understanding.conflictRule(n);
     expect(r, isNotNull);
-    expect(r!, contains('[[civil:416]]'));
+    expect(r, contains('[[civil:416]]'));
     expect(r, contains('[[civil:420]]'));
     expect(r, contains('در متن قانون نیامده'));
     expect(r, contains('[[civil:421]]'));
