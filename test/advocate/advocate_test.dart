@@ -179,7 +179,7 @@ void main() {
     expect(a.file.get('proof'), 'none');
     expect(a.file.n('amount'), 30000000);
     expect(r[3].text.length, lessThan(r[2].text.length));
-    expect(r[4].text, contains('بن‌بست نیست'));
+    expectSource(r[4], AnswerSource.topic);
     expect(a.unresolved, isEmpty);
   });
 
