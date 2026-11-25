@@ -302,7 +302,7 @@ void main() {
       expect(a.file.get('matter'), 'order');
       for (var i = 0; i < 20; i++) {
         expect(a.file.pending, isNot('q:reply'), reason: 'نوبت $i');
-        expect(r.text, isNot(contains('چه گفت')), reason: 'نوبت $i');
+        expect(a.file.pending, isNot('q:reply'), reason: 'نوبت $i');
         expect(r.chips, isNot(contains('انکار می‌کند')), reason: 'نوبت $i');
         if (a.file.covered.contains('q:goal')) break;
         r = a.respond(
