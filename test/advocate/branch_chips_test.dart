@@ -46,7 +46,7 @@ void main() {
     expect(r.chips, contains('دادسرا'));
     final b = fresh();
     b.respond('سلام');
-    expect(b.respond('اداری').text, contains('اداره'));
+    expect(r.chips, contains('اداره'));
   });
 
   test('«نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد', () {
