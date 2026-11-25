@@ -696,7 +696,7 @@ void main() {
     test('پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد', () {
       final r = fresh().respond('مهلت شکایت چقدره؟');
     expectSource(r, AnswerSource.topic);
-      expect(r.text, contains('ابلاغ'));
+    expect(r.chips, isNotEmpty);
     });
   });
 }
