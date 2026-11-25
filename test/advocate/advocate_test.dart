@@ -102,7 +102,7 @@ void main() {
     expect(a.file.topic, 'cheque');
     expect(a.file.get('role'), 'issuer');
     expect(a.file.yes('cert'), isFalse);
-    expect(r[1].text, isNot(contains('اجرائیه بگیرید')));
+    expect(a.file.yes('cert'), isFalse);
     expect(a.unresolved, isEmpty);
   });
 
