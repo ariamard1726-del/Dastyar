@@ -175,6 +175,10 @@ class Advocate {
   /// داورِ فهرستِ پاسخ‌ها؛ ترتیب = اولویت.
   static const AnswerArbiter _arbiter = AnswerArbiter();
 
+  /// آخرین تصمیم: کدام کاندید با چه منبع و دلیلی برنده شد.
+  /// فقط برای بازرسی است؛ رفتار و ترتیب کاندیدها عوض نمیشود.
+  AnswerDecision? lastDecision;
+
   /// پاسخ‌های واژه‌محور: متنِ مواد و مسیرِ موضوع.
   late final TermReply _termReply = TermReply(
     file: file,
@@ -348,10 +352,6 @@ class Advocate {
       _preparedText = '';
     }
   }
-
-
-
-
 
 
 

@@ -210,7 +210,7 @@ class ShapeTests(unittest.TestCase):
         ac = _read(os.path.join(ADVOCATE_DIR, 'answer_candidate.dart'))
         self.assertIn('class AnswerCandidate {', ac)
         self.assertIn('class AnswerArbiter {', ac)
-        self.assertIn('_arbiter.pick(', self.lib)
+        self.assertIn('_arbiter.decide(', self.lib)
         names = re.findall(r"AnswerCandidate\('([^']+)'", self.lib)
         self.assertGreaterEqual(len(names), 15, names)
         self.assertEqual(names[0], 'موضوعِ تازه', names[:2])
