@@ -20,7 +20,7 @@ void main() {
   test('سلام فقط پنج دکمهٔ دسته را نشان می‌دهد، نه نمونه‌های آماده', () {
     final a = fresh();
     final r = a.respond('سلام');
-    expect(r.chips, Advocate.branchChips);
+    expect(r.chips, ChipTexts.branchChips);
     expect(r.chips, hasLength(5));
     expect(r.chips, containsAll(<String>['حقوقی', 'کیفری', 'اداری', 'نمی‌دانم']));
     expect(r.chips, isNot(contains('کارفرما اخراجم کرده')));
@@ -61,7 +61,7 @@ void main() {
     final a = fresh();
     a.respond('سلام');
     final r = a.respond('انصراف');
-    expect(r.chips, [Advocate.leaveChip], reason: r.chips.join('،'));
+    expect(r.chips, [ChipTexts.leaveChip], reason: r.chips.join('،'));
     expect(r.text, contains('هر وقت'), reason: r.text);
   });
 

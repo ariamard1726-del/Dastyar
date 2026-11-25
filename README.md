@@ -136,6 +136,7 @@
 | ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
 | ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
 | ۲۴ | روندِ پرونده در چهار بخش | `case_facts` / `case_answer` / `case_text` | `case_flow.dart` ۷۴۴ → ۱۰۴ خط |
+| ۲۷ | مدلِ پاسخ و متنِ دکمه‌ها | `advocate_model.dart` / `chip_texts.dart` | `advocate.dart` ۵۹۵ → ۴۵۳ خط |
 | ۲۶ | موتور: بارگذاری از پاسخ‌سازی جدا شد | `engine_load.dart` / `engine_query.dart` | `core/engine.dart` ۶۳۹ → ۱۸۸ خط |
 | ۲۵ | پیش‌نویس‌ها در پنج صاحب | `draft_models` / `draft_words` / `draft_intent` / `draft_step` / `draft_laws` | `drafting.dart` ۶۵۹ → ۱۹ خط (سرِ کتابخانه) |
 

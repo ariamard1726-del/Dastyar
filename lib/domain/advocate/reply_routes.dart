@@ -62,7 +62,7 @@ class ReplyRoutes {
   /// «موضوع تازه‌ای دارم»: پروندهٔ جاری بسته می‌شود، بی‌آنکه چیزی از آن
   /// در پاسخ‌های بعدی بمانَد.
   AdvocateReply? newCase(String raw) {
-    if (raw.trim() == Advocate.newCaseChip) {
+    if (raw.trim() == ChipTexts.newCaseChip) {
       flow.closeCase();
       dialog.loose.clear();
       return _out(
@@ -80,7 +80,7 @@ class ReplyRoutes {
       return _out(
         'درست می‌گویید؛ راه خروج را روشن نگفته بودم. برای بیرون آمدن از این موضوع، «انصراف» یا «موضوع تازه‌ای دارم» را بزنید یا همان را بنویسید.',
         ask: 'می‌خواهید این موضوع را کنار بگذاریم یا ادامه دهیم؟',
-        chips: const [Advocate.newCaseChip],
+        chips: const [ChipTexts.newCaseChip],
       );
     }
     return null;
@@ -96,8 +96,8 @@ class ReplyRoutes {
     dialog.pendingTopic = null;
     dialog.pendingText = '';
     if (pend != null) {
-      if (raw.trim() == Advocate.newTopicYesChip ||
-          raw.trim() == Advocate.sideChip ||
+      if (raw.trim() == ChipTexts.newTopicYesChip ||
+          raw.trim() == ChipTexts.sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
@@ -105,8 +105,8 @@ class ReplyRoutes {
       }
       final curTopic = picker.current();
       if (curTopic != null &&
-          (raw.trim() == Advocate.newTopicNoChip ||
-              raw.trim() == Advocate.relatedChip ||
+          (raw.trim() == ChipTexts.newTopicNoChip ||
+              raw.trim() == ChipTexts.relatedChip ||
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
@@ -163,14 +163,14 @@ class ReplyRoutes {
       if (choices.length == 1 && Sense.words(n) <= 3 && Sense.saysYes(n)) {
         return flow.open(choices.first, Sense.norm(choiceText));
       }
-      if (raw.trim() == Advocate.noneChip ||
+      if (raw.trim() == ChipTexts.noneChip ||
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
         dialog.branchAsked = true;
         return _out(
           'باشد.',
           ask:
               'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
-          chips: Advocate.branchChips,
+          chips: ChipTexts.branchChips,
         );
       }
     }
@@ -181,7 +181,7 @@ class ReplyRoutes {
   AdvocateReply? wrongGuess(String raw, String n, bool guessed) {
     // پرونده با حدس باز شده بود و کاربر می‌گوید حدس غلط است.
     if (guessed &&
-        (raw.trim() == Advocate.wrongChip ||
+        (raw.trim() == ChipTexts.wrongChip ||
             (Sense.words(n) <= 7 &&
                 Sense.has(n,
                     'موضوع(?:م)? (?:این|اون|آن|ان) نیست|اشتباه (?:گرفتی|فهمیدی|متوجه شدی)|منظورم این نبود|ربطی نداره|ربطی ندارد')))) {
@@ -201,7 +201,7 @@ class ReplyRoutes {
   AdvocateReply? more(String raw, String n, bool short) {
     final rest = voice.rest;
     if (rest.isNotEmpty &&
-        (raw.trim() == Advocate.moreChip ||
+        (raw.trim() == ChipTexts.moreChip ||
             (short &&
                 Sense.has(n,
                     'ادامه|بقیه|بیشتر (?:بگو|توضیح|باز)|کامل(?:ش|ترش)? (?:بگو|کن)')) ||
@@ -236,7 +236,7 @@ class ReplyRoutes {
       if (t0 != null &&
           (Sense.saysYes(n) ||
               (unsure && offer != 'draft') ||
-              raw.trim() == Advocate.moreChip ||
+              raw.trim() == ChipTexts.moreChip ||
               Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
         flow.clearOffer();
         if (offer == 'draft') {
@@ -266,7 +266,7 @@ class ReplyRoutes {
         file.pending.isEmpty &&
         dialog.side == null &&
         Sense.words(n) <= 3 &&
-        (raw.trim() == Advocate.moreChip ||
+        (raw.trim() == ChipTexts.moreChip ||
             Sense.has(n, '^ ادامه ') ||
             Sense.saysYes(n) ||
             Sense.saysNo(n))) {
@@ -284,13 +284,13 @@ class ReplyRoutes {
     dialog.side = null;
     dialog.sideText = '';
     if (side != null &&
-        (raw.trim() == Advocate.sideChip ||
-            raw.trim() == Advocate.newTopicChip ||
+        (raw.trim() == ChipTexts.sideChip ||
+            raw.trim() == ChipTexts.newTopicChip ||
             (Sense.words(n) <= 4 &&
                 Sense.has(n, 'جدا(?:ست| است|گانه)|موضوع دیگه|ماجرای دیگه')))) {
       return flow.open(side, Sense.norm(sideText), switched: true);
     }
-    if (side != null && raw.trim() == Advocate.sameCaseChip) {
+    if (side != null && raw.trim() == ChipTexts.sameCaseChip) {
       // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
       final cur = picker.current();
       if (cur != null) {

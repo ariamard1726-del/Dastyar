@@ -28,6 +28,7 @@
 | `case_flow.dart` | ۶۴۸ | ۷۴۵ (با آزمون؛ حذفِ ۲۰۲ خطِ `_inCase` از `Advocate`) |
 | `chat_bubbles.dart` | ۸۱۴ | ۲۴ (سرِ کتابخانه) + ۸ ویجتِ ۴۷ تا ۲۰۳ خطی |
 | `case_flow.dart` | ۷۴۴ | ۱۰۴ + `case_facts` ۱۲۵ + `case_answer` ۳۱۶ + `case_text` ۲۳۰ |
+| `advocate.dart` | ۵۹۵ | ۴۵۳ (سیم‌کشی + API) + `advocate_model` ۹۰ + `chip_texts` ۵۶ |
 | `core/engine.dart` | ۶۳۹ | ۱۵۷ (وضعیت + API) + `engine_load` ۲۰۸ + `engine_query` ۳۰۷ |
 | `drafting.dart` | ۶۵۹ | ۱۹ (سرِ کتابخانه) + `draft_models` ۱۷۱ + `draft_intent` ۲۰۳ + `draft_step` ۲۲۸ + `draft_words` ۷۲ + `draft_laws` ۱۷ |
 | `legal_guides.dart` | ۱٬۳۹۷ | ۱۰۲ (مدل + ثبت)؛ متن در `assets/brain/guides/legal_guides.json` |
@@ -41,7 +42,7 @@
 | `topics/rent_issues.dart` | ۸۱۴ | متنِ حقوقی | مثل راهنماها به دادهٔ بیرونی |
 | `topics/rent_patterns.dart` | ۵۳۷ | متن/الگوی حقوقی | دادهٔ بیرونی |
 | `topics/rent_bodies.dart` | ۴۶۸ | متنِ حقوقی | دادهٔ بیرونی |
-| `advocate.dart` | ۵۹۵ | سیم‌کشیِ ۲۰ همکار + ثابت‌های دکمه | ثابت‌ها به فایلِ سطحِ بالا |
+| `advocate.dart` | ۴۵۳ | سیم‌کشیِ ۲۰ همکار + API؛ ۲۶۳ خطِ کد و بقیه مستند. زیرِ سقف نیست ولی دیگر داده در آن نیست | — |
 
 ## روندِ پرونده: چرا چهار فایل، و چرا `extension`
 
@@ -117,6 +118,21 @@
 - «موتورِ بی‌دارایی» دست‌نخورده ماند: آزمون‌های `law_index_test`،
   `law_ranker_test`، `law_text_test`، `law_mention_test` هنوز بدونِ فایلِ واقعی
   کار می‌کنند، چون خواندنِ دارایی همه‌جا در یک فایل است.
+
+## وکیل: داده از سیم‌کشی بیرون رفت (گام ۲۷)
+
+`advocate.dart` ۵۹۵ خط بود: بیست همکار، API عمومی، مدلِ پاسخ و نوزده ثابتِ
+دکمه. دو تکهٔ آخر داده‌اند، نه رفتار:
+
+| فایل | خط | چه چیزی |
+|---|---|---|
+| `advocate.dart` | ۵۹۵ → **۴۵۳** | سیم‌کشی و API (۲۶۳ خطِ کد؛ بقیه مستندِ همان کد) |
+| `advocate_model.dart` | **۹۰** | `AnswerSource`، `AdvocateReply`، `_Ask` |
+| `chip_texts.dart` | **۵۶** | نوزده برچسبِ دکمه (`ChipTexts.moreChip` …) |
+
+- `Advocate.moreChip` و هفده هم‌نوعش به `ChipTexts.` رفتند (۸۵ ارجاع در ۲۱ فایل، شاملِ آزمون‌ها). `idleChips` عمداً در `Advocate` ماند: آن یک **تصمیم** است (`_idleChips()`)، نه برچسب.
+- آزمونِ نگهبان، برچسب‌ها را **حرف‌به‌حرف** قفل می‌کند (`test_chip_labels_are_data_not_class_members`) و همچنین می‌سنجد که مدلِ پاسخ در فایلِ خودش باشد و میدان‌های `AdvocateReply` دست‌نخورده بمانند.
+- عددِ صادق: ۴۵۳ هنوز بالای سقفِ ۴۲۰ است و در `DEBT` ثبت مانده. چیزی که عوض شد این است که در آن فایل دیگر «داده» نیست؛ فقط سیم‌کشی و API و مستندِ آن.
 
 ## چرا بعضی چیزها را «نشکستم»
 

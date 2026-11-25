@@ -91,7 +91,7 @@ extension _CaseAnswers on CaseFlow {
         !Sense.has(n, _replySaid) &&
         picker.matchIssue(t, n) == null &&
         glossary(n) == null) {
-      return talk.unclearReply(raw, chips: const [Advocate.newCaseChip]);
+      return talk.unclearReply(raw, chips: const [ChipTexts.newCaseChip]);
     }
     dialog.heard = '${dialog.heard} $n';
     // آنچه کاربر خودش گفته، دوباره پرسیده نمی‌شود.
@@ -260,8 +260,8 @@ extension _CaseAnswers on CaseFlow {
         ask: ask.isEmpty ? talk.unclearText(raw) : ask,
         chips: [
           if (ask.isNotEmpty) ...const [
-            Advocate.newTopicChip,
-            Advocate.sameCaseChip,
+            ChipTexts.newTopicChip,
+            ChipTexts.sameCaseChip,
           ],
           ...chipPlan().suggest(t),
         ],
@@ -306,7 +306,7 @@ extension _CaseAnswers on CaseFlow {
       }
     }
     if (dialog.side != null) {
-      chips.insertAll(0, const [Advocate.newTopicChip, Advocate.sameCaseChip]);
+      chips.insertAll(0, const [ChipTexts.newTopicChip, ChipTexts.sameCaseChip]);
     }
     final roomy = dialog.roomy;
     dialog.roomy = false;

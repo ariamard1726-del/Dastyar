@@ -300,7 +300,7 @@ class TalkRoute {
   /// خودش دور می‌کند.
   List<String> branchStart() {
     dialog.branchAsked = true;
-    return Advocate.branchChips;
+    return ChipTexts.branchChips;
   }
 
   /// پاسخ به دکمه‌های دستهٔ مشکل («حقوقی»، «کیفری»، «اداری»، «نمی‌دانم»،
@@ -311,7 +311,7 @@ class TalkRoute {
   /// انتخابِ دسته.
   AdvocateReply? branchReply(String raw, String n, {required bool asked}) {
     final label = raw.trim();
-    if (!Advocate.branchChips.contains(label)) {
+    if (!ChipTexts.branchChips.contains(label)) {
       // «خروج از برنامه» یا «انصراف» را ممکن است کاربر تایپ کند، نه بزند.
       if (!asked ||
           Sense.words(n) > 4 ||
@@ -327,21 +327,21 @@ class TalkRoute {
     if (!asked && (hasCase || dialog.loose.isNotEmpty)) return null;
     closeCase();
     dialog.loose.clear();
-    if (label == Advocate.leaveChip) {
+    if (label == ChipTexts.leaveChip) {
       return _out(
         'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
       );
     }
-    if (label == Advocate.unsureChip) {
+    if (label == ChipTexts.unsureChip) {
       return _out(
         'اشکالی ندارد، لازم نیست اسمش را بدانید.',
         ask: 'فقط بگویید چه شده: چه کسی چه کاری کرد و از چه زمانی؟ '
             'هرچه کامل‌تر تعریف کنید، بهتر می‌توانم راهنمایی کنم.',
       );
     }
-    final tail = label == Advocate.criminalChip
+    final tail = label == ChipTexts.criminalChip
         ? 'و آیا از دادسرا یا کلانتری خبری دارید (احضاریه، شکایت طرف مقابل)؟'
-        : label == Advocate.adminChip
+        : label == ChipTexts.adminChip
             ? 'و با کدام اداره یا سازمان طرف هستید؟'
             : 'و الان چه می‌خواهید: پولتان برگردد، شکایت کنید، یا از خودتان دفاع کنید؟';
     return _out(

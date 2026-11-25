@@ -114,7 +114,7 @@ class TopicPicker {
       final r = open(first, n, guessed: true);
       dialog.guessed = true;
       return AdvocateReply(r.text,
-          chips: [Advocate.wrongChip, ...r.chips],
+          chips: [ChipTexts.wrongChip, ...r.chips],
           laws: r.laws,
           source: AnswerSource.guess);
     }
@@ -131,7 +131,7 @@ class TopicPicker {
       ask: list.length == 1
           ? 'ماجرای شما دربارهٔ «${first.title}» است؟'
           : 'ماجرای شما به کدام نزدیک‌تر است؟',
-      chips: [for (final t in list) t.title, Advocate.noneChip],
+      chips: [for (final t in list) t.title, ChipTexts.noneChip],
     );
   }
 

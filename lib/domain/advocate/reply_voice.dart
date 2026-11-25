@@ -245,8 +245,8 @@ class ReplyVoice {
       if (offeredMore) ...yesNoChips,
       if (relevantChip.isNotEmpty) relevantChip,
       ...chips,
-      if (rest.isNotEmpty && !offeredMore) Advocate.moreChip,
-      if (laws.isNotEmpty && (first || chips.isEmpty)) Advocate.lawChip,
+      if (rest.isNotEmpty && !offeredMore) ChipTexts.moreChip,
+      if (laws.isNotEmpty && (first || chips.isEmpty)) ChipTexts.lawChip,
     ];
     final uniq = <String>[];
     for (final c in all) {

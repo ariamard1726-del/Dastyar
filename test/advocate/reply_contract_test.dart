@@ -69,7 +69,7 @@ void main() {
       final a = Advocate(engine);
       final r = a.respond(m);
       if (r.chips.isEmpty) continue;
-      expect(r.chips.last, Advocate.leaveChip, reason: m);
+      expect(r.chips.last, ChipTexts.leaveChip, reason: m);
     }
   });
 

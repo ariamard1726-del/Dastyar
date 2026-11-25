@@ -33,8 +33,8 @@ void main() {
   /// پاسخ آخر، با متنِ کامل (بدون بریدن با «ادامه بده»).
   String answer(Advocate a, String text) {
     final r = a.respond(text);
-    final more = r.chips.contains(Advocate.moreChip);
-    return r.text + (more ? ' ${a.respond(Advocate.moreChip)}' : '');
+    final more = r.chips.contains(ChipTexts.moreChip);
+    return r.text + (more ? ' ${a.respond(ChipTexts.moreChip)}' : '');
   }
 
   test('برنامه را بستن و باز کردن، پرسشِ «منظورتان چیست» نمی‌گیرد', () {

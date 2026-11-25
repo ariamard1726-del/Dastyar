@@ -45,91 +45,11 @@ part 'safety_reply.dart';
 part 'advocate_constants.dart';
 part 'advocate_reply.dart';
 part 'guide_reply.dart';
+part 'advocate_model.dart';
+part 'chip_texts.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
 
-/// از کدام مسیر دانش، این پاسخ ساخته شد؟
-///
-/// این برچسب فقط برای شفافیت و آزمون است: ترتیب اولویت مسیرها در
-/// [Advocate.pipelineOrder] نوشته شده و `test/advocate/answer_source_test.dart`
-/// همان را می‌سنجد. متن پاسخ هیچ‌جا از مدل نمی‌آید؛ برچسب می‌گوید از کدام
-/// منبعِ صریح آمده است.
-enum AnswerSource {
-  /// پیام اضطراری ایمنی (خشونت خانگی، تماس با اورژانس).
-  safety,
-
-  /// پروندهٔ موضوع‌ها: پرسش، استدلال، جمع‌بندی، دادخواست.
-  topic,
-
-  /// مسیر تصمیم موضوعی از `assets/brain/topics/*.json`.
-  topicFlow,
-
-  /// تطبیق واژه‌های پیام با متن قوانین (`LawTerms`).
-  lawTerms,
-
-  /// واژه‌نامهٔ اصطلاحات حقوقی.
-  glossary,
-
-  /// راهنمای ازپیش‌نوشتهٔ وکیل (`legal_guides`).
-  guide,
-
-  /// حدسِ خوانندهٔ موضوع (Noql) که پرونده را باز کرد.
-  guess,
-
-  /// نظر دوم طبقه‌بند سبک نیت (`IntentNet`).
-  intentNet,
-
-  /// بانک پرسش‌وپاسخ (`assets/qa`).
-  qaBank,
-
-  /// بازیابی BM25F از متن قوانین.
-  engine,
-
-  /// پاسخ برچسب‌نخورده؛ نباید در پاسخ‌های نهایی دیده شود.
-  unknown,
-}
-
-/// پاسخ وکیل به یک پیام.
-class AdvocateReply {
-  final String text;
-  final List<String> chips;
-  final List<LawText> laws;
-
-  /// مسیر دانشی که این پاسخ را ساخت (برای شفافیت و آزمون).
-  final AnswerSource source;
-
-  AdvocateReply(
-    this.text, {
-    this.chips = const [],
-    this.laws = const [],
-    this.source = AnswerSource.unknown,
-  });
-}
-
-/// یک پرسشِ وکیل و گزینه‌های جوابش.
-class _Ask {
-  final String text;
-  final List<String> chips;
-  const _Ask(this.text, this.chips);
-}
-
-/// وکیل آفلاینِ بدون مدل زبانی.
-///
-/// هیچ مدل زبانی (نه آفلاین، نه آنلاین) در این مسیر نیست و هیچ جمله‌ای را
-/// ماشین «تولید» نمی‌کند؛ همه‌چیز قاعده و دانش صریح است:
-///  ۱. فهم: الگوهای منظم روی متن محاوره‌ای ([Sense]).
-///  ۲. حافظه: پروندهٔ ماجرا با واقعیت‌هایی که کاربر گفته ([CaseFile]).
-///  ۳. استدلال: هر واقعیت «اثر حقوقی» دارد و هر پرسش پاسخی که از روی
-///     واقعیت‌های پرونده ساخته می‌شود ([Topic]، [Slot]، [Issue]).
-///  ۴. استناد: هر ماده فقط وقتی نام برده می‌شود که متنش در بانک قوانین
-///     پیدا شود (`engine.findArticle`)، و متن همان ماده نقل می‌شود.
-///
-/// تنها کمکِ بیرونی «نظر دوم» دربارهٔ موضوع پیام است، و فقط وقتی که
-/// قاعده‌ها موضوع را نشناخته‌اند: یا حدسِ خوانندهٔ موضوع ([TopicGuess]، مدل
-/// برداری Noql با یک سرِ طبقه‌بند) که همراه پیام به [respond] داده می‌شود،
-/// یا در نبودِ آن طبقه‌بندِ سبکِ نیت ([IntentNet]). با حدسِ مطمئن پرونده باز
-/// می‌شود و با حدسِ نامطمئن از خودِ کاربر پرسیده می‌شود. واقعیت‌ها، استدلال
-/// و متن پاسخ همیشه از همین قاعده‌هاست.
 class Advocate {
   Advocate(
     this.engine, {
@@ -335,10 +255,6 @@ class Advocate {
   /// آن، کنارِ موتور و پرونده، روی خودِ همین شیء بود.
   final DialogueState dialog = DialogueState();
 
-  static const String moreChip = 'ادامه بده';
-
-  static const String lawChip = 'متن قانون را ببینم';
-
   /// آیا از پاسخ قبلی چیزی نگفته مانده است؟
   bool get hasMore => voice.rest.isNotEmpty;
 
@@ -350,35 +266,6 @@ class Advocate {
 
   /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
   void clearOffer() => dialog.clearOffer();
-
-  static const String newCaseChip = 'موضوع تازه‌ای دارم';
-
-  /// پاسخ کاربر به «این ماجرای جدایی است؟».
-  static const String sideChip = 'این یک موضوع جداست';
-
-  /// پاسخ کاربر به «به همین ماجرای قبلی مربوط است؟».
-  static const String relatedChip = 'به همین ماجرای قبلی مربوط است';
-
-  /// پاسخ‌های پرسشِ «موضوع تازه است یا به قبلی مربوط؟» وقتی فقط همین پرسش
-  /// روی میز است.
-  static const String newTopicYesChip = 'بله';
-
-  static const String newTopicNoChip = 'خیر';
-
-  /// همان پاسخ‌ها وقتی پرسش همراهِ پرسشِ خودِ پرونده می‌آید؛ «بله/خیر» تنها
-  /// با جوابِ پرسش‌های پرونده اشتباه می‌شود.
-  static const String newTopicChip = 'بله، موضوع تازه است';
-
-  static const String sameCaseChip = 'خیر، به همان ماجرا مربوط است';
-
-  /// خروج از موضوع فقط با این دکمه (یا «انصراف» نوشته‌شده) انجام می‌شود.
-  static const String leaveChip = 'انصراف';
-
-  /// پاسخ کاربر به «ماجرای شما به کدام نزدیک‌تر است؟».
-  static const String noneChip = 'هیچ‌کدام';
-
-  /// پاسخ کاربر وقتی پرونده با حدسِ مدل باز شده و حدس غلط بوده.
-  static const String wrongChip = 'موضوعم این نیست';
 
   /// همهٔ موضوع‌ها (فهرست در `topics/all.dart`).
   static final List<Topic> topics = allTopics;
@@ -393,36 +280,6 @@ class Advocate {
     if (ms.isEmpty) return '';
     return n.substring(ms.last.end).trim();
   }
-
-  static const List<String> starterChips = [
-    'صاحبخانه پول پیشم را نمی‌دهد',
-    'کارفرما اخراجم کرده',
-    'چکم برگشت خورده',
-    'می‌خواهم طلاق بگیرم',
-  ];
-
-  /// دکمه‌های «دستهٔ مشکل» که بعد از سلام نشان داده می‌شوند.
-  ///
-  /// پیش‌تر پاسخِ سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ برای
-  /// کاربری که تازه سلام کرده، این نمی‌گفت از کجا شروع کند. حالا اول شاخهٔ
-  /// کار روشن می‌شود و بعد ماجرا پرسیده می‌شود.
-  static const String civilChip = 'حقوقی';
-
-  static const String criminalChip = 'کیفری';
-
-  static const String adminChip = 'اداری';
-
-  static const String unsureChip = 'نمی‌دانم';
-
-  /// دکمهٔ خروج، همان [leaveChip] است: هم موضوعِ باز را می‌بندد، هم در آغاز
-  /// گفتگو راهِ انصراف است.
-  static const List<String> branchChips = [
-    civilChip,
-    criminalChip,
-    adminChip,
-    unsureChip,
-    leaveChip,
-  ];
 
   bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
 
@@ -524,10 +381,10 @@ class Advocate {
   /// کاربر از وسط ماجرا راه خروج ندارد (بعضی مسیرها مثل جست‌وجوی متن قانون،
   /// پاسخ را مستقیم می‌سازند و از [_out] نمی‌گذرند).
   AdvocateReply _withLeave(AdvocateReply r) {
-    if (r.chips.isNotEmpty && r.chips.last == leaveChip) return r;
+    if (r.chips.isNotEmpty && r.chips.last == ChipTexts.leaveChip) return r;
     return AdvocateReply(
       r.text,
-      chips: [...r.chips.where((c) => c != leaveChip), leaveChip],
+      chips: [...r.chips.where((c) => c != ChipTexts.leaveChip), ChipTexts.leaveChip],
       laws: r.laws,
       source: r.source,
     );
@@ -566,7 +423,7 @@ class Advocate {
     if (file.topic.isNotEmpty || dialog.guide != null || dialog.choices.isNotEmpty) {
       return false;
     }
-    if (raw.trim() == newCaseChip) return false;
+    if (raw.trim() == ChipTexts.newCaseChip) return false;
     final n = Sense.norm(raw);
     if (!_guessable(n)) return false;
     for (final t in topics) {
@@ -574,9 +431,6 @@ class Advocate {
     }
     return true;
   }
-
-  /// دکمه‌های پیشنهادی برای وضعیت فعلی گفتگو.
-  List<String> get idleChips => _idleChips();
 
     /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
   /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
@@ -591,4 +445,8 @@ class Advocate {
   }) =>
       voice.out(text,
           chips: chips, ask: ask, full: full, budget: budget, source: source);
+  /// دکمه‌های پیشنهادی برای وضعیتِ فعلیِ گفتگو (تصمیم است، نه داده؛ برچسب‌ها
+  /// در `chip_texts.dart`).
+  List<String> get idleChips => _idleChips();
+
 }

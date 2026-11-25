@@ -66,7 +66,7 @@ class TalkReply {
     final g = dialog.guide;
     if (topic == null && g != null) {
       return _out(g.brief.isNotEmpty ? g.brief : _sentences(g.answer).take(2).join(' '),
-          chips: const [Advocate.newCaseChip]);
+          chips: const [ChipTexts.newCaseChip]);
     }
     if (topic == null) {
       return _out(
@@ -129,7 +129,7 @@ class TalkReply {
       return _out(
         'سلام، خوش آمدید.',
         ask: 'مشکلتان چیست؟',
-        chips: Advocate.branchChips,
+        chips: ChipTexts.branchChips,
       );
     }
     if (Sense.has(n,
@@ -150,7 +150,7 @@ class TalkReply {
         // همان جهت‌دهیِ سلام: اول شاخهٔ کار، بعد ماجرا.
         dialog.branchAsked = true;
         return _out(replies[i % replies.length],
-            ask: asks[i % asks.length], chips: Advocate.branchChips);
+            ask: asks[i % asks.length], chips: ChipTexts.branchChips);
       }
       return _out(replies[i % replies.length],
           ask: dialog.askText, chips: dialog.askChips);

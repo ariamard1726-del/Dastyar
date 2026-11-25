@@ -22,19 +22,19 @@ void main() {
 
   /// پاسخ «بله» یا «بله، موضوع تازه است» — هر کدام که نشان داده شده باشد.
   String yesChip(AdvocateReply r) =>
-      r.chips.contains(Advocate.newTopicYesChip)
-          ? Advocate.newTopicYesChip
-          : Advocate.newTopicChip;
+      r.chips.contains(ChipTexts.newTopicYesChip)
+          ? ChipTexts.newTopicYesChip
+          : ChipTexts.newTopicChip;
 
   String noChip(AdvocateReply r) =>
-      r.chips.contains(Advocate.newTopicYesChip)
-          ? Advocate.newTopicNoChip
-          : Advocate.sameCaseChip;
+      r.chips.contains(ChipTexts.newTopicYesChip)
+          ? ChipTexts.newTopicNoChip
+          : ChipTexts.sameCaseChip;
 
   bool askedNewTopic(AdvocateReply r) =>
-      r.chips.contains(Advocate.newTopicYesChip) ||
-      r.chips.contains(Advocate.newTopicChip) ||
-      r.chips.contains(Advocate.sideChip);
+      r.chips.contains(ChipTexts.newTopicYesChip) ||
+      r.chips.contains(ChipTexts.newTopicChip) ||
+      r.chips.contains(ChipTexts.sideChip);
 
   test('«انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید', () {
     final a = fresh();
@@ -47,9 +47,9 @@ void main() {
       a.respond('ممنون'),
     ];
     for (final r in replies) {
-      expect(r.chips, contains(Advocate.leaveChip), reason: r.text);
-      expect(r.chips.last, Advocate.leaveChip, reason: r.text);
-      expect(r.chips.where((c) => c == Advocate.leaveChip).length, 1,
+      expect(r.chips, contains(ChipTexts.leaveChip), reason: r.text);
+      expect(r.chips.last, ChipTexts.leaveChip, reason: r.text);
+      expect(r.chips.where((c) => c == ChipTexts.leaveChip).length, 1,
           reason: r.text);
     }
   });
@@ -61,7 +61,7 @@ void main() {
     final r = a.respond('کارفرمای من دو ماه است حقوقم را نداده و بیمه هم رد نکرده');
     expect(askedNewTopic(r), isTrue, reason: r.chips.join('،'));
     expect(r.text, contains('فرق دارد'), reason: r.text);
-    expect(r.chips, contains(Advocate.leaveChip));
+    expect(r.chips, contains(ChipTexts.leaveChip));
     // تا پاسخ نیامده، پرونده عوض نشده است.
     expect(a.file.topic, 'neighbor');
   });
@@ -86,7 +86,7 @@ void main() {
     final a = fresh();
     a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
     a.respond('کارفرمای من دو ماه است حقوقم را نداده و بیمه هم رد نکرده');
-    a.respond(Advocate.leaveChip);
+    a.respond(ChipTexts.leaveChip);
     expect(a.file.topic, isEmpty);
   });
 

@@ -19,7 +19,7 @@ extension _ReplyPipeline on Advocate {
     return _out(
       'باشد، این موضوع را کنار گذاشتم.',
       ask: 'موضوع تازه‌تان چیست؟',
-      chips: Advocate.branchChips,
+      chips: ChipTexts.branchChips,
     );
   }
   /// لمسِ دکمهٔ «تنظیم دادخواست …» یا «تنظیم لایحه …».
@@ -265,7 +265,7 @@ extension _ReplyPipeline on Advocate {
           'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
           'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
           'سطحی می‌شود. از کدام شروع کنیم؟',
-          chips: [for (final t in dialog.choices) t.title, Advocate.noneChip],
+          chips: [for (final t in dialog.choices) t.title, ChipTexts.noneChip],
         );
       }
       return _open(best, n);
@@ -404,7 +404,7 @@ extension _ReplyPipeline on Advocate {
       'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
       'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
       ask: 'این موضوع تازه است یا به همان ماجرای قبلی مربوط است؟',
-      chips: const [Advocate.newTopicYesChip, Advocate.newTopicNoChip],
+      chips: const [ChipTexts.newTopicYesChip, ChipTexts.newTopicNoChip],
     );
   }
 }

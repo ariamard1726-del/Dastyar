@@ -28,7 +28,7 @@ void main() {
     var guard = 0;
     while (a.hasMore && guard < 8) {
       guard++;
-      sb.write('\n${a.respond(Advocate.moreChip).text}');
+      sb.write('\n${a.respond(ChipTexts.moreChip).text}');
     }
     return AdvocateReply(sb.toString(), chips: r.chips, laws: r.laws);
   }
@@ -189,7 +189,7 @@ void main() {
     a.respond('راستی کارفرمام هم سه ماهه حقوقمو نداده');
     expect(a.file.topic, 'labor');
     expect(a.file.has('amount'), isFalse);
-    a.respond(Advocate.newCaseChip);
+    a.respond(ChipTexts.newCaseChip);
     expect(a.hasCase, isFalse);
   });
 
@@ -474,9 +474,9 @@ void main() {
     c.respond('یه یخچال خریدم خراب در اومد، فروشنده پس نمیگیره');
     final ask = say(c, 'سگ همسایه گازم گرفت');
     expect(c.file.topic, 'consumer');
-    expect(ask.chips, contains(Advocate.newTopicChip));
+    expect(ask.chips, contains(ChipTexts.newTopicChip));
     expect(ask.text, contains('ماجرای جداگانه'));
-    c.respond(Advocate.newTopicChip);
+    c.respond(ChipTexts.newTopicChip);
     expect(c.file.topic, 'injury');
     expect(c.file.get('kind'), 'other');
     // ولی وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌معطلی می‌رود.
@@ -518,8 +518,8 @@ void main() {
       final a = fresh();
       final r = a.respond('کارفرما اخراجم کرده');
       if (a.hasMore) {
-        expect(r.chips, contains(Advocate.moreChip));
-        final m = a.respond(Advocate.moreChip);
+        expect(r.chips, contains(ChipTexts.moreChip));
+        final m = a.respond(ChipTexts.moreChip);
         expect(m.text.trim(), isNotEmpty);
         expect(m.text, isNot(r.text));
       }
@@ -531,7 +531,7 @@ void main() {
       final r = a.respond('صاحبخونه پول پیشمو نمیده');
       expect(r.laws, isNotEmpty);
       expect(r.text, isNot(contains('«')));
-      final law = a.respond(Advocate.lawChip);
+      final law = a.respond(ChipTexts.lawChip);
       expect(law.text, contains('ماده'));
       expect(law.text, contains('«'));
       expect(a.file.topic, 'rent');
@@ -582,7 +582,7 @@ void main() {
       final a = fresh();
       final r = a.respond('یه نفر وسایلمو از انباری برده و جواب نمیده');
       expect(r.text.trimRight(), endsWith('؟'));
-      for (final c in Advocate.starterChips) {
+      for (final c in ChipTexts.starterChips) {
         expect(r.chips, isNot(contains(c)));
       }
     });
@@ -641,7 +641,7 @@ void main() {
         last = a.respond('نمیدونم');
       }
       expect(last.chips, contains('بله، بگو'));
-      final yes = a.respond(Advocate.moreChip);
+      final yes = a.respond(ChipTexts.moreChip);
       expect(yes.text, anyOf(contains('شرط'), contains('۱)')));
       // «نه» وقتی پرسشی روی میز نیست هم گفتگو را گم نمی‌کند.
       final a2 = fresh();

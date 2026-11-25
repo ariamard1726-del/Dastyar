@@ -93,6 +93,6 @@ class ChipPlan {
   /// نمونه‌های آغاز گفتگو؛ فقط وقتی کاربر هنوز هیچ ماجرایی نگفته است.
   List<String> starters() =>
       dialog.loose.length <= 1 && dialog.guide == null && file.topic.isEmpty
-          ? Advocate.starterChips
+          ? ChipTexts.starterChips
           : const [];
 }

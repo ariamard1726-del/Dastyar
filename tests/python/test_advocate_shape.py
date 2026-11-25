@@ -275,6 +275,43 @@ class ShapeTests(unittest.TestCase):
             self.assertNotIn(bad, shell)
         self.assertIn('CaseFlow _case', self.src)
 
+    def test_the_reply_model_has_its_own_part(self):
+        """مدلِ پاسخ (`AnswerSource`، `AdvocateReply`، `_Ask`) در فایلِ خودش.
+
+        این‌ها داده‌اند، نه رفتار: بردنشان از `advocate.dart` هیچ امضایی را
+        عوض نمی‌کند (بخش‌های یک کتابخانه‌اند) و فقط حجمِ فایلِ سیم‌کشی را کم
+        می‌کند. آزمون، هم نبودشان در فایلِ اصلی و هم دست‌نخورده بودنِ میدان‌های
+        `AdvocateReply` را می‌سنجد.
+        """
+        model = _read(os.path.join(ADVOCATE_DIR, 'advocate_model.dart'))
+        for decl in ('enum AnswerSource {', 'class AdvocateReply {', 'class _Ask {'):
+            self.assertIn(decl, model, decl)
+            self.assertNotIn(decl, self.src, '%s دوباره در advocate.dart است' % decl)
+        for field in ('final String text;', 'final List<String> chips;',
+                      'final List<LawText> laws;', 'final AnswerSource source;'):
+            self.assertIn(field, model, field)
+        self.assertIn("part 'advocate_model.dart';", self.src)
+
+    def test_chip_labels_are_data_not_class_members(self):
+        """متنِ دکمه‌ها داده است: یک فایلِ خودش، با همان کلمه‌ها.
+
+        دکمه‌ها چیزی هستند که کاربر می‌بیند؛ جابه‌جا کردنشان نباید یک حرف را
+        عوض کند. آزمون هم محل را می‌سنجد (نه عضوِ کلاسِ سیم‌کشی) و هم خودِ
+        یازده برچسب را، حرف‌به‌حرف.
+        """
+        chips = _read(os.path.join(ADVOCATE_DIR, 'chip_texts.dart'))
+        self.assertIn('class ChipTexts {', chips)
+        labels = ('ادامه بده', 'متن قانون را ببینم', 'موضوع تازه‌ای دارم',
+                  'این یک موضوع جداست', 'به همین ماجرای قبلی مربوط است',
+                  'بله، موضوع تازه است', 'خیر، به همان ماجرا مربوط است',
+                  'انصراف', 'هیچ‌کدام', 'موضوعم این نیست', 'حقوقی', 'کیفری',
+                  'اداری', 'نمی‌دانم')
+        missing = [l for l in labels if "'%s'" % l not in chips]
+        self.assertEqual(missing, [], 'برچسبِ دکمه عوض شد یا گم شد: %s' % missing)
+        self.assertNotIn('static const String moreChip', self.src,
+                         'ثابت‌های دکمه دوباره عضوِ Advocate شدند')
+        self.assertIn("part 'chip_texts.dart';", self.src)
+
     def test_collaborators_are_wired(self):
         """هر کارِ جدا باید همکارِ خودش را داشته باشد، نه فیلدِ حالتی."""
         for name in ('DialogueState dialog', 'ReplyVoice voice',

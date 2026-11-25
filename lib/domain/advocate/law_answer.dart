@@ -166,7 +166,7 @@ class LawAnswer {
       'این پاسخ عمومی است. اگر بگویید ماجرای شما دقیقاً چیست، آن را با وضعیت خودتان تطبیق می‌دهم.',
       chips: [
         ...next,
-        if (laws.isNotEmpty) Advocate.lawChip,
+        if (laws.isNotEmpty) ChipTexts.lawChip,
       ],
       laws: laws,
       source: AnswerSource.qaBank,
