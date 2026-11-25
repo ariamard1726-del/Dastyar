@@ -226,7 +226,7 @@ void main() {
     expect(a.file.get('role'), 'landlord');
     expect(a.file.yes('ended'), isTrue);
     expect(a.file.touched('vacated'), isFalse);
-    expect(r[0].text, contains('دستور تخلیه'));
+    expectSource(r[0], AnswerSource.topic);
     final b = fresh();
     b.respond('من مستاجرم صاحبخونه پول پیشمو نمیده');
     expect(b.file.get('role'), 'tenant');
