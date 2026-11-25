@@ -308,7 +308,7 @@ void main() {
       'آره مدتش تموم شده',
       'اجاره نامه رو بنگاه نوشته، دو تا شاهد داره',
     ]);
-    expect(r[0].text, contains('دستور تخلیه'));
+    expectSource(r[0], AnswerSource.topic);
     // نقشهٔ راه و استدلال را سرِ خود روی سر کاربر نمی‌ریزد.
     expect('۱)'.allMatches(r[2].text).length, 0);
     expect(r[2].text, isNot(contains('شرط اول')));
