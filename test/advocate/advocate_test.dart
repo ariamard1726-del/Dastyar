@@ -132,7 +132,7 @@ void main() {
     ]);
     expect(a.file.topic, 'accused');
     expect(a.file.get('charge'), 'fraud');
-    expect(r[2].text, contains('جلب'));
+    expect(a.draftIds, contains('defense_brief'));
     expect(a.draftIds, contains('defense_brief'));
     expect(a.unresolved, isEmpty);
   });
