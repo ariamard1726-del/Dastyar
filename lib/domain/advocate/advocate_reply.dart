@@ -12,7 +12,7 @@ extension _ReplyPipeline on Advocate {
   /// «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته
   /// می‌شود و از کاربر موضوعِ تازه خواسته می‌شود.
   AdvocateReply? _leaveReply(String raw) {
-    if (!Drafting.isLeave(raw)) return null;
+    if (!DraftWords.isLeave(raw)) return null;
     _closeCase();
     dialog.loose.clear();
     dialog.branchAsked = true;

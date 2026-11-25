@@ -60,7 +60,7 @@ void main() {
     var ok = 0, n = 0;
     for (final r in rows('brain/intents.txt')) {
       final want = r[0], text = r[1];
-      final sug = Drafting.suggest(text, ts);
+      final sug = DraftIntent.suggest(text, ts);
       final got = sug.template?.id ??
           (sug.choices.length <= 3 && sug.choices.any((t) => t.id == want)
               ? want
@@ -69,7 +69,7 @@ void main() {
       if (got == want) {
         ok++;
       } else {
-        final sc = ts.map((t) => '${t.id}=${Drafting.keywordScore(text, t)}').join(' ');
+        final sc = ts.map((t) => '${t.id}=${DraftIntent.keywordScore(text, t)}').join(' ');
         print('EVAL intent wrong: want $want got $got | $text');
         print('EVAL   scores: $sc');
       }

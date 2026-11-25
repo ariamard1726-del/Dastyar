@@ -21,7 +21,7 @@ List<LegalTemplate> loadTemplates() {
 void main() {
   final ts = loadTemplates();
 
-  String? sug(String text) => Drafting.suggest(text, ts).template?.id;
+  String? sug(String text) => DraftIntent.suggest(text, ts).template?.id;
 
   group('جهت وضعیت', () {
     test('بدهکار پیشنهاد مطالبه نمی‌گیرد', () {
@@ -70,11 +70,11 @@ void main() {
 
   group('بله و نه', () {
     test('تشخیص', () {
-      expect(Drafting.isYes('بله'), isTrue);
-      expect(Drafting.isYes('آره'), isTrue);
-      expect(Drafting.isNo('نه'), isTrue);
-      expect(Drafting.isNo('خیر'), isTrue);
-      expect(Drafting.isYes('نه'), isFalse);
+      expect(DraftWords.isYes('بله'), isTrue);
+      expect(DraftWords.isYes('آره'), isTrue);
+      expect(DraftWords.isNo('نه'), isTrue);
+      expect(DraftWords.isNo('خیر'), isTrue);
+      expect(DraftWords.isYes('نه'), isFalse);
     });
   });
 }

@@ -99,7 +99,7 @@ class DraftFlow {
       _pendingList = [];
       // «نه» باید پیش از جست‌وجوی عنوان بررسی شود؛ وگرنه همین دو حرف درون
       // عنوان یک قالب («هزینه») پیدا می‌شود و سندی ناخواسته شروع می‌شود.
-      if (text == DraftCmd.cancel || Drafting.isNo(text)) {
+      if (text == DraftCmd.cancel || DraftWords.isNo(text)) {
         post(ChatMessage(text, true));
         post(ChatMessage('باشد، فعلاً متنی نمی‌نویسم. هر وقت خواستید بگویید.',
             false, chips: advocate.idleChips));
@@ -108,7 +108,7 @@ class DraftFlow {
         scrollToEnd();
         return true;
       }
-      final picked = Drafting.pickChoice(text, list);
+      final picked = DraftIntent.pickChoice(text, list);
       if (picked != null) {
         start(text, picked);
         return true;
@@ -116,7 +116,7 @@ class DraftFlow {
     }
     if (!Advocate.wantsDraft(text)) return false;
     // «یک دادخواست مطالبهٔ وجه بنویس»: خودِ کاربر سند را نام برده است.
-    final intent = Drafting.detect(text, repo.templates);
+    final intent = DraftIntent.detect(text, repo.templates);
     final direct = intent.template;
     if (direct != null) {
       start(text, direct);
@@ -134,7 +134,7 @@ class DraftFlow {
       _pendingList = intent.choices;
       post(ChatMessage(text, true, sensitive: true));
       post(ChatMessage(
-        Drafting.chooseText,
+        DraftIntent.chooseText,
         false,
         sensitive: true,
         chips: [...intent.choices.map((t) => t.title), DraftCmd.cancel],
@@ -159,7 +159,7 @@ class DraftFlow {
           : (f == null ? '' : (advocate.fillFor(s.template.id)[f.id] ?? ''));
       if (v.isNotEmpty) answer = v;
     }
-    final r = _withCaseHelp(Drafting.answer(s, answer), s);
+    final r = _withCaseHelp(DraftStep.answer(s, answer), s);
     post(ChatMessage(answer, true, sensitive: true));
     post(_botFromReply(r, s.template));
     if (r.ended) _draft = null;
@@ -171,7 +171,7 @@ class DraftFlow {
   /// شروعِ سند از پیامِ کاربر.
   void start(String userText, LegalTemplate t) {
     final s = DraftSession(t);
-    final r = _withCaseHelp(Drafting.start(s), s);
+    final r = _withCaseHelp(DraftStep.start(s), s);
     _draft = r.ended ? null : s;
     post(ChatMessage(userText, true, sensitive: true));
     post(_botFromReply(r, t));
@@ -183,7 +183,7 @@ class DraftFlow {
   /// ادامهٔ پیش‌نویسِ نیمه‌کاره (از گفتگوی قبلی یا از حافظهٔ رمزنگاری‌شده).
   void resume(DraftSession s) {
     _draft = s;
-    post(_botFromReply(Drafting.resumePrompt(s), s.template));
+    post(_botFromReply(DraftStep.resumePrompt(s), s.template));
   }
 
   void syncCheckpoint() {
@@ -212,7 +212,7 @@ class DraftFlow {
     final restored = await DraftCheckpointStore.load(repo.templates);
     if (restored == null || !isAlive()) return false;
     _draft = restored;
-    post(_botFromReply(Drafting.resumePrompt(restored), restored.template));
+    post(_botFromReply(DraftStep.resumePrompt(restored), restored.template));
     changed();
     scrollToEnd();
     return true;
@@ -287,7 +287,7 @@ class DraftFlow {
         docReviewed: t.reviewed,
         docReviewNote: t.reviewNote,
         note: r.note,
-        laws: Drafting.lawTexts(engine, t),
+        laws: DraftLaws.lawTexts(engine, t),
         lawRefsTotal: t.lawRefs.length,
         chips: r.chips,
       );

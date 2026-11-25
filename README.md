@@ -136,6 +136,7 @@
 | ۲۲ | ویجت‌های گفتگو | هشت فایلِ ویجت | `chat_bubbles.dart` ۸۱۴ → ۲۴ خط |
 | ۲۳ | خطِ پاسخ در بخشِ جدا | `advocate_reply.dart` | `advocate.dart` ۹۸۹ → ۵۹۲ خط |
 | ۲۴ | روندِ پرونده در چهار بخش | `case_facts` / `case_answer` / `case_text` | `case_flow.dart` ۷۴۴ → ۱۰۴ خط |
+| ۲۵ | پیش‌نویس‌ها در پنج صاحب | `draft_models` / `draft_words` / `draft_intent` / `draft_step` / `draft_laws` | `drafting.dart` ۶۵۹ → ۱۹ خط (سرِ کتابخانه) |
 
 - متدهای روی بخش‌های `Advocate`: **۱۹۰ → ۶۴** (۲۵ تای آن خودِ کلاس است، ۳۹ پوستهٔ نازک؛ گام ۱۹ عمداً هشت متدِ نام‌دار اضافه کرد و شمارش را بالا برد — معیارِ درست، خطِ `_reply` است: ۳۳۴ → ۱۰۴). فایل‌ها: `advocate_case.dart` ۶۴۸ → ۲۸،
   `advocate_topic.dart` ۱۳۷ → ۲۹، `advocate_chips.dart` ۱۶۰ → ۱۷، `advocate_talk.dart` ۵۸۲ → ۱۰۰.
@@ -301,7 +302,8 @@ lib/
   domain/
     advocate/  وکیل: فهم متن (text_sense)، پروندهٔ ماجرا (case_file، advocate_case)،
                موضوع‌ها (topics/ با ۲۴ موضوع ثبت‌شده)، استدلال، پاسخ‌های گفتاری، بانک QA
-    drafting.dart, templates.dart    تنظیم سند از قالب‌ها
+    drafting.dart (سرِ کتابخانه), draft_models/words/intent/step/laws.dart,
+    templates.dart                   تنظیم سند از قالب‌ها
     intent_net.dart                  مدل کوچک نیت (نظر دوم) با وزن‌های assets/brain
     understanding/                   خواندن موضوع و توکنایزر NOQL
     understanding.dart (advocate/)   فهم متن کاربر: تکرار حرف، ثبت طلاق، پیوند واژه با ماده، قاعدهٔ تعارض، دکمهٔ مرتبط

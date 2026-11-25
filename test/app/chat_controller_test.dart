@@ -139,7 +139,7 @@ void main() {
       final ctrl = make();
       await ctrl.submit('برام بنویسش');
       expect(ctrl.pendingChoices, isNotEmpty);
-      expect(ctrl.messages.last.text, Drafting.chooseText);
+      expect(ctrl.messages.last.text, DraftIntent.chooseText);
       // «نه» درون عنوان «دادخواست اعسار از هزینهٔ دادرسی» هم هست.
       await ctrl.submit('نه');
       expect(ctrl.isDrafting, isFalse);

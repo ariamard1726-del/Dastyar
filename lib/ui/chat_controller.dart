@@ -180,13 +180,13 @@ class ChatController extends ChangeNotifier {
     if (draftFlow.isDrafting) {
       // «انصراف» یا «می‌خواهم از این بحث بیرون بیایم» در فرم هم کار کند؛
       // وگرنه کاربر در فرم گیر می‌افتد.
-      draftFlow.step(Drafting.isLeave(text) ? DraftCmd.cancel : text);
+      draftFlow.step(DraftWords.isLeave(text) ? DraftCmd.cancel : text);
       return;
     }
     if (draftFlow.handle(text)) return;
     // «بله» به پیشنهادِ «می‌خواهید فلان متن را برایتان بنویسم؟».
     final offered = advocate.offeredDraft;
-    if (offered != null && Drafting.isYes(text)) {
+    if (offered != null && DraftWords.isYes(text)) {
       final t = draftFlow.templateFor(offered);
       if (t != null) {
         advocate.clearOffer();

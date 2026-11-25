@@ -5,7 +5,7 @@ import 'package:dastyar/domain/templates.dart';
 
 void main() {
   group('اعتبارسنجی فیلدهای کد ملی و تلفن در جریان تهیهٔ متن', () {
-    test('فیلدهای phone و national_id در Drafting.answer اعتبارسنجی می‌شوند', () {
+    test('فیلدهای phone و national_id در DraftStep.answer اعتبارسنجی می‌شوند', () {
       final customTpl = LegalTemplate(
         id: 'verify_fields',
         title: 'آزمون اعتبارسنجی',
@@ -38,18 +38,18 @@ void main() {
       );
 
       final s = DraftSession(customTpl);
-      final badNid = Drafting.answer(s, '1111111111');
+      final badNid = DraftStep.answer(s, '1111111111');
       expect(badNid.text, contains('کد ملی واردشده معتبر نیست'));
       expect(s.index, 0);
 
-      final okNid = Drafting.answer(s, '0013542419');
+      final okNid = DraftStep.answer(s, '0013542419');
       expect(okNid.isDocument, isFalse);
       expect(s.values['nid'], '۰۰۱۳۵۴۲۴۱۹');
 
-      final badPhone = Drafting.answer(s, 'abc123');
+      final badPhone = DraftStep.answer(s, 'abc123');
       expect(badPhone.text, contains('شماره تلفن معتبر'));
 
-      final doc = Drafting.answer(s, '+989123456789');
+      final doc = DraftStep.answer(s, '+989123456789');
       expect(doc.isDocument, isTrue);
       expect(doc.text, contains('۰۰۱۳۵۴۲۴۱۹'));
       expect(doc.text, contains('۰۹۱۲۳۴۵۶۷۸۹'));
