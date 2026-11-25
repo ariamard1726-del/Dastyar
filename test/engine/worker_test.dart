@@ -17,6 +17,7 @@ void main() {
 
     expect(prepared, isNotNull, reason: 'worker پاسخ نداد');
     expect(prepared!.text, isNotEmpty);
+    expect(prepared.text, sync.text, reason: ' worker ایندکس متفاوتی دارد');
     expect(
       prepared.contextHits.map((h) => h.chunk.title).toList(),
       sync.contextHits.map((h) => h.chunk.title).toList(),

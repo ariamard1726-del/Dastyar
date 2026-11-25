@@ -227,7 +227,9 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
   _qaBank = QaBank.empty;
   _legalTerms = const {};
   _topicFlows = const [];
-  return LawIndex.build((data['raw'] as List).cast<List<String>>());
+  final built = LawIndex.build((data['raw'] as List).cast<List<String>>());
+  _index.adopt(built);
+  return built;
 }
 
 Future<void> _loadSynonyms() async {
