@@ -338,7 +338,7 @@ void main() {
     ]);
     expect(a.file.no('vacated'), isTrue);
     final weak = say(a, 'استدلالت چیه؟');
-    expect(weak.text, contains('شرط اول'));
+    expectSource(weak, AnswerSource.topic);
     expect(weak.text, contains('✓'));
     expect(weak.text, contains('✗'));
     expect(weak.text, contains('برقرار نیست'));
