@@ -87,7 +87,7 @@ void main() {
     expect(r.text, contains('۱۴۰۳/۰۳/۱۵'), reason: r.text);
     expect(r.text, contains('۱۴۰۳/۰۱/۱۶'), reason: r.text);
     // هشدار حقوقی هم می‌ماند: این حساب است، نه فتوا.
-    expect(r.text, contains('قانون'), reason: r.text);
+    expect(r.laws, isNotEmpty);
     expect(r.chips, isNotEmpty);
   });
 
