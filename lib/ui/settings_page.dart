@@ -78,6 +78,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
+            if (widget.history.lastNotice != null)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(widget.history.lastNotice!),
+                  trailing: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.history.lastNotice = null;
+                      });
+                    },
+                    child: const Text('بستن'),
+                  ),
+                ),
+              ),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(14),

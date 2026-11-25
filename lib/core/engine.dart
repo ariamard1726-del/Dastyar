@@ -139,19 +139,17 @@ class KnowledgeEngine {
 
   static List<String> tokenize(String s) => PersianText.tokenize(s);
 
-LawTopicPrior _lawPrior = LawTopicPrior.empty;
+  // اینها حالتِ همین نمونهاند، نه متغیرِ سراسری: دو KnowledgeEngine نباید
+  // بانک پرسشوپاسخ یا مترادفهای همدیگر را پاک یا جایگزین کنند.
+  LawTopicPrior _lawPrior = LawTopicPrior.empty;
+  QaBank _qaBank = QaBank.empty;
+  /// واژهها و عبارتهای حقوقی با مادهای مشخص (assets/brain/legal_terms.json).
+  Map<String, dynamic> _legalTerms = const {};
+  /// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
+  List<Map<String, dynamic>> _topicFlows = const [];
+  final List<List<String>> _syn = [];
 
-QaBank _qaBank = QaBank.empty;
-
-/// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
-Map<String, dynamic> _legalTerms = const {};
-
-/// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
-List<Map<String, dynamic>> _topicFlows = const [];
-
-final List<List<String>> _syn = [];
-
-static String _phrase(String s) => PersianText.phrase(s);
+  static String _phrase(String s) => PersianText.phrase(s);
 
 
   // ---------------------------------------------------------------------------

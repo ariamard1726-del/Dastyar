@@ -220,6 +220,11 @@ class ChatController extends ChangeNotifier {
       }
       lastGuess = guess ?? lastGuess;
     }
+    // پاسخسازی و بازیابی مواد همگاماند و روی رشتهٔ رابط کاربری اجرا میشوند.
+    // یک چرخهٔ event به رابط فرصت میدهد پیام کاربر و حالت «در حال خواندن» را
+    // قبل از شروع محاسبه رسم کند؛ محاسبه همچنان همگام است ولی چشمک نمیزند.
+    await Future<void>.delayed(Duration.zero);
+    if (_disposed || gen != _generation) return;
     final r = advocate.respond(text, guess: guess);
     if (!shown) messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));

@@ -23,7 +23,7 @@
 |---|---|---|
 | اسکیمای مسیر موضوعی | ✅ | `tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
-| ذخیره و بازیابی پرونده در تاریخچه | ✅ | `ChatSession.caseJson` + `Advocate.restoreCase`؛ گفتگوی قدیمی بدون پرونده با بازپخش پیام باز می‌شود |
+| ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 3`) + `Advocate.restoreCase`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
 | انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | ⬜ | بزرگ‌ترین کار؛ نیاز به تبدیل `Slot/Issue/Claim` به داده |
 | حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
 | جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |
@@ -34,7 +34,7 @@
 |---|---|---|
 | نوع `AnswerCandidate {source, confidence, why}` | ⬜ | جای `null`/بی‌برچسب |
 | جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها داده‌ای شد؛ اجرا هنوز `_reply` است |
-| تصمیم دربارهٔ `IntentNet` و `Noql` | ⬜ | یکی باید بماند؛ نگه‌داشتن هر دو یعنی دو منبع حقیقت |
+| تصمیم دربارهٔ `IntentNet` و `Noql` | 🟡 | مدلها بار میشود و در هر نوبت فقط یکی حکم میدهد: Noql مقدم است، IntentNet فقط وقتی حدسی نیست (`tests/python/test_advocate_shape.py`)؛ حذف کامل یکی هنوز باز است |
 | `NoqlEncoder` دست‌نویس → TFLite یا حذف | ⬜ | ۱۲ مگابایت وزن + پیاده‌سازی ALBERT در Dart |
 
 ## مرحلهٔ ۳ — ذخیره‌سازی، رمزنگاری، رشتهٔ رابط کاربری
@@ -43,11 +43,11 @@
 |---|---|---|
 | SQLite + SQLCipher به‌جای SharedPreferences | ⬜ | کوئری، ایندکس و مهاجرت واقعی |
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
-| کلید فقط در Keystore (بدون fallback) | ⬜ | مسیر جایگزین هنوز کلید را در SharedPreferences می‌گذارد (پوشاندن، نه رمزنگاری سخت‌افزاری) |
-| خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` حالا `bool` برمی‌گرداند |
-| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | ⬜ | الان روی isolate فقط ساخت ایندکس است |
+| کلید فقط در Keystore (بدون fallback) | 🟡 | مسیر جایگزین هنوز کلید را در SharedPreferences می‌گذارد؛ ولی دیگر بی‌صدا نیست: `PrivacyService.fallbackUsed/lastError` + بنر وضعیت (`test/core/privacy_test.dart`). حذف fallback نیازمند سکوی بومی جدید است |
+| خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند |
+| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | 🟡 | هنوز همگام‌اند؛ ولی قبل از محاسبه یک چرخه به UI فرصت رسم پیام کاربر می‌دهد (`chat_controller.dart`) و `test/engine/turn_budget_test.dart` سقف زمانی هر نوبت را نگه‌داری می‌کند |
 | ارزان‌کردن نمایش تدریجی متن | ✅ | بازسازی فقط با تغییر واژه/حالت، نه هر فریم (`chat_bubbles.dart`) |
-| حذف کامل انیمیشن نویسه‌به‌نویسه | ⬜ | تصمیم UX؛ فعلاً فقط هزینه‌اش کم شد |
+| حذف کامل انیمیشن نویسهبهنویسه | 🟡 | سقف ۲۴ → ۶ ثانیه و بازسازی کمتر (`tests/python/test_ui_budget.py`)؛ خود انیمیشن هنوز هست |
 | نگه‌داشتن دکمه‌های پیشنهادی در تاریخچه | ✅ | `StoredMsg.chips`؛ گفتگوی بازیابی‌شده دیگر بی‌دکمه نیست |
 | قفل‌کردن تقویم شمسی با الگوریتم مرجع | ✅ | `test/core/jalali_reference_test.dart` (۱۳۰۰–۱۵۰۰) |
 | حذف حدس «تومان → میلیون» در `Sense.amount` | ⬜ | تغییر عدد به‌معنای تغییر حکم است |

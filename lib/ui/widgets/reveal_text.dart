@@ -7,18 +7,18 @@ class RevealText extends StatefulWidget {
   final VoidCallback? onRevealed;
 
   /// زمان نمایش هر نویسه: آهنگ نوشتنِ آرام و طبیعی، نه ظاهرشدنِ یک‌بارهٔ متن.
-  static const int msPerChar = 18;
-  static const int minMs = 250;
+  static const int msPerChar = 8;
+  static const int minMs = 200;
 
   /// پس از این تعداد نویسه، نگارش کمی تندتر می‌شود.
-  static const int slowChars = 400;
-  static const int msPerCharLong = 10;
+  static const int slowChars = 250;
+  static const int msPerCharLong = 5;
 
   /// سقف زمان نگارشِ پاسخ‌های خیلی بلند (با یک لمس هم می‌شود ردش کرد).
-  static const int maxMs = 24000;
+  static const int maxMs = 6000;
 
   /// مکث کوتاهِ «در حال فکر کردن» پیش از شروع نگارش پاسخ‌های غیرکوتاه.
-  static const int thinkMs = 500;
+  static const int thinkMs = 250;
 
   const RevealText({
     super.key,
@@ -42,7 +42,7 @@ class _RevealTextState extends State<RevealText>
   /// آخرین متنی که واقعاً نمایش داده شده و آخرین حالت «در حال فکر کردن».
   ///
   /// بازسازی ویجت فقط وقتی رخ می‌دهد که یکی از این دو عوض شود. پیش‌تر
-  /// `AnimatedBuilder` در هر فریم (۶۰ بار در ثانیه، تا ۲۴ ثانیه برای پاسخ
+  /// `AnimatedBuilder` در هر فریم (۶۰ بار در ثانیه، تا ۶ ثانیه برای پاسخ
   /// بلند) یک `SelectableText` تازه می‌ساخت و متنِ در حال رشد را از نو
   /// می‌چید.
   String _shown = '';
@@ -185,7 +185,12 @@ class _RevealTextState extends State<RevealText>
   Widget build(BuildContext context) {
     if (_text == '...') return const TypingDots();
     if (widget.message.revealed || MediaQuery.disableAnimationsOf(context)) {
-      if (!widget.message.revealed) _finish();
+      if (!widget.message.revealed) {
+        // `setState` در حین ساخت ویجت مجاز نیست؛ به فریم بعد موکول میشود.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _finish();
+        });
+      }
       return SelectableText(_text, style: widget.style);
     }
     return GestureDetector(

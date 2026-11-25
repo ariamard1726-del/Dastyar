@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
@@ -75,6 +76,58 @@ void main() {
     expect(b.advocate.file.topic, topic);
     expect(b.advocate.file.facts, facts);
     b.dispose();
+  });
+
+  test('پرونده پس از بستهشدن و بارگذاری دوبارهٔ تاریخچه هم میماند', () async {
+    final history = HistoryStore();
+    await history.load();
+    final a = make(history);
+
+    await a.submit('صاحبخونه پول پیشمو نمیده');
+    await settle();
+    final topic = a.advocate.file.topic;
+    final facts = Map<String, String>.from(a.advocate.file.facts);
+    final id = a.sessionId;
+    a.dispose();
+
+    // یک نمونهٔ تازه، مثل راهاندازی مجدد برنامه: پرونده应从 prefs خوانده
+    // شود، نه از حافظهٔ نمونهٔ قبلی.
+    final reopened = HistoryStore();
+    await reopened.load();
+    final saved = reopened.sessions.firstWhere((s) => s.id == id);
+    expect(saved.caseJson, isNotNull,
+        reason: 'پرونده در محمولهٔ ذخیرهشده نوشته نشده است');
+    final b = make(reopened);
+    b.loadSession(saved);
+    expect(b.advocate.file.topic, topic);
+    expect(b.advocate.file.facts, facts);
+    b.dispose();
+  });
+
+  test('محمولهٔ قدیمی فقط-پیامها هم خوانده میشود', () async {
+    const id = 'old-format-1';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'history_v1',
+      await PrivacyService.seal(jsonEncode({
+        'v': 2,
+        'sessions': [
+          {'id': id, 'title': 'قدیمی', 'updated': 1, 'count': 1},
+        ],
+      })),
+    );
+    await prefs.setString(
+      'history_v1:m:$id',
+      await PrivacyService.seal(
+          jsonEncode([{'t': 'صاحبخونه پول پیشمو نمیده', 'u': true}])),
+    );
+
+    final reopened = HistoryStore();
+    await reopened.load();
+    expect(reopened.sessions, hasLength(1));
+    expect(reopened.sessions.single.messages.single.text,
+        'صاحبخونه پول پیشمو نمیده');
+    expect(reopened.sessions.single.caseJson, isNull);
   });
 
   test('گفتگوی قدیمی بدون پرونده، با بازپخش پیام‌ها باز می‌شود', () async {

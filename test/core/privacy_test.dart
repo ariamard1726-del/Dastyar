@@ -38,7 +38,19 @@ void main() {
       expect(PersianText.truncate(shortEmoji, 2, ellipsis: '…'), '😀😀…');
     });
 
-    test('SHA-256 داخلی با بردار استاندارد NIST مطابقت دارد', () {
+    test('افتادن به رمزنگاری جایگزین بیص نمیماند', () async {
+    PrivacyService.fallbackUsed = false;
+    PrivacyService.lastError = null;
+
+    final sealed = await PrivacyService.seal('متن آزمایشی');
+
+    expect(sealed, startsWith(PrivacyService.fallbackPrefix));
+    expect(PrivacyService.fallbackUsed, isTrue);
+    expect(PrivacyService.lastError, isNotNull,
+        reason: 'کاربر باید بداند کلید سختافزاری در کار نبوده است');
+  });
+
+  test('SHA-256 داخلی با بردار استاندارد NIST مطابقت دارد', () {
       final digest = PrivacyService.sha256(utf8.encode('abc'));
       final hex =
           digest.map((b) => b.toRadixString(16).padLeft(2, '0')).join();

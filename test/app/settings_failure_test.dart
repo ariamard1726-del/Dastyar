@@ -40,6 +40,23 @@ void main() {
     expect(await PrivacyService.setSecureScreen(true), isFalse);
   });
 
+  test('در شروع program، خطای بومی تیک ذخیرهشده را خاموش میکند', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{'secureScreen': true});
+    messenger.setMockMethodCallHandler(PrivacyService.channel, (call) async {
+      throw PlatformException(code: 'PRIVACY_ERR', message: 'no');
+    });
+
+    final s = await AppSettings.load();
+    expect(s.secureScreen, isTrue);
+    await s.applySecureScreenAtStartup();
+    expect(s.secureScreen, isFalse, reason: 'تیک نباید دروغ بگوید');
+    expect(s.lastError, isNotNull);
+
+    final afterRestart = await AppSettings.load();
+    expect(afterRestart.secureScreen, isFalse,
+        reason: 'تیک خاموششده باید ذخیره شود');
+  });
+
   test('موفقیت، تیک را روشن می‌کند و خطایی نمی‌گذارد', () async {
     messenger.setMockMethodCallHandler(
       PrivacyService.channel,

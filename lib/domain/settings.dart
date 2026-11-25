@@ -135,6 +135,24 @@ class AppSettings extends ChangeNotifier {
     }
   }
 
+  /// در شروعprogram، تیک ذخیرهشده را با آنچه گوشی واقعاً اعمال میکند میسنجیم.
+  /// پیشتر `main` نتیجهٔ کانال بومی را نادیده میگرفت و تیک روشن میماند در حالی
+  /// که اسکرینشات آزاد بود.
+  Future<void> applySecureScreenAtStartup() async {
+    if (!secureScreen) return;
+    final applied = await PrivacyService.setSecureScreen(true);
+    if (applied) return;
+    secureScreen = false;
+    lastError = 'محافظت از صفحه روی این گوشی اعمال نشد؛ تیک آن خاموش شد.';
+    try {
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setBool('secureScreen', false);
+    } catch (_) {
+      // پیامِ خطا حتی اگر نوشتن prefs هم شکست خورد، دیده میشود.
+    }
+    notifyListeners();
+  }
+
   Future<void> setSecureScreen(bool v) async {
     final before = secureScreen;
     secureScreen = v;

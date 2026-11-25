@@ -85,5 +85,19 @@ void main() {
       expect(await DraftCheckpointStore.load(templates), isNull);
       ctrl2.dispose();
     });
+
+    test('پاک کردن قبل از ذخیره، پیشنویس تازه را از بین نميبرد', () async {
+      final session = DraftSession(templates.first)
+        ..values['court_city'] = 'تهران';
+      final clearing = DraftCheckpointStore.clear();
+      final saving = DraftCheckpointStore.save(session);
+      await Future.wait<void>([clearing, saving]);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('active_draft_v1'), isNotNull,
+          reason: 'صف باید ترتیب پاک/ذخیره را حفظ کند');
+      final restored = await DraftCheckpointStore.load(templates);
+      expect(restored?.values['court_city'], 'تهران');
+    });
   });
 }

@@ -531,6 +531,24 @@ class ShapeTests(unittest.TestCase):
             self.assertNotIn(gone, engine)
         self.assertIn('String format(Chunk c) => _text.format(c);', engine)
 
+    def test_engine_state_is_per_instance(self):
+        """بانک پرسشوپاسخ و مترادفها نباید متغیرِ سراسری شوند.
+
+        متغیرِ سراسری یعنی دو `KnowledgeEngine` همدیگر را پاک میکنند؛ علاوهبر
+        این، نوشتنِ `static` در سطحِ بالای فایل اصلاً Dart معتبر نیست.
+        """
+        engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
+        for decl in ('LawTopicPrior _lawPrior', 'QaBank _qaBank',
+                     'Map<String, dynamic> _legalTerms',
+                     'List<Map<String, dynamic>> _topicFlows',
+                     'final List<List<String>> _syn'):
+            self.assertIn('\n  ' + decl, engine,
+                          '%s باید عضوِ نمونه باشد' % decl)
+            self.assertNotIn('\n' + decl, engine,
+                             '%s دوباره سراسری شد' % decl)
+        self.assertNotIn('\nstatic String _phrase', engine,
+                         'static نمیتواند در سطحِ بالای فایل باشد')
+
     def test_engine_does_not_own_law_names(self):
         """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
         # موتور سه بخش است (کلاس + بارگذار + پاسخ‌ساز)؛ کلِ کتابخانه خوانده
@@ -595,6 +613,23 @@ class ShapeTests(unittest.TestCase):
     def test_part_files_exist(self):
         for part in re.findall(r"^part '([^']+)'", self.src, re.M):
             self.assertTrue(os.path.exists(os.path.join(ADVOCATE_DIR, part)), part)
+
+    def test_only_one_topic_guesser_runs_per_turn(self):
+        """Noql و IntentNet نباید هر دو روی همان پیام حکم دهند.
+
+        Noql (که هزینهٔ محاسباتی دارد) مقدم است؛ IntentNet تنها وقتی صدا
+        زده میشود که حدسی از Noql نرسیده باشد. همزمانی دو «نظر دوم» یعنی
+        دو منبع حقیقت برای همان جمله.
+        """
+        case_reply = _read(os.path.join(ADVOCATE_DIR, 'advocate_reply_case.dart'))
+        controller = _read(CONTROLLER)
+        self.assertIn('if (guess == null) {', case_reply,
+                      'IntentNet باید فقط در نبودِ حدس Noql پرسیده شود')
+        self.assertIn('wantsGuess(text)', controller,
+                      'خوانندهٔ Noql فقط وقتی لازم است صدا زده شود')
+        # ترتیب هم مهم است: نظر دوم نباید بالاتر از حدس مطمئن Noql بیاید.
+        self.assertLess(case_reply.index('usable.confident'),
+                        case_reply.index('if (guess == null) {'))
 
 
 if __name__ == '__main__':

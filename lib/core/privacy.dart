@@ -20,6 +20,21 @@ class PrivacyService {
   static const String fallbackPrefix = 'encf1:';
   static const String _fallbackKeyPref = '__dastyar_local_key_v1';
 
+  /// مسیر جایگزین به کار افتاد؟ فراخوانندهها (صفحهٔ وضعیت) حق دارند بدانند
+  /// که «رمزنگاری سختافزاری» تنها یک شعار نماند.
+  static bool fallbackUsed = false;
+
+  /// علت آخرین استفاده از مسیر جایگزین (یا شکست کانال بومی).
+  static String? lastError;
+
+  static void _markFallback(Object? error) {
+    fallbackUsed = true;
+    lastError = error == null
+        ? 'رمزنگاری سختافزاری در دسترس نبود؛ از رمزنگاری جایگزین روی همین '
+            'دستگاه استفاده شد. کلید جایگزین در حافظهٔ محلی برنامه است.'
+        : 'رمزنگاری سختافزاری خطا داد ($error)؛ از مسیر جایگزین استفاده شد.';
+  }
+
   static bool isEncrypted(String payload) =>
       payload.startsWith(nativePrefix) || payload.startsWith(fallbackPrefix);
 
@@ -31,10 +46,12 @@ class PrivacyService {
         'text': plain,
       });
       if (res != null && res.isNotEmpty) return res;
-    } on MissingPluginException {
+    } on MissingPluginException catch (e) {
       // محیط تست واحد یا سکوی فاقد کانال اندروید
-    } on PlatformException {
+      _markFallback(e);
+    } on PlatformException catch (e) {
       // در صورت خطای کانال بومی از رمزنگاری جایگزین استفاده می‌شود
+      _markFallback(e);
     }
     return _fallbackSeal(plain);
   }
@@ -48,11 +65,13 @@ class PrivacyService {
         return await channel.invokeMethod<String>('open', <String, Object?>{
           'payload': payload,
         });
-      } catch (_) {
+      } catch (e) {
+        _markFallback(e);
         return null;
       }
     }
     if (payload.startsWith(fallbackPrefix)) {
+      _markFallback(null);
       return _fallbackOpen(payload);
     }
     // دادهٔ قدیمیِ رمزنشده (مهاجرت شفاف)

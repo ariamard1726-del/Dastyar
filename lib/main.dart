@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -31,9 +29,8 @@ Future<void> main() async {
     } catch (_) {}
   });
   final settings = await AppSettings.load();
-  if (settings.secureScreen) {
-    await PrivacyService.setSecureScreen(true);
-  }
+  // اگر گوشی FLAG_SECURE را اعمال نکند، تیک ذخیرهشده نباید دروغ بگوید.
+  await settings.applySecureScreenAtStartup();
   runApp(DastyarApp(settings: settings));
 }
 
@@ -132,7 +129,11 @@ class _LoaderState extends State<Loader> {
 
   /// خوانندهٔ موضوع (مدل برداری Noql). در پس‌زمینه بار می‌شود تا بالاآمدن
   /// برنامه را کند نکند؛ تا آماده نشده، وکیل فقط با قاعده‌ها کار می‌کند.
+  /// خوانندهٔ موضوع (مدل برداری Noql). ۱۲ مگابایت وزن دارد؛ بارش آن تا
+  /// نخستین پیامی که قاعدهها نتوانستند موضوعش را بفهمند به تأخیر میافتد تا
+  /// استارتآپ سریعتر و مصرف حافظهٔ همزمان کمتر شود.
   ReaderService? _reader;
+  Future<ReaderService?>? _readerStarting;
   bool _readerTried = false;
   bool _ready = false;
   String? _error;
@@ -149,7 +150,32 @@ class _LoaderState extends State<Loader> {
     super.dispose();
   }
 
-  Future<TopicGuess?> _guess(String text) async => _reader?.read(text);
+  Future<TopicGuess?> _guess(String text) async {
+    final reader = await _ensureReader();
+    return reader?.read(text);
+  }
+
+  /// تنها یک بار بارگذاری آغاز میشود، حتی اگر چند پیام پشت سر هم حدس بخواهند.
+  Future<ReaderService?> _ensureReader() async {
+    final ready = _reader;
+    if (ready != null) return ready;
+    final starting = _readerStarting;
+    if (starting != null) return starting;
+    _readerTried = true;
+    final future = ReaderService.start();
+    _readerStarting = future;
+    try {
+      final r = await future;
+      if (!mounted) {
+        r?.dispose();
+        return null;
+      }
+      _reader = r;
+      return r;
+    } finally {
+      _readerStarting = null;
+    }
+  }
 
   String _fa(int n) => PersianText.toFaDigits(n.toString());
 
@@ -157,9 +183,13 @@ class _LoaderState extends State<Loader> {
     final r = _reader;
     if (r == null) {
       return [
-        _readerTried
-            ? 'مدل برداری بار نشد؛ برنامه فقط با قاعده‌های خودش پیام را می‌فهمد.'
-            : 'مدل برداری هنوز در حال آماده‌شدن است.',
+        if (!_readerTried)
+          'مدل برداری هنوز بار نشده است؛ فقط وقتی قاعدهها موضوع پیامی را '
+          'نشناختند بار میشود تا استارتآپ و حافظه صرفهجویی شود.'
+        else if (_readerStarting != null)
+          'مدل برداری در حال آمادهشدن است.'
+        else
+          'مدل برداری بار نشد؛ برنامه فقط با قاعدههای خودش پیام را میفهمد.',
       ];
     }
     final g = r.last;
@@ -172,14 +202,6 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> _init() async {
-    unawaited(ReaderService.start().then((r) {
-      _readerTried = true;
-      if (mounted) {
-        _reader = r;
-      } else {
-        r?.dispose();
-      }
-    }));
     // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
     // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
     final problems = <String>[];
@@ -217,6 +239,11 @@ class _LoaderState extends State<Loader> {
     if (historyError != null) problems.add('تاریخچه: $historyError');
     if (_repo.problems.isNotEmpty) {
       problems.add('${_repo.problems.length} قالب سند خوانده نشد.');
+    }
+    // سکوت در مورد افتادن به رمزنگاری جایگزین بدترین حالت است: کاربر فکر
+    // میکند کلید روی سختافزار است، در حالی که در حافظهٔ محلی برنامه است.
+    if (PrivacyService.fallbackUsed && PrivacyService.lastError != null) {
+      problems.add(PrivacyService.lastError!);
     }
     _error = problems.isEmpty ? null : problems.join('\n');
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {

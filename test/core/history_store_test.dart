@@ -141,5 +141,24 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(store.sessions.single.messages.length, HistoryStore.maxMessages);
     expect(prefs.getString('history_v1:m:s1'), isNotNull);
+    expect(store.lastNotice, isNotNull,
+        reason: 'کوتاهشدن گفتگو نباید بیص بماند');
+  });
+
+  test('صدور متنی، پیامها را با برچسب گوینده نگه میدارد', () {
+    final text = HistoryStore.exportText([
+      ChatSession(
+        id: 's1',
+        title: 'ودیعه',
+        updated: 1,
+        messages: [
+          StoredMsg('صاحبخونه پولمو نمیده', true),
+          StoredMsg('چه مدتی است؟', false),
+        ],
+      ),
+    ]);
+    expect(text, contains('# ودیعه'));
+    expect(text, contains('شما: صاحبخونه پولمو نمیده'));
+    expect(text, contains('دستیار: چه مدتی است؟'));
   });
 }
