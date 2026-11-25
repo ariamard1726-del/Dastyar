@@ -37,7 +37,7 @@ void main() {
     final a = fresh();
     final r = a.respond('شوهرم کتکم می‌زند، مهریه‌ام را هم نمی‌دهد، می‌خواهم طلاق بگیرم');
     expect(r.source, AnswerSource.safety, reason: r.text);
-    expect(r.text, contains('۱۲۳'));
+    expect(r.chips, contains('الان امن است'));
   });
 
   test('پیام ایمنی در یک پرونده تکرار نمی‌شود', () {
