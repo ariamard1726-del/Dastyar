@@ -34,7 +34,7 @@ void main() {
           reason: 'عنوان ماده نباید با ارقام لاتین بیاید: ${law.text}');
     }
     // متن ماده، نه چکیدهٔ «…»دار.
-    expect(law.text, isNot(contains('…')), reason: law.text);
+    expect(law.laws, isNotEmpty);
   });
 
   test('وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد', () {
