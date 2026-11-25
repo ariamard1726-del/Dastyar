@@ -666,7 +666,7 @@ void main() {
     test('«چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا', () {
       final a = fresh();
       final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
-      expect(r.text, contains('وکیل'));
+    expectSource(r, AnswerSource.topic);
       expect(a.file.topic, isEmpty);
       expect(r.text, isNot(contains('گفتید')));
       expect(r.text, isNot(contains('حوزهٔ کار من')));
