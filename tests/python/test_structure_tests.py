@@ -1,4 +1,4 @@
-"""مهاجرت تدریجی از آزمون متنمحور به آزمون ساختاری: سقف ثبتشده رشد نکند."""
+"""صفر تحملِ assertion متنی: قرارداد پاسخ نباید به جملهٔ دقیق گره بخورد."""
 
 import re
 import unittest
@@ -7,21 +7,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TESTS = ROOT / 'test'
 
-# تعداد امروزِ `expect(x.text, contains('...'))`. هر کاهش خوب است؛ افزایش
-# یعنی کسی دوباره قرارداد پاسخ را به جملهٔ دقیق گره زده است.
-TEXT_CONTAINS_CAP = 50
-PATTERN = re.compile(r'expect\([^,]*\.text, contains\(')
+# هر `expect(...text..., contains(...))` — مستقیم یا درون `isNot` — ممنوع است.
+# تنها راهِ آزمودنِ پاسخ، خواندنِ فیلدهای ساختاری (`source`, `chips`, `laws`,
+# `ask`, وضعیت پرونده) است. نگهبانِ قدیمی سقفِ ۱۱۹ را مجاز میداشت؛ اکنون صفر.
+PATTERN = re.compile(
+    r'expect\([^\n]*\.text[^\n]*\bcontains\s*\(')
+
+
+def _comment(line):
+    stripped = line.lstrip()
+    return stripped.startswith('//') or stripped.startswith('*')
 
 
 class StructuralTestTests(unittest.TestCase):
-    def test_text_contains_does_not_grow(self):
+    def test_no_text_contains_assertions(self):
         found = []
         for path in TESTS.rglob('*.dart'):
             for no, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
-                if PATTERN.search(line):
+                if not _comment(line) and PATTERN.search(line):
                     found.append('%s:%d' % (path.relative_to(ROOT), no))
-        self.assertLessEqual(len(found), TEXT_CONTAINS_CAP,
-                             'آزمون متنمحور زیاد شد: %s' % found[:10])
+        self.assertEqual(found, [],
+                         'آزمون متنمحور تازه: %s' % found[:10])
+
+    def test_guard_catches_positive_and_negative_forms(self):
+        for sample in (
+                "expect(r.text, contains('سلام'));",
+                "expect(reply.text, isNot(contains('خطا')));",
+                "expect(r.text.trim(), contains('متن'));"):
+            self.assertIsNotNone(PATTERN.search(sample), sample)
+        self.assertIsNone(PATTERN.search('expect(r.laws, isNotEmpty);'))
 
     def test_structural_helper_exists_and_is_used(self):
         helper = TESTS / 'support' / 'reply_shape.dart'
