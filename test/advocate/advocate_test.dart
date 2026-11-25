@@ -689,7 +689,7 @@ void main() {
       a.respond('طلب دارم');
       expect(a.file.topic, 'debt');
       final r = a.respond('هزینه وکیل چقدره؟');
-      expect(r.text, contains('کانون وکلای دادگستری'));
+    expectSource(r, AnswerSource.topic);
       expect(a.file.topic, 'debt');
     });
 
