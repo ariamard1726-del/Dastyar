@@ -1,6 +1,3 @@
-✅ test/advocate/advocate_test.dart: پرسش بی‌ربط به حقوق را به متن قانون وصل نمی‌کند
-✅ test/advocate/advocate_test.dart: نقشهٔ راه را دو بار پشت هم تکرار نمی‌کند
-✅ test/advocate/advocate_test.dart: احضاریهٔ بی‌عنوان: از ماجرایی که نمی‌داند سؤال نمی‌پرسد
 ✅ test/advocate/advocate_test.dart: استدلال: شرط‌های قانونی روی واقعیت‌های همین پرونده سنجیده می‌شود
 ✅ test/advocate/advocate_test.dart: برداشتش از حرف کاربر را بازگو می‌کند («چی فهمیدی؟»)
 ✅ test/advocate/advocate_test.dart: دامنهٔ تازه: هر ده موضوع جدید درست تشخیص داده می‌شود
@@ -40,6 +37,9 @@
 ✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
 ✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
+✅ test/advocate/case_model_test.dart: نُه نام، از یک import
+✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
+✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
@@ -197,4 +197,4 @@
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-🎉 235 tests passed.
+🎉 238 tests passed.
