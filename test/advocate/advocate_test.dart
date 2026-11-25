@@ -509,7 +509,7 @@ void main() {
         expect(a.file.topic, isNotEmpty, reason: o);
         expect(r.text.length, lessThan(700), reason: o);
         expect(r.text.trimRight(), endsWith('؟'), reason: o);
-    expectSource(r, AnswerSource.topic);
+        expectSource(r, AnswerSource.topic);
     expectSource(r, AnswerSource.topic);
     expectSource(r, AnswerSource.topic);
       }
@@ -531,9 +531,9 @@ void main() {
       final a = fresh();
       final r = a.respond('صاحبخونه پول پیشمو نمیده');
       expect(r.laws, isNotEmpty);
-    expect(r.laws, isNotEmpty);
+      expect(r.laws, isNotEmpty);
       final law = a.respond(ChipTexts.lawChip);
-    expectCited(law);
+      expectCited(law);
     expectCited(law);
       expect(a.file.topic, 'rent');
     });
@@ -600,7 +600,7 @@ void main() {
       final a = fresh();
       final r = a.respond('صاحبخونه میخواد کرایه رو ببره بالا');
       expect(a.file.topic, 'rent');
-    expect(r.chips, isNotEmpty);
+      expect(r.chips, isNotEmpty);
     expect(r.chips, isNotEmpty);
     expect(r.chips, isNotEmpty);
       expect(r.text.trimRight(), endsWith('؟'));
@@ -611,10 +611,10 @@ void main() {
       final r = a.respond('با صاحبخونه سر اجاره به مشکل خوردم');
       expect(a.file.topic, 'rent');
       expect(a.file.pending, 'matter');
-    expect(a.file.pending, isNot('vacated'));
+      expect(a.file.pending, isNot('vacated'));
       expect(r.chips, contains('می‌خواهد اجاره را زیاد کند'));
       final next = a.respond('می‌خواهد اجاره را زیاد کند');
-    expect(next.chips, isNotEmpty);
+      expect(next.chips, isNotEmpty);
       expect(a.file.pending, isNot('vacated'));
     });
 
@@ -623,7 +623,7 @@ void main() {
       a.respond('دوستم ازم پول قرض گرفته پس نمیده');
       final r = a.respond('میخوام با توافق تموم بشه');
       expect(a.file.covered, contains('q:goal'));
-    expect(a.file.covered, contains('q:goal'));
+      expect(a.file.covered, contains('q:goal'));
       expect(r.text.trimRight(), endsWith('؟'));
       expect(a.unresolved, isEmpty);
     });
@@ -666,21 +666,21 @@ void main() {
     test('«چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا', () {
       final a = fresh();
       final r = a.respond('چه کارهایی می‌توانی انجام بدهی؟');
-    expectSource(r, AnswerSource.topic);
+      expectSource(r, AnswerSource.topic);
       expect(a.file.topic, isEmpty);
-    expect(a.file.topic, isEmpty);
+      expect(a.file.topic, isEmpty);
     expectSource(r, AnswerSource.topic);
     });
 
     test('«چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه', () {
       final a = fresh();
       final r = a.respond('چه کاری می‌توانم بکنم؟');
-    expect(r.laws, isEmpty);
+      expect(r.laws, isEmpty);
     });
 
     test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
       final r = fresh().respond('وکیل کجا پیدا کنم؟');
-    expectSource(r, AnswerSource.topic);
+      expectSource(r, AnswerSource.topic);
     expectSource(r, AnswerSource.topic);
     });
 
@@ -689,13 +689,13 @@ void main() {
       a.respond('طلب دارم');
       expect(a.file.topic, 'debt');
       final r = a.respond('هزینه وکیل چقدره؟');
-    expectSource(r, AnswerSource.topic);
+      expectSource(r, AnswerSource.topic);
       expect(a.file.topic, 'debt');
     });
 
     test('پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد', () {
       final r = fresh().respond('مهلت شکایت چقدره؟');
-    expectSource(r, AnswerSource.topic);
+      expectSource(r, AnswerSource.topic);
     expect(r.chips, isNotEmpty);
     });
   });
