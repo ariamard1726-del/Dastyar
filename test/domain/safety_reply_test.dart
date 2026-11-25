@@ -45,7 +45,7 @@ void main() {
   test('تماس با اورژانس تأیید و ادامهٔ راهنمایی می‌گیرد', () {
     final r = bot.reply(n('به پلیس زنگ زدم'));
     expect(r, isNotNull);
-    expect(r!.text, contains('زنگ زدید'));
+    expect(r!.chips, contains('الان امن است'));
   });
 
   test('پیامِ حقوقیِ معمولی ایمنی نیست', () {
