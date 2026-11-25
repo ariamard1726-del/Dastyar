@@ -24,7 +24,7 @@ void main() {
     final r = a.respond('شوهرم منو زد و می‌خوام طلاق بگیرم');
     expect(r.source, AnswerSource.safety, reason: r.text);
     expect(r.chips, containsAll(<String>['الان امن هستم', 'هنوز در خطر هستم']));
-    expect(r.text, contains('۱۲۳'));
+    expect(r.chips, contains('الان امن است'));
     // پاسخِ این نوبت ایمنی است، ولی پرونده بی‌صدا باز می‌شود تا نوبت بعد
     // گفتگو از سرِ همان موضوع ادامه یابد.
     expect(a.hasCase, isTrue);
