@@ -30,6 +30,8 @@ class CoverageGateTests(unittest.TestCase):
         self.assertIn('tools/coverage_gate.py coverage/lcov.info --min', wf)
         self.assertIn('reports/coverage.txt', wf)
         self.assertIn('run-id: ${{ github.run_id }}', wf)
+        self.assertIn('test-reports-${{ github.run_id }}', wf)
+        self.assertIn('${GITHUB_SHA:0:7}', wf)
 
 
 if __name__ == '__main__':

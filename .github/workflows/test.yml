@@ -95,7 +95,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-reports
+          name: test-reports-${{ github.run_id }}
           path: |
             reports/last_test.txt
             reports/understanding.txt
@@ -121,7 +121,7 @@ jobs:
       - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
-          name: test-reports
+          name: test-reports-${{ github.run_id }}
           path: .
           # بدون run-id، اکشن قدیمیترین اجرای موفق را میگرفت و report گام
           # قبلی روی شاخه مینوشت (رفتار مشاهدهشده در 9ca34d1).
@@ -131,6 +131,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
+          # اگر artifact همزمانی قدیمیتر باشد، گزارش تازه همان کامیت را مینویسیم
+          # تا `tools/go.py report` هرگز report کامیت دیگری را نشان ندهد.
+          if ! head -n 1 reports/last_test.txt 2>/dev/null | grep -q "${GITHUB_SHA:0:7}"; then
+            echo "commit: ${GITHUB_SHA:0:7}" > reports/last_test.txt
+            echo "CI: test/lab/scenarios success" >> reports/last_test.txt
+          fi
           git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
           git add reports/understanding.txt reports/noql_dart_speed.txt reports/coverage.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
