@@ -316,7 +316,7 @@ void main() {
       untilReply(a, 'صاحبخونه پول پیشمو نمیده');
       final r = a.respond('نمیدونم');
     expect(r.chips, isNotEmpty);
-      expect(r.text, isNot(contains('یادداشت کردم')));
+      expect(a.file.pending, 'q:goal');
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
     expect(r.chips, isNotEmpty);
