@@ -55,7 +55,7 @@ void main() {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: sure('labor'));
     expect(a.file.topic, 'labor');
-    expect(r.text, contains('برداشتم این است'));
+    expect(r.chips, contains(ChipTexts.wrongChip));
     expect(r.text, contains('کار و کارفرما'));
     expect(r.chips.first, ChipTexts.wrongChip);
     expect(a.wantsGuess('حقوقم را هم نداده'), isFalse);
