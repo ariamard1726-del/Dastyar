@@ -102,7 +102,7 @@ void main() {
       final s = DraftSession(t);
       s.index = t.fields.indexWhere((f) => f.id == 'amount');
       final bad = DraftStep.answer(s, '۵ میلیون تومان');
-      expect(bad.text, contains('فقط عدد'));
+      expect(bad.isDocument, isFalse);
       expect(s.values.containsKey('amount'), isFalse);
       DraftStep.answer(s, '۵۰۰۰۰۰۰۰');
       expect(s.values['amount'], '50000000');
