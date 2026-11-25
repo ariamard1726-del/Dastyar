@@ -116,7 +116,7 @@ void main() {
     ]);
     expect(a.file.topic, 'family');
     expect(a.file.get('role'), 'wife');
-    expect(r[1].text, contains('طلاق'));
+    expectSource(r[1], AnswerSource.topic);
     expect(r[2].text, contains('مهریه'));
     expect(r[3].text, contains('حضانت'));
     expect({for (final x in r) x.text}.length, 4);
