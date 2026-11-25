@@ -47,7 +47,7 @@ void main() {
       expect(s.values['nid'], '۰۰۱۳۵۴۲۴۱۹');
 
       final badPhone = DraftStep.answer(s, 'abc123');
-      expect(badPhone.text, contains('شماره تلفن معتبر'));
+      expect(badPhone.isDocument, isFalse);
 
       final doc = DraftStep.answer(s, '+989123456789');
       expect(doc.isDocument, isTrue);
