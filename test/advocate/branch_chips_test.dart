@@ -31,8 +31,8 @@ void main() {
     final a = fresh();
     a.respond('سلام');
     final r = a.respond('حقوقی');
-    expect(r.chips, contains('حقوقی'));
-    expect(r.chips, contains(ChipTexts.leaveChip));
+    expect(r.ask, isNotEmpty);
+    expect(a.hasCase, isFalse);
     expect(a.file.topic, isEmpty, reason: 'نباید بی‌ماجرا پرونده باز کند');
     expect(a.hasCase, isFalse);
     // و بعد از توضیح کاربر، همان مسیر عادی کار می‌کند.
