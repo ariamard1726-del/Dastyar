@@ -542,6 +542,54 @@ def cmd_bundle():
     return 0
 
 
+# ---------------------------------------------------------------- noql
+NOQL_REQUIRED = (
+    'assets/brain/noql.bin',
+    'assets/brain/noql_vocab.json',
+    'assets/brain/noql_head.json',
+    'assets/brain/noql_licenses.txt',
+)
+NOQL_READER_PATHS = {
+    'weightsAsset': 'assets/brain/noql.bin',
+    'vocabAsset': 'assets/brain/noql_vocab.json',
+    'headAsset': 'assets/brain/noql_head.json',
+}
+
+
+def _covered(entries, rel):
+    """آیا مسیر توسط یک ورودیexact یا یک پوشهٔ بستهبندیشده پوشش میشود؟"""
+    return any(e == rel or (e.endswith('/') and rel.startswith(e))
+               for e in entries)
+
+
+def noql_bundle_problems(entries):
+    bad = []
+    for rel in NOQL_REQUIRED:
+        path = os.path.join(ROOT, rel.replace('/', os.sep))
+        if not os.path.isfile(path) or os.path.getsize(path) == 0:
+            bad.append(rel + ': فایل پاک یا خالی است')
+        elif not _covered(entries, rel):
+            bad.append(rel + ': وارد pubspec.yaml نمیشود')
+    return bad
+
+
+def cmd_noql():
+    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    reader = open(os.path.join(
+        ROOT, 'lib', 'domain', 'understanding', 'reader_service.dart'),
+        encoding='utf-8').read()
+    bad = noql_bundle_problems(bundle_entries(pubspec))
+    for name, rel in NOQL_READER_PATHS.items():
+        if "static const String %s = '%s';" % (name, rel) not in reader:
+            bad.append('reader_service.dart: %s به %s اشاره نمیکند' % (name, rel))
+    if bad:
+        print('خطا: دارایی اصلی Noql آسیب دید:', *bad, sep='\n  ')
+        return 1
+    print('noql OK: %d فایل موجود، بستهبندیشده و مورد استفاده ReaderService.'
+          % len(NOQL_REQUIRED))
+    return 0
+
+
 # ---------------------------------------------------------------- main
 COMMANDS = {
     'corpus': cmd_corpus,
@@ -557,6 +605,7 @@ COMMANDS = {
     'debt': cmd_debt,
     'text': cmd_text,
     'bundle': cmd_bundle,
+    'noql': cmd_noql,
 }
 
 
