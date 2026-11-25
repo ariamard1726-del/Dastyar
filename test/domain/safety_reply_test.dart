@@ -27,7 +27,7 @@ void main() {
     final r = bot.reply(n('الان در خطر هستم'));
     expect(r, isNotNull);
     expect(r!.source, AnswerSource.safety);
-    expect(r!.chips, contains('الان امن هستم'));
+    expect(r.chips, contains('الان امن هستم'));
     expect(bot.asksDanger(n('الان در خطر هستم')), isTrue);
   });
 
