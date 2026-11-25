@@ -48,7 +48,7 @@ void main() {
   test('پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد', () {
     final a = fresh();
     final r = a.respond(longStory);
-    expect(r.laws, isNotEmpty);
+    expect(r.chips, isNotEmpty);
     expect(a.file.topic, 'family');
   });
 
