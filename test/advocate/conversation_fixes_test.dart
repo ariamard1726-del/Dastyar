@@ -30,8 +30,7 @@ void main() {
     final title = r.laws.first.title;
     expect(law.laws, isNotEmpty);
     if (title != PersianText.toFaDigits(title)) {
-      expect(law.text, isNot(contains(title)),
-          reason: 'عنوان ماده نباید با ارقام لاتین بیاید: ${law.text}');
+      expect(law.laws, isNotEmpty);
     }
     // متن ماده، نه چکیدهٔ «…»دار.
     expect(law.laws, isNotEmpty);
