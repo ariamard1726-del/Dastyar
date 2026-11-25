@@ -243,7 +243,7 @@ void main() {
       final a = fresh();
       final r = a.respond(
           'میخوام قبل از پایان قرارداد بلند شم صاحبخونه قبول نمیکنه');
-      expect(a.file.get('matter'), 'leave');
+          expect(a.file.get('matter'), 'leave');
       expect(a.file.get('matter'), 'leave');
     });
   });
@@ -253,7 +253,7 @@ void main() {
       final a = fresh();
       final r = untilReply(a, 'صاحبخونه پول پیشمو نمیده');
       expect(a.file.pending, 'q:reply');
-    expect(r.chips, isNotEmpty);
+      expect(r.chips, isNotEmpty);
       expect(
           r.chips,
           containsAll(
@@ -315,11 +315,11 @@ void main() {
       final a = fresh();
       untilReply(a, 'صاحبخونه پول پیشمو نمیده');
       final r = a.respond('نمیدونم');
-    expect(r.chips, isNotEmpty);
+      expect(r.chips, isNotEmpty);
       expect(a.file.pending, 'q:goal');
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
-    expect(r.chips, isNotEmpty);
+      expect(r.chips, isNotEmpty);
       expect(a.file.pending, 'q:goal');
     });
 
