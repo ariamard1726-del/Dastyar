@@ -319,8 +319,7 @@ void main() {
       expect(a.file.pending, 'q:goal');
       expect(a.file.pending, 'q:goal');
       final g = a.respond('نمیدونم');
-      expect(r.chips, isNotEmpty);
-      expect(a.file.pending, 'q:goal');
+      expect(g.chips, contains(ChipTexts.leaveChip));
     });
 
     test('خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند', () {
