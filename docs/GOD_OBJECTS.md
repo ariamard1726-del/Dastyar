@@ -100,7 +100,7 @@
 | فایل | خط | مسئولیت |
 |---|---|---|
 | `engine.dart` | **۲۰۸** | وضعیت + API: پاس دهندههای یک خطی برای آنچه در بخشهاست |
-| `engine_load.dart` | **۲۵۳** | تنها جایی که دارایی خوانده میشود: `load` و بارگذاریهای `_load*` |
+| `engine_load.dart` | **۲۵۷** | تنها جایی که دارایی خوانده میشود: `load` و بارگذاریهای `_load*` |
 | `engine_query.dart` | **۳۰۷** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
 | `engine_worker.dart` | **۱۱۶** | همان پاسخسازی در isolate دائمی؛ API همگام دستنخورده |
 

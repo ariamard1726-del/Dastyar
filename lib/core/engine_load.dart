@@ -93,8 +93,8 @@ Future<void> _loadLawTopics() async {
     final t = await rootBundle.loadString('assets/brain/law_topics.json');
     _lawTopicsRaw = jsonDecode(t);
     if (_lawTopicsRaw != null) {
-    _lawPrior = LawTopicPrior.fromJson(_lawTopicsRaw);
-  }
+      _lawPrior = LawTopicPrior.fromJson(_lawTopicsRaw);
+    }
   } catch (e) {
     warnings.add('law_topics.json: $e');
   }
@@ -217,7 +217,9 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
   if (data['replies'] is Map<String, dynamic>) {
     replies.setOverridesRaw(data['replies'] as Map<String, dynamic>);
   }
-  _lawPrior = LawTopicPrior.fromJson(data['lawTopics']);
+  if (data['lawTopics'] != null) {
+    _lawPrior = LawTopicPrior.fromJson(data['lawTopics']);
+  }
   _qaBank = QaBank.empty;
   _legalTerms = const {};
   _topicFlows = const [];
