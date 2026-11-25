@@ -220,12 +220,19 @@ class ChatController extends ChangeNotifier {
       }
       lastGuess = guess ?? lastGuess;
     }
-    // پاسخسازی و بازیابی مواد همگاماند و روی رشتهٔ رابط کاربری اجرا میشوند.
-    // یک چرخهٔ event به رابط فرصت میدهد پیام کاربر و حالت «در حال خواندن» را
-    // قبل از شروع محاسبه رسم کند؛ محاسبه همچنان همگام است ولی چشمک نمیزند.
+    // worker بازیابی و رتبهبندی مواد در isolate موتور انجام میشود؛
+    // رابط تنها جواب آماده را میگیرد. اگر worker نبود یا خطا داد، وکیل همان
+    // مسیر همگام پیشین را میگیرد.
     await Future<void>.delayed(Duration.zero);
     if (_disposed || gen != _generation) return;
-    final r = advocate.respond(text, guess: guess);
+    EngineReply? prepared;
+    try {
+      prepared = await engine.prepareQuery(text);
+    } catch (_) {
+      prepared = null;
+    }
+    if (_disposed || gen != _generation) return;
+    final r = advocate.respond(text, guess: guess, engineReply: prepared);
     if (!shown) messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
     unawaited(_saveSession());

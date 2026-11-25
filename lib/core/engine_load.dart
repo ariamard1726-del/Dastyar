@@ -44,6 +44,7 @@ Future<void> _loadReplies() async {
   try {
     final t = await rootBundle.loadString('assets/replies.json');
     final m = jsonDecode(t) as Map<String, dynamic>;
+    _repliesRaw = m;
     replies.setOverridesRaw(m);
   } catch (e) {
     warnings.add('replies.json: $e');
@@ -90,7 +91,10 @@ Future<void> _loadLawTopics() async {
   _lawPrior = LawTopicPrior.empty;
   try {
     final t = await rootBundle.loadString('assets/brain/law_topics.json');
-    _lawPrior = LawTopicPrior.fromJson(jsonDecode(t));
+    _lawTopicsRaw = jsonDecode(t);
+    if (_lawTopicsRaw != null) {
+    _lawPrior = LawTopicPrior.fromJson(_lawTopicsRaw);
+  }
   } catch (e) {
     warnings.add('law_topics.json: $e');
   }
@@ -118,7 +122,7 @@ Future<List<String>?> _loadKnowledgeChunk() async {
   }
 }
 
-Future<void> load() async {
+Future<void> load({bool startWorker = false}) async {
   _index.clear();
   catalog.clear();
   categoryNames.clear();
@@ -168,13 +172,56 @@ Future<void> load() async {
     if (item != null) raw.add(item);
   }
 
-  IndexBuild built;
-  try {
-    built = await LawIndex.buildAsync(raw);
-  } catch (_) {
-    built = LawIndex.build(raw); // اگر Isolate شکست خورد، روی همین رشته
-  }
+  // Worker ایندکس را در isolate خودش میسازد و همانجا نگه میدارد تا پرسشها
+  // روی رشتهٔ رابط کاربری اجرا نشوند. یک کپی از ایندکس برای APIهای همگام
+  // (متن ماده، دکمهها) به این نمونه برگردانده میشود.
+  final data = <String, dynamic>{
+    'raw': raw,
+    'catalog': catalog,
+    'meta': meta,
+    'replies': _repliesRaw,
+    'synonyms': [for (final r in _syn) List<String>.from(r)],
+    'relationships': _relationships,
+    'lawTopics': _lawTopicsRaw,
+  };
+  _worker?.dispose();
+  _worker = startWorker ? await EngineWorker.start(data) : null;
+  final built = _worker?.built ?? await _buildFallback(raw);
   _index.adopt(built);
+}
+
+/// اگر isolate راهاندازی نشد، همان مسیر پیشین (ساخت ایندکس در isolate موقت،
+/// و در صورت شکست آن روی همین رشته) استفاده میشود.
+Future<IndexBuild> _buildFallback(List<List<String>> raw) async {
+  try {
+    return await LawIndex.buildAsync(raw);
+  } catch (_) {
+    return LawIndex.build(raw);
+  }
+}
+
+/// پیادهسازیِ داخل worker: همان دادهها را میپذیرد و ایندکس را همانجا میسازد.
+IndexBuild adoptWorkerData(Map<String, dynamic> data) {
+  catalog
+    ..clear()
+    ..addAll((data['catalog'] as List?)?.cast<CatalogLaw>() ?? const <CatalogLaw>[]);
+  meta.clear();
+  final m = data['meta'];
+  if (m is Map<String, dynamic>) meta.addAll(m);
+  _relationships = data['relationships'] is Map<String, dynamic>
+      ? Map<String, dynamic>.from(data['relationships'] as Map<String, dynamic>)
+      : const <String, dynamic>{};
+  _syn
+    ..clear()
+    ..addAll((data['synonyms'] as List?)?.cast<List<String>>() ?? const <List<String>>[]);
+  if (data['replies'] is Map<String, dynamic>) {
+    replies.setOverridesRaw(data['replies'] as Map<String, dynamic>);
+  }
+  _lawPrior = LawTopicPrior.fromJson(data['lawTopics']);
+  _qaBank = QaBank.empty;
+  _legalTerms = const {};
+  _topicFlows = const [];
+  return LawIndex.build((data['raw'] as List).cast<List<String>>());
 }
 
 Future<void> _loadSynonyms() async {

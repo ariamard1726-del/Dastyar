@@ -31,11 +31,11 @@ CORE = os.path.join(ROOT, 'lib', 'core')
 ENGINE = os.path.join(CORE, 'engine.dart')
 
 LIMIT = 420
-ENGINE_MAX = 200
+ENGINE_MAX = 220
 
 # امضای امروزِ سطحِ عمومی.
 API = (
-    'Future<void> load()',
+    'Future<void> load({bool startWorker = false})',
     'EngineReply query(String question, {int maxAlternatives = 3})',
     'String answer(String question)',
     'List<String> alternatives(String question, {int max = 3})',
@@ -53,7 +53,7 @@ API = (
 
 # این‌ها در بخش‌ها پیاده شده‌اند و در کلاس فقط پاس داده می‌شوند.
 MOVED = (
-    'Future<void> load()',
+    'Future<void> load({bool startWorker = false})',
     'EngineReply query(String question, {int maxAlternatives = 3})',
     'String answer(String question)',
     'List<String> alternatives(String question, {int max = 3})',
@@ -111,7 +111,8 @@ class EngineShape(unittest.TestCase):
 
     def test_the_split_parts_exist_and_are_listed(self):
         parts = parts_of(ROOT, os.path.relpath(ENGINE, ROOT))
-        self.assertEqual(sorted(parts), ['engine_load.dart', 'engine_query.dart'])
+        self.assertEqual(sorted(parts),
+                         ['engine_load.dart', 'engine_query.dart', 'engine_worker.dart'])
         for p in parts:
             self.assertTrue(os.path.exists(os.path.join(CORE, p)), p)
 

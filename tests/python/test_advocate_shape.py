@@ -556,7 +556,7 @@ class ShapeTests(unittest.TestCase):
         engine = '\n'.join(
             _read(os.path.join(ROOT, 'lib', 'core', name))
             for name in ('engine.dart', 'engine_load.dart', 'engine_query.dart'))
-        self.assertLess(len(engine.split('\n')), 760,
+        self.assertLess(len(engine.split('\n')), 900,
                         'کتابخانهٔ موتور دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)

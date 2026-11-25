@@ -147,6 +147,7 @@ class _LoaderState extends State<Loader> {
   @override
   void dispose() {
     _reader?.dispose();
+    _engine.dispose();
     super.dispose();
   }
 
@@ -206,7 +207,7 @@ class _LoaderState extends State<Loader> {
     // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
     final problems = <String>[];
     await Future.wait([
-      _engine.load().catchError((Object e) {
+      _engine.load(startWorker: true).catchError((Object e) {
         problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
       }),
       // راهنماهای آماده از فایلِ داده خوانده می‌شوند؛ اگر نباشند، پاسخ‌های

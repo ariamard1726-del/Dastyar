@@ -196,7 +196,7 @@
 3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
 4. `eval/` و `brain/eval/`، `reports/` و `brain/reports/` تکراری‌اند (ادغام نیازمند کامیت جدا با `flutter test`).
 5. `ChatController` (۳۱۲ خط) مسیرهای پیش‌نویس، حدس خواننده و پاسخ وکیل را کنار هم دارد؛ استخراج یک هماهنگ‌کنندهٔ خالص یک بازآرایی جداگانه است.
-6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۰۲ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `topics/rent_claims.dart` ۳۶۸ خط (متن و شرطِ ادعاها). `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
+6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۲ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `topics/rent_claims.dart` ۳۶۸ خط (متن و شرطِ ادعاها). `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**
 - Python (بدون Flutter SDK): **۲۲۲** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، عددهای مستندات و لینک‌های همین سند.

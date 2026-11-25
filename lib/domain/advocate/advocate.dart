@@ -52,6 +52,7 @@ part 'chip_texts.dart';
 part 'advocate_data.dart';
 part 'advocate_text.dart';
 part 'reply_routes.dart';
+part 'advocate_leave.dart';
 
 class Advocate {
   Advocate(
@@ -72,6 +73,7 @@ class Advocate {
     engine: engine,
     voice: voice,
     party: _party,
+    prepared: preparedEngineReply,
   );
 
   /// تشخیص موضوع و بحث (کدام پرونده به این پیام می‌خورد).
@@ -324,21 +326,29 @@ class Advocate {
 
   /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
   /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
-  AdvocateReply respond(String raw, {TopicGuess? guess}) =>
-      _withLeave(_reply(raw, guess: guess));
+  /// پاسخِ ازپیشساختهٔ موتور در isolate. فقط برای همان متن پیام معتبر است و
+  /// بعد از یک نوبت پاک میشود؛ مسیرهای قدیمی/آزمونها بدون آن کار میکنند.
+  EngineReply? _preparedEngineReply;
+  String _preparedText = '';
 
-  /// «انصراف» آخرین دکمهٔ **هر** پاسخ است، در هر مرحله‌ای از گفتگو؛ وگرنه
-  /// کاربر از وسط ماجرا راه خروج ندارد (بعضی مسیرها مثل جست‌وجوی متن قانون،
-  /// پاسخ را مستقیم می‌سازند و از [_out] نمی‌گذرند).
-  AdvocateReply _withLeave(AdvocateReply r) {
-    if (r.chips.isNotEmpty && r.chips.last == ChipTexts.leaveChip) return r;
-    return AdvocateReply(
-      r.text,
-      chips: [...r.chips.where((c) => c != ChipTexts.leaveChip), ChipTexts.leaveChip],
-      laws: r.laws,
-      source: r.source,
-    );
+  EngineReply? preparedEngineReply(String raw) =>
+      _preparedText == raw ? _preparedEngineReply : null;
+
+  AdvocateReply respond(
+    String raw, {
+    TopicGuess? guess,
+    EngineReply? engineReply,
+  }) {
+    _preparedEngineReply = engineReply;
+    _preparedText = raw;
+    try {
+      return _withLeave(_reply(raw, guess: guess));
+    } finally {
+      _preparedEngineReply = null;
+      _preparedText = '';
+    }
   }
+
 
 
 
