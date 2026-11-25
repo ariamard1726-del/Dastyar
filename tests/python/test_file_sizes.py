@@ -22,7 +22,6 @@ DEBT = {
     'lib/domain/advocate/topics/rent_issues.dart': 814,
     # سیم‌کشیِ بیست همکار + ثابت‌های دکمه‌ها؛ گامِ بعد ثابت‌ها را بیرون می‌برد.
     'lib/domain/advocate/advocate.dart': 595,
-    'lib/core/engine.dart': 639,
     'lib/domain/advocate/topics/rent_patterns.dart': 537,
     'lib/domain/advocate/topics/rent_bodies.dart': 468,
 }

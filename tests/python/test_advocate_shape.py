@@ -437,9 +437,13 @@ class ShapeTests(unittest.TestCase):
 
     def test_engine_does_not_own_law_names(self):
         """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
-        engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
-        self.assertLess(len(engine.split('\n')), 650,
-                        'engine.dart دوباره بزرگ شد')
+        # موتور سه بخش است (کلاس + بارگذار + پاسخ‌ساز)؛ کلِ کتابخانه خوانده
+        # می‌شود تا جابه‌جا شدنِ یک متد به بخشِ دیگر آزمون را بی‌سبب قرمز نکند.
+        engine = '\n'.join(
+            _read(os.path.join(ROOT, 'lib', 'core', name))
+            for name in ('engine.dart', 'engine_load.dart', 'engine_query.dart'))
+        self.assertLess(len(engine.split('\n')), 760,
+                        'کتابخانهٔ موتور دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)
         ranker = _read(os.path.join(ROOT, 'lib', 'core', 'law_ranker.dart'))

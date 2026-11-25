@@ -28,6 +28,7 @@
 | `case_flow.dart` | ۶۴۸ | ۷۴۵ (با آزمون؛ حذفِ ۲۰۲ خطِ `_inCase` از `Advocate`) |
 | `chat_bubbles.dart` | ۸۱۴ | ۲۴ (سرِ کتابخانه) + ۸ ویجتِ ۴۷ تا ۲۰۳ خطی |
 | `case_flow.dart` | ۷۴۴ | ۱۰۴ + `case_facts` ۱۲۵ + `case_answer` ۳۱۶ + `case_text` ۲۳۰ |
+| `core/engine.dart` | ۶۳۹ | ۱۵۷ (وضعیت + API) + `engine_load` ۲۰۸ + `engine_query` ۳۰۷ |
 | `drafting.dart` | ۶۵۹ | ۱۹ (سرِ کتابخانه) + `draft_models` ۱۷۱ + `draft_intent` ۲۰۳ + `draft_step` ۲۲۸ + `draft_words` ۷۲ + `draft_laws` ۱۷ |
 | `legal_guides.dart` | ۱٬۳۹۷ | ۱۰۲ (مدل + ثبت)؛ متن در `assets/brain/guides/legal_guides.json` |
 | `advocate_guides.dart` | ۲۳۴ | حذف شد (`GuideReply` و `TermReply`) |
@@ -38,7 +39,6 @@
 | فایل | خط | چرا مانده | گامِ بعدی |
 |---|---|---|---|
 | `topics/rent_issues.dart` | ۸۱۴ | متنِ حقوقی | مثل راهنماها به دادهٔ بیرونی |
-| `core/engine.dart` | ۶۳۹ | خواندنِ همهٔ دارایی‌های قوانین | `EngineLoad` جدا شود از `EngineIndex` |
 | `topics/rent_patterns.dart` | ۵۳۷ | متن/الگوی حقوقی | دادهٔ بیرونی |
 | `topics/rent_bodies.dart` | ۴۶۸ | متنِ حقوقی | دادهٔ بیرونی |
 | `advocate.dart` | ۵۹۵ | سیم‌کشیِ ۲۰ همکار + ثابت‌های دکمه | ثابت‌ها به فایلِ سطحِ بالا |
@@ -91,6 +91,27 @@
 - جابه‌جایی کلمه‌به‌کلمه بود: مقایسهٔ خط‌به‌خطِ پیش و پس هیچ خطی را گم نکرد؛
   تنها تغییرِ متنی، هم‌نام‌سازیِ `_norm`/`_fold` با `DraftWords.norm`/`fold` و
   پیشوندِ `DraftWords.`/`DraftIntent.` است.
+
+## موتورِ دانش: خواندن از پاسخ‌دادن جدا شد
+
+`core/engine.dart` ۶۳۹ خط بود و دو کارِ بی‌ربط را با هم می‌کرد: خواندنِ
+دارایی‌های قوانین از `rootBundle`/`jsonDecode` و پاسخ‌دادن به پرسش.
+
+| فایل | خط | مسئولیت |
+|---|---|---|
+| `engine.dart` | **۱۵۷** | وضعیت و API: فهرستِ قوانین، `LawIndex`، پاسخ‌های ثابت، پاس‌دهنده‌ها |
+| `engine_load.dart` | **۲۰۸** | تنها جایی که دارایی خوانده می‌شود: `load` و دوازده `_load*` |
+| `engine_query.dart` | **۳۰۷** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
+
+- با `extension` روی همان کلاس، تا وضعیت و اعضای خصوصی دست‌نخورده بمانند؛
+  اعضای ثابت (`_lowCover`، `_anchorGroups`، `normalize`…) داخل بخش‌ها با `KnowledgeEngine.`
+  صدا زده می‌شوند — همان تله‌ای که در گام ۲۳ CI گرفت و این‌بار از پیش رعایت شد.
+- نگهبان: `tests/python/test_engine_shape.py` — یکتا بودنِ سیزده امضای عمومی،
+  «دارایی فقط در بارگذار خوانده شود»، وابسته نبودنِ `core/` به `domain/`، و
+  سقفِ ۴۲۰ خط (با سقفِ سخت‌گیرانه‌ترِ ۲۰۰ برای `engine.dart`).
+- «موتورِ بی‌دارایی» دست‌نخورده ماند: آزمون‌های `law_index_test`،
+  `law_ranker_test`، `law_text_test`، `law_mention_test` هنوز بدونِ فایلِ واقعی
+  کار می‌کنند، چون خواندنِ دارایی همه‌جا در یک فایل است.
 
 ## چرا بعضی چیزها را «نشکستم»
 
