@@ -45,6 +45,17 @@ API = (
 )
 
 
+# این‌ها در بخش‌ها پیاده شده‌اند و در کلاس فقط پاس داده می‌شوند.
+MOVED = (
+    'Future<void> load()',
+    'EngineReply query(String question, {int maxAlternatives = 3})',
+    'String answer(String question)',
+    'List<String> alternatives(String question, {int max = 3})',
+    'Chunk? findArticle(String law, String article)',
+    'List<String> conflictChainsFor(Chunk c)',
+)
+
+
 def _read(path):
     with open(path, encoding='utf-8') as f:
         return f.read()
@@ -62,10 +73,18 @@ class EngineShape(unittest.TestCase):
         cls.lib = '\n'.join(_read(p) for p in cls.files)
         cls.src = _read(ENGINE)
 
-    def test_public_api_is_intact_and_unique(self):
-        counts = {sig: self.lib.count(sig) for sig in API}
+    def test_public_api_lives_in_the_class_exactly_once(self):
+        # چرا در کلاس، نه فقط در بخش‌ها: `extension`ِ خصوصی از بیرونِ این
+        # کتابخانه دیده نمی‌شود؛ اگر امضا در بخش باشد، هر فراخوانِ بیرونی
+        # (`main.dart`، `draft_laws.dart`، آزمون‌ها) نمی‌کامپایل شود. این را
+        # یک اجرای CI نشان داد، نه حدس.
+        counts = {sig: self.src.count(sig) for sig in API}
         bad = {s: n for s, n in counts.items() if n != 1}
-        self.assertEqual(bad, {}, 'امضای عمومی صفر یا چند بار تعریف شده: %s' % bad)
+        self.assertEqual(bad, {}, 'امضای عمومی در کلاس صفر یا چند بار است: %s' % bad)
+        # آن‌چه به بخش‌ها رفته باید هم امضای کلاس را داشته باشد و هم بدنهٔ بخش.
+        for sig in MOVED:
+            self.assertGreaterEqual(self.lib.count(sig), 2,
+                                    'بدنهٔ %s در بخش‌ها پیدا نشد' % sig)
 
     def test_assets_are_read_only_in_the_loader(self):
         # خودِ `import` در سرِ کتابخانه است (بخش‌ها واردات ندارند)؛ معیار،

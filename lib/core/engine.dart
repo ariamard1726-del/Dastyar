@@ -153,4 +153,36 @@ final List<List<String>> _syn = [];
 
 static String _phrase(String s) => PersianText.phrase(s);
 
+
+  // ---------------------------------------------------------------------------
+  // API عمومی. پیاده‌سازی در بخش‌ها است و این‌جا فقط پاس داده می‌شود؛ دلیلش این
+  // است که `extension`ِ خصوصی از بیرونِ این کتابخانه دیده نمی‌شود، پس هر چه
+  // بیرون لازم است باید در خودِ کلاس امضا داشته باشد. اگر روزی این پاس‌دهنده‌ها
+  // منطق گرفتند، همین‌جا است که گاد-آبجکت برمی‌گردد.
+  // ---------------------------------------------------------------------------
+
+  /// بارگذاریِ دارایی‌ها و ساختنِ ایندکس؛ پیاده‌سازی در `engine_load.dart`.
+  Future<void> load() => _EngineLoad(this).load();
+
+  /// یافتنِ ماده با ارجاعِ صریح («ماده ۶۷۷» یا ارجاعِ هم‌نام).
+  Chunk? findArticle(String law, String article) =>
+      _EngineQuery(this).findArticle(law, article);
+
+  int? chunkOf(String lawId, String title) =>
+      _EngineQuery(this).chunkOf(lawId, title);
+
+  /// پردازشِ یکپارچهٔ پرسش: پاسخ + پیشنهادهای نزدیک.
+  EngineReply query(String question, {int maxAlternatives = 3}) =>
+      _EngineQuery(this).query(question, maxAlternatives: maxAlternatives);
+
+  String answer(String question) => _EngineQuery(this).answer(question);
+
+  List<String> alternatives(String question, {int max = 3}) =>
+      _EngineQuery(this).alternatives(question, max: max);
+
+  List<String> conflictChainsFor(Chunk c) =>
+      _EngineQuery(this).conflictChainsFor(c);
+
+  /// گسترشِ پرسش با مترادف‌ها؛ `LawRanker` این را به‌عنوانِ تابع می‌گیرد.
+  List<String> _expand(String question) => _EngineLoad(this)._expand(question);
 }
