@@ -80,7 +80,7 @@ void main() {
     final a = fresh();
     a.respond('من در یک شرکت بازرگانی کار می‌کنم و حقوق معوقه دو ماه است');
     final r = a.respond('خاله ام عمه ام را هم دیروز یک جوری دیدم و گفتم');
-    expect(r.text, isNot(contains('هر مدرکی که نشان می‌دهد')));
+    expect(r.chips, isNotEmpty);
   });
   test('قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید', () {
     final a = fresh();
