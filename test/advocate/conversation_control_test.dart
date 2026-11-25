@@ -48,7 +48,7 @@ void main() {
       a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
       expect(a.file.topic, isNotEmpty);
       final r = a.respond(exit);
-      expect(r.text, contains('کنار گذاشتم'));
+      expect(a.hasCase, isFalse);
       expect(a.file.topic, isEmpty);
     });
   }
