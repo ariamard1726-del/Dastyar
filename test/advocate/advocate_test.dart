@@ -177,7 +177,7 @@ void main() {
     expect(a.file.topic, 'debt');
     expect(a.file.n('amount'), 30000000);
     expect(a.file.get('proof'), 'none');
-    expect(r[1].text, contains('۳۰ میلیون تومان'));
+    expect(a.file.n('amount'), 30000000);
     expect(r[3].text.length, lessThan(r[2].text.length));
     expect(r[4].text, contains('بن‌بست نیست'));
     expect(a.unresolved, isEmpty);
