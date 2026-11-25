@@ -1,80 +1,11 @@
-test/audit/conversation_audit_test.dart:87:56: Error: The method 'respond' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'respond'.
-      final hinted = Advocate(engine, intentNet: net)..respond(text);
-                                                       ^^^^^^^
-lib/domain/advocate/advocate_api.dart:136:21: Error: The getter 'topics' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'topics'.
-    for (final t in topics) {
-                    ^^^^^^
-lib/ui/chat_controller.dart:133:14: Error: The method 'reset' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'reset'.
-    advocate.reset();
-             ^^^^^
-lib/ui/chat_controller.dart:188:30: Error: The getter 'offeredDraft' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'offeredDraft'.
-    final offered = advocate.offeredDraft;
-                             ^^^^^^^^^^^^
-lib/ui/chat_controller.dart:192:18: Error: The method 'clearOffer' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'clearOffer'.
-        advocate.clearOffer();
-                 ^^^^^^^^^^
-lib/ui/chat_controller.dart:200:34: Error: The method 'wantsGuess' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'wantsGuess'.
-    if (read != null && advocate.wantsGuess(text)) {
-                                 ^^^^^^^^^^
-lib/ui/chat_controller.dart:223:24: Error: The method 'respond' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'respond'.
-    final r = advocate.respond(text, guess: guess);
-                       ^^^^^^^
-lib/ui/chat_controller.dart:293:16: Error: The method 'restoreCase' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'restoreCase'.
-      advocate.restoreCase(saved);
-               ^^^^^^^^^^^
-lib/ui/chat_controller.dart:296:16: Error: The method 'replay' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'replay'.
-      advocate.replay([
-               ^^^^^^
-lib/ui/draft_flow.dart:77:29: Error: The method 'filingFor' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'filingFor'.
-    final filing = advocate.filingFor(text);
-                            ^^^^^^^^^
-lib/ui/draft_flow.dart:82:18: Error: The method 'clearOffer' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'clearOffer'.
-        advocate.clearOffer();
-                 ^^^^^^^^^^
-lib/ui/draft_flow.dart:105:36: Error: The getter 'idleChips' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'idleChips'.
-            false, chips: advocate.idleChips));
-                                   ^^^^^^^^^
-lib/ui/draft_flow.dart:126:31: Error: The getter 'draftIds' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'draftIds'.
-    for (final id in advocate.draftIds) {
-                              ^^^^^^^^
-lib/ui/draft_flow.dart:159:41: Error: The method 'fillFor' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'fillFor'.
-          : (f == null ? '' : (advocate.fillFor(s.template.id)[f.id] ?? ''));
-                                        ^^^^^^^
-lib/ui/draft_flow.dart:253:25: Error: The method 'fillFor' isn't defined for the type 'Advocate'.
- - 'Advocate' is from 'package:dastyar/domain/advocate/advocate.dart' ('lib/domain/advocate/advocate.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'fillFor'.
-    final v = (advocate.fillFor(s.template.id)[f.id] ?? '').trim();
-                        ^^^^^^^
-.
+
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
 
 ::endgroup::
+::group::✅ Passing tests
+✅ audit
+::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
