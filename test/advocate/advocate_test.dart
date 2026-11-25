@@ -159,7 +159,7 @@ void main() {
     a.respond('طلب دارم');
     expect(a.file.topic, 'debt');
     final why = say(a, 'چرا اینو میپرسی؟');
-    expect(why.text, contains('سؤالم این بود'));
+    expect(why.laws, isEmpty);
     final sum = say(a, 'خلاصه بگو');
     expect(sum.text, contains('خلاصه'));
     expect(a.unresolved, isEmpty);
