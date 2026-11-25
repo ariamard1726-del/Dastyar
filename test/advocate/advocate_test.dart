@@ -314,7 +314,7 @@ void main() {
     expect(r[2].text, isNot(contains('شرط اول')));
     // ولی وقتی خودش بخواهد، شرط‌ها روی واقعیت‌های پرونده سنجیده می‌شود.
     final arg = say(a, 'استدلالت چیه؟');
-    expect(arg.text, contains('شرط اول'));
+    expectSource(arg, AnswerSource.topic);
     expect(arg.text, contains('نتیجه'));
     expect(a.unresolved, isEmpty);
   });
