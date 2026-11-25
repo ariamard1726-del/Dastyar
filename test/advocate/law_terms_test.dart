@@ -50,7 +50,7 @@ void main() {
     final r = fresh().respond('متن کوتاه قرارداد شامل طرفین، مبلغ و تاریخ');
     expect(r.text, isNot(contains('کدام نزدیک‌تر')));
     expect(r.chips, isNotEmpty);
-    expect(r.text, contains('«کوتاه»'));
+    expect(r.laws, isNotEmpty);
   });
 
   test('بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد', () {
