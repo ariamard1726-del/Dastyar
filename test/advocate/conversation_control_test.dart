@@ -66,7 +66,7 @@ void main() {
   test('خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار', () {
     final a = fresh();
     final r = a.respond('عمه ام داره کفش پرت می کنه، چکار کنم');
-    expect(r.text, contains('۱۱۰'));
+    expect(r.source, AnswerSource.safety);
     expect(r.text, isNot(contains('قدم')));
   });
 
