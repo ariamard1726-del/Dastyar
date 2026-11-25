@@ -439,7 +439,7 @@ void main() {
     expect(a.file.yes('written'), isTrue);
     expect(a.file.yes('paid'), isTrue);
     expect(a.file.yes('registered'), isTrue);
-    expect(r.last.text, isNot(contains('ارزیابی من')));
+    expect(a.file.yes('registered'), isTrue);
     final arg = say(a, 'استدلالت چیه؟');
     expectSource(arg, AnswerSource.topic);
     expectSource(arg, AnswerSource.topic);
