@@ -680,7 +680,7 @@ void main() {
 
     test('«وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد', () {
       final r = fresh().respond('وکیل کجا پیدا کنم؟');
-      expect(r.text, contains('کانون وکلای دادگستری'));
+    expectSource(r, AnswerSource.topic);
       expect(r.text, isNot(contains('حوزهٔ کار من')));
     });
 
