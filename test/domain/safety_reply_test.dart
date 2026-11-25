@@ -38,7 +38,7 @@ void main() {
   test('خشونت خانوادگی پاسخِ ایمنی می‌گیرد', () {
     final r = bot.reply(n('شوهرم منو میزنه'));
     expect(r, isNotNull);
-    expect(r!.text, contains('خشونت'));
+    expect(r!.chips, contains('الان در خطر هستم'));
     expect(r.chips, isNotEmpty);
   });
 
