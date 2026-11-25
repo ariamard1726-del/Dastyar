@@ -2,11 +2,16 @@ import json
 import os
 import re
 
+import text_norm_rules as _R
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NB = 1 << 17
 D = 64
 
-_MAP = {'ي': 'ی', 'ى': 'ی', 'ك': 'ک', 'ۀ': 'ه', 'ة': 'ه', 'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا'}
+# قاعده‌ها از `tools/contracts/text_norm.json` تولید می‌شوند
+# (`brain/text_norm_rules.py`، تولید با `python3 tools/gen_text_norm.py --write`).
+# نگاشت و بازه‌ها دیگر دستی نوشته نمی‌شوند.
+_MAP = _R.CHAR_MAP
 _NONWORD = re.compile(
     r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
 NOTE = re.compile(
@@ -14,23 +19,76 @@ NOTE = re.compile(
     r'|نیز\s+وجود\s+دارد|مطابق\s+آخرین\s+اصلاحات')
 
 
+def _dropped(o):
+    if o in _R.DROP_CODEPOINTS:
+        return True
+    for lo, hi in _R.DROP_RANGES:
+        if lo <= o <= hi:
+            return True
+    return False
+
+
 def normalize(s):
+    """لایهٔ پایه؛ آینهٔ `PersianText.normalize` در دارت."""
     out = []
     for ch in s:
         o = ord(ch)
-        if 0x06F0 <= o <= 0x06F9:
-            out.append(chr(o - 0x06F0 + 48))
+        hit = False
+        for lo, hi, base in _R.DIGIT_RANGES:
+            if lo <= o <= hi:
+                out.append(chr(o - base + 48))
+                hit = True
+                break
+        if hit:
             continue
-        if 0x0660 <= o <= 0x0669:
-            out.append(chr(o - 0x0660 + 48))
-            continue
-        if o in (0x200C, 0x200D, 0x200E, 0x200F):
+        if o in _R.TO_SPACE_CODEPOINTS:
             out.append(' ')
             continue
-        if 0x064B <= o <= 0x065F or o == 0x0640:
+        if _dropped(o):
             continue
         out.append(_MAP.get(ch, ch))
-    return ''.join(out).lower()
+    text = ''.join(out)
+    return text.lower() if _R.LOWERCASE else text
+
+
+def norm(s):
+    """لایهٔ دوم؛ آینهٔ `Sense.norm` در دارت (یکسان‌سازی + نشانه‌ها + بازنویسی).
+
+    پیش‌تر این ترکیب فقط در دارت بود و ابزارهای پایتون نسخهٔ خودشان را داشتند.
+    """
+    t = normalize(s)
+    t = t.replace(_R.QUESTION_MARK_FROM, _R.QUESTION_MARK_TO)
+    if _R.QUESTION_MARK_PAD:
+        # دارت «؟» را با فاصلهٔ دو طرف جایگزین می‌کند («کنم ؟»)؛ همان رفتار را
+        # نگه می‌داریم تا خروجی دو زبان یکی بماند.
+        t = t.replace(_R.QUESTION_MARK_TO, ' %s ' % _R.QUESTION_MARK_TO)
+    t = re.sub(_R.NORM_PUNCT, ' ', t)
+    t = re.sub(_R.NORM_DOT, ' ', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    t = re.sub(_R.NORM_JOIN_MI, lambda m: m.group(1) + m.group(2), t)
+    if _R.NORM_PAD:
+        t = ' ' + t + ' '
+    for pattern, repl in _R.CANON:
+        t = re.sub(pattern, repl, t)
+    return t
+
+
+def spaced(s, variant='tools'):
+    """نسخهٔ ابزارها: بی‌تبدیل ارقام و بی‌کوچک‌سازی.
+
+    تفاوتِ `tools` و `terms` در قرارداد نوشته شده، نه در دو تابعِ جدا؛ خروجیِ
+    هر دو با `tests/text_norm_golden.json` قفل است.
+    """
+    rule = _R.SPACED[variant]
+    chars = []
+    for ch in s:
+        o = ord(ch)
+        if any(lo <= o <= hi for lo, hi in rule['drop']):
+            continue
+        chars.append(rule['map'].get(ch, ch))
+    t = re.sub(rule['punct'], ' ', ''.join(chars))
+    t = re.sub(r'\s+', ' ', t).strip()
+    return ' ' + t + ' ' if rule['pad'] else t
 
 
 def words(s):

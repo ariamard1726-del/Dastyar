@@ -12,6 +12,22 @@ class AppSettings extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.system;
   SharedPreferences? _prefs;
 
+  /// آخرین خطای ذخیرهٔ تنظیمات؛ صفحهٔ تنظیمات آن را به کاربر نشان می‌دهد.
+  /// پیش‌تر هر خطا بی‌صدا بلعیده می‌شد و کاربر فکر می‌کرد تنظیمش ذخیره شده.
+  String? lastError;
+
+  void _fail(String what) {
+    lastError = 'ذخیرهٔ $what ناموفق بود؛ این تنظیم ممکن است پس از بستن '
+        'برنامه باقی نماند.';
+    notifyListeners();
+  }
+
+  void clearError() {
+    if (lastError == null) return;
+    lastError = null;
+    notifyListeners();
+  }
+
   static const List<double> scales = [0.9, 1.0, 1.2, 1.4];
   static const List<String> scaleNames = [
     'کوچک',
@@ -64,7 +80,11 @@ class AppSettings extends ChangeNotifier {
       s.saveDraftProgress = p.getBool('saveDraftProgress') ?? false;
       s.secureScreen = p.getBool('secureScreen') ?? false;
       s.themeMode = _parseThemeMode(p.getString('themeMode'));
-    } catch (_) {}
+    } catch (_) {
+      // تنظیمات پیش‌فرض می‌مانند؛ ولی کاربر باید بداند که خوانده نشد.
+      s.lastError = 'خواندن تنظیمات ذخیره‌شده ناموفق بود؛ تنظیمات پیش‌فرض '
+          'به کار می‌رود.';
+    }
     return s;
   }
 
@@ -72,8 +92,11 @@ class AppSettings extends ChangeNotifier {
     fontScale = v;
     notifyListeners();
     try {
-      await _prefs?.setDouble('fontScale', v);
-    } catch (_) {}
+      final p = _prefs ??= await SharedPreferences.getInstance();
+      await p.setDouble('fontScale', v);
+    } catch (_) {
+      _fail('اندازهٔ نوشته');
+    }
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -82,7 +105,9 @@ class AppSettings extends ChangeNotifier {
     try {
       final p = _prefs ??= await SharedPreferences.getInstance();
       await p.setString('themeMode', _themeModeName(mode));
-    } catch (_) {}
+    } catch (_) {
+      _fail('حالت نمایش');
+    }
   }
 
   Future<void> setSaveHistory(bool v) async {
@@ -91,7 +116,9 @@ class AppSettings extends ChangeNotifier {
     try {
       final p = _prefs ??= await SharedPreferences.getInstance();
       await p.setBool('saveHistory', v);
-    } catch (_) {}
+    } catch (_) {
+      _fail('تنظیم تاریخچه');
+    }
   }
 
   Future<void> setSaveDraftProgress(bool v) async {
@@ -103,16 +130,31 @@ class AppSettings extends ChangeNotifier {
     try {
       final p = _prefs ??= await SharedPreferences.getInstance();
       await p.setBool('saveDraftProgress', v);
-    } catch (_) {}
+    } catch (_) {
+      _fail('تنظیم پیش‌نویس');
+    }
   }
 
   Future<void> setSecureScreen(bool v) async {
+    final before = secureScreen;
     secureScreen = v;
     notifyListeners();
-    await PrivacyService.setSecureScreen(v);
+    // اگر گوشی اعمالش نکرد، تیک نباید روشن بماند: «محافظت روشن» ولی
+    // اسکرین‌شات آزاد، بدترین حالت است.
+    final applied = await PrivacyService.setSecureScreen(v);
+    if (!applied) {
+      secureScreen = before;
+      lastError = v
+          ? 'محافظت از صفحه روی این گوشی اعمال نشد؛ تیک آن روشن نمی‌شود.'
+          : 'خاموش‌کردن محافظت صفحه روی این گوشی اعمال نشد.';
+      notifyListeners();
+      return;
+    }
     try {
       final p = _prefs ??= await SharedPreferences.getInstance();
       await p.setBool('secureScreen', v);
-    } catch (_) {}
+    } catch (_) {
+      _fail('تنظیم محافظت صفحه');
+    }
   }
 }

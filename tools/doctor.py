@@ -17,6 +17,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lawtext import ARTICLE, norm, parse  # noqa: E402  خوانندهٔ یکتای متنِ قانون
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAWS = os.path.join(ROOT, 'assets', 'laws')
 STRICT = '--strict' in sys.argv or os.environ.get('STRICT') == '1'
@@ -25,14 +28,6 @@ errors, warnings, infos = [], [], []
 
 AI_MARKERS = ['هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
               'chatgpt', 'gemini', 'claude', 'as an ai', 'language model']
-FA_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
-ARTICLE = re.compile(r'^(?:ماده|اصل)\s*(?:(واحده)|(\d+)(?:\s*(مکرر(?:\s*\d{1,2})?))?)\s*$')
-
-
-def norm(s):
-    s = s.translate(FA_DIGITS).replace('ي', 'ی').replace('ك', 'ک')
-    s = re.sub('[\u200c\u200d\u200e\u200f]', ' ', s)
-    return re.sub(r'\s+', ' ', s).strip()
 
 
 def load_json(path, label):
@@ -56,22 +51,6 @@ def rng(nums):
     return '، '.join(out)
 
 
-def parse(text):
-    """مثل _parse در engine.dart: بخش‌ها با خط خالی جدا می‌شوند."""
-    source, blocks = '', []
-    for p in re.split(r'\n\s*\n', text.replace('\r', '')):
-        lines = p.strip().split('\n')
-        if not lines or not lines[0].strip():
-            continue
-        first = lines[0].strip()
-        if first.startswith('##'):
-            continue
-        if first.startswith('#'):
-            source = first.lstrip('#').strip()
-            continue
-        body = '\n'.join(lines[1:]).strip() if len(lines) > 1 else first
-        blocks.append((first, body, source))
-    return blocks
 
 
 # ---------- ۱ و ۲: فایل‌ها ----------

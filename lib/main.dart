@@ -12,6 +12,7 @@ import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -186,6 +187,15 @@ class _LoaderState extends State<Loader> {
       _engine.load().catchError((Object e) {
         problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
       }),
+      // راهنماهای آماده از فایلِ داده خوانده می‌شوند؛ اگر نباشند، پاسخ‌های
+      // «راهنمای وکیل» بی‌صدا خالی می‌مانند.
+      () async {
+        try {
+          await loadLegalGuides();
+        } catch (e) {
+          problems.add('راهنماهای آماده بار نشدند؛ بعضی پاسخ‌ها کامل نیستند.');
+        }
+      }(),
       _repo.load().catchError((Object e) {
         problems.add('قالب‌های سند بار نشدند؛ «تنظیم سند» کار نمی‌کند.');
       }),

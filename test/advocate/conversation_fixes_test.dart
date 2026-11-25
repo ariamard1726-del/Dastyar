@@ -26,7 +26,7 @@ void main() {
     final a = fresh();
     final r = a.respond('صاحبخونه پول پیشمو نمیده');
     expect(r.laws, isNotEmpty, reason: 'پاسخ باید به ماده استناد کند');
-    final law = a.respond(Advocate.lawChip);
+    final law = a.respond(ChipTexts.lawChip);
     final title = r.laws.first.title;
     expect(law.text, contains(PersianText.toFaDigits(title)), reason: law.text);
     if (title != PersianText.toFaDigits(title)) {

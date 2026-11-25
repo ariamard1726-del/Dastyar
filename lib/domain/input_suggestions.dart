@@ -235,7 +235,7 @@ class InputSuggestions {
       tplTitles.addAll(LawyerVoice.templateChips(g, templates));
     }
     if (tplTitles.isEmpty && templates.isNotEmpty) {
-      final sug = Drafting.suggest(raw, templates);
+      final sug = DraftIntent.suggest(raw, templates);
       final t = sug.template;
       if (t != null) {
         tplTitles.add(t.title);

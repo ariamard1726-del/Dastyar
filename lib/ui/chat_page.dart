@@ -213,7 +213,7 @@ class _ChatPageState extends State<ChatPage> {
                             // کل گفتگو را بگیرد؛ هزینه‌اش ساخت هم‌زمان همهٔ
                             // حباب‌ها و انیمیشن‌هایشان بود. کپی کل گفتگو
                             // دکمهٔ جداگانه دارد و به این کار نیاز ندارد.
-                            scrollCacheExtent: ScrollCacheExtent.pixels(4000),
+                            scrollCacheExtent: const ScrollCacheExtent.pixels(4000),
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             itemCount: msgs.length,
                             itemBuilder: (context, i) {

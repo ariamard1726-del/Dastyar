@@ -1,0 +1,91 @@
+"""سقفِ اندازهٔ فایل: هیچ فایلِ گاد-آبجکتی در `lib/` نماند و برنگردد.
+
+قاعده ساده است و عددی:
+
+  * هیچ فایلِ `lib/**/*.dart` بیشتر از ۴۲۰ خط نباشد.
+  * فهرستِ استثناها ("بدهی") فقط می‌تواند **کوچک** شود: اگر فایلی از فهرست به
+    زیرِ سقف برسد، همین آزمون می‌گوید خطش را از فهرست بردارید؛ اگر بزرگ‌تر
+    شود، قرمز می‌شود.
+
+این آزمون جای سلیقه را با عدد می‌گیرد؛ هدفش «کدِ قشنگ» نیست، این است که هیچ
+فایلی دوباره به جایی نرسد که خواندنش یک پروژه باشد.
+"""
+import glob
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'tools'))
+from library import dart_files, line_count  # noqa: E402
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+LIMIT = 420
+
+# بدهیِ شناخته‌شده: (سقفِ فعلی). هر عدد فقط اجازه دارد کم شود.
+#
+# امروز خالی است: هیچ فایلِ `lib/` بالای سقف نیست. اگر ردیفی برگردد، یعنی
+# کسی آگاهانه بدهیِ تازه پذیرفته است.
+DEBT = {}
+
+# فایل‌هایی که متنِ حقوقی‌اند، نه منطق: الگوهای واژگانی و متنِ پاسخ‌ها.
+DATA_FILES = {
+    'lib/domain/advocate/topics/rent_patterns.dart',
+    'lib/domain/advocate/topics/rent_bodies.dart',
+    'lib/domain/advocate/topics/rent_bodies_landlord.dart',
+}
+
+# سه فایلِ بزرگِ امروز با سقفشان. اگر فایلِ تازه‌ای به صدر آمد، این آزمون
+# می‌گوید آگاهانه ثبتش کنید؛ عوض شدنِ خاموشِ صدر، همان لغزشِ قبلی است.
+LARGEST = {
+    'lib/domain/advocate/advocate.dart': 403,
+    'lib/domain/advocate/topics/rent_claims.dart': 369,
+    'lib/domain/advocate/reply_routes.dart': 366,
+}
+
+
+def _lines(path):
+    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `tools/lines.py`.
+    return line_count(path)
+
+
+class FileSizeBudgetTests(unittest.TestCase):
+    def setUp(self):
+        self.sizes = {rel: line_count(ROOT, rel) for rel in dart_files(ROOT)}
+
+    def test_no_file_is_a_god_object(self):
+        over = {k: v for k, v in self.sizes.items()
+                if v > LIMIT and k not in DEBT}
+        self.assertEqual(over, {},
+                         'این فایل‌ها از سقفِ %d خط گذشتند و در فهرستِ بدهی نیستند' % LIMIT)
+
+    def test_debt_only_shrinks(self):
+        for path, cap in DEBT.items():
+            self.assertIn(path, self.sizes, 'فایلِ بدهی حذف شده؛ خطش را از فهرست بردارید')
+            self.assertLessEqual(self.sizes[path], cap,
+                                 '%s بزرگ‌تر شد (%d > %d)' % (path, self.sizes[path], cap))
+            self.assertGreater(self.sizes[path], LIMIT - 200,
+                               '%s کوچک شد؛ سقفِ تازه‌اش را در فهرست بنویسید' % path)
+
+    def test_data_files_are_marked(self):
+        """متنِ حقوقی باید در فهرستِ داده باشد، نه در کدِ رفتار."""
+        for path in DATA_FILES:
+            self.assertIn(path, self.sizes)
+
+    def test_largest_files_are_known(self):
+        """اگر فایلِ تازه‌ای به صدر آمد، باید آگاهانه باشد."""
+        top = sorted(self.sizes.items(), key=lambda kv: -kv[1])[:3]
+        for name, size in top:
+            self.assertIn(name, LARGEST,
+                          'فایلِ تازه‌ای صدرِ فهرست شد و ثبت نشده: %s' % name)
+            self.assertLessEqual(size, LARGEST[name],
+                                 '%s از سقفِ ثبت‌شده گذشت' % name)
+
+    def test_no_debt_is_left(self):
+        """بدهیِ صفر، خودش یک ادعاست؛ اگر ردیفی ماند، باید دلیل داشته باشد."""
+        self.assertEqual(DEBT, {}, 'فهرستِ بدهی دوباره پر شد: %r' % DEBT)
+
+
+if __name__ == '__main__':
+    unittest.main()

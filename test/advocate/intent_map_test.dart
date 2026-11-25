@@ -14,14 +14,14 @@ void main() {
 
   test('هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است', () {
     final ids = Advocate.topics.map((t) => t.id).toSet();
-    for (final entry in Advocate.netTopics.entries) {
+    for (final entry in netTopics.entries) {
       expect(ids, contains(entry.value),
           reason: 'برچسب «${entry.key}» به موضوع ناموجود «${entry.value}» نگاشت شده');
     }
   });
 
   test('هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد', () {
-    for (final key in Advocate.netTopics.keys) {
+    for (final key in netTopics.keys) {
       expect(labels, contains(key), reason: 'برچسب «$key» در مدل نیست');
     }
   });
@@ -32,12 +32,12 @@ void main() {
       'criminal_harm', 'draft_request', 'general_intake', 'legal_question',
       'litigation_defense', 'out_of_scope',
     };
-    final unmapped = labels.difference({...Advocate.netTopics.keys, ...noTopic});
+    final unmapped = labels.difference({...netTopics.keys, ...noTopic});
     expect(unmapped, isEmpty,
         reason: 'برچسب‌های بی‌نگاشت ولی بی‌موضوع‌نشده: $unmapped');
   });
 
   test('آستانهٔ نظر دوم در بازهٔ معقول است', () {
-    expect(Advocate.netMin, inInclusiveRange(0.5, 0.9));
+    expect(netMin, inInclusiveRange(0.5, 0.9));
   });
 }

@@ -25,7 +25,7 @@ void main() {
     var guard = 0;
     while (a.hasMore && guard < 8) {
       guard++;
-      sb.write('\n${a.respond(Advocate.moreChip).text}');
+      sb.write('\n${a.respond(ChipTexts.moreChip).text}');
     }
     return sb.toString();
   }

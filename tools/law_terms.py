@@ -21,48 +21,25 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
 
 import eval_py as E  # noqa: E402
+import law_terms_rules as R  # noqa: E402  (قاعده‌ها: tools/contracts/law_terms.json)
 
 CASES = os.path.join(ROOT, 'tests', 'law_terms', 'cases.json')
 
-# املای محاوره‌ای یا عربیِ رایج که در متن قوانین به صورت دیگری آمده است.
-ALIAS = {
-    'افحش': 'فاحش',
-}
-
-# واژه‌های گفتاری یا عمومیِ بی‌بار که در تطبیق شرکت نمی‌کنند.
-GENERIC = {
-    'دارم', 'داریم', 'داره', 'دارد', 'بگو', 'بگید', 'بگویید', 'بدونم', 'بدانم',
-    'خوام', 'خواستم', 'میخوام', 'بخوام', 'کنم', 'کنیم', 'باید', 'چکار', 'کار',
-    'چیکار', 'بشه', 'شده', 'شد', 'کرد', 'کردم', 'کرده', 'نیست', 'باشه',
-    'ایا', 'یه', 'اون', 'اینو', 'اونو', 'ما', 'شما', 'حالا', 'الان', 'خیلی',
-    'واقعا', 'فقط', 'همه', 'چی', 'یکی', 'کسی', 'جای', 'نکنه', 'بکنم',
-    'نمی', 'ام', 'رو', 'را', 'های', 'ها', 'ای', 'ی', 'ت', 'م', 'ش', 'ه', 'گزارش',
-    'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه', 'ده', 'صد', 'هزار',
-    'نمیده', 'نداده', 'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'شده', 'بوده',
-    'میشه', 'میکنم', 'نکرده', 'کرده', 'دادم', 'گرفتم', 'بدم', 'بده', 'برم',
-    'ترین', 'کدام', 'بهترین', 'بهتر', 'خواهد', 'تواند', 'کدوم', 'منو', 'برام',
-    'بهتره', 'میخواد', 'می‌خواهد', 'میخواد',
-}
-# کوتاه‌تر از این تعداد نویسه، واژهٔ معنادار حساب نمی‌شود.
-MIN_LEN = 2
-
-# بیشترین تعداد ماده‌ای که یک واژه می‌تواند داشته باشد تا «تمایزدهنده» باشد.
-DISTINCT_DF = 300
-# تعداد نامزدهای برتر که عبارت‌ها روی آن‌ها سنجیده می‌شود.
-TOP = 300
-# کمترین پوشش برای پذیرش همراه با دو واژه.
-MIN_COVER = 0.5
-# واژه‌ای که در بیش از این تعداد ماده آمده، «نادر» نیست؛ پذیرش بی‌عبارت
-# به دو واژهٔ نادر نیاز دارد.
-RARE_DF = 60
-# بیشترین فاصلهٔ (به تعداد واژه) میان واژه‌های پرسش در متن ماده، تا آن‌ها
-# «با هم» در یک جمله حساب شوند. «رشوه» و «گرفتن» در دو بند دور از هم، دلیل نیستند.
-MAX_SPAN = 15
-# کمترین مجموع وزن (idf) دو واژهٔ یک عبارت تا آن عبارت حساب شود؛ جفت‌های
-# پرتکرارِ بی‌بار («مبلغ تاریخ») حساب نمی‌شوند.
-PHRASE_MIN_IDF = 4.0
+# قاعده‌ها از `tools/contracts/law_terms.json` تولید می‌شوند
+# (`brain/law_terms_rules.py`، تولید با `python3 tools/gen_law_terms.py --write`).
+# نام‌ها برای سازگاری با کدِ موجود نگه داشته شده‌اند.
+ALIAS = R.ALIAS
+GENERIC = R.GENERIC
+MIN_LEN = R.MIN_LEN
+TOP = R.TOP
+MIN_COVER = R.MIN_COVER
+RARE_DF = R.RARE_DF
+MAX_SPAN = R.MAX_SPAN
+PHRASE_MIN_IDF = R.PHRASE_MIN_IDF
+GENERAL_SOURCE = R.GENERAL_SOURCE
 
 _engine = None
 _tok_cache = {}
@@ -153,14 +130,17 @@ def word_report(q, e=None):
 
 GLOSSARY = os.path.join(ROOT, 'assets', 'brain', 'legal_terms.json')
 
-_PERSIAN_FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه'})
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
+from common import spaced as _norm_spaced  # noqa: E402  (tools/contracts/text_norm.json)
 
 
 def _spaced(s):
-    """متن را برای جست‌وجوی عبارت یکدست می‌کند (همان قاعدهٔ لایهٔ دارت)."""
-    s = s.translate(_PERSIAN_FIX)
-    s = _PUNCT_RE.sub(' ', s)
-    return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
+    """متن را برای جست‌وجوی عبارت یکدست می‌کند (همان قاعدهٔ لایهٔ دارت).
+
+    پیش‌تر جدولِ خودش را داشت؛ حالا نسخهٔ `terms` از قرارداد متن می‌آید و با
+    `tests/text_norm_golden.json` قفل است.
+    """
+    return _norm_spaced(s, 'terms')
 
 
 def glossary_match(q, e=None):

@@ -1,7 +1,6 @@
 {
   "topics": [
-    "cheque.json",
-    "rent.json",
-    "labor_wages.json"
-  ]
+    "cheque.json"
+  ],
+  "note": "فقط موضوع‌های live در APK بسته‌بندی می‌شوند. مسیرهای در دست ساخت در lab/topics/ هستند و در pubspec نیستند."
 }

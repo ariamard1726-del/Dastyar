@@ -6,7 +6,7 @@ import 'package:dastyar/domain/advocate/advocate.dart';
 ///
 /// هر پیام فقط از یک مسیر دانش جواب می‌گیرد و [AdvocateReply.source] می‌گوید
 /// کدام مسیر. این آزمون دو چیز را قفل می‌کند: ترتیب اعلام‌شده در
-/// [Advocate.pipelineOrder] و اینکه هیچ پاسخ نهایی بی‌برچسب نماند.
+/// [pipelineOrder] و اینکه هیچ پاسخ نهایی بی‌برچسب نماند.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late KnowledgeEngine engine;
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود', () {
-    final order = Advocate.pipelineOrder;
+    final order = pipelineOrder;
     expect(order.first, AnswerSource.safety);
     expect(order.toSet().length, order.length);
     expect(order, isNot(contains(AnswerSource.unknown)));

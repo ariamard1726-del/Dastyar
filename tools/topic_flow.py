@@ -16,17 +16,23 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOPIC_DIR = os.path.join(ROOT, 'assets', 'brain', 'topics')
+# مسیرهای در دست ساخت: در APK بسته‌بندی نمی‌شوند (در pubspec نیستند) ولی
+# نمونه‌های آزمونشان باید همچنان اجرا شود تا کار نیمه‌کاره از دست نرود.
+LAB_DIR = os.path.join(ROOT, 'lab', 'topics')
 TEST_DIR = os.path.join(ROOT, 'tests', 'topics')
 
-_FIX = str.maketrans({'ي': 'ی', 'ك': 'ک', '\u200c': ' ', 'ۀ': 'ه', 'ؤ': 'و', 'أ': 'ا', 'ء': ''})
-_PUNCT = re.compile(r'[،,.;:!?؟()\[\]«»"\-/]+')
-_DIACRITICS = re.compile('[\u064B-\u065F\u0670]')
+sys.path.insert(0, os.path.join(ROOT, 'brain'))
+from common import spaced as _spaced  # noqa: E402  (قاعده‌ها: tools/contracts/text_norm.json)
 
 
 def spaced(s):
-    s = _DIACRITICS.sub('', s.translate(_FIX))
-    s = _PUNCT.sub(' ', s)
-    return ' ' + re.sub(r'\s+', ' ', s).strip() + ' '
+    """یکدست‌سازی متن برای تطبیق قاعده‌ها.
+
+    پیش‌تر جدول و الگوی جداگانهٔ خودش را داشت (نسخهٔ سومِ همان قاعده در مخزن)؛
+    حالا از قرارداد `tools/contracts/text_norm.json` می‌آید و رفتارش با
+    `tests/text_norm_golden.json` قفل است.
+    """
+    return _spaced(s, 'tools')
 
 
 def _has(text, words):
@@ -54,8 +60,31 @@ def topic_names():
         return [os.path.splitext(n)[0] for n in json.load(f)['topics']]
 
 
+def topic_path(topic):
+    """مسیر فایل یک موضوع: اول بستهٔ برنامه، بعد آزمایشگاه."""
+    shipped = os.path.join(TOPIC_DIR, topic + '.json')
+    if os.path.isfile(shipped):
+        return shipped
+    return os.path.join(LAB_DIR, topic + '.json')
+
+
+def lab_names():
+    if not os.path.isdir(LAB_DIR):
+        return []
+    return sorted(os.path.splitext(n)[0] for n in os.listdir(LAB_DIR) if n.endswith('.json'))
+
+
+def all_names():
+    """همهٔ موضوع‌ها: هم آن‌هایی که در APK هستند، هم آن‌هایی که در آزمایشگاه‌اند."""
+    out = list(topic_names())
+    for n in lab_names():
+        if n not in out:
+            out.append(n)
+    return out
+
+
 def load(topic='cheque'):
-    with open(os.path.join(TOPIC_DIR, topic + '.json'), encoding='utf-8') as f:
+    with open(topic_path(topic), encoding='utf-8') as f:
         return json.load(f)
 
 
@@ -85,9 +114,11 @@ def answer(q, flow=None):
 def check():
     """بررسی هر موضوع با نمونه‌های خودش؛ خروجی: (همه، ناموفق‌ها)."""
     gold_all, bad = [], []
-    for name in topic_names():
+    for name in all_names():
         flow = load(name)
         path = os.path.join(TEST_DIR, name + '_gold.json')
+        if not os.path.isfile(path):
+            continue
         gold = json.load(open(path, encoding='utf-8'))
         for g in gold:
             gold_all.append(g)

@@ -34,7 +34,7 @@ void main() {
     a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
     final r = a.respond('گزینه ای وجود ندارد');
     expect(r.text, contains('انصراف'));
-    expect(r.chips, contains(Advocate.newCaseChip));
+    expect(r.chips, contains(ChipTexts.newCaseChip));
   });
 
   for (final exit in [
@@ -54,7 +54,7 @@ void main() {
   }
 
   test('«انصراف از ضمانت» در جملهٔ بلند خروج نیست', () {
-    expect(Drafting.isLeave('می‌خواهم از ضمانتی که دادم انصراف دهم و کاغذ بگیرم'),
+    expect(DraftWords.isLeave('می‌خواهم از ضمانتی که دادم انصراف دهم و کاغذ بگیرم'),
         isFalse);
   });
 

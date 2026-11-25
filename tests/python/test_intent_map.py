@@ -2,24 +2,34 @@
 import json
 import os
 import re
+import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+from library import DartLibrary, dart_files, read  # noqa: E402
+
+ADVOCATE = 'lib/domain/advocate/advocate.dart'
+
+
+def _library():
+    """کلِ کتابخانهٔ وکیل، نه فقط `advocate.dart` (از ابزارِ مشترک)."""
+    return DartLibrary(ROOT, ADVOCATE).text
 
 
 def _net_topics():
-    src = open(os.path.join(ROOT, 'lib/domain/advocate/advocate.dart'), encoding='utf-8').read()
+    src = _library()
     block = re.search(r'netTopics = \{(.*?)\};', src, re.S).group(1)
     return dict(re.findall(r"'([a-z_]+)':\s*'([a-z_]+)'", block))
 
 
 def _topic_ids():
     ids = set()
-    d = os.path.join(ROOT, 'lib/domain/advocate/topics')
-    for name in os.listdir(d):
-        if name.endswith('.dart'):
-            text = open(os.path.join(d, name), encoding='utf-8').read()
-            ids.update(re.findall(r"^\s{2}id: '([a-z_]+)'", text, re.M))
+    for rel in dart_files(ROOT):
+        if not rel.startswith('lib/domain/advocate/topics/'):
+            continue
+        text = read(ROOT, rel)
+        ids.update(re.findall(r"^\s{2}id: '([a-z_]+)'", text, re.M))
     return ids
 
 

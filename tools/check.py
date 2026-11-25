@@ -6,6 +6,12 @@
   meta     اعتبار فیلدهای _meta.json + تازگی مشتق‌ها (laws_catalog.json و data_info.json)
   intent   اعتبار و دقت مدل نیت (assets/brain/intent_model.json)
   parity   تازگی استاندارد طلایی برابری پایتون↔دارت (brain/parity_expected.json)
+  pipeline ترتیب و آستانه‌های مسیر پاسخ (assets/pipeline.json)
+  topics   طرح‌وارهٔ مسیرهای موضوعی (tools/schemas/topic_flow.schema.json)
+  refs     هر ارجاع قانونی در داده، در متن قوانین هست
+  textnorm قاعده‌های متن تازه‌اند (tools/contracts/text_norm.json)
+  lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (tools/contracts/law_terms.json)
+  debt     هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (tools/contracts/duplicated_logic.json)
   all      همهٔ موارد بالا (پیش‌فرض)
 
 اجرا: python3 tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
@@ -443,6 +449,52 @@ def cmd_parity():
     return parity.main()
 
 
+# ---------------------------------------------------------------- debt
+def cmd_debt():
+    """هر جفتِ «یک چیز، دو پیاده‌سازی» هنوز نگهبانِ دوطرفه دارد؟"""
+    import debt_check
+    return debt_check.main(['--check'])
+
+
+# ---------------------------------------------------------------- lawterms
+def cmd_lawterms():
+    """فایل‌های قاعدهٔ تطبیق واژه‌ها از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_law_terms
+    return gen_law_terms.main(['--check'])
+
+
+# ---------------------------------------------------------------- textnorm
+def cmd_textnorm():
+    """فایل‌های قاعدهٔ متن از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_text_norm
+    return gen_text_norm.main(['--check'])
+
+
+# ---------------------------------------------------------------- pipeline
+def cmd_pipeline():
+    import pipeline_check
+    return pipeline_check.main([])
+
+
+# ---------------------------------------------------------------- topics
+def cmd_topics():
+    import topic_schema
+    return topic_schema.main([])
+
+
+# ---------------------------------------------------------------- refs
+def cmd_refs():
+    import data_refs
+    return data_refs.main([])
+
+
+# ---------------------------------------------------------------- text
+def cmd_text():
+    """هش‌نامهٔ متن: هیچ جملهٔ حقوقی بی‌اعلام عوض نشده باشد."""
+    import text_manifest
+    return text_manifest.main([])
+
+
 # ---------------------------------------------------------------- main
 COMMANDS = {
     'corpus': cmd_corpus,
@@ -450,6 +502,13 @@ COMMANDS = {
     'meta': cmd_meta,
     'intent': cmd_intent,
     'parity': cmd_parity,
+    'pipeline': cmd_pipeline,
+    'topics': cmd_topics,
+    'refs': cmd_refs,
+    'textnorm': cmd_textnorm,
+    'lawterms': cmd_lawterms,
+    'debt': cmd_debt,
+    'text': cmd_text,
 }
 
 

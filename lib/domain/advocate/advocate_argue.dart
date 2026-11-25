@@ -21,7 +21,25 @@ const String _entitled =
 const String _howAsked =
     'چقدر|چند |مبلغ|حساب کن|چطور|چجوری|چه جوری|چگونه|کجا|کی |چه مدرک|چیکار|چه کار';
 
-extension _Arguing on Advocate {
+/// سنجشِ ادعاها و گفتنِ نظرِ وکیل: «ارکانش را دارید یا نه، و چرا».
+///
+/// این رفتار پیش‌تر متدهای `Advocate` بود؛ ولی هیچ‌کدام به حالتِ گفتگو
+/// کاری نداشتند — فقط پرونده و صدا را می‌خواندند. حالا کلاسِ خودش را دارند و
+/// همان دو چیز را می‌گیرند.
+class CaseArgument {
+  CaseArgument(this.file, this.voice, this.recap, this.flips);
+
+  final CaseFile file;
+  final ReplyVoice voice;
+
+  /// خلاصهٔ پرونده به شکل فهرستِ جمله‌ها؛ برای نشان‌دادنِ «چه عوض شد».
+  final List<String> Function(Topic) recap;
+
+  /// واقعیت‌هایی که کاربر برعکسشان گفته (نامِ واقعیت → مقدارِ پیشین).
+  final Map<String, String> flips;
+
+  String _pick(List<String> options) => voice.pick(options);
+
   /// ادعایی که به وضعیت فعلی پرونده می‌خورد.
   Claim? _claim(Topic t) {
     for (final c in t.claims) {
@@ -82,13 +100,13 @@ extension _Arguing on Advocate {
   /// اگر کاربر حرف قبلی‌اش را برعکس کرده، می‌گویم برداشتم از چه به چه عوض
   /// شد؛ بی‌سروصدا عوض‌کردنِ واقعیت، اعتماد را از بین می‌برد.
   String _correction(Topic t) {
-    if (_flips.isEmpty) return '';
-    final now = _recap(t);
-    for (final e in _flips.entries) {
+    if (flips.isEmpty) return '';
+    final now = recap(t);
+    for (final e in flips.entries) {
       final cur = file.facts[e.key];
       if (cur == null) continue;
       file.facts[e.key] = e.value;
-      final was = _recap(t);
+      final was = recap(t);
       file.facts[e.key] = cur;
       final gone = [
         for (final x in was)

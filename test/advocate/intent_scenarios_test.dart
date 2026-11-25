@@ -434,7 +434,7 @@ AdvocateReply _full(Advocate a, String t) {
   var guard = 0;
   while (a.hasMore && guard < 8) {
     guard++;
-    sb.write('\n${a.respond(Advocate.moreChip).text}');
+    sb.write('\n${a.respond(ChipTexts.moreChip).text}');
   }
   return AdvocateReply(sb.toString(), chips: r.chips, laws: r.laws);
 }
@@ -519,7 +519,7 @@ void main() {
           qaProblems.add('${it.id}: استناد «مستند» ندارد');
         }
         // «انصراف» در هر پاسخ هست؛ برای این بررسی به حساب نمی‌آید.
-        if (r.chips.where((c) => c != Advocate.leaveChip).isEmpty) {
+        if (r.chips.where((c) => c != ChipTexts.leaveChip).isEmpty) {
           qaProblems.add('${it.id}: دکمه‌های هم‌موضوع ندارد');
         }
       } else {

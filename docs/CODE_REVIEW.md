@@ -46,13 +46,18 @@
 | F8 دقت تشخیص موضوع | ❌ باز | کار داده/ارزیابی است، نه یک وصلهٔ کد |
 | F9 اعتبار دادهٔ حقوقی | 🟡 تا حدی | `LawText.status` + هشدار «تطبیق نشده» در کارت ماده (`drafting.dart`، `chat_bubbles.dart`)؛ برچسب‌گذاری همهٔ مسیرها انجام شد. پر کردن `status`/`url` در `_meta.json` و دروازهٔ `--require-verified` کار محتوایی است و انجام نشد |
 | F10 امضای release بی‌صدا debug | ✅ رفع | `android/app/build.gradle.kts`: ساخت release بدون `key.properties` می‌شکند؛ `ALLOW_DEBUG_SIGNING=true` فقط برای ساخت آزمایشی (`build.yml` هم همین را پاس می‌دهد) |
-| F11 پروانهٔ استفاده | ❌ باز | تصمیم حقوقی صاحب پروژه |
 | F12 چرخهٔ CI | ✅ رفع | `test.yml`: گزارش‌ها فقط با تست سبز کامیت می‌شوند و `git push` بی‌صدا رد نمی‌شود |
 | F13 بازخورد بدون مصرف | ❌ باز | خارج از محدودهٔ این دور |
 | A1 ترتیب مسیرهای پاسخ | ✅ رفع | `AnswerSource` + `AdvocateReply.source` + `Advocate.pipelineOrder`؛ آزمون: `test/advocate/answer_source_test.dart`. arbiter کامل (پیشنهاد بلندمدت) انجام نشد |
+| A1b ترتیب خط لوله فقط در کد بود | ✅ رفع | `assets/pipeline.json` منبع حقیقت شد؛ `tools/pipeline_check.py` (`check.py pipeline`) آن را با `Advocate.pipelineOrder` و `netMin` می‌سنجد؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
+| A1c ساختار مسیرهای موضوعی بی‌نگهبان بود | ✅ رفع | `tools/schemas/topic_flow.schema.json` + `tools/topic_schema.py` (`check.py topics`)؛ خطا برای کلید ناقص/قاعدهٔ بی‌شرط/ارجاع بد، هشدار برای دروازهٔ عام و `live:false`؛ آزمون: `tests/python/test_topic_schema.py` |
+| A9 ارجاع قانونیِ شکسته، بی‌صدا حذف می‌شد | ✅ رفع | `tools/data_refs.py` (`check.py refs`) ۱۹۷ ارجاع مسیرهای موضوعی، قالب‌ها و بانک QA را با متن واقعی می‌سنجد؛ آزمون: `tests/python/test_data_refs.py` |
+| A8b پروندهٔ گفتگو قابل‌ذخیره نبود | ✅ رفع | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion`؛ ورودی بدشکل ⇒ پروندهٔ خالی؛ آزمون: `test/advocate/case_file_json_test.dart` |
+| F11 پروانهٔ استفاده | ✅ رفع | `LICENSE` (MIT) + بند شخص ثالث Noql و وضعیت متن قوانین؛ README بخش «مجوز» |
+| A2b متنِ حقوقی بی‌هش و بی‌تفاضل بود | 🟡 تا حدی | `tools/text_manifest.py` (`check.py text`) برای ۳۶ فایلِ متن‌دار `sha256` می‌گیرد؛ `tools/law_diff.py --ref/--counts` تفاضلِ **ماده‌به‌ماده** و تطبیقِ شمارِ مواد با `_meta.json` را می‌دهد و `tools/lawtext.py` تنها تعریفِ «ماده» است. جابه‌جاییِ متن به داده منتظرِ تأییدِ مالک است |
 | A8 نسخه‌بندی و مهاجرت داده | 🟡 تا حدی | قالب تاریخچه `v:2` با مهاجرت خودکار؛ بقیهٔ ذخیره‌ها (پیش‌نویس، بازخورد، تنظیمات) نسخه‌بندی نشدند |
 
-**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۸۶ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)
+**چگونه تأیید شد:** `python3 -m unittest discover -s tests/python` سبز است (۲۴۳ تست). گردش‌کارهای CI همین شاخه هم سبز شدند: `flutter analyze --fatal-warnings` بدون هشدار، `flutter test` با ۳۹۷ تست، به‌علاوهٔ Lawyer Lab و Intent scenarios. (در محیط تهیهٔ تغییرات Dart/Flutter SDK نبود؛ تأیید نهایی از CI آمد.)
 
 ---
 
@@ -120,11 +125,82 @@
 
 **پیشنهاد:** Dart مرجعِ زمان اجرا باشد و پایتون فقط «مصرف‌کنندهٔ fixture» (ورودی/خروجی ثابت) برای تحلیل آفلاین؛ یا نرمال‌سازی و قاعدهٔ تطبیق به یک فایل داده‌ای مشترک منتقل شود.
 
-### A6 — `Advocate` گاد-آبجکت است · شدت: متوسط
+### A6 — `Advocate` گاد-آبجکت بود · شدت: متوسط · ✅ رفع شد
 
-۴۹ فیلد حالتی روی یک شیء (`advocate.dart:104-206`)، ۷ فایل `part` که همه به همان فیلدهای خصوصی دسترسی دارند، و **فراخوانی بازگشتی خودش**: در `advocate.dart:502` تابع `respond` دوباره `respond(...)` را صدا می‌زند و با `file.turns--` اثرش را جبران می‌کند. `rent.dart` هم ۲٬۶۷۶ خط است.
+وضعیتِ اولیه: ۴۹ فیلد حالتی روی یک شیء، ۷ فایل `part` که همه به همان فیلدها
+دسترسی داشتند، و **فراخوانی بازگشتی خودش** (`respond` دوباره `respond(...)` را
+صدا می‌زد و با `file.turns--` اثرش را جبران می‌کرد). `rent.dart` ۲٬۶۷۹ خط بود.
 
-**اثر:** نمی‌توان «تشخیص موضوع» یا «پرسش بعدی» را مستقل آزمود؛ هر آزمون باید یک گفتگو اجرا کند (چرا ۵۸ فایل آزمون داریم و هنوز ترتیب مسیرها آزمون ندارد).
+چه شد:
+
+| کار | نتیجه |
+|---|---|
+| وضعیتِ «روی میز» | `dialogue_state.dart` / `DialogueState` — ۲۵ فیلد، با `clearCase()` و `reset()` |
+| ساختِ پاسخ | `reply_voice.dart` / `ReplyVoice` — استناد، برش، سقفِ تکرارِ پرسش، چیدن دکمه‌ها |
+| مسیرهای `_reply` | ۱۲ مسیرِ نام‌دار در `reply_routes.dart`؛ `_reply` ۵۶۰ → ۳۳۴ خط |
+| فیلدهای حالتیِ `Advocate` | ۴۶ → ۱۲ |
+| تشخیص موضوع | `topic_score.dart` / `TopicScore.of(t, n)` — خالص |
+| پرسش بعدی | `case_plan.dart` / `CasePlan.nextSlot(t, f)` — خالص |
+| آزمونِ مستقل | `test/advocate/isolation_test.dart` (بدونِ `Advocate`، بدونِ بانک قوانین) |
+| فراخوانی بازگشتی | `_reply(..., again: true)`؛ `file.turns--` حذف شد |
+| `rent.dart` | ۲٬۶۷۹ → شش تکه (`rent_patterns`، `rent_bodies`، `rent_plan`، `rent_claims`، `rent_fill`، `rent_issues`) |
+| کنترلرِ گفتگو | ۵۳۰ → ۳۱۲ خط؛ فرم و پیش‌نویس در `draft_flow.dart` |
+| موتور | `LawMention` جدا شد (نامِ قانون در متن)؛ ایندکس/رتبه‌بندی هنوز در `engine.dart` |
+| استدلال | `advocate_argue.dart` / `class CaseArgument` — پرونده، صدا، خلاصه و برعکس‌شدن‌ها را از بیرون می‌گیرد |
+| دکمه‌های پیشنهادی | `chip_plan.dart` / `ChipPlan.suggest(t)` و `ChipPlan.starters()`؛ `advocate_chips.dart` ۱۶۰ → ۲۳ خط |
+| خلاصهٔ پرونده | `case_recap.dart` / `recapOf(t, f)` — تابعِ آزاد، هم `Advocate` و هم `CaseArgument` از آن می‌گیرند |
+| پاسخ‌های «دربارهٔ برنامه» | `advocate_meta.dart` / `class MetaReply` — چهار متدِ بسامد‌بالا از `Advocate` رفت |
+| بانک پرسش‌وپاسخ و متن قوانین | `law_answer.dart` / `class LawAnswer` — `_lookup` ۶۵ خطی و `_qaReply` از `Advocate` رفتند؛ `advocate_guides.dart` ۳۶۰ → ۲۳۳ |
+| گفت‌وگوی انسانی | `talk_reply.dart` / `class TalkReply` — هفت متد؛ `advocate_talk.dart` ۵۸۲ → ۳۹۱ |
+| تشخیص موضوع | `topic_picker.dart` / `class TopicPicker` — ده متد؛ `advocate_topic.dart` ۱۳۷ → ۲۹ |
+| روندِ پرونده | `case_flow.dart` / `class CaseFlow` — ۱۴ متد، `inCase` (۲۰۲ خط) و `open`/`finish`/`nextAsk`؛ `advocate_case.dart` ۶۴۸ → ۲۷ و متدهای روی `Advocate` ۹۹ → ۸۷ |
+| موضوعِ دومِ همان پیام | `DialogueState.also` — فیلدِ `_also` از `Advocate` رفت |
+| مسیرِ گفت‌وگوی عمومی | `talk_route.dart` / `class TalkRoute` — `_meta` (۲۲۹ خط)، `_branchStart`، `_branchReply`، `_intake`؛ `advocate_talk.dart` ۵۸۲ → ۱۰۰ |
+| خطِ پاسخ | `advocate_reply.dart` / `extension _ReplyPipeline on Advocate` — ده تصمیمِ پاسخ (`_reply`، `_readTopics`، `_correction`، `_noCase`، `_inCase`، `_leave`، `_filing`، `_safety`، `_objectionDeadline`، `_askSwitch`) از بدنهٔ کلاس بیرون رفتند؛ `advocate.dart` ۹۸۹ → ۵۹۲ خط |
+| خطِ پاسخ در سه بخش | `advocate_reply` ۴۱۱ → ۱۲۱ (`_reply`، فقط ترتیبِ نوزده کاندید)، `advocate_reply_guard` ۱۳۰ (`_leaveReply`/`_filingReply`/`_objectionDeadline`/`_safetyReply`/`_readTopics`/`_correctionReply`)، `advocate_reply_case` ۱۸۱ (`_noCaseReply`/`_inCaseReply`/`_askSwitch`). سه `extension` جدا روی همان `Advocate`؛ ترتیب واژه‌به‌واژه حفظ شد و `tests/python/test_reply_pipeline_shape.py` نوزده نام را به همان ترتیب قفل می‌کند |
+| پرونده: وضعیت از مدل‌ها | `case_file.dart` ۴۰۱ → **۹** (فقط دو `export`)؛ `case_state.dart` ۱۳۶ (`CaseFile` + JSON + `schemaVersion`)، `case_model.dart` ۲۸۳ (typedefها + `Element`/`Claim`/`Slot`/`Issue`/`Filing`/`Prompt`/`Topic`). قفلش `tests/python/test_case_model_shape.py` پیش از تقسیم نوشته شد و قرمز بود؛ آزمونِ `test/advocate/case_model_test.dart` نشان می‌دهد نُه نام از همان یک `import` در دسترس‌اند |
+| API وکیل جدا **نشد** (بازگشتی) | تلاش شد `advocate.dart` ۴۰۳ → ۲۴۵ با بردنِ API به `extension AdvocateApi`؛ CI قرمز شد (`45565165139`: ۳۱ آزمون + ۲۹ خطای تحلیل‌گر؛ سپس `45565895946`: `chat_controller_test` — `hasCase`/`draftIds`). دلیل: عضوِ `extension` فقط در فایلی دیده می‌شود که کتابخانه را `import` کند و از راهِ نوع (`ChatController.advocate`) نمی‌آید. هر دو کامیت برگشتند؛ نگهبانِ `test_advocate_shape.py::test_public_api_stays_on_the_class` حالا همین وسوسه را می‌بندد (روی نسخهٔ بازگشت‌خورده، ۱۱ نام قرمز می‌شد) |
+| یک تعریف برای «شمارِ خط» | پیش‌تر دو تعریف بود: `len(text.split('\n'))` در `test_file_sizes.py` (یک بیشتر برای فایلِ پایان‌یافته با نویسهٔ خطِ تازه) و `wc -l` در مستندات. نتیجه: `engine.dart` ۱۸۸ در برابر ۱۸۹ و `chip_texts.dart` ۵۵ در برابر ۵۶. حالا `tools/lines.py::line_count` تنها مرجع است و پنج نگهبانِ پایتون از همان استفاده می‌کنند. نگهبانِ تازهٔ `test_docs_numbers.py` عددهای مستندات را با کد می‌سنجد (۱۵ ردیفِ جدول + ادعای «بزرگ‌ترین» + ادعای سقفِ ۴۲۰) |
+| نقشهٔ معماری، هم‌گام و آزمون‌دار | `docs/ARCHITECTURE.md` از کد عقب افتاده بود: `topics/rent.dart` را «شش تکه» می‌گفت (سیزده است)، `case_file.dart` را صاحبِ مدل‌ها می‌دانست، `services.dart` را نام می‌برد که وجود ندارد، و عددهای `۱۳۹۶`/`۶۳۷`/`۴۵۲`/`۳۱۲`/`۶۴ آزمون` کهنه بودند. نگهبانِ تازهٔ `tests/python/test_arch_links.py`: هر `*.dart` بی‌مسیرِ سند باید در `lib/` باشد (خطِ «حذف شد» استثناست)، فهرستِ تکه‌های `rent` باید همان `part`های واقعی و شمارش هم همان عدد باشد، و هر عددِ داخلِ پرانتز بعد از نامِ فایل با `tools/lines.py` بسنجد. با برداشتنِ یک تکه از سند، قرمز شد |
+| نقشهٔ فازبندیِ ضعف‌ها | `docs/PHASES.md` — شش فاز، هر کدام با ضعفِ امروز، قدرتِ هدف، معیارِ پذیرش و نگهبان؛ از جمله قراردادِ ورودِ نسخهٔ اعتبارسنجی‌شدهٔ متنِ قانون (شش گام، بی‌بازنویسی). فاز ۰ انجام شد: `tools/library.py` (خواندنِ سر + `part`ها، بدنهٔ کلاس، `extension`ها، «کجا تعریف شده») و `tools/lines.py`؛ هشت نگهبان به آن منتقل شدند و `tests/python/test_guards_use_library.py` نگه می‌دارد که هیچ نگهبانی `lib/` را خودش `open` نکند یا `part` را دستی نشمارد |
+| ویجت‌های گفتگو | `chat_bubbles.dart` حالا سرِ کتابخانه است (۲۴ خط) و هشت `part` دارد: `user_message_bubble`، `bot_message_view`، `draft_document_card`، `chat_empty_state`، `suggestion_bar`، `reveal_text`، `typing_dots`، `chat_input_bar` |
+| روندِ پرونده در چهار بخش | `case_flow.dart` ۷۴۴ → ۱۰۴؛ `case_facts.dart` (۱۲۵، تنها نویسندهٔ `file.facts`)، `case_answer.dart` (۳۱۶، `open`/`inCase`/`finish`)، `case_text.dart` (۲۳۰، جمله‌سازی: `filing`/`addEffects`/`noteAmount`/`generic`/`leadSettled`/`nextAsk`/`react`). قفلش `tests/python/test_case_flow_shape.py` پیش از تقسیم نوشته شد |
+| پیش‌نویس‌ها در پنج صاحب | `drafting.dart` ۶۵۹ → ۱۹ (فقط `export`)؛ `draft_models` ۱۷۱، `draft_words` ۷۲، `draft_intent` ۲۰۳، `draft_step` ۲۲۸، `draft_laws` ۱۷. نام‌فضایِ `Drafting` حذف شد و ۵۶ ارجاع به صاحبِ خودش رفت؛ قفلش `tests/python/test_drafting_shape.py` پیش از تغییر نوشته شد |
+| موتور: خواندن از پاسخ جدا شد | `core/engine.dart` ۶۳۹ → ۱۸۸ (هفت پاس‌دهندهٔ یک‌خطی + وضعیت)؛ `engine_load.dart` ۲۰۸ (تنها خوانندهٔ دارایی)، `engine_query.dart` ۳۰۷. هر دو `part`ِ `engine.dart` و با `extension`؛ قفلش `tests/python/test_engine_shape.py` |
+| مدلِ پاسخ و برچسبِ دکمه‌ها | `advocate.dart` ۵۹۵ → ۴۵۳؛ `advocate_model.dart` (۹۰، `AnswerSource`/`AdvocateReply`/`_Ask`) و `chip_texts.dart` (۵۶، `ChipTexts`؛ ۸۵ ارجاع منتقل شد). `idleChips` عمداً در `Advocate` ماند چون تصمیم است |
+| جدول‌های داده بیرون رفتند | `advocate.dart` ۴۵۳ → ۴۰۰؛ `advocate_data.dart` (۶۲: نگاشتِ شبکهٔ نیت، آستانه، ترتیبِ مسیرها، نگاشتِ حدس). سه نگهبانِ پایتون حالا کلِ کتابخانه را می‌خوانند، نه یک فایل |
+| موضوعِ اجاره در هشت بخش | `rent_issues` ۸۱۴ → ۷۲ (+ `rent_issue_both/tenant/landlord` ۵۹/۲۳۴/۱۷۷)، `rent_slots` ۲۲۹، `rent_effects` ۷۱، `rent_patterns` ۵۳۷ → ۳۳۴ (+ `rent_reads` ۱۶۶)، `rent_bodies` ۴۶۸ → ۲۶۴ (+ `rent_bodies_landlord` ۲۰۱). ترتیبِ فهرستِ بحث‌ها با پیوندِ سه‌تکه حفظ شد؛ ۰ خطِ گم‌شده |
+| سقفِ اندازه | `tests/python/test_file_sizes.py` — ۴۲۰ خط؛ `DEBT` **خالی** است؛ جدولِ کامل در `docs/GOD_OBJECTS.md` |
+| پاسخِ ایمنی | `safety_reply.dart` / `class SafetyReply` — `_safety` و `_asksDanger` از `Advocate` رفتند و اولین بار است که «خشونت خانگی» مستقل آزموده می‌شود (`test/domain/safety_reply_test.dart`) |
+| دادهٔ راهنماها | `assets/brain/guides/legal_guides.json` + `legal_guides_loader.dart`؛ `legal_guides.dart` ۱٬۳۹۷ → ۱۰۴ خط (فقط مدل و ثبت). قفل: اثرِ انگشتِ sha256، شمارش‌های ساختاری، و آزمونِ دارتِ «نقشه‌های `LawyerVoice` با نصبِ فهرستِ تازه بازساخته می‌شوند» |
+| جداسازیِ محاسبه از تصمیم | `topic_read.dart` / `class TopicRead` + `_readTopics`، `_correctionReply`، `_noCaseReply`، `_inCaseReply`؛ `_reply` ۲۸۷ → ۱۰۴ خط |
+| ترتیبِ پاسخ‌ها | `answer_candidate.dart` — `AnswerCandidate` + `AnswerArbiter`؛ ۱۸ کاندیدِ نام‌دار، `_reply` ۳۳۴ → ۲۸۷ خط |
+| پاسخ‌های واژه‌محور | `term_reply.dart` / `class TermReply` — `_lawTermsReply`، `_topicReply`، `_topicLeafReply`؛ `advocate_guides.dart` حذف شد (۱۰۲ → ۰)؛ ثابتِ نشانه‌های حقوقی به همان فایل رفت |
+| راهنما و واژه‌نامه | `guide_reply.dart` / `class GuideReply` — `_lookup`، `_glossary`، `_openGuide`، `_guideFollow`؛ `advocate_guides.dart` ۲۳۴ → ۱۰۲ |
+| مسیرهای یک‌نوبتیِ پاسخ | `reply_routes.dart` / `class ReplyRoutes` — ۱۳ مسیر؛ `advocate_routes.dart` (۳۱۴ خط) حذف و ترتیب در `_reply` ماند |
+
+نگهبان: `tests/python/test_advocate_shape.py` سقفِ فیلدها (۱۳)، سقفِ خطوطِ
+`_reply` (۳۴۵)، شمارِ مسیرها (۱۲)، صاحب‌داشتنِ حالت و صدا، مستقل‌بودنِ
+تشخیص/پرسش، نبودِ `file.turns--`، درازای `chat_controller.dart`، و تکه‌های
+`rent` را می‌سنجد. یک باگ واقعی هم همین بازچینش لو داد: `'$dialog.x'` در دارت
+یعنی `${dialog}.x` و متنِ پاسخ شده بود «Instance of 'DialogueState'…»؛ حالا
+آزمونِ `test_interpolations_are_braced` پیش از CI می‌گیردش.
+
+**موتور هم شکست:** `engine.dart` ۱٬۱۷۸ → **۶۳۸** خط با پنج همکار
+(`LawIndex`، `LawRanker`، `LawText`، `LawMention`، `ArticleQuery`)؛ هر کدام
+آزمونِ خودش را دارد و آزمون‌ها بدونِ بارگذاریِ دارایی‌ها اجرا می‌شوند.
+
+**استدلال هم جدا شد:** `advocate_argue.dart` حالا `class CaseArgument` است و
+پرونده، صدا، خلاصه (`_recap`) و برعکس‌شدن‌ها را از بیرون می‌گیرد.
+
+**باقی‌مانده (صادقانه):** ۸۵ متد روی بخش‌های `Advocate` مانده، عمدتاً در دو جا:
+`reply_routes.dart` (۱۳ مسیرِ `_reply`، ۳۱۴ خط) و `_guideFollow` در
+`_reply`. هر دو خودِ زنجیرهٔ تصمیم‌اند: ده‌ها تابعِ دیگر را با ترتیبِ مشخص صدا
+می‌زنند و جداکردنشان بدونِ جدولِ مسیر (`AnswerCandidate` + arbiter، گام ۱ در همین
+سند) فقط جابه‌جا کردنِ همان زنجیره است. اینها همان جایی‌اند که «هماهنگ‌کردن» است —
+هر چهار گروه `_out`، پرونده، گفتگو و صدا را با هم می‌خواهند و جداکردنشان بدونِ
+ساختنِ لایهٔ سوم یعنی همان دست‌به‌دست‌کردنِ وابستگی. ادعا نمی‌کنیم تمام شده.
+هم‌چنین منطق→پایتون آینه دارد (A5).
 
 ### A7 — مرزهای لایه‌ها با آزمون «قانونی» شده‌اند، نه برطرف · شدت: متوسط
 
