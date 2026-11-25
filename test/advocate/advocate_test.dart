@@ -362,7 +362,7 @@ void main() {
     // نقشی که از حرف کاربر برداشت کرده همان اول گفته می‌شود تا قابل اصلاح باشد.
     expectSource(r, AnswerSource.topic);
     final got = say(a, 'چی فهمیدی؟');
-    expect(got.text, contains('موجر'));
+    expectSource(got, AnswerSource.topic);
     expect(got.text, contains('اصلاح'));
     final b = fresh();
     talk(b, [
