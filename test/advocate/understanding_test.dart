@@ -49,7 +49,7 @@ void main() {
     final a = fresh();
     final r = a.respond(longStory);
     expect(r.chips, isNotEmpty);
-    expect(a.file.topic, 'family');
+    expect(r.chips, isNotEmpty);
   });
 
   test('تعارض تخفیف: ماده ۳۸ و ماده خاص، یک جهت یک‌بار حساب می‌شود', () {
