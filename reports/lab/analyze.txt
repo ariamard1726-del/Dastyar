@@ -1,2 +1,7 @@
 Analyzing Dastyar...                                            
-No issues found! (ran in 10.5s)
+
+  error • The argument type 'Map<String, dynamic>' can't be assigned to the parameter type 'Map<String, Map<String, dynamic>>'.  • lib/core/engine_load.dart:210:46 • argument_type_not_assignable
+  error • The part-of directive must be the only directive in a part. Try removing the other directives, or moving them to the library for which this is a part • lib/core/engine_worker.dart:3:1 • non_part_of_directive_in_part
+  error • The part-of directive must be the only directive in a part. Try removing the other directives, or moving them to the library for which this is a part • lib/core/engine_worker.dart:4:1 • non_part_of_directive_in_part
+
+3 issues found. (ran in 12.0s)
