@@ -6,10 +6,7 @@ class BotMessageView extends StatefulWidget {
   final ValueChanged<String> onCopy;
   final ValueChanged<String> onShare;
 
-  /// در هر گام نمایش تدریجی صدا زده می‌شود (برای پایین‌بردن فهرست).
-  final VoidCallback? onRevealTick;
-
-  /// وقتی نمایش تدریجی تمام شد صدا زده می‌شود.
+  /// وقتی متن پاسخ مشخص شد (یکبار) صدا زده میشود.
   final VoidCallback? onRevealed;
 
   const BotMessageView({
@@ -18,7 +15,6 @@ class BotMessageView extends StatefulWidget {
     required this.question,
     required this.onCopy,
     required this.onShare,
-    this.onRevealTick,
     this.onRevealed,
   });
 
@@ -28,8 +24,8 @@ class BotMessageView extends StatefulWidget {
 
 class _BotMessageViewState extends State<BotMessageView> {
   void _revealed() {
-    // بازسازی محلی لازم است تا بخش «ارتباط یا تعارض» بعد از تمامشدن نگارش
-    // ظاهر شود؛ والد نیازی به بازسازی کل صفحه ندارد.
+    // بازسازی محلی لازم است تا بخش «ارتباط یا تعارض» همزمان با متن کامل ظاهر
+    // شود؛ والد نیازی به بازسازی کل صفحه ندارد.
     if (mounted) setState(() {});
     widget.onRevealed?.call();
   }
@@ -76,7 +72,6 @@ class _BotMessageViewState extends State<BotMessageView> {
             RevealText(
               message: message,
               style: const TextStyle(fontSize: 16, height: 1.9),
-              onTick: widget.onRevealTick,
               onRevealed: _revealed,
             ),
             if (message.conflictChains.isNotEmpty &&

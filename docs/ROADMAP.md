@@ -46,8 +46,8 @@
 | کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
 | خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند |
 | `engine.query` و `LawTerms` بیرون از رشتهٔ UI | 🟡 | `engine.query` در isolate دائمی (`core/engine_worker.dart`) اجرا میشود و API همگام قدیمی دستنخورده مانده؛ `LawTerms.match` هنوز PaLM از پیش ساخته را همگام میخواند (`domain/advocate/term_reply.dart`) |
-| ارزان‌کردن نمایش تدریجی متن | ✅ | بازسازی فقط با تغییر واژه/حالت، نه هر فریم (`chat_bubbles.dart`) |
-| حذف کامل انیمیشن نویسهبهنویسه | 🟡 | سقف ۲۴ → ۶ ثانیه و بازسازی کمتر (`tests/python/test_ui_budget.py`)؛ خود انیمیشن هنوز هست |
+| ارزانکردن نمایش تدریجی متن | ✅ | حذف کامل نگارش تدریجی؛ پاسخ یکجا نمایش داده میشود (`reveal_text.dart`) |
+| حذف کامل انیمیشن نویسهبهنویسه | ✅ | انیمیشن و `onRevealTick` حذف شدند؛ تنها نشانگر «در حال نوشتن…» پیش از آمدن پاسخ مانده (`tests/python/test_ui_budget.py`) |
 | نگه‌داشتن دکمه‌های پیشنهادی در تاریخچه | ✅ | `StoredMsg.chips`؛ گفتگوی بازیابی‌شده دیگر بی‌دکمه نیست |
 | قفل‌کردن تقویم شمسی با الگوریتم مرجع | ✅ | `test/core/jalali_reference_test.dart` (۱۳۰۰–۱۵۰۰) |
 | حذف حدس «تومان → میلیون» در `Sense.amount` | ⬜ | تغییر عدد به‌معنای تغییر حکم است |

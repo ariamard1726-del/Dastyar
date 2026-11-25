@@ -1,29 +1,31 @@
-"""نگهبان بودجهٔ رابط کاربری: نمایش تدریجی نباید دوباره طولانی شود."""
+"""نگهبان بودجهٔ رابط کاربری: پاسخ بدون نگارش تدریجی و بدون setState در هر فریم."""
 
-import re
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REVEAL = ROOT / 'lib' / 'ui' / 'widgets' / 'reveal_text.dart'
-
-
-def _constant(src, name):
-    m = re.search(r'static const int %s = (\d+);' % name, src)
-    assert m, '%s پیدا نشد' % name
-    return int(m.group(1))
+BUBBLES = ROOT / 'lib' / 'ui' / 'widgets' / 'chat_bubbles.dart'
+BOT_VIEW = ROOT / 'lib' / 'ui' / 'widgets' / 'bot_message_view.dart'
+PAGE = ROOT / 'lib' / 'ui' / 'chat_page.dart'
 
 
 class UiBudgetTest(unittest.TestCase):
-    def test_reveal_animation_has_a_short_cap(self):
-        src = REVEAL.read_text(encoding='utf-8')
-        self.assertLessEqual(_constant(src, 'maxMs'), 6000,
-                             'سقف نگارش دوباره طولانی شد')
-        self.assertLessEqual(_constant(src, 'msPerChar'), 8)
-        self.assertLessEqual(_constant(src, 'msPerCharLong'), 5)
-        # `setState` در میانهٔ build ممنوع است؛ حالت تمامشده به فریم بعد موکول
-        # میشود.
-        self.assertIn('addPostFrameCallback', src)
+    def test_reveal_animation_is_gone(self):
+        src = '\n'.join(l for l in REVEAL.read_text(encoding='utf-8').splitlines()
+                        if not l.strip().startswith('///'))
+        for banned in ('AnimationController', 'setState', 'msPerChar', 'maxMs',
+                       'onTick', 'SchedulerBinding', 'GestureDetector'):
+            self.assertNotIn(banned, src,
+                             'نگارش تدریجی دوباره برگشت: %s' % banned)
+        self.assertIn("'...'", src, 'حالت «در حال نوشتن» باید بماند')
+        self.assertIn('TypingDots', src)
+        self.assertIn('SelectableText', src)
+
+    def test_no_per_frame_scroll_hook_is_left(self):
+        for path in (BUBBLES, BOT_VIEW, PAGE):
+            self.assertNotIn('onRevealTick', path.read_text(encoding='utf-8'),
+                             '%s هنوز دنبالهٔ انیمیشن را حمل میکند' % path.name)
 
 
 if __name__ == '__main__':
