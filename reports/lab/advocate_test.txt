@@ -1,3 +1,48 @@
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه دو پیام کوتاهِ پشت‌سرهم روی‌هم موضوع را روشن می‌کنند
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه مستأجری که حرفش ودیعه نیست، دربارهٔ ودیعه نمی‌شنود
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
+✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
+✅ test/advocate/labor_test.dart: اخراج در برداشتِ وکیل می‌آید، حتی اگر بعدتر حرفِ بیمه پیش بیاید
+✅ test/advocate/labor_test.dart: پروندهٔ تازه با پرسشِ «چه اتفاقی افتاده؟» شروع می‌شود
+✅ test/advocate/labor_test.dart: پرسش‌های اصلی و کلیدواژه‌های موضوع سرِ جایشان‌اند
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
+::notice title=intent::130 از 130 سناریو درست است
+::endgroup::
+::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
+::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
+::endgroup::
+::group::✅ Passing tests
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
+✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
+✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
+✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
+✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
+✅ test/advocate/case_model_test.dart: نُه نام، از یک import
+✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
+✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و در مورد توانایهایت بگو» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
+✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
+✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
+✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
+✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
+✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
+✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
+✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
+✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
+✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
 ✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
@@ -12,54 +57,37 @@
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
-::endgroup::
-::group::❌ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود (failed)
-Expected: 'q:goal'
-  Actual: ''
-   Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: q:goal
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/rent_test.dart 323:7                  main.<fn>.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
 ✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
+✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
+✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
-✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
-✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
 ✅ test/advocate/meta_and_tone_test.dart: برنامه را بستن و باز کردن، پرسشِ «منظورتان چیست» نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
 ✅ test/advocate/reply_contract_test.dart: هیچ پاسخی بی‌برچسب، خالی یا با رشتهٔ خالی نیست
 ✅ test/advocate/reply_contract_test.dart: هر ماده‌ای که در پاسخ می‌آید، متن و عنوان دارد
-::endgroup::
-::group::❌ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد (failed)
-Expected: non-empty
-  Actual: []
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/conversation_fixes_test.dart 31:5     main.<fn>
-::endgroup::
-::group::✅ Passing tests
 ✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
+✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
+✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
+✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است
 ✅ test/advocate/conversation_fixes_test.dart: پیام چندموضوعی: موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع کنیم
@@ -68,8 +96,6 @@ test/advocate/conversation_fixes_test.dart 31:5     main.<fn>
 ✅ test/advocate/conversation_fixes_test.dart: مهلت با تاریخ و مدت، حساب می‌شود
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
-✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
-✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
@@ -122,36 +148,10 @@ test/advocate/understanding_test.dart 52:5          main.<fn>
 ✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
 ✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
 ✅ test/advocate/conversation_control_test.dart: جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند
-::endgroup::
-::group::❌ test/advocate/conversation_control_test.dart: قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید (failed)
-Expected: non-empty
-  Actual: []
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/conversation_control_test.dart 89:5   main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/conversation_control_test.dart: قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید
 ✅ test/advocate/conversation_control_test.dart: «نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد
-::endgroup::
-::group::❌ test/advocate/conversation_control_test.dart: «خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد (failed)
-Expected: empty
-  Actual: 'چه اتفاقی افتاده؟'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/conversation_control_test.dart 103:5  main.<fn>
-::endgroup::
-::group::❌ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد (failed)
-Expected: contains all of ['بله، کتبی دادم', 'هنوز کتبی ندادهام']
-  Actual: ['بله، کتبی دادم', 'هنوز کتبی نداده‌ام', 'انصراف']
-   Which: has no match for 'هنوز کتبی ندادهام' at index 1
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/conversation_control_test.dart 108:5  main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/conversation_control_test.dart: «خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد
+✅ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد
 ✅ test/advocate/conversation_control_test.dart: «زن داری» پیش از حدس زدن، توضیح می‌خواهد
 ✅ test/advocate/conversation_control_test.dart: «شکایت کرده‌ام» یعنی کاربر شاکی است
 ✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
@@ -197,4 +197,4 @@ test/advocate/conversation_control_test.dart 108:5  main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::234 tests passed, 6 failed.
+::error::239 tests passed, 1 failed.

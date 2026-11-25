@@ -7,8 +7,7 @@ warning • The value of the local variable 'r' isn't used. Try removing the var
 warning • The value of the local variable 'r' isn't used. Try removing the variable or using it • test/advocate/branch_chips_test.dart:81:11 • unused_local_variable
 warning • The value of the local variable 'r' isn't used. Try removing the variable or using it • test/advocate/conversation_control_test.dart:50:13 • unused_local_variable
 warning • The value of the local variable 'r' isn't used. Try removing the variable or using it • test/advocate/rent_test.dart:244:13 • unused_local_variable
-warning • The value of the local variable 'g' isn't used. Try removing the variable or using it • test/advocate/rent_test.dart:321:13 • unused_local_variable
 warning • Unused import: '../support/reply_shape.dart'. Try removing the import directive • test/advocate/understanding_test.dart:6:8 • unused_import
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • test/domain/safety_reply_test.dart:30:13 • unnecessary_non_null_assertion
 
-10 issues found. (ran in 12.5s)
+9 issues found. (ran in 8.6s)
