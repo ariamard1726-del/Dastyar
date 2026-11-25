@@ -56,11 +56,16 @@ class AdvocateReply {
   /// مسیر دانشی که این پاسخ را ساخت (برای شفافیت و آزمون).
   final AnswerSource source;
 
+  /// پرسشِ ساختاریافتهٔ همرهٔ پاسخ — جدا از متن آزادِ [text]. آزمونها به جای
+  /// جستجوی عبارت در متن، قصدِ پاسخ را از همین فیلد میخوانند.
+  final String ask;
+
   AdvocateReply(
     this.text, {
     this.chips = const [],
     this.laws = const [],
     this.source = AnswerSource.unknown,
+    this.ask = '',
   });
 }
 

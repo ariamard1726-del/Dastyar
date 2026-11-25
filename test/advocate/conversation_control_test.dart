@@ -87,12 +87,12 @@ void main() {
     final r = a.respond('من با یک شرکت خارجی که در ایران شعبه ندارد یک قرارداد مشاوره منعقد کرده‌ام و بر سر تفسیر یکی از بندها اختلاف داریم');
     expect(a.file.topic, 'foreign_contract');
     expect(r.laws, isNotEmpty);
-    expect(r.laws, isNotEmpty);
+    expect(r.source, AnswerSource.topic);
   });
 
   test('«نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد', () {
     final a = fresh();
-    expect(r.chips, isNotEmpty);
+    expect(a.respond('نفهمی').ask, 'کدام بخشش را نفهمیدید؛ همان را سادهتر و با مثال توضیح میدهم.');
     final b = fresh();
     expect(b.respond('نفهمیدم چی شد').text, isNot(contains('کدام بخشش')));
   });
@@ -105,17 +105,18 @@ void main() {
   test('دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد', () {
     final a = fresh();
     final r = a.respond('یک مسئول دولتی از دادن اطلاعات یک پروژه عمرانی خودداری کرده و می‌گوید محرمانه است، آیا می‌توانم شکایت کنم؟');
-    expect(r.laws, isNotEmpty);
+    expect(r.chips, containsAll(<String>['بله، کتبی دادم', 'هنوز کتبی ندادهام']));
     expect(r.text, isNot(contains('اصل ۳۴')));
   });
 
   test('«زن داری» پیش از حدس زدن، توضیح می‌خواهد', () {
     final a = fresh();
-    expect(r.chips, isNotEmpty);
+    expect(a.respond('زن داری').ask, 'کدام را میخواهید؟');
   });
 
   test('«شکایت کرده‌ام» یعنی کاربر شاکی است', () {
     final a = fresh();
-    expect(r.chips, contains(ChipTexts.leaveChip));
+    expect(a.respond('شکایت کرده\u200cام').ask,
+        'شکایت کیفری است یا حقوقی؟ و آیا شماره\u200cی پرونده یا رسید دارید؟');
   });
 }

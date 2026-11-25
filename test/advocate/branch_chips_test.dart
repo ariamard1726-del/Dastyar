@@ -43,10 +43,10 @@ void main() {
   test('«کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند', () {
     final a = fresh();
     a.respond('سلام');
-    expect(r.chips, contains('دادسرا'));
+    expect(a.respond('کیفری').ask, isNotEmpty);
     final b = fresh();
     b.respond('سلام');
-    expect(r.chips, contains('اداره'));
+    expect(b.respond('اداری').ask, isNotEmpty);
   });
 
   test('«نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد', () {

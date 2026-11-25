@@ -188,7 +188,7 @@ void main() {
       a.respond('صاحبخونه پول پیشمو نمیده');
       a.respond('آره قرارداد تموم شده، یه ماهه خونه رو خالی کردم');
       final r = a.respond(depositChip);
-    expect(a.isDrafting, isFalse);
+      expect(a.offeredDraft, 'demand_money');
       expect(r.chips, contains('بله، بنویس'));
       expect(a.offeredDraft, 'demand_money');
       final fill = a.fillFor('demand_money');

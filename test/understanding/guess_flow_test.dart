@@ -68,7 +68,7 @@ void main() {
       expect(a.file.topic, 'rent');
       final r = a.respond(reply);
       expect(a.file.topic, isEmpty, reason: reply);
-    expect(r.chips, contains(ChipTexts.leaveChip));
+      expect(r.chips, ChipTexts.branchChips);
     }
   });
 
@@ -106,7 +106,7 @@ void main() {
     a.respond(unknown, guess: unsure('labor', 'rent'));
     final r = a.respond(ChipTexts.noneChip);
     expect(a.file.topic, isEmpty);
-    expect(r.chips, contains(ChipTexts.leaveChip));
+    expect(r.chips, ChipTexts.branchChips);
     // پرسشِ «کدام؟» دیگر معتبر نیست.
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, isNot('labor'));
