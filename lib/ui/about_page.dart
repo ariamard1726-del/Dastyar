@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/templates.dart';
 
 class AboutPage extends StatefulWidget {
@@ -179,6 +180,14 @@ class _AboutPageState extends State<AboutPage> {
       ...widget.engine.warnings,
       ...widget.repo.problems,
     ];
+    final verifiedLaws = widget.engine.meta.values
+        .where((m) => (m['status'] ?? '').toString().trim() == 'verified')
+        .length;
+    final cryptoNote = PrivacyService.fallbackUsed
+        ? 'رمزنگاری بومی روی این دستگاه کار نکرده است. ذخیرهٔ محلی خاموش '
+            'است و گفتگو فقط تا بستهشدن برنامه در حافظه میماند.'
+        : 'رمزنگاری بومی دردسترس است؛ تاریخچه و پیشنویس در صورت روشن بودن '
+            'روی همین گوشی ذخیره میشوند.';
     return Scaffold(
       appBar: AppBar(title: const Text('اطلاعات و وضعیت داده‌ها')),
       body: SafeArea(
@@ -191,8 +200,16 @@ class _AboutPageState extends State<AboutPage> {
               _row('بخش‌های دانش', _fa(widget.engine.size)),
               _row('قالب‌ها', _fa(total)),
               _row('قالب‌های بازبینی‌شده', _fa(reviewed)),
+              _row('قوانین تطبیقدادهشده با منبع رسمی',
+                  '${_fa(verifiedLaws)} / ${_fa(widget.engine.meta.length)}'),
               if (note.isNotEmpty) _p(note),
+              _p('«تطبیقدادهشده» یعنی متن قانون با منبع رسمی مقایسه شده است. '
+                  'عدد صفر یعنی هیچکدام از متنها تأیید رسمی ندارند؛ آنها را '
+                  'فقط برای آشنایی عمومی بخوانید و پیش از اقدام حقوقی، متن '
+                  'رسمی را ببینید.'),
             ]),
+            const SizedBox(height: 8),
+            _card('وضعیت ذخیرهٔ محلی', [_p(cryptoNote)]),
             if (diagnostics.isNotEmpty) ...[
               const SizedBox(height: 8),
               _card('هشدارهای بارگذاری', [

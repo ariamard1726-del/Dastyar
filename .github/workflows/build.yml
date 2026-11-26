@@ -29,6 +29,12 @@ jobs:
           python dev/tools/eval_py.py --check
           python dev/tools/eval_none.py --check
 
+      - name: Release content trust gate
+        # متن قانونی تأییدنشده یا قالب بازبینینشده نباید وارد APK انتشار شود.
+        # این دروازه عمداً فقط در ساخت انتشار است؛ development CI سبز میماند
+        # ولی ساخت release تا تکمیل بازبینی انسانی متوقف میشود.
+        run: python dev/tools/check.py trust
+
       - uses: actions/setup-java@v6
         with:
           distribution: temurin

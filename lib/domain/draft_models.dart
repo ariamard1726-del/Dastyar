@@ -103,6 +103,7 @@ class DraftCheckpointStore {
   }
 
   static Future<bool> save(DraftSession session) => _serial(() async {
+        if (!PrivacyService.persistenceAllowed) return false;
         if (session.done) {
           // صدا نزدن به `clear` باعث قفلشدن صف میشود: خودمان داخل همان صف هستیم.
           try {
@@ -129,7 +130,12 @@ class DraftCheckpointStore {
           final stored = prefs.getString(_key);
           if (stored == null || stored.isEmpty) return null;
           final raw = await PrivacyService.open(stored);
-          if (raw == null || raw.isEmpty) return null;
+          if (raw == null || raw.isEmpty) {
+            if (stored.startsWith(PrivacyService.fallbackPrefix)) {
+              await prefs.remove(_key);
+            }
+            return null;
+          }
           final decoded = jsonDecode(raw);
           if (decoded is! Map<String, dynamic>) return null;
           final s = DraftSession.fromJson(decoded, templates);

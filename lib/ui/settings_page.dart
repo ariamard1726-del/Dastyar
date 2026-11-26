@@ -7,10 +7,15 @@ import 'package:dastyar/domain/settings.dart';
 class SettingsPage extends StatefulWidget {
   final AppSettings settings;
   final HistoryStore history;
+
+  /// هنگام پاک کردن تاریخچه، گفتگوی بازِ روی صفحه هم باید پاک شود.
+  final VoidCallback? onHistoryCleared;
+
   const SettingsPage({
     super.key,
     required this.settings,
     required this.history,
+    this.onHistoryCleared,
   });
 
   @override
@@ -38,6 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     if (ok != true) return;
     await widget.history.clear();
+    widget.onHistoryCleared?.call();
     if (!mounted) return;
     setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(
@@ -57,6 +63,19 @@ class _SettingsPageState extends State<SettingsPage> {
         child: ListView(
           padding: const EdgeInsets.all(12),
           children: [
+            if (!s.localPersistenceAvailable)
+              const Card(
+                color: Color(0xFF7A2828),
+                child: Padding(
+                  padding: EdgeInsets.all(14),
+                  child: Text(
+                    'رمزنگاری بومی روی این دستگاه کار نمیکند. تاریخچه و پیشنویس '
+                    'ذخیره نمیشوند تا نوشتهای ایجاد نشود که بعداً قابل خواندن '
+                    'نیست. گفتگوی فعلی تنها تا بستهشدن برنامه در حافظه است.',
+                    style: TextStyle(color: Colors.white, height: 1.7),
+                  ),
+                ),
+              ),
             if (s.lastError != null)
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
@@ -162,10 +181,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       'تاریخچه به‌صورت رمزنگاری‌شده ذخیره می‌شود؛ در گوشی مشترک می‌توانید خاموشش کنید.',
                     ),
                     value: s.saveHistory,
-                    onChanged: (v) async {
-                      await s.setSaveHistory(v);
-                      if (mounted) setState(() {});
-                    },
+                    onChanged: s.localPersistenceAvailable
+                        ? (v) async {
+                            await s.setSaveHistory(v);
+                            if (!v) {
+                              await widget.history.clear();
+                              widget.onHistoryCleared?.call();
+                            }
+                            if (mounted) setState(() {});
+                          }
+                        : null,
                   ),
                   SwitchListTile(
                     title: const Text('ذخیرهٔ موقت پیش‌نویس ناتمام'),
@@ -173,10 +198,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       'به‌صورت پیش‌فرض خاموش است. با روشن‌کردن، فرم ناتمام رمزنگاری می‌شود تا پس از بسته شدن برنامه ادامه یابد و با پایان فرم پاک می‌شود.',
                     ),
                     value: s.saveDraftProgress,
-                    onChanged: (v) async {
-                      await s.setSaveDraftProgress(v);
-                      if (mounted) setState(() {});
-                    },
+                    onChanged: s.localPersistenceAvailable
+                        ? (v) async {
+                            await s.setSaveDraftProgress(v);
+                            if (mounted) setState(() {});
+                          }
+                        : null,
                   ),
                   SwitchListTile(
                     title: const Text('محافظت از صفحه (جلوگیری از اسکرین‌شات)'),

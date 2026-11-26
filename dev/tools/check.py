@@ -12,7 +12,8 @@
   textnorm قاعده‌های متن تازه‌اند (dev/tools/contracts/text_norm.json)
   lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (dev/tools/contracts/law_terms.json)
   debt     هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (dev/tools/contracts/duplicated_logic.json)
-  all      همهٔ موارد بالا (پیش‌فرض)
+  all      همهٔ موارد بالا (پیش‌فرض؛ trust عمداً بیرون است)
+  trust    دروازهٔ انتشار: قانون تأییدنشده یا قالب بازبینینشده نمانده باشد
 
 اجرا: python3 dev/tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
 با STRICT=1 یا --strict خالی‌بودن منبع و تاریخ قانون «خطا» می‌شود، نه هشدار.
@@ -590,7 +591,44 @@ def cmd_noql():
     return 0
 
 
+# ---------------------------------------------------------------- trust
+def cmd_trust():
+    """دروازهٔ صداقتِ انتشار: محتوای حقوقیِ قابل استناد باید کاملاً بازبینی شده باشد."""
+    import law_registry
+
+    with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as f:
+        meta = json.load(f)
+    errors, warnings, verified = law_registry.validate(
+        meta, LAWS_DIR, require_verified=True)
+    unreviewed = []
+    for path in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))):
+        with open(path, encoding='utf-8') as f:
+            t = json.load(f)
+        if not t.get('reviewed'):
+            unreviewed.append(os.path.basename(path))
+    unknown = [k for k, v in meta.items() if isinstance(v, dict)
+               and str(v.get('status', '')).strip() != 'verified']
+    print('trust: %d/%d قانون با منبع رسمی تطبیق داده شده' % (verified, len(meta)))
+    print('trust: %d/%d قالب بازبینی شده' %
+          (len(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))) - len(unreviewed),
+           len(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json')))))
+    if unreviewed:
+        print('خطا: قالبهای بازبینینشده: %s' % '، '.join(unreviewed))
+    if unknown:
+        print('خطا: قانونهای تأییدنشده: %s' % '، '.join(sorted(unknown)))
+    for e in errors:
+        print('خطا: %s' % e)
+    if errors or unknown or unreviewed:
+        print('نتیجه: انتشار مسدود است. متن رسمی یا بازبینی انسانی لازم است؛ '
+              'CI معمولی (check.py all) عمداً این دروازه را شامل نمیشود.')
+        return 1
+    print('نتیجه: محتوای حقوقی قابل انتشار است.')
+    return 0
+
+
 # ---------------------------------------------------------------- main
+RELEASE_ONLY = {'trust'}
+
 COMMANDS = {
     'corpus': cmd_corpus,
     'assets': cmd_assets,
@@ -606,6 +644,7 @@ COMMANDS = {
     'text': cmd_text,
     'bundle': cmd_bundle,
     'noql': cmd_noql,
+    'trust': cmd_trust,
 }
 
 
@@ -615,7 +654,8 @@ def main(argv):
         if a in COMMANDS or a == 'all':
             cmd = a
             break
-    names = list(COMMANDS) if cmd == 'all' else [cmd]
+    names = ([n for n in COMMANDS if n not in RELEASE_ONLY]
+             if cmd == 'all' else [cmd])
     failed = []
     for name in names:
         if len(names) > 1:

@@ -281,7 +281,6 @@ class Advocate {
   /// این حالت به پرونده و به اینکه پیش‌تر هشدار داده‌ام یا نه گره نمی‌خورد؛
   /// هر بار که کاربر این را بگوید، پاسخ فوری می‌گیرد.
 
-
   /// متن‌های پیشنهادی برای فیلدهای یک قالب، از روی واقعیت‌های همین پرونده
   /// (شناسهٔ فیلد → متن).
   Map<String, String> fillFor(String templateId) {
@@ -316,9 +315,15 @@ class Advocate {
 
   /// بازیابی پرونده از نسخهٔ ذخیره‌شده (JSON تاریخچه) بدون پخش دوبارهٔ پیام‌ها.
   /// ورودی نامعتبر پروندهٔ خالی می‌دهد.
-  void restoreCase(Map<String, dynamic> json) {
+  void restoreCase(Map<String, dynamic> json, {Map<String, dynamic>? dialogue}) {
     reset();
     file.copyFrom(CaseFile.fromJson(json));
+    if (dialogue == null) return;
+    dialog.applyJson(
+      dialogue,
+      topicById: {for (final t in Advocate.topics) t.id: t},
+      guideById: {for (final g in legalGuides) g.id: g},
+    );
   }
 
   /// آیا کاربر صریحاً خواسته متنی برایش نوشته شود؟
@@ -352,13 +357,6 @@ class Advocate {
       _preparedText = '';
     }
   }
-
-
-
-
-
-
-
 
   /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`. همان
   /// قاعدهٔ بازشدن پرونده است تا پیشنهادهای هنگام نوشتن هم از همین‌جا بیاید.

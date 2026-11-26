@@ -10,7 +10,7 @@
 | ساختار مسیرهای موضوعی | `dev/tools/schemas/topic_flow.schema.json` | `python dev/tools/check.py topics` | `tests/python/test_topic_schema.py` |
 | رسیدن هر ارجاع قانونی به متن واقعی | `assets/laws/_meta.json` + متن قوانین | `python dev/tools/check.py refs` | `tests/python/test_data_refs.py` |
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
-| ماندن پرونده در تاریخچه پس از راهاندازی مجدد | محمولهٔ رمزنگاریشدهٔ `history_v1:m:<id>` (`v: 3`) | `HistoryStore._readSession` | `test/app/case_persistence_test.dart` (با `HistoryStore` تازه) |
+| ماندن پرونده در تاریخچه پس از راهاندازی مجدد | محمولهٔ رمزنگاریشدهٔ `history_v1:m:<id>` (`v: 4`) | `HistoryStore._readSession` | `test/app/case_persistence_test.dart` (با `HistoryStore` تازه؛ قالب ۴ وضعیت گفتگو را هم بازمیگرداند) |
 | صدق تیک «محافظت از صفحه» | نتیجهٔ کانال بومی `setSecureScreen` | `AppSettings.applySecureScreenAtStartup` | `test/app/settings_failure_test.dart` |
 | ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python dev/tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |

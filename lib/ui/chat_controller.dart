@@ -241,7 +241,9 @@ class ChatController extends ChangeNotifier {
   }
 
   Future<void> _saveSession() async {
-    if (!settings.saveHistory || _disposed) return;
+    if (!settings.saveHistory ||
+        !settings.localPersistenceAvailable ||
+        _disposed) return;
     final stored = messages
         .where((m) => !m.sensitive && !m.isDoc)
         .map((m) => StoredMsg(m.text, m.fromUser, chips: m.chips))
@@ -257,6 +259,7 @@ class ChatController extends ChangeNotifier {
         // پروندهٔ گفتگو هم ذخیره می‌شود تا بازکردن دوباره، پیام‌ها را از نو
         // پردازش نکند و «بله/نه/نمی‌دانم»ها با گذشت زمان جابه‌جا نشوند.
         caseJson: advocate.file.hasContent ? advocate.file.toJson() : null,
+        dialogueJson: advocate.dialog.toJson(),
       ),
     );
   }
@@ -268,6 +271,10 @@ class ChatController extends ChangeNotifier {
   Future<bool> restoreDraftCheckpoint() => draftFlow.restoreCheckpoint();
 
   // ------------------------------------------------------------- گفتگوها
+
+  /// پس از «پاک کردن همهٔ تاریخچه»، گفتگوی باز هم باید پاک شود؛ وگرنه نخستین
+  /// پیام بعدی همان محتوا را دوباره روی دیس مینویسد.
+  void resetAfterHistoryClear() => newChat();
 
   void newChat() {
     _generation++;
@@ -302,7 +309,7 @@ class ChatController extends ChangeNotifier {
     final saved = s.caseJson;
     if (saved != null) {
       // پرونده همان‌طور که بود برمی‌گردد؛ هیچ پیامی دوباره پردازش نمی‌شود.
-      advocate.restoreCase(saved);
+      advocate.restoreCase(saved, dialogue: saved.dialogueJson);
     } else {
       // گفتگوی ذخیره‌شدهٔ قدیمی: پرونده از روی پیام‌های خودِ کاربر ساخته می‌شود.
       advocate.replay([

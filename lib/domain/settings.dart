@@ -23,6 +23,12 @@ class AppSettings extends ChangeNotifier {
   set saveDraftProgress(bool v) =>
       _state = _state.copyWith(saveDraftProgress: v);
 
+  /// بار نخست بدون پرسش، تاریخچه ذخیره نمیشود.
+  bool get consentGiven => _state.consentGiven;
+
+  /// اگر Keystore دردسترس نباشد، ذخیرهٔ محلی قفل میشود.
+  bool localPersistenceAvailable = true;
+
   bool get secureScreen => _state.secureScreen;
   set secureScreen(bool v) => _state = _state.copyWith(secureScreen: v);
 
@@ -59,6 +65,23 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// گزینش آگاهانهٔ بار نخست. کاربر میداند داده روی همین گوشی میماند.
+  Future<void> acceptConsent({required bool saveHistory}) async {
+    _state = _state.copyWith(consentGiven: true, saveHistory: saveHistory);
+    final p = _prefs ??= await SharedPreferences.getInstance();
+    await p.setBool('consentGiven', true);
+    await p.setBool('saveHistory', saveHistory);
+    notifyListeners();
+  }
+
+  /// قفل کردن ذخیرهٔ محلی وقتی رمزنگاری بومی کار نمیکند.
+  void lockLocalPersistence(String reason) {
+    localPersistenceAvailable = false;
+    _state = _state.copyWith(saveHistory: false, saveDraftProgress: false);
+    lastError = reason;
+    notifyListeners();
+  }
+
   static const List<double> scales = SettingsSnapshot.scales;
   static const List<String> scaleNames = SettingsSnapshot.scaleNames;
   static const List<ThemeMode> themeModes = [
@@ -79,6 +102,7 @@ class AppSettings extends ChangeNotifier {
         saveDraftProgress: p.getBool('saveDraftProgress'),
         secureScreen: p.getBool('secureScreen'),
         themeMode: p.getString('themeMode'),
+        consentGiven: p.getBool('consentGiven'),
       );
     } catch (_) {
       // تنظیمات پیشفرض میمانند؛ ولی کاربر باید بداند که خوانده نشد.
@@ -111,12 +135,22 @@ class AppSettings extends ChangeNotifier {
   }
 
   Future<void> setSaveHistory(bool v) async {
+    if (v && !localPersistenceAvailable) {
+      lastError = 'روشن کردن تاریخچه ممکن نیست: رمزنگاری بومی دردسترس نیست.';
+      notifyListeners();
+      return;
+    }
     _state = _state.copyWith(saveHistory: v);
     await _save('saveHistory', (p) => p.setBool('saveHistory', v),
         'تنظیم تاریخچه');
   }
 
   Future<void> setSaveDraftProgress(bool v) async {
+    if (v && !localPersistenceAvailable) {
+      lastError = 'ذخیرهٔ پیشنویس ممکن نیست: رمزنگاری بومی دردسترس نیست.';
+      notifyListeners();
+      return;
+    }
     _state = _state.copyWith(saveDraftProgress: v);
     if (!v) {
       await DraftCheckpointStore.clear();

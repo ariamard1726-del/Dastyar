@@ -1,121 +1,144 @@
 import 'package:dastyar/domain/advocate/case_file.dart';
+import 'package:dastyar/domain/advocate/dialogue_sections.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 
-/// آنچه در این نوبت «روی میز» است: پرسشی که پرسیده‌ام، پیشنهادی که داده‌ام،
-/// موضوعی که منتظر تأییدش هستم و پروندهٔ کمکی که باز کرده‌ام.
+/// آنچه در این نوبت «روی میز» است، بهصورت یک نمایندهٔ نازک.
 ///
-/// پیش‌تر این ۲۵ فیلد روی خودِ `Advocate` بودند، کنارِ موتور، پرونده و
-/// موضوع‌ها؛ هر متدی در هر بخش می‌توانست هر کدام را عوض کند و همین باعث
-/// می‌شد «چه چیزی روی میز است» را نتوان جدا آزمود. حالا یک صاحب دارد و
-/// `Advocate` فقط از آن می‌خواند.
-///
-/// این وضعیت **رفتاری** است: با `reset()` به حالت آغاز گفتگو برمی‌گردد و با
-/// `clearCase()` با بسته‌شدن پرونده پاک می‌شود (به‌جز آنچه به گفتگو مربوط است،
-/// نه به پرونده).
+/// پیشتر این ۲۵ فیلد مستقیم روی همین کلاس بودند (گاد-آبجکت). اکنون پنج تکهٔ
+/// مستقل دارند (`QuestionState`، `ChoiceState`، `GuideState`، `SafetyState`،
+/// `UnclearState`) و این کلاس فقط delegating میکند تا صدها فراخوانِ موجود
+/// (`dialog.askText = ...`) بی تغییر بمانند. همین تکهها قابل ذخیرهاند و
+/// زمینهٔ قالب ۴ تاریخچهاند.
 class DialogueState {
-  /// آخرین پرسشی که از کاربر کرده‌ام و دکمه‌های جوابش.
-  String askText = '';
-  List<String> askChips = const [];
+  QuestionState question = QuestionState();
+  ChoiceState choice = ChoiceState();
+  GuideState guideState = GuideState();
+  SafetyState safety = SafetyState();
+  UnclearState unclear = UnclearState();
 
-  /// پیشنهادی که در پاسخ قبلی به شکل پرسش داده‌ام: `argue`، `next` یا
-  /// `draft` (خالی = هیچ)، و شناسهٔ قالبی که برای نوشتن پیشنهاد شده است.
-  String offer = '';
-  String offerDraft = '';
-
-  /// موضوع‌هایی که با حدسِ نامطمئن از کاربر پرسیده‌ام «کدام؟»، و پیامی که
-  /// این پرسش را پیش آورد. فقط برای پیام بعدی معتبر است.
-  List<Topic> choices = const [];
-  String choiceText = '';
-
-  /// پروندهٔ جاری با حدسِ مدل باز شده و کاربر هنوز تأییدش نکرده است.
-  bool guessed = false;
-
-  /// موضوعی که پیام کاربر به آن اشاره کرده، ولی هنوز تأیید نشده است.
-  Topic? pendingTopic;
-  String pendingText = '';
-
-  /// موضوع دیگری که وسط پرونده به آن اشاره شد ولی مطمئن نیستم ماجرای
-  /// جدایی باشد؛ به‌جای پریدنِ خودسرانه از کاربر می‌پرسم.
-  Topic? side;
-  String sideText = '';
-
-  /// موضوعِ دومی که کاربر در همان پیام به آن اشاره کرده («همچنین همسایه‌ام…»).
-  /// پیش‌تر فیلدِ `_also` روی خودِ `Advocate` بود.
-  Topic? also;
-
-  /// دکمه‌های دستهٔ مشکل در همین نوبتِ بعد معنا دارند.
-  bool branchAsked = false;
-
-  /// راهنمای آماده‌ای که باز شده، و اینکه پرسشِ پایانش بی‌جواب مانده است.
-  LegalGuide? guide;
-  bool guideAsked = false;
-  bool guideStepped = false;
-
-  /// بحثی که به نقشِ طرفِ دیگر موکول شده است.
-  String deferred = '';
-
-  /// نام ادعایی که آخرین پرسشِ من برای روشن‌شدنِ آن بود.
-  String lastServed = '';
-
-  /// واقعیت‌هایی که آخرین استدلال روی آن‌ها بنا شده بود.
-  String arguedOn = '';
-
-  /// همهٔ حرف‌های کاربر در پروندهٔ جاری (برای پیشنهادهای متناسب).
-  String heard = '';
-
-  /// پاسخ بعدی توضیحی است که خودِ کاربر خواسته (استدلال، نقشهٔ راه) و جای
-  /// بیشتری می‌گیرد.
-  bool roomy = false;
-
-  /// پیام نامفهومِ قبلی (نقل کوتاه) و نوبتش: اگر پیام بعدی هم نامفهوم بود،
-  /// دیگر نمی‌پرسد، می‌گوید جوابی ندارد.
-  String unclearPhrase = '';
-  int unclearTurn = -10;
-
-  /// پیامی که پاسخ ایمنی جایش را گرفت، و اینکه پیام ایمنی در این پرونده
-  /// گفته شده است یا نه (یک بار کافی است تا گفتگو در حلقه نیفتد).
-  String safetyCarry = '';
-  bool safetyShown = false;
-
-  /// پیام‌های کاربر پیش از بازشدن پرونده (حداکثر سه تای آخر).
+  /// حرفهای کاربر پیش از بازشدن پرونده (حداکثر سه تای آخر).
   final List<String> loose = [];
 
-  /// پیشنهادِ معلق را کنار می‌گذارد (وقتی لایهٔ بالاتر خودش به آن رسید).
-  void clearOffer() {
-    offer = '';
-    offerDraft = '';
-  }
+  String get askText => question.askText;
+  set askText(String v) => question.askText = v;
+  List<String> get askChips => question.askChips;
+  set askChips(List<String> v) => question.askChips = v;
+  String get offer => question.offer;
+  set offer(String v) => question.offer = v;
+  String get offerDraft => question.offerDraft;
+  set offerDraft(String v) => question.offerDraft = v;
 
-  /// با بسته‌شدن پرونده: هرچه به همان پرونده مربوط بود پاک می‌شود.
+  List<Topic> get choices => choice.choices;
+  set choices(List<Topic> v) => choice.choices = v;
+  String get choiceText => choice.choiceText;
+  set choiceText(String v) => choice.choiceText = v;
+  bool get guessed => choice.guessed;
+  set guessed(bool v) => choice.guessed = v;
+  Topic? get pendingTopic => choice.pendingTopic;
+  set pendingTopic(Topic? v) => choice.pendingTopic = v;
+  String get pendingText => choice.pendingText;
+  set pendingText(String v) => choice.pendingText = v;
+  Topic? get side => choice.side;
+  set side(Topic? v) => choice.side = v;
+  String get sideText => choice.sideText;
+  set sideText(String v) => choice.sideText = v;
+  Topic? get also => choice.also;
+  set also(Topic? v) => choice.also = v;
+  bool get branchAsked => choice.branchAsked;
+  set branchAsked(bool v) => choice.branchAsked = v;
+
+  LegalGuide? get guide => guideState.guide;
+  set guide(LegalGuide? v) => guideState.guide = v;
+  bool get guideAsked => guideState.guideAsked;
+  set guideAsked(bool v) => guideState.guideAsked = v;
+  bool get guideStepped => guideState.guideStepped;
+  set guideStepped(bool v) => guideState.guideStepped = v;
+  String get deferred => guideState.deferred;
+  set deferred(String v) => guideState.deferred = v;
+  String get lastServed => guideState.lastServed;
+  set lastServed(String v) => guideState.lastServed = v;
+  String get arguedOn => guideState.arguedOn;
+  set arguedOn(String v) => guideState.arguedOn = v;
+  String get heard => guideState.heard;
+  set heard(String v) => guideState.heard = v;
+  bool get roomy => guideState.roomy;
+  set roomy(bool v) => guideState.roomy = v;
+
+  String get safetyCarry => safety.safetyCarry;
+  set safetyCarry(String v) => safety.safetyCarry = v;
+  bool get safetyShown => safety.safetyShown;
+  set safetyShown(bool v) => safety.safetyShown = v;
+  String get lastSafetyText => safety.lastSafetyText;
+  set lastSafetyText(String v) => safety.lastSafetyText = v;
+
+  String get unclearPhrase => unclear.unclearPhrase;
+  set unclearPhrase(String v) => unclear.unclearPhrase = v;
+  int get unclearTurn => unclear.unclearTurn;
+  set unclearTurn(int v) => unclear.unclearTurn = v;
+
+  void clearOffer() => question.clearOffer();
+
+  /// با بستهشدن پرونده: هرچه به همان پرونده مربوط بود پاک میشود.
+  /// ترتیب و فیلدهای پاکشده عیناً همان رفتار پیشین است (رفتار تغییر نکرد).
   void clearCase() {
-    pendingTopic = null;
-    pendingText = '';
-    lastServed = '';
-    safetyShown = false;
-    safetyCarry = '';
-    guide = null;
-    deferred = '';
-    arguedOn = '';
-    heard = '';
-    askText = '';
-    askChips = const [];
-    guideAsked = false;
-    clearOffer();
+    choice.clearCase();
+    guideState.clearCase();
+    safety.clearCase();
+    question.clearCase();
   }
 
   /// آغاز گفتگوی تازه.
   void reset() {
     clearCase();
-    choices = const [];
-    choiceText = '';
-    guessed = false;
-    side = null;
-    sideText = '';
-    also = null;
-    branchAsked = false;
-    unclearPhrase = '';
-    unclearTurn = -10;
-    roomy = false;
+    choice.reset();
+    guideState.reset();
+    safety.reset();
+    unclear.reset();
     loose.clear();
+  }
+
+  static const int schemaVersion = 1;
+
+  Map<String, dynamic> toJson() => {
+        'v': schemaVersion,
+        'question': question.toJson(),
+        'choice': choice.toJson(),
+        'guide': guideState.toJson(),
+        'safety': safety.toJson(),
+        'unclear': unclear.toJson(),
+        'loose': List<String>.from(loose),
+      };
+
+  /// بازیابی از محمولهٔ تاریخچه. موضوعها و راهنماها با شناسهشان برگردانده
+  /// میشوند؛ شناسهٔ ناشناخته دور ریخته میشود، نه اینکه پرونده را کراش دهد.
+  factory DialogueState.fromJson(
+    Map<String, dynamic> j, {
+    Map<String, Topic>? topicById,
+    Map<String, LegalGuide>? guideById,
+  }) =>
+      DialogueState()
+        ..applyJson(j, topicById: topicById, guideById: guideById);
+
+  void applyJson(
+    Map<String, dynamic> j, {
+    Map<String, Topic>? topicById,
+    Map<String, LegalGuide>? guideById,
+  }) {
+    reset();
+    final v = j['v'];
+    if (v is int && v != schemaVersion) return;
+    Map<String, dynamic> part(Object? key) =>
+        j[key] is Map ? Map<String, dynamic>.from(j[key] as Map) : const {};
+    question.absorb(QuestionState.fromJson(part('question')));
+    choice.absorb(
+        ChoiceState.fromJson(part('choice'), topicById: topicById));
+    guideState.absorb(
+        GuideState.fromJson(part('guide'), guideById: guideById));
+    safety.absorb(SafetyState.fromJson(part('safety')));
+    unclear.absorb(UnclearState.fromJson(part('unclear')));
+    final rawLoose = j['loose'];
+    if (rawLoose is List) {
+      loose.addAll(rawLoose.whereType<String>().take(3));
+    }
   }
 }

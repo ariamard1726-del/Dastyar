@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:dastyar/ui/chat_page.dart';
+import 'package:dastyar/ui/privacy_notice_page.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
@@ -102,7 +103,9 @@ class DastyarApp extends StatelessWidget {
               child: child ?? const SizedBox(),
             );
           },
-          home: Loader(settings: settings),
+          home: settings.consentGiven
+              ? Loader(settings: settings)
+              : PrivacyNoticePage(settings: settings),
         );
       },
     );
@@ -205,6 +208,14 @@ class _LoaderState extends State<Loader> {
     // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
     // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
     final problems = <String>[];
+    // پیش از هر نوشتن، باسنجی Keystore. اگر کار نکند، ذخیرهٔ محلی قفل میشود
+    // تا رکوردی نوشته نشود که پس از بستهشدن برنامه خوانده نخواهد شد.
+    final nativeCrypto = await PrivacyService.beginSession();
+    if (!nativeCrypto) {
+      widget.settings.lockLocalPersistence(PrivacyService.lastError ??
+          'رمزنگاری بومی دردسترس نیست؛ ذخیرهٔ محلی خاموش شد.');
+      problems.add(PrivacyService.lastError ?? 'رمزنگاری بومی دردسترس نیست.');
+    }
     // قبل از خواندن تاریخچه: کلید/دادهٔ نسخهٔ پیشین یکبار مهاجرت میشود.
     final migration = await PrivacyMigration.run();
     if (migration.migrated > 0) {
@@ -245,7 +256,9 @@ class _LoaderState extends State<Loader> {
     }
     // سکوت در مورد افتادن به رمزنگاری جایگزین بدترین حالت است: کاربر فکر
     // میکند کلید روی سختافزار است، در حالی که در حافظهٔ محلی برنامه است.
-    if (PrivacyService.fallbackUsed && PrivacyService.lastError != null) {
+    if (nativeCrypto &&
+        PrivacyService.fallbackUsed &&
+        PrivacyService.lastError != null) {
       problems.add(PrivacyService.lastError!);
     }
     _error = problems.isEmpty ? null : problems.join('\n');

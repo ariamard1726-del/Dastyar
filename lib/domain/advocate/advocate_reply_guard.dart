@@ -38,13 +38,16 @@ extension _ReplyGuards on Advocate {
       full: true,
     );
   }
-  /// ایمنی، پیش از هر چیز و مستقل از امتیازِ موضوع. یک بار در هر پرونده گفته
-  /// می‌شود تا گفتگو در حلقه نیفتد؛ ولی اگر کاربر خودش بگوید «الان در خطر
-  /// هستم»، هر بار جوابِ فوری می‌گیرد.
+  /// ایمنی، پیش از هر چیز و مستقل از امتیازِ موضوع. تکرارِ دقیق همان متن
+  /// سرکوب میشود تا گفتگو در حلقه نیفتد؛ ولی گزارش تازهٔ خطر، هر بار جوابِ
+  /// فوری میگیرد.
   AdvocateReply? _safetyReply(String n) {
-    if (dialog.safetyShown && !_safetyBot.asksDanger(n)) return null;
     final safe = _safetyBot.reply(n);
     if (safe == null) return null;
+    // تنها تکرارِ دقیق همان متن سرکوب میشود. یک گزارش تازهٔ خشونت در همان
+    // پرونده نباید بیپاسخ بماند.
+    if (dialog.safetyShown && dialog.lastSafetyText == n) return null;
+    dialog.lastSafetyText = n;
     // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید پرونده را
     // دوباره باز کند.
     if (!hasCase && !dialog.safetyShown) {

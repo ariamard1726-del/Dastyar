@@ -115,6 +115,7 @@ class _ChatPageState extends State<ChatPage> {
         builder: (_) => SettingsPage(
           settings: widget.settings,
           history: widget.history,
+          onHistoryCleared: _chat.resetAfterHistoryClear,
         ),
       ),
     );

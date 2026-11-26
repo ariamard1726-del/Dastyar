@@ -40,13 +40,27 @@ void main() {
     expect(r.chips, contains('الان امن است'));
   });
 
-  test('پیام ایمنی در یک پرونده تکرار نمی‌شود', () {
+  test('گزارش تازهٔ خشونت حتی در همان پرونده هشدار میگیرد', () {
     final a = fresh();
     final first = a.respond('شوهرم منو زد');
     expect(first.source, AnswerSource.safety);
     final second = a.respond('شوهرم دوباره منو زد');
-    // بار دوم مسیر عادی ادامه می‌یابد، ولی ایمنی دوباره تکرار نمی‌شود.
-    expect(second.source, isNot(AnswerSource.safety));
+    expect(second.source, AnswerSource.safety,
+        reason: 'خشونت تازه نباید بهخاطر یک بار هشدار دادن بیپاسخ بماند');
+  });
+
+  test('تکرارِ دقیق همان متن، هشدار را دوباره نمیکند', () {
+    final a = fresh();
+    expect(a.respond('شوهرم منو زد').source, AnswerSource.safety);
+    expect(a.respond('شوهرم منو زد').source, isNot(AnswerSource.safety));
+  });
+
+  test('حرفِ خودآسیبی پیش از بحث حقوقی، کمک فوری میگیرد', () {
+    final a = fresh();
+    final r = a.respond('دیگه تحمل ندارم، خودمو میکشم');
+    expect(r.source, AnswerSource.safety, reason: r.text);
+    expect(r.source, AnswerSource.safety);
+    expect(r.chips, contains('الان امن هستم'));
   });
 
   test('گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد', () {

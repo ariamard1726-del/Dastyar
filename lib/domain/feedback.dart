@@ -44,7 +44,12 @@ class FeedbackStore {
       if (stored == null || stored.isEmpty) return [];
       final wasPlain = !PrivacyService.isEncrypted(stored);
       final raw = await PrivacyService.open(stored);
-      if (raw == null || raw.isEmpty) return [];
+      if (raw == null || raw.isEmpty) {
+        // کلید موقت اجرای پیشین (`encf1:`) از میان رفته؛ نگهداشتن رکورد
+        // بیفایده است و دوباره نوشتنش همان وعدهٔ دروغین را تکرار میکند.
+        if (stored.startsWith(PrivacyService.fallbackPrefix)) await p.remove(_key);
+        return [];
+      }
       final list = (jsonDecode(raw) as List)
           .map((e) => FeedbackEntry.fromJson(e as Map<String, dynamic>))
           .where((e) => e.q.isNotEmpty)
@@ -59,6 +64,7 @@ class FeedbackStore {
   }
 
   static Future<bool> _save(List<FeedbackEntry> list) async {
+    if (!PrivacyService.persistenceAllowed) return false;
     try {
       final p = await SharedPreferences.getInstance();
       final raw = jsonEncode(list.map((e) => e.toJson()).toList());

@@ -48,6 +48,14 @@ void main() {
     expect(r!.chips, contains('الان امن است'));
   });
 
+  test('خودآسیبی پاسخ فوری میگیرد', () {
+    final r = bot.reply(n('دیگه تحمل ندارم، خودمو میکشم'));
+    expect(r, isNotNull);
+    expect(r!.source, AnswerSource.safety);
+    expect(bot.asksSelfHarm(n('نمیخوام زنده بمونم')), isTrue);
+    expect(bot.asksSelfHarm(n('قرارداد اجاره تمام شده')), isFalse);
+  });
+
   test('پیامِ حقوقیِ معمولی ایمنی نیست', () {
     expect(bot.reply(n('چکم برگشت خورد و پولم را نمیدهند')), isNull);
     expect(bot.reply(n('قرارداد اجاره‌ام تمام شده')), isNull);
