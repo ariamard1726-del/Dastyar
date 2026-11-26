@@ -1,2 +1,2 @@
-commit: fd8262f
+commit: 967a445
 CI: test/lab/scenarios success
