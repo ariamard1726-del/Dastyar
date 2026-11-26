@@ -1,36 +1,11 @@
 Analyzing Dastyar...                                            
 
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • lib/domain/advocate/advocate.dart:212:32 • new_with_undefined_constructor_default
-  error • The class 'QuestionState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'QuestionState' • lib/domain/advocate/dialogue_sections.dart:38:61 • new_with_undefined_constructor_default
-  error • The class 'ChoiceState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'ChoiceState' • lib/domain/advocate/dialogue_sections.dart:94:7 • new_with_undefined_constructor_default
-  error • The class 'GuideState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'GuideState' • lib/domain/advocate/dialogue_sections.dart:157:7 • new_with_undefined_constructor_default
-  error • The class 'SafetyState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'SafetyState' • lib/domain/advocate/dialogue_sections.dart:202:59 • new_with_undefined_constructor_default
-  error • The class 'UnclearState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'UnclearState' • lib/domain/advocate/dialogue_sections.dart:229:60 • new_with_undefined_constructor_default
-  error • Conditions must have a static type of 'bool'. Try changing the condition • lib/domain/advocate/dialogue_sections.dart:245:37 • non_bool_condition
-  error • Expected an identifier • lib/domain/advocate/dialogue_sections.dart:245:53 • missing_identifier
-  error • Expected to find ':' • lib/domain/advocate/dialogue_sections.dart:245:53 • expected_token
-  error • Conditions must have a static type of 'bool'. Try changing the condition • lib/domain/advocate/dialogue_sections.dart:254:37 • non_bool_condition
-  error • Expected an identifier • lib/domain/advocate/dialogue_sections.dart:254:53 • missing_identifier
-  error • Expected to find ':' • lib/domain/advocate/dialogue_sections.dart:254:53 • expected_token
-  error • The class 'QuestionState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'QuestionState' • lib/domain/advocate/dialogue_state.dart:13:28 • new_with_undefined_constructor_default
-  error • The class 'ChoiceState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'ChoiceState' • lib/domain/advocate/dialogue_state.dart:14:24 • new_with_undefined_constructor_default
-  error • The class 'GuideState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'GuideState' • lib/domain/advocate/dialogue_state.dart:15:27 • new_with_undefined_constructor_default
-  error • The class 'SafetyState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'SafetyState' • lib/domain/advocate/dialogue_state.dart:16:24 • new_with_undefined_constructor_default
-  error • The class 'UnclearState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'UnclearState' • lib/domain/advocate/dialogue_state.dart:17:26 • new_with_undefined_constructor_default
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • lib/domain/advocate/dialogue_state.dart:119:7 • new_with_undefined_constructor_default
-  error • The getter 'dialogueJson' isn't defined for the type 'Map<String, dynamic>'. Try importing the library that defines 'dialogueJson', correcting the name to the name of an existing getter, or defining a getter or field named 'dialogueJson' • lib/ui/cha
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • test/advocate/chip_plan_test.dart:12:27 • new_with_undefined_constructor_default
 warning • The value of the local variable 'get' isn't used. Try removing the variable or using it • test/advocate/dialogue_state_test.dart:16:24 • unused_local_variable
   error • Expected to find ';' • test/advocate/dialogue_state_test.dart:16:24 • expected_token
   error • Functions must have an explicit list of parameters. Try adding a parameter list • test/advocate/dialogue_state_test.dart:16:36 • missing_function_parameters
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • test/advocate/dialogue_state_test.dart:21:15 • new_with_undefined_constructor_default
+  error • Expected to find ';' • test/advocate/dialogue_state_test.dart:18:7 • expected_token
   error • The argument type 'Map<String, Topic> Function()' can't be assigned to the parameter type 'Map<String, Topic>?'.  • test/advocate/dialogue_state_test.dart:26:66 • argument_type_not_assignable
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • test/advocate/dialogue_state_test.dart:35:15 • new_with_undefined_constructor_default
   error • The argument type 'Map<String, Topic> Function()' can't be assigned to the parameter type 'Map<String, Topic>?'.  • test/advocate/dialogue_state_test.dart:40:66 • argument_type_not_assignable
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • test/advocate/dialogue_state_test.dart:49:15 • new_with_undefined_constructor_default
   error • The argument type 'Map<String, Topic> Function()' can't be assigned to the parameter type 'Map<String, Topic>?'.  • test/advocate/dialogue_state_test.dart:56:20 • argument_type_not_assignable
-  error • The class 'DialogueState' doesn't have an unnamed constructor. Try using one of the named constructors defined in 'DialogueState' • test/advocate/topic_picker_test.dart:14:27 • new_with_undefined_constructor_default
-  error • The constructor being called isn't a const constructor. Try removing 'const' from the constructor invocation • test/core/privacy_fail_closed_test.dart:40:24 • const_with_non_const
-  error • The values in a const list literal must be constants. Try removing the keyword 'const' from the list literal • test/core/privacy_fail_closed_test.dart:40:24 • non_constant_list_element
 
-32 issues found. (ran in 10.9s)
+7 issues found. (ran in 12.4s)
