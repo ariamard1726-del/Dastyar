@@ -1,9 +1,10 @@
 """متنِ منتقلشدهٔ اجاره نویسهبهنویسه همان متنِ پیش از جابهجایی است.
 
 پیش از این گام ۴۲ رشتهٔ بلند در دو فایلِ پاسخ، ۸۷ رشته و ۳۲ برچسبِ
-سند در `rent_claims.dart` بود. هشِ هر جدول **قبل** از حذفشان از کد گرفته
-شده است؛ هر تغییر در فایلِ JSON یا تلاش برای برگرداندن متن به دارت،
-قرمز میشود مگر اینکه آگاهانه هشِ تازه در این آزمون نوشته شود.
+سند در `rent_claims.dart` و ۱۳ متنِ طرحِ دعوا در `rent_plan.dart` بود.
+هشِ هر جدول **قبل** از حذفشان از کد گرفته شده است؛ هر تغییر در فایلِ
+JSON یا تلاش برای برگرداندن متن به دارت، قرمز میشود مگر اینکه آگاهانه
+هشِ تازه در این آزمون نوشته شود.
 """
 
 import glob
@@ -28,6 +29,14 @@ CLAIMS_BEFORE_COUNT = 87
 FILINGS_BEFORE_SHA256 = '706c5beef307a43b879be402022533e21fbc949ebf37cd9dbb0a2dfd395325db'
 FILINGS_BEFORE_COUNT = 32
 FILING_CTOR_COUNT = 18
+PLANS_BEFORE_SHA256 = 'bcadb24f3f513a7d26f6f0047e4fb0e37ce784f317d1de48777fb1c58da894b5'
+PLANS_BEFORE_COUNT = 13
+PLAN_SUFFIXES = {
+    'plan0': 'moneyForum(sum)',
+    'plan1': 'moneyForum(sum)',
+    'plan8': '_rentPeace()',
+    'plan12': 'moneyForum(sum)',
+}
 DART_FILES = [
     'lib/domain/advocate/topics/rent_bodies.dart',
     'lib/domain/advocate/topics/rent_bodies_landlord.dart',
@@ -90,6 +99,31 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertEqual(FILING_CTOR_COUNT * 2, len(ids))
         self.assertEqual(set(ids), set(self.data['filings']),
                          'هر برچسبِ سند دقیقاً از دارایی خوانده میشود')
+
+    def test_plan_texts_are_identical_to_the_pre_move_source(self):
+        plans = self.data['plans']
+        self.assertEqual(PLANS_BEFORE_COUNT, len(plans))
+        self.assertEqual(PLANS_BEFORE_SHA256, digest(plans),
+                         'یک نویسه از متنِ طرحِ دعوا عوض شده است')
+        for section in ('texts', 'claims', 'filings'):
+            self.assertFalse(set(plans) & set(self.data[section]))
+
+    def test_plan_bodies_keep_only_delegates_and_interpolations(self):
+        src = read(ROOT, 'lib/domain/advocate/topics/rent_plan.dart')
+        body = src.split('String _rentPlan(CaseFile f) {')[1].split(
+            'String _rentEvidence')[0]
+        ids = re.findall(r"rentText\('(plan\d+)'\)", body)
+        self.assertEqual(PLANS_BEFORE_COUNT, len(ids))
+        self.assertEqual(set(ids), set(self.data['plans']))
+        # شرطها و شناسهها کوتاهاند؛ متنِ بلند فقط در دارایی است.
+        literals = re.findall(r"'((?:\\.|[^'])*)'", body)
+        self.assertLessEqual(max(map(len, literals)), 16,
+                             'متنِ بلند دوباره به بدنهٔ _rentPlan برگشته است')
+        found = {key: (tail.strip() or None) for key, tail in re.findall(
+            r"return rentText\('(plan\d+)'\)(?:\s*\+\s*([^;]+))?;", body)}
+        expected = {key: PLAN_SUFFIXES.get(key) for key in self.data['plans']}
+        self.assertEqual(expected, found,
+                         'درونیابیِ انتهایی دستنخورده بماند')
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''
