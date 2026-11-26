@@ -13,6 +13,9 @@ part of 'advocate.dart';
 /// بپرسد «شما خریدار هستید یا فروشنده؟»؛ متن قانون را نشان میدهد.
 bool _isHypotheticalQuestion(String raw, String n) {
   if (!Sense.has(n, 'پرسش') || Sense.words(n) < 12) return false;
+  // «پرسشها: …» یعنی کاربر فرضیهای را تحلیل میخواهد، حتی اگر طرفها را
+  // الف/ب ننامیده باشد. چنین پیامی ماجرای شخصیِ کاربر نیست.
+  if (Sense.has(n, 'پرسش ?ها|سوالات|سؤالات')) return true;
   final parties = RegExp(
           r'(?:^|[^\u0600-\u06FF])(?<p>الف|ب|ج|د)(?:$|[^\u0600-\u06FF])')
       .allMatches(raw)
