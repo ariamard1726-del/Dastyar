@@ -170,7 +170,7 @@
 | `rent_reads.dart` | **۱۶۶** | خواندنِ نقش/موضوع/هدف/بله‌و‌نه از پیام |
 | `rent_bodies.dart` | ۴۶۸ → **۱۸۹** | متنِ پاسخ (مستأجر + مشترک) |
 | `rent_bodies_landlord.dart` | **۱۳۴** | متنِ پاسخِ سمتِ موجر |
-| متنِ ثابتِ اجاره | ۴۲ رشته در دو فایلِ Dart | `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (هشِ نویسهبهنویسه قفل است) |
+| متنِ ثابتِ اجاره | ۴۲ رشته در `rent_bodies*` + ۸۷ رشته در `rent_claims.dart` | جدولهای `texts` و `claims` در `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (دو هشِ نویسهبهنویسه قفلاند) |
 
 - فهرستِ بحث‌ها با همان ترتیبِ پیشین به هم می‌پیوندد
   (`_rentIssues = [...Both, ...Tenant, ...Landlord]`). **ترتیب، اولویتِ نمایش

@@ -1,9 +1,9 @@
 """متنِ منتقلشدهٔ اجاره نویسهبهنویسه همان متنِ پیش از جابهجایی است.
 
-پیش از این گام ۴۲ رشتهٔ بلند بهصورت `const String` در دو فایلِ دارت بود.
-هشِ زیر از همان رشتهها **قبل** از حذفشان از کد گرفته شده است؛ هر تغییر در
-فایلِ JSON یا تلاش برای برگرداندن متن به دارت، قرمز میشود مگر اینکه آگاهانه
-هشِ تازه در این آزمون نوشته شود.
+پیش از این گام ۴۲ رشتهٔ بلند بهصورت `const String` در دو فایلِ پاسخ و
+۸۷ رشته در `rent_claims.dart` بود. هشِ هر دو جدول **قبل** از حذفشان از
+کد گرفته شده است؛ هر تغییر در فایلِ JSON یا تلاش برای برگرداندن متن به
+دارت، قرمز میشود مگر اینکه آگاهانه هشِ تازه در این آزمون نوشته شود.
 """
 
 import glob
@@ -23,9 +23,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 ASSET = os.path.join(ROOT, 'assets', 'brain', 'topics', 'rent_texts.json')
 BEFORE_SHA256 = '60f7d07b5579bb669fd1faef1824a3c68a2ba8139ef6fe06716b328646248f2e'
 BEFORE_COUNT = 42
+CLAIMS_BEFORE_SHA256 = 'abd7d7a17225bdf81e3df0ef3ba854dac2d0cf27b4254c02cb1871ec23b16041'
+CLAIMS_BEFORE_COUNT = 87
 DART_FILES = [
     'lib/domain/advocate/topics/rent_bodies.dart',
     'lib/domain/advocate/topics/rent_bodies_landlord.dart',
+    'lib/domain/advocate/topics/rent_claims.dart',
 ]
 
 
@@ -46,6 +49,23 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertEqual(len(texts), BEFORE_COUNT)
         self.assertEqual(digest(texts), BEFORE_SHA256,
                          'یک نویسه از متنِ اجاره عوض شده است')
+
+    def test_claims_are_identical_to_the_pre_move_source(self):
+        claims = self.data['claims']
+        self.assertEqual(CLAIMS_BEFORE_COUNT, len(claims))
+        self.assertEqual(CLAIMS_BEFORE_SHA256, digest(claims),
+                         'یک نویسه از متنِ ادعاها عوض شده است')
+        self.assertFalse(set(claims) & set(self.data['texts']),
+                         'شناسهٔ ادعا با شناسهٔ پاسخ تداخل دارد')
+
+    def test_claims_have_one_delegate_each(self):
+        src = read(ROOT, 'lib/domain/advocate/topics/rent_claims.dart')
+        self.assertNotRegex(src, r'^const String\s+_rent\w+\s*=',
+                            'متنِ ادعا دوباره به Dart برگشته است')
+        ids = re.findall(r"rentText\('([^']+)'\)", src)
+        self.assertEqual(len(ids), CLAIMS_BEFORE_COUNT)
+        self.assertEqual(set(ids), set(self.data['claims']),
+                         'هر شناسهٔ ادعا دقیقاً یک بار در Dart خوانده میشود')
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''

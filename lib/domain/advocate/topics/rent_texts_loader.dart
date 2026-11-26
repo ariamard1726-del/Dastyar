@@ -5,10 +5,11 @@ import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 /// متنهای ثابتِ موضوع اجاره، جدا از منطق و closureها.
 ///
 /// پیشتر ۴۲ رشتهٔ بلند بهصورت `const String` در `rent_bodies.dart` و
-/// `rent_bodies_landlord.dart` بودند؛ هر تغییرِ متن یعنی پچِ دارت و هیچ
-/// نگهبانِ خودکاری نمیتوانست بگوید که متن عوض شده یا نه. اکنون مرجعِ
-/// متن همین فایل است و کد فقط با شناسهٔ پایدار آنرا میخواند. منطق، شرطها
-/// و جملهسازیهای وابسته به پرونده عمداً در Dart ماندهاند.
+/// `rent_bodies_landlord.dart` و ۸۷ رشته در `rent_claims.dart` بودند؛
+/// هر تغییرِ متن یعنی پچِ دارت و هیچ نگهبانِ خودکاری نمیتوانست بگوید که
+/// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts` و `claims`)
+/// و کد فقط با شناسهٔ پایدار آنرا میخواند. منطق، شرطها و جملهسازیهای
+/// وابسته به پرونده عمداً در Dart ماندهاند.
 const String rentTextsAsset = 'assets/brain/topics/rent_texts.json';
 
 /// فهرستِ نصبشده. تنها [loadRentTexts] آنرا پر میکند.
@@ -23,17 +24,32 @@ List<String> parseRentTexts(String source) {
   if (data['v'] != 1) {
     throw StateError('$rentTextsAsset: نسخهٔ ناشناخته (${data['v']})');
   }
-  final raw = data['texts'];
-  if (raw is! Map) throw StateError('$rentTextsAsset: فاقد فهرست texts');
-  _rentTexts.clear();
-  for (final entry in raw.entries) {
-    final value = entry.value;
-    if (value is! String || value.isEmpty) {
-      throw StateError('$rentTextsAsset: متنِ ${entry.key} خالی یا نامعتبر است');
+  // دو جدولِ جدا، یک فهرستِ شناسه: متنهای پاسخ (`texts`) و متنهای
+  // ادعاها (`claims`). نبودِ هریک خطای صریح است؛ نصبِ ناقصِ متن، پاسخِ
+  // نادرست میداد زیرا `rentClaims` هنگامِ اولین پاسخ ساخته میشود.
+  final installed = <String, String>{};
+  for (final section in const ['texts', 'claims']) {
+    final raw = data[section];
+    if (raw is! Map) {
+      throw StateError('$rentTextsAsset: فاقد فهرست $section');
     }
-    _rentTexts[entry.key.toString()] = value;
+    if (raw.isEmpty) throw StateError('$rentTextsAsset: فهرست $section خالی است');
+    for (final entry in raw.entries) {
+      final value = entry.value;
+      if (value is! String || value.isEmpty) {
+        throw StateError(
+            '$rentTextsAsset: متنِ ${entry.key} خالی یا نامعتبر است');
+      }
+      final key = entry.key.toString();
+      if (installed.containsKey(key)) {
+        throw StateError('$rentTextsAsset: شناسهٔ تکراری «$key»');
+      }
+      installed[key] = value;
+    }
   }
-  if (_rentTexts.isEmpty) throw StateError('$rentTextsAsset خالی است');
+  _rentTexts
+    ..clear()
+    ..addAll(installed);
   return _rentTexts.keys.toList();
 }
 

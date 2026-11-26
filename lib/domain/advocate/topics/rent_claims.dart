@@ -4,270 +4,270 @@ part of 'rent.dart';
 
 final List<Claim> rentClaims = [
   Claim(
-    goal: 'گرفتن اجاره‌بهای عقب‌افتاده از مستأجر',
+    goal: rentText('claim0_goal'),
     when: (f) => _aim(f, 'unpaid'),
     cues: 'اجاره|کرایه|طلب|پول',
     uses: const ['due'],
     elements: [
       Element(
-        'رابطهٔ اجاره و مبلغ اجاره‌بها را بتوانید نشان بدهید (اجاره‌نامه، کد رهگیری یا رسید واریزهای قبلی).',
+        rentText('claim0_e0_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید و مبلغ اجاره در آن آمده',
+        because: (f) => rentText('claim0_e0_because'),
         ifNo:
-            'بدون اجاره‌نامه باید با رسید واریزهای قبلی، پیام‌ها یا شاهد نشان بدهید اجاره چقدر بوده.',
+            rentText('claim0_e0_ifNo'),
       ),
     ],
     win: (f) =>
-        'می‌توانید اجاره‌بهای ماه‌های پرداخت‌نشده را مطالبه کنید؛ پرداخت اجاره در موعد، تعهد قانونی مستأجر است [[civil:490]]. اگر ودیعه‌ای از او دارید، طلبتان فقط از راه دادخواست از آن کسر می‌شود [[landlord_tenant:4]].',
+        rentText('claim0_win'),
     counter: (f) =>
-        'مستأجر معمولاً می‌گوید «پرداخت کرده‌ام» یا «از پول پیش کم کن». برای اولی باید رسید نشان بدهد؛ دومی فقط با رضایت شما یا حکم دادگاه شدنی است.',
+        rentText('claim0_counter'),
   ),
   Claim(
-    goal: 'گرفتن خسارت ملک از مستأجر',
+    goal: rentText('claim1_goal'),
     when: (f) => _aim(f, 'damage'),
     cues: 'خسارت|خراب|تعمیر',
     uses: const ['due'],
     elements: [
       Element(
-        'بتوانید خرابی و اندازه‌اش را نشان بدهید (عکس و فیلم، صورت‌جلسهٔ تحویل، نظر کارشناس).',
+        rentText('claim1_e0_text'),
         (f) => f.tri('proof'),
         needs: const ['proof'],
-        because: (f) => 'از خرابی مدرک دارید',
+        because: (f) => rentText('claim1_e0_because'),
         ifNo:
-            'بدون مدرک، ادعای خسارت به‌سختی ثابت می‌شود؛ پیش از هر تعمیری «تأمین دلیل» بگیرید تا کارشناس وضعیت را صورت‌جلسه کند [[civil_procedure:149]].',
+            rentText('claim1_e0_ifNo'),
       ),
     ],
     win: (f) =>
-        'می‌توانید خسارتی را که از کوتاهی یا زیاده‌روی مستأجر پیش آمده مطالبه کنید؛ فرسودگیِ عادیِ زندگی معمول گردن او نیست [[civil:493]].',
+        rentText('claim1_win'),
     counter: (f) =>
-        'می‌گوید «از اول همین‌طور بود» یا «استهلاک عادی است». جوابش صورت‌جلسهٔ تحویلِ اول اجاره و نظر کارشناس است.',
+        rentText('claim1_counter'),
   ),
   Claim(
-    goal: 'فسخ اجاره و تخلیه به‌خاطر تخلف مستأجر',
+    goal: rentText('claim2_goal'),
     when: (f) => _aim(f, 'breach'),
     cues: 'فسخ|تخلیه|بلند|بیرون',
     elements: [
       Element(
-        'در اجاره‌نامه این کار ممنوع شده یا برایش حق فسخ گذاشته باشید [[civil:496]].',
+        rentText('claim2_e0_text'),
         (f) => f.tri('clause'),
         needs: const ['clause'],
-        because: (f) => 'در اجاره‌نامه برای این تخلف حق فسخ دارید',
+        because: (f) => rentText('claim2_e0_because'),
         ifNo:
-            'اگر در قرارداد چیزی دربارهٔ آن نیامده، قانون مستأجر را در واگذاری به دیگری آزاد گذاشته است [[civil:474]] و فسخ سخت می‌شود.',
+            rentText('claim2_e0_ifNo'),
       ),
       Element(
-        'بتوانید تخلف را نشان بدهید (استشهاد، عکس یا تأمین دلیل).',
+        rentText('claim2_e1_text'),
         (f) => f.tri('proof'),
         needs: const ['proof'],
-        because: (f) => 'از تخلف مدرک دارید',
+        because: (f) => rentText('claim2_e1_because'),
         ifNo:
-            'اول مدرک جمع کنید؛ استشهاد همسایه‌ها و تأمین دلیل کارسازترین‌اند [[civil_procedure:149]].',
+            rentText('claim2_e1_ifNo'),
       ),
     ],
     win: (f) =>
-        'می‌توانید اجاره را فسخ کنید و تخلیه را از دادگاه بخواهید؛ حق فسخ از تاریخ تخلف پیدا می‌شود [[civil:496]].',
+        rentText('claim2_win'),
     counter: (f) =>
-        'می‌گوید «خودت خبر داشتی و حرفی نزدی». برای همین فسخ را زود و کتبی اعلام کنید [[civil_procedure:156]].',
+        rentText('claim2_counter'),
   ),
   Claim(
-    goal: 'تخلیهٔ ملک پیش از پایان مدت اجاره',
+    goal: rentText('claim3_goal'),
     when: (f) => _evicting(f) && f.no('ended'),
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)|فسخ',
     elements: [
       Element(
-        'در اجاره‌نامه برای خودتان حق فسخ گذاشته باشید (مثلاً برای نپرداختن اجاره) [[civil:496]].',
+        rentText('claim3_e0_text'),
         (f) => f.tri('clause'),
         needs: const ['clause'],
-        because: (f) => 'در اجاره‌نامه حق فسخ دارید',
+        because: (f) => rentText('claim3_e0_because'),
         ifNo:
-            'بدون شرط فسخ در قرارداد، تا پایان مدت نمی‌شود مستأجر را بلند کرد [[civil:219]]؛ در این فاصله فقط اجاره‌های نپرداخته را می‌شود مطالبه کرد.',
+            rentText('claim3_e0_ifNo'),
       ),
       Element(
-        'اجاره‌نامهٔ کتبی داشته باشید که آن شرط را نشان بدهد.',
+        rentText('claim3_e1_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
-        ifNo: 'شرطی که نوشته نشده باشد، در دادگاه به‌سختی ثابت می‌شود.',
+        because: (f) => rentText('claim3_e1_because'),
+        ifNo: rentText('claim3_e1_ifNo'),
       ),
     ],
     win: (f) =>
-        'می‌توانید فسخ را با اظهارنامه اعلام کنید و تخلیه را از دادگاه بخواهید [[civil:496]] [[civil_procedure:156]].',
+        rentText('claim3_win'),
     counter: (f) =>
-        'مستأجر می‌گوید «تخلفی نکرده‌ام» یا «اجاره را داده‌ام». اثبات تخلف با شماست [[civil_procedure:197]]؛ صورت واریزها و پیام‌های مطالبه را آماده داشته باشید.',
+        rentText('claim3_counter'),
   ),
   Claim(
-    goal: 'گرفتن دستور تخلیهٔ فوری از مستأجر',
+    goal: rentText('claim4_goal'),
     when: (f) => f.eq('role', 'landlord'),
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)',
     elements: [
       Element(
-        'مدت اجاره تمام شده باشد [[landlord_tenant:3]].',
+        rentText('claim4_e0_text'),
         (f) => f.tri('ended'),
         needs: const ['ended'],
-        because: (f) => 'مدت اجاره تمام شده',
+        because: (f) => rentText('claim4_e0_because'),
         ifNo:
-            'تا مدت تمام نشده دستور تخلیهٔ فوری نمی‌دهند؛ فقط اگر در قرارداد برای خودتان حق فسخ گذاشته باشید (مثلاً برای نپرداختن اجاره) می‌شود از راه دادگاه جلو رفت.',
+            rentText('claim4_e0_ifNo'),
       ),
       Element(
-        'اجاره‌نامهٔ کتبی داشته باشید.',
+        rentText('claim4_e1_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
+        because: (f) => rentText('claim4_e1_because'),
         ifNo:
-            'بدون اجاره‌نامهٔ کتبی باید «دادخواست تخلیه» بدهید که زمان‌برتر از دستور تخلیه است.',
+            rentText('claim4_e1_ifNo'),
       ),
       Element(
-        'دو شاهد پای اجاره‌نامه را امضا کرده باشند یا کد رهگیری داشته باشد [[landlord_tenant:2]].',
+        rentText('claim4_e2_text'),
         (f) => f.no('contract') ? false : f.tri('witness'),
         needs: const ['witness'],
-        because: (f) => 'اجاره‌نامه شاهد یا کد رهگیری دارد',
+        because: (f) => rentText('claim4_e2_because'),
         ifNo:
-            'اجاره‌نامهٔ بی‌شاهد راه دستور تخلیهٔ یک‌هفته‌ای را می‌بندد؛ همان «دادخواست تخلیه» راه شماست.',
+            rentText('claim4_e2_ifNo'),
       ),
     ],
     win: (f) =>
-        'می‌توانید دستور تخلیه بگیرید که ظرف حدود یک هفته اجرا می‌شود؛ فقط باید ودیعهٔ او را هم‌زمان پس بدهید یا به دایرهٔ اجرا بسپارید [[landlord_tenant:3]] [[landlord_tenant:4]].',
+        rentText('claim4_win'),
     counter: (f) =>
-        'مستأجر معمولاً می‌گوید «ودیعه‌ام را نداده‌ای» یا «قرارداد شفاهی تمدید شد». برای اولی، ودیعه را به اجرا بسپارید تا بهانه‌ای نماند؛ برای دومی، این اوست که باید تمدید را ثابت کند [[civil_procedure:197]].',
+        rentText('claim4_counter'),
   ),
   Claim(
-    goal: 'پس‌گرفتن ودیعه از موجر',
+    goal: rentText('claim5_goal'),
     when: (f) => !f.has('matter') || f.eq('matter', 'deposit'),
     cues: 'ودیعه|پول پیش|رهن|پولم',
     uses: const ['amount'],
     elements: [
       Element(
-        'مدت اجاره تمام شده باشد (یا با توافق دو طرف به هم خورده باشد) [[civil:494]].',
+        rentText('claim5_e0_text'),
         (f) => f.tri('ended'),
         needs: const ['ended'],
-        because: (f) => 'مدت اجاره تمام شده',
+        because: (f) => rentText('claim5_e0_because'),
         ifNo:
-            'تا پایان مدت، موجر تکلیفی به پس‌دادن ودیعه ندارد، مگر با توافق یا شرطی که در خود قرارداد آمده باشد.',
+            rentText('claim5_e0_ifNo'),
       ),
       Element(
-        'ملک را تخلیه و تحویل داده باشید [[landlord_tenant:4]].',
+        rentText('claim5_e1_text'),
         (f) => f.tri('vacated'),
         needs: const ['vacated'],
-        because: (f) => 'ملک را تخلیه کرده و تحویل داده‌اید',
+        because: (f) => rentText('claim5_e1_because'),
         ifNo:
-            'تخلیه و پس‌دادن ودیعه باید هم‌زمان باشد؛ با اظهارنامه اعلام آمادگی کنید و کلید را فقط در برابر پول تحویل بدهید.',
+            rentText('claim5_e1_ifNo'),
       ),
       Element(
-        'بتوانید پرداخت ودیعه و مبلغش را نشان بدهید (اجاره‌نامه، رسید یا تراکنش بانکی).',
+        rentText('claim5_e2_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامه دارید و ودیعه در آن آمده',
+        because: (f) => rentText('claim5_e2_because'),
         ifNo:
-            'نبودِ اجاره‌نامه مانع نیست، ولی باید با رسید واریز، پیام‌ها یا شاهد، پرداخت ودیعه را ثابت کنید.',
+            rentText('claim5_e2_ifNo'),
       ),
     ],
     win: (f) =>
-        'موجر باید کل ودیعه را برگرداند و حق ندارد سرِ خود چیزی از آن کم کند [[landlord_tenant:4]].',
+        rentText('claim5_win'),
     counter: (f) =>
-        'می‌گوید «خانه را خراب کرده‌ای» یا «قبض‌ها مانده». جوابش این است که خودش باید دادخواست خسارت بدهد و فقط به اندازهٔ همان ادعا می‌تواند پول نگه دارد؛ اثباتش هم با اوست [[landlord_tenant:4]] [[civil_procedure:197]].',
+        rentText('claim5_counter'),
   ),
   Claim(
-    goal: 'پرداخت همان اجارهٔ قبلی تا پایان قرارداد',
+    goal: rentText('claim6_goal'),
     when: (f) => f.eq('matter', 'raise'),
     cues: 'اجاره|کرایه|زیاد|گرون|بالا|افزایش',
     elements: [
       Element(
-        'مدت قرارداد هنوز تمام نشده باشد [[civil:219]].',
+        rentText('claim6_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => 'مدت قرارداد هنوز تمام نشده',
+        because: (f) => rentText('claim6_e0_because'),
         ifNo:
-            'با تمام‌شدن مدت، اجاره پایان می‌یابد [[civil:494]] و مبلغ دورهٔ بعد فقط با توافق تعیین می‌شود؛ او مجبور نیست با مبلغ قبلی تمدید کند.',
+            rentText('claim6_e0_ifNo'),
       ),
       Element(
-        'مبلغ اجاره را بتوانید نشان بدهید (اجاره‌نامه یا رسید واریزها).',
+        rentText('claim6_e1_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
+        because: (f) => rentText('claim6_e1_because'),
         ifNo:
-            'بدون اجاره‌نامه، رسید واریز ماه‌های قبل نشان می‌دهد مبلغ توافق‌شده چقدر بوده.',
+            rentText('claim6_e1_ifNo'),
       ),
     ],
     win: (f) =>
-        'تا پایان مدت همان مبلغ قرارداد را می‌پردازید و او نمی‌تواند یک‌طرفه بالایش ببرد [[civil:219]].',
+        rentText('claim6_win'),
     counter: (f) =>
-        'می‌گوید «اگر نمی‌دهی بلند شو». تا پایان مدت نمی‌تواند شما را به رفتن مجبور کند، و بعد از آن هم فقط از راه دستور تخلیه و با پس‌دادن ودیعه [[landlord_tenant:3]] [[landlord_tenant:4]].',
+        rentText('claim6_counter'),
   ),
   Claim(
-    goal: 'ماندن در ملک تا وقتی راه قانونی طی نشده',
+    goal: rentText('claim7_goal'),
     when: (f) => f.eq('matter', 'evict') || f.eq('matter', 'order'),
     cues: 'بیرون|بلند|تخلیه|بمونم|بمانم|خالی',
     elements: [
       Element(
-        'مدت قرارداد هنوز تمام نشده باشد [[civil:219]].',
+        rentText('claim7_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => 'مدت قرارداد هنوز تمام نشده',
+        because: (f) => rentText('claim7_e0_because'),
         ifNo:
-            'با تمام‌شدن مدت، او می‌تواند دستور تخلیه بگیرد [[landlord_tenant:3]]؛ ولی اجرای آن موکول به پس‌دادن یا سپردن ودیعهٔ شماست [[landlord_tenant:4]].',
+            rentText('claim7_e0_ifNo'),
       ),
       Element(
-        'دستور رسمی تخلیه علیه شما نیامده باشد.',
+        rentText('claim7_e1_text'),
         (f) => f.eq('matter', 'order')
             ? false
             : (f.no('official') ? true : (f.yes('official') ? false : null)),
         needs: const ['official'],
-        because: (f) => 'برگهٔ رسمی تخلیه‌ای نیامده',
+        because: (f) => rentText('claim7_e1_because'),
         ifNo:
-            'برگهٔ رسمی را باید جدی گرفت: اگر دربارهٔ قرارداد حقی دارید (مثلاً تمدید)، هم‌زمان با اجرای دستور به دادگاه شکایت کنید [[landlord_tenant:5]].',
+            rentText('claim7_e1_ifNo'),
       ),
     ],
     win: (f) =>
-        'او حق ندارد شما را بیرون کند؛ قرارداد تا پایان مدت برای هر دو طرف الزام‌آور است [[civil:219]] و کار خودسرانه‌اش را می‌شود با دعوای تصرف عدوانی یا مزاحمت جواب داد [[civil_procedure:158]] [[civil_procedure:160]].',
+        rentText('claim7_win'),
     counter: (f) =>
-        'می‌گوید «ملک خودم است». مالک‌بودن به او حق اقدام خودسرانه نمی‌دهد؛ تا پایان مدت، استفاده از ملک حق شماست.',
+        rentText('claim7_counter'),
   ),
   Claim(
-    goal: 'الزام موجر به تعمیر خانه',
+    goal: rentText('claim8_goal'),
     when: (f) => f.eq('matter', 'repair'),
     cues: 'تعمیر|درست(?:ش)? کن|خراب',
     elements: [
       Element(
-        'خرابی را به موجر خبر داده و از او خواسته باشید تعمیر کند (ترجیحاً کتبی).',
+        rentText('claim8_e0_text'),
         (f) => f.tri('told'),
         needs: const ['told'],
-        because: (f) => 'خرابی را کتبی به موجر خبر داده‌اید',
+        because: (f) => rentText('claim8_e0_because'),
         ifNo:
-            'اول کتبی از او بخواهید و مهلت بدهید؛ بدون این، در دادگاه نمی‌توانید نشان دهید کوتاهی از او بوده.',
+            rentText('claim8_e0_ifNo'),
       ),
       Element(
-        'رابطهٔ اجاره را بتوانید نشان بدهید (اجاره‌نامه یا رسید واریزها).',
+        rentText('claim8_e1_text'),
         (f) => f.tri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
+        because: (f) => rentText('claim8_e1_because'),
         ifNo:
-            'بدون اجاره‌نامه، رسید واریز اجاره و پیام‌ها رابطهٔ اجاره را نشان می‌دهد.',
+            rentText('claim8_e1_ifNo'),
       ),
     ],
     win: (f) =>
-        'تعمیرهایی که برای استفاده از خانه لازم است به عهدهٔ مالک است، مگر در اجاره‌نامه خلافش آمده باشد [[civil:486]]؛ می‌توانید الزام او به تعمیر را از دادگاه بخواهید.',
+        rentText('claim8_win'),
     counter: (f) =>
-        'می‌گوید «خودت خراب کرده‌ای» یا «تعمیر جزئی با مستأجر است». اولی را او باید ثابت کند [[civil_procedure:197]]؛ برای دومی، متن اجاره‌نامه و عرف محل ملاک است [[civil:486]].',
+        rentText('claim8_counter'),
   ),
   Claim(
-    goal: 'تمام‌کردن اجاره پیش از موعد و پس‌گرفتن ودیعه',
+    goal: rentText('claim9_goal'),
     when: (f) => f.eq('matter', 'leave'),
     cues: 'فسخ|بلند|برم|بروم|تخلیه|زودتر',
     elements: [
       Element(
-        'موجر به تخلیهٔ زودتر راضی باشد، یا در قرارداد برای خودتان حق فسخ داشته باشید [[civil:219]].',
+        rentText('claim9_e0_text'),
         (f) => f.tri('consent'),
         needs: const ['consent'],
-        because: (f) => 'موجر با زودتر رفتن شما موافق است',
+        because: (f) => rentText('claim9_e0_because'),
         ifNo:
-            'بدون رضایت او یا حق فسخ در قرارداد، اجاره تا پایان مدت پابرجاست و اجاره‌بهای بقیهٔ مدت را می‌تواند بخواهد؛ راه عملی، پیشنهاد مستأجر جایگزین است.',
+            rentText('claim9_e0_ifNo'),
       ),
     ],
     win: (f) =>
-        'با توافق، اجاره به هم می‌خورد [[civil:283]] و او باید هم‌زمان با تخلیه ودیعه را پس بدهد [[landlord_tenant:4]]؛ توافق را حتماً کتبی کنید.',
+        rentText('claim9_win'),
     counter: (f) =>
-        'بعداً می‌گوید «قبول نکرده بودم». برای همین رضایتش را کتبی (حتی با پیام) بگیرید و تاریخ تخلیه و پس‌دادن ودیعه را در آن بنویسید.',
+        rentText('claim9_counter'),
   ),
 ];
 
