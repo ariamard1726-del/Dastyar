@@ -1,2 +1,2 @@
-commit: b4d65f7
+commit: ea73b01
 CI: test/lab/scenarios success
