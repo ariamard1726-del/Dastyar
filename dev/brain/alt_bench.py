@@ -15,10 +15,12 @@ import traceback
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+BRAIN = os.path.dirname(HERE)
+ROOT = os.path.dirname(BRAIN)
 sys.path.insert(0, HERE)
 from embed_bench import Data, fix, ngram_vectors, unit  # noqa: E402
 
-OUT = os.path.join(HERE, 'reports', 'alt_bench.md')
+OUT = os.path.join(ROOT, 'reports', 'alt_bench.md')
 
 # (مخزن، پیشوندی که کارتِ مدل برای جمله می‌خواهد)
 MODELS = [
@@ -146,4 +148,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:  # noqa: BLE001
+        err = traceback.format_exc()
+        os.makedirs(os.path.dirname(OUT), exist_ok=True)
+        with open(OUT, 'a', encoding='utf-8') as f:
+            f.write('\n## خطای اجرا\n\n```\n' + err + '```\n')
+        traceback.print_exc()
+        sys.exit(1)
