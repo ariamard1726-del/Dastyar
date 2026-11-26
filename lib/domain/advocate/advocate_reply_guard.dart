@@ -47,7 +47,6 @@ extension _ReplyGuards on Advocate {
     // تنها تکرارِ دقیق همان متن سرکوب میشود. یک گزارش تازهٔ خشونت در همان
     // پرونده نباید بیپاسخ بماند.
     if (dialog.safetyShown && dialog.lastSafetyText == n) return null;
-    dialog.lastSafetyText = n;
     // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید پرونده را
     // دوباره باز کند.
     if (!hasCase && !dialog.safetyShown) {
@@ -72,7 +71,9 @@ extension _ReplyGuards on Advocate {
         dialog.safetyCarry = n;
       }
     }
-    // پس از `_open` تنظیم می‌شود، چون بازکردن پرونده پرچم‌ها را صفر می‌کند.
+    // `_open` وضعیت پرونده را پاک میکند؛ متنِ آخرین هشدار را همیشه **پس** از
+    // آن می نویسیم تا تکرارِ همان پیام سرکوب شود.
+    dialog.lastSafetyText = n;
     dialog.safetyShown = true;
     return safe;
   }
