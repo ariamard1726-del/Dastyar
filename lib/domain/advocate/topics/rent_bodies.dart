@@ -11,45 +11,32 @@ String _rentPeace() => rentText('rentPeace');
 String _rentDepositLaw() => rentText('rentDepositLaw');
 
 String _rentRaiseBody(CaseFile f) {
-  const base =
-      'تا وقتی مدت قرارداد تمام نشده، اجاره همان مبلغی است که در اجاره‌نامه آمده و موجر نمی‌تواند یک‌طرفه بالایش ببرد؛ قرارداد برای هر دو طرف الزام‌آور است [[civil:219]].';
+  final base = rentText('bodyRaiseBase');
   if (f.no('ended')) {
-    return '$base پس تا پایان مدت همان مبلغ قبلی را بپردازید و برای هر پرداخت رسید یا تراکنش بانکی نگه دارید.';
+    return base + rentText('bodyRaiseRet00');
   }
-  const after =
-      'با تمام‌شدن مدت، اجاره خودبه‌خود پایان می‌یابد [[civil:494]] و او مجبور به تمدید نیست؛ مبلغ دورهٔ بعد فقط با توافق دو طرف تعیین می‌شود.';
+  final after = rentText('bodyRaiseAfter');
   if (f.yes('ended')) {
-    return 'چون مدت قرارداد تمام شده، $after اگر برای آن سال سقفی برای افزایش اجاره اعلام شده باشد، در مذاکره به همان تکیه کنید.';
+    return rentText('bodyRaiseRet10') + after + rentText('bodyRaiseRet11');
   }
-  return '$base ولی $after';
+  return base + rentText('bodyRaiseRet20') + after;
 }
 
 String _rentRepairBody() => rentText('rentRepairBody');
 
 String _rentDamageBody(CaseFile f) {
-  final tail = f.yes('vacated')
-      ? 'چون خانه را تحویل داده‌اید، عکس و فیلم روز تحویل، صورت‌جلسه و شهادت بنگاه یا همسایه مهم‌ترین سپر شماست. اگر ندارید، همین حالا از هر کسی که وضعیت خانه را هنگام تحویل دیده، بخواهید شهادت بدهد.'
-      : 'چون هنوز به ملک دسترسی دارید، قبل از تحویل «تأمین دلیل» بگیرید تا کارشناس وضعیت خانه را رسماً صورت‌جلسه کند [[civil_procedure:149]]؛ بعد از آن، ادعای خرابی عملاً بی‌اثر می‌شود.';
+  final tail = f.yes('vacated') ? rentText('bodyDamageVacated') : rentText('bodyDamageAccess');
   // «این حرف را زیاد می‌شنوم؛ خوشبختانه…»: دستیار تجربهٔ زیسته ندارد که
   // «زیاد بشنود»، و «خوشبختانه» برای کسی که پولش را نگه داشته‌اند دلداریِ
   // دروغ است. جای هر دو، گفتنِ همان چیزی است که واقعاً می‌دانیم.
-  return 'این ادعا خودکار نتیجه را عوض نمی‌کند؛ سه نکته تعیین‌کننده است:\n'
-      '• موجر نمی‌تواند خودش قاضی شود و از ودیعه کم کند. اگر مدعی خسارت یا بدهی قبض‌هاست، باید دادخواست «مطالبهٔ ضرر و زیان» بدهد و فقط به اندازهٔ همان ادعا پول نگه داشته می‌شود؛ بقیه باید برگردد [[landlord_tenant:4]].\n'
-      '• اثبات خرابی با اوست، نه شما [[civil_procedure:197]].\n'
-      '• مستأجر فقط در صورت کوتاهی یا زیاده‌روی مسئول است؛ فرسودگی عادیِ ناشی از زندگی معمول گردن شما نیست [[civil:493]].\n'
-      '$tail';
+  return rentText('bodyDamageRet0') + tail;
 }
 
 String _rentEvictBody() => rentText('rentEvictBody');
 
 String _rentOrderBody(CaseFile f) {
-  final lead = f.no('ended')
-      ? 'چون می‌گویید مدت قرارداد تمام نشده، این دستور جای اعتراض دارد: دستور تخلیه فقط برای بعد از پایان مدت است [[landlord_tenant:3]]. '
-      : 'دستور تخلیه را باید جدی گرفت: بعد از پایان مدت، به درخواست موجر و بدون جلسهٔ دادگاه صادر می‌شود و اجرایش حدود یک هفته است [[landlord_tenant:3]]. ';
-  return '${lead}سه چیز دست شماست:\n'
-      '• تا ودیعه‌تان را نگرفته‌اید یا به دایرهٔ اجرا سپرده نشده، تخلیه اجرا نمی‌شود [[landlord_tenant:4]]؛ همین را به مأمور اجرا بگویید.\n'
-      '• اگر دربارهٔ قرارداد حقی دارید (مثلاً تمدید شده یا مدتش تمام نشده)، هم‌زمان به دادگاه شکایت کنید [[landlord_tenant:5]].\n'
-      '• برای فرصت کوتاهِ جابه‌جایی می‌توانید از همان مرجع کتبی مهلت بخواهید؛ پذیرفتنش با قاضی است.';
+  final lead = f.no('ended') ? rentText('bodyOrderNotEnded') : rentText('bodyOrderEnded');
+  return lead + rentText('bodyOrderRet0');
 }
 
 String _rentOrderDepositBody() => rentText('rentOrderDepositBody');
