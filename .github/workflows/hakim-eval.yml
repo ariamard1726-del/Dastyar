@@ -1,0 +1,52 @@
+name: Hakim-small evaluation
+
+# آزمایش، نه بخشی از برنامه: اگر وزنِ دارای مجوز از طریق ورودی داده شد،
+# کوانتیزهٔ پویا و همان سنجشِ alt_bench را اجرا و reports/hakim_eval.md را
+# می‌نویسد. در نبودِ وزن، وضعیتِ CLOSED ثبت می‌شود و هیچ دارایی عوض نمی‌شود.
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_repo:
+        description: 'مخزنِ وزنها (خالی یعنی ارزیابی نشود)'
+        required: false
+        default: ''
+  push:
+    branches: ['arena/**']
+    paths:
+      - 'dev/brain/hakim_eval.py'
+      - '.github/workflows/hakim-eval.yml'
+      - 'eval/topic_examples.tsv'
+      - 'eval/understanding_probe.tsv'
+
+permissions:
+  contents: write
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      HAKIM_MODEL_REPO: ${{ github.event.inputs.model_repo || '' }}
+      HAKIM_REV: ''
+      HF_TOKEN: ${{ secrets.HF_TOKEN || '' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy scikit-learn transformers sentence-transformers huggingface_hub
+      - name: Run experiment
+        run: python dev/brain/hakim_eval.py
+      - name: Commit report
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports/hakim_eval.md || true
+          git commit -m "Hakim-small:Report [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

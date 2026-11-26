@@ -57,10 +57,15 @@ class LawAnswer {
     required this.engine,
     required this.voice,
     required this.party,
+    this.prepared,
   });
 
   final KnowledgeEngine engine;
   final ReplyVoice voice;
+
+  /// پاسخی که worker موتور برای همان متن از پیش ساخته است؛ نبودش یعنی مسیر
+  /// همگام قدیمی (مثلاً در آزمونها یا وقتی isolate در دسترس نبود).
+  final EngineReply? Function(String raw)? prepared;
 
   /// شناساییِ طرفِ گفتگو («موجر»، «کارگر») از متن.
   final String Function(String n) party;
@@ -96,7 +101,7 @@ class LawAnswer {
     if (legalish &&
         Sense.words(n) >= 2 &&
         (direct || Sense.isQuestion(n) || loose >= 3)) {
-      final r = engine.query(raw);
+      final r = prepared?.call(raw) ?? engine.query(raw);
       // نزدیک‌ترینِ موتور گاهی فقط به‌خاطر یک شماره (مثلاً «۱۷») آمده است.
       // اگر هیچ واژهٔ معنادار پرسش در متنش نیست، آن را جواب ندانیم.
       if (_isLawHit(r) &&

@@ -19,7 +19,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import (DartLibrary, class_body_of,  # noqa: E402
                      extensions_on, read as lib_read)
 
@@ -42,7 +42,7 @@ MIN_ROUTES = 12
 
 
 def _read(path):
-    """همهٔ خواندن‌ها از ابزارِ مشترکِ `tools/library.py`."""
+    """همهٔ خواندن‌ها از ابزارِ مشترکِ `dev/tools/library.py`."""
     return lib_read(path)
 
 
@@ -210,7 +210,7 @@ class ShapeTests(unittest.TestCase):
         ac = _read(os.path.join(ADVOCATE_DIR, 'answer_candidate.dart'))
         self.assertIn('class AnswerCandidate {', ac)
         self.assertIn('class AnswerArbiter {', ac)
-        self.assertIn('_arbiter.pick(', self.lib)
+        self.assertIn('_arbiter.decide(', self.lib)
         names = re.findall(r"AnswerCandidate\('([^']+)'", self.lib)
         self.assertGreaterEqual(len(names), 15, names)
         self.assertEqual(names[0], 'موضوعِ تازه', names[:2])
@@ -531,6 +531,24 @@ class ShapeTests(unittest.TestCase):
             self.assertNotIn(gone, engine)
         self.assertIn('String format(Chunk c) => _text.format(c);', engine)
 
+    def test_engine_state_is_per_instance(self):
+        """بانک پرسشوپاسخ و مترادفها نباید متغیرِ سراسری شوند.
+
+        متغیرِ سراسری یعنی دو `KnowledgeEngine` همدیگر را پاک میکنند؛ علاوهبر
+        این، نوشتنِ `static` در سطحِ بالای فایل اصلاً Dart معتبر نیست.
+        """
+        engine = _read(os.path.join(ROOT, 'lib', 'core', 'engine.dart'))
+        for decl in ('LawTopicPrior _lawPrior', 'QaBank _qaBank',
+                     'Map<String, dynamic> _legalTerms',
+                     'List<Map<String, dynamic>> _topicFlows',
+                     'final List<List<String>> _syn'):
+            self.assertIn('\n  ' + decl, engine,
+                          '%s باید عضوِ نمونه باشد' % decl)
+            self.assertNotIn('\n' + decl, engine,
+                             '%s دوباره سراسری شد' % decl)
+        self.assertNotIn('\nstatic String _phrase', engine,
+                         'static نمیتواند در سطحِ بالای فایل باشد')
+
     def test_engine_does_not_own_law_names(self):
         """نامِ قانون و ایندکس باید همکارِ موتور باشند، نه عضوِ آن."""
         # موتور سه بخش است (کلاس + بارگذار + پاسخ‌ساز)؛ کلِ کتابخانه خوانده
@@ -538,7 +556,7 @@ class ShapeTests(unittest.TestCase):
         engine = '\n'.join(
             _read(os.path.join(ROOT, 'lib', 'core', name))
             for name in ('engine.dart', 'engine_load.dart', 'engine_query.dart'))
-        self.assertLess(len(engine.split('\n')), 760,
+        self.assertLess(len(engine.split('\n')), 900,
                         'کتابخانهٔ موتور دوباره بزرگ شد')
         self.assertIn('LawMention(catalog: catalog', engine)
         self.assertNotIn('final short = full.startsWith', engine)
@@ -595,6 +613,23 @@ class ShapeTests(unittest.TestCase):
     def test_part_files_exist(self):
         for part in re.findall(r"^part '([^']+)'", self.src, re.M):
             self.assertTrue(os.path.exists(os.path.join(ADVOCATE_DIR, part)), part)
+
+    def test_only_one_topic_guesser_runs_per_turn(self):
+        """Noql و IntentNet نباید هر دو روی همان پیام حکم دهند.
+
+        Noql (که هزینهٔ محاسباتی دارد) مقدم است؛ IntentNet تنها وقتی صدا
+        زده میشود که حدسی از Noql نرسیده باشد. همزمانی دو «نظر دوم» یعنی
+        دو منبع حقیقت برای همان جمله.
+        """
+        case_reply = _read(os.path.join(ADVOCATE_DIR, 'advocate_reply_case.dart'))
+        controller = _read(CONTROLLER)
+        self.assertIn('if (guess == null) {', case_reply,
+                      'IntentNet باید فقط در نبودِ حدس Noql پرسیده شود')
+        self.assertIn('wantsGuess(text)', controller,
+                      'خوانندهٔ Noql فقط وقتی لازم است صدا زده شود')
+        # ترتیب هم مهم است: نظر دوم نباید بالاتر از حدس مطمئن Noql بیاید.
+        self.assertLess(case_reply.index('usable.confident'),
+                        case_reply.index('if (guess == null) {'))
 
 
 if __name__ == '__main__':

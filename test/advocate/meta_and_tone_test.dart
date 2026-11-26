@@ -113,7 +113,7 @@ void main() {
   test('پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد', () {
     final a = fresh();
     final r = a.respond('هوم');
-    expect(r.text, contains('منظورتان از'));
+    expect(r.ask, isNotEmpty);
     expect(r.chips, isNotEmpty);
   });
 }

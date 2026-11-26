@@ -4,8 +4,8 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'brain'))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import common  # noqa: E402
 import gen_text_norm  # noqa: E402
@@ -27,7 +27,7 @@ class ContractTests(unittest.TestCase):
         for path, text in gen_text_norm.targets().items():
             with open(path, encoding='utf-8') as f:
                 self.assertEqual(f.read(), text,
-                                 'کهنه است: %s — python3 tools/gen_text_norm.py --write'
+                                 'کهنه است: %s — python3 dev/tools/gen_text_norm.py --write'
                                  % os.path.relpath(path, ROOT))
 
     def test_dart_rules_carry_the_same_values(self):

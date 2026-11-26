@@ -220,7 +220,19 @@ class ChatController extends ChangeNotifier {
       }
       lastGuess = guess ?? lastGuess;
     }
-    final r = advocate.respond(text, guess: guess);
+    // worker بازیابی و رتبهبندی مواد در isolate موتور انجام میشود؛
+    // رابط تنها جواب آماده را میگیرد. اگر worker نبود یا خطا داد، وکیل همان
+    // مسیر همگام پیشین را میگیرد.
+    await Future<void>.delayed(Duration.zero);
+    if (_disposed || gen != _generation) return;
+    EngineReply? prepared;
+    try {
+      prepared = await engine.prepareQuery(text);
+    } catch (_) {
+      prepared = null;
+    }
+    if (_disposed || gen != _generation) return;
+    final r = advocate.respond(text, guess: guess, engineReply: prepared);
     if (!shown) messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
     unawaited(_saveSession());

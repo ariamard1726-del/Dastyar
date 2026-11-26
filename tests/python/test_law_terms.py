@@ -1,4 +1,4 @@
-"""آزمون تطبیق واژه‌های پرسش با متن قوانین (tools/law_terms.py).
+"""آزمون تطبیق واژه‌های پرسش با متن قوانین (dev/tools/law_terms.py).
 
 نمونه‌ها در tests/law_terms/cases.json است. هر نمونه یک پرسش واقعی یا گزارش‌شده
 است با پاسخ مورد انتظار: آیا ماده‌ای پذیرفته شود، کدام قانون و ماده، و کدام
@@ -11,7 +11,7 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import law_terms  # noqa: E402
 

@@ -2,7 +2,7 @@
 
 import unittest
 
-from tools import check_refs
+from dev.tools import check_refs
 
 
 class CheckRefsTest(unittest.TestCase):

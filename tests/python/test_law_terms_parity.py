@@ -2,7 +2,7 @@
 
 پیش‌تر فهرست ۱۵۳ واژه‌ای و آستانه‌ها در `law_terms.dart` و `law_terms.py`
 دستی نگه داشته می‌شد و این آزمون فقط «واگرایی نکنند» را می‌سنجید؛ خودِ
-دوتا‌بودن رفع نشده بود. حالا مرجع `tools/contracts/law_terms.json` است.
+دوتا‌بودن رفع نشده بود. حالا مرجع `dev/tools/contracts/law_terms.json` است.
 """
 
 import json
@@ -12,15 +12,15 @@ import sys
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, 'brain'))
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import gen_law_terms  # noqa: E402
 import law_terms_rules  # noqa: E402
 
 DART = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms.dart')
 DART_RULES = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms_rules.dart')
-CONTRACT = os.path.join(ROOT, 'tools', 'contracts', 'law_terms.json')
+CONTRACT = os.path.join(ROOT, 'dev', 'tools', 'contracts', 'law_terms.json')
 
 
 def _read(path):
@@ -48,7 +48,7 @@ class GeneratedTests(unittest.TestCase):
     def test_files_are_fresh(self):
         for path, text in gen_law_terms.targets().items():
             self.assertEqual(_read(path), text,
-                             'کهنه است: %s — python3 tools/gen_law_terms.py --write'
+                             'کهنه است: %s — python3 dev/tools/gen_law_terms.py --write'
                              % os.path.relpath(path, ROOT))
 
     def test_word_lists_are_one(self):

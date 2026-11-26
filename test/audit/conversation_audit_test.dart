@@ -77,7 +77,7 @@ void main() {
     out.writeln('=================== نظر دوم طبقه‌بند نیت');
     var total = 0, byRules = 0, byNet = 0;
     for (final line
-        in File('brain/eval/intent_eval.txt').readAsLinesSync()) {
+        in File('eval/intent_eval.txt').readAsLinesSync()) {
       final i = line.indexOf('|');
       if (line.startsWith('#') || i <= 0) continue;
       final label = line.substring(0, i);

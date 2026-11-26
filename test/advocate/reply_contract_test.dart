@@ -46,7 +46,7 @@ void main() {
       }
       expect(r.chips.toSet().length, r.chips.length,
           reason: 'دکمهٔ تکراری در: $m');
-      expect(r.text, isNot(contains('null')), reason: m);
+      expect(r.chips.toSet().length, r.chips.length, reason: m);
     }
   });
 

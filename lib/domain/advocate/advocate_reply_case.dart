@@ -99,7 +99,10 @@ extension _ReplyCaseFlow on Advocate {
         // پرونده از روی نظر طبقه‌بند باز شد، پس برچسب همان است.
         final r = _open(hint, n);
         return AdvocateReply(r.text,
-            chips: r.chips, laws: r.laws, source: AnswerSource.intentNet);
+            chips: r.chips,
+            laws: r.laws,
+            source: AnswerSource.intentNet,
+            ask: r.ask);
       }
     }
     final hopeless = _hopeless(n);

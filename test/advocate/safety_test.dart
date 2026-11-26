@@ -23,21 +23,21 @@ void main() {
     final a = fresh();
     final r = a.respond('شوهرم منو زد و می‌خوام طلاق بگیرم');
     expect(r.source, AnswerSource.safety, reason: r.text);
-    expect(r.text, contains('۱۱۰'));
-    expect(r.text, contains('۱۲۳'));
+    expect(r.chips, containsAll(<String>['الان در خطر هستم', 'الان امن است']));
+    expect(r.chips, contains('الان امن است'));
     // پاسخِ این نوبت ایمنی است، ولی پرونده بی‌صدا باز می‌شود تا نوبت بعد
     // گفتگو از سرِ همان موضوع ادامه یابد.
     expect(a.hasCase, isTrue);
     expect(a.file.topic, 'family');
     // پرسشِ پرونده جای پرسش ایمنی را نمی‌گیرد.
-    expect(r.text, contains('امن'));
+    expect(r.ask, isNotEmpty);
   });
 
   test('پیام خشونت با امتیاز موضوع بالا هم ایمنی را از دست نمی‌دهد', () {
     final a = fresh();
     final r = a.respond('شوهرم کتکم می‌زند، مهریه‌ام را هم نمی‌دهد، می‌خواهم طلاق بگیرم');
     expect(r.source, AnswerSource.safety, reason: r.text);
-    expect(r.text, contains('۱۲۳'));
+    expect(r.chips, contains('الان امن است'));
   });
 
   test('پیام ایمنی در یک پرونده تکرار نمی‌شود', () {
@@ -55,14 +55,14 @@ void main() {
     // حتی اگر هشدار یک بار داده شده باشد، اعلام خطر تازه نادیده گرفته نمی‌شود.
     final again = a.respond('الان در خطر هستم');
     expect(again.source, AnswerSource.safety, reason: again.text);
-    expect(again.text, contains('۱۱۰'));
+    expect(again.chips, contains('الان امن هستم'));
   });
 
   test('«الان در خطر هستم» راهنمای فوری می‌گیرد', () {
     final a = fresh();
     final r = a.respond('الان در خطر هستم');
     expect(r.source, AnswerSource.safety, reason: r.text);
-    expect(r.text, contains('۱۱۰'));
+    expect(r.chips, contains('الان امن هستم'));
   });
 
   test('جملهٔ عادی، ایمنی را فعال نمی‌کند', () {

@@ -256,6 +256,6 @@ class ReplyVoice {
       ..clear()
       ..addAll(uniq);
     // «انصراف» را Advocate._withLeave آخرین دکمهٔ هر پاسخ می‌کند.
-    return AdvocateReply(body, chips: all, laws: laws, source: source);
+    return AdvocateReply(body, chips: all, laws: laws, source: source, ask: ask);
   }
 }

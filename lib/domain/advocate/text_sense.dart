@@ -20,8 +20,8 @@ class Sense {
   static bool word(String n, String alts) =>
       rx('$_lb(?:$alts)$_rb').hasMatch(n);
 
-  // نشانه‌ها و بازنویسی‌ها از قرارداد `tools/contracts/text_norm.json` می‌آیند
-  // (`lib/core/text_norm_rules.dart`)؛ آینهٔ پایتونی‌اش `brain/common.py:norm`.
+  // نشانه‌ها و بازنویسی‌ها از قرارداد `dev/tools/contracts/text_norm.json` می‌آیند
+  // (`lib/core/text_norm_rules.dart`)؛ آینهٔ پایتونی‌اش `dev/brain/common.py:norm`.
   static final RegExp _punct = RegExp(TextNormRules.normPunct);
   static final RegExp _dot = RegExp(TextNormRules.normDot);
   static final RegExp _ws = RegExp(r'\s+');

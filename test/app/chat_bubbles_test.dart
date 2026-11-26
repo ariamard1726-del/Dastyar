@@ -47,9 +47,8 @@ void main() {
           ),
         );
 
-    testWidgets('پاسخ یکباره نمی‌آید و در پایان کامل و قابل انتخاب است',
-        (tester) async {
-      const full = 'این یک پاسخ نسبتاً بلند برای آزمودن نمایش تدریجی متن است.';
+    testWidgets('پاسخ بلافاصله کامل و قابل انتخاب است', (tester) async {
+      const full = 'این یک پاسخ نسبتاً بلند برای آزمودن نمایش کامل متن است.';
       final msg = ChatMessage(full, false);
       var done = 0;
       await tester.pumpWidget(host(BotMessageView(
@@ -59,18 +58,19 @@ void main() {
         onShare: (_) {},
         onRevealed: () => done++,
       )));
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(full), findsNothing);
-      expect(msg.revealed, isFalse);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      expect(find.text(full), findsOneWidget);
       expect(msg.revealed, isTrue);
       expect(done, 1);
       expect(find.byType(SelectableText), findsOneWidget);
-      expect(find.text(full), findsOneWidget);
+      expect(find.byType(TypingDots), findsNothing);
+      await tester.pumpAndSettle();
+      expect(done, 1, reason: 'اعلام تمام شدن نباید دوباره تکرار شود');
     });
 
-    testWidgets('نگارش آرام است و با یک لمس کل پاسخ می‌آید', (tester) async {
-      final full = List.filled(40, 'این جمله برای آزمودن آهنگ نگارش است.').join(' ');
+    testWidgets('پاسخ بلند هم بدون نگارش تدریجی و بدون نشانگر نوشتن میآید',
+        (tester) async {
+      final full = List.filled(40, 'این جمله برای آزمودن نگارش است.').join(' ');
       final msg = ChatMessage(full, false);
       await tester.pumpWidget(host(SingleChildScrollView(
         child: BotMessageView(
@@ -80,19 +80,11 @@ void main() {
           onShare: (_) {},
         ),
       )));
-      // مکث کوتاهِ فکر کردن پیش از شروع نگارش
-      await tester.pump(const Duration(milliseconds: 200));
-      expect(find.byType(TypingDots), findsOneWidget);
-      // سه ثانیه بعد هنوز در میانهٔ نوشتن است (متن یک‌باره نمی‌آید)
-      await tester.pump(const Duration(seconds: 3));
-      expect(msg.revealed, isFalse);
-      expect(find.text(full), findsNothing);
-      expect(find.textContaining('●'), findsOneWidget);
-      // لمس متن، نگارش را رد می‌کند
-      await tester.tap(find.byType(RevealText));
-      await tester.pumpAndSettle();
+      await tester.pump();
       expect(msg.revealed, isTrue);
       expect(find.text(full), findsOneWidget);
+      expect(find.textContaining('●'), findsNothing);
+      expect(find.byType(TypingDots), findsNothing);
     });
 
     testWidgets('پیام بازیابی‌شده از تاریخچه دوباره تایپ نمی‌شود',

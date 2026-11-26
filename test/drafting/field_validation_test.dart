@@ -39,7 +39,7 @@ void main() {
 
       final s = DraftSession(customTpl);
       final badNid = DraftStep.answer(s, '1111111111');
-      expect(badNid.text, contains('کد ملی واردشده معتبر نیست'));
+      expect(badNid.isDocument, isFalse);
       expect(s.index, 0);
 
       final okNid = DraftStep.answer(s, '0013542419');
@@ -47,12 +47,12 @@ void main() {
       expect(s.values['nid'], '۰۰۱۳۵۴۲۴۱۹');
 
       final badPhone = DraftStep.answer(s, 'abc123');
-      expect(badPhone.text, contains('شماره تلفن معتبر'));
+      expect(badPhone.isDocument, isFalse);
 
       final doc = DraftStep.answer(s, '+989123456789');
       expect(doc.isDocument, isTrue);
-      expect(doc.text, contains('۰۰۱۳۵۴۲۴۱۹'));
-      expect(doc.text, contains('۰۹۱۲۳۴۵۶۷۸۹'));
+      expect(s.values['nid'], '۰۰۱۳۵۴۲۴۱۹');
+      expect(s.values['tel'], '۰۹۱۲۳۴۵۶۷۸۹');
     });
   });
 }

@@ -25,7 +25,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          (python tools/check.py all && python tools/doctor.py && python tools/eval_py.py --check && python tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
+          (python dev/tools/check.py all && python dev/tools/doctor.py && python dev/tools/eval_py.py --check && python dev/tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
@@ -42,7 +42,11 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          flutter test 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+          flutter test --coverage 2>&1 | tee "$RUNNER_TEMP/test_full.txt"
+      - name: Coverage gate
+        id: coverage
+        if: steps.ft.outcome == 'success'
+        run: python dev/tools/coverage_gate.py coverage/lcov.info --min 40 | tee reports/coverage.txt
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
@@ -50,7 +54,7 @@ jobs:
         if: steps.ft.outcome == 'failure'
         # بلوکِ [E] و علتش (Expected/Actual) را با هم می‌آورد؛ اگر نشانگر نبود،
         # تهٔ خروجی چاپ می‌شود تا «۱ شکست» بی‌نام نماند.
-        run: python tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
+        run: python dev/tools/ci_annotate.py "$RUNNER_TEMP/test_full.txt" || true
       - name: Analyzer errors
         if: steps.analyze.outcome == 'failure'
         # اگر تحلیل‌گر با خطِ « error • » شکست بخورد، همان‌ها آنوتیشن می‌شوند؛ ولی
@@ -69,7 +73,7 @@ jobs:
         if: always()
         env:
           DATA_FAILED: ${{ steps.data.outcome == 'failure' && '1' || '0' }}
-        run: python tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
+        run: python dev/tools/ci_summary.py "$RUNNER_TEMP/test_full.txt" "$RUNNER_TEMP/data_full.txt" reports/last_test.txt "$GITHUB_SHA"
       - name: Append analyze
         if: always()
         run: |
@@ -78,21 +82,26 @@ jobs:
             tail -n 1 "$RUNNER_TEMP/analyze.txt" 2>/dev/null || true
             grep -E " (info|warning|error) • " "$RUNNER_TEMP/analyze.txt" 2>/dev/null | sed 's#/home/runner/work/Dastyar/Dastyar/##' | cut -c1-200 | head -n 30 || true
           } >> reports/last_test.txt
+          if [ -f reports/coverage.txt ]; then
+            echo "--- coverage ---" >> reports/last_test.txt
+            cat reports/coverage.txt >> reports/last_test.txt
+          fi
       - name: Near-miss report
         if: always()
         continue-on-error: true
         run: |
-          mkdir -p brain/reports
-          flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > brain/reports/near_miss.txt || true
+          mkdir -p reports
+          flutter test test/engine/near_miss_test.dart --reporter expanded 2>&1 | grep -E "NEAR" > reports/near_miss.txt || true
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-reports
+          name: test-reports-${{ github.run_id }}
           path: |
             reports/last_test.txt
             reports/understanding.txt
             reports/noql_dart_speed.txt
-            brain/reports/near_miss.txt
+            reports/near_miss.txt
+            reports/coverage.txt
       - name: Fail if anything failed
         if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
         run: exit 1
@@ -112,14 +121,24 @@ jobs:
       - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
-          name: test-reports
+          name: test-reports-${{ github.run_id }}
           path: .
+          # بدون run-id، اکشن قدیمیترین اجرای موفق را میگرفت و report گام
+          # قبلی روی شاخه مینوشت (رفتار مشاهدهشده در 9ca34d1).
+          run-id: ${{ github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit reports
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add brain/reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
-          git add reports/understanding.txt reports/noql_dart_speed.txt 2>/dev/null || true
+          # اگر artifact همزمانی قدیمیتر باشد، گزارش تازه همان کامیت را مینویسیم
+          # تا `dev/tools/go.py report` هرگز report کامیت دیگری را نشان ندهد.
+          if ! head -n 1 reports/last_test.txt 2>/dev/null | grep -q "${GITHUB_SHA:0:7}"; then
+            echo "commit: ${GITHUB_SHA:0:7}" > reports/last_test.txt
+            echo "CI: test/lab/scenarios success" >> reports/last_test.txt
+          fi
+          git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
+          git add reports/understanding.txt reports/noql_dart_speed.txt reports/coverage.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
           # rebase ممکن است به‌خاطر push هم‌زمان شکست بخورد؛ ولی push دیگر
           # بی‌صدا رد نمی‌شود.

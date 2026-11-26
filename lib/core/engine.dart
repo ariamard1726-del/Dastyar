@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -30,6 +32,7 @@ export 'models.dart';
 
 part 'engine_load.dart';
 part 'engine_query.dart';
+part 'engine_worker.dart';
 
 class KnowledgeEngine {
   /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
@@ -70,6 +73,11 @@ class KnowledgeEngine {
 
   final ConflictsService _conflictsService = ConflictsService();
   Map<String, dynamic> _relationships = const {};
+
+  /// دادههای خام و worker پاسخسازی؛ [`load`] آنها را پر میکند.
+  Map<String, dynamic> _repliesRaw = const {};
+  Object? _lawTopicsRaw;
+  EngineWorker? _worker;
 
   static const List<String> _unloadedPenalTerms = [
     'سرقت', 'دزدی', 'کلاهبرداری', 'قتل', 'ضرب و جرح', 'خیانت در امانت',
@@ -139,19 +147,17 @@ class KnowledgeEngine {
 
   static List<String> tokenize(String s) => PersianText.tokenize(s);
 
-LawTopicPrior _lawPrior = LawTopicPrior.empty;
+  // اینها حالتِ همین نمونهاند، نه متغیرِ سراسری: دو KnowledgeEngine نباید
+  // بانک پرسشوپاسخ یا مترادفهای همدیگر را پاک یا جایگزین کنند.
+  LawTopicPrior _lawPrior = LawTopicPrior.empty;
+  QaBank _qaBank = QaBank.empty;
+  /// واژهها و عبارتهای حقوقی با مادهای مشخص (assets/brain/legal_terms.json).
+  Map<String, dynamic> _legalTerms = const {};
+  /// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
+  List<Map<String, dynamic>> _topicFlows = const [];
+  final List<List<String>> _syn = [];
 
-QaBank _qaBank = QaBank.empty;
-
-/// واژه‌ها و عبارت‌های حقوقی با ماده‌ای مشخص (assets/brain/legal_terms.json).
-Map<String, dynamic> _legalTerms = const {};
-
-/// مسیرهای تصمیم موضوعی، با ترتیب فهرست index.json.
-List<Map<String, dynamic>> _topicFlows = const [];
-
-final List<List<String>> _syn = [];
-
-static String _phrase(String s) => PersianText.phrase(s);
+  static String _phrase(String s) => PersianText.phrase(s);
 
 
   // ---------------------------------------------------------------------------
@@ -162,7 +168,23 @@ static String _phrase(String s) => PersianText.phrase(s);
   // ---------------------------------------------------------------------------
 
   /// بارگذاریِ دارایی‌ها و ساختنِ ایندکس؛ پیاده‌سازی در `engine_load.dart`.
-  Future<void> load() => _EngineLoad(this).load();
+  Future<void> load({bool startWorker = false}) =>
+      _EngineLoad(this).load(startWorker: startWorker);
+
+  /// ساخت ایندکس را از همان دادههای که worker دارد؛ فقط داخل همان isolate صدا زده
+  /// میشود تا پرسشها روی رشتهٔ جدا پاسخ داده شوند.
+  IndexBuild adoptWorkerData(Map<String, dynamic> data) =>
+      _EngineLoad(this).adoptWorkerData(data);
+
+  /// پاسخِ ازپیشساختهٔ worker، یا `null` وقتی worker در دسترس نیست.
+  Future<EngineReply?> prepareQuery(String question) =>
+      _worker?.query(question) ?? Future<EngineReply?>.value(null);
+
+  /// آزادسازی isolate هنگام بستن صفحه.
+  void dispose() {
+    _worker?.dispose();
+    _worker = null;
+  }
 
   /// یافتنِ ماده با ارجاعِ صریح («ماده ۶۷۷» یا ارجاعِ هم‌نام).
   Chunk? findArticle(String law, String article) =>

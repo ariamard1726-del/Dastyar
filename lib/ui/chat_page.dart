@@ -100,16 +100,6 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  /// پایین‌بردن فوری فهرست در حین نمایش تدریجی پاسخ (بدون انیمیشن تا
-  /// با گام‌های نمایش تداخل نکند).
-  void _jumpDown() {
-    if (!_scroll.hasClients) return;
-    final pos = _scroll.position;
-    if (!pos.hasContentDimensions) return;
-    if (pos.maxScrollExtent - pos.pixels < 400) {
-      _scroll.jumpTo(pos.maxScrollExtent);
-    }
-  }
 
   Future<void> _openHistory() async {
     final s = await Navigator.of(context).push<ChatSession>(
@@ -237,10 +227,6 @@ class _ChatPageState extends State<ChatPage> {
                               question: question,
                               onCopy: _copy,
                               onShare: (t) => _share(t),
-                              onRevealTick: _jumpDown,
-                              onRevealed: () {
-                                if (mounted) setState(() {});
-                              },
                             );
                           },
                           ),

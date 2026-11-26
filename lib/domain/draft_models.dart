@@ -90,45 +90,62 @@ class DraftCheckpointStore {
 
   static const String _key = 'active_draft_v1';
 
-  static Future<bool> save(DraftSession session) async {
-    if (session.done) {
-      await clear();
-      return false;
-    }
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = jsonEncode(session.toJson());
-      final sealed = await PrivacyService.seal(raw);
-      return await prefs.setString(_key, sealed);
-    } catch (_) {
-      return false;
-    }
+  /// تمام خواندن/نوشتنها پشت یک صف سریالیاند. «گفتگوی جدید»، «باز کردن
+  /// گفتگو» و ذخیرهٔ خودکار پیشنویس میتوانند پشت سر هم رخ دهند؛ بدون
+  /// صف، پاک کردن قدیمی میتوانست بعد از ذخیرهٔ تازه بنشیند و پیشنویس کاربر
+  /// را ببرد.
+  static Future<void> _queue = Future<void>.value();
+
+  static Future<T> _serial<T>(Future<T> Function() job) {
+    final next = _queue.then((_) => job());
+    _queue = next.then((_) {}, onError: (Object _) {});
+    return next;
   }
 
-  static Future<DraftSession?> load(List<LegalTemplate> templates) async {
-    if (templates.isEmpty) return null;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final stored = prefs.getString(_key);
-      if (stored == null || stored.isEmpty) return null;
-      final raw = await PrivacyService.open(stored);
-      if (raw == null || raw.isEmpty) return null;
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) return null;
-      final s = DraftSession.fromJson(decoded, templates);
-      if (s == null || s.done) return null;
-      return s;
-    } catch (_) {
-      return null;
-    }
-  }
+  static Future<bool> save(DraftSession session) => _serial(() async {
+        if (session.done) {
+          // صدا نزدن به `clear` باعث قفلشدن صف میشود: خودمان داخل همان صف هستیم.
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.remove(_key);
+          } catch (_) {}
+          return false;
+        }
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final raw = jsonEncode(session.toJson());
+          final sealed = await PrivacyService.seal(raw);
+          return await prefs.setString(_key, sealed);
+        } catch (_) {
+          return false;
+        }
+      });
 
-  static Future<void> clear() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_key);
-    } catch (_) {}
-  }
+  static Future<DraftSession?> load(List<LegalTemplate> templates) =>
+      _serial(() async {
+        if (templates.isEmpty) return null;
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final stored = prefs.getString(_key);
+          if (stored == null || stored.isEmpty) return null;
+          final raw = await PrivacyService.open(stored);
+          if (raw == null || raw.isEmpty) return null;
+          final decoded = jsonDecode(raw);
+          if (decoded is! Map<String, dynamic>) return null;
+          final s = DraftSession.fromJson(decoded, templates);
+          if (s == null || s.done) return null;
+          return s;
+        } catch (_) {
+          return null;
+        }
+      });
+
+  static Future<void> clear() => _serial(() async {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(_key);
+        } catch (_) {}
+      });
 }
 
 class DraftReply {

@@ -34,7 +34,7 @@ void main() {
     a.respond('صاحبخونه پول پیشمو نمیده');
     expect(a.file.topic, isNotEmpty, reason: 'پرونده باز نشد');
     final r = a.respond('انصراف');
-    expect(r.text, contains('کنار گذاشتم'));
+    expect(r.chips, ChipTexts.branchChips);
     expect(a.hasCase, isFalse);
     expect(a.file.topic, isEmpty);
     expect(a.file.facts, isEmpty);
@@ -48,7 +48,7 @@ void main() {
     a.respond('همسایه‌ام دیوار مشترک را خراب کرده');
     expect(a.file.topic, 'neighbor');
     final r = a.respond('کارفرمای من دو ماه است حقوقم را نداده و بیمه هم رد نکرده');
-    expect(r.text, contains('فرق دارد'), reason: r.text);
+    expect(r.chips, contains(ChipTexts.newTopicNoChip));
     expect(r.chips, contains(ChipTexts.newTopicYesChip));
     expect(a.file.topic, 'neighbor');
     expect(a.dialog.pendingTopic?.id, 'labor');

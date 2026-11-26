@@ -10,7 +10,7 @@
 بودند. به همین دلیل وضعیت همه `unverified` است و برنامه زیر متن هر ماده و در صفحهٔ
 «دربارهٔ داده‌ها» همین را می‌گوید.
 
-وضعیت لحظه‌ای: `python3 tools/law_registry.py status`
+وضعیت لحظه‌ای: `python3 dev/tools/law_registry.py status`
 
 ## شناسنامهٔ هر قانون (`assets/laws/_meta.json`)
 
@@ -27,7 +27,7 @@
 | `status` | `verified` یا `unverified` |
 | `note` | اختیاری؛ توضیح دربارهٔ کیفیت ثبت |
 
-`python3 tools/check.py meta` (که در CI هم اجرا می‌شود) در این حالت‌ها خطا می‌دهد:
+`python3 dev/tools/check.py meta` (که در CI هم اجرا می‌شود) در این حالت‌ها خطا می‌دهد:
 
 - نبودِ هر یک از فیلدهای بالا (جز `note`)؛
 - تاریخ با ارقام لاتین یا قالب نادرست؛
@@ -59,7 +59,7 @@ GitHub: `qavanin.ir` صفحهٔ بررسی مرورگر برمی‌گرداند�
 ۳. تاریخ آخرین اصلاح را از همان صفحه یادداشت کنید.
 ۴. اجرا کنید:
 
-       python3 tools/law_registry.py verify labor \
+       python3 dev/tools/law_registry.py verify labor \
          --url "https://qavanin.ir/Law/TreeText/…" \
          --raw raw/official/labor.txt \
          --amended ۱۳۹۰/۰۴/۰۸ \
@@ -72,14 +72,14 @@ GitHub: `qavanin.ir` صفحهٔ بررسی مرورگر برمی‌گرداند�
 - اگر هیچ اختلافی نبود: منبع، نشانی، تاریخ دریافت، تاریخ اصلاح و اثر انگشت ثبت و
   قانون `verified` می‌شود.
 - اگر اختلاف بود: چیزی عوض نمی‌شود و فهرست اختلاف‌ها چاپ می‌شود. در این حالت متن
-  رسمی را با `tools/import_law.py` جایگزین کنید و دوباره `verify` بزنید.
+  رسمی را با `dev/tools/import_law.py` جایگزین کنید و دوباره `verify` بزنید.
 
-بعد از آن: `python3 tools/sync_meta.py --write` و `python3 tools/check.py all`.
+بعد از آن: `python3 dev/tools/sync_meta.py --write` و `python3 dev/tools/check.py all`.
 
 ## وقتی متن یک قانون عوض می‌شود
 
 هر تغییری در فایل متن، `sha256` را باطل می‌کند و `check.py` خطا می‌دهد.
-`python3 tools/law_registry.py stamp` اثر انگشت را تازه می‌کند و اگر آن قانون
+`python3 dev/tools/law_registry.py stamp` اثر انگشت را تازه می‌کند و اگر آن قانون
 `verified` بوده، وضعیتش را به `unverified` برمی‌گرداند تا دوباره تطبیق داده شود.
 
 ## ایرادهای ساختاری شناخته‌شده در متن‌ها

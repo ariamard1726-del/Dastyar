@@ -15,6 +15,7 @@ extension _ReplyPipeline on Advocate {
   /// نوبتِ کاربر نیست، پس شمارهٔ نوبت را جلو نمی‌برد. پیش‌تر این کار با
   /// `file.turns--` بعد از فراخوانیِ بازگشتی انجام می‌شد؛ حالا صریح است.
   AdvocateReply _reply(String raw, {TopicGuess? guess, bool again = false}) {
+    lastDecision = null;
     final n = Sense.norm(raw);
     final prevN = _prevN;
     _prevN = n;
@@ -32,30 +33,52 @@ extension _ReplyPipeline on Advocate {
     // از این‌جا تا «موضوعِ کنارِ هم»، ترتیب خودِ تصمیم است: هر ورودی نام دارد
     // و داور اولین پاسخ‌دهنده را برمی‌گرداند. جای زنجیرهٔ `if`ها، فهرست خوانده
     // می‌شود. ترتیب دقیقاً همان ترتیبِ پیشین است.
-    final hit = Advocate._arbiter.pick(<AnswerCandidate>[
-      AnswerCandidate('موضوعِ تازه', () => _routes.newCase(raw)),
-      AnswerCandidate('«هیچ‌کدام»', () => _routes.noOption(raw)),
+    final hitDecision = Advocate._arbiter.decide(<AnswerCandidate>[
+      AnswerCandidate('موضوعِ تازه', () => _routes.newCase(raw),
+          source: AnswerSource.topic, why: 'دکمهٔ موضوع تازه'),
+      AnswerCandidate('«هیچ‌کدام»', () => _routes.noOption(raw),
+          source: AnswerSource.topic, why: 'اعتراض به نبودن دکمهٔ خروج'),
       // پاسخ به «این موضوع تازه است یا مربوط به قبلی؟» پیش از هر قاعدهٔ دیگر؛
       // وگرنه «بله»/«خیر» ادامهٔ پروندهٔ قبلی خوانده می‌شود.
-      AnswerCandidate('تازه است یا مربوط؟', () => _routes.pending(raw, n)),
+      AnswerCandidate('تازه است یا مربوط؟', () => _routes.pending(raw, n),
+          source: AnswerSource.topic, why: 'پاسخ به پرسشِ موضوع تازه یا قبلی'),
       AnswerCandidate('دکمهٔ دستهٔ مشکل',
-          () => _branchReply(raw, n, asked: branchAsked)),
-      AnswerCandidate('کنار گذاشتنِ موضوع', () => _leaveReply(raw)),
+          () => _branchReply(raw, n, asked: branchAsked),
+          source: AnswerSource.topic, why: 'دکمهٔ دستهٔ مشکل'),
+      AnswerCandidate('کنار گذاشتنِ موضوع', () => _leaveReply(raw),
+          source: AnswerSource.topic, why: 'درخواستِ کنار گذاشتنِ موضوع'),
       // ایمنی پیش از هر چیز و مستقل از امتیازِ موضوع.
-      AnswerCandidate('ایمنی', () => _safetyReply(n)),
+      AnswerCandidate('ایمنی', () => _safetyReply(n),
+          source: AnswerSource.safety, why: 'پیامِ خطر، پیش از هر مسیرِ دیگر'),
+      // پرسش فرضی با طرفهای الف/ب/ج ماجرای شخصی کاربر نیست. پیش از قاعدههای
+      // موضوعی میآید تا وکیل خودش را طرف معامله نپندارد و متن قانون را نشان دهد.
+      AnswerCandidate('پرسش فرضی',
+          () => _hypotheticalReply(raw, n, hasCase: hasCase),
+          source: AnswerSource.engine, why: 'پرسش فرضی، نه ماجرای شخصی'),
       // «از برنامه خارج شدم» و جملهٔ کوتاهِ سوگ: پرسشِ واقعی، ولی نه ماجرای
       // حقوقی؛ پس از ایمنی می‌آید تا پیامِ خطر زیرش نماند.
-      AnswerCandidate('دربارهٔ برنامه', () => _metaReplyBot.metaReply(raw, n)),
-      AnswerCandidate('دعوا و شکایت', () => _routes.fight(n, hasCase)),
+      AnswerCandidate('دربارهٔ برنامه', () => _metaReplyBot.metaReply(raw, n),
+          source: AnswerSource.qaBank, why: 'پرسش دربارهٔ خودِ برنامه'),
+      AnswerCandidate('دعوا و شکایت', () => _routes.fight(n, hasCase),
+          source: AnswerSource.topic, why: 'دعوا و شکایت'),
       AnswerCandidate('انتخابِ موضوع',
-          () => _routes.choice(raw, n, choices, choiceText)),
-      AnswerCandidate('حدسِ اشتباه', () => _routes.wrongGuess(raw, n, guessed)),
-      AnswerCandidate('ادامهٔ حرفِ قبلی', () => _routes.more(raw, n, short)),
-      AnswerCandidate('تنظیمِ سند', () => _filingReply(raw)),
-      AnswerCandidate('پیشنهادِ پاسخ', () => _routes.offer(raw, n, short)),
-      AnswerCandidate('«باشه»', () => _routes.bareAck(raw, n)),
-      AnswerCandidate('موضوعِ کنارِ هم', () => _routes.side(raw, n)),
+          () => _routes.choice(raw, n, choices, choiceText),
+          source: AnswerSource.topic, why: 'انتخابِ موضوع توسط کاربر'),
+      AnswerCandidate('حدسِ اشتباه', () => _routes.wrongGuess(raw, n, guessed),
+          source: AnswerSource.guess, why: 'اصلاحِ حدسِ اشتباه'),
+      AnswerCandidate('ادامهٔ حرفِ قبلی', () => _routes.more(raw, n, short),
+          source: AnswerSource.topic, why: 'ادامهٔ حرفِ قبلی'),
+      AnswerCandidate('تنظیمِ سند', () => _filingReply(raw),
+          source: AnswerSource.guide, why: 'لمسِ دکمهٔ تنظیم سند'),
+      AnswerCandidate('پیشنهادِ پاسخ', () => _routes.offer(raw, n, short),
+          source: AnswerSource.topic, why: 'پیشنهادِ پاسخِ آماده'),
+      AnswerCandidate('«باشه»', () => _routes.bareAck(raw, n),
+          source: AnswerSource.topic, why: 'پذیرشِ کوتاهِ کاربر'),
+      AnswerCandidate('موضوعِ کنارِ هم', () => _routes.side(raw, n),
+          source: AnswerSource.topic, why: 'موضوعِ کنارِ هم'),
     ]);
+    lastDecision = hitDecision;
+    final hit = hitDecision?.reply;
     if (hit != null) return hit;
     final topic = _current();
     // محاسبهٔ موضوع از تصمیم جدا شد: این‌جا فقط خوانده می‌شود، بعد تصمیم
@@ -65,21 +88,29 @@ extension _ReplyPipeline on Advocate {
     // دُمِ مسیرها: پیش از امتیاززدنِ موضوع، «مهلت» و «موضوعِ صریح» جای خودشان
     // را دارند؛ پس داور یک بار تنها با «مهلت» صدا زده می‌شود، بعد پاسخِ
     // موضوعی می‌آید و بعد داورِ دوم.
-    final due = Advocate._arbiter.pick(<AnswerCandidate>[
-      AnswerCandidate('مهلت', () => _routes.deadline(raw, n, hasCase)),
+    final dueDecision = Advocate._arbiter.decide(<AnswerCandidate>[
+      AnswerCandidate('مهلت', () => _routes.deadline(raw, n, hasCase),
+          source: AnswerSource.lawTerms, why: 'مهلتِ ابلاغ و حسابِ تاریخ'),
     ]);
+    lastDecision = dueDecision;
+    final due = dueDecision?.reply;
     if (due != null) return due;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
     final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= 5);
     if (meta != null) return meta;
 
-    final tail = Advocate._arbiter.pick(<AnswerCandidate>[
-      AnswerCandidate('تکرارِ حرفِ قبلی', () => _routes.repeat(prevN, n, hasCase)),
-      AnswerCandidate('قاعدهٔ ثابت', () => _routes.fixedRules(n)),
+    final tailDecision = Advocate._arbiter.decide(<AnswerCandidate>[
+      AnswerCandidate('تکرارِ حرفِ قبلی', () => _routes.repeat(prevN, n, hasCase),
+          source: AnswerSource.topic, why: 'تکرارِ حرفِ قبلی'),
+      AnswerCandidate('قاعدهٔ ثابت', () => _routes.fixedRules(n),
+          source: AnswerSource.lawTerms, why: 'قاعدهٔ ثابتِ مستند'),
       // مهلت اعتراض یا ابلاغ: مدت به نوع رأی و مرجع بستگی دارد و متن آن در
       // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
-      AnswerCandidate('مهلتِ اعتراض', () => _objectionDeadline(n)),
+      AnswerCandidate('مهلتِ اعتراض', () => _objectionDeadline(n),
+          source: AnswerSource.lawTerms, why: 'مهلتِ اعتراض بدون متنِ قانون'),
     ]);
+    lastDecision = tailDecision;
+    final tail = tailDecision?.reply;
     if (tail != null) return tail;
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
@@ -117,5 +148,22 @@ extension _ReplyPipeline on Advocate {
     if (corrected != null) return corrected;
     if (topic == null) return _noCaseReply(raw, n, read, guess);
     return _inCaseReply(raw, n, topic, read);
+  }
+
+  /// پرسش فرضی (طرفهای الف/ب/ج) را از ماجرای شخصی جدا میکند. متن قانون
+  /// مرتبط را با همان مسئولیتِ معمولِ LawAnswer میدهد؛ اگر نبود، بیآنکه
+  /// مادهٔ نامربوط یا پرسشِ نقش بگوید، صریحاً میگوید پیدا نکرد.
+  AdvocateReply? _hypotheticalReply(String raw, String n,
+      {required bool hasCase}) {
+    if (!_isHypotheticalQuestion(raw, n)) return null;
+    final answer = _lawAnswer.lookup(raw, n,
+        hasCase: hasCase, loose: dialog.loose.length);
+    if (answer != null) return answer;
+    return voice.out(
+      'این پرسش فرضی است و طرفهای آن الف، ب و ج هستند؛ من آنرا ماجرای '
+      'شخصی شما در نظر نمیگیرم و نقشِ کسی را حدس نمیزنم. متن قانون '
+      'مرتبطی در بانک من پیدا نشد تا مادهٔ نامربوط بگویم.',
+      source: AnswerSource.engine,
+    );
   }
 }

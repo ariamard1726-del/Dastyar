@@ -652,7 +652,7 @@ void main() {
     expect(routed, isNotEmpty,
         reason: 'هیچ پرسش بانک به مسیر QA نمی‌رسد؛ مسیر QA بی‌استفاده است.');
     for (final x in routed) {
-      expect(x.reply.text, contains('مستند:'), reason: x.id);
+      expect(x.reply.laws, isNotEmpty, reason: x.id);
       expect(x.reply.chips, isNotEmpty, reason: x.id);
     }
   });

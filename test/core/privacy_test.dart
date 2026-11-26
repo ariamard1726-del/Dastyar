@@ -16,6 +16,7 @@ void main() {
   group('برش ایمن یونیکد، رمزنگاری محلی، مهاجرت خودکار و کانال حریم خصوصی', () {
     setUp(() {
       SharedPreferences.setMockInitialValues(<String, Object>{});
+      PrivacyService.resetEphemeralKeyForTesting();
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(PrivacyService.channel, null);
     });
@@ -38,7 +39,44 @@ void main() {
       expect(PersianText.truncate(shortEmoji, 2, ellipsis: '…'), '😀😀…');
     });
 
-    test('SHA-256 داخلی با بردار استاندارد NIST مطابقت دارد', () {
+    test('افتادن به رمزنگاری جایگزین بیص نمیماند', () async {
+    PrivacyService.fallbackUsed = false;
+    PrivacyService.lastError = null;
+
+    final sealed = await PrivacyService.seal('متن آزمایشی');
+
+    expect(sealed, startsWith(PrivacyService.fallbackPrefix));
+    expect(PrivacyService.fallbackUsed, isTrue);
+    expect(PrivacyService.lastError, isNotNull,
+        reason: 'کاربر باید بداند کلید سختافزاری در کار نبوده است');
+  });
+
+  test('کلید جایگزین در SharedPreferences ذخیره نمیشود', () async {
+    final sealed = await PrivacyService.seal('پرسش محرمانه');
+    expect(sealed, startsWith(PrivacyService.fallbackPrefix));
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getKeys(),
+      isNot(contains(PrivacyService.legacyFallbackKeyPref)),
+      reason: 'کلید رمزنگاری نباید روی دیسک ذخیره شود',
+    );
+    await PrivacyService.discardLegacyKey();
+    expect(prefs.getKeys(), isNot(contains(PrivacyService.legacyFallbackKeyPref)));
+    expect(await PrivacyService.open(sealed), 'پرسش محرمانه');
+  });
+
+  test('باز شدن دوبارهٔ برنامه قفل میشود و کلید قدیمی پاک میشود', () async {
+    final sealed = await PrivacyService.seal('دادهٔ اجرای قبل');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PrivacyService.legacyFallbackKeyPref, 'old-key');
+    PrivacyService.resetEphemeralKeyForTesting();
+    await PrivacyService.discardLegacyKey();
+    expect(prefs.containsKey(PrivacyService.legacyFallbackKeyPref), isFalse);
+    expect(await PrivacyService.open(sealed), isNull,
+        reason: 'دادهٔ اجرای قبل نباید با کلید تازه باز شود');
+  });
+
+  test('SHA-256 داخلی با بردار استاندارد NIST مطابقت دارد', () {
       final digest = PrivacyService.sha256(utf8.encode('abc'));
       final hex =
           digest.map((b) => b.toRadixString(16).padLeft(2, '0')).join();

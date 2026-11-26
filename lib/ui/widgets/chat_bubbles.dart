@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/ui/widgets/feedback_bar.dart';

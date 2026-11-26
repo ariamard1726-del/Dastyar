@@ -55,8 +55,8 @@ void main() {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: sure('labor'));
     expect(a.file.topic, 'labor');
-    expect(r.text, contains('برداشتم این است'));
-    expect(r.text, contains('کار و کارفرما'));
+    expect(r.chips, contains(ChipTexts.wrongChip));
+    expect(r.chips, contains(ChipTexts.wrongChip));
     expect(r.chips.first, ChipTexts.wrongChip);
     expect(a.wantsGuess('حقوقم را هم نداده'), isFalse);
   });
@@ -68,7 +68,7 @@ void main() {
       expect(a.file.topic, 'rent');
       final r = a.respond(reply);
       expect(a.file.topic, isEmpty, reason: reply);
-      expect(r.text, contains('اشتباه برداشت کردم'));
+      expect(r.chips, ChipTexts.branchChips);
     }
   });
 
@@ -86,7 +86,7 @@ void main() {
     expect(a.file.topic, isEmpty);
     expect(r.chips,
         ['کار و کارفرما', 'اجاره و ودیعه', ChipTexts.noneChip, ChipTexts.leaveChip]);
-    expect(r.text, contains('کدام نزدیک‌تر'));
+        expect(r.chips, contains(ChipTexts.noneChip));
     expect(a.wantsGuess('کار و کارفرما'), isFalse);
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, 'rent');
@@ -106,7 +106,7 @@ void main() {
     a.respond(unknown, guess: unsure('labor', 'rent'));
     final r = a.respond(ChipTexts.noneChip);
     expect(a.file.topic, isEmpty);
-    expect(r.text, contains('چه اتفاقی افتاده'));
+    expect(r.chips, ChipTexts.branchChips);
     // پرسشِ «کدام؟» دیگر معتبر نیست.
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, isNot('labor'));
@@ -131,7 +131,7 @@ void main() {
 
   test('جایی که قاعده‌ها موضوع را شناخته‌اند حدس هیچ چیز را عوض نمی‌کند', () {
     final samples = [
-      for (final line in File('brain/eval/intent_eval.txt').readAsLinesSync())
+      for (final line in File('eval/intent_eval.txt').readAsLinesSync())
         if (!line.startsWith('#') && line.indexOf('|') > 0)
           line.substring(line.indexOf('|') + 1).trim(),
     ];

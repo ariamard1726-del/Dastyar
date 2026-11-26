@@ -41,7 +41,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           AGENT_TASK: ${{ inputs.task }}
           AGENT_FILES: ${{ inputs.files }}
-        run: python tools/agent.py
+        run: python dev/tools/agent.py
 
       - name: Open PR
         env:

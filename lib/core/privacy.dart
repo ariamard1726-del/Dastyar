@@ -18,7 +18,23 @@ class PrivacyService {
 
   static const String nativePrefix = 'enc1:';
   static const String fallbackPrefix = 'encf1:';
-  static const String _fallbackKeyPref = '__dastyar_local_key_v1';
+  static const String legacyFallbackKeyPref = '__dastyar_local_key_v1';
+
+  /// مسیر جایگزین به کار افتاد؟ فراخوانندهها (صفحهٔ وضعیت) حق دارند بدانند
+  /// که «رمزنگاری سختافزاری» تنها یک شعار نماند.
+  static bool fallbackUsed = false;
+
+  /// علت آخرین استفاده از مسیر جایگزین (یا شکست کانال بومی).
+  static String? lastError;
+
+  static void _markFallback(Object? error) {
+    fallbackUsed = true;
+    lastError = error == null
+        ? 'رمزنگاری سختافزاری در دسترس نبود؛ از رمزنگاری جایگزین روی همین '
+            'دستگاه استفاده شد. کلید جایگزین فقط در حافظهٔ همین اجرای برنامه '
+            'است و دادهها پس از بستهشدن برنامه قابل خواندن نخواهند بود.'
+        : 'رمزنگاری سختافزاری خطا داد ($error)؛ از مسیر جایگزین استفاده شد.';
+  }
 
   static bool isEncrypted(String payload) =>
       payload.startsWith(nativePrefix) || payload.startsWith(fallbackPrefix);
@@ -31,10 +47,12 @@ class PrivacyService {
         'text': plain,
       });
       if (res != null && res.isNotEmpty) return res;
-    } on MissingPluginException {
+    } on MissingPluginException catch (e) {
       // محیط تست واحد یا سکوی فاقد کانال اندروید
-    } on PlatformException {
+      _markFallback(e);
+    } on PlatformException catch (e) {
       // در صورت خطای کانال بومی از رمزنگاری جایگزین استفاده می‌شود
+      _markFallback(e);
     }
     return _fallbackSeal(plain);
   }
@@ -48,11 +66,13 @@ class PrivacyService {
         return await channel.invokeMethod<String>('open', <String, Object?>{
           'payload': payload,
         });
-      } catch (_) {
+      } catch (e) {
+        _markFallback(e);
         return null;
       }
     }
     if (payload.startsWith(fallbackPrefix)) {
+      _markFallback(null);
       return _fallbackOpen(payload);
     }
     // دادهٔ قدیمیِ رمزنشده (مهاجرت شفاف)
@@ -93,37 +113,86 @@ class PrivacyService {
 
   // ---------- رمزنگاری احرازهویت‌شدهٔ جایگزین (HMAC-SHA256 + CTR) ----------
 
-  static Future<Uint8List> _getOrCreateFallbackKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    final existing = prefs.getString(_fallbackKeyPref);
-    if (existing != null && existing.isNotEmpty) {
-      try {
-        final decoded = base64Decode(existing);
-        if (decoded.length == 32) return decoded;
-      } catch (_) {}
-    }
-    final rnd = _secureOrFallbackRandom();
-    final key = Uint8List.fromList(
+  /// کلید تنها در حافظهٔ همین isolate زندگی میکند: نه در SharedPreferences،
+  /// نه در دیسک. [Random.secure] در صورت نبود منبع تصادفی خطا میدهد و رمزنگاری
+  /// متوقف میشود؛ تولید کلید قابلپیشبینی راه حل نیست.
+  static Uint8List? _ephemeralKey;
+
+  static Uint8List _fallbackKey() {
+    if (_ephemeralKey != null) return _ephemeralKey!;
+    final rnd = Random.secure();
+    return _ephemeralKey = Uint8List.fromList(
       List<int>.generate(32, (_) => rnd.nextInt(256)),
     );
-    await prefs.setString(_fallbackKeyPref, base64Encode(key));
-    return key;
   }
 
-  static Random _secureOrFallbackRandom() {
+  /// شبیهسازِ «برنامه بسته و دوباره باز شد» در آزمونها. data-های مهرومومشدهٔ
+  /// اجرای قبل دیگر باز نمیشوند (fail-closed).
+  static void resetEphemeralKeyForTesting() => _ephemeralKey = null;
+
+  /// شبیهسازیِ کلیدِ نسخهٔ قدیمی برای آزمون مهاجرت.
+  static void setEphemeralKeyForTesting(List<int> key) =>
+      _ephemeralKey = Uint8List.fromList(key);
+
+  /// باز کردن payload قدیمی `encf1:` با کلیدی که نسخهٔ قبل در prefs میگذاشت.
+  /// فقط توسط لایهٔ مهاجرت یکبار خوانده میشود؛ مسیر عادی [open] هرگز از کلید
+  /// ذخیرهشده استفاده نمیکند.
+  static String? openLegacyPayload(String payload, List<int> masterKey) {
+    if (!payload.startsWith(fallbackPrefix)) return null;
+    final raw0 = _decodeFallback(payload);
+    if (raw0 == null) return null;
+    return _openWithKey(raw0, masterKey);
+  }
+
+  static List<int>? _decodeFallback(String payload) {
     try {
-      return Random.secure();
+      final raw = base64Decode(payload.substring(fallbackPrefix.length));
+      return raw.length >= 48 ? raw : null;
     } catch (_) {
-      return Random();
+      return null;
+    }
+  }
+
+  static String? _openWithKey(List<int> raw, List<int> masterKey) {
+    try {
+      // `sublistView` فقط TypedData میپذیرد؛ `base64Decode` یک List<int> ساده
+      // برمیگرداند، پس ابتدا آن را به Uint8List تبدیل میکنیم.
+      final bytes = Uint8List.fromList(raw);
+      final nonce = Uint8List.sublistView(bytes, 0, 16);
+      final tag = Uint8List.sublistView(bytes, 16, 48);
+      final ct = Uint8List.sublistView(bytes, 48);
+      final encKey = hmacSha256(masterKey, utf8.encode('enc'));
+      final macKey = hmacSha256(masterKey, utf8.encode('mac'));
+      final macInput = Uint8List(nonce.length + ct.length)
+        ..setRange(0, nonce.length, nonce)
+        ..setRange(nonce.length, nonce.length + ct.length, ct);
+      final expectedTag = hmacSha256(macKey, macInput);
+      var diff = 0;
+      for (var i = 0; i < 32; i++) {
+        diff |= tag[i] ^ expectedTag[i];
+      }
+      if (diff != 0) return null;
+      return utf8.decode(_xorKeystream(encKey, nonce, ct));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// پاک کردن کلید قدیمی که نسخههای پیشین در SharedPreferences می نوشتند.
+  /// خواندن آن کلید دوباره رواج نمیدهد؛ فقط اثر امنیتی آن را حذف میکند.
+  static Future<void> discardLegacyKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey(legacyFallbackKeyPref)) {
+      await prefs.remove(legacyFallbackKeyPref);
     }
   }
 
   static Future<String> _fallbackSeal(String plain) async {
-    final masterKey = await _getOrCreateFallbackKey();
+    final masterKey = _fallbackKey();
     final encKey = hmacSha256(masterKey, utf8.encode('enc'));
     final macKey = hmacSha256(masterKey, utf8.encode('mac'));
 
-    final rnd = _secureOrFallbackRandom();
+    final rnd = Random.secure();
     final nonce = Uint8List.fromList(
       List<int>.generate(16, (_) => rnd.nextInt(256)),
     );
@@ -143,33 +212,8 @@ class PrivacyService {
   }
 
   static Future<String?> _fallbackOpen(String payload) async {
-    try {
-      final raw = base64Decode(payload.substring(fallbackPrefix.length));
-      if (raw.length < 48) return null;
-      final nonce = Uint8List.sublistView(raw, 0, 16);
-      final tag = Uint8List.sublistView(raw, 16, 48);
-      final ct = Uint8List.sublistView(raw, 48);
-
-      final masterKey = await _getOrCreateFallbackKey();
-      final encKey = hmacSha256(masterKey, utf8.encode('enc'));
-      final macKey = hmacSha256(masterKey, utf8.encode('mac'));
-
-      final macInput = Uint8List(nonce.length + ct.length)
-        ..setRange(0, nonce.length, nonce)
-        ..setRange(nonce.length, nonce.length + ct.length, ct);
-      final expectedTag = hmacSha256(macKey, macInput);
-
-      var diff = 0;
-      for (var i = 0; i < 32; i++) {
-        diff |= tag[i] ^ expectedTag[i];
-      }
-      if (diff != 0) return null;
-
-      final pt = _xorKeystream(encKey, nonce, ct);
-      return utf8.decode(pt);
-    } catch (_) {
-      return null;
-    }
+    final raw = _decodeFallback(payload);
+    return raw == null ? null : _openWithKey(raw, _fallbackKey());
   }
 
   static Uint8List _xorKeystream(

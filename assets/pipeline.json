@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "ترتیب قراردادی مسیرهای دانش و آستانه‌های تصمیم. این فایل تنها منبع حقیقت است؛ tools/pipeline_check.py آن را با Advocate.pipelineOrder و Advocate.netMin در lib/domain/advocate/advocate.dart می‌سنجد و هر واگرایی خطاست. تغییر ترتیب یعنی تغییر رفتار و باید در همین فایل و در Dart هم‌زمان انجام شود.",
+  "description": "ترتیب قراردادی مسیرهای دانش و آستانه‌های تصمیم. این فایل تنها منبع حقیقت است؛ dev/tools/pipeline_check.py آن را با Advocate.pipelineOrder و Advocate.netMin در lib/domain/advocate/advocate.dart می‌سنجد و هر واگرایی خطاست. تغییر ترتیب یعنی تغییر رفتار و باید در همین فایل و در Dart هم‌زمان انجام شود.",
   "order": [
     "safety",
     "topic",

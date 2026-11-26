@@ -8,6 +8,22 @@ part of 'advocate.dart';
 // است. **ترتیبِ** صدا زدن‌شان همچنان در `Advocate._reply` نوشته شده، چون آن
 // ترتیب خودِ تصمیمِ معماری است و باید در یک نگاه دیده شود.
 
+/// پرسش فرضی است، نه ماجرای کاربر: طرفها با حروف الف/ب/ج/د نامیده شدهاند
+/// و خودِ پیام دارای «پرسشها» است. چنین پیامی نباید پروندهٔ شخصی باز کند یا
+/// بپرسد «شما خریدار هستید یا فروشنده؟»؛ متن قانون را نشان میدهد.
+bool _isHypotheticalQuestion(String raw, String n) {
+  if (!Sense.has(n, 'پرسش') || Sense.words(n) < 12) return false;
+  // «پرسشها: …» یعنی کاربر فرضیهای را تحلیل میخواهد، حتی اگر طرفها را
+  // الف/ب ننامیده باشد. چنین پیامی ماجرای شخصیِ کاربر نیست.
+  if (Sense.has(n, 'پرسش ?ها|سوالات|سؤالات')) return true;
+  final parties = RegExp(
+          r'(?:^|[^\u0600-\u06FF])(?<p>الف|ب|ج|د)(?:$|[^\u0600-\u06FF])')
+      .allMatches(raw)
+      .map((m) => m.namedGroup('p') ?? '')
+      .toSet();
+  return parties.length >= 2;
+}
+
 /// مسیرهای یک‌نوبتیِ پاسخ، بی‌نیاز از خودِ وکیل.
 class ReplyRoutes {
   ReplyRoutes({
@@ -62,7 +78,31 @@ class ReplyRoutes {
   /// «موضوع تازه‌ای دارم»: پروندهٔ جاری بسته می‌شود، بی‌آنکه چیزی از آن
   /// در پاسخ‌های بعدی بمانَد.
   AdvocateReply? newCase(String raw) {
-    if (raw.trim() == ChipTexts.newCaseChip) {
+    final x = raw.trim();
+    final y = Sense.norm(raw);
+    // «تازه هست» / «موضوع جدیدی هست» همان معنای دکمهٔ «موضوع تازه‌ای دارم»
+    // را دارد. وقتی پرسشِ «تازه یا مربوط؟» روی میز است، این مسیر عقب میماند
+    // تا مسیرِ pending آن را بگیرید و پروندهٔ معلق را باز کند.
+    // دکمهٔ «بله، موضوع تازه است» از مسیرِ pending عبور میکند و پروندهٔ
+    // معلق را باز میکند؛ پس در جدیدِ موضوعِ تازه فقط جملههای آزاد کاربر را
+    // میگیریم، نه خودِ دکمهٔ همان پرسش را.
+    final asksNew = x == ChipTexts.newCaseChip ||
+        (x != ChipTexts.newTopicChip &&
+            Sense.words(y) <= 6 &&
+            Sense.has(y,
+                'تازه (?:هست|است)|جدید (?:هست|است)|موضوع (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?|ماجرای (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?'));
+    if (dialog.pendingTopic == null && asksNew) {
+      // وقتی پروندهٔ بازی هست، «تازه هست» یعنی «موضوع دیگری هم دارم»؛
+      // نباید محتوا و چسبندگی پروندهٔ جاری را پاک کند. فقط دکمهٔ صریحِ
+      // «موضوع تازه» پرونده را میبندد.
+      if (x != ChipTexts.newCaseChip && file.topic.isNotEmpty) {
+        dialog.pendingTopic = null;
+        return _out(
+          'باشد، ماجرای تازهای هم هست.',
+          ask: 'اول ماجرای جاری را تمام میکنیم یا میخواهید آنرا کنار بگذارید؟',
+          chips: [ChipTexts.newTopicChip, ChipTexts.leaveChip],
+        );
+      }
       flow.closeCase();
       dialog.loose.clear();
       return _out(
@@ -93,14 +133,17 @@ class ReplyRoutes {
   AdvocateReply? pending(String raw, String n) {
     final pend = dialog.pendingTopic;
     final pendText = dialog.pendingText;
-    dialog.pendingTopic = null;
-    dialog.pendingText = '';
     if (pend != null) {
+      void handled() {
+        dialog.pendingTopic = null;
+        dialog.pendingText = '';
+      }
       if (raw.trim() == ChipTexts.newTopicYesChip ||
           raw.trim() == ChipTexts.sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
+        handled();
         return flow.open(pend, Sense.norm(pendText), switched: true);
       }
       final curTopic = picker.current();
@@ -110,6 +153,7 @@ class ReplyRoutes {
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
+        handled();
         final pn = Sense.norm(pendText);
         final r = flow.inCase(curTopic, pendText, pn, picker.matchIssue(curTopic, pn));
         // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
@@ -119,6 +163,7 @@ class ReplyRoutes {
           chips: r.chips,
           laws: r.laws,
           source: r.source,
+          ask: r.ask,
         );
       }
     }

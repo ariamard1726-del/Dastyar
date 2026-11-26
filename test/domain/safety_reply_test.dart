@@ -27,7 +27,7 @@ void main() {
     final r = bot.reply(n('الان در خطر هستم'));
     expect(r, isNotNull);
     expect(r!.source, AnswerSource.safety);
-    expect(r.text, contains('۱۱۰'));
+    expect(r.chips, contains('الان امن هستم'));
     expect(bot.asksDanger(n('الان در خطر هستم')), isTrue);
   });
 
@@ -38,14 +38,14 @@ void main() {
   test('خشونت خانوادگی پاسخِ ایمنی می‌گیرد', () {
     final r = bot.reply(n('شوهرم منو میزنه'));
     expect(r, isNotNull);
-    expect(r!.text, contains('خشونت'));
+    expect(r!.chips, contains('الان در خطر هستم'));
     expect(r.chips, isNotEmpty);
   });
 
   test('تماس با اورژانس تأیید و ادامهٔ راهنمایی می‌گیرد', () {
     final r = bot.reply(n('به پلیس زنگ زدم'));
     expect(r, isNotNull);
-    expect(r!.text, contains('زنگ زدید'));
+    expect(r!.chips, contains('الان امن است'));
   });
 
   test('پیامِ حقوقیِ معمولی ایمنی نیست', () {

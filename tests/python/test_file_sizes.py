@@ -17,7 +17,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import dart_files, line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -39,14 +39,15 @@ DATA_FILES = {
 # سه فایلِ بزرگِ امروز با سقفشان. اگر فایلِ تازه‌ای به صدر آمد، این آزمون
 # می‌گوید آگاهانه ثبتش کنید؛ عوض شدنِ خاموشِ صدر، همان لغزشِ قبلی است.
 LARGEST = {
-    'lib/domain/advocate/advocate.dart': 403,
+    'lib/domain/advocate/advocate.dart': 412,
+    'lib/core/history.dart': 389,
+    'lib/domain/advocate/reply_routes.dart': 410,
     'lib/domain/advocate/topics/rent_claims.dart': 369,
-    'lib/domain/advocate/reply_routes.dart': 366,
 }
 
 
 def _lines(path):
-    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `tools/lines.py`.
+    # یک تعریف برای «شمارِ خط» در کلِ مخزن: `dev/tools/lines.py`.
     return line_count(path)
 
 

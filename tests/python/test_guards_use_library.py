@@ -3,7 +3,7 @@
 دو بار در همین بازآرایی، یک نگهبان که فقط **یک فایل** را می‌شناخت با یک
 تقسیمِ **درست** قرمز شد (`test_out_is_a_delegate` و تکه‌های `advocate_reply`).
 دفعهٔ بعد هم می‌شود، مگر اینکه قاعده آزمون داشته باشد: خواندن از
-`tools/library.py`، شمردنِ خط با `tools/lines.py`، و هیچ نگهبانی `open()` روی
+`dev/tools/library.py`، شمردنِ خط با `dev/tools/lines.py`، و هیچ نگهبانی `open()` روی
 `lib/` نزند.
 """
 
@@ -27,9 +27,9 @@ def _guard_files():
 
 
 class LawTextReaderTests(unittest.TestCase):
-    """تعریفِ «ماده» یک‌جا در `tools/lawtext.py` است، نه در هر ابزار."""
+    """تعریفِ «ماده» یک‌جا در `dev/tools/lawtext.py` است، نه در هر ابزار."""
 
-    TOOLS = os.path.join(ROOT, 'tools')
+    TOOLS = os.path.join(ROOT, 'dev', 'tools')
 
     def test_only_lawtext_defines_the_article_pattern(self):
         bad = []

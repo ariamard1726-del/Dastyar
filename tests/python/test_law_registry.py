@@ -10,7 +10,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools import law_registry as registry
+from dev.tools import law_registry as registry
 
 ROOT = Path(__file__).resolve().parents[2]
 

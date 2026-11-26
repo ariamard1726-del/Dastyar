@@ -16,7 +16,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    'tools'))
+    'dev', 'tools'))
 from library import read as lib_read, line_count  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -53,6 +53,7 @@ CANDIDATE_ORDER = [
     'دکمهٔ دستهٔ مشکل',
     'کنار گذاشتنِ موضوع',
     'ایمنی',
+    'پرسش فرضی',
     'دربارهٔ برنامه',
     'دعوا و شکایت',
     'انتخابِ موضوع',
@@ -70,7 +71,7 @@ CANDIDATE_ORDER = [
 
 
 def _read(name):
-    """یک بخشِ کتابخانهٔ وکیل، از ابزارِ مشترکِ `tools/library.py`."""
+    """یک بخشِ کتابخانهٔ وکیل، از ابزارِ مشترکِ `dev/tools/library.py`."""
     return lib_read(os.path.join(ADVOCATE_DIR, name))
 
 
