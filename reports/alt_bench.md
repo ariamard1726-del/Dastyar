@@ -7,11 +7,13 @@
 | مدل | پروانه | پارامتر (M) | سهم جدول واژه (M) | لایه × پهنا | سر: اعتبارسنجی | سر: محک | سر: ب | **جمع ۱۰۱** | نزدیک‌ترین نمونه (محک + ب) | ms/جمله |
 |---|---|---|---|---|---|---|---|---|---|---|
 | شاهد بدون مدل (n-gram حرفی) | — | 0 | — | — | 116 | 33 | 45 | **78** | 70 | — |
-| `shekar-ai/Noql` | apache-2.0 | 12.7 | 4.9 | 12 × 768 | 176 (70%) | 35 | 55 | **90** | 86 | 30 |
-| `intfloat/multilingual-e5-small` | mit | 117.7 | 96.0 | 12 × 384 | 103 (41%) | 34 | 49 | **83** | 69 | 12 |
-| `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | apache-2.0 | 117.7 | 96.0 | 12 × 384 | 150 (60%) | 31 | 40 | **71** | 66 | 10 |
-| `ibm-granite/granite-embedding-107m-multilingual` | apache-2.0 | 107.0 | 96.0 | 6 × 384 | 119 (48%) | 31 | 45 | **76** | 69 | 3 |
-| `PartAI/Tooka-SBERT-V2-Small` | نامشخص | 122.9 | 36.9 | 12 × 768 | 179 (72%) | 34 | 53 | **87** | 82 | 32 |
+| `shekar-ai/Noql` | apache-2.0 | 12.7 | 4.9 | 12 × 768 | 176 (70%) | 35 | 55 | **90** | 86 | 41 |
+| `intfloat/multilingual-e5-small` | mit | 117.7 | 96.0 | 12 × 384 | 103 (41%) | 34 | 49 | **83** | 69 | 15 |
+| `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | apache-2.0 | 117.7 | 96.0 | 12 × 384 | 150 (60%) | 31 | 40 | **71** | 66 | 16 |
+| `ibm-granite/granite-embedding-107m-multilingual` | apache-2.0 | 107.0 | 96.0 | 6 × 384 | 119 (48%) | 31 | 45 | **76** | 69 | 5 |
+| `PartAI/Tooka-SBERT-V2-Small` | نامشخص | 122.9 | 36.9 | 12 × 768 | 179 (72%) | 34 | 53 | **87** | 82 | 42 |
+| `codersan/FaMiniLM` | mit | 22.7 | 11.7 | 6 × 384 | 83 (33%) | 26 | 37 | **63** | 63 | 10 |
+| `codersan/FaMiniLm_Mizan3` | نامشخص | 22.7 | 11.7 | 6 × 384 | 88 (35%) | 24 | 37 | **61** | 49 | 10 |
 
 «سهم جدول واژه» بخشی از پارامترهاست که فقط جدول توکن‌هاست و محاسبه نمی‌برد؛ در مدل‌های چندزبانه بیشترِ حجم همین است.
 
@@ -75,21 +77,43 @@
   - «ماشینم را فروخته ام ولی خریدار پولش را کامل نداده» [debt/property] → consumer
   - «رئیسم به من گفته دیگر لازم نیست بیایی» [labor] → accused
 
+## `codersan/FaMiniLM`
 
-## خطای اجرا
+- بُعد 384، واژگان 30522، میانگین توکنِ جملهٔ محک 31.1
+- شباهت جمله با نفیِ خودش (چهار جفت) و یک جفت بی‌ربط: 0.97، 0.88، 0.90، 0.90، 0.15
+- خطاهای محک (13):
+  - «سلام. من یک سوال حقوقی دارم» [chat] → family
+  - «اگر کسی به من توهین کند چه کاری می توانم انجام دهم؟» [crime] → rent
+  - «اگر چک برگشت بخورد چه اتفاقی می افتد» [cheque] → other
+  - «برادرم معتاد است و مادرم را اذیت میکند چه کنیم» [crime/family] → labor
+  - «یه نفر تو اینستاگرام عکسامو پخش کرده» [cyber] → rent
+  - «توضیح بده وکالت نامه چیست» [general] → debt
+  - «میخوام وصیت نامه بنویسم» [inherit/general] → labor
+  - «خانم من بدون اجازه از خانه رفته» [family] → crime
+  - «خریدار خانه چکش برگشت خورده و خانه را هم تحویل گرفته» [cheque/property] → consumer
+  - «همسرم به من خیانت کرده چه کنم» [family] → crime
+  - «کسی که فوت کرده بدهی داشته ورثه باید بدهند؟» [inherit] → guarantee
+  - «بدون رضایت شوهر میشه پاسپورت گرفت؟» [family/admin/general] → inherit
+  - «رئیسم به من گفته دیگر لازم نیست بیایی» [labor] → debt
 
-```
-Traceback (most recent call last):
-  File "/home/runner/work/Dastyar/Dastyar/dev/brain/alt_bench.py", line 152, in <module>
-    main()
-  File "/home/runner/work/Dastyar/Dastyar/dev/brain/alt_bench.py", line 132, in main
-    data = Data()
-           ^^^^^^
-  File "/home/runner/work/Dastyar/Dastyar/dev/brain/embed_bench.py", line 101, in __init__
-    self.examples = load_examples()
-                    ^^^^^^^^^^^^^^^
-  File "/home/runner/work/Dastyar/Dastyar/dev/brain/embed_bench.py", line 68, in load_examples
-    with open(EXAMPLES, encoding='utf-8') as f:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/Dastyar/Dastyar/dev/eval/topic_examples.tsv'
-```
+## `codersan/FaMiniLm_Mizan3`
+
+- بُعد 384، واژگان 30522، میانگین توکنِ جملهٔ محک 31.1
+- شباهت جمله با نفیِ خودش (چهار جفت) و یک جفت بی‌ربط: 0.86، 0.80، 0.87، 0.83، 0.13
+- خطاهای محک (15):
+  - «سلام. من یک سوال حقوقی دارم» [chat] → debt
+  - «حق و حقوق زن بعد از طلاق چیست؟» [family] → general
+  - «اگر کسی به من توهین کند چه کاری می توانم انجام دهم؟» [crime] → family
+  - «برای شکایت از همسایه کجا باید بروم» [neighbor] → rent
+  - «شرایط حضانت فرزند بعد از طلاق چگونه است؟» [family] → general
+  - «برادرم معتاد است و مادرم را اذیت میکند چه کنیم» [crime/family] → labor
+  - «پسرم ۱۶ ساله است و با موتور تصادف کرده» [injury] → inherit
+  - «من ضامن شده ام و بانک حقوقم را کسر میکند» [guarantee] → family
+  - «میخوام وصیت نامه بنویسم» [inherit/general] → guarantee
+  - «خانم من بدون اجازه از خانه رفته» [family] → rent
+  - «دیه شکستگی دست چقدره» [injury] → cheque
+  - «میخواهم شرکت ثبت کنم» [company] → family
+  - «کسی که فوت کرده بدهی داشته ورثه باید بدهند؟» [inherit] → rent
+  - «بدون رضایت شوهر میشه پاسپورت گرفت؟» [family/admin/general] → inherit
+  - «رئیسم به من گفته دیگر لازم نیست بیایی» [labor] → family
+
