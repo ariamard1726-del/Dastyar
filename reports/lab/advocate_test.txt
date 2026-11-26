@@ -1,12 +1,12 @@
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود
+✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
+✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
-✅ test/advocate/pipeline_contract_test.dart: فایل خط لوله در دسترس و دارای order است
-✅ test/advocate/pipeline_contract_test.dart: ترتیب Dart با pipeline.json یکی است
-✅ test/advocate/pipeline_contract_test.dart: netMin در Dart با pipeline.json یکی است
-✅ test/advocate/pipeline_contract_test.dart: هر مسیر pipeline.json به یک مقدار AnswerSource نگاشت می‌شود
 ✅ test/advocate/reported_conversations_test.dart: «تازه هست» بعد از انصراف، درخواست موضوع تازه است
 ✅ test/advocate/reported_conversations_test.dart: «موضوع جدیدی هست» هم درخواست موضوع تازه است
 ::endgroup::
@@ -23,10 +23,10 @@
 ::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
 ::endgroup::
 ::group::✅ Passing tests
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/labor_test.dart: اخراج در برداشتِ وکیل می‌آید، حتی اگر بعدتر حرفِ بیمه پیش بیاید
 ✅ test/advocate/labor_test.dart: پروندهٔ تازه با پرسشِ «چه اتفاقی افتاده؟» شروع می‌شود
 ✅ test/advocate/labor_test.dart: پرسش‌های اصلی و کلیدواژه‌های موضوع سرِ جایشان‌اند
+✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
 ✅ test/advocate/answer_candidate_test.dart: اولین کاندیدِ پاسخدهنده و متادیتایش برنده میشود
 ✅ test/advocate/answer_candidate_test.dart: پیک تنها reply تصمیم را برمیگرداند و وقتی کسی جواب نداد null است
 ✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
@@ -161,7 +161,6 @@
 ✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
 ✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
 ✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
@@ -179,6 +178,7 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
