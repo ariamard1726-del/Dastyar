@@ -55,6 +55,7 @@ class HakimEvalGuardTests(unittest.TestCase):
         workflow = read(WORKFLOW)
         self.assertIn('workflow_dispatch:', workflow)
         self.assertIn('HAKIM_MODEL_REPO:', workflow)
+        self.assertIn('secrets.HF_TOKEN', workflow)
         self.assertIn('python dev/brain/hakim_eval.py', workflow)
 
 
