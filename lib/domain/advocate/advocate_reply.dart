@@ -50,6 +50,14 @@ extension _ReplyPipeline on Advocate {
       // ایمنی پیش از هر چیز و مستقل از امتیازِ موضوع.
       AnswerCandidate('ایمنی', () => _safetyReply(n),
           source: AnswerSource.safety, why: 'پیامِ خطر، پیش از هر مسیرِ دیگر'),
+      // پرسش فرضی با طرفهای الف/ب/ج ماجرای شخصی کاربر نیست. پیش از قاعدههای
+      // موضوعی میآید تا وکیل خودش را طرف معامله نپندارد و متن قانون را نشان دهد.
+      AnswerCandidate('پرسش فرضی',
+          () => _isHypotheticalQuestion(raw, n)
+              ? _lawAnswer.lookup(raw, n,
+                  hasCase: hasCase, loose: dialog.loose.length)
+              : null,
+          source: AnswerSource.engine, why: 'پرسش فرضی، نه ماجرای شخصی'),
       // «از برنامه خارج شدم» و جملهٔ کوتاهِ سوگ: پرسشِ واقعی، ولی نه ماجرای
       // حقوقی؛ پس از ایمنی می‌آید تا پیامِ خطر زیرش نماند.
       AnswerCandidate('دربارهٔ برنامه', () => _metaReplyBot.metaReply(raw, n),

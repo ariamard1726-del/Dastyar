@@ -8,6 +8,19 @@ part of 'advocate.dart';
 // است. **ترتیبِ** صدا زدن‌شان همچنان در `Advocate._reply` نوشته شده، چون آن
 // ترتیب خودِ تصمیمِ معماری است و باید در یک نگاه دیده شود.
 
+/// پرسش فرضی است، نه ماجرای کاربر: طرفها با حروف الف/ب/ج/د نامیده شدهاند
+/// و خودِ پیام دارای «پرسشها» است. چنین پیامی نباید پروندهٔ شخصی باز کند یا
+/// بپرسد «شما خریدار هستید یا فروشنده؟»؛ متن قانون را نشان میدهد.
+bool _isHypotheticalQuestion(String raw, String n) {
+  if (!Sense.has(n, 'پرسش') || Sense.words(n) < 12) return false;
+  final parties = RegExp(
+          r'(?:^|[^\u0600-\u06FF])(?<p>الف|ب|ج|د)(?:$|[^\u0600-\u06FF])')
+      .allMatches(raw)
+      .map((m) => m.namedGroup('p') ?? '')
+      .toSet();
+  return parties.length >= 2;
+}
+
 /// مسیرهای یک‌نوبتیِ پاسخ، بی‌نیاز از خودِ وکیل.
 class ReplyRoutes {
   ReplyRoutes({
@@ -62,7 +75,16 @@ class ReplyRoutes {
   /// «موضوع تازه‌ای دارم»: پروندهٔ جاری بسته می‌شود، بی‌آنکه چیزی از آن
   /// در پاسخ‌های بعدی بمانَد.
   AdvocateReply? newCase(String raw) {
-    if (raw.trim() == ChipTexts.newCaseChip) {
+    final x = raw.trim();
+    final y = Sense.norm(raw);
+    // «تازه هست» / «موضوع جدیدی هست» همان معنای دکمهٔ «موضوع تازه‌ای دارم»
+    // را دارد. وقتی پرسشِ «تازه یا مربوط؟» روی میز است، این مسیر عقب میماند
+    // تا مسیرِ pending آن را بگیرید و پروندهٔ معلق را باز کند.
+    final asksNew = x == ChipTexts.newCaseChip ||
+        (Sense.words(y) <= 6 &&
+            Sense.has(y,
+                'تازه (?:هست|است)|جدید (?:هست|است)|موضوع (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?|ماجرای (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?'));
+    if (dialog.pendingTopic == null && asksNew) {
       flow.closeCase();
       dialog.loose.clear();
       return _out(
