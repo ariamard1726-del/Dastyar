@@ -31,7 +31,7 @@
 | `dev/tools/laws_status.py` | منسوخ؛ `dev/tools/law_registry.py status` همین کار را می‌کند |
 | `dev/tools/ci_status.py` | بی‌ارجاع |
 | `dev/tools/dupes.py` | بی‌ارجاع |
-| `dev/brain/ngram_eval.py` | آزمایش تمام‌شده؛ خروجی آن `reports/ngram.txt` حفظ شد |
+| `dev/brain/ngram_eval.py` | آزمایش تمام‌شده؛ گزارشش هم در پاکسازی سوم حذف شد (شاهد بدون مدل در `reports/alt_bench.md` باقی است). |
 | `eval/gold500.txt` | داده بی‌ارجاع؛ هیچ اسکریپت یا گردش‌کاری آن را نمی‌خواند |
 | `eval/dialogues.txt` | داده بی‌ارجاع؛ `test/audit/conversations.txt` کار مشابه را می‌کند |
 | `reports/embed_intfloat_multilingual-e5-small.txt`، `reports/embed_sentence-transformers_paraphrase-multilingual-MiniLM-L12-v2.txt` | خروجی خام تکراری؛ نتیجه در `embed_bench.md` و `alt_bench.md` آمده |
@@ -42,10 +42,8 @@
 
 | مورد | دلیل نگه‌داشتن |
 |---|---|
-| `dev/tools/set_meta.py` | ابزار دستی ویرایش فیلدهای توصیفی `_meta.json`؛ بی‌ارجاع است ولی ابزار عملیاتی محسوب می‌شود. اگر نمی‌خواهید، بگویید تا حذف شود. |
 | `dev/tools/synonyms/new_rows.txt` | پیش‌نویس مترادف‌های جدید که هنوز در `assets/synonyms.txt` ادغام نشده؛ حذفش داده را از بین می‌برد. |
 | `docs/review_guide.md` | راهنمای کارشناس حقوقی برای بازبینی قالب‌ها؛ سند انسانی است، نه کد مرده. |
-| `reports/ngram.txt` | گزارش نتیجهٔ آزمایش n-gram. |
 
 ## ۳. ساختار تکراری (هنوز یکی نشده)
 
@@ -72,10 +70,29 @@
 ### نگه‌داشته‌شده (عمداً)
 | مورد | دلیل |
 |---|---|
-| `dev/tools/holdout_intent.py` و `reports/intent_holdout_netcompare.txt` | ابزار تشخیصی دستی با توضیح اجرا در خود فایل و گزارش عددی آن؛ بی‌ارجاع در گردش‌کارها، ولی مشابه `dev/tools/set_meta.py`. اگر نمی‌خواهید، بگویید. |
 | `tests/python/test_intent_map.py`، `tests/python/test_law_registry.py` | `python -m unittest discover -s tests/python` در گردش‌کار `gemini-agent` همهٔ `test_*.py` را اجرا می‌کند؛ بی‌ارجاع نامی، ولی زنده‌اند. |
 | `raw/*.txt` | همان دلیل بخش ۴. |
 
 ### نکتهٔ معماری (تغییر داده نشد)
 - لایه‌بندی درست است: `core/` و `domain/` هیچ‌جا `ui/` یا `core/` را از `domain/` وارد نمی‌کنند؛ `ui/` فقط به `core/` و `domain/` وابسته است.
 - `lib/domain/settings.dart` `material.dart` را وارد می‌کند (برای مدل تنظیمات). اگر لازم شد، می‌شود مدل را از Flutter جدا کرد.
+
+## ۶. پاکسازی سوم (همین شاخه، نوامبر ۲۰۲۶)
+
+روش: گراف واردات `lib/` از `lib/main.dart` (همهٔ ۱۵۵ فایل قابل دسترساند)، شمارش ارجاع نام فایل در کل مخزن، و خواندن کدهایی که نمونهها را با الگو میخوانند.
+
+### حذفشده
+| مورد | شواهد |
+|---|---|
+| ۲۶ عکسِ توسعهٔ `tests/topics/*` (`*_dev5..7`، `*_fresh*`، `*_test5..7`، `cheque_heldout2..6`، `rent_heldout.json`، `labor_wages_heldout.json`، `misfiled_*`) | تنها چهار نمونه توسط کد خوانده میشوند: `cheque_gold.json` و `cheque_heldout.json` (`test_topic_flow.py`) و `rent_gold.json` / `labor_wages_gold.json` (`topic_flow.py --check`). بقیه در هیچ اسکریپت، آزمون یا گردشکاری نام برده نمیشوند. |
+| `dev/tools/holdout_intent.py` و `reports/intent_holdout_netcompare.txt` | ابزار دستی و نتیجهاش؛ فقط در همین سند نام میآمدند. `reports/intent_holdout.md` زنده است و توسط `tests/python/test_classifier_choice.py` خوانده میشود. |
+| `dev/tools/set_meta.py` | ابزار دستی یکبارمصرف؛ بعد از جابجایی `_meta.json`ها به داراییهای تولیدشده هیچ فراخوانی نداشت. |
+| `reports/ngram.txt` | خروجی آزمایش تمامشده؛ جای آن در `reports/alt_bench.md` (ردیف شاهد بدون مدل) است. |
+
+### نگه داشتهشده (عمداً)
+- `tests/topics/{cheque_gold,cheque_heldout,rent_gold,labor_wages_gold}.json` — توسط آزمونها خوانده میشوند.
+- `lab/topics/*.json` — اگرچه در APK نیستند، `topic_flow.py --check` نمونههایشان را اجرا میکند.
+- `dev/tools/synonyms/new_rows.txt` — پیشنویس ادغامنشده، داده است نه کد مرده.
+- `raw/*.txt` و `eval/*` — منابع قانونی و ورودیهای سنجش.
+
+نگهبان: `tests/python/test_repo_hygiene.py` هم گراف واردات و هم فهرست حذفها را قفل میکند.

@@ -61,7 +61,7 @@
 | دروازهٔ پوشش کد | ✅ | `flutter test --coverage` + `dev/tools/coverage_gate.py --min 40` در CI (`tests/python/test_coverage_gate.py`) |
 | جداکردن `dev/brain/` و `dev/tools/` پژوهشی | ✅ | مرز اپ/ابزار در `docs/REPO_LAYOUT.md` و نگهبان بستهبندی (`tests/python/test_repo_hygiene.py`) قفل شد؛ پوشهها خارج از `pubspec` و APKاند |
 | توقف کامیت خودکار گزارش‌ها | ✅ (از پیش) | `commit-reports` فقط روی موفقیت |
-| حذف کامنت/کد مرده | ⬜ | `docs/DEAD_CODE.md` فهرست دارد |
+| حذف کامنت/کد مرده | ✅ | ۲۶ عکس توسعهٔ یتیم `tests/topics`، دو ابزار دستی بیارجاع و دو گزارش قدیمی حذف شد؛ همهٔ ۱۵۵ فایل `lib/` از `main.dart` قابل دسترساند. نگهبان: `tests/python/test_repo_hygiene.py`؛ فهرست کامل: `docs/DEAD_CODE.md` |
 | ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها یک منبع داشته باشند | ✅ | `dev/tools/contracts/law_terms.json` مرجع است؛ `dev/tools/gen_law_terms.py --write` دو فایل تولیدشده می‌سازد و `check.py lawterms` کهنه‌بودنشان را خطا می‌دهد — `tests/python/test_law_terms_parity.py` |
 | ایست‌واژه‌های گفتاری در پاسخ نیایند | ✅ | ۵۵ واژهٔ روزمره (توانم، اگر، کاری…) به هر دو فهرست |
 | پرسشِ بی‌جواب سه بار تکرار نشود | ✅ | سقفِ دو بار در `_out`؛ بار سوم جملهٔ صریح («از آن می‌گذرم») — `test/advocate/meta_and_tone_test.dart` |
