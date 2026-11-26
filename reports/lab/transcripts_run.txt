@@ -1,11 +1,80 @@
-
-::group::✅ loading test/audit/conversation_audit_test.dart
-Warning: A tag was used that wasn't specified in dart_test.yaml.
-  slow was used in the suite itself
+ - 'Topic' is from 'package:dastyar/domain/advocate/case_model.dart' ('lib/domain/advocate/case_model.dart').
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                    ^
+lib/domain/advocate/dialogue_sections.dart:254:37: Error: A value of type 'Map<String, LegalGuide>?' can't be assigned to a variable of type 'bool'.
+ - 'Map' is from 'dart:core'.
+ - 'LegalGuide' is from 'package:dastyar/domain/lawyer/legal_guides.dart' ('lib/domain/lawyer/legal_guides.dart').
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                    ^
+::group::❌ loading test/audit/conversation_audit_test.dart (failed)
+Failed to load "test/audit/conversation_audit_test.dart":
+Compilation failed for testPath=test/audit/conversation_audit_test.dart: lib/domain/advocate/dialogue_sections.dart:245:53: Error: Expected ':' before this.
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                                    ^
+lib/domain/advocate/dialogue_sections.dart:245:53: Error: Expected an identifier, but got ';'.
+Try inserting an identifier before ';'.
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                                    ^
+lib/domain/advocate/dialogue_sections.dart:254:53: Error: Expected ':' before this.
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                                    ^
+lib/domain/advocate/dialogue_sections.dart:254:53: Error: Expected an identifier, but got ';'.
+Try inserting an identifier before ';'.
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                                    ^
+lib/domain/advocate/advocate.dart:212:32: Error: Couldn't find constructor 'DialogueState'.
+  final DialogueState dialog = DialogueState();
+                               ^^^^^^^^^^^^^
+lib/ui/chat_controller.dart:312:51: Error: The getter 'dialogueJson' isn't defined for the type 'Map<String, dynamic>'.
+ - 'Map' is from 'dart:core'.
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'dialogueJson'.
+      advocate.restoreCase(saved, dialogue: saved.dialogueJson);
+                                                  ^^^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:13:28: Error: Couldn't find constructor 'QuestionState'.
+  QuestionState question = QuestionState();
+                           ^^^^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:14:24: Error: Couldn't find constructor 'ChoiceState'.
+  ChoiceState choice = ChoiceState();
+                       ^^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:15:27: Error: Couldn't find constructor 'GuideState'.
+  GuideState guideState = GuideState();
+                          ^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:16:24: Error: Couldn't find constructor 'SafetyState'.
+  SafetyState safety = SafetyState();
+                       ^^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:17:26: Error: Couldn't find constructor 'UnclearState'.
+  UnclearState unclear = UnclearState();
+                         ^^^^^^^^^^^^
+lib/domain/advocate/dialogue_state.dart:119:7: Error: Couldn't find constructor 'DialogueState'.
+      DialogueState()
+      ^^^^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:38:61: Error: Couldn't find constructor 'QuestionState'.
+  factory QuestionState.fromJson(Map<String, dynamic> j) => QuestionState()
+                                                            ^^^^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:94:7: Error: Couldn't find constructor 'ChoiceState'.
+      ChoiceState()
+      ^^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:157:7: Error: Couldn't find constructor 'GuideState'.
+      GuideState()
+      ^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:202:59: Error: Couldn't find constructor 'SafetyState'.
+  factory SafetyState.fromJson(Map<String, dynamic> j) => SafetyState()
+                                                          ^^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:229:60: Error: Couldn't find constructor 'UnclearState'.
+  factory UnclearState.fromJson(Map<String, dynamic> j) => UnclearState()
+                                                           ^^^^^^^^^^^^
+lib/domain/advocate/dialogue_sections.dart:245:37: Error: A value of type 'Map<String, Topic>?' can't be assigned to a variable of type 'bool'.
+ - 'Map' is from 'dart:core'.
+ - 'Topic' is from 'package:dastyar/domain/advocate/case_model.dart' ('lib/domain/advocate/case_model.dart').
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                    ^
+lib/domain/advocate/dialogue_sections.dart:254:37: Error: A value of type 'Map<String, LegalGuide>?' can't be assigned to a variable of type 'bool'.
+ - 'Map' is from 'dart:core'.
+ - 'LegalGuide' is from 'package:dastyar/domain/lawyer/legal_guides.dart' ('lib/domain/lawyer/legal_guides.dart').
+    id is String && id.isNotEmpty ? byId?[id] : null;
+                                    ^
+.
 
 ::endgroup::
-::group::✅ Passing tests
-✅ audit
-::endgroup::
 
-🎉 1 test passed.
+::error::0 tests passed, 1 failed.
