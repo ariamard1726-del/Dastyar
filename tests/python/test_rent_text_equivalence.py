@@ -29,8 +29,9 @@ CLAIMS_BEFORE_COUNT = 87
 FILINGS_BEFORE_SHA256 = '706c5beef307a43b879be402022533e21fbc949ebf37cd9dbb0a2dfd395325db'
 FILINGS_BEFORE_COUNT = 32
 FILING_CTOR_COUNT = 18
-PLANS_BEFORE_SHA256 = 'bcadb24f3f513a7d26f6f0047e4fb0e37ce784f317d1de48777fb1c58da894b5'
-PLANS_BEFORE_COUNT = 13
+PLANS_BEFORE_SHA256 = '8840c2d49cab74044783cb2dda422ffd588f809e0420fec7dfdf51a6dd152555'
+PLANS_BEFORE_COUNT = 19
+RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
     'plan1': 'moneyForum(sum)',
@@ -113,17 +114,24 @@ class RentTextEquivalenceTest(unittest.TestCase):
         body = src.split('String _rentPlan(CaseFile f) {')[1].split(
             'String _rentEvidence')[0]
         ids = re.findall(r"rentText\('(plan\d+)'\)", body)
-        self.assertEqual(PLANS_BEFORE_COUNT, len(ids))
-        self.assertEqual(set(ids), set(self.data['plans']))
+        self.assertEqual(RENT_PLAN_BODY_COUNT, len(ids))
+        self.assertEqual(set(ids), set(list(self.data['plans'])[:RENT_PLAN_BODY_COUNT]))
         # شرطها و شناسهها کوتاهاند؛ متنِ بلند فقط در دارایی است.
         literals = re.findall(r"'((?:\\.|[^'])*)'", body)
         self.assertLessEqual(max(map(len, literals)), 16,
                              'متنِ بلند دوباره به بدنهٔ _rentPlan برگشته است')
         found = {key: (tail.strip() or None) for key, tail in re.findall(
             r"return rentText\('(plan\d+)'\)(?:\s*\+\s*([^;]+))?;", body)}
-        expected = {key: PLAN_SUFFIXES.get(key) for key in self.data['plans']}
+        expected = {key: PLAN_SUFFIXES.get(key) for key in list(self.data['plans'])[:RENT_PLAN_BODY_COUNT]}
         self.assertEqual(expected, found,
                          'درونیابیِ انتهایی دستنخورده بماند')
+        # شش متنِ بعدی از `_rentDeadline` و `_rentRefuse`اند؛ شاخهای که
+        # درونیابی در میانه دارد عمداً در Dart مانده است.
+        for index in range(RENT_PLAN_BODY_COUNT, PLANS_BEFORE_COUNT):
+            key = 'plan%d' % index
+            self.assertEqual(1, src.count("rentText('%s')" % key))
+            self.assertIn("return rentText('%s');" % key, src)
+        self.assertEqual(1, src.count('${_rentPeace()}'))
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''
