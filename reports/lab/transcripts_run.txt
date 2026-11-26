@@ -1,10 +1,11 @@
 
-::group::❌ loading test/audit/conversation_audit_test.dart (failed)
-Failed to load "test/audit/conversation_audit_test.dart": Bad state: assets/brain/topics/rent_texts.json: متنِ plan32 خالی یا نامعتبر است
-package:dastyar/domain/advocate/topics/rent_texts_loader.dart 42:9   parseRentTexts
-package:dastyar/domain/advocate/topics/rent_texts_loader.dart 65:10  loadRentTexts
-===== asynchronous gap ===========================
-test/flutter_test_config.dart 17:3                                   testExecutable
+::group::✅ loading test/audit/conversation_audit_test.dart
+Warning: A tag was used that wasn't specified in dart_test.yaml.
+  slow was used in the suite itself
+
+::endgroup::
+::group::✅ Passing tests
+✅ audit
 ::endgroup::
 
-::error::0 tests passed, 1 failed.
+🎉 1 test passed.
