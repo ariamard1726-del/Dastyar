@@ -23,14 +23,14 @@ import traceback
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 from common import normalize  # noqa: E402
 from llm_bench import TOPICS, load as load_probe  # noqa: E402
 
 EXAMPLES = os.path.join(ROOT, 'eval', 'topic_examples.tsv')
-SET_B = os.path.join(HERE, 'eval', 'intent_eval.txt')
-OUT = os.path.join(HERE, 'reports', 'embed_bench.md')
+SET_B = os.path.join(ROOT, 'eval', 'intent_eval.txt')
+OUT = os.path.join(ROOT, 'reports', 'embed_bench.md')
 
 # (مخزن، بُعدهای کوتاه‌شدهٔ قابل آزمون برای مدل‌های Matryoshka)
 MODELS = [
