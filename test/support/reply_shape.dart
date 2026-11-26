@@ -30,3 +30,8 @@ void expectNoText(AdvocateReply reply, String fragment) {
   expect(hasFragment, isFalse,
       reason: 'متن پاسخ نباید حاوی «$fragment» باشد: ${reply.text}');
 }
+
+void expectDecisionName(Advocate advocate, String name) {
+  expect(advocate.lastDecision?.candidate.name, name,
+      reason: 'مسیر برنده: ${advocate.lastDecision?.candidate.name}');
+}
