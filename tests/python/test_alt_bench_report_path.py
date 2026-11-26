@@ -25,7 +25,15 @@ class AltBenchReportPathTests(unittest.TestCase):
         workflow = read(WORKFLOW)
         self.assertIn('git add reports/alt_bench.md', workflow)
 
-    def test_root_constant_points_to_repository_root(self):
+    def test_embed_bench_paths_survived_the_dev_move(self):
+        src = read(os.path.join(ROOT, 'dev', 'brain', 'embed_bench.py'))
+        self.assertIn("ROOT = os.path.dirname(os.path.dirname(HERE))", src)
+        self.assertIn("EXAMPLES = os.path.join(ROOT, 'eval', 'topic_examples.tsv')", src)
+        self.assertIn("SET_B = os.path.join(ROOT, 'eval', 'intent_eval.txt')", src)
+        self.assertIn("OUT = os.path.join(ROOT, 'reports', 'embed_bench.md')", src)
+        for rel in ('eval/topic_examples.tsv', 'eval/intent_eval.txt'):
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, rel)), rel)
+
         src = read(SCRIPT)
         self.assertIn("HERE = os.path.dirname(os.path.abspath(__file__))", src)
         self.assertIn("BRAIN = os.path.dirname(HERE)", src)
