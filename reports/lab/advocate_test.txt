@@ -29,9 +29,9 @@
 ::endgroup::
 ::group::✅ Passing tests
 ✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
+✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
 ✅ test/advocate/answer_candidate_test.dart: اولین کاندیدِ پاسخدهنده و متادیتایش برنده میشود
 ✅ test/advocate/answer_candidate_test.dart: پیک تنها reply تصمیم را برمیگرداند و وقتی کسی جواب نداد null است
-✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
 ✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
 ✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
@@ -84,11 +84,11 @@
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
@@ -178,7 +178,6 @@
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
 ✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
-✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
 ✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
@@ -192,6 +191,7 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
