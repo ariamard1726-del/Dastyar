@@ -1,5 +1,2 @@
 Analyzing Dastyar...                                            
-
-  error • The name 'Topic' isn't a type, so it can't be used as a type argument. Try correcting the name to an existing type, or defining a type named 'Topic' • test/advocate/dialogue_state_test.dart:12:13 • non_type_as_type_argument
-
-1 issue found. (ran in 13.2s)
+No issues found! (ran in 9.9s)

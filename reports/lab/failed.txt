@@ -1,2 +1,1 @@
-::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/dialogue_state_test.dart (failed)
-::error::559 tests passed, 1 failed.
+🎉 563 tests passed.
