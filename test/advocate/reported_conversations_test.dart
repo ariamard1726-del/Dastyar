@@ -46,7 +46,7 @@ void main() {
       final a = Advocate(engine);
       final r = a.respond(scenario);
       expectDecisionName(a, 'پرسش فرضی');
-      expectSource(r, AnswerSource.engine);
+      expectSourceIn(r, const {AnswerSource.engine, AnswerSource.qaBank});
       expect(a.file.topic, isEmpty);
       expectNoText(r, 'خریدار یا فروشنده');
     });

@@ -35,3 +35,8 @@ void expectDecisionName(Advocate advocate, String name) {
   expect(advocate.lastDecision?.candidate.name, name,
       reason: 'مسیر برنده: ${advocate.lastDecision?.candidate.name}');
 }
+
+void expectSourceIn(AdvocateReply reply, Set<AnswerSource> sources) {
+  expect(sources.contains(reply.source), isTrue,
+      reason: 'مسیر پاسخ: ${reply.source}');
+}
