@@ -7,9 +7,10 @@
   پاسخ‌های ثابت (`assets/replies.json`) و متادیتای قوانین (`_meta.json`)؛
 * **کدِ Dart**: فایل‌هایی که متنِ پاسخِ موضوع‌ها در آن‌ها نوشته شده است
   (`rent_bodies*`، `rent_plan`، `rent_fill`، `labor_bodies`،
-  `family_bodies`، `shared`). متنِ ادعاها از `rent_claims.dart` به جدولِ
-  `claims` در همان داراییِ `rent_texts.json` رفته است؛ پوستهٔ `rentText(id)`
-  در فایلِ Dart میماند و با هشِ دارایی پوشیده میشود.
+  `family_bodies`، `shared`). متنِ ادعاها و برچسبهای سند از
+  `rent_claims.dart` به جدولهای `claims` و `filings` در همان داراییِ
+  `rent_texts.json` رفتهاند؛ پوستهٔ `rentText(id)` در فایلِ Dart میماند
+  و با هشِ دارایی پوشیده میشود.
 
 `_meta.json` امروز فقط هشِ متنِ قوانین را دارد. این ابزار همان کار را برای
 **همهٔ** متن‌ها می‌کند تا وقتی نسخهٔ اعتبارسنجی‌شدهٔ قانون می‌آید، تفاضلِ متن

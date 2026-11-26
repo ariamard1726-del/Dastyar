@@ -8,13 +8,17 @@ import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 void main() {
   test('متنها از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadRentTexts();
-    // ۴۲ متنِ پاسخ + ۸۷ متنِ ادعا. نبودِ یکی از جدولها خطای صریح است.
-    expect(keys.length, 129);
+    // ۴۲ پاسخ + ۸۷ ادعا + ۳۲ برچسبِ سند. نبودِ یکی خطای صریح است.
+    expect(keys.length, 161);
     expect(loadedRentTexts.containsKey('rentPeace'), isTrue);
     expect(loadedRentTexts.containsKey('rentLandlordPaidBody'), isTrue);
     expect(loadedRentTexts.containsKey('claim0_goal'), isTrue);
     expect(loadedRentTexts.containsKey('claim9_counter'), isTrue);
+    expect(loadedRentTexts.containsKey('filing0_chip'), isTrue);
+    expect(loadedRentTexts.containsKey('filing15_name'), isTrue);
     expect(rentText('rentPeace').contains('دادگاه صلح'), isTrue);
+    expect(rentText('filing0_chip').startsWith('تنظیم'), isTrue);
+    expect(rentText('filing15_name').contains('لایحه'), isTrue);
   });
 
   test('شناسهٔ ناشناخته بیصدا جایگزین نمیشود', () {

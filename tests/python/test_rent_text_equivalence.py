@@ -1,9 +1,9 @@
 """متنِ منتقلشدهٔ اجاره نویسهبهنویسه همان متنِ پیش از جابهجایی است.
 
-پیش از این گام ۴۲ رشتهٔ بلند بهصورت `const String` در دو فایلِ پاسخ و
-۸۷ رشته در `rent_claims.dart` بود. هشِ هر دو جدول **قبل** از حذفشان از
-کد گرفته شده است؛ هر تغییر در فایلِ JSON یا تلاش برای برگرداندن متن به
-دارت، قرمز میشود مگر اینکه آگاهانه هشِ تازه در این آزمون نوشته شود.
+پیش از این گام ۴۲ رشتهٔ بلند در دو فایلِ پاسخ، ۸۷ رشته و ۳۲ برچسبِ
+سند در `rent_claims.dart` بود. هشِ هر جدول **قبل** از حذفشان از کد گرفته
+شده است؛ هر تغییر در فایلِ JSON یا تلاش برای برگرداندن متن به دارت،
+قرمز میشود مگر اینکه آگاهانه هشِ تازه در این آزمون نوشته شود.
 """
 
 import glob
@@ -25,6 +25,9 @@ BEFORE_SHA256 = '60f7d07b5579bb669fd1faef1824a3c68a2ba8139ef6fe06716b328646248f2
 BEFORE_COUNT = 42
 CLAIMS_BEFORE_SHA256 = 'abd7d7a17225bdf81e3df0ef3ba854dac2d0cf27b4254c02cb1871ec23b16041'
 CLAIMS_BEFORE_COUNT = 87
+FILINGS_BEFORE_SHA256 = '706c5beef307a43b879be402022533e21fbc949ebf37cd9dbb0a2dfd395325db'
+FILINGS_BEFORE_COUNT = 32
+FILING_CTOR_COUNT = 18
 DART_FILES = [
     'lib/domain/advocate/topics/rent_bodies.dart',
     'lib/domain/advocate/topics/rent_bodies_landlord.dart',
@@ -62,10 +65,31 @@ class RentTextEquivalenceTest(unittest.TestCase):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_claims.dart')
         self.assertNotRegex(src, r'^const String\s+_rent\w+\s*=',
                             'متنِ ادعا دوباره به Dart برگشته است')
-        ids = re.findall(r"rentText\('([^']+)'\)", src)
+        ids = [i for i in re.findall(r"rentText\('([^']+)'\)", src)
+               if i.startswith('claim')]
         self.assertEqual(len(ids), CLAIMS_BEFORE_COUNT)
         self.assertEqual(set(ids), set(self.data['claims']),
                          'هر شناسهٔ ادعا دقیقاً یک بار در Dart خوانده میشود')
+
+    def test_filing_labels_are_identical_to_the_pre_move_source(self):
+        filings = self.data['filings']
+        self.assertEqual(FILINGS_BEFORE_COUNT, len(filings))
+        self.assertEqual(FILINGS_BEFORE_SHA256, digest(filings),
+                         'یک نویسه از برچسبِ سند عوض شده است')
+        self.assertFalse(set(filings) & set(self.data['texts']))
+        self.assertFalse(set(filings) & set(self.data['claims']))
+
+    def test_filing_labels_have_delegates_and_no_const_filing(self):
+        src = read(ROOT, 'lib/domain/advocate/topics/rent_claims.dart')
+        self.assertNotIn('const Filing(', src,
+                         'برچسبِ سند دوباره const در Dart شده است')
+        self.assertNotRegex(src, r"Filing\(\s*'[^']+'\s*,\s*'",
+                            'متنِ برچسبِ سند دوباره به Dart برگشته است')
+        self.assertEqual(FILING_CTOR_COUNT, len(re.findall(r'\bFiling\(', src)))
+        ids = re.findall(r"rentText\('(filing\d+_(?:chip|name))'\)", src)
+        self.assertEqual(FILING_CTOR_COUNT * 2, len(ids))
+        self.assertEqual(set(ids), set(self.data['filings']),
+                         'هر برچسبِ سند دقیقاً از دارایی خوانده میشود')
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''

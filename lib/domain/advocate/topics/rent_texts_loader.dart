@@ -4,12 +4,12 @@ import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 
 /// متنهای ثابتِ موضوع اجاره، جدا از منطق و closureها.
 ///
-/// پیشتر ۴۲ رشتهٔ بلند بهصورت `const String` در `rent_bodies.dart` و
-/// `rent_bodies_landlord.dart` و ۸۷ رشته در `rent_claims.dart` بودند؛
+/// پیشتر ۴۲ رشتهٔ بلند در `rent_bodies.dart` و `rent_bodies_landlord.dart`،
+/// ۸۷ رشته در `rent_claims.dart` و ۳۲ برچسبِ سند در همان فایل بودند؛
 /// هر تغییرِ متن یعنی پچِ دارت و هیچ نگهبانِ خودکاری نمیتوانست بگوید که
-/// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts` و `claims`)
-/// و کد فقط با شناسهٔ پایدار آنرا میخواند. منطق، شرطها و جملهسازیهای
-/// وابسته به پرونده عمداً در Dart ماندهاند.
+/// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts`، `claims` و
+/// `filings`) و کد فقط با شناسهٔ پایدار آنرا میخواند. منطق، شرطها و
+/// جملهسازیهای وابسته به پرونده عمداً در Dart ماندهاند.
 const String rentTextsAsset = 'assets/brain/topics/rent_texts.json';
 
 /// فهرستِ نصبشده. تنها [loadRentTexts] آنرا پر میکند.
@@ -24,11 +24,12 @@ List<String> parseRentTexts(String source) {
   if (data['v'] != 1) {
     throw StateError('$rentTextsAsset: نسخهٔ ناشناخته (${data['v']})');
   }
-  // دو جدولِ جدا، یک فهرستِ شناسه: متنهای پاسخ (`texts`) و متنهای
-  // ادعاها (`claims`). نبودِ هریک خطای صریح است؛ نصبِ ناقصِ متن، پاسخِ
-  // نادرست میداد زیرا `rentClaims` هنگامِ اولین پاسخ ساخته میشود.
+  // سه جدولِ جدا، یک فهرستِ شناسه: متنهای پاسخ (`texts`)، متنهای
+  // ادعاها (`claims`) و برچسبهای سند (`filings`). نبودِ هریک خطای صریح
+  // است؛ نصبِ ناقصِ متن، پاسخِ نادرست میداد زیرا `rentClaims` هنگامِ
+  // اولین پاسخ ساخته میشود.
   final installed = <String, String>{};
-  for (final section in const ['texts', 'claims']) {
+  for (final section in const ['texts', 'claims', 'filings']) {
     final raw = data[section];
     if (raw is! Map) {
       throw StateError('$rentTextsAsset: فاقد فهرست $section');

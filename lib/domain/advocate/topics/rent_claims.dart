@@ -278,46 +278,46 @@ Filing? _rentPetition(CaseFile f) {
   if (f.eq('role', 'landlord')) {
     switch (f.get('aim')) {
       case 'unpaid':
-        return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ اجاره‌بها',
-            'دادخواست مطالبهٔ اجاره‌بها');
+        return Filing('demand_money', rentText('filing0_chip'),
+            rentText('filing0_name'));
       case 'damage':
-        return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ خسارت',
-            'دادخواست مطالبهٔ خسارت');
+        return Filing('demand_money', rentText('filing1_chip'),
+            rentText('filing1_name'));
       case 'evict':
       case 'breach':
         if (_noGround(f)) {
           return f.yes('owes')
-              ? const Filing('demand_money',
-                  'تنظیم دادخواست مطالبهٔ اجاره‌بها', 'دادخواست مطالبهٔ اجاره‌بها')
+              ? Filing('demand_money',
+                  rentText('filing0_chip'), rentText('filing0_name'))
               : null;
         }
-        return const Filing(
-            'eviction', 'تنظیم دادخواست تخلیه', 'دادخواست تخلیه');
+        return Filing(
+            'eviction', rentText('filing2_chip'), rentText('filing2_name'));
     }
     return null;
   }
   if (!f.eq('role', 'tenant')) return null;
   switch (f.get('matter')) {
     case 'deposit':
-      return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ ودیعه',
-          'دادخواست مطالبهٔ ودیعه');
+      return Filing('demand_money', rentText('filing3_chip'),
+          rentText('filing3_name'));
     case 'repair':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه برای تعمیر',
-          'اظهارنامهٔ درخواست تعمیر');
+      return Filing('formal_notice', rentText('filing4_chip'),
+          rentText('filing4_name'));
     case 'raise':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه دربارهٔ اجاره',
-          'اظهارنامه دربارهٔ مبلغ اجاره');
+      return Filing('formal_notice', rentText('filing5_chip'),
+          rentText('filing5_name'));
     case 'leave':
-      return const Filing('formal_notice', 'تنظیم اظهارنامهٔ تحویل ملک',
-          'اظهارنامهٔ آمادگی برای تحویل ملک');
+      return Filing('formal_notice', rentText('filing6_chip'),
+          rentText('filing6_name'));
     case 'deliver':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه برای تحویل‌گرفتن ملک',
-          'اظهارنامهٔ درخواست تحویل مورد اجاره');
+      return Filing('formal_notice', rentText('filing7_chip'),
+          rentText('filing7_name'));
     case 'evict':
       return f.yes('official')
           ? null
-          : const Filing('formal_notice', 'تنظیم اظهارنامه برای مزاحمت موجر',
-              'اظهارنامهٔ اعتراض به مزاحمت موجر');
+          : Filing('formal_notice', rentText('filing8_chip'),
+              rentText('filing8_name'));
   }
   return null;
 }
@@ -327,37 +327,37 @@ Filing? _rentBrief(CaseFile f) {
   if (f.eq('role', 'landlord')) {
     if (_noGround(f)) {
       return f.yes('owes')
-          ? const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
-              'لایحهٔ مطالبهٔ اجاره‌بها')
+          ? Filing('defense_brief', rentText('filing9_chip'),
+              rentText('filing9_name'))
           : null;
     }
     switch (f.get('aim')) {
       case 'unpaid':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
-            'لایحهٔ مطالبهٔ اجاره‌بها');
+        return Filing('defense_brief', rentText('filing9_chip'),
+            rentText('filing9_name'));
       case 'damage':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ خسارت',
-            'لایحهٔ مطالبهٔ خسارت');
+        return Filing('defense_brief', rentText('filing10_chip'),
+            rentText('filing10_name'));
       case 'breach':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ فسخ و تخلیه',
-            'لایحهٔ فسخ اجاره و تخلیه');
+        return Filing('defense_brief', rentText('filing11_chip'),
+            rentText('filing11_name'));
       case 'evict':
-        return const Filing(
-            'defense_brief', 'تنظیم لایحهٔ تخلیه', 'لایحهٔ درخواست تخلیه');
+        return Filing(
+            'defense_brief', rentText('filing12_chip'), rentText('filing12_name'));
     }
     return null;
   }
   if (!f.eq('role', 'tenant')) return null;
   if (_ordered(f)) {
-    return const Filing('defense_brief', 'تنظیم لایحه دربارهٔ دستور تخلیه',
-        'لایحه دربارهٔ دستور تخلیه');
+    return Filing('defense_brief', rentText('filing13_chip'),
+        rentText('filing13_name'));
   }
   if (f.eq('matter', 'deposit')) {
     return f.covered.contains('damage')
-        ? const Filing('defense_brief', 'تنظیم لایحهٔ دفاع در برابر ادعای خسارت',
-            'لایحهٔ دفاع در برابر ادعای خسارت')
-        : const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ ودیعه',
-            'لایحهٔ مطالبهٔ ودیعه');
+        ? Filing('defense_brief', rentText('filing14_chip'),
+            rentText('filing14_name'))
+        : Filing('defense_brief', rentText('filing15_chip'),
+            rentText('filing15_name'));
   }
   return null;
 }

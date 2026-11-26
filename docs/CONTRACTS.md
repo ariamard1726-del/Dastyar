@@ -49,11 +49,13 @@ python dev/tools/check.py pipeline
   `live/gate/topic/law/disclaimer/clarify/rules/leaves` را داشته باشد، هر قاعده
   به برگی موجود اشاره کند، هر برگ `title` و `text` داشته باشد و ارجاعهای
   `articles` از شکل «ماده/اصل N» باشند.
-- **متن ثابت اجاره** (`rent_texts.json`): دو جدولِ `texts` (پاسخها) و
-  `claims` (متنِ ادعاها)؛ هر دو فهرستِ `id → text`اند و تصمیمگیر نیستند؛
-  در `index.json` فهرست نمیشوند. هشِ نویسهبهنویسهٔ هر جدول و شمارِ
-  رشتههایش در `tests/python/test_rent_text_equivalence.py` قفل است؛
-  بارگذاری صریح است (`loadRentTexts`) و نصبِ ناقص خطا میدهد.
+- **متن ثابت اجاره** (`rent_texts.json`): سه جدولِ `texts` (پاسخها)،
+  `claims` (متنِ ادعاها) و `filings` (برچسبِ دکمه و نامِ سند)؛ هر سه
+  فهرستِ `id → text`اند و تصمیمگیر نیستند؛ در `index.json` فهرست
+  نمیشوند. شناسهٔ قالبِ سند (`template`) جزءِ تصمیم است و در Dart میماند.
+  هشِ نویسهبهنویسهٔ هر جدول و شمارِ رشتههایش در
+  `tests/python/test_rent_text_equivalence.py` قفل است؛ بارگذاری صریح است
+  (`loadRentTexts`) و نصبِ ناقص خطا میدهد.
 
 نگهبان، هر فایلِ اضافه در `assets/brain/topics/` را قرمز میکند تا حالتِ
 میانهٔ «دادهٔ بلااستفاده» دوباره شکل نگیرد.
