@@ -1,3 +1,2 @@
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند (failed)
-::error::545 tests passed, 2 failed.
+::error::546 tests passed, 1 failed.
