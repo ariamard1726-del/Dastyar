@@ -8,7 +8,7 @@ final List<Issue> _rentIssuesBoth = [
     id: 'goodwill',
     chip: 'سرقفلی به چه کسی می‌رسد؟',
     cues: _cGoodwill,
-    body: (f) => _rentGoodwillBody,
+    body: (f) => _rentGoodwillBody(),
     rank: (f) => _r(_shop(f), 4, -1),
   ),
   Issue(
@@ -37,7 +37,7 @@ final List<Issue> _rentIssuesBoth = [
     id: 'code',
     chip: 'اجاره‌نامه کد رهگیری ندارد',
     cues: _cCode,
-    body: (f) => _rentCodeBody,
+    body: (f) => _rentCodeBody(),
     rank: (f) => _r(f.no('witness') || f.no('contract'), 2),
   ),
   Issue(

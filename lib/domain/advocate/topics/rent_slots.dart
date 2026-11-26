@@ -42,7 +42,7 @@ final List<Slot> _rentSlots = [
     yesValue: '',
     noValue: '',
     when: (f) => f.eq('role', 'tenant'),
-    effect: (f) => _matter(f, 'deposit') ? _rentDepositLaw : '',
+    effect: (f) => _matter(f, 'deposit') ? _rentDepositLaw() : '',
   ),
   Slot(
     id: 'aim',

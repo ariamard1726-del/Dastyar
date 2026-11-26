@@ -168,8 +168,9 @@
 | `rent_effects.dart` | **۷۱** | اثرِ حقوقیِ واقعیت‌ها |
 | `rent_patterns.dart` | ۵۳۷ → **۳۳۴** | الگوهای واژگانی (`const String`) |
 | `rent_reads.dart` | **۱۶۶** | خواندنِ نقش/موضوع/هدف/بله‌و‌نه از پیام |
-| `rent_bodies.dart` | ۴۶۸ → **۲۶۴** | متنِ پاسخ (مستأجر + مشترک) |
-| `rent_bodies_landlord.dart` | **۲۰۱** | متنِ پاسخِ سمتِ موجر |
+| `rent_bodies.dart` | ۴۶۸ → **۱۸۹** | متنِ پاسخ (مستأجر + مشترک) |
+| `rent_bodies_landlord.dart` | **۱۳۴** | متنِ پاسخِ سمتِ موجر |
+| متنِ ثابتِ اجاره | ۴۲ رشته در دو فایلِ Dart | `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (هشِ نویسهبهنویسه قفل است) |
 
 - فهرستِ بحث‌ها با همان ترتیبِ پیشین به هم می‌پیوندد
   (`_rentIssues = [...Both, ...Tenant, ...Landlord]`). **ترتیب، اولویتِ نمایش

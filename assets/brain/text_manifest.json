@@ -5,6 +5,10 @@
       "sha256": "7484c4253a629ab9323ecad6d4d51b892160137e14cbca9d627d9e3e3684d4f8",
       "lines": 2317
     },
+    "assets/brain/topics/rent_texts.json": {
+      "sha256": "1b7733c616e13fdba480d5acc73130f81964d1a4eee776db842dbc7797670fea",
+      "lines": 48
+    },
     "assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt": {
       "sha256": "ee27578094992548a7158c39643c378a32c3ffd42e9e971a9c511f0e777e1388",
       "lines": 918
@@ -122,12 +126,12 @@
       "lines": 74
     },
     "lib/domain/advocate/topics/rent_bodies.dart": {
-      "sha256": "510427565df773d27bfed2ccdf97460fc09355fbfc51242d3cb9db0f27f0b714",
-      "lines": 264
+      "sha256": "9bbc7810066cda25e38ba0bb065b2faf1e95aeb3bbbea6da9955b60b20dc685c",
+      "lines": 189
     },
     "lib/domain/advocate/topics/rent_bodies_landlord.dart": {
-      "sha256": "04a7c0f4be6d97d6cbf1f217ebe770792c03ef3cedc13e17a367f2b75c64ffd8",
-      "lines": 201
+      "sha256": "7f9e61a40a550c7ed51410d25a38237c52548cb36f8cddf3356bad7124af77a0",
+      "lines": 134
     },
     "lib/domain/advocate/topics/rent_claims.dart": {
       "sha256": "542e058b07383da3e4c46982eda5c48cc29255145e9fef0b5ac4d7eabd12adfc",
@@ -138,7 +142,7 @@
       "lines": 211
     },
     "lib/domain/advocate/topics/rent_plan.dart": {
-      "sha256": "24d256d14688748daeffe93a29d162e2f1d955d9cb9695902a3f0410233bf53f",
+      "sha256": "4bae54585935393ec9a80b8f9812475b7e04baa27e5f2e9ae3761c2f116b0f27",
       "lines": 293
     },
     "lib/domain/advocate/topics/shared.dart": {

@@ -40,13 +40,22 @@ python dev/tools/check.py pipeline
 
 ## ۲. ساختار مسیر موضوعی (`dev/tools/schemas/topic_flow.schema.json`)
 
-دو پوشه داریم: `assets/brain/topics/` (در APK بسته‌بندی می‌شود؛ `live` الزامی و
-`live:false` **خطا**) و `lab/topics/` (در دست ساخت، در `pubspec.yaml` نیست؛ فقط
-ساختارش سنجیده می‌شود و آزمون‌های نمونه‌اش اجرا می‌شوند).
+دو پوشه داریم: `assets/brain/topics/` (در APK بستهبندی میشود) و `lab/topics/`
+(در دست ساخت، در `pubspec.yaml` نیست؛ فقط ساختارش سنجیده میشود و آزمونهای
+نمونهاش اجرا میشوند). درون پوشهٔ بستهبندیشده دو قراردادِ جدا داریم:
 
-هر `assets/brain/topics/*.json` باید کلیدهای `live/gate/topic/law/disclaimer/
-clarify/rules/leaves` را داشته باشد، هر قاعده به برگی موجود اشاره کند، هر برگ
-`title` و `text` داشته باشد و ارجاع‌های `articles` از شکل «ماده/اصل N» باشند.
+- **مسیر تصمیم** (`index.json` + فایلهای فهرستشده مانند `cheque.json`): `live`
+  الزامی و `live:false` **خطا**. هر فایل باید کلیدهای
+  `live/gate/topic/law/disclaimer/clarify/rules/leaves` را داشته باشد، هر قاعده
+  به برگی موجود اشاره کند، هر برگ `title` و `text` داشته باشد و ارجاعهای
+  `articles` از شکل «ماده/اصل N» باشند.
+- **متن ثابت اجاره** (`rent_texts.json`): فهرست `id → text` است و تصمیمگیر
+  نیست؛ در `index.json` فهرست نمیشود. هشِ نویسهبهنویسهٔ آن در
+  `tests/python/test_rent_text_equivalence.py` قفل است و بارگذاریش صریح
+  (`loadRentTexts`) است.
+
+نگهبان، هر فایلِ اضافه در `assets/brain/topics/` را قرمز میکند تا حالتِ
+میانهٔ «دادهٔ بلااستفاده» دوباره شکل نگیرد.
 
 هشدارها (نه خطا) این‌ها را نشان می‌دهند:
 

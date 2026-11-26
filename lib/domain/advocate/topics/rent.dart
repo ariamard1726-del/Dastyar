@@ -7,6 +7,7 @@
 // («اجور معوقه»، «خلع ید»).
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/shared.dart';
 
 // این موضوع ۲٬۶۷۹ خط بود در یک فایل. حالا هر تکه‌اش جای خودش است؛

@@ -31,6 +31,7 @@ SCHEMA = 1
 # دارایی‌هایی که متنِ حقوقی یا پاسخِ آماده در آن‌هاست.
 ASSET_FILES = [
     'assets/brain/guides/legal_guides.json',
+    'assets/brain/topics/rent_texts.json',
     'assets/qa/lease_qa.json',
     'assets/replies.json',
     'assets/laws/_meta.json',

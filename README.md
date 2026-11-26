@@ -74,11 +74,13 @@ lib/core/                      موتور BM25F، worker، law_index، رمزن�
                                تاریخچه (history_models + history_store)، مهاجرت
 lib/domain/advocate/           قاعدهها و مسیرهای پاسخ؛ DialogueState اکنون
                                نمایانهای نازک روی پنج تکهٔ dialogue_sections است
+                               و متن ثابت اجاره از rent_texts_loader میآید
 lib/domain/lawyer/            راهنماهای حقوقی
 lib/domain/                   تنظیمات، قالبها، بازخورد و پیشنویس
 lib/ui/                        صفحات گفتگو، تاریخچه، تنظیمات، اطلاعات و رضایت
 android/.../MainActivity.kt    Keystore/AES-GCM، FLAG_SECURE، متد probe
-assets/                        متن قوانین، قالبها، دادهٔ پرسشوپاسخ و مدل Noql
+assets/brain/topics/           دو قرارداد جدا: index.json (مسیرهای تصمیم)
+                               و rent_texts.json (متن ثابت اجاره)
 dev/tools/ + tests/python/     نگهبانهای قرارداد، اندازه، ساختار و اعتماد محتوا
 docs/                         معماری، قراردادها، بدهیها، نقشهٔ فازها
 ```
@@ -88,6 +90,12 @@ docs/                         معماری، قراردادها، بدهیها،
 کلاس و facade ماندن `DialogueState`) و `tests/python/test_file_sizes.py`
 (سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
 ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
+
+برای فاز ۱ِ «متن به داده»، ۴۲ رشتهٔ ثابتِ اجاره به
+`assets/brain/topics/rent_texts.json` منتقل شد؛ `tests/python/test_rent_text_equivalence.py`
+هشِ **پیش از جابهجایی** را با متنِ فعلی میسنجد وقراردادِ دوگانهٔ
+`index.json` / `rent_texts.json` را قفل میکند. بارگذاری صریح است
+(`loadRentTexts`) و نبودِ متن خطا میدهد، نه جایگزینِ بیصدا.
 
 ## توسعه و بررسی
 
@@ -104,7 +112,7 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 
 **شرط صداقت:** در محیطی که این متن نوشته شد فقط `python3` موجود بود؛
 `flutter` و `dart` نصب نبودند. بنابراین `flutter analyze/test/build` و CI
-انجامشدهٔ Dart در همینجا اجرا و تأیید نشداند. نتیجهای که هست: ۲۸۷ آزمون
+انجامشدهٔ Dart در همینجا اجرا و تأیید نشداند. نتیجهای که هست: ۲۹۲ آزمون
 پایتون و `check.py all` سبزاند، ولی `check.py trust` با ۰/۲۴ قانون تأییدشده
 و ۲/۹ قالب بازبینیشده قرمز است. `reports/last_test.txt` متعلق به کامیت
 دیگری است و مدرک سبز بودن این شاخه نیست.
@@ -120,6 +128,10 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
   ۸ ثانیه هر نوبت، اندازهگیری p95 روی گوشی ردهپایین نیست.
 - دو مسیر (`guide_reply.dart`, `law_answer.dart`) هنوز `engine.query` را
   همگام صدا میزنند و `LawTerms.match` همگام است.
+- فاز ۱ ناتمام است: متنِ `rent_claims.dart` و رشتههای محلی داخلِ توابعِ
+  `rent_bodies*` هنوز در Dartاند (به closureهای `when`/`because` گره خوردهاند)
+  و بقیهٔ موضوعها هنوز Dartمحورند. تنها `cheque` و متنِ ثابتِ اجاره به
+  قراردادِ داده منتقل شدند؛ «همهٔ متنها در دادهاند» صادق نیست.
 - چهار جفت منطق Dart/Python تنها با guardهای parity و نمونههای مشترک هماهنگ
   نگه داشته میشوند؛ اپ پایتون مرجع تطبیق نیست.
 - ایمنی بر پایهٔ الگوهاست؛ ماشین حالتی با شدت و پنجرهٔ زمانی و پوشش کامل
