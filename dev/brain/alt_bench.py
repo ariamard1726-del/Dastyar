@@ -27,6 +27,10 @@ MODELS = [
     ('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', ''),
     ('ibm-granite/granite-embedding-107m-multilingual', ''),
     ('PartAI/Tooka-SBERT-V2-Small', ''),
+    # فارسیِ کوچک و آزاد: ۲۲٫۷M پارامتر (∼۹۱MB fp32، پروانهٔ MIT).
+    ('codersan/FaMiniLM', ''),
+    # همان معماری با آموزشِ بیشتر (زوجهای فارسی–انگلیسی؛ نتیجه باید سنجیده شود).
+    ('codersan/FaMiniLm_Mizan3', ''),
 ]
 
 
