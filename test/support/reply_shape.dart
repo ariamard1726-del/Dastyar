@@ -24,3 +24,9 @@ void expectTopic(Advocate advocate, String topic) {
 void expectCited(AdvocateReply reply) {
   expect(reply.laws, isNotEmpty, reason: 'پاسخ مستند به متن قانون نیست');
 }
+
+void expectNoText(AdvocateReply reply, String fragment) {
+  final hasFragment = reply.text.contains(fragment);
+  expect(hasFragment, isFalse,
+      reason: 'متن پاسخ نباید حاوی «$fragment» باشد: ${reply.text}');
+}

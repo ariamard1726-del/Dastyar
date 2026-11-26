@@ -53,10 +53,7 @@ extension _ReplyPipeline on Advocate {
       // پرسش فرضی با طرفهای الف/ب/ج ماجرای شخصی کاربر نیست. پیش از قاعدههای
       // موضوعی میآید تا وکیل خودش را طرف معامله نپندارد و متن قانون را نشان دهد.
       AnswerCandidate('پرسش فرضی',
-          () => _isHypotheticalQuestion(raw, n)
-              ? _lawAnswer.lookup(raw, n,
-                  hasCase: hasCase, loose: dialog.loose.length)
-              : null,
+          () => _hypotheticalReply(raw, n, hasCase: hasCase),
           source: AnswerSource.engine, why: 'پرسش فرضی، نه ماجرای شخصی'),
       // «از برنامه خارج شدم» و جملهٔ کوتاهِ سوگ: پرسشِ واقعی، ولی نه ماجرای
       // حقوقی؛ پس از ایمنی می‌آید تا پیامِ خطر زیرش نماند.
@@ -151,5 +148,22 @@ extension _ReplyPipeline on Advocate {
     if (corrected != null) return corrected;
     if (topic == null) return _noCaseReply(raw, n, read, guess);
     return _inCaseReply(raw, n, topic, read);
+  }
+
+  /// پرسش فرضی (طرفهای الف/ب/ج) را از ماجرای شخصی جدا میکند. متن قانون
+  /// مرتبط را با همان مسئولیتِ معمولِ LawAnswer میدهد؛ اگر نبود، بیآنکه
+  /// مادهٔ نامربوط یا پرسشِ نقش بگوید، صریحاً میگوید پیدا نکرد.
+  AdvocateReply? _hypotheticalReply(String raw, String n,
+      {required bool hasCase}) {
+    if (!_isHypotheticalQuestion(raw, n)) return null;
+    final answer = _lawAnswer.lookup(raw, n,
+        hasCase: hasCase, loose: dialog.loose.length);
+    if (answer != null) return answer;
+    return voice.out(
+      'این پرسش فرضی است و طرفهای آن الف، ب و ج هستند؛ من آنرا ماجرای '
+      'شخصی شما در نظر نمیگیرم و نقشِ کسی را حدس نمیزنم. متن قانون '
+      'مرتبطی در بانک من پیدا نشد تا مادهٔ نامربوط بگویم.',
+      source: AnswerSource.engine,
+    );
   }
 }

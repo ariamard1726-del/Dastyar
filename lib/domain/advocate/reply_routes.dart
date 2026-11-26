@@ -80,11 +80,26 @@ class ReplyRoutes {
     // «تازه هست» / «موضوع جدیدی هست» همان معنای دکمهٔ «موضوع تازه‌ای دارم»
     // را دارد. وقتی پرسشِ «تازه یا مربوط؟» روی میز است، این مسیر عقب میماند
     // تا مسیرِ pending آن را بگیرید و پروندهٔ معلق را باز کند.
+    // دکمهٔ «بله، موضوع تازه است» از مسیرِ pending عبور میکند و پروندهٔ
+    // معلق را باز میکند؛ پس در جدیدِ موضوعِ تازه فقط جملههای آزاد کاربر را
+    // میگیریم، نه خودِ دکمهٔ همان پرسش را.
     final asksNew = x == ChipTexts.newCaseChip ||
-        (Sense.words(y) <= 6 &&
+        (x != ChipTexts.newTopicChip &&
+            Sense.words(y) <= 6 &&
             Sense.has(y,
                 'تازه (?:هست|است)|جدید (?:هست|است)|موضوع (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?|ماجرای (?:تازه|جدید)(?:ی)?(?: (?:هست|است))?'));
     if (dialog.pendingTopic == null && asksNew) {
+      // وقتی پروندهٔ بازی هست، «تازه هست» یعنی «موضوع دیگری هم دارم»؛
+      // نباید محتوا و چسبندگی پروندهٔ جاری را پاک کند. فقط دکمهٔ صریحِ
+      // «موضوع تازه» پرونده را میبندد.
+      if (x != ChipTexts.newCaseChip && file.topic.isNotEmpty) {
+        dialog.pendingTopic = null;
+        return _out(
+          'باشد، ماجرای تازهای هم هست.',
+          ask: 'اول ماجرای جاری را تمام میکنیم یا میخواهید آنرا کنار بگذارید؟',
+          chips: [ChipTexts.newTopicChip, ChipTexts.leaveChip],
+        );
+      }
       flow.closeCase();
       dialog.loose.clear();
       return _out(
@@ -115,14 +130,17 @@ class ReplyRoutes {
   AdvocateReply? pending(String raw, String n) {
     final pend = dialog.pendingTopic;
     final pendText = dialog.pendingText;
-    dialog.pendingTopic = null;
-    dialog.pendingText = '';
     if (pend != null) {
+      void handled() {
+        dialog.pendingTopic = null;
+        dialog.pendingText = '';
+      }
       if (raw.trim() == ChipTexts.newTopicYesChip ||
           raw.trim() == ChipTexts.sideChip ||
           (Sense.words(n) <= 6 &&
               Sense.has(n,
                   'موضوع (?:تازه|جدید|دیگه|دیگر)|جدا(?:ست| است|گانه)|ماجرای دیگه|ماجرای تازه'))) {
+        handled();
         return flow.open(pend, Sense.norm(pendText), switched: true);
       }
       final curTopic = picker.current();
@@ -132,6 +150,7 @@ class ReplyRoutes {
               (Sense.words(n) <= 6 &&
                   Sense.has(n,
                       'مربوط|همین (?:موضوع|ماجرا|پرونده)|همان (?:موضوع|ماجرا)|ماجرای قبلی|موضوع قبلی|به قبلی')))) {
+        handled();
         final pn = Sense.norm(pendText);
         final r = flow.inCase(curTopic, pendText, pn, picker.matchIssue(curTopic, pn));
         // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که

@@ -40,6 +40,6 @@ void main() {
         'پرسشها: ۱) وضعیت معامله چیست؟ ۲) آیا کلاهبرداری محقق است؟ ۳) تنفیذ بعدی چه اثری دارد؟');
     expectSource(r, AnswerSource.engine);
     expect(a.file.topic, isEmpty);
-    expect(r.laws, isNotEmpty);
+    expectNoText(r, 'خریدار یا فروشنده');
   });
 }
