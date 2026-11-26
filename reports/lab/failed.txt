@@ -1,3 +1,2 @@
 ::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/dialogue_state_test.dart (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/safety_test.dart: تکرارِ دقیق همان متن، هشدار را دوباره نمیکند (failed)
-::error::558 tests passed, 2 failed.
+::error::559 tests passed, 1 failed.

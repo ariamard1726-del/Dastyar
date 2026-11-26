@@ -1,3 +1,12 @@
+✅ test/advocate/pipeline_contract_test.dart: ترتیب Dart با pipeline.json یکی است
+✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
+✅ test/advocate/pipeline_contract_test.dart: netMin در Dart با pipeline.json یکی است
+✅ test/advocate/pipeline_contract_test.dart: هر مسیر pipeline.json به یک مقدار AnswerSource نگاشت می‌شود
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
+✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
 ✅ test/advocate/reported_conversations_test.dart: «تازه هست» بعد از انصراف، درخواست موضوع تازه است
 ✅ test/advocate/reported_conversations_test.dart: «موضوع جدیدی هست» هم درخواست موضوع تازه است
 ✅ test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند
@@ -28,18 +37,18 @@
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
+✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/case_model_test.dart: نُه نام، از یک import
 ✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
 ✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
-✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
-✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
 ✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
-✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
 ✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
 ✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
 ✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
 ✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
@@ -122,16 +131,7 @@
 ✅ test/advocate/safety_test.dart: پیام خشونت + طلاق، پیام ایمنی می‌گیرد نه پرسش پرونده
 ✅ test/advocate/safety_test.dart: پیام خشونت با امتیاز موضوع بالا هم ایمنی را از دست نمی‌دهد
 ✅ test/advocate/safety_test.dart: گزارش تازهٔ خشونت حتی در همان پرونده هشدار میگیرد
-::endgroup::
-::group::❌ test/advocate/safety_test.dart: تکرارِ دقیق همان متن، هشدار را دوباره نمیکند (failed)
-Expected: not AnswerSource:<AnswerSource.safety>
-  Actual: AnswerSource:<AnswerSource.safety>
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/safety_test.dart 55:5                 main.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/safety_test.dart: تکرارِ دقیق همان متن، هشدار را دوباره نمیکند
 ✅ test/advocate/safety_test.dart: حرفِ خودآسیبی پیش از بحث حقوقی، کمک فوری میگیرد
 ✅ test/advocate/safety_test.dart: گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد
 ✅ test/advocate/safety_test.dart: «الان در خطر هستم» راهنمای فوری می‌گیرد
@@ -197,4 +197,4 @@ test/advocate/safety_test.dart 55:5                 main.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::249 tests passed, 2 failed.
+::error::250 tests passed, 1 failed.
