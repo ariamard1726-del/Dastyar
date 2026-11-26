@@ -29,8 +29,9 @@ CLAIMS_BEFORE_COUNT = 87
 FILINGS_BEFORE_SHA256 = '706c5beef307a43b879be402022533e21fbc949ebf37cd9dbb0a2dfd395325db'
 FILINGS_BEFORE_COUNT = 32
 FILING_CTOR_COUNT = 18
-PLANS_BEFORE_SHA256 = '8840c2d49cab74044783cb2dda422ffd588f809e0420fec7dfdf51a6dd152555'
-PLANS_BEFORE_COUNT = 19
+PLANS_BEFORE_SHA256 = '8197332fdb8164552974d7fde9e094548323e7e6baa4bfcd39cc0829c317bfaa'
+PLANS_BEFORE_COUNT = 30
+CHANCE_BODY_COUNT = 10
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
@@ -127,10 +128,19 @@ class RentTextEquivalenceTest(unittest.TestCase):
                          'درونیابیِ انتهایی دستنخورده بماند')
         # شش متنِ بعدی از `_rentDeadline` و `_rentRefuse`اند؛ شاخهای که
         # درونیابی در میانه دارد عمداً در Dart مانده است.
-        for index in range(RENT_PLAN_BODY_COUNT, PLANS_BEFORE_COUNT):
+        for index in range(RENT_PLAN_BODY_COUNT, 19):
             key = 'plan%d' % index
             self.assertEqual(1, src.count("rentText('%s')" % key))
             self.assertIn("return rentText('%s');" % key, src)
+        for index in range(19, 19 + CHANCE_BODY_COUNT):
+            key = 'plan%d' % index
+            self.assertEqual(1, src.count("rentText('%s')" % key))
+            self.assertIn("return lead + rentText('%s');" % key, src)
+        self.assertNotIn('const lead =', src)
+        self.assertEqual(1, src.count("rentText('planLead')"))
+        self.assertIn("final lead = rentText('planLead');", src)
+        self.assertNotIn('$lead ', src,
+                         'درونیابیِ قدیمیِ $lead دوباره برگشته است')
         self.assertEqual(1, src.count('${_rentPeace()}'))
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
