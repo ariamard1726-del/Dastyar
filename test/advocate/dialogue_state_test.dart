@@ -15,7 +15,7 @@ void main() {
 
   Map<String, dynamic> get _topics => {
         for (final t in Advocate.topics) t.id: t,
-      };
+      }
 
   test('پرسش باز و دکمههایش همانطور برمیگردند', () {
     final d = DialogueState()

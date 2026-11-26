@@ -37,7 +37,7 @@ void main() {
       id: 'locked',
       title: 'محرمانه',
       updated: 1,
-      messages: const [StoredMsg('پرسش محرمانه', true)],
+      messages: [StoredMsg('پرسش محرمانه', true)],
     ));
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.containsKey('history_v1'), isFalse);

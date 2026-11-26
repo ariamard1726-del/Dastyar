@@ -10,6 +10,8 @@ import 'package:dastyar/domain/lawyer/legal_guides.dart';
 /// (`dialog.askText = ...`) بی تغییر بمانند. همین تکهها قابل ذخیرهاند و
 /// زمینهٔ قالب ۴ تاریخچهاند.
 class DialogueState {
+  DialogueState();
+
   QuestionState question = QuestionState();
   ChoiceState choice = ChoiceState();
   GuideState guideState = GuideState();

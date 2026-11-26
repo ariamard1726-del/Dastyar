@@ -10,6 +10,7 @@ import 'package:dastyar/domain/lawyer/legal_guides.dart';
 
 /// پرسشی که پرسیدهایم، دکمههایش و پیشنهادِ معلق.
 class QuestionState {
+  QuestionState();
   String askText = '';
   List<String> askChips = const [];
   String offer = '';
@@ -51,6 +52,7 @@ class QuestionState {
 
 /// موضوعِ شناختهشده، موضوعِ منتظرِ تأیید، و موضوع دومی که وسط پرونده آمد.
 class ChoiceState {
+  ChoiceState();
   List<Topic> choices = const [];
   String choiceText = '';
   bool guessed = false;
@@ -117,6 +119,7 @@ class ChoiceState {
 
 /// راهنمای باز، آخرین بحث توضیح دادهشده و حافظهٔ مختصر پرونده.
 class GuideState {
+  GuideState();
   LegalGuide? guide;
   bool guideAsked = false;
   bool guideStepped = false;
@@ -178,6 +181,7 @@ class GuideState {
 
 /// پیام ایمنی و متنی که پاسخ ایمنی جایش را گرفت.
 class SafetyState {
+  SafetyState();
   String safetyCarry = '';
   bool safetyShown = false;
 
@@ -213,6 +217,7 @@ class SafetyState {
 
 /// پیام نامفهومِ قبلی و نوبتِ آن.
 class UnclearState {
+  UnclearState();
   String unclearPhrase = '';
   int unclearTurn = -10;
 
@@ -242,7 +247,7 @@ List<String> _strings(Object? raw) {
 }
 
 Topic? _topic(Object? id, Map<String, Topic>? byId) =>
-    id is String && id.isNotEmpty ? byId?[id] : null;
+    id is String && id.isNotEmpty ? (byId?[id]) : null;
 
 List<Topic> _topics(Object? raw, Map<String, Topic>? byId) {
   if (raw is! List || byId == null) return const [];
@@ -251,4 +256,4 @@ List<Topic> _topics(Object? raw, Map<String, Topic>? byId) {
 }
 
 LegalGuide? _guide(Object? id, Map<String, LegalGuide>? byId) =>
-    id is String && id.isNotEmpty ? byId?[id] : null;
+    id is String && id.isNotEmpty ? (byId?[id]) : null;

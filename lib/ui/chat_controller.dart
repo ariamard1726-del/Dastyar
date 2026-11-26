@@ -309,7 +309,7 @@ class ChatController extends ChangeNotifier {
     final saved = s.caseJson;
     if (saved != null) {
       // پرونده همان‌طور که بود برمی‌گردد؛ هیچ پیامی دوباره پردازش نمی‌شود.
-      advocate.restoreCase(saved, dialogue: saved.dialogueJson);
+      advocate.restoreCase(saved, dialogue: s.dialogueJson);
     } else {
       // گفتگوی ذخیره‌شدهٔ قدیمی: پرونده از روی پیام‌های خودِ کاربر ساخته می‌شود.
       advocate.replay([
