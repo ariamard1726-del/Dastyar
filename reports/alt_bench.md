@@ -75,3 +75,21 @@
   - «ماشینم را فروخته ام ولی خریدار پولش را کامل نداده» [debt/property] → consumer
   - «رئیسم به من گفته دیگر لازم نیست بیایی» [labor] → accused
 
+
+## خطای اجرا
+
+```
+Traceback (most recent call last):
+  File "/home/runner/work/Dastyar/Dastyar/dev/brain/alt_bench.py", line 152, in <module>
+    main()
+  File "/home/runner/work/Dastyar/Dastyar/dev/brain/alt_bench.py", line 132, in main
+    data = Data()
+           ^^^^^^
+  File "/home/runner/work/Dastyar/Dastyar/dev/brain/embed_bench.py", line 101, in __init__
+    self.examples = load_examples()
+                    ^^^^^^^^^^^^^^^
+  File "/home/runner/work/Dastyar/Dastyar/dev/brain/embed_bench.py", line 68, in load_examples
+    with open(EXAMPLES, encoding='utf-8') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/Dastyar/Dastyar/dev/eval/topic_examples.tsv'
+```
