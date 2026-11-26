@@ -1,2 +1,2 @@
-commit: 307f4d4
+commit: 15a545a
 CI: test/lab/scenarios success
