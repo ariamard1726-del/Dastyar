@@ -50,9 +50,9 @@ String _rentEvidence(CaseFile f) {
   if (!_rentDeposit(f)) {
     return rentText('plan31');
   }
-  final sb = StringBuffer(rentText('plan33'));
+  final sb = StringBuffer(rentText('plan32'));
   if (f.no('contract')) {
-    sb.write(rentText('plan34'));
+    sb.write(rentText('plan33'));
   }
   return rentText('plan32');
 }
@@ -147,7 +147,7 @@ String _rentRefuse(CaseFile f) {
     return rentText('plan17');
   }
   if (!_rentDeposit(f)) {
-    return rentText('plan35_a') + _rentPeace() + rentText('plan35_b');
+    return rentText('plan34_a') + _rentPeace() + rentText('plan34_b');
   }
   return rentText('plan18');
 }

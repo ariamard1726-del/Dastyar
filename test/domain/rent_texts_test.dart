@@ -8,8 +8,8 @@ import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 void main() {
   test('متنها از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadRentTexts();
-    // ۴۲ پاسخ + ۸۷ ادعا + ۳۲ برچسب + ۳۷ متنِ طرح. نبودِ یکی خطای صریح است.
-    expect(keys.length, 198);
+    // ۴۲ پاسخ + ۸۷ ادعا + ۳۲ برچسب + ۳۶ متنِ طرح. نبودِ یکی خطای صریح است.
+    expect(keys.length, 197);
     expect(loadedRentTexts.containsKey('rentPeace'), isTrue);
     expect(loadedRentTexts.containsKey('rentLandlordPaidBody'), isTrue);
     expect(loadedRentTexts.containsKey('claim0_goal'), isTrue);
@@ -22,8 +22,8 @@ void main() {
     expect(loadedRentTexts.containsKey('planLead'), isTrue);
     expect(loadedRentTexts.containsKey('plan28'), isTrue);
     expect(loadedRentTexts.containsKey('plan30'), isTrue);
-    expect(loadedRentTexts.containsKey('plan35_a'), isTrue);
-    expect(loadedRentTexts.containsKey('plan35_b'), isTrue);
+    expect(loadedRentTexts.containsKey('plan34_a'), isTrue);
+    expect(loadedRentTexts.containsKey('plan34_b'), isTrue);
     expect(rentText('rentPeace').contains('دادگاه صلح'), isTrue);
     expect(rentText('filing0_chip').startsWith('تنظیم'), isTrue);
     expect(rentText('filing15_name').contains('لایحه'), isTrue);

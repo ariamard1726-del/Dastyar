@@ -29,8 +29,8 @@ CLAIMS_BEFORE_COUNT = 87
 FILINGS_BEFORE_SHA256 = '706c5beef307a43b879be402022533e21fbc949ebf37cd9dbb0a2dfd395325db'
 FILINGS_BEFORE_COUNT = 32
 FILING_CTOR_COUNT = 18
-PLANS_BEFORE_SHA256 = '50097430d6cc2641abb8f1c4cd59b16add1b13c907de6ef5b7c180192e16178a'
-PLANS_BEFORE_COUNT = 37
+PLANS_BEFORE_SHA256 = 'c9f084ecb37d1c8f81ddfbf5cae121d00896e6f05fdfaea6a838a595fd318214'
+PLANS_BEFORE_COUNT = 36
 CHANCE_BODY_COUNT = 10
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
@@ -109,6 +109,7 @@ class RentTextEquivalenceTest(unittest.TestCase):
                          'یک نویسه از متنِ طرحِ دعوا عوض شده است')
         for section in ('texts', 'claims', 'filings'):
             self.assertFalse(set(plans) & set(self.data[section]))
+        self.assertTrue(all(plans.values()), 'هیچ متنی نباید خالی باشد')
 
     def test_plan_bodies_keep_only_delegates_and_interpolations(self):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_plan.dart')
@@ -141,12 +142,12 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertIn("final lead = rentText('planLead');", src)
         self.assertNotIn('$lead ', src,
                          'درونیابیِ قدیمیِ $lead دوباره برگشته است')
-        for key in ('plan30', 'plan31', 'plan32'):
+        for key in ('plan30', 'plan31'):
             self.assertIn("return rentText('%s');" % key, src)
-        self.assertIn("StringBuffer(rentText('plan33'));", src)
-        self.assertIn("sb.write(rentText('plan34'));", src)
-        self.assertIn("return rentText('plan35_a') + _rentPeace() + "
-                      "rentText('plan35_b');", src)
+        self.assertIn("StringBuffer(rentText('plan32'));", src)
+        self.assertIn("sb.write(rentText('plan33'));", src)
+        self.assertIn("return rentText('plan34_a') + _rentPeace() + "
+                      "rentText('plan34_b');", src)
         self.assertNotIn('${_rentPeace()}', src,
                          'درونیابیِ قدیمی داخل رشته برگشته است')
         self.assertEqual(3, src.count('_rentPeace()'))
