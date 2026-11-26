@@ -1,1 +1,3 @@
-🎉 542 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: وسط پرونده با هر اشاره‌ای موضوع را عوض نمی‌کند؛ در حالت مبهم می‌پرسد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند (failed)
+::error::543 tests passed, 2 failed.
