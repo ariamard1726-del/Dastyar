@@ -1,5 +1,2 @@
 Analyzing Dastyar...                                            
-
-  error • The method 'step' isn't defined for the type 'DraftSession'. Try correcting the name to the name of an existing method, or defining a method named 'step' • test/app/chat_flows_test.dart:232:45 • undefined_method
-
-1 issue found. (ran in 11.7s)
+No issues found! (ran in 9.1s)
