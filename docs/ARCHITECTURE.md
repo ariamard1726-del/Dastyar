@@ -12,7 +12,7 @@
 |---|---|---|
 | `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` (لایهٔ یکتای متن فارسی)، ، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
 | `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره و صدور رمزنگاری‌شده، بدون وابستگی UI)، `settings` (تنظیمات؛ فعلاً از `ChangeNotifier`/`ThemeMode` فلاتر استفاده می‌کند) |
-| `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
+| `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller` (سیم‌کشی)، `draft_flow`، `guess_flow`، `reply_flow`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
 
 ## جریان یک پیام (تنها یک مسیر)
 
@@ -231,7 +231,7 @@
 | موتور BM25F و نمایه | بارگذاری و پارس مواد، شاخص واژه‌ها، رتبه‌بندی BM25F، نام قانون، الگوی «ماده N» | `engine.dart`، `engine_load.dart`، `engine_query.dart`، `law_index.dart`، `law_ranker.dart`، `law_mention.dart`، `law_text.dart`، `article_query.dart` |
 | ضریب موضوعی، تعارض و QA | وزن موضوعی مواد، زنجیرهٔ تعارض/رابطه مواد، ۱۲۰ پرسش‌وپاسخ اجاره و نیت ثابت موتور | `law_topic_prior.dart`، `conflicts_service.dart`، `qa_bank.dart`، `router.dart` |
 | راهنماهای آماده و پاسخ از بانک | ۳۰+ راهنمای ساختاریافته (`legal_guides.json`) و بازگشت به بانک پرسش‌وپاسخ/قانون | `legal_guides.dart`، `guide_reply.dart`، `law_answer.dart` |
-| تنظیم پیش‌نویس سند | تشخیص درخواست سند، بله/خیر فیلد، گام‌بندی فیلدها، ارجاع مواد، قالب‌ها و جریان UI | `drafting.dart`، `draft_intent.dart`، `draft_step.dart`، `draft_words.dart`، `draft_laws.dart`، `draft_models.dart`، `templates.dart`، `draft_flow.dart` |
+| تنظیم پیش‌نویس سند و کنترلر گفتگو | تشخیص درخواست سند، گام‌بندی فیلدها، ارجاع مواد و سیم‌کشی جریان‌های گفتگو | `drafting.dart`، `draft_intent.dart`، `draft_step.dart`، `draft_words.dart`، `draft_laws.dart`، `draft_models.dart`، `templates.dart`، `draft_flow.dart`، `guess_flow.dart`، `reply_flow.dart`، `chat_controller.dart` |
 
 ### ۵. قواعد ۲۴ موضوع حقوقی (`lib/domain/advocate/topics/`)
 
@@ -252,9 +252,9 @@
 2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`engine_load.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
 3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
 4. ✅ `eval/` و `reports/` دوقلو نبودند؛ ادغام شدند (`docs/REPO_LAYOUT.md`).
-5. `ChatController` (۳۱۲ خط) مسیرهای پیش‌نویس، حدس خواننده و پاسخ وکیل را کنار هم دارد؛ استخراج یک هماهنگ‌کنندهٔ خالص یک بازآرایی جداگانه است.
+5. ✅ `chat_controller.dart` (۱۳۰، زیر سقف ۱۵۰ خط) اکنون فقط سیم‌کشیِ بین سه همکارِ مستقل است: `draft_flow.dart` (۲۹۷، فرم و پیش‌نویس سند)، `guess_flow.dart` (۸۵، حدسِ موضوع با مدل) و `reply_flow.dart` (۲۴۸، صفِ نوبت، پاسخ و ذخیره/بازیابی نشست)؛ نگهبان فاز ۴ (`tests/python/test_chat_controller_shape.py`) اندازه، تفکیک و نبود نسخهٔ تکراری فایل‌های داده‌ای را قفل می‌کند.
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۱ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `advocate/reply_routes.dart` ۴۰۶ خط، `advocate/advocate_argue.dart` ۳۷۵ خط، `topics/rent_claims.dart` ۳۶۸ خط (ادعاها)، `advocate/talk_route.dart` ۳۶۰ خط و `core/history_store.dart` ۳۵۰ خط. `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**
-- Python (بدون Flutter SDK): **۳۲۷** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، عددهای مستندات و لینک‌های همین سند.
+- Python (بدون Flutter SDK): **۳۳۱** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها و کنترلر گفتگو، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، نبودِ تکرار داده‌ها، عددهای مستندات و لینک‌های همین سند.
 - Dart: **۶۹۵** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.

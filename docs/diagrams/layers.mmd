@@ -4,7 +4,7 @@ flowchart TD
     subgraph ui["lib/ui/ (نمایش و کنترلر)"]
         chat_page["chat_page.dart<br/>about / history / settings / drawer"]
         widgets["widgets/<br/>chat_bubbles.dart, feedback_bar.dart"]
-        controller["chat_controller.dart<br/>+ chat_models.dart"]
+        controller["chat_controller.dart<br/>+ draft_flow / guess_flow / reply_flow + chat_models.dart"]
     end
 
     subgraph domain["lib/domain/ (منطق حقوقی و مدل‌های آفلاین)"]

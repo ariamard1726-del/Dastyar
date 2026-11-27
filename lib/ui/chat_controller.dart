@@ -12,15 +12,10 @@ import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/ui/draft_flow.dart';
+import 'package:dastyar/ui/guess_flow.dart';
+import 'package:dastyar/ui/reply_flow.dart';
 
-/// کنترلر گفتگو: تنها یک مسیر دارد.
-///
-/// هر پیام کاربر یا پاسخِ یک فیلدِ پیش‌نویس است (وقتی سندی در حال تنظیم
-/// است) یا به [Advocate] می‌رود؛ وکیلِ قاعده‌محور که متن پاسخ را خودش
-/// می‌سازد. اگر قاعده‌ها موضوع پیام را نشناسند و خوانندهٔ موضوع ([guesser])
-/// در دسترس باشد، حدسِ آن هم همراه پیام به وکیل داده می‌شود. کنترلر فقط
-/// این‌ها را به هم وصل می‌کند و تاریخچه را ذخیره می‌کند؛ هیچ منطق
-/// حقوقی‌ای اینجا نیست.
+/// کنترلر گفتگو: سیم‌کشیِ بین سه جریانِ [DraftFlow]، [GuessFlow] و [ReplyFlow].
 class ChatController extends ChangeNotifier {
   final KnowledgeEngine engine;
   final TemplateRepository repo;
@@ -31,47 +26,13 @@ class ChatController extends ChangeNotifier {
   /// خوانندهٔ موضوع (مدل برداری روی گوشی)؛ `null` یعنی فقط قاعده‌ها.
   final Future<TopicGuess?> Function(String text)? guesser;
 
-  /// در حال خواندن پیام با مدل هستم (برای نشان‌دادن در صفحه).
-  bool thinking = false;
-
-  /// آخرین حدسِ مدل، برای صفحهٔ «درباره».
-  TopicGuess? lastGuess;
-
-  /// پیام‌ها به ترتیب رسیدن پردازش می‌شوند، حتی اگر یکی منتظر مدل باشد.
-  Future<void> _queue = Future<void>.value();
-
   final List<ChatMessage> messages = [];
-
-  /// کل گفتگو به‌صورت متن ساده، برای کپی یک‌جا.
-  String transcript() {
-    final sb = StringBuffer();
-    for (final m in messages) {
-      final body = m.text.trim();
-      if (body.isEmpty) continue;
-      sb.writeln(m.fromUser ? 'شما:' : 'دستیار:');
-      sb.writeln(body);
-      sb.writeln();
-    }
-    return sb.toString().trim();
-  }
-
-  /// اگر در گفتگو پیام حساس (مثلاً متن سند) باشد، کپی هم حساس می‌شود.
-  bool get hasSensitive => messages.any((m) => m.sensitive);
-  String _sessionId = _newId();
   bool _disposed = false;
 
-  /// شمارهٔ نسل گفتگو؛ با هر «گفتگوی جدید» یا بازکردن گفتگوی دیگر یکی
-  /// زیاد می‌شود تا پیام‌های در صف به گفتگوی تازه نچسبند.
-  int _generation = 0;
-
-  /// خطاهای زمان اجرا (فقط روی همین گوشی، برای عیب‌یابی).
-  final List<String> problems = [];
-
-  /// وکیل بدون مدل: فهم محاوره، حافظهٔ پرونده و تحلیل مستند به متن قانون.
   late final Advocate advocate;
-
-  /// جریانِ نوشتن سند؛ فرم و پیش‌نویسِ ناتمام کارِ اوست، نه کنترلرِ گفتگو.
   late final DraftFlow draftFlow;
+  late final GuessFlow guessFlow;
+  late final ReplyFlow replyFlow;
 
   ChatController({
     required this.engine,
@@ -97,8 +58,29 @@ class ChatController extends ChangeNotifier {
       post: messages.add,
       changed: _notify,
       scrollToEnd: _requestScroll,
-      save: () => unawaited(_saveSession()),
-      isAlive: () => !_disposed,
+      save: () => unawaited(replyFlow.saveSession()),
+      isAlive: _isAlive,
+    );
+    guessFlow = GuessFlow(
+      advocate: advocate,
+      guesser: guesser,
+      post: messages.add,
+      changed: _notify,
+      scrollToEnd: _requestScroll,
+      isAlive: _isAlive,
+      onProblem: (msg) => replyFlow.addProblem(msg),
+    );
+    replyFlow = ReplyFlow(
+      engine: engine,
+      history: history,
+      settings: settings,
+      advocate: advocate,
+      draftFlow: draftFlow,
+      guessFlow: guessFlow,
+      messages: messages,
+      changed: _notify,
+      scrollToEnd: _requestScroll,
+      isAlive: _isAlive,
     );
     if (loadError != null && loadError.isNotEmpty) {
       messages.add(ChatMessage(loadError, false, sensitive: true));
@@ -108,18 +90,7 @@ class ChatController extends ChangeNotifier {
     }
   }
 
-  static String _newId() => DateTime.now().microsecondsSinceEpoch.toString();
-
-  String get sessionId => _sessionId;
-
-  /// سندِ در دستِ تنظیم (اگر باشد).
-  DraftSession? get draft => draftFlow.draft;
-  bool get isDrafting => draftFlow.isDrafting;
-  List<LegalTemplate> get pendingChoices => draftFlow.pendingChoices;
-
-  /// دکمهٔ پذیرشِ متن پیشنهادی؛ برای صفحه، همان ثابتِ [DraftFlow].
-  static const String useSuggestion = DraftFlow.useSuggestion;
-
+  bool _isAlive() => !_disposed;
   void _notify() {
     if (!_disposed) notifyListeners();
   }
@@ -128,203 +99,31 @@ class ChatController extends ChangeNotifier {
     if (!_disposed) onScrollRequested?.call();
   }
 
-  void _resetFlow() {
-    draftFlow.reset();
-    advocate.reset();
-  }
+  bool get thinking => guessFlow.thinking;
+  TopicGuess? get lastGuess => guessFlow.lastGuess;
+  List<String> get problems => replyFlow.problems;
+  String get sessionId => replyFlow.sessionId;
+  String transcript() => replyFlow.transcript();
+  bool get hasSensitive => replyFlow.hasSensitive;
 
-  Future<void> submit(String rawText) {
-    // نسلِ گفتگو در لحظهٔ ارسال قفل می‌شود. اگر کاربر پیش از پردازش،
-    // «گفتگوی جدید» بزند یا گفتگوی دیگری باز کند، این پیام دیگر به گفتگوی
-    // تازه نمی‌چسبد.
-    final gen = _generation;
-    final next = _queue.then((_) => _submit(rawText, gen));
-    _queue = next.catchError((Object _) {});
-    return next;
-  }
+  DraftSession? get draft => draftFlow.draft;
+  bool get isDrafting => draftFlow.isDrafting;
+  List<LegalTemplate> get pendingChoices => draftFlow.pendingChoices;
+  static const String useSuggestion = DraftFlow.useSuggestion;
 
-  Future<void> _submit(String rawText, int gen) async {
-    final text = rawText.trim();
-    if (text.isEmpty || _disposed || gen != _generation) return;
-    for (final m in messages) {
-      m.chips = const [];
-    }
-    final before = messages.length;
-    try {
-      await _process(text, gen);
-    } catch (e) {
-      _reportFailure(text, before, e);
-    }
-  }
-
-  /// خطای پردازش را به کاربر نشان می‌دهد؛ پیام بی‌توضیح گم نمی‌شود.
-  void _reportFailure(String text, int before, Object e) {
-    if (_disposed) return;
-    thinking = false;
-    problems.add('$e');
-    if (problems.length > 20) problems.removeAt(0);
-    if (messages.length == before) {
-      messages.add(ChatMessage(text, true));
-    }
-    messages.add(ChatMessage(
-      'این پیام را نتوانستم درست پردازش کنم. اگر دوباره بفرستید یا کمی ساده‌تر '
-      'بنویسید، از نو امتحان می‌کنم. اگر تکرار شد، از منوی «اطلاعات و وضعیت '
-      'داده‌ها» وضعیت بارگذاری را ببینید.',
-      false,
-    ));
-    _notify();
-    _requestScroll();
-  }
-
-  Future<void> _process(String text, int gen) async {
-    if (draftFlow.isDrafting) {
-      // «انصراف» یا «می‌خواهم از این بحث بیرون بیایم» در فرم هم کار کند؛
-      // وگرنه کاربر در فرم گیر می‌افتد.
-      draftFlow.step(DraftWords.isLeave(text) ? DraftCmd.cancel : text);
-      return;
-    }
-    if (draftFlow.handle(text)) return;
-    // «بله» به پیشنهادِ «می‌خواهید فلان متن را برایتان بنویسم؟».
-    final offered = advocate.offeredDraft;
-    if (offered != null && DraftWords.isYes(text)) {
-      final t = draftFlow.templateFor(offered);
-      if (t != null) {
-        advocate.clearOffer();
-        draftFlow.start(text, t);
-        return;
-      }
-    }
-    TopicGuess? guess;
-    var shown = false;
-    final read = guesser;
-    if (read != null && advocate.wantsGuess(text)) {
-      // خواندن جمله با مدل روی گوشی کمی طول می‌کشد؛ پیام کاربر همان لحظه
-      // نشان داده می‌شود و جواب بعد از آن می‌آید.
-      messages.add(ChatMessage(text, true));
-      shown = true;
-      thinking = true;
-      _notify();
-      _requestScroll();
-      try {
-        guess = await read(text);
-      } catch (e) {
-        problems.add('خواندن موضوع: $e');
-        guess = null;
-      }
-      thinking = false;
-      if (_disposed) return;
-      if (gen != _generation) {
-        // در این فاصله گفتگو عوض شده است؛ این پیام دیگر جایی ندارد.
-        _notify();
-        return;
-      }
-      lastGuess = guess ?? lastGuess;
-    }
-    // worker بازیابی و رتبهبندی مواد در isolate موتور انجام میشود؛
-    // رابط تنها جواب آماده را میگیرد. اگر worker نبود یا خطا داد، وکیل همان
-    // مسیر همگام پیشین را میگیرد.
-    await Future<void>.delayed(Duration.zero);
-    if (_disposed || gen != _generation) return;
-    EngineReply? prepared;
-    try {
-      prepared = await engine.prepareQuery(text);
-    } catch (_) {
-      prepared = null;
-    }
-    if (_disposed || gen != _generation) return;
-    final r = advocate.respond(text, guess: guess, engineReply: prepared);
-    if (!shown) messages.add(ChatMessage(text, true));
-    messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
-    unawaited(_saveSession());
-    _notify();
-    _requestScroll();
-  }
-
-  Future<void> _saveSession() async {
-    if (!settings.saveHistory ||
-        !settings.localPersistenceAvailable ||
-        _disposed) return;
-    final stored = messages
-        .where((m) => !m.sensitive && !m.isDoc)
-        .map((m) => StoredMsg(m.text, m.fromUser, chips: m.chips))
-        .toList();
-    final users = stored.where((m) => m.fromUser).toList();
-    if (users.isEmpty) return;
-    await history.upsert(
-      ChatSession(
-        id: _sessionId,
-        title: HistoryStore.makeTitle(users.first.text),
-        updated: DateTime.now().millisecondsSinceEpoch,
-        messages: stored,
-        // پروندهٔ گفتگو هم ذخیره می‌شود تا بازکردن دوباره، پیام‌ها را از نو
-        // پردازش نکند و «بله/نه/نمی‌دانم»ها با گذشت زمان جابه‌جا نشوند.
-        caseJson: advocate.file.hasContent ? advocate.file.toJson() : null,
-        dialogueJson: advocate.dialog.toJson(),
-      ),
-    );
-  }
-
-  /// ذخیرهٔ صریح وضعیت پیش‌نویس ناتمام (رمزنگاری‌شده).
+  Future<void> submit(String rawText) => replyFlow.submit(rawText);
   Future<bool> saveDraftCheckpoint() => draftFlow.saveCheckpoint();
-
-  /// بازیابی پیش‌نویس ناتمام ذخیره‌شده.
   Future<bool> restoreDraftCheckpoint() => draftFlow.restoreCheckpoint();
 
-  // ------------------------------------------------------------- گفتگوها
-
   /// پس از «پاک کردن همهٔ تاریخچه»، گفتگوی باز هم باید پاک شود؛ وگرنه نخستین
-  /// پیام بعدی همان محتوا را دوباره روی دیس مینویسد.
+  /// پیام بعدی همان محتوا را دوباره روی دیس می‌نویسد.
   void resetAfterHistoryClear() => newChat();
-
-  void newChat() {
-    _generation++;
-    _sessionId = _newId();
-    _resetFlow();
-    if (settings.saveDraftProgress) {
-      unawaited(DraftCheckpointStore.clear());
-    }
-    messages.clear();
-    _notify();
-  }
-
-  void loadSession(ChatSession s) {
-    _generation++;
-    _sessionId = s.id;
-    _resetFlow();
-    if (settings.saveDraftProgress) {
-      unawaited(DraftCheckpointStore.clear());
-    }
-    messages
-      ..clear()
-      ..addAll(
-        s.messages.map((m) => ChatMessage(
-              m.text,
-              m.fromUser,
-              // دکمه‌های پیشنهادی همان‌جا که بودند برمی‌گردند؛ وگرنه گفتگوی
-              // بازیابی‌شده راه ادامه ندارد.
-              chips: m.chips,
-              revealed: true,
-            )),
-      );
-    final saved = s.caseJson;
-    if (saved != null) {
-      // پرونده همان‌طور که بود برمی‌گردد؛ هیچ پیامی دوباره پردازش نمی‌شود.
-      advocate.restoreCase(saved, dialogue: s.dialogueJson);
-    } else {
-      // گفتگوی ذخیره‌شدهٔ قدیمی: پرونده از روی پیام‌های خودِ کاربر ساخته می‌شود.
-      advocate.replay([
-        for (final m in s.messages)
-          if (m.fromUser) m.text,
-      ]);
-    }
-    _notify();
-    _requestScroll();
-  }
+  void newChat() => replyFlow.newChat();
+  void loadSession(ChatSession s) => replyFlow.loadSession(s);
 
   @override
   void dispose() {
     _disposed = true;
-    // نوشتن‌های در صف تاریخچه تا آخرین پیام ادامه یابند.
     unawaited(history.flush());
     super.dispose();
   }
