@@ -6,7 +6,7 @@ final List<Issue> _rentIssuesTenant = [
   // ---- مستأجر
   Issue(
     id: 'order',
-    chip: 'برایم دستور تخلیه آمده',
+    chip: rentText('issueOrderChip'),
     cues: _cOrder,
     body: _rentOrderBody,
     when: _tenantSide,
@@ -17,7 +17,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'orderDeposit',
-    chip: 'پول پیشم را هنوز نداده',
+    chip: rentText('issueOrderDepositChip'),
     cues: _cOrderDeposit,
     body: (f) => _rentOrderDepositBody(),
     when: _ordered,
@@ -25,7 +25,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'guarantee',
-    chip: 'چک ضمانتم را پس نمی‌دهد',
+    chip: rentText('issueGuaranteeChip'),
     cues: _cGuarantee,
     body: (f) => _rentGuaranteeBody(),
     when: _tenantSide,
@@ -33,7 +33,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'partial',
-    chip: 'بخشی از خانه قابل استفاده نیست',
+    chip: rentText('issuePartialChip'),
     cues: _cPartial,
     body: (f) => _rentPartialBody(),
     when: _tenantSide,
@@ -41,7 +41,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'defect',
-    chip: 'می‌توانم به‌خاطر خرابی فسخ کنم؟',
+    chip: rentText('issueDefectChip'),
     cues: _cDefect,
     body: (f) => _rentDefectBody(),
     when: _tenantSide,
@@ -49,7 +49,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'selfRepair',
-    chip: 'خودم تعمیر کنم پولش را می‌دهد؟',
+    chip: rentText('issueSelfRepairChip'),
     cues: _cSelfRepair,
     body: (f) => _rentSelfRepairBody(),
     when: _tenantSide,
@@ -57,7 +57,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'improve',
-    chip: 'هزینه‌ای که برای خانه کرده‌ام چه می‌شود؟',
+    chip: rentText('issueImproveChip'),
     cues: _cImprove,
     body: (f) => _rentImproveBody(),
     when: _tenantSide,
@@ -66,7 +66,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'access',
-    chip: 'بی‌اجازه وارد خانه می‌شود',
+    chip: rentText('issueAccessChip'),
     cues: _cAccess,
     body: (f) => _rentAccessBody(),
     when: _tenantSide,
@@ -74,7 +74,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'deliver',
-    chip: 'خانه را تحویلم نمی‌دهد',
+    chip: rentText('issueDeliverChip'),
     cues: _cDeliver,
     body: (f) => _rentDeliverBody(),
     when: (f) => _tenantSide(f) && !f.yes('vacated'),
@@ -82,7 +82,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'third',
-    chip: 'کس دیگری مدعی ملک شده یا مزاحم است',
+    chip: rentText('issueThirdChip'),
     cues: _cThird,
     body: (f) => _rentThirdBody(),
     when: _tenantSide,
@@ -90,7 +90,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'handover',
-    chip: 'کلید را تحویل نمی‌گیرد',
+    chip: rentText('issueHandoverChip'),
     cues: _cHandover,
     body: (f) => _rentHandoverBody(),
     when: _tenantSide,
@@ -100,7 +100,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'late',
-    chip: 'اجاره‌ام عقب افتاده',
+    chip: rentText('issueLateChip'),
     cues: _cLate,
     body: (f) => _rentLateBody(),
     when: _tenantSide,
@@ -108,7 +108,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'bills',
-    chip: 'قبض و شارژ با کیست؟',
+    chip: rentText('issueBillsChip'),
     cues: _cBills,
     body: (f) => _rentBillsBody(),
     when: _tenantSide,
@@ -116,7 +116,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'noMoney',
-    chip: 'می‌گوید پول ندارم',
+    chip: rentText('issueNoMoneyChip'),
     cues: _cNoMoney,
     body: _rentNoMoneyBody,
     when: _depositTalk,
@@ -124,7 +124,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'waitNew',
-    chip: 'می‌گوید صبر کن مستأجر جدید بیاید',
+    chip: rentText('issueWaitNewChip'),
     cues: _cWaitNew,
     body: (f) => _rentWaitNewBody(),
     when: _depositTalk,
@@ -132,7 +132,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'ownUse',
-    chip: 'می‌گوید خودم می‌خواهم بنشینم',
+    chip: rentText('issueOwnUseChip'),
     cues: _cOwnUse,
     body: _rentOwnUseBody,
     when: _tenantSide,
@@ -140,7 +140,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'sublet',
-    chip: 'می‌توانم به کس دیگری اجاره بدهم؟',
+    chip: rentText('issueSubletChip'),
     cues: _cSublet,
     body: _rentSubletBody,
     when: _tenantSide,
@@ -148,7 +148,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'renew',
-    chip: 'قرارداد تمدید نشده و هنوز ساکنم',
+    chip: rentText('issueRenewChip'),
     cues: _cRenew,
     body: (f) => _rentRenewBody(),
     when: (f) => _tenantSide(f) && !f.yes('vacated'),
@@ -157,7 +157,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'leave',
-    chip: 'می‌خواهم زودتر بلند شوم',
+    chip: rentText('issueLeaveChip'),
     cues: _cLeave,
     body: (f) => _rentLeaveBody(),
     when: _tenantSide,
@@ -166,7 +166,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'raise',
-    chip: 'می‌تواند اجاره را زیاد کند؟',
+    chip: rentText('issueRaiseChip'),
     cues: _cRaise,
     body: _rentRaiseBody,
     when: _tenantSide,
@@ -174,7 +174,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'noReason',
-    chip: 'بی‌دلیل می‌خواهد بلندم کند',
+    chip: rentText('issueNoReasonChip'),
     cues: _cNoReason,
     body: _rentNoReasonBody,
     when: (f) =>
@@ -183,7 +183,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'evict',
-    chip: 'می‌خواهد به‌زور بیرونم کند',
+    chip: rentText('issueEvictChip'),
     cues: _cEvict,
     body: (f) => _rentEvictBody(),
     when: _tenantSide,
@@ -194,7 +194,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'fixSelf',
-    chip: 'می‌گوید خودت درست کن',
+    chip: rentText('issueFixSelfChip'),
     cues: _cFixSelf,
     body: (f) => _rentFixSelfBody(),
     when: _tenantSide,
@@ -202,7 +202,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'blame',
-    chip: 'می‌گوید تقصیر خودت است',
+    chip: rentText('issueBlameChip'),
     cues: _cBlame,
     body: (f) => _rentBlameBody(),
     when: (f) => _matter(f, 'repair'),
@@ -210,14 +210,14 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'repair',
-    chip: 'تعمیر خانه با کیست؟',
+    chip: rentText('issueRepairChip'),
     cues: _cRepair,
     body: (f) => _rentRepairBody(),
     when: _tenantSide,
   ),
   Issue(
     id: 'silent',
-    chip: 'جوابم را نمی‌دهد',
+    chip: rentText('issueSilentChip'),
     cues: _cSilent,
     body: _rentSilentBody,
     when: _tenantSide,
@@ -225,7 +225,7 @@ final List<Issue> _rentIssuesTenant = [
   ),
   Issue(
     id: 'damage',
-    chip: 'می‌گوید خانه را خراب کرده‌ای',
+    chip: rentText('issueDamageChip'),
     cues: _cDamage,
     body: _rentDamageBody,
     when: _tenantSide,

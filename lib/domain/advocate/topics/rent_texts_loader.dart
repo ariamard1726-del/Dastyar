@@ -5,11 +5,13 @@ import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 /// متنهای ثابتِ موضوع اجاره، جدا از منطق و closureها.
 ///
 /// پیشتر ۴۲ رشتهٔ بلند در `rent_bodies.dart` و `rent_bodies_landlord.dart`،
-/// ۸۷ رشته و ۳۲ برچسبِ سند در `rent_claims.dart` و ۱۳ متنِ طرحِ دعوا
-/// در `rent_plan.dart` بودند؛
+/// ۸۷ رشته و ۳۲ برچسبِ سند در `rent_claims.dart`، ۱۳ متنِ طرحِ دعوا در
+/// `rent_plan.dart` و متنِ پرسشها، بحثها، اثرها، فیلدهای سند و خلاصهٔ پرونده
+/// در فایلهای `rent_*.dart` بودند؛
 /// هر تغییرِ متن یعنی پچِ دارت و هیچ نگهبانِ خودکاری نمیتوانست بگوید که
-/// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts`، `claims` و
-/// `filings`، `plans`، `bodies`، `fills`، `prompts` و `effects`) و کد فقط با شناسهٔ پایدار آنرا میخواند.
+/// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts`، `claims`،
+/// `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`،
+/// `issues` و `recaps`) و کد فقط با شناسهٔ پایدار آنرا میخواند.
 /// منطق، شرطها و جملهسازیهای وابسته به پرونده عمداً در Dart ماندهاند.
 const String rentTextsAsset = 'assets/brain/topics/rent_texts.json';
 
@@ -25,14 +27,25 @@ List<String> parseRentTexts(String source) {
   if (data['v'] != 1) {
     throw StateError('$rentTextsAsset: نسخهٔ ناشناخته (${data['v']})');
   }
-  // هشت جدولِ جدا، یک فهرستِ شناسه: پاسخ (`texts`)، ادعاها (`claims`)،
+  // یازده جدولِ جدا، یک فهرستِ شناسه: پاسخ (`texts`)، ادعاها (`claims`)،
   // برچسبهای سند (`filings`)، طرحِ دعوا (`plans`)، پارههای توابع
-  // (`bodies`)، فیلدهای سند (`fills`)، پرسشهای دکمهدار (`prompts`) و
-  // اثرهای حقوقی (`effects`). نبودِ هریک خطای صریح است.
+  // (`bodies`)، فیلدهای سند (`fills`)، پرسشهای دکمهدار (`prompts`)،
+  // اثرهای حقوقی (`effects`)، پرسشهای پرونده (`slots`)، بحثها و عنوان
+  // (`issues`) و خلاصه و پایان طرح (`recaps`). نبودِ هریک خطای صریح است.
   final installed = <String, String>{};
   for (final section in const [
-      'texts', 'claims', 'filings', 'plans', 'bodies', 'fills', 'prompts', 'effects'
-    ]) {
+    'texts',
+    'claims',
+    'filings',
+    'plans',
+    'bodies',
+    'fills',
+    'prompts',
+    'effects',
+    'slots',
+    'issues',
+    'recaps',
+  ]) {
     final raw = data[section];
     if (raw is! Map) {
       throw StateError('$rentTextsAsset: فاقد فهرست $section');

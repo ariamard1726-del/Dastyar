@@ -92,26 +92,26 @@ String _rentChance(CaseFile f) {
   final plus = <String>[];
   final minus = <String>[];
   if (f.yes('vacated')) {
-    plus.add('ملک را تحویل داده‌اید و او دیگر دلیلی برای نگه‌داشتن پول ندارد');
+    plus.add(rentText('recapChanceVacated'));
   }
-  if (f.yes('ended')) plus.add('مدت قرارداد تمام شده است');
-  if (f.yes('contract')) plus.add('قرارداد کتبی دارید');
+  if (f.yes('ended')) plus.add(rentText('recapChanceEnded'));
+  if (f.yes('contract')) plus.add(rentText('recapChanceContract'));
   if (f.no('contract')) {
     minus.add(
-        'قرارداد کتبی ندارید و باید پرداخت ودیعه را با رسید، پیام یا شاهد ثابت کنید');
+        rentText('recapChanceNoContract'));
   }
-  if (f.no('ended')) minus.add('مدت قرارداد هنوز تمام نشده');
+  if (f.no('ended')) minus.add(rentText('recapChanceNotEnded'));
   if (f.covered.contains('damage')) {
     minus.add(
-        'او ادعای خسارت دارد که اگر دادخواست بدهد، ممکن است بخشی از پول تا روشن‌شدن آن ادعا نگه داشته شود');
+        rentText('recapChanceDamage'));
   }
   final sb = StringBuffer(
-      'قول قطعی نمی‌دهم (هیچ وکیل درستی نمی‌دهد)، ولی ارزیابی من این است: دعوای استرداد ودیعه از محکم‌ترین دعواهاست، چون قانون صریح است [[landlord_tenant:4]].');
-  if (plus.isNotEmpty) sb.write('\nنقاط قوت شما: ${plus.join('؛ ')}.');
-  if (minus.isNotEmpty) sb.write('\nنقطهٔ ضعف: ${minus.join('؛ ')}.');
+      rentText('recapChanceBase'));
+  if (plus.isNotEmpty) sb.write('\n' + rentText('recapChancePlus') + ' ' + plus.join(rentText('recapChanceSep')) + '.');
+  if (minus.isNotEmpty) sb.write('\n' + rentText('recapChanceMinus') + ' ' + minus.join(rentText('recapChanceSep')) + '.');
   if (plus.isEmpty && minus.isEmpty) {
     sb.write(
-        '\nاگر پرداخت ودیعه و تخلیه را بتوانید نشان دهید، احتمال موفقیت بالاست.');
+        '\n' + rentText('recapChanceNeutral'));
   }
   return sb.toString();
 }
@@ -121,10 +121,10 @@ String _rentWhere(CaseFile f) {
     if (f.eq('aim', 'unpaid') || f.eq('aim', 'damage')) {
       return moneyForum(_rentSum(f));
     }
-    return 'درخواست تخلیه را از طریق دفتر خدمات الکترونیک قضایی ثبت می‌کنید و مرجع رسیدگی «دادگاه صلحِ» محل ملک است [[dispute_councils:12]].';
+    return rentText('recapWhereLandlordEvict');
   }
   if (_shop(f) && f.covered.contains('goodwill')) {
-    return 'دعوای سرقفلی و حق کسب و پیشه از صلاحیت دادگاه صلح بیرون است و در «دادگاه عمومی حقوقیِ» محل ملک رسیدگی می‌شود [[dispute_councils:12]]؛ ثبتش از طریق دفتر خدمات الکترونیک قضایی است.';
+    return rentText('recapWhereGoodwill');
   }
   return _rentDeposit(f) ? moneyForum(f.n('amount')) : _rentPeace();
 }
@@ -159,47 +159,47 @@ List<String> rentRecap(CaseFile f) {
   final landlord = f.eq('role', 'landlord');
   final sum = _rentSum(f);
   return [
-    if (landlord) 'موجر (صاحب ملک) هستید',
-    if (tenant) 'مستأجر هستید',
-    if (_shop(f)) 'ملک تجاری است',
-    if (_matter(f, 'deposit')) 'موجر پول پیش را پس نمی‌دهد',
-    if (_matter(f, 'raise')) 'موجر می‌خواهد اجاره را بالا ببرد',
-    if (_matter(f, 'evict')) 'موجر می‌خواهد شما را از خانه بیرون کند',
-    if (_matter(f, 'order')) 'برگهٔ رسمی تخلیه به دستتان رسیده',
-    if (_matter(f, 'repair')) 'خانه خرابی دارد و موجر تعمیرش نمی‌کند',
-    if (_matter(f, 'leave')) 'می‌خواهید پیش از پایان مدت بلند شوید',
-    if (_matter(f, 'deliver')) 'موجر ملک را تحویلتان نمی‌دهد',
-    if (_matter(f, 'evict') && f.yes('official')) 'برگهٔ رسمی تخلیه هم آمده',
+    if (landlord) rentText('recapLandlord'),
+    if (tenant) rentText('recapTenant'),
+    if (_shop(f)) rentText('recapShop'),
+    if (_matter(f, 'deposit')) rentText('recapMatterDeposit'),
+    if (_matter(f, 'raise')) rentText('recapMatterRaise'),
+    if (_matter(f, 'evict')) rentText('recapMatterEvict'),
+    if (_matter(f, 'order')) rentText('recapMatterOrder'),
+    if (_matter(f, 'repair')) rentText('recapMatterRepair'),
+    if (_matter(f, 'leave')) rentText('recapMatterLeave'),
+    if (_matter(f, 'deliver')) rentText('recapMatterDeliver'),
+    if (_matter(f, 'evict') && f.yes('official')) rentText('recapOfficialYes'),
     if (_matter(f, 'evict') && f.no('official'))
-      'هنوز برگهٔ رسمی تخلیه نیامده',
-    if (_aim(f, 'evict')) 'مستأجر ملک را تخلیه نمی‌کند',
-    if (_aim(f, 'evict') && f.yes('owes')) 'اجاره را هم نمی‌پردازد',
-    if (_aim(f, 'unpaid')) 'مستأجر اجاره را نمی‌پردازد',
-    if (_aim(f, 'damage')) 'مستأجر به ملک خسارت زده',
-    if (_aim(f, 'breach')) 'مستأجر از شرط‌های قرارداد تخلف کرده',
-    if (f.yes('ended')) 'مدت اجاره تمام شده',
-    if (f.no('ended')) 'مدت اجاره هنوز تمام نشده',
-    if (!landlord && f.yes('vacated')) 'ملک تخلیه و تحویل شده',
-    if (!landlord && f.no('vacated')) 'ملک هنوز تخلیه نشده',
+      rentText('recapOfficialNo'),
+    if (_aim(f, 'evict')) rentText('recapAimEvict'),
+    if (_aim(f, 'evict') && f.yes('owes')) rentText('recapAimEvictOwes'),
+    if (_aim(f, 'unpaid')) rentText('recapAimUnpaid'),
+    if (_aim(f, 'damage')) rentText('recapAimDamage'),
+    if (_aim(f, 'breach')) rentText('recapAimBreach'),
+    if (f.yes('ended')) rentText('recapEndedYes'),
+    if (f.no('ended')) rentText('recapEndedNo'),
+    if (!landlord && f.yes('vacated')) rentText('recapVacatedYes'),
+    if (!landlord && f.no('vacated')) rentText('recapVacatedNo'),
     if (!landlord && f.n('amount') != null)
-      'ودیعه ${Sense.toman(f.n('amount')!)} است',
-    if (landlord && sum != null) 'مبلغ مورد بحث ${Sense.toman(sum)} است',
-    if (f.yes('contract')) 'اجاره‌نامهٔ کتبی دارید',
-    if (f.no('contract')) 'اجاره‌نامهٔ کتبی ندارید',
-    if (landlord && f.yes('witness')) 'اجاره‌نامه شاهد یا کد رهگیری دارد',
-    if (landlord && f.no('witness')) 'اجاره‌نامه شاهد ندارد',
-    if (landlord && f.yes('clause')) 'در اجاره‌نامه حق فسخ دارید',
-    if (landlord && f.no('clause')) 'در اجاره‌نامه حق فسخ ندارید',
-    if (landlord && f.has('aim') && f.yes('proof')) 'از تخلف یا خرابی مدرک دارید',
+      rentText('recapAmountPrefix') + ' ' + Sense.toman(f.n('amount')!) + ' ' + rentText('recapAmountSuffix'),
+    if (landlord && sum != null) rentText('recapSumPrefix') + ' ' + Sense.toman(sum) + ' ' + rentText('recapSumSuffix'),
+    if (f.yes('contract')) rentText('recapContractYes'),
+    if (f.no('contract')) rentText('recapContractNo'),
+    if (landlord && f.yes('witness')) rentText('recapWitnessYes'),
+    if (landlord && f.no('witness')) rentText('recapWitnessNo'),
+    if (landlord && f.yes('clause')) rentText('recapClauseYes'),
+    if (landlord && f.no('clause')) rentText('recapClauseNo'),
+    if (landlord && f.has('aim') && f.yes('proof')) rentText('recapProofYes'),
     if (landlord && f.has('aim') && f.no('proof'))
-      'از تخلف یا خرابی مدرکی ندارید',
+      rentText('recapProofNo'),
     if (_matter(f, 'repair') && f.yes('told'))
-      'خرابی را کتبی به موجر خبر داده‌اید',
+      rentText('recapToldYes'),
     if (_matter(f, 'repair') && f.no('told'))
-      'هنوز خرابی را کتبی به موجر خبر نداده‌اید',
-    if (_matter(f, 'leave') && f.yes('consent')) 'موجر با زودتر رفتن موافق است',
+      rentText('recapToldNo'),
+    if (_matter(f, 'leave') && f.yes('consent')) rentText('recapConsentYes'),
     if (_matter(f, 'leave') && f.no('consent'))
-      'موجر با زودتر رفتن موافق نیست',
+      rentText('recapConsentNo'),
   ];
 }
 

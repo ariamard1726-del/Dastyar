@@ -24,7 +24,7 @@
 | اسکیمای مسیر موضوعی | ✅ | `dev/tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 4`) + `Advocate.restoreCase(json, dialogue: …)`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
-| انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | 🟡 | ۴۲ متن + ۵۱ پاره + ۲۸ پرسش در `rent_bodies*`، ۸۷ متنِ ادعا، ۳۲ برچسبِ سند، ۳۶ متنِ طرحِ دعوا، ۵۱ متنِ `rent_fill` و ۳۳ اثرِ `rent_effects`/`rent_slots` (۳۶۰ کلید) به هشت جدولِ `rent_texts.json` رفتند و هشِ نویسهبهنویسه قفل است؛ `ask`/`why`/`options` در `rent_slots`، `chip` در `rent_issue_*` و بقیهٔ موضوعها هنوز Dartمحوراند |
+| انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | 🟡 | تمام متنِ آزادِ اجاره (۵۲۵ کلید در یازده جدولِ `rent_texts.json`: `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps`) به داده منتقل و هشِ نویسهبهنویسه قفل شده است؛ تنها ۱۵ گزینهٔ متصل به قالبها در `rent_fill.dart`، الگوهای Regex و موضوعهای دیگر (`labor_bodies`، `family_bodies`، `shared` و …) هنوز Dartمحوراند |
 | حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
 | جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |
 

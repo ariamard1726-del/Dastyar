@@ -15,7 +15,7 @@ final List<Issue> _rentIssues = [
 
 final Topic rentTopic = Topic(
   id: 'rent',
-  title: 'اجاره و ودیعه',
+  title: rentText('issueTopicTitle'),
   claims: rentClaims,
   recap: rentRecap,
   petition: _rentPetition,
@@ -44,7 +44,7 @@ final Topic rentTopic = Topic(
   slots: _rentSlots,
   opening: (f) {
     if (!f.has('role')) {
-      return 'در اجاره، قانون هم برای مستأجر و هم برای موجر راه روشنی گذاشته است؛ فقط باید بدانم شما کدام طرف ماجرا هستید.';
+      return rentText('issueTopicOpening');
     }
     return '';
   },

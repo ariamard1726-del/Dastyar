@@ -40,6 +40,12 @@ PROMPTS_BEFORE_SHA256 = 'd57126f6a98e3ec207314f00d81771a7e01183f567e04030ed68d55
 PROMPTS_BEFORE_COUNT = 28
 EFFECTS_BEFORE_SHA256 = 'a92491ef609a40deaebc6924dd09a4e2006df3f4f49b778876556d61f80a4a13'
 EFFECTS_BEFORE_COUNT = 33
+SLOTS_BEFORE_SHA256 = 'e2dcd97da9b6c77496c9720bdefa7b74dd4db4ca1a616d874382dc8997877d6e'
+SLOTS_BEFORE_COUNT = 58
+ISSUES_BEFORE_SHA256 = '5607256eb9e9ee1caf434edf0c11e7204fd89eae0cfb2d5bad82f042ad897981'
+ISSUES_BEFORE_COUNT = 57
+RECAPS_BEFORE_SHA256 = 'ca6a9478de667b15e027ff1581627b293ed4ed41c6a1aa1a2d82d628e2f2ae3a'
+RECAPS_BEFORE_COUNT = 50
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
@@ -237,10 +243,63 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertTrue(all(effects.values()), 'اثرِ خالی در دارایی نیست')
         seen = set()
         for sec in ('texts', 'claims', 'filings', 'plans', 'bodies', 'fills',
-                    'prompts', 'effects'):
+                    'prompts', 'effects', 'slots', 'issues', 'recaps'):
             keys = set(self.data[sec])
             self.assertFalse(seen & keys, 'تداخل شناسه در بخش %s' % sec)
             seen |= keys
+
+    def test_slots_issues_and_recaps_match_the_pre_move_source(self):
+        for name, want_n, want_sha in [
+            ('slots', SLOTS_BEFORE_COUNT, SLOTS_BEFORE_SHA256),
+            ('issues', ISSUES_BEFORE_COUNT, ISSUES_BEFORE_SHA256),
+            ('recaps', RECAPS_BEFORE_COUNT, RECAPS_BEFORE_SHA256),
+        ]:
+            tbl = self.data[name]
+            self.assertEqual(want_n, len(tbl), name)
+            self.assertEqual(want_sha, digest(tbl),
+                             'یک نویسه از جدول %s عوض شده است' % name)
+            self.assertTrue(all(tbl.values()), 'متن خالی در %s نیست' % name)
+
+    def test_slots_issues_and_plan_keep_only_delegates(self):
+        rs_src = read(ROOT, 'lib/domain/advocate/topics/rent_slots.dart')
+        rs_code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in rs_src.split('\n'))
+        s_used = re.findall(r"'(slot\w+)'", rs_code)
+        self.assertEqual(set(s_used), set(self.data['slots']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول slots')
+        # فقط Regexهای read / readPending در rent_slots فارسی دارند، نه ask/why/options.
+        for ln in rs_code.split('\n'):
+            if any('\u0600' <= c <= '\u06FF' for c in ln):
+                self.assertNotIn('ask:', ln)
+                self.assertNotIn('why:', ln)
+                self.assertNotIn('options:', ln)
+
+        i_used = []
+        for rel in ('rent_issue_both.dart', 'rent_issue_tenant.dart',
+                    'rent_issue_landlord.dart'):
+            src = read(ROOT, 'lib/domain/advocate/topics/' + rel)
+            code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in src.split('\n'))
+            lits = re.findall(r"'((?:\\.|[^'])*)'", code)
+            self.assertFalse(any('\u0600' <= c <= '\u06FF' for lit in lits for c in lit),
+                             '%s هنوز متن فارسی دارد' % rel)
+            i_used.extend(re.findall(r"'(issue\w+)'", code))
+        ri_src = read(ROOT, 'lib/domain/advocate/topics/rent_issues.dart')
+        ri_code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in ri_src.split('\n'))
+        i_used.extend(re.findall(r"'(issue\w+)'", ri_code))
+        self.assertEqual(set(i_used), set(self.data['issues']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول issues')
+        for ln in ri_code.split('\n'):
+            if any('\u0600' <= c <= '\u06FF' for c in ln):
+                self.assertNotIn('title:', ln)
+                self.assertNotIn('return ', ln)
+
+        rp_src = read(ROOT, 'lib/domain/advocate/topics/rent_plan.dart')
+        rp_code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in rp_src.split('\n'))
+        self.assertFalse(
+            any('\u0600' <= c <= '\u06FF' for c in rp_code),
+            'rent_plan.dart هنوز متن فارسی در کد دارد')
+        r_used = re.findall(r"'(recap\w+)'", rp_code)
+        self.assertEqual(set(r_used), set(self.data['recaps']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول recaps')
 
     def test_effects_keep_only_delegates(self):
         re_src = read(ROOT, 'lib/domain/advocate/topics/rent_effects.dart')

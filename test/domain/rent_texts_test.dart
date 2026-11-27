@@ -8,8 +8,8 @@ import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 void main() {
   test('متنها از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadRentTexts();
-    // ۴۲+۸۷+۳۲+۳۶+۵۱+۵۱+۲۸+۳۳ = ۳۶۰ متن در هشت جدول. نبودِ یکی خطای صریح است.
-    expect(keys.length, 360);
+    // ۴۲+۸۷+۳۲+۳۶+۵۱+۵۱+۲۸+۳۳+۵۸+۵۷+۵۰ = ۵۲۵ متن در یازده جدول. نبودِ یکی خطای صریح است.
+    expect(keys.length, 525);
     expect(loadedRentTexts.containsKey('rentPeace'), isTrue);
     expect(loadedRentTexts.containsKey('rentLandlordPaidBody'), isTrue);
     expect(loadedRentTexts.containsKey('claim0_goal'), isTrue);
@@ -36,6 +36,12 @@ void main() {
     expect(loadedRentTexts.containsKey('promptLandlordDamageC2'), isTrue);
     expect(loadedRentTexts.containsKey('effectAimEvict'), isTrue);
     expect(loadedRentTexts.containsKey('effectSlotConsentNo'), isTrue);
+    expect(loadedRentTexts.containsKey('slotRoleAsk'), isTrue);
+    expect(loadedRentTexts.containsKey('slotMatterOpt5'), isTrue);
+    expect(loadedRentTexts.containsKey('issueTopicTitle'), isTrue);
+    expect(loadedRentTexts.containsKey('issueGoodwillChip'), isTrue);
+    expect(loadedRentTexts.containsKey('recapChanceBase'), isTrue);
+    expect(loadedRentTexts.containsKey('recapConsentNo'), isTrue);
     expect(rentText('rentPeace').contains('دادگاه صلح'), isTrue);
     expect(rentText('filing0_chip').startsWith('تنظیم'), isTrue);
     expect(rentText('filing15_name').contains('لایحه'), isTrue);
@@ -45,6 +51,9 @@ void main() {
     expect(rentText('bodyDeathBase').contains('فوت'), isTrue);
     expect(rentText('fillDmDepositLead').contains('ودیعه'), isTrue);
     expect(rentText('effectAimEvict').contains('دستور تخلیه'), isTrue);
+    expect(rentText('slotRoleAsk').contains('مستأجر'), isTrue);
+    expect(rentText('issueTopicTitle'), 'اجاره و ودیعه');
+    expect(rentText('recapLandlord').contains('موجر'), isTrue);
   });
 
   test('شناسهٔ ناشناخته بیصدا جایگزین نمیشود', () {

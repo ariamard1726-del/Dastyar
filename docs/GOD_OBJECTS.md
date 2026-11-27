@@ -170,7 +170,7 @@
 | `rent_reads.dart` | **۱۶۶** | خواندنِ نقش/موضوع/هدف/بله‌و‌نه از پیام |
 | `rent_bodies.dart` | ۴۶۸ → **۱۵۱** | متنِ پاسخ (مستأجر + مشترک) |
 | `rent_bodies_landlord.dart` | **۱۰۹** | متنِ پاسخِ سمتِ موجر |
-| متنِ ثابتِ اجاره | ۴۲ رشته + ۵۱ پاره + ۲۸ پرسش در `rent_bodies*` + ۸۷ رشته و ۳۲ برچسب در `rent_claims.dart` + ۳۶ متن در `rent_plan.dart` + ۵۱ متن در `rent_fill.dart` + ۳۳ اثر در `rent_effects`/`rent_slots` | هشت جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts` و `effects` در `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (هشت هشِ نویسهبهنویسه قفلاند) |
+| متنِ ثابتِ اجاره | تمام متنِ آزادِ موضوع اجاره (۴۲ رشته + ۵۱ پاره + ۲۸ پرسش در `rent_bodies*` + ۸۷ رشته و ۳۲ برچسب در `rent_claims` + ۳۶ طرح و ۵۰ خلاصه/پایان در `rent_plan` + ۵۱ متن در `rent_fill` + ۳۳ اثر + ۵۸ پرسش/گزینه در `rent_slots` + ۵۷ برچسب/عنوان در `rent_issue*`) | یازده جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps` در `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (۵۲۵ کلید، یازده هشِ نویسهبهنویسه قفلاند) |
 
 - فهرستِ بحث‌ها با همان ترتیبِ پیشین به هم می‌پیوندد
   (`_rentIssues = [...Both, ...Tenant, ...Landlord]`). **ترتیب، اولویتِ نمایش
