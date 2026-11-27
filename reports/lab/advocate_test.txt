@@ -1,3 +1,21 @@
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۹) ایمنی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۷) پرسش فرضی > دربارهٔ برنامه
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۸) پرسش فرضی > دعوا و شکایت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۶) پرسش فرضی > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۷) پرسش فرضی > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۸) پرسش فرضی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۹) پرسش فرضی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۸) دربارهٔ برنامه > دعوا و شکایت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۹) دربارهٔ برنامه > انتخابِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۰) دربارهٔ برنامه > حدسِ اشتباه
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۱) دربارهٔ برنامه > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۳) دربارهٔ برنامه > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۴) دربارهٔ برنامه > «باشه»
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۵) دربارهٔ برنامه > موضوعِ کنارِ هم
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۶) دربارهٔ برنامه > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۷) دربارهٔ برنامه > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۸) دربارهٔ برنامه > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۹) دربارهٔ برنامه > مهلتِ اعتراض
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۹) دعوا و شکایت > انتخابِ موضوع
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۱) دعوا و شکایت > ادامهٔ حرفِ قبلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۶) دعوا و شکایت > مهلت
@@ -170,31 +188,13 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
 ✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
-::endgroup::
-::group::❌ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود (failed)
-Expected: throws <Instance of 'StateError'>
-  Actual: <Closure: () => AdvocateReply>
-   Which: threw _TypeError:<Null check operator used on a null value>
-          stack test/advocate/reply_recursion_test.dart 161:53                main.<fn>.<fn>.<fn>
-                package:dastyar/domain/advocate/answer_candidate.dart 109:18  ReplyLoopGuard.run
-                test/advocate/reply_recursion_test.dart 159:19                main.<fn>.<fn>
-                package:matcher                                               expect
-                package:flutter_test/src/widget_tester.dart 473:18            expect
-                test/advocate/reply_recursion_test.dart 158:5                 main.<fn>
-                
-          which is not an instance of 'StateError'
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/reply_recursion_test.dart 158:5       main.<fn>
-::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
-✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
-✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
 ✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::376 tests passed, 1 failed.
+🎉 377 tests passed.
