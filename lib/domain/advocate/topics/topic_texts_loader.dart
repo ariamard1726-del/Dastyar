@@ -4,17 +4,38 @@ import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 
 /// متنهای ثابتِ موضوعهای وکیل (غیر از اجاره و ودیعه)، جدا از منطق و closureها.
 ///
-/// فایلهای `shared.dart`، `labor_*.dart` و `family_*.dart` متنهای ثابتشان را
-/// به جدولهای این دارایی (`shared`، `labor`، `family`) سپردهاند و کد فقط با
+/// فایلهای `shared.dart`، `labor_*.dart`، `family_*.dart` و ۲۱ موضوعِ دیگرِ
+/// وکیل متنهای ثابتشان را به جدولهای این دارایی سپردهاند و کد فقط با
 /// شناسهٔ پایدار از طریق [topicText] میخواند. منطق، شرطها، regexهای تشخیص و
 /// درونیابیهای وابسته به پرونده در Dart ماندهاند.
 const String topicTextsAsset = 'assets/brain/topic_texts.json';
 
-/// بخشهای الزامی دارایی در این گام.
+/// بخشهای الزامی دارایی (مشترک + ۲۳ موضوع غیراجاره).
 const List<String> topicTextSections = [
   'shared',
   'labor',
   'family',
+  'accused',
+  'admin',
+  'cheque',
+  'child',
+  'company',
+  'consumer',
+  'cyber',
+  'debt',
+  'enforce',
+  'fight',
+  'foreign_contract',
+  'guarantee',
+  'inherit',
+  'injury',
+  'marriage',
+  'minor_sale',
+  'neighbor',
+  'partner',
+  'property',
+  'sale',
+  'theft',
 ];
 
 /// فهرستِ نصبشده. تنها [parseTopicTexts] آنرا پر میکند.

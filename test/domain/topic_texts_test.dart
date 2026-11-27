@@ -6,10 +6,10 @@ import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 /// `tests/python/test_topic_text_equivalence.py` است. این آزمون قراردادِ
 /// بارگذاری و خطای صریحِ نبودِ متن را قفل میکند.
 void main() {
-  test('متنهای مشترک، کار و خانواده از فایلِ دارایی نصب میشوند', () async {
+  test('متنهای مشترک و ۲۳ موضوع غیراجاره از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadTopicTexts();
-    // ۹ (shared) + ۱۸۲ (labor) + ۹۹ (family) = ۲۹۰ متن.
-    expect(keys.length, 290);
+    // ۲۴ جدول (shared + ۲۳ موضوع غیراجاره) = ۱۱۰۶ متن.
+    expect(keys.length, 1106);
     expect(loadedTopicTexts.containsKey('sharedForumTail'), isTrue);
     expect(loadedTopicTexts.containsKey('shared_0'), isTrue);
     expect(loadedTopicTexts.containsKey('laborIss_0'), isTrue);
@@ -17,6 +17,11 @@ void main() {
     expect(loadedTopicTexts.containsKey('laborPlanS2'), isTrue);
     expect(loadedTopicTexts.containsKey('familyIss_0'), isTrue);
     expect(loadedTopicTexts.containsKey('familySafetyTopA'), isTrue);
+    expect(loadedTopicTexts.containsKey('accused_7'), isTrue);
+    expect(loadedTopicTexts.containsKey('cheque_7'), isTrue);
+    expect(loadedTopicTexts.containsKey('debt_7'), isTrue);
+    expect(loadedTopicTexts.containsKey('inherit_0'), isTrue);
+    expect(loadedTopicTexts.containsKey('theft_0'), isTrue);
     expect(topicText('shared_0').contains('هزینهٔ دادرسی'), isTrue);
     expect(topicText('shared_2').contains('وکیل'), isTrue);
     expect(topicText('laborIss_0'), 'کار و کارفرما');
@@ -24,6 +29,10 @@ void main() {
     expect(topicText('laborPlanS2').contains('هیئت تشخیص'), isTrue);
     expect(topicText('familyIss_0'), 'خانواده');
     expect(topicText('familySafetyTopA').contains('امنیت'), isTrue);
+    expect(topicText('cheque_7').contains('چک'), isTrue);
+    expect(topicText('debt_7').contains('طلب'), isTrue);
+    expect(topicText('inherit_0'), 'ارث و تقسیم ترکه');
+    expect(topicText('theft_0'), 'سرقت و دزدی');
   });
 
   test('شناسهٔ ناشناخته بیصدا جایگزین نمیشود', () {

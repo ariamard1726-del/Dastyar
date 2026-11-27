@@ -6,8 +6,8 @@
       "lines": 2317
     },
     "assets/brain/topic_texts.json": {
-      "sha256": "df3313b22c1966e0028e4d67735aae844184033afaeae6e5dbb6a0696f26c39a",
-      "lines": 299
+      "sha256": "d3ad43ce71362c2f9dc1e2c65e93920b8bae2f718fc701c144ac4283a5f47ac5",
+      "lines": 1157
     },
     "assets/brain/topics/rent_texts.json": {
       "sha256": "be525803b8089cf837fff7831fbe1490d260c4a3c2ce9f19ac790778d711a127",
@@ -121,6 +121,42 @@
       "sha256": "1324f62b14e364b53fba190f5bd13b0dcc4378eebe131f0825f29ad9f26ca8f6",
       "lines": 26
     },
+    "lib/domain/advocate/topics/accused.dart": {
+      "sha256": "7a9167987f884abc2f44e3dfd84fea7fc59f0171ac49a18802ad55500cae61ba",
+      "lines": 205
+    },
+    "lib/domain/advocate/topics/admin.dart": {
+      "sha256": "2e355ef98ddfbc26f62baa06675a87c5c730fbd0c2764a1dfdba004738cd22d7",
+      "lines": 66
+    },
+    "lib/domain/advocate/topics/cheque.dart": {
+      "sha256": "2d2e4265145b3c817b98cbc03b164247a71201a799ca6bf9df5f5e204c8fadc4",
+      "lines": 259
+    },
+    "lib/domain/advocate/topics/child.dart": {
+      "sha256": "626db01a5df09663ceeba11bfa6091b550234af4dba391296d7be026cfd5242b",
+      "lines": 136
+    },
+    "lib/domain/advocate/topics/company.dart": {
+      "sha256": "6d2be8468ee79df5b9486e2daf6fba2b3995934c716b67c0ea04f4e97ba8a02e",
+      "lines": 138
+    },
+    "lib/domain/advocate/topics/consumer.dart": {
+      "sha256": "17f8942bd69f16304065b1bb6c8850d11e694ddae104fe6f96257f9c0bf0e7a9",
+      "lines": 142
+    },
+    "lib/domain/advocate/topics/cyber.dart": {
+      "sha256": "af3e274700f1f055d36d16303c7a5ee28b3a510da227a1d395b43d806ec970e8",
+      "lines": 175
+    },
+    "lib/domain/advocate/topics/debt.dart": {
+      "sha256": "1cdb6e9facc284478b139322f3581fc91b52d4868cc53a9e34b5a1b270f81800",
+      "lines": 213
+    },
+    "lib/domain/advocate/topics/enforce.dart": {
+      "sha256": "ca199b23bdb2464346087dabe687241e3196672eb7f86908f2ca5da4ab48deb6",
+      "lines": 148
+    },
     "lib/domain/advocate/topics/family_bodies.dart": {
       "sha256": "2313bd912e1147cd1bf229da61e3fc584820ed3790dac211c7f7b1574906de5b",
       "lines": 44
@@ -137,6 +173,26 @@
       "sha256": "18ff3b9572e024feebefc5360b0e413f2015a568132127416d52027ad0d4bc77",
       "lines": 50
     },
+    "lib/domain/advocate/topics/fight.dart": {
+      "sha256": "0b47cfd9ecc27e0666b21c0b68dbc2f0907b5e75c9931897e1fd54f795f4b99f",
+      "lines": 105
+    },
+    "lib/domain/advocate/topics/foreign_contract.dart": {
+      "sha256": "f8636f3789b70b444151dec6f4eb4c5227c409242e0337010ed013ab74927e79",
+      "lines": 63
+    },
+    "lib/domain/advocate/topics/guarantee.dart": {
+      "sha256": "5627d2e709e8b4258d274fe675dd0707977e37672e52a0c54121c6d0e89f381e",
+      "lines": 109
+    },
+    "lib/domain/advocate/topics/inherit.dart": {
+      "sha256": "dda7bba76b14a5dd4edee2686c6180dc4d9ad3ec1821d79b8d006a61287a5eaf",
+      "lines": 145
+    },
+    "lib/domain/advocate/topics/injury.dart": {
+      "sha256": "2e4830f6b1c9b15fb1d6feb79011e8e7ab63bba06aa907343c7c94d3119ab890",
+      "lines": 172
+    },
     "lib/domain/advocate/topics/labor_bodies.dart": {
       "sha256": "452b073180f74e5612f8431ad8509a19ba5453f8b38f4113b390b375309e7633",
       "lines": 66
@@ -152,6 +208,26 @@
     "lib/domain/advocate/topics/labor_patterns.dart": {
       "sha256": "4c5ab35a80d8064c5c648809293971cde82cb62f396f988a213437a8b69cdf8c",
       "lines": 115
+    },
+    "lib/domain/advocate/topics/marriage.dart": {
+      "sha256": "706b9b5f28de6825a1514f60a8de8972b74f4062852ec6ac1260a81b5e2d29da",
+      "lines": 62
+    },
+    "lib/domain/advocate/topics/minor_sale.dart": {
+      "sha256": "3bdfd36075b3cbe19372c22705a88f49d75643fed6eb1b5ca02037309dfa40a0",
+      "lines": 53
+    },
+    "lib/domain/advocate/topics/neighbor.dart": {
+      "sha256": "27c76de49a7e6ba6604f57e6582d2ddb490e861fc7465c717404068985bb896e",
+      "lines": 82
+    },
+    "lib/domain/advocate/topics/partner.dart": {
+      "sha256": "36d9dc539853ec474aa20de9684430045f877e9573822b37363a5db2142feb07",
+      "lines": 133
+    },
+    "lib/domain/advocate/topics/property.dart": {
+      "sha256": "3d3ed5770759b1012c1f292864cdb027a260f4f63adf5c9095f17984dc85d724",
+      "lines": 173
     },
     "lib/domain/advocate/topics/rent_bodies.dart": {
       "sha256": "fce00ff5b6936cc35a475523e53063ca8e62ada61a586caf015ccd4ca720673b",
@@ -173,9 +249,17 @@
       "sha256": "5fcab1b5f87680747d03bb78e5f0d39eed96fe314cbbc2f6f7a784c461c22cf9",
       "lines": 206
     },
+    "lib/domain/advocate/topics/sale.dart": {
+      "sha256": "04421115c61e376274e7f262a06fbba39a21090fc19df1dd5f713bab1308e87a",
+      "lines": 59
+    },
     "lib/domain/advocate/topics/shared.dart": {
       "sha256": "746c1e36f03e2a4eaf305fca7ddb7079495c89e79e7662707fc3fc5f0f1b1c10",
       "lines": 30
+    },
+    "lib/domain/advocate/topics/theft.dart": {
+      "sha256": "ddfc909f30f20760791d39e67fca0abdb6c858f15ba5d6bafbfb819de89ad033",
+      "lines": 53
     }
   },
   "note": "هشِ متن هر فایل؛ با هر تغییرِ متن باید آگاهانه بازنویسی شود (dev/tools/text_manifest.py --write)."
