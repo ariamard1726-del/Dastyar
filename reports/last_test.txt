@@ -1,2 +1,2 @@
-commit: 4117f74
+commit: 6db2d25
 CI: test/lab/scenarios success
