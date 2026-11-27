@@ -43,16 +43,16 @@ void main() {
       case 'idle':
         return a;
       case 'idle_rest':
-        a.respond('فرق دادخواست و شکوائیه چیست');
+        a.respond('فرق دادخواست و شکوائیه ۱ چیست');
         return a;
       case 'open_guessed':
-        a.respond('مشکل خاصی برایم پیش آمده راهنمایی بدهید', guess: const TopicGuess('labor', 0.9, '', 0, confident: true));
+        a.respond('مشکل خاصی برایم پیش آمده راهنمایی بدهید', guess: const TopicGuess('labor', 0.9, '', 0, confident: true, plausible: true));
         return a;
       case 'open_guessed_repeat':
-        a.respond('منظورم این نبود اشتباه گرفتی دوست من', guess: const TopicGuess('labor', 0.9, '', 0, confident: true));
+        a.respond('منظورم این نبود اشتباه گرفتی دوست من', guess: const TopicGuess('labor', 0.9, '', 0, confident: true, plausible: true));
         return a;
       case 'open_guessed_rest_offer':
-        a.respond('نامه ابلاغ شده و می‌خواهم توافق کنم', guess: const TopicGuess('admin', 0.9, '', 0, confident: true));
+        a.respond('نامه ابلاغ شده و می‌خواهم توافق کنم', guess: const TopicGuess('admin', 0.9, '', 0, confident: true, plausible: true));
         return a;
       case 'open_offer':
         a.respond('با شرکت خارجی قرارداد داریم که شعبه در ایران ندارد');
@@ -66,7 +66,7 @@ void main() {
         a.respond('چک صیادی برگشت خورده دارم چکار کنم؟');
         return a;
       case 'open_pend_rest':
-        a.respond('آپارتمان اجاره داده‌ام');
+        a.respond('آپارتمان اجاره کرده‌ام');
         a.respond('چک صیادی برگشت خورده دارم چکار کنم؟');
         a.respond('خانه نم و رطوبت دارد و چکه می‌کند و قابل سکونت نیست');
         return a;

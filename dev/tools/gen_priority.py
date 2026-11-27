@@ -278,7 +278,7 @@ def render_dart(c):
             guess = t.get('guess')
             if guess:
                 out.append(
-                    '        a.respond(%s, guess: const TopicGuess(%s, 0.9, %s, 0, confident: true));'
+                    '        a.respond(%s, guess: const TopicGuess(%s, 0.9, %s, 0, confident: true, plausible: true));'
                     % (raw, _dart_str(guess), _dart_str(''))
                 )
             else:
