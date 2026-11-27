@@ -11,11 +11,11 @@
 | سنجه | مقدار واقعی | منبع سنجش |
 |---|---|---|
 | کد برنامه (`lib/`) | **۱۷۰** فایل Dart (مجموع **۲۵٬۰۳۰** خط؛ بزرگ‌ترین فایل `advocate.dart` ۴۰۷ خط و هیچ فایلی بالای سقف ۴۲۰ خط نیست) | `dev/tools/library.py` و `tests/python/test_file_sizes.py` |
-| آزمون‌های Flutter/Dart | **۷۲۱** آزمون سبز در گزارش قبلی CI + **۴** آزمون جدید گام ۱۴ (`۱۰۸` فایل آزمون؛ شامل ۳۸۷ آزمون وکیل و خط پایهٔ ۷۰۱ آزمون پس از تفکیک کنترلر) و پوشش کد **۹۱٫۸٪** (`8023/8740` خط) | `reports/last_test.txt` و `reports/coverage.txt` |
+| آزمون‌های Flutter/Dart | **۷۲۵** آزمون سبز (`۱۰۸` فایل آزمون؛ شامل ۳۸۷ آزمون وکیل و خط پایهٔ ۷۰۱ آزمون پس از تفکیک کنترلر) و پوشش کد **۹۱٫۷٪** (`8049/8782` خط) | `reports/last_test.txt` و `reports/coverage.txt` |
 | سناریوهای گفتگوی انتها‌به‌انتها | **۱۳۰ از ۱۳۰** و **۱۷ از ۱۷** سناریوی موفق، تحلیل ایستا با **۰ هشدار/خطا** | گردش‌کار `.github/workflows/test.yml` |
 | آزمون‌های نگهبان و قرارداد (Python) | **۳۶۶ از ۳۶۶** آزمون سبز در `۵۹` فایل با `-W error::ResourceWarning` بدون هیچ نشت فایل | `tests/python/` و `check.py all` |
 | دانش قوانین و نثر داده‌ای | **۲۴** قانون (`۵٬۷۲۴` بخش، `۹٬۲۱۴` واژه)، **۲۴** موضوع، **۳۴** راهنما، **۱۲۰** پرسش‌وپاسخ اجاره، **۹** قالب سند، **۲٬۱۰۴** کلید نثر ثابت در JSON (`۶۶` فایل تحت قفل هش SHA-256) | `assets/brain/text_manifest.json` و `reports/startup.txt` |
-| عملکرد استارت و حافظه (CI) | بارگذاری سرد **۱٬۱۳۴ ms** (`assets: ۷۲ ms`، `index: ۱٬۰۶۲ ms`)، آماده شدن Isolate موتور **۱٬۱۵۹ ms**، نخستین پرسش **۵۰ ms**، حجم کل دارایی‌ها **۱۶٫۸۸ MB** (`۱۲٫۷۲ MB` بارگذاری تنبل Noql)، حافظهٔ آزمون **۲۵۲٫۸ MB** | `reports/startup.txt` و `dev/tools/startup_gate.py` |
+| عملکرد استارت و حافظه (CI) | بارگذاری سرد **۹۴۴ ms** (`assets: ۵۷ ms`، `index: ۸۸۶ ms`)، آماده شدن Isolate موتور **۸۹۹ ms**، نخستین پرسش **۵۴ ms**، حجم کل دارایی‌ها **۱۶٫۸۸ MB** (`۱۲٫۷۲ MB` بارگذاری تنبل Noql)، حافظهٔ آزمون **۲۵۲٫۸ MB** | `reports/startup.txt` و `dev/tools/startup_gate.py` |
 
 ---
 
@@ -145,4 +145,4 @@ python3 dev/tools/eval_none.py --check
 python3 dev/tools/check.py trust   # تا پیش از تایید رسمی قوانین و قالب‌ها عمداً با کد ۱ خارج می‌شود
 ```
 
-**شرط صداقت محیط اجرا:** در محیط ابریِ توسعه، فقط `python3` موجود بود و ابزارهای `flutter` و `dart` محلاً نصب نبودند؛ اما تمام تغییرات Dart و سناریوها در گردش‌کارهای واقعی GitHub Actions (`Test`، `Lawyer Lab` و `Intent scenarios`؛ گزارش‌ها در `reports/last_test.txt`، `reports/coverage.txt`، `reports/startup.txt` و `reports/lab/`) اجرا و با **۷۲۱ آزمون Dart سبز**، پوشش **۹۱٫۸٪**، خط پایهٔ استارت **۱٬۱۳۴ ms** و **۰ خطای تحلیل‌گر** تایید شده‌اند. برای جزئیات عمیق‌تر ببینید: `docs/ARCHITECTURE.md`، `docs/CONTRACTS.md`، `docs/PHASES.md`، `docs/ROADMAP.md` و `docs/CODE_REVIEW.md`.
+**شرط صداقت محیط اجرا:** در محیط ابریِ توسعه، فقط `python3` موجود بود و ابزارهای `flutter` و `dart` محلاً نصب نبودند؛ اما تمام تغییرات Dart و سناریوها در گردش‌کارهای واقعی GitHub Actions (`Test`، `Lawyer Lab` و `Intent scenarios`؛ گزارش‌ها در `reports/last_test.txt`، `reports/coverage.txt`، `reports/startup.txt` و `reports/lab/`) اجرا و با **۷۲۵ آزمون Dart سبز**، پوشش **۹۱٫۷٪**، خط پایهٔ استارت **۹۴۴ ms** و **۰ خطای تحلیل‌گر** تایید شده‌اند. برای جزئیات عمیق‌تر ببینید: `docs/ARCHITECTURE.md`، `docs/CONTRACTS.md`، `docs/PHASES.md`، `docs/ROADMAP.md` و `docs/CODE_REVIEW.md`.
