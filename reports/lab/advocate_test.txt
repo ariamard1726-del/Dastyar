@@ -1,40 +1,40 @@
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/priority_matrix_test.dart 1323:7      main.<fn>.<fn>
-::endgroup::
-::group::❌ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۸) حدسِ اشتباه > قاعدهٔ ثابت (failed)
-Expected: 'حدسِ اشتباه'
-  Actual: 'قاعدهٔ ثابت'
-   Which: is different.
-          Expected: حدسِ اشتبا ...
-            Actual: قاعدهٔ ثاب ...
-                    ^
-           Differ at offset 0
-ترکیب برنده در (10, 18)
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/priority_matrix_test.dart 1334:7      main.<fn>.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۴) ایمنی > «باشه»
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۵) ایمنی > موضوعِ کنارِ هم
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۶) ایمنی > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۷) ایمنی > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۸) ایمنی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۹) ایمنی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۷) پرسش فرضی > دربارهٔ برنامه
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۸) پرسش فرضی > دعوا و شکایت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۶) پرسش فرضی > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۷) پرسش فرضی > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۸) پرسش فرضی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۹) پرسش فرضی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۸) دربارهٔ برنامه > دعوا و شکایت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۹) دربارهٔ برنامه > انتخابِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۰) دربارهٔ برنامه > حدسِ اشتباه
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۱) دربارهٔ برنامه > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۳) دربارهٔ برنامه > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۴) دربارهٔ برنامه > «باشه»
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۵) دربارهٔ برنامه > موضوعِ کنارِ هم
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۶) دربارهٔ برنامه > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۷) دربارهٔ برنامه > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۸) دربارهٔ برنامه > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۹) دربارهٔ برنامه > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۹) دعوا و شکایت > انتخابِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۱) دعوا و شکایت > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۶) دعوا و شکایت > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۸) دعوا و شکایت > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۹) دعوا و شکایت > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۹, ۱۸) انتخابِ موضوع > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۹, ۱۹) انتخابِ موضوع > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۱) حدسِ اشتباه > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۳) حدسِ اشتباه > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۷) حدسِ اشتباه > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۸) حدسِ اشتباه > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۳) ادامهٔ حرفِ قبلی > پیشنهادِ پاسخ
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۸) ادامهٔ حرفِ قبلی > قاعدهٔ ثابت
-::endgroup::
-::group::❌ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۹) ادامهٔ حرفِ قبلی > مهلتِ اعتراض (failed)
-Expected: 'ادامهٔ حرفِ قبلی'
-  Actual: 'مهلتِ اعتراض'
-   Which: is different.
-          Expected: ادامهٔ حرف ...
-            Actual: مهلتِ اعتر ...
-                    ^
-           Differ at offset 0
-ترکیب برنده در (11, 19)
-
-package:matcher                                     expect
-package:flutter_test/src/widget_tester.dart 473:18  expect
-test/advocate/priority_matrix_test.dart 1367:7      main.<fn>.<fn>
-::endgroup::
-::group::✅ Passing tests
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۹) ادامهٔ حرفِ قبلی > مهلتِ اعتراض
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۲, ۱۷) تنظیمِ سند > تکرارِ حرفِ قبلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۳, ۱۸) پیشنهادِ پاسخ > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۴, ۱۸) «باشه» > قاعدهٔ ثابت
@@ -81,12 +81,12 @@ test/advocate/priority_matrix_test.dart 1367:7      main.<fn>.<fn>
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
@@ -197,4 +197,4 @@ test/advocate/priority_matrix_test.dart 1367:7      main.<fn>.<fn>
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::359 tests passed, 13 failed.
+🎉 372 tests passed.
