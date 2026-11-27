@@ -39,6 +39,7 @@
 | F1 تاریخچه: هر پیام، کل تاریخچه | ✅ رفع | `lib/core/history.dart` بازنویسی شد: کلید جدا برای هر گفتگو (`history_v1:m:<id>`)، فهرست `{v:2,sessions:[…]}`، صف سریالی نوشتن (`_writer`)، بستهٔ دسته‌ای، مهاجرت خودکار قالب قدیمی. آزمون: `test/core/history_store_test.dart` |
 | F1b مسابقهٔ نوشتن (نسخهٔ قدیمی روی تازه) | ✅ رفع | همان صف سریالی + نگه‌داشتن «آخرین نسخه» در `_dirty` |
 | F2 خطاهای بلعیده‌شده | ✅ رفع | `_submit`/`_process` در `chat_controller.dart`؛ خطا حباب فارسی می‌دهد و پیام کاربر نمی‌افتد؛ `ChatController.problems` خطاها را نگه می‌دارد |
+| F2b خطاهای خاموش بازخورد/پیش‌نویس/تاریخچه | ✅ رفع | `FeedbackStore.lastError` و `DraftCheckpointStore.lastError` + بازگشت `Future<bool>` از `clear()`؛ نمایش خطاها در `FeedbackBar`، `SettingsPage`، `HistoryPage` و ثبت `history.lastError` در `ReplyFlow` (`test/app/{feedback,draft_checkpoint,settings_failure}_test.dart`) |
 | F3 بارگذاری ناقص بی‌صدا | ✅ رفع | `main.dart`: خطای دانش، قالب‌ها، تاریخچه و طبقه‌بند به `_error` می‌رسد |
 | F4 صف پیام در «گفتگوی جدید» | ✅ رفع | شمارندهٔ نسل (`_generation`) در `submit`/`newChat`/`loadSession`؛ آزمون در `test/app/chat_controller_test.dart` |
 | F6 کار سنگین روی رشتهٔ UI | 🟡 تا حدی | `KnowledgeEngine.chunkOf` جای پیمایش خطی در `law_terms.dart` و `advocate_guides.dart`؛ `_topicMemo` در `input_suggestions.dart`. اندازه‌گیری زمان روی گوشی انجام نشده |
@@ -47,7 +48,8 @@
 | F9 اعتبار دادهٔ حقوقی | 🟡 تا حدی | `LawText.status` + هشدار «تطبیق نشده» در کارت ماده (`drafting.dart`، `chat_bubbles.dart`)؛ برچسب‌گذاری همهٔ مسیرها انجام شد. پر کردن `status`/`url` در `_meta.json` و دروازهٔ `--require-verified` کار محتوایی است و انجام نشد |
 | F10 امضای release بی‌صدا debug | ✅ رفع | `android/app/build.gradle.kts`: ساخت release بدون `key.properties` می‌شکند؛ `ALLOW_DEBUG_SIGNING=true` فقط برای ساخت آزمایشی (`build.yml` هم همین را پاس می‌دهد) |
 | F12 چرخهٔ CI | ✅ رفع | `test.yml`: گزارش‌ها فقط با تست سبز کامیت می‌شوند و `git push` بی‌صدا رد نمی‌شود |
-| F13 بازخورد بدون مصرف | ❌ باز | خارج از محدودهٔ این دور |
+| F13 بازخورد بدون مصرف | ✅ رفع | ابزار `dev/tools/feedback_eval.py` (متصل به `lawtext.py`) و `tests/python/test_feedback_eval.py` خروجی `FeedbackStore.exportText` را پالایش، با `_meta.json` و مواد واقعی راستی‌آزمایی، تکراری‌ها را حذف و ردیف‌های معتبر را به `eval/` اضافه می‌کنند |
+| A4 دروازه‌های عام موضوع‌های آزمایشگاهی | ✅ رفع | ۱۲ واژهٔ عام هشداردهنده از `lab/topics/{labor_wages,rent}.json` حذف شدند (`check.py topics` بدون هشدار و `topic_flow.py --check` با ۴۶/۴۶ سبز) |
 | A1 ترتیب مسیرهای پاسخ | ✅ رفع | `AnswerSource` + `AdvocateReply.source` + `Advocate.pipelineOrder`؛ آزمون: `test/advocate/answer_source_test.dart`. arbiter کامل (پیشنهاد بلندمدت) انجام نشد |
 | A1b ترتیب خط لوله فقط در کد بود | ✅ رفع | `assets/pipeline.json` منبع حقیقت شد؛ `dev/tools/pipeline_check.py` (`check.py pipeline`) آن را با `Advocate.pipelineOrder` و `netMin` می‌سنجد؛ آزمون: `test/advocate/pipeline_contract_test.dart` |
 | A1c ساختار مسیرهای موضوعی بی‌نگهبان بود | ✅ رفع | `dev/tools/schemas/topic_flow.schema.json` + `dev/tools/topic_schema.py` (`check.py topics`)؛ خطا برای کلید ناقص/قاعدهٔ بی‌شرط/ارجاع بد، هشدار برای دروازهٔ عام و `live:false`؛ آزمون: `tests/python/test_topic_schema.py` |

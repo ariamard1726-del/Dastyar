@@ -42,12 +42,18 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
     if (ok != true) return;
+    widget.history.lastError = null;
     await widget.history.clear();
     widget.onHistoryCleared?.call();
     if (!mounted) return;
     setState(() {});
+    final err = widget.history.lastError;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تاریخچه پاک شد')),
+      SnackBar(
+        content: Text(
+          err == null ? 'تاریخچه پاک شد' : 'پاک‌کردن تاریخچه با خطا روبه‌رو شد',
+        ),
+      ),
     );
   }
 
@@ -92,6 +98,28 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () {
                       s.clearError();
                       setState(() {});
+                    },
+                    child: const Text('بستن'),
+                  ),
+                ),
+              ),
+            if (widget.history.lastError != null)
+              Card(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: ListTile(
+                  leading: Icon(Icons.warning_amber_outlined,
+                      color: Theme.of(context).colorScheme.error),
+                  title: Text(
+                    widget.history.lastError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ),
+                  trailing: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.history.lastError = null;
+                      });
                     },
                     child: const Text('بستن'),
                   ),

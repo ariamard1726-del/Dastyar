@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
@@ -37,6 +38,13 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    PrivacyService.persistenceAllowed = true;
+    DraftCheckpointStore.lastError = null;
+  });
+
+  tearDown(() {
+    PrivacyService.persistenceAllowed = true;
+    DraftCheckpointStore.lastError = null;
   });
 
   group('ذخیرهٔ رمزنگاری‌شدهٔ پیش‌نویس ناتمام', () {
@@ -112,6 +120,27 @@ void main() {
 
       final future = Map<String, dynamic>.from(json)..['schemaVersion'] = 99;
       expect(DraftSession.fromJson(future, templates), isNull);
+    });
+
+    test('خطا و قفل ذخیره در DraftCheckpointStore.lastError ثبت می‌شود', () async {
+      final session = DraftSession(templates.first)
+        ..values['court_city'] = 'شیراز';
+
+      PrivacyService.persistenceAllowed = false;
+      expect(await DraftCheckpointStore.save(session), isFalse);
+      expect(DraftCheckpointStore.lastError, isNotNull);
+
+      PrivacyService.persistenceAllowed = true;
+      expect(await DraftCheckpointStore.save(session), isTrue);
+      expect(DraftCheckpointStore.lastError, isNull);
+      expect(await DraftCheckpointStore.clear(), isTrue);
+      expect(DraftCheckpointStore.lastError, isNull);
+
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'active_draft_v1': '{broken-json',
+      });
+      expect(await DraftCheckpointStore.load(templates), isNull);
+      expect(DraftCheckpointStore.lastError, isNotNull);
     });
   });
 }

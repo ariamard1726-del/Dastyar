@@ -253,7 +253,7 @@
 2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`engine_load.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
 3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
 4. ✅ `eval/` و `reports/` دوقلو نبودند؛ ادغام شدند (`docs/REPO_LAYOUT.md`).
-5. ✅ `chat_controller.dart` (۱۳۰، زیر سقف ۱۵۰ خط) اکنون فقط سیم‌کشیِ بین سه همکارِ مستقل است: `draft_flow.dart` (۲۹۷، فرم و پیش‌نویس سند)، `guess_flow.dart` (۸۵، حدسِ موضوع با مدل) و `reply_flow.dart` (۲۷۱، صفِ نوبت، پیش‌ساخت worker برای `query` و `LawTerms` و ذخیره/بازیابی نشست)؛ نگهبان فاز ۴ (`tests/python/test_chat_controller_shape.py`) اندازه، تفکیک و نبود نسخهٔ تکراری فایل‌های داده‌ای را قفل می‌کند.
+5. ✅ `chat_controller.dart` (۱۳۰، زیر سقف ۱۵۰ خط) اکنون فقط سیم‌کشیِ بین سه همکارِ مستقل است: `draft_flow.dart` (۲۹۷، فرم و پیش‌نویس سند)، `guess_flow.dart` (۸۵، حدسِ موضوع با مدل) و `reply_flow.dart` (۲۷۶، صفِ نوبت، پیش‌ساخت worker برای `query` و `LawTerms` و ذخیره/بازیابی نشست)؛ نگهبان فاز ۴ (`tests/python/test_chat_controller_shape.py`) اندازه، تفکیک و نبود نسخهٔ تکراری فایل‌های داده‌ای را قفل می‌کند.
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۰۷ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `advocate/reply_routes.dart` ۴۰۶ خط، `advocate/advocate_argue.dart` ۳۷۵ خط، `advocate/talk_route.dart` ۳۶۰ خط، `advocate/rule_dsl_text.dart` ۳۵۱ خط و `core/history_store.dart` ۳۵۰ خط (`topics/rent_claims.dart` پس از مهاجرت به DSL به ۳۳۱ خط کاهش یافت). `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**

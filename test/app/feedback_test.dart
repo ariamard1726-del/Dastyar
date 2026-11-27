@@ -14,6 +14,17 @@ List<String> _rows(String t) => t
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUp(() {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    PrivacyService.persistenceAllowed = true;
+    FeedbackStore.lastError = null;
+  });
+
+  tearDown(() {
+    PrivacyService.persistenceAllowed = true;
+    FeedbackStore.lastError = null;
+  });
+
   test('export: 👎 به سطر ارزیابی و 👍 به توضیح تبدیل می‌شود', () {
     final t = FeedbackStore.exportText([
       FeedbackEntry('ولی قهری بچه کیه', 'ماده 1184 ...', -1, 1),
@@ -55,5 +66,25 @@ void main() {
     expect(list[0].at, 100);
     expect(list[1].at, 0);
     expect(list[2].at, 42);
+    expect(FeedbackStore.lastError, isNull);
+  });
+
+  test('قفل‌بودن ذخیره یا JSON خراب در FeedbackStore.lastError ثبت می‌شود و clear bool برمی‌گرداند',
+      () async {
+    PrivacyService.persistenceAllowed = false;
+    expect(await FeedbackStore.add('پرسش تازه', 'پاسخ تازه', -1), isFalse);
+    expect(FeedbackStore.lastError, isNotNull);
+
+    PrivacyService.persistenceAllowed = true;
+    expect(await FeedbackStore.add('پرسش تازه', 'پاسخ تازه', 1), isTrue);
+    expect(FeedbackStore.lastError, isNull);
+    expect(await FeedbackStore.clear(), isTrue);
+    expect(FeedbackStore.lastError, isNull);
+
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'feedback_v1': '{invalid-json',
+    });
+    expect(await FeedbackStore.all(), isEmpty);
+    expect(FeedbackStore.lastError, isNotNull);
   });
 }

@@ -207,6 +207,7 @@ class ReplyFlow {
         .toList();
     final users = stored.where((m) => m.fromUser).toList();
     if (users.isEmpty) return;
+    final prevErr = history.lastError;
     await history.upsert(
       ChatSession(
         id: _sessionId,
@@ -219,6 +220,10 @@ class ReplyFlow {
         dialogueJson: advocate.dialog.toJson(),
       ),
     );
+    final err = history.lastError;
+    if (err != null && err != prevErr) {
+      addProblem(err);
+    }
   }
 
   void _resetFlow() {

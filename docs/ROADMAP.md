@@ -44,7 +44,7 @@
 | SQLite + SQLCipher به‌جای SharedPreferences | ⬜ | کوئری، ایندکس و مهاجرت واقعی |
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
 | کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
-| خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند |
+| خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند؛ در گام ۱۴ خطاهای `FeedbackStore`، `DraftCheckpointStore` و `HistoryStore` نیز به `FeedbackBar`، `SettingsPage`، `HistoryPage` و `ReplyFlow` رسیدند |
 | `engine.query` و `LawTerms` بیرون از رشتهٔ UI | ✅ | هر دو در isolate دائمی `EngineWorker` اجرا می‌شوند (`GuideReply.follow` با `prepareWith` و `LawTerms.match` با `matchTermsInWorker` در `ReplyFlow._process`، همراه با fallback همگام در آزمون‌های مستقیم) |
 | ارزانکردن نمایش تدریجی متن | ✅ | حذف کامل نگارش تدریجی؛ پاسخ یکجا نمایش داده میشود (`reveal_text.dart`) |
 | حذف کامل انیمیشن نویسهبهنویسه | ✅ | انیمیشن و `onRevealTick` حذف شدند؛ تنها نشانگر «در حال نوشتن…» پیش از آمدن پاسخ مانده (`tests/python/test_ui_budget.py`) |
