@@ -4,36 +4,23 @@ part of 'rent.dart';
 // متنهای ثابت از `rent_texts.json` میآیند؛ تابعهای وابسته به پرونده در
 // همین فایل میمانند. جدا کردنِ فایل فقط برای خواندنِ آسانتر است.
 
-String _rentSubletBody(CaseFile f) => f.eq('role', 'landlord')
-    ? 'اول اجاره‌نامه را ببینید: اگر «حق انتقال به غیر» را از مستأجر گرفته باشید، واگذاری به دیگری تخلف از شرط است و از همان تاریخ حق فسخ دارید [[civil:496]]. اگر چنین شرطی ننوشته‌اید، قانون به مستأجر اجازهٔ این کار را داده است [[civil:474]].\n'
-        'برای اثبات، از حضور نفر دیگر مدرک جمع کنید (استشهاد همسایه‌ها، مدیر ساختمان، تأمین دلیل [[civil_procedure:149]])؛ فسخ را با اظهارنامه اعلام کنید [[civil_procedure:156]] و بعد تخلیه را از دادگاه بخواهید.'
-    : 'اصل بر این است که مستأجر می‌تواند ملک را به دیگری اجاره بدهد، مگر در اجاره‌نامه خلافش شرط شده باشد [[civil:474]]. ولی بیشتر اجاره‌نامه‌های بنگاهی «حق انتقال به غیر» را از مستأجر گرفته‌اند؛ اول همین بند را در قرارداد خودتان پیدا کنید.\n'
-        'اگر حق انتقال ندارید و این کار را بکنید، موجر به‌خاطر تخلف از شرط حق فسخ پیدا می‌کند [[civil:496]]. اگر دارید، باز هم شما در برابر موجر مسئول اجاره و سالم‌ماندن ملک می‌مانید؛ پس با نفر جدید قرارداد کتبی ببندید.';
+String _rentSubletBody(CaseFile f) => rentText(
+    f.eq('role', 'landlord') ? 'bodySubletLandlord' : 'bodySubletTenant');
 
-String _rentSoldBody(CaseFile f) => f.eq('role', 'landlord')
-    ? 'می‌توانید ملک را بفروشید، ولی اجاره سر جایش می‌ماند: خریدار ملک را با مستأجرش می‌خرد و تا پایان مدت نمی‌شود او را بلند کرد، مگر در اجاره‌نامه برای فروش، حق فسخ گذاشته باشید [[civil:498]].\n'
-        'پس به خریدار بگویید ملک در اجاره است و تکلیف ودیعه را در مبایعه‌نامه روشن کنید (چه کسی به مستأجر پس می‌دهد)؛ وگرنه مستأجر سراغ خود شما می‌آید.'
-    : 'فروش ملک، اجارهٔ شما را به هم نمی‌زند: تا پایان مدت، اجاره با همان شرایط پابرجاست و مالک جدید باید آن را محترم بشمارد، مگر موجر در اجاره‌نامه برای فروش، حق فسخ گذاشته باشد [[civil:498]].\n'
-        'دو کار بکنید: کتبی بپرسید اجاره را از این به بعد به چه کسی بپردازید، و روشن کنید ودیعه را چه کسی پس می‌دهد. طرفِ قرارداد شما موجر قبلی است؛ اگر پاسخ روشنی نگرفتید، هنگام مطالبه هر دو را طرف دعوا قرار دهید.';
+String _rentSoldBody(CaseFile f) =>
+    rentText(f.eq('role', 'landlord') ? 'bodySoldLandlord' : 'bodySoldTenant');
 
-String _rentDeathBody(CaseFile f) {
-  const base =
-      'با فوت موجر یا مستأجر، اجاره باطل نمی‌شود و تا پایان مدت ادامه دارد. دو استثنا دارد: موجری که فقط تا زنده‌بودنش حق استفاده از ملک را داشته، و قراردادی که در آن شرط شده فقط خودِ مستأجر از ملک استفاده کند [[civil:497]].';
-  return f.eq('role', 'landlord')
-      ? '$base\nپس اگر مستأجر فوت کرده، وارثانش تا پایان مدت حق ماندن دارند و اجاره را هم باید بپردازند؛ ودیعه در پایان به وارثان او برمی‌گردد. اگر شما وارث موجر هستید، با گواهی حصر وراثت جای او را در قرارداد می‌گیرید.'
-      : '$base\nپس وارثان موجر نمی‌توانند پیش از پایان مدت شما را بلند کنند. اجاره را با رسید به وارثان (یا نماینده‌شان) بپردازید و ودیعه را هم در پایان از همان‌ها، از محل دارایی به‌جامانده از او، بخواهید.';
-}
+String _rentDeathBody(CaseFile f) =>
+    rentText('bodyDeathBase') +
+    rentText(
+        f.eq('role', 'landlord') ? 'bodyDeathLandlord' : 'bodyDeathTenant');
 
 String _rentGoodwillBody() => rentText('rentGoodwillBody');
 
-String _rentUsageBody(CaseFile f) {
-  const base =
-      '«اجرت‌المثل» یعنی بهای استفاده از ملک برای مدتی که قراردادی در کار نبوده. اگر مستأجر بعد از پایان مدت بدون اجازهٔ مالک بماند، برای همان مدت بدهکار اجرت‌المثل است، حتی اگر از ملک استفاده نکرده باشد [[civil:494]].\n'
-      'مبلغش در اجاره‌نامه نیست؛ دادگاه معمولاً با نظر کارشناس و از روی اجارهٔ ملک‌های مشابه تعیینش می‌کند [[civil_procedure:257]].';
-  return f.eq('role', 'landlord')
-      ? '$base می‌توانید آن را همراه تخلیه یا جدا مطالبه کنید؛ از محل ودیعه هم فقط با دادخواست قابل کسر است [[landlord_tenant:4]].'
-      : '$base برای اینکه گرفتارش نشوید، آمادگی‌تان برای تخلیه را کتبی اعلام کنید.';
-}
+String _rentUsageBody(CaseFile f) =>
+    rentText('bodyUsageBase') +
+    rentText(
+        f.eq('role', 'landlord') ? 'bodyUsageLandlord' : 'bodyUsageTenant');
 
 String _rentCodeBody() => rentText('rentCodeBody');
 
@@ -55,67 +42,55 @@ String _rentWaitNewBody() => rentText('rentWaitNewBody');
 
 String _rentSilentBody(CaseFile f) {
   if (f.eq('role', 'landlord')) {
-    final order = f.no('ended')
-        ? ''
-        : '• اگر مدت تمام شده، «دستور تخلیه» اصلاً به حضور یا جواب او نیاز ندارد [[landlord_tenant:3]].\n';
-    return 'جواب‌ندادن مستأجر مانع کار شما نیست:\n'
-        '• اظهارنامه را به نشانی همان ملک (یا نشانی‌ای که در اجاره‌نامه آمده) بفرستید [[civil_procedure:156]]. اگر برگه را نگیرد، مأمور آن را به همان نشانی می‌چسباند و ابلاغ‌شده حساب می‌شود [[civil_procedure:70]].\n'
-        '$order'
-        '• سرِ خود وارد ملک نشوید، حتی اگر فکر می‌کنید رفته است؛ اول با «تأمین دلیل» وضع ملک را رسمی ثبت کنید [[civil_procedure:149]].';
+    final order = f.no('ended') ? '' : rentText('bodySilentLandlordOrder');
+    return rentText('bodySilentLandlordA') +
+        order +
+        rentText('bodySilentLandlordB');
   }
-  final key = f.no('vacated')
-      ? '• اگر می‌خواهید ملک را تحویل بدهید و نمی‌آید، می‌توانید آن را از راه دادگاه تحویل دهید تا از همان روز مسئولیتی برای ملک نداشته باشید [[civil:273]].\n'
-      : '';
-  return 'جواب‌ندادن موجر جلوی کار شما را نمی‌گیرد؛ قانون برای همین وضع راه گذاشته است:\n'
-      '• اظهارنامهٔ رسمی را به نشانی‌ای که در اجاره‌نامه نوشته بفرستید [[civil_procedure:156]]. اگر برگه را نگیرد، مأمور آن را به همان نشانی می‌چسباند و ابلاغ‌شده حساب می‌شود [[civil_procedure:70]].\n'
-      '$key'
-      '• دادخواست هم همین‌طور ابلاغ می‌شود و اگر در هیچ جلسه‌ای نیاید و دفاعی هم نفرستد، دادگاه غیابی رأی می‌دهد [[civil_procedure:303]].\n'
-      '• اگر هیچ نشانی‌ای از او ندارید، دادگاه به درخواست شما در روزنامه آگهی می‌کند [[civil_procedure:73]].';
+  final key = f.no('vacated') ? rentText('bodySilentTenantKey') : '';
+  return rentText('bodySilentTenantA') + key + rentText('bodySilentTenantB');
 }
 
 String _rentOwnUseBody(CaseFile f) {
-  const deal =
-      'اگر پیشنهاد داد زودتر بروید، می‌توانید در برابرش چیزی بخواهید (مثلاً هزینهٔ جابه‌جایی یا بخشیدن اجارهٔ ماه آخر)؛ هرچه توافق کردید کتبی کنید.';
-  const lead =
-      'نیاز شخصیِ موجر (خودش بنشیند، برای فرزندش بخواهد، بسازد یا بفروشد) به‌تنهایی دلیلِ به‌هم‌زدن اجاره نیست.';
-  if (f.no('ended')) return '$lead ${_rentBeforeEnd()}\n$deal';
+  final deal = rentText('bodyOwnUseDeal');
+  final lead = rentText('bodyOwnUseLead');
+  if (f.no('ended')) return lead + ' ' + _rentBeforeEnd() + '\n' + deal;
   if (f.yes('ended')) {
-    return 'چون مدت قرارداد تمام شده، دلیلش فرقی در نتیجه ندارد: ${_rentAfterEnd()}';
+    return rentText('bodyOwnUseEnded') + _rentAfterEnd();
   }
-  return '$lead دو حالت دارد:\n• پیش از پایان مدت: ${_rentBeforeEnd()}\n• بعد از پایان مدت: ${_rentAfterEnd()}\n$deal';
+  return lead +
+      rentText('bodyOwnUseMid1') +
+      _rentBeforeEnd() +
+      rentText('bodyOwnUseMid2') +
+      _rentAfterEnd() +
+      '\n' +
+      deal;
 }
 
 String _rentNoReasonBody(CaseFile f) {
-  const ask =
-      'از او بخواهید خواسته و دلیلش را کتبی (با پیام) بگوید؛ اگر دلیلی ندارد، همان پیام نشان می‌دهد پیش از موعد و بی‌پایه خواسته بروید.';
+  final ask = rentText('bodyNoReasonAsk');
   if (f.no('ended')) {
-    return 'بی‌دلیل نمی‌تواند: ${_rentBeforeEnd()}\n$ask';
+    return rentText('bodyNoReasonBefore') + _rentBeforeEnd() + '\n' + ask;
   }
   if (f.yes('ended')) {
-    return 'چون مدت قرارداد تمام شده، دلیل‌نیاوردنش ایرادی به کارش وارد نمی‌کند: ${_rentAfterEnd()}';
+    return rentText('bodyNoReasonEnded') + _rentAfterEnd();
   }
-  return 'اینکه دلیل لازم دارد یا نه، به تاریخ پایان قرارداد بسته است:\n• پیش از پایان مدت: ${_rentBeforeEnd()}\n• بعد از پایان مدت: ${_rentAfterEnd()}\n$ask';
+  return rentText('bodyNoReasonMid1') +
+      _rentBeforeEnd() +
+      rentText('bodyNoReasonMid2') +
+      _rentAfterEnd() +
+      '\n' +
+      ask;
 }
 
-String _rentNoTermBody(CaseFile f) {
-  const base =
-      'اجاره باید مدتِ روشن داشته باشد [[civil:468]]؛ ولی قانون برای حالتِ رایجش راه گذاشته: اگر مدت ننوشته‌اید اما اجاره «ماهی فلان‌قدر» یا «سالی فلان‌قدر» تعیین شده، قرارداد برای همان یک ماه یا یک سال درست است. بعد از آن، اگر مستأجر بماند و موجر تخلیه نخواهد، برای مدتی که مانده همان اجارهٔ توافق‌شده را بدهکار است [[civil:501]].';
-  return f.eq('role', 'landlord')
-      ? '$base\nنتیجه برای شما: بعد از آن یک دوره می‌توانید تخلیه بخواهید؛ ولی راه سریعِ «دستور تخلیه» برای اجاره‌نامه‌ای است که مدتش نوشته و ثبت شده باشد [[landlord_tenant:2]] [[landlord_tenant:3]]. بدون آن باید دادخواست عادی تخلیه بدهید که زمان‌برتر است؛ پس برای ادامه، قرارداد کتبی با تاریخ پایان ببندید.'
-      : '$base\nنتیجه برای شما: بعد از آن یک دوره، موجر هر وقت بخواهد می‌تواند تخلیه را از راه قانونی بخواهد و شما هم هر وقت بخواهید می‌توانید بروید. اگر می‌خواهید خیالتان از ماندن راحت باشد، مدت را کتبی کنید.';
-}
+String _rentNoTermBody(CaseFile f) =>
+    rentText('bodyNoTermBase') +
+    rentText(
+        f.eq('role', 'landlord') ? 'bodyNoTermLandlord' : 'bodyNoTermTenant');
 
-String _rentLandlordNoPlaceBody(CaseFile f) {
-  if (f.no('ended')) {
-    return 'تا مدت قرارداد تمام نشده، او برای ماندن به دلیل نیاز ندارد؛ اجاره برای هر دو طرف الزام‌آور است [[civil:219]]. مهلت‌خواستن وقتی معنا دارد که مدت تمام شده یا اجاره را به حق فسخ کرده باشید.';
-  }
-  return 'جا پیدانکردن، هرچقدر هم قابل‌درک، حقی برای ماندن نمی‌سازد: با پایان مدت، اجاره تمام است و برای هر روزِ ماندن اجرت‌المثل بدهکار می‌شود [[civil:494]].\n'
-      'اگر می‌خواهید مهلت بدهید (که اغلب از دعوا ارزان‌تر تمام می‌شود)، درست انجامش دهید:\n'
-      '• مهلت را کتبی و با تاریخ قطعی تخلیه بنویسید، هر دو امضا کنید و قید کنید که «این مهلت تمدید اجاره نیست».\n'
-      '• برای همین مدت مبلغ روشنی بگذارید.\n'
-      '• بی‌هیچ نوشته‌ای نگذارید بماند: وقتی مستأجر می‌ماند و موجر تخلیه نمی‌خواهد، قانون آن را رضایت به ادامه با همان اجاره می‌گیرد [[civil:501]].\n'
-      'اگر نمی‌خواهید مهلت بدهید، دستور تخلیه بگیرید [[landlord_tenant:3]].';
-}
+String _rentLandlordNoPlaceBody(CaseFile f) => rentText(f.no('ended')
+    ? 'bodyLandlordNoPlaceNotEnded'
+    : 'bodyLandlordNoPlaceEnded');
 
 String _rentLandlordDepFirstBody() => rentText('rentLandlordDepFirstBody');
 

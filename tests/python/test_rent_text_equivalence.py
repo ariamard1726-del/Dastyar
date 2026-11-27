@@ -32,8 +32,8 @@ FILING_CTOR_COUNT = 18
 PLANS_BEFORE_SHA256 = 'c9f084ecb37d1c8f81ddfbf5cae121d00896e6f05fdfaea6a838a595fd318214'
 PLANS_BEFORE_COUNT = 36
 CHANCE_BODY_COUNT = 10
-BODIES_BEFORE_SHA256 = '99831c24111d8620850352dd470cd6244a4fbbb0e2fae57e588c89aeacbce3a4'
-BODIES_BEFORE_COUNT = 12
+BODIES_BEFORE_SHA256 = 'ab62ffd0256e9f91ee633949d814efb771df351004a8424af4063808b0c8b0ba'
+BODIES_BEFORE_COUNT = 51
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
@@ -164,21 +164,26 @@ class RentTextEquivalenceTest(unittest.TestCase):
             self.assertFalse(set(bodies) & set(self.data[section]))
 
     def test_body_functions_keep_only_short_delegates(self):
-        src = read(ROOT, 'lib/domain/advocate/topics/rent_bodies.dart')
-        for name in ('_rentRaiseBody', '_rentDamageBody', '_rentOrderBody'):
-            a = src.index('String %s(CaseFile f) {' % name)
-            body = src[a:src.index('\n}\n', a) + 3]
-            literals = re.findall(r"'((?:\\.|[^'])*)'", body)
-            self.assertLessEqual(max(map(len, literals)), 24,
-                                 '%s دوباره متنِ بلند گرفته است' % name)
-            ids = re.findall(r"rentText\('(body\w+)'\)", body)
-            self.assertTrue(ids, 'هیچ پارهای از %s خوانده نمیشود' % name)
+        rb = read(ROOT, 'lib/domain/advocate/topics/rent_bodies.dart')
+        rbl = read(ROOT, 'lib/domain/advocate/topics/rent_bodies_landlord.dart')
+        rb_bodies = rb[:rb.index('Prompt? _rentAskReply')]
+        used = []
+        for rel, src in [('rent_bodies.dart', rb_bodies),
+                         ('rent_bodies_landlord.dart', rbl)]:
+            code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in src.split('\n'))
+            literals = re.findall(r"'((?:\\.|[^'])*)'", code)
+            self.assertLessEqual(
+                max(map(len, literals)), 28,
+                '%s دوباره متنِ بلند در تابع پاسخ گرفته است' % rel)
+            for var in ('base', 'after', 'none', 'lead', 'deal', 'ask'):
+                self.assertNotIn('const %s =' % var, code,
+                                 '%s دوباره const %s دارد' % (rel, var))
+            ids = re.findall(r"'(body\w+)'", code)
+            used.extend(ids)
             for key in ids:
                 self.assertIn(key, self.data['bodies'])
-        raise_fn = src[src.index('String _rentRaiseBody(CaseFile f) {'):]
-        raise_fn = raise_fn[:raise_fn.index('\n}\n') + 3]
-        self.assertNotIn('const base =', raise_fn)
-        self.assertNotIn('const after =', raise_fn)
+        self.assertEqual(set(used), set(self.data['bodies']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول bodies')
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''

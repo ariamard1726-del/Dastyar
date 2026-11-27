@@ -8,8 +8,8 @@ import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 void main() {
   test('متنها از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadRentTexts();
-    // ۴۲+۸۷+۳۲+۳۶+۱۲ = ۲۰۹ متن در پنج جدول. نبودِ یکی خطای صریح است.
-    expect(keys.length, 209);
+    // ۴۲+۸۷+۳۲+۳۶+۵۱ = ۲۴۸ متن در پنج جدول. نبودِ یکی خطای صریح است.
+    expect(keys.length, 248);
     expect(loadedRentTexts.containsKey('rentPeace'), isTrue);
     expect(loadedRentTexts.containsKey('rentLandlordPaidBody'), isTrue);
     expect(loadedRentTexts.containsKey('claim0_goal'), isTrue);
@@ -26,12 +26,17 @@ void main() {
     expect(loadedRentTexts.containsKey('plan34_b'), isTrue);
     expect(loadedRentTexts.containsKey('bodyRaiseBase'), isTrue);
     expect(loadedRentTexts.containsKey('bodyOrderRet0'), isTrue);
+    expect(loadedRentTexts.containsKey('bodyUnpaidEvict'), isTrue);
+    expect(loadedRentTexts.containsKey('bodyPenaltyNone'), isTrue);
+    expect(loadedRentTexts.containsKey('bodySubletLandlord'), isTrue);
+    expect(loadedRentTexts.containsKey('bodyLandlordNoPlaceEnded'), isTrue);
     expect(rentText('rentPeace').contains('دادگاه صلح'), isTrue);
     expect(rentText('filing0_chip').startsWith('تنظیم'), isTrue);
     expect(rentText('filing15_name').contains('لایحه'), isTrue);
     expect(rentText('plan0').contains('اظهارنامه'), isTrue);
     expect(rentText('planLead').contains('ارزیابی'), isTrue);
     expect(rentText('bodyRaiseBase').contains('اجاره'), isTrue);
+    expect(rentText('bodyDeathBase').contains('فوت'), isTrue);
   });
 
   test('شناسهٔ ناشناخته بیصدا جایگزین نمیشود', () {
