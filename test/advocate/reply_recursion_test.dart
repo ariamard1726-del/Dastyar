@@ -132,7 +132,7 @@ void main() {
       talk: talk,
       picker: picker,
       chipPlan: makeChipPlan,
-      closeCase: flow.closeCase,
+      closeCase: () {},
     );
 
     late final ReplyRoutes routes;
