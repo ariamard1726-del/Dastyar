@@ -7,7 +7,7 @@ import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/intent_net.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:dastyar/ui/chat_models.dart';

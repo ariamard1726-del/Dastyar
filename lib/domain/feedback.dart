@@ -26,6 +26,7 @@ class FeedbackEntry {
 
 class FeedbackStore {
   static const String _key = 'feedback_v1';
+  static const int schemaVersion = 1;
   static const int maxEntries = 300;
   static final RegExp _spacesRe = RegExp(r'\s+');
 
@@ -50,11 +51,28 @@ class FeedbackStore {
         if (stored.startsWith(PrivacyService.fallbackPrefix)) await p.remove(_key);
         return [];
       }
-      final list = (jsonDecode(raw) as List)
-          .map((e) => FeedbackEntry.fromJson(e as Map<String, dynamic>))
+      final decoded = jsonDecode(raw);
+      final List<dynamic> rawEntries;
+      var needsMigration = false;
+      if (decoded is List) {
+        rawEntries = decoded;
+        needsMigration = true;
+      } else if (decoded is Map) {
+        final v = decoded['v'];
+        if (v is int && v > schemaVersion) return [];
+        final entries = decoded['entries'];
+        if (entries is! List) return [];
+        rawEntries = entries;
+        needsMigration = v != schemaVersion;
+      } else {
+        return [];
+      }
+      final list = rawEntries
+          .whereType<Map>()
+          .map((e) => FeedbackEntry.fromJson(Map<String, dynamic>.from(e)))
           .where((e) => e.q.isNotEmpty)
           .toList();
-      if (wasPlain && list.isNotEmpty) {
+      if ((wasPlain || needsMigration) && list.isNotEmpty) {
         await _save(list);
       }
       return list;
@@ -67,7 +85,10 @@ class FeedbackStore {
     if (!PrivacyService.persistenceAllowed) return false;
     try {
       final p = await SharedPreferences.getInstance();
-      final raw = jsonEncode(list.map((e) => e.toJson()).toList());
+      final raw = jsonEncode({
+        'v': schemaVersion,
+        'entries': list.map((e) => e.toJson()).toList(),
+      });
       final sealed = await PrivacyService.seal(raw);
       return await p.setString(_key, sealed);
     } catch (_) {

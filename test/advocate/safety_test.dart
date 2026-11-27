@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/dialogue_sections.dart';
 
 /// ایمنی، پیش از هر موضوع و مستقل از امتیاز تشخیص موضوع.
 ///
@@ -83,5 +84,27 @@ void main() {
     final a = fresh();
     final r = a.respond('کارفرما حقوقم را نداده');
     expect(r.source, isNot(AnswerSource.safety));
+  });
+
+  test('تشدید شدت هشدار و گذار «الان امن است» روی ماشین حالت ایمنی', () {
+    final a = fresh();
+    final first = a.respond('شوهرم منو زد و می‌خوام طلاق بگیرم');
+    expect(first.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.elevated);
+    expect(a.dialog.acknowledgedSafe, isFalse);
+
+    final escalated = a.respond('الان در خطر هستم');
+    expect(escalated.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.critical);
+
+    final safeNow = a.respond('الان امن است');
+    expect(safeNow.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.none);
+    expect(a.dialog.acknowledgedSafe, isTrue);
+    expect(safeNow.ask, isNotEmpty);
+
+    // تکرار «الان امن است» پس از تأیید امنیت دیگر حلقه نمی‌سازد.
+    final secondSafe = a.respond('الان امن است');
+    expect(secondSafe.source, isNot(AnswerSource.safety));
   });
 }

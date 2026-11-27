@@ -207,7 +207,7 @@
 `tests/python/test_architecture.py` جلوی `core → domain/ui` را می‌گیرد (خوب)، ولی:
 
 - `test_core_only_uses_flutter_services_not_widgets` عملاً `rootBundle` را در `core` مجاز می‌کند؛ نتیجه: `engine.dart:5` وابسته به `package:flutter/services.dart` است و موتور «بدون شناخت فلاتر» نیست.
-- `DOMAIN_FLUTTER_ALLOWLIST = {'lib/domain/settings.dart'}` یعنی بدهی شناخته‌شده در آزمون هاردکد شده تا سبز بماند.
+- `DOMAIN_FLUTTER_ALLOWLIST = set()` (در فاز ۸ `lib/domain/settings.dart` حذف شد و `AppSettings` به `lib/ui/app_settings.dart` رفت).
 
 این یعنی «آزمون معماری سبز است» فقط می‌گوید «چیز تازه‌ای خراب نشده»، نه «معماری سالم است».
 

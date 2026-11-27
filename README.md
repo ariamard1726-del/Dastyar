@@ -94,19 +94,24 @@ docs/                         معماری، قراردادها، بدهیها،
 (سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
 ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
 
-### دستاورد فازهای اخیر (۰ تا ۵ و ۷)
+### دستاورد فازهای اخیر (۰ تا ۵، ۷ و ۸)
 
 - **فاز ۱ (متن به داده):** تمام نثرِ آزادِ کل لایهٔ وکیل (۲۴ موضوع، بخش مشترک و ۲۱ فایل عمومی) به JSON منتقل شد:
   - **موضوع اجاره (`assets/brain/topics/rent_texts.json`):** ۵۲۵ کلید (۶۷٬۹۷۱ نویسه) در یازده جدول (`texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues`، `recaps`).
   - **بخش مشترک و ۲۳ موضوع غیرِاجاره (`assets/brain/topic_texts.json`):** ۱٬۱۰۶ کلید (۱۲۱٬۷۰۵ نویسه) در ۲۴ بخش با بارگذار صریح `loadTopicTexts()` و خوانش `topicText(section, key)`.
-  - **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۰ کلید (۲۹٬۴۰۷ نویسه) در ۱۸ بخش (واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال) با بارگذار صریح `loadAdvocateTexts()`.
-  - **جمع کل:** ۲٬۱۰۱ کلید (۲۱۹٬۰۸۳ نویسه) و **صفر نثر آزاد باقی‌مانده** در کلِ `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`. `tests/python/test_{rent,topic,advocate}_text_equivalence.py` برابری هش، مصرف ۱۰۰٪ کلیدها و اعتبار استنادهای `[[کلید:شماره]]` را می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند.
+  - **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۳ کلید (۱۸ بخش: واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال) با بارگذار صریح `loadAdvocateTexts()`.
+  - **جمع کل:** ۲٬۱۰۴ کلید و **صفر نثر آزاد باقی‌مانده** در کلِ `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`. `tests/python/test_{rent,topic,advocate}_text_equivalence.py` برابری هش، مصرف ۱۰۰٪ کلیدها و اعتبار استنادهای `[[کلید:شماره]]` را می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند.
 - **فاز ۲ (اولویتِ صریح کاندیدها):** جدول صریحِ تمام ۱۹۰ جفتِ ممکنِ ۲۰ کاندیدِ پاسخ‌دهنده در `dev/tools/contracts/priority.json` + تولید خودکار `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (۱۱۳ جفت هم‌پوشان با فراخوانی واقعی و ۷۷ جفت جداگانه با اثبات ساختاری).
 - **فاز ۳ (قفلِ حلقهٔ بازگشت وکیل):** اعمال `ReplyLoopGuard` (`Advocate.maxReplyDepth = 1`، اجبار `again: true` از `ReplyRoutes`، ثبت `lastReplyDepth` و قفل افزایش دقیقاً یک‌واحدیِ `file.turns`) با ایندکس صریح قواعد در `docs/ARCHITECTURE.md` و نگهبان‌های `test_reply_recursion_contract.py` + `reply_recursion_test.dart`.
 - **فاز ۴ (یک منبع داده و کنترلرِ لاغر):** ادغام ورودی‌ها در `eval/` و خروجی‌ها در `reports/`، قفلِ نبود نسخهٔ تکراری با SHA-256 (`test_chat_controller_shape.py`)، و تفکیک `chat_controller.dart` (`۱۳۰` خط، زیر سقف ۱۵۰) به `DraftFlow`، `GuessFlow` و `ReplyFlow`.
 - **فاز ۵ (استارت و حافظهٔ واقعی):** نگه‌داشتن تنبل‌سازی `noql` (`۱۲٫۷۲ MB` از `۱۶٫۸۸ MB` دارایی)، حذف کشِ مضاعف در `lib/core/engine_load.dart` (`loadString(..., cache: false)` و آزادسازی فوری رشته‌های خام پس از نمایه‌سازی)، و ثبت خط پایه + دروازهٔ CI (`dev/tools/startup_gate.py` روی `reports/startup.txt`: بارگذاری سرد `1,140 ms` شامل `63 ms` خواندن فایل و `1,077 ms` نمایه‌سازی؛ `worker` با `1,082 ms`؛ نخستین پرسش `50 ms`؛ حافظه `253.8 MB`).
 - **فاز ۷ (یکپارچه‌سازی و زدودن تکرار در ابزارهای توسعه):** اشتراک پارس لاگ CI در `ci_annotate.py` و `ci_summary.py`، متمرکزکردن `AI_MARKERS`، ارقام فارسی/عربی (`digits`/`to_fa`) و خواندن `_meta.json` (`load_meta`/`law_files`) در `dev/tools/lawtext.py` برای هشت ابزار اصلی و اسکریپت‌های `dev/tools/synonyms/`، و بستن تمام `open()`های بی‌بست تا صفر `ResourceWarning` در کل آزمون‌های پایتون (`test_dev_tools_hygiene.py`).
-- **فاز ۶ (کاهش حجم مدل/Noql):** عمداً برای مرحلهٔ آخر و پس از بررسی جداگانه نگه داشته شده است.
+- **فاز ۸ (سخت‌افزار زمان اجرا، ماشین حالت ایمنی، نسخه‌بندی ذخیره‌ها و دامنهٔ بی‌فلاتر):**
+  - پیش‌ساخت مسیرهای `GuideReply.follow` و `LawTerms.match` در isolate دائمیِ `EngineWorker` (`prepareWith`/`matchTermsInWorker`) همراه با fallback ایمن همگام؛
+  - افزودن ماشین حالت ایمنی (`SafetySeverity`: `none`/`elevated`/`critical`، پنجرهٔ نوبتی `lastSafetyTurn`، تشدید فوری و گذار `acknowledgedSafe` برای «الان امن است/هستم») در `SafetyState` و `SafetyReply`؛
+  - افزودن `schemaVersion = 1` به `DraftSession` و `FeedbackStore` همراه با مهاجرت خودکار دادهٔ قدیمی و ردّ ایمن نسخهٔ آینده؛
+  - انتقال `AppSettings` از `lib/domain/` به `lib/ui/app_settings.dart` و صفرشدن `DOMAIN_FLUTTER_ALLOWLIST = set()` (`tests/python/test_phase8_runtime_and_layers.py`).
+- **فاز ۶ (حجم مدل/Noql):** بنا به تصمیم صریح کاربر (به‌دلیل آموزش‌پذیربودن و فاین‌تون‌بودن مدل در `noql`) کنار گذاشته شده است و تا درخواست صریح بعدی تغییری روی `assets/brain/noql*` داده نمی‌شود.
 
 ## توسعه و بررسی
 
@@ -138,17 +143,13 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 `pubspec.lock` عملاً به Dart `>=3.13.0` و Flutter `>=3.44.0` نیاز دارد؛
 تا همساز شدنشان، نسخهٔ دقیق SDK در CI باید قفل شود.
 
-## بدهیهای شناختهشده (پوشانده نشده)
+## بدهیهای شناختهشده (نقشهٔ فازهای مانده ۹ تا ۱۱)
 
-- عملکرد و حجم مدل (فاز ۶): مدل `assets/brain/noql*` حدود `12.72 MB` از کل `16.88 MB` دارایی است و به‌صورت تنبل در Isolate بارگذاری می‌شود؛ کاهش حجم مدل برای مرحلهٔ آخر (فاز ۶) مانده است. بودجهٔ CI برای استارت `15,000 ms` و نخستین پرسش `5,000 ms` است و بارگذاری سرد اندازه‌گیری‌شده در CI روی `reports/startup.txt` برابر `1,140 ms` (`RSS = 253.8 MB`) است (اندازه‌گیری p95 روی گوشی رده‌پایین هنوز نداریم).
-- دو مسیر (`guide_reply.dart`, `law_answer.dart`) هنوز `engine.query` را
-  همگام صدا میزنند و `LawTerms.match` همگام است.
-- باقی‌ماندهٔ فاز ۱ (با برچسب بدهی): تمام نثرِ آزادِ کل لایهٔ وکیل (۲٬۱۰۱ کلید در `rent_texts.json`، `topic_texts.json` و `advocate_texts.json`) به داده منتقل شده است؛ تنها ۱۵ مقدار گزینه‌ایِ متصل به قالبها در `rent_fill.dart`، برچسب‌های ساختاری، الگوهای Regex و closureهای تصمیم در Dartاند، و متن قوانین هنوز با منبع رسمی تطبیق (`verified`) نشده است.
-- چهار جفت منطق Dart/Python تنها با guardهای parity و نمونههای مشترک هماهنگ
-  نگه داشته میشوند؛ اپ پایتون مرجع تطبیق نیست.
-- ایمنی بر پایهٔ الگوهاست؛ ماشین حالتی با شدت و پنجرهٔ زمانی و پوشش کامل
-  بحرانهای روانی هنوز وجود ندارد. پاسخ self-harm تازه اضافه شده و محدود به
-  عبارتهای صریح است.
+- **فازهای ۹ و ۱۰ — جایگزینی کلوژرهای موضوع‌ها با RuleDSL/شناسهٔ قاعده (پیش‌رو):** در ۴۹ فایل `lib/domain/advocate/topics/*.dart`، منطق تصمیم‌گیری (`body: 118`، `when: 107`، `read: 84`، `effect: 72`، `rank: 51`، `because: 32`، `win: 28`، `counter: 28` و شرط‌های `Element`) هنوز به شکل کلوژر Dart است؛ فاز ۹ موتور `RuleDSL` سبک را معرفی کرده و ۲۰ موضوع ساده/میانی را مهاجرت می‌دهد و فاز ۱۰ چهار موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) را همراه با سریال‌پذیری کامل `Topic` تکمیل می‌کند.
+- **فاز ۱۱ — همگام‌سازی منطق موازی پایتون/دارت (`duplicated_logic.json`) (پیش‌رو):** تثبیت مرجع واحد برای جفت‌های هم‌رفتار `persian_text`، `engine`، `law_terms` و `topic_flow`.
+- **خارج از برنامه (متوقف‌شده):** فاز ۶ (`assets/brain/noql*`) بنا به تصمیم کاربر متوقف شده است (`lazy_noql_mb=12.72`). باقی‌ماندهٔ غیرکدی: ممیزی انسانی ۲۴ قانون (`0/24 verified`) و ۹ قالب (`2/9`).
+- **مسیر پاسخ و isolate:** تمام مسیرهای سنگینِ پاسخ (`engine.query` در `LawAnswer`/`GuideReply` و `LawTerms.match` در `TermReply`) اکنون در `ReplyFlow` از طریق isolate دائمیِ `EngineWorker` پیش‌ساخته می‌شوند و مسیر همگام تنها به‌عنوان fallback پشتیبان در آزمون‌ها یا خطای isolate می‌ماند.
+- **پاک‌سازی لایه‌ها:** `lib/domain/` اکنون صفر وابستگی به Flutter دارد (`DOMAIN_FLUTTER_ALLOWLIST = set()`؛ `AppSettings` در `lib/ui/app_settings.dart`) و `DraftSession` و `FeedbackStore` هر دو دارای `schemaVersion = 1` و مهاجرت ایمن‌اند.
 - `reports/understanding.txt` دارای یک نمونهٔ `opened-WRONG` است؛ آستانهٔ
   مدل (امتیاز ۰٫۱۴۳ و حاشیهٔ ۰٫۰۴) روی ۲۵۰ نمونه با دقت ۰٫۷۰۸ تنظیم شده،
   نه مجموعهٔ مستقل اعتبارسنجی.

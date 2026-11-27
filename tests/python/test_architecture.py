@@ -17,7 +17,7 @@ IMPORT_RE = re.compile(r"^import\s+'([^']+)'", re.M)
 
 # بدهی شناخته‌شده: این فایل‌های domain به ThemeMode/ChangeNotifier فلاتر وابسته‌اند.
 # هر فایل جدیدی که بیاید باید از اینجا اجازه بگیرد؛ آزمون عمداً سخت‌گیر است.
-DOMAIN_FLUTTER_ALLOWLIST = {'lib/domain/settings.dart'}
+DOMAIN_FLUTTER_ALLOWLIST = set()
 
 
 def _imports(path):

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/law_terms.dart';
+import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:dastyar/domain/drafting.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/ui/chat_models.dart';
 import 'package:dastyar/ui/draft_flow.dart';
 import 'package:dastyar/ui/guess_flow.dart';
@@ -131,12 +133,25 @@ class ReplyFlow {
     // مسیر همگام پیشین را میگیرد.
     await Future<void>.delayed(Duration.zero);
     if (!isAlive() || gen != _generation) return;
-    final prepared = await _prepare(text);
+    final guide = advocate.dialog.guide;
+    final guideQuery = guide == null ? '' : '${guide.title} ${Sense.norm(text)}';
+    final needTerm = advocate.wantsTermMatch(text, guess: guessed.guess);
+    final preparedFuture = _prepare(text);
+    final guideFuture =
+        guideQuery.isEmpty ? Future<EngineReply?>.value(null) : _prepare(guideQuery);
+    final termFuture =
+        needTerm ? _prepareTerm(text) : Future<TermMatch?>.value(null);
+    final prepared = await preparedFuture;
+    final preparedGuide = await guideFuture;
+    final preparedTerm = await termFuture;
     if (!isAlive() || gen != _generation) return;
     final r = advocate.respond(
       text,
       guess: guessed.guess,
       engineReply: prepared,
+      guideQuery: guideQuery,
+      guideReply: preparedGuide,
+      termMatch: preparedTerm,
     );
     if (!guessed.shown) messages.add(ChatMessage(text, true));
     messages.add(ChatMessage(r.text, false, chips: r.chips, laws: r.laws));
@@ -169,6 +184,14 @@ class ReplyFlow {
   Future<EngineReply?> _prepare(String text) async {
     try {
       return await engine.prepareQuery(text);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<TermMatch?> _prepareTerm(String text) async {
+    try {
+      return await engine.prepareWith(matchTermsInWorker, text);
     } catch (_) {
       return null;
     }

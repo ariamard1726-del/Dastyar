@@ -4,6 +4,10 @@ part of 'advocate.dart';
 // موضوعیِ زنده. اینها آخرین پاسخ‌های «تصمیم‌گیر» بودند که روی `Advocate` مانده
 // بودند؛ تنها وابستگیِ بیرونی‌شان موتورِ قوانین است.
 
+/// اجرای تطبیق واژهها درون isolate دائمی موتور، بدون مسدودکردن رشتهٔ UI.
+TermMatch matchTermsInWorker(KnowledgeEngine engine, String raw) =>
+    LawTerms(engine).match(raw);
+
 /// پاسخ‌های واژه‌محور: `lawTerms` (متنِ مواد) و `topicFlow` (مسیرِ موضوع).
 class TermReply {
   TermReply({
@@ -12,6 +16,7 @@ class TermReply {
     required this.voice,
     required this.engine,
     required this.terms,
+    this.preparedMatch,
   });
 
   final CaseFile file;
@@ -21,6 +26,7 @@ class TermReply {
 
   /// تطبیقِ واژه‌های پرسش با متنِ قوانین.
   final LawTerms terms;
+  final TermMatch? Function(String raw)? preparedMatch;
 
   bool get hasCase => file.topic.isNotEmpty || dialog.guide != null;
 
@@ -28,6 +34,16 @@ class TermReply {
       Sense.words(n) <= 9 &&
       Sense.has(n,
           'مشکل(?:ی)? (?:حقوقی |قانونی )?(?:دارم|پیش اومده|برام)|سوال(?:ی)? (?:حقوقی )?(?:داشتم|دارم)|مشاوره|کمک(?:م)? (?:کن|میخوام|کنید)|راهنمایی(?:م)? (?:کن|میخوام|کنید)|گرفتار شدم|یه مسئله');
+
+  /// پیششرط سبُک برای اینکه اصلاً لازم باشد `LawTerms.match` در worker آماده شود.
+  bool eligible(String raw, String n) {
+    if (Sense.words(n) < 2 || _vague(n)) return false;
+    if (Sense.has(n, '[0-9]|(?:ماده|اصل) ?(?:[0-9]|واحده)|آیین ?نامه|دستورالعمل|بخشنامه')) {
+      return false;
+    }
+    if (Sense.has(n, 'قهر') || !Sense.has(n, _legalHint)) return false;
+    return engine.qa.match(raw) == null;
+  }
 
   AdvocateReply _out(
     String text, {
@@ -50,7 +66,7 @@ AdvocateReply? lawTerms(String raw, String n) {
   // جمله‌ای که هیچ نشانهٔ حقوقی ندارد (سلام، خوراک، جغرافیا) با متن قانون
   // سنجیده نمی‌شود، حتی اگر دو واژه‌اش در قانون باشد.
   if (!Sense.has(n, _legalHint)) return null;
-  final tm = terms.match(raw);
+  final tm = preparedMatch?.call(raw) ?? terms.match(raw);
   final c = tm.chunk;
   if (tm.accepted && c != null) {
     final lawName = engine.meta[c.lawId]?['title']?.toString() ?? c.source;

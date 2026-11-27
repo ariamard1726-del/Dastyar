@@ -7,6 +7,30 @@ part of 'advocate.dart';
 // این‌ها متدهای `Advocate` بودند؛ رفتار و تنهٔ کد دست‌نخورده است، فقط از
 // فایلِ ۴۱۰خطیِ خطِ تولید جدا شدند.
 
+class _PreparedTurn {
+  const _PreparedTurn({
+    required this.raw,
+    this.engineReply,
+    this.guideQuery = '',
+    this.guideReply,
+    this.termMatch,
+  });
+
+  final String raw;
+  final EngineReply? engineReply;
+  final String guideQuery;
+  final EngineReply? guideReply;
+  final TermMatch? termMatch;
+
+  EngineReply? engineFor(String query) {
+    if (query == raw) return engineReply;
+    if (guideQuery.isNotEmpty && query == guideQuery) return guideReply;
+    return null;
+  }
+
+  TermMatch? termFor(String query) => query == raw ? termMatch : null;
+}
+
 extension _ReplyGuards on Advocate {
   /// نگهبان بازگشتِ `_reply`: سقف عمق و قفلِ `again: true`.
   AdvocateReply _guardedReply(
@@ -49,14 +73,48 @@ extension _ReplyGuards on Advocate {
     );
   }
   /// ایمنی، پیش از هر چیز و مستقل از امتیازِ موضوع. تکرارِ دقیق همان متن
-  /// سرکوب میشود تا گفتگو در حلقه نیفتد؛ ولی گزارش تازهٔ خطر، هر بار جوابِ
-  /// فوری میگیرد.
+  /// سرکوب میشود تا گفتگو در حلقه نیفتد؛ ولی گزارش تازهٔ خطر، یا تشدید شدت
+  /// هشدار و یا گذر از پنجرهٔ نوبتی، هر بار جوابِ فوری میگیرد.
   AdvocateReply? _safetyReply(String n) {
+    if (dialog.safetyShown &&
+        !dialog.acknowledgedSafe &&
+        _safetyBot.acknowledgesSafe(n)) {
+      dialog.safetySeverity = SafetySeverity.none;
+      dialog.acknowledgedSafe = true;
+      dialog.lastSafetyText = '';
+      dialog.lastSafetyTurn = file.turns;
+      final t = _current();
+      if (hasCase && t != null) {
+        final a = _case.nextAsk(t);
+        dialog.askText = a.text;
+        dialog.askChips = a.chips;
+        return _out(
+          advocateText('safetySafeNowCaseBody'),
+          ask: a.text,
+          chips: a.chips,
+          source: AnswerSource.safety,
+        );
+      }
+      return _out(
+        advocateText('safetySafeNowIdleBody'),
+        ask: advocateText('safetySafeNowIdleAsk'),
+        chips: _branchStart(),
+        source: AnswerSource.safety,
+      );
+    }
     final safe = _safetyBot.reply(n);
     if (safe == null) return null;
-    // تنها تکرارِ دقیق همان متن سرکوب میشود. یک گزارش تازهٔ خشونت در همان
-    // پرونده نباید بیپاسخ بماند.
-    if (dialog.safetyShown && dialog.lastSafetyText == n) return null;
+    final sev = _safetyBot.severityOf(n);
+    final escalated =
+        sev == SafetySeverity.critical && dialog.safetySeverity != sev;
+    final staleWindow = (file.turns - dialog.lastSafetyTurn) > 3;
+    // تنها تکرارِ دقیق همان متن در همان پنجرهٔ نوبتی و بدون تشدید سرکوب میشود.
+    if (dialog.safetyShown &&
+        dialog.lastSafetyText == n &&
+        !escalated &&
+        !(sev == SafetySeverity.critical && staleWindow)) {
+      return null;
+    }
     // بازکردن بی‌صدای پرونده فقط بار اول؛ تکرار «در خطر هستم» نباید پرونده را
     // دوباره باز کند.
     if (!hasCase && !dialog.safetyShown) {
@@ -81,10 +139,13 @@ extension _ReplyGuards on Advocate {
         dialog.safetyCarry = n;
       }
     }
-    // `_open` وضعیت پرونده را پاک میکند؛ متنِ آخرین هشدار را همیشه **پس** از
-    // آن می نویسیم تا تکرارِ همان پیام سرکوب شود.
+    // `_open` وضعیت پرونده را پاک میکند؛ وضعیت ماشین ایمنی همیشه **پس** از
+    // آن نوشته میشود تا شدت، نوبت و تکرار سرکوب حفظ شود.
     dialog.lastSafetyText = n;
     dialog.safetyShown = true;
+    dialog.safetySeverity = sev;
+    dialog.lastSafetyTurn = file.turns;
+    dialog.acknowledgedSafe = false;
     return safe;
   }
   /// خواندنِ موضوع از پیام: امتیازِ هر موضوع، و امتیازِ «پیامِ پیشینی که پاسخِ

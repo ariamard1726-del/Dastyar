@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dastyar/core/privacy.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 
 /// تنظیمات نباید بی‌صدا شکست بخورد.
 ///

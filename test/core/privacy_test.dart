@@ -8,7 +8,7 @@ import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/feedback.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -159,6 +159,11 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(PrivacyService.isEncrypted(prefs.getString('history_v1')!), isTrue);
       expect(PrivacyService.isEncrypted(prefs.getString('feedback_v1')!), isTrue);
+      // پس از مهاجرت، محمولهٔ بازخورد به قالب نسخه‌دار {'v': 1, 'entries': ...} تبدیل شده است.
+      final openedFb = await PrivacyService.open(prefs.getString('feedback_v1')!);
+      final decodedFb = jsonDecode(openedFb!) as Map<String, dynamic>;
+      expect(decodedFb['v'], 1);
+      expect(decodedFb['entries'], isA<List>());
     });
 
     test('اتصال کانال بومی اندروید برای Keystore، کلیپ‌بورد حساس و FLAG_SECURE', () async {

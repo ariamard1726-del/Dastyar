@@ -22,8 +22,12 @@
 | ۳ | `Advocate` گرهِ مرکزی با حلقهٔ `routes → reply → routes` | ایندکسِ صریحِ قواعد + آزمونِ «یک نوبت، یک افزایش» | `respond` بازگشتی بیش از سقف نزند؛ `turns` در هر پیام دقیقاً یکی بزرگ شود | **انجام شد** |
 | ۴ | کنترلرِ ۳۱۲خطی با سه مسئولیت | یک منبع ارزیابی؛ کنترلر لاغر | `chat_controller` زیر ۱۵۰ خط با رفتار یکسان | **انجام شد** |
 | ۵ | ۲۴ فایلِ قانون و ۱۷ مگابایت دارایی در استارت خوانده و ایندکس می‌شود | سنجشِ خطِ پایه + تصمیمِ آگاهانه دربارهٔ تنبل‌سازی | زمانِ استارت در CI ثبت و از خطِ پایه بدتر نشود | **انجام شد** |
-| ۶ | کاهش حجم مدل/داده (Noql؛ حدود ۱۲٫۷ مگابایت) | بررسی و تصمیم معماری دربارهٔ اندازهٔ بسته و مدل | توافق بر سر جایگزین یا فشرده‌سازی بدون افت دقت | **موکول به مرحلهٔ آخر (در انتظار بررسی)** |
+| ۶ | کاهش حجم مدل/داده (Noql؛ حدود ۱۲٫۷ مگابایت) | بررسی و تصمیم معماری دربارهٔ اندازهٔ بسته و مدل | توافق بر سر جایگزین یا فشرده‌سازی بدون افت دقت | **متوقف/کنارگذاشته‌شده به دستور کاربر** (مدل فاین‌تون در `noql` دست‌نخورده می‌ماند) |
 | ۷ | تکرار پارس لاگ CI، جدول ارقام، `AI_MARKERS`، خواندن `_meta.json` و `open()`های بی‌بست در `dev/tools/` | یکپارچه‌سازی در `lawtext.py` و `ci_annotate.py` با ۰ `ResourceWarning` | اشتراک پارس در گزارشگرهای CI، متمرکزشدن ابزارها روی `lawtext.py`، ۰ فایل باز رهاشده و به‌روزرسانی مستندات | **انجام شد** |
+| ۸ | فراخوانی همگام در `GuideReply`/`LawTerms`، نبود ماشین شدت/پنجره در ایمنی، نبود `schemaVersion` در `DraftSession`/`FeedbackStore` و استثنای فلاتر در `lib/domain/settings.dart` | اجرای ناهمگام در `EngineWorker` (`prepareWith`/`matchTermsInWorker`)، ماشین حالت ایمنی (`SafetySeverity` و پنجره)، `schemaVersion = 1` با مهاجرت مقاوم و دامنهٔ صفر-فلاتر | صفر `DOMAIN_FLUTTER_ALLOWLIST`، عبور ایمنی از `SafetySeverity` و «الان امن است»، نسخه‌بندی ذخیره‌ها و حفظ ۱۳۰/۱۳۰ و ۷۰۱+ آزمون سبز | **انجام شد** |
+| ۹ | وجود کلوژرهای بی‌نام (`Reader`/`Body`/`Cond`/`Tri`) در ۲۰ موضوع ساده/میانی | موتور `RuleDSL` سبک (`FactExpr`/`MatchRule`/`RuleRef`) و رجیستری قاعده‌های نام‌دار | مهاجرت ۲۰ موضوعِ غیرچندفایلی به شناسهٔ قاعده/DSL، حفظ ۱۳۰/۱۳۰ و ۱۷/۱۷ بدون تغییر رفتار | **پیش‌رو (گام بعدی)** |
+| ۱۰ | کلوژرهای مرکب در ۴ موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) | مهاجرت کامل ۴ موضوع بزرگ و سریال‌پذیرشدن `Topic.toJson()` | حذف کلوژرهای بی‌نام از کل ۲۴ موضوع با نگهبان عددی `Topic.toJson()` | **پیش‌رو** |
+| ۱۱ | همگام‌سازی جفت‌های منطق موازی پایتون/دارت (`duplicated_logic.json`) | یکپارچه‌سازی منبع قوانین تطبیق/نرمال‌سازی و جمع‌بندی مستندات | عبور تمام جفت‌های برابری و تازگی کامل مستندات معماری | **پیش‌رو** |
 
 ## فاز ۰ — ابزارِ مشترکِ خواندن (انجام شد)
 
@@ -309,6 +313,28 @@ APK فقط به امیدِ `pubspec.yaml` بود. کلید نسخهٔ قدیمی
 
 **نتیجه:** ۳۴۲/۳۴۲ آزمون پایتون (`unittest`) و `check.py all` سبز با `0` هشدار `ResourceWarning`، و هم‌راستایی کامل `README.md` و `docs/PHASES.md`.
 
+## فاز ۸ — مسیر غیرهمگام موتور، ماشین حالت ایمنی، نسخه‌بندی ذخیره‌ها و دامنهٔ بی‌فلاتر (انجام شد)
+
+**ضعف:**
+1. `GuideReply.follow` (`guide_reply.dart`) و `TermReply.lawTerms` (`term_reply.dart` → `LawTerms.match`) هنوز در زمان تعامل کاربر به‌صورت همگام روی رشتهٔ UI اجرا می‌شدند، در حالی که `EngineWorker` تنها برای `LawAnswer` استفاده می‌شد.
+2. `SafetyState` تنها `safetyShown`/`safetyCarry`/`lastSafetyText` داشت و شدت خطر (`elevated`/`critical`)، پنجرهٔ نوبتی (`lastSafetyTurn`) و گذارِ خروج به «الان امن است/هستم» (`acknowledgedSafe`) مدل‌سازی نشده بودند.
+3. `DraftSession` و `FeedbackStore` نسخهٔ صریح (`schemaVersion`) و ردّ ایمنِ نسخهٔ آینده نداشتند.
+4. `lib/domain/settings.dart` آخرین عضو `DOMAIN_FLUTTER_ALLOWLIST` بود که `package:flutter/material.dart` را وارد لایهٔ دامنه می‌کرد.
+
+**کار انجام‌شده:**
+- **گسترش `EngineWorker` برای اجراهای غیرهمگام دامنه بدون شکستن مرز لایه:** افزودن RPC عمومی `run<A, R>` / `KnowledgeEngine.prepareWith<A, R>` به `engine_worker.dart` و `engine.dart` (بدون وابستگی `core` به `domain`)، پیش‌ساخت هم‌زمان `guideReply` و `matchTermsInWorker` در `ReplyFlow._process`، و پشتیبانی `prepared` / `preparedMatch` در `GuideReply` و `TermReply` (با حفظ مسیر همگام به‌عنوان پشتیبان در آزمون‌ها و خطای isolate).
+- **ماشین حالت ایمنی:** افزودن `enum SafetySeverity { none, elevated, critical }`، `lastSafetyTurn` و `acknowledgedSafe` در `SafetyState` (همراه با سریال‌پذیری کامل در `DialogueState.toJson/applyJson`)، `severityOf()` و `acknowledgesSafe()` در `SafetyReply` و گذارِ تشدید و بازگشتِ امن در `_safetyReply`.
+- **نسخه‌بندی ذخیره‌ها:** افزودن `schemaVersion = 1` به `DraftSession` و `FeedbackStore` با پشتیبانی از مهاجرت دادهٔ قدیمی و ردّ ایمنِ نسخهٔ آینده.
+- **دامنهٔ صفر-فلاتر:** انتقال `AppSettings` به `lib/ui/app_settings.dart`، حذف `lib/domain/settings.dart`، به‌روزرسانی واردات در UI و آزمون‌ها، و تهی‌کردن `DOMAIN_FLUTTER_ALLOWLIST = set()` در `tests/python/test_architecture.py`.
+
+**نگهبان:** `tests/python/test_phase8_runtime_and_layers.py` و آزمون‌های واحد دارت در `test/engine/worker_test.dart`، `test/domain/safety_reply_test.dart`، `test/advocate/safety_test.dart`، `test/app/draft_checkpoint_test.dart` و `test/core/privacy_test.dart`.
+
+## فازهای پیش‌رو (۹ تا ۱۱)
+
+- **فاز ۹ (`RuleDSL` + مهاجرت ۲۰ موضوع ساده/میانی):** معرفی موتور سبک `FactExpr`/`MatchRule`/`RuleRef` قابل سریال‌پذیری در `case_model.dart` (در کنار حفظ `const String` برای regexها و بدون افت عملکرد) و مهاجرت ۲۰ موضوع غیرچندفایلی.
+- **فاز ۱۰ (مهاجرت ۴ موضوع بزرگ `cheque`، `family`، `labor`، `rent`):** جایگزینی کلوژرهای مرکب با قاعده‌های نام‌دار/DSL و قفل‌کردن سریال‌پذیری `Topic.toJson()` روی کل ۲۴ موضوع.
+- **فاز ۱۱ (همگام‌سازی منطق موازی پایتون/دارت و جمع‌بندی نهایی):** تکمیل مرجع واحد جفت‌های `duplicated_logic.json` و به‌روزرسانی نهایی مستندات.
+
 ## وضعیتِ P0های بازبینیِ انتشار (شاخهٔ جاری)
 
 جدول بالا نقشهٔ قدیمیِ بدهی هاست؛ فهرست وضعیتِ زیر مربوط به بازبینیِ
@@ -342,5 +368,5 @@ APK فقط به امیدِ `pubspec.yaml` بود. کلید نسخهٔ قدیمی
   می‌شود و مالکیتِ تازه‌ای ساخته نمی‌شود.
 - **بردنِ API عمومی به `extension`**: آزموده شد و شکست (موج ۲۶)؛ حالا نگهبان
   دارد.
-- **JSONکردنِ closureها**: `const String` به `RegExp`ِ زمانِ اجرا تبدیل
-  می‌شود؛ همان چیزی که شرطِ «بدونِ ضربه به عملکرد» را نقض می‌کند.
+- **جایگزینی کلوژرهای موضوع‌ها با شناسهٔ قاعده/DSL سبک (فازهای ۹ و ۱۰):** در نسخهٔ فعلی، تبدیل کلوژرها بدون تبدیل `const String` به `RegExp` زمانِ اجرا انجام می‌شود تا شرطِ «بدون ضربه به عملکرد» حفظ شود.
+- **رهاشدن فاز ۶ (`assets/brain/noql*`):** به دستور صریح کاربر به‌دلیل آموزش‌پذیربودن و فاین‌تون‌بودن مدل `noql` کنار گذاشته شد.

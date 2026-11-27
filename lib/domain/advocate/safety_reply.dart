@@ -36,6 +36,26 @@ class SafetyReply {
       'خودکش|خودمو میکشم|خودم را میکشم|دیگه تحمل ندارم|دیگر تحمل ندارم|'
       'نمیخوام زنده بمونم|نمیخواهم زنده بمانم|قصد دارم بمیرم');
 
+  bool acknowledgesSafe(String n) => Sense.has(
+      n,
+      '^(?:الان )?(?:امن (?:است|هست|هستم)|در خطر نیستم|جای امنی هستم|خطر رفع شد(?:ه)?)\$');
+
+  bool _isCalled(String n) =>
+      Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
+      Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
+
+  bool _isViolent(String n) =>
+      Sense.has(n,
+          'کتک|کفش پرت|پرت (?:می|کرد|کنه|میکنه)|چاقو|تهدید|(?:را|رو|منو|مرا|ما را|او را|بچه رو|بچه را) (?:زد|زده|زدن|میزن|می زن|میزنه|میزنن|میزند)') &&
+      Sense.has(n,
+          'خاله|عمه|عمو|دایی|مادر|پدر|برادر|خواهر|شوهر|زنم|همسرم|بچه|پسرم|دخترم|مادرم|پدرم|خانواده|نامادری|ناپدری');
+
+  SafetySeverity severityOf(String n) {
+    if (asksSelfHarm(n) || asksDanger(n)) return SafetySeverity.critical;
+    if (_isCalled(n) || _isViolent(n)) return SafetySeverity.elevated;
+    return SafetySeverity.none;
+  }
+
   AdvocateReply? reply(String n) {
     // «الان در خطر هستم» جوابِ پرسش خودِ ماست و باید سریع‌ترین راه را بدهد.
     if (asksSelfHarm(n)) {
@@ -60,12 +80,8 @@ class SafetyReply {
         source: AnswerSource.safety,
       );
     }
-    final called = Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
-        Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
-    final violent = Sense.has(n,
-            'کتک|کفش پرت|پرت (?:می|کرد|کنه|میکنه)|چاقو|تهدید|(?:را|رو|منو|مرا|ما را|او را|بچه رو|بچه را) (?:زد|زده|زدن|میزن|می زن|میزنه|میزنن|میزند)') &&
-        Sense.has(n,
-            'خاله|عمه|عمو|دایی|مادر|پدر|برادر|خواهر|شوهر|زنم|همسرم|بچه|پسرم|دخترم|مادرم|پدرم|خانواده|نامادری|ناپدری');
+    final called = _isCalled(n);
+    final violent = _isViolent(n);
     if (called) {
       return _out(
         advocateText('safetyCalledText'),

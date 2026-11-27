@@ -182,6 +182,13 @@ class KnowledgeEngine {
   Future<EngineReply?> prepareQuery(String question) =>
       _worker?.query(question) ?? Future<EngineReply?>.value(null);
 
+  /// اجرای یک تابعِ سطحِ بالا یا static درون isolate دائمی موتور، یا `null`.
+  Future<R?> prepareWith<A, R>(
+    R Function(KnowledgeEngine engine, A arg) task,
+    A arg,
+  ) =>
+      _worker?.run<A, R>(task, arg) ?? Future<R?>.value(null);
+
   /// آزادسازی isolate هنگام بستن صفحه.
   void dispose() {
     _worker?.dispose();

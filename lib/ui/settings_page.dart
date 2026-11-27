@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/persian_text.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   final AppSettings settings;

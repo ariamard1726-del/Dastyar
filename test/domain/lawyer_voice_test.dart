@@ -4,7 +4,7 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/lawyer/lawyer_voice.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 

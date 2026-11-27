@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 
 /// توضیح کوتاه بار نخست، پیش از اینکه برنامه شروع به نوشتن داده کند.
 ///

@@ -180,7 +180,10 @@
     "safetyChipSafeNow": "الان امن هستم",
     "safetyChipDangerNow": "هنوز در خطر هستم",
     "safetyChipInDanger": "الان در خطر هستم",
-    "safetyChipSafe": "الان امن است"
+    "safetyChipSafe": "الان امن است",
+    "safetySafeNowCaseBody": "خوب است که جای امنی هستید. حالا هر وقت آماده بودید، می‌توانیم موضوع حقوقی‌تان را دنبال کنیم.",
+    "safetySafeNowIdleBody": "خوب است که الان جای امنی هستید. هر وقت آماده بودید می‌توانید بگویید چه اتفاقی افتاده تا مسیر حقوقی‌اش را بررسی کنیم.",
+    "safetySafeNowIdleAsk": "الان می‌خواهید چه موضوعی را بررسی کنیم؟"
   },
   "meta": {
     "metaFallbackTitle": "همین موضوع",

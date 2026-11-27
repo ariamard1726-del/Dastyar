@@ -34,7 +34,7 @@ SECTIONS = {
     'constants': (12, '51ae82a9c1cc8e40e504260680add737b1a1134ef5fd2eca051b06842c33ed17'),
     'voice': (3, '23952144879564a05480fd03a46b46918b2326a6d74bb5f63f293d08e68c5f16'),
     'understanding': (11, 'c6ab5e4ae7a5bd4e383e8172cfb2b8a8a64d6ceab2b388ff834ae0b32f54e091'),
-    'safety': (12, '4ebd9bfc3281e914585777d24a79289c1091ca9d9044ced79b06e30ab3e3ddc3'),
+    'safety': (15, '31ba17c70ced7987a9c8465df205daa3394fa6766ccf31003f25caced3617ac0'),
     'meta': (14, '220fc54baeb8d69ebb1f95c8079335f19e66616cf1a3647c90798d0185bb9780'),
     'talk_route': (49, 'fa635c33f73330b6212a225ce5123dcfc7316792ddf87489a0d785fc07dfa3f2'),
     'talk_reply': (37, 'eb0f9ed6258add68cef47a27fda5bee668c83beb93f22188a7ee9ea226d727fc'),

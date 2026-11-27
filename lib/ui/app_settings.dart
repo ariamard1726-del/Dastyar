@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/settings_state.dart';
-import 'package:dastyar/core/privacy.dart';
 
 /// لایهٔ رابط برای [SettingsSnapshot]: فقط اعلان تغییر و خواندن/نوشتن دیسک.
 /// تمام قواعد مقادیر معتبر و تبدیلها در `settings_state.dart` مستقل از فلاتراند.

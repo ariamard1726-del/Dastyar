@@ -2,6 +2,8 @@ import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/dialogue_sections.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
 
+export 'package:dastyar/domain/advocate/dialogue_sections.dart';
+
 /// آنچه در این نوبت «روی میز» است، بهصورت یک نمایندهٔ نازک.
 ///
 /// پیشتر این ۲۵ فیلد مستقیم روی همین کلاس بودند (گاد-آبجکت). اکنون پنج تکهٔ
@@ -72,6 +74,12 @@ class DialogueState {
   set safetyShown(bool v) => safety.safetyShown = v;
   String get lastSafetyText => safety.lastSafetyText;
   set lastSafetyText(String v) => safety.lastSafetyText = v;
+  SafetySeverity get safetySeverity => safety.safetySeverity;
+  set safetySeverity(SafetySeverity v) => safety.safetySeverity = v;
+  int get lastSafetyTurn => safety.lastSafetyTurn;
+  set lastSafetyTurn(int v) => safety.lastSafetyTurn = v;
+  bool get acknowledgedSafe => safety.acknowledgedSafe;
+  set acknowledgedSafe(bool v) => safety.acknowledgedSafe = v;
 
   String get unclearPhrase => unclear.unclearPhrase;
   set unclearPhrase(String v) => unclear.unclearPhrase = v;

@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/domain/drafting.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 
@@ -98,6 +98,20 @@ void main() {
           reason: 'صف باید ترتیب پاک/ذخیره را حفظ کند');
       final restored = await DraftCheckpointStore.load(templates);
       expect(restored?.values['court_city'], 'تهران');
+    });
+
+    test('نسخه‌بندی schemaVersion در DraftSession و سازگاری با دادهٔ قدیمی', () {
+      final s = DraftSession(templates.first)..values['court_city'] = 'تهران';
+      final json = s.toJson();
+      expect(json['schemaVersion'], DraftSession.schemaVersion);
+
+      final legacy = Map<String, dynamic>.from(json)..remove('schemaVersion');
+      final fromLegacy = DraftSession.fromJson(legacy, templates);
+      expect(fromLegacy, isNotNull);
+      expect(fromLegacy!.values['court_city'], 'تهران');
+
+      final future = Map<String, dynamic>.from(json)..['schemaVersion'] = 99;
+      expect(DraftSession.fromJson(future, templates), isNull);
     });
   });
 }

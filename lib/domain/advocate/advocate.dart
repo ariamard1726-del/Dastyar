@@ -74,7 +74,7 @@ class Advocate {
     engine: engine,
     voice: voice,
     party: _party,
-    prepared: preparedEngineReply,
+    prepared: (q) => _prepared?.engineFor(q),
   );
 
   /// تشخیص موضوع و بحث (کدام پرونده به این پیام می‌خورد).
@@ -116,7 +116,6 @@ class Advocate {
     chipPlan: () => _chipPlan,
   );
 
-  /// راهنما، واژه‌نامه و آخرین راه (بانک و متن قوانین).
   late final GuideReply _guides = GuideReply(
     file: file,
     dialog: dialog,
@@ -127,6 +126,7 @@ class Advocate {
     metaReplies: _metaReplyBot,
     draftTitles: _draftTitles,
     closeCase: () => _case.closeCase(),
+    prepared: (q) => _prepared?.engineFor(q),
   );
 
   /// مسیرهای یک‌نوبتیِ پاسخ (سیزده مسیرِ نام‌دار).
@@ -184,13 +184,13 @@ class Advocate {
   /// آخرین تصمیم: کدام کاندید با چه منبع و دلیلی برنده شد.
   AnswerDecision? lastDecision;
 
-  /// پاسخ‌های واژه‌محور: متنِ مواد و مسیرِ موضوع.
   late final TermReply _termReply = TermReply(
     file: file,
     dialog: dialog,
     voice: voice,
     engine: engine,
     terms: _terms,
+    preparedMatch: (q) => _prepared?.termFor(q),
   );
 
   /// شناسهٔ قالب سند → عنوان آن (برای دکمهٔ «تهیهٔ متن»).
@@ -334,33 +334,36 @@ class Advocate {
         r'بنویس(?:ش|ید|ی)?(?![\u0600-\u06FF])|تنظیم کن|آماده کن|تهیه کن|متن[^ ]* (?:رو |را )?(?:بده|میخوام|آماده)|پیش ?نویس|نمونه[^ ]* (?:بده|میخوام)');
   }
 
-  /// [guess] حدسِ خوانندهٔ موضوع برای همین پیام است (اگر محاسبه شده باشد)؛
-  /// فقط وقتی به‌کار می‌آید که قاعده‌ها موضوع را نشناخته باشند.
-  /// پاسخِ ازپیشساختهٔ موتور در isolate. فقط برای همان متن پیام معتبر است و
-  /// بعد از یک نوبت پاک میشود؛ مسیرهای قدیمی/آزمونها بدون آن کار میکنند.
-  EngineReply? _preparedEngineReply;
-  String _preparedText = '';
+  _PreparedTurn? _prepared;
 
-  EngineReply? preparedEngineReply(String raw) =>
-      _preparedText == raw ? _preparedEngineReply : null;
+  bool wantsTermMatch(String raw, {TopicGuess? guess}) {
+    if (hasCase || (guess != null && guess.confident)) return false;
+    return _termReply.eligible(raw, Sense.norm(raw));
+  }
 
   AdvocateReply respond(
     String raw, {
     TopicGuess? guess,
     EngineReply? engineReply,
+    String guideQuery = '',
+    EngineReply? guideReply,
+    TermMatch? termMatch,
   }) {
-    _preparedEngineReply = engineReply;
-    _preparedText = raw;
+    _prepared = _PreparedTurn(
+      raw: raw,
+      engineReply: engineReply,
+      guideQuery: guideQuery,
+      guideReply: guideReply,
+      termMatch: termMatch,
+    );
     try {
       return _withLeave(_guardedReply(raw, guess: guess));
     } finally {
-      _preparedEngineReply = null;
-      _preparedText = '';
+      _prepared = null;
     }
   }
 
-  /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`. همان
-  /// قاعدهٔ بازشدن پرونده است تا پیشنهادهای هنگام نوشتن هم از همین‌جا بیاید.
+  /// موضوعی که این پیام به‌تنهایی پرونده‌اش را باز می‌کند، یا `null`.
   static String? topicOf(String raw) {
     final n = Sense.norm(raw);
     Topic? best;
@@ -375,9 +378,7 @@ class Advocate {
     return best != null && bestScore >= 3 ? best.id : null;
   }
 
-  /// آیا برای این پیام حدسِ خوانندهٔ موضوع به کار می‌آید؟ محاسبهٔ حدس روی
-  /// گوشی زمان می‌برد؛ فقط وقتی خواسته می‌شود که پرونده‌ای باز نیست و
-  /// قاعده‌ها خودشان موضوع را نشناخته‌اند.
+  /// آیا برای این پیام حدسِ خوانندهٔ موضوع به کار می‌آید؟
   bool wantsGuess(String raw) {
     if (file.topic.isNotEmpty || dialog.guide != null || dialog.choices.isNotEmpty) {
       return false;
@@ -391,9 +392,6 @@ class Advocate {
     return true;
   }
 
-    /// خروجیِ هر پاسخ: استنادها را به نام ماده برمی‌گرداند، متن را کوتاه
-  /// نگه می‌دارد (باقی‌مانده با «ادامه بده» می‌آید) و پرسشِ [ask] را در
-  /// پایان می‌گذارد تا گفتگو دوطرفه بماند.
   AdvocateReply _out(
     String text, {
     List<String> chips = const [],
@@ -404,8 +402,6 @@ class Advocate {
   }) =>
       voice.out(text,
           chips: chips, ask: ask, full: full, budget: budget, source: source);
-  /// دکمه‌های پیشنهادی برای وضعیتِ فعلیِ گفتگو (تصمیم است، نه داده؛ برچسب‌ها
-  /// در `chip_texts.dart`).
-  List<String> get idleChips => _idleChips();
 
+  List<String> get idleChips => _idleChips();
 }

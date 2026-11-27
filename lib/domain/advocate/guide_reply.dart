@@ -20,12 +20,14 @@ class GuideReply {
     required this.metaReplies,
     required this.draftTitles,
     required this.closeCase,
+    this.prepared,
   });
 
   final CaseFile file;
   final DialogueState dialog;
   final ReplyVoice voice;
   final KnowledgeEngine engine;
+  final EngineReply? Function(String query)? prepared;
 
   /// گفت‌وگوی انسانی: «منظورتان چیست؟»، پرسشِ کنجکاو، پاسخِ SOCIAL.
   final TalkReply talk;
@@ -171,7 +173,8 @@ class GuideReply {
     final soc = talk.social(n, null);
     if (soc != null) return soc;
     if (kind.isNotEmpty || Sense.isQuestion(n)) {
-      final r = engine.query('${g.title} $n');
+      final guideQuery = '${g.title} $n';
+      final r = prepared?.call(guideQuery) ?? engine.query(guideQuery);
       if (_isLawHit(r)) {
         return AdvocateReply(
           advocateFormat('guideEngineIntro', {

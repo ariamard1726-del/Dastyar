@@ -16,7 +16,7 @@ import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/core/privacy_migration.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/reader_service.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';

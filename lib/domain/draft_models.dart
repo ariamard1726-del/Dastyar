@@ -17,6 +17,8 @@ class DraftCmd {
 }
 
 class DraftSession {
+  static const int schemaVersion = 1;
+
   final LegalTemplate template;
   final Map<String, String> values = {};
   int index = 0;
@@ -38,6 +40,7 @@ class DraftSession {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        'schemaVersion': schemaVersion,
         'templateId': template.id,
         'templateVersion': template.version,
         'index': index,
@@ -51,6 +54,8 @@ class DraftSession {
     Map<String, dynamic> j,
     List<LegalTemplate> templates,
   ) {
+    final rawVer = j['schemaVersion'];
+    if (rawVer is int && rawVer > schemaVersion) return null;
     final tid = (j['templateId'] ?? '').toString();
     if (tid.isEmpty) return null;
     LegalTemplate? tpl;

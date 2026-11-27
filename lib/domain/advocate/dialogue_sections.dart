@@ -179,6 +179,9 @@ class GuideState {
   }
 }
 
+/// سطح شدت وضعیت ایمنی در ماشین حالت گفتگو.
+enum SafetySeverity { none, elevated, critical }
+
 /// پیام ایمنی و متنی که پاسخ ایمنی جایش را گرفت.
 class SafetyState {
   SafetyState();
@@ -189,10 +192,18 @@ class SafetyState {
   /// سرکوب میشود؛ یک گزارش تازهٔ خشونت باید دوباره هشدار بگیرد.
   String lastSafetyText = '';
 
+  /// شدت آخرین وضعیت ایمنی، نوبت وقوع و تأیید امنیت توسط کاربر.
+  SafetySeverity safetySeverity = SafetySeverity.none;
+  int lastSafetyTurn = -10;
+  bool acknowledgedSafe = false;
+
   void clearCase() {
     safetyShown = false;
     safetyCarry = '';
     lastSafetyText = '';
+    safetySeverity = SafetySeverity.none;
+    lastSafetyTurn = -10;
+    acknowledgedSafe = false;
   }
 
   void reset() => clearCase();
@@ -201,18 +212,36 @@ class SafetyState {
         'carry': safetyCarry,
         'shown': safetyShown,
         'last': lastSafetyText,
+        'severity': safetySeverity.name,
+        'turn': lastSafetyTurn,
+        'ack': acknowledgedSafe,
       };
 
   factory SafetyState.fromJson(Map<String, dynamic> j) => SafetyState()
     ..safetyCarry = (j['carry'] ?? '').toString()
     ..safetyShown = j['shown'] == true
-    ..lastSafetyText = (j['last'] ?? '').toString();
+    ..lastSafetyText = (j['last'] ?? '').toString()
+    ..safetySeverity = _severity(j['severity'])
+    ..lastSafetyTurn = j['turn'] is int ? j['turn'] as int : -10
+    ..acknowledgedSafe = j['ack'] == true;
 
   void absorb(SafetyState o) {
     safetyCarry = o.safetyCarry;
     safetyShown = o.safetyShown;
     lastSafetyText = o.lastSafetyText;
+    safetySeverity = o.safetySeverity;
+    lastSafetyTurn = o.lastSafetyTurn;
+    acknowledgedSafe = o.acknowledgedSafe;
   }
+}
+
+SafetySeverity _severity(Object? raw) {
+  if (raw is String) {
+    for (final v in SafetySeverity.values) {
+      if (v.name == raw) return v;
+    }
+  }
+  return SafetySeverity.none;
 }
 
 /// پیام نامفهومِ قبلی و نوبتِ آن.
