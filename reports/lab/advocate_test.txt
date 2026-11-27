@@ -84,9 +84,9 @@
 ✅ test/advocate/reply_contract_test.dart: هیچ پاسخی بی‌برچسب، خالی یا با رشتهٔ خالی نیست
 ✅ test/advocate/reply_contract_test.dart: هر ماده‌ای که در پاسخ می‌آید، متن و عنوان دارد
 ✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
+✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
 ✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
-✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است
 ✅ test/advocate/conversation_fixes_test.dart: پیام چندموضوعی: موضوع‌ها را نام می‌برد و می‌پرسد از کدام شروع کنیم
@@ -184,9 +184,6 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
-✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
-✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
-✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
 ✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
@@ -195,6 +192,9 @@
 ✅ test/advocate/rule_dsl_test.dart: همهٔ ۲۰ موضوع فاز ۹ به‌صورت RuleDSL تعریف شده و JSON معتبر می‌دهند
 ✅ test/advocate/rule_dsl_test.dart: FactExpr ارزیابی سه‌ارزشی و دوارزشی و toJson را درست انجام می‌دهد
 ✅ test/advocate/rule_dsl_test.dart: موضوع‌های مهاجرت‌یافته در سناریوهای کلیدی خروجی دقیق می‌دهند
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
 ::endgroup::
 
-::error::382 tests passed, 2 failed.
+::error::386 tests passed, 1 failed.
