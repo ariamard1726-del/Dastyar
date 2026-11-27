@@ -1,169 +1,147 @@
-# دستیار — دستیار حقوقی فارسی، آفلاین، بدون مدل زبانی
+# دستیار — دستیار حقوقی فارسی، آفلاین و قطعی
 
-اپ اندرویدی برای آشنایی عمومی با مسائل حقوقی خانواده، اجاره، چک، کار و …
-که پاسخهایش را از **قاعدهها و متنهای بستهبندیشدهٔ خودِ اپ** میسازد، نه از
-یک مدل زبانی. متنها به اینترنت نمیروند و مانیفست اندروید مجوز اینترنت ندارد.
+**دستیار** یک اپلیکیشن اندرویدی (Flutter/Dart) کاملاً آفلاین و متن‌باز با پروانهٔ MIT است که برای راهنمایی عمومی در مسائل حقوقی رایج (اجاره و ودیعه، چک، خانواده، کار، طلب و بدهی، کیفری، ثبتی و …) طراحی شده است. این برنامه **هیچ مدل زبانیِ مولدی (LLM) ندارد**، مجوز اینترنت نمی‌خواهد و هیچ پاسخی را به‌صورت زاینده تولید نمی‌کند؛ تمام پاسخ‌ها از **قاعده‌های صریح (`RuleDSL`)**، **راهنماهای ساختاری** و **متن قوانین بسته‌بندی‌شده درون اپ** ساخته می‌شوند. تنها مدل یادگیرندهٔ برنامه، یک رمزگذار برداری سبک (`Noql`) است که فقط زمانی که قاعده‌ها موضوع پیام را نشناسند، دسته‌بندی موضوعی را به‌عنوان «پیشنهاد» می‌سنجد و از کاربر تأیید می‌گیرد.
 
-> **وضعیت انتشار: مسدود است.** متن ۲۴ قانون بستهبندیشده با منبع رسمی تطبیق
-> داده نشده (`verified`: صفر) و ۷ قالب از ۹ قالب بازبینی انسانی نشدهاند.
-> دروازهٔ `python3 dev/tools/check.py trust` در ساخت release اجرا میشود و
-> امروز عمداً قرمز است. این اپ نمونهٔ قابل بررسی است، نه منبع رسمی قانون و
-> نه جایگزین وکیل یا مشاوره.
+> **وضعیت انتشار: مسدود است.** تا این لحظه **۰/۲۴** قانون بسته‌بندی‌شده با منبع رسمی تطبیق داده شده‌اند (`verified`: صفر) و تنها **۲/۹** قالب سند بازبینی انسانی شده‌اند. دروازهٔ `python3 dev/tools/check.py trust` در گردش‌کار انتشار (`build.yml`) اجرا می‌شود و امروز عمداً قرمز است. پیش از تطبیق رسمی متون، این مخزن صرفاً نمونهٔ مهندسیِ قابل بررسی است و جایگزین وکیل یا مشاورهٔ حقوقی نیست.
 
-## این اپ عملاً چه میکند
+---
 
-| قسمت | رفتار قابل مشاهده |
+## ۱. شاخص‌های واقعی مخزن (تاییدشده در CI و ابزارهای محلی)
+
+| سنجه | مقدار واقعی | منبع سنجش |
+|---|---|---|
+| کد برنامه (`lib/`) | **۱۷۰** فایل Dart (مجموع **۲۴٬۹۱۵** خط؛ بزرگ‌ترین فایل `advocate.dart` ۴۰۷ خط و هیچ فایلی بالای سقف ۴۲۰ خط نیست) | `dev/tools/library.py` و `tests/python/test_file_sizes.py` |
+| آزمون‌های Flutter/Dart | **۷۲۱** آزمون سبز (`۱۰۸` فایل آزمون؛ شامل ۳۸۷ آزمون وکیل و خط پایهٔ ۷۰۱ آزمون پس از تفکیک کنترلر) و پوشش کد **۹۱٫۸٪** (`8023/8740` خط) | `reports/last_test.txt` و `reports/coverage.txt` |
+| سناریوهای گفتگوی انتها‌به‌انتها | **۱۳۰ از ۱۳۰** و **۱۷ از ۱۷** سناریوی موفق، تحلیل ایستا با **۰ هشدار/خطا** | گردش‌کار `.github/workflows/test.yml` |
+| آزمون‌های نگهبان و قرارداد (Python) | **۳۶۳ از ۳۶۳** آزمون سبز در `۵۸` فایل با `-W error::ResourceWarning` بدون هیچ نشت فایل | `tests/python/` و `check.py all` |
+| دانش قوانین و نثر داده‌ای | **۲۴** قانون (`۵٬۷۲۴` بخش، `۹٬۲۱۴` واژه)، **۲۴** موضوع، **۳۴** راهنما، **۱۲۰** پرسش‌وپاسخ اجاره، **۹** قالب سند، **۲٬۱۰۴** کلید نثر ثابت در JSON (`۶۶` فایل تحت قفل هش SHA-256) | `assets/brain/text_manifest.json` و `reports/startup.txt` |
+| عملکرد استارت و حافظه (CI) | بارگذاری سرد **۱٬۱۳۴ ms** (`assets: ۷۲ ms`، `index: ۱٬۰۶۲ ms`)، آماده شدن Isolate موتور **۱٬۱۵۹ ms**، نخستین پرسش **۵۰ ms**، حجم کل دارایی‌ها **۱۶٫۸۸ MB** (`۱۲٫۷۲ MB` بارگذاری تنبل Noql)، حافظهٔ آزمون **۲۵۲٫۸ MB** | `reports/startup.txt` و `dev/tools/startup_gate.py` |
+
+---
+
+## ۲. برنامه چگونه کار می‌کند؟ (جریان گام‌به‌گام اجرا و پاسخ‌گویی)
+
+### الف) راه‌اندازی امن و بوت برنامه (`lib/main.dart`)
+1. در شروع اجرا، `AppSettings.load()` تنظیمات ذخیره‌شده (مقیاس قلم، تم، وضعیت رضایت و محافظت صفحه) را بارگذاری می‌کند و `applySecureScreenAtStartup()` با کانال بومی Android بررسی می‌کند که آیا `FLAG_SECURE` واقعاً فعال شده است یا نه (اگر گوشی اعمال نکند، تیک به‌دروغ روشن نمی‌ماند).
+2. اگر کاربر هنوز رضایت بار نخست را نداده باشد، صفحهٔ `PrivacyNoticePage` نمایش داده می‌شود تا کاربر آگاهانه ذخیرهٔ تاریخچه را بپذیرد یا حالت «فقط همین اجرا» را برگزیند.
+3. در `Loader._init()`:
+   - ابتدا `PrivacyService.beginSession()` کانال بومی `com.ariabod.dastyar/privacy` (`probe` در `MainActivity.kt`) را می‌آزماید. اگر Keystore سخت‌افزاری قابل استفاده نباشد، پرچم `persistenceAllowed = false` می‌شود تا نوشتن تاریخچه، پیش‌نویس و بازخورد به‌صورت **fail-closed** متوقف شود و داده‌ای با کلید موقت غیرقابل‌بازیابی نوشته نشود.
+   - `PrivacyMigration.run()` داده‌های نسخهٔ پیشین (`encf1:` با کلید قدیمی) را یک‌بار با Keystore دوباره مهروموم یا در صورت نبود Keystore/خرابی پاک می‌کند و `PrivacyService.discardLegacyKey()` کلید قدیمی را از دیسک حذف می‌کند.
+   - به‌طور هم‌زمان، `KnowledgeEngine.load(startWorker: true)` (با `cache: false` برای جلوگیری از کش دوگانهٔ رشته‌های خام در `rootBundle` و راه‌اندازی Isolate دائمی `EngineWorker`)، راهنماهای آماده (`loadLegalGuides`)، سه دارایی نثر وکیل (`loadRentTexts`، `loadTopicTexts`، `loadAdvocateTexts`)، قالب‌های سند (`TemplateRepository.load`)، تاریخچه (`HistoryStore.load`)، پیش‌نویس نیمه‌کاره (`DraftCheckpointStore.load`) و پاک‌سازی بقایای قدیمی (`LegacyCleanup.run`) اجرا می‌شوند.
+   - مدل برداری ۱۲٫۷ مگابایتی `Noql` (`ReaderService`) در شروع برنامه بار نمی‌شود و به‌صورت تنبل تا نخستین پیامی که قاعده‌ها موضوعش را نشناسند به تاخیر می‌افتد.
+
+### ب) مسیر پردازش یک پیام کاربر (`ChatPage` → `ChatController` → جریان‌های سه‌گانه)
+کنترلر `ChatController` (`lib/ui/chat_controller.dart`) تنها یک سیم‌کشی نازک میان سه همکار مستقل است:
+1. **`DraftFlow` (`lib/ui/draft_flow.dart`):** اگر کاربری در حال پرکردن فرم یک سند باشد یا پیام درخواست نوشتن سند بدهد (با تشخیص `DraftIntent` یا پذیرش پیشنهاد «تنظیم دادخواست/لایحه»)، پیام به `DraftStep.answer` می‌رود، فیلدها یکی‌یکی اعتبارسنجی (عدد، کد ملی، تلفن، گزینه، متن) و با داده‌های پروندهٔ وکیل (`Advocate.fillFor`) تکمیل می‌شوند و در پایان `TemplateRenderer` سند نهایی را می‌سازد. در صورت فعال‌بودن گزینه، پیش‌نویس ناتمام در `DraftCheckpointStore` رمزنگاری و ذخیره می‌شود.
+2. **`GuessFlow` (`lib/ui/guess_flow.dart`):** اگر هیچ پرونده‌ای باز نباشد و `Advocate.wantsGuess(raw)` تایید کند پیام حداقل ۳ واژه دارد و هیچ موضوعی در آن به آستانهٔ بازشدن نرسیده است، کنترلر به صورت ناهمگام از `ReaderService` (مدل `Noql` در Isolate) حدس موضوع را می‌گیرد (`TopicGuess` با آستانه‌های `open ≥ 0.143`، `margin ≥ 0.04`، `ask ≥ 0.087`).
+3. **`ReplyFlow` (`lib/ui/reply_flow.dart`):** صف ترتیبی پیام‌ها و شمارندهٔ نسل گفتگو (`_generation`) را نگه می‌دارد تا پیام در صف، پس از زدن «گفتگوی جدید» به گفتگوی تازه نچسبد. سپس پرس‌وجوی موتور (`prepareQuery`)، پرس‌وجوی راهنمای باز (`guideReply`) و تطبیق واژه‌ها (`matchTermsInWorker`) را هم‌زمان در Isolate دائمی `EngineWorker` پیش‌ساخته و به `Advocate.respond` می‌فرستد.
+
+### پ) مغز تصمیم‌گیری وکیل (`lib/domain/advocate/`)
+هر پاسخ وکیل از مسیر `_guardedReply` (`ReplyLoopGuard` با سقف بازگشت `maxReplyDepth = 1` و ثبت یک‌بارهٔ `file.turns`) وارد `_reply` می‌شود. ترتیب اولویت پاسخ‌ها در `assets/pipeline.json` و جدول `advocate_data.dart` با آستانه‌های `netMin = 0.6`، `topicOpenMin = 3`، `topicStrongMin = 5` و `topicDominantMin = 5` قفل شده و داور `AnswerArbiter` از میان **۲۰ کاندید نام‌دار** اولین برنده را برمی‌گرداند:
+1. **ایمنی (`SafetyReply`):** خشونت خانگی، تهدید، خودآسیبی و خطر فوری پیش از هر تحلیل حقوقی بررسی می‌شوند، وضعیت شدت (`SafetySeverity`: `none` / `elevated` / `critical`) و پنجرهٔ نوبتی را نگه می‌دارد و شمارهٔ اورژانس (۱۱۰، ۱۱۵، ۱۲۳) می‌دهد.
+2. **حفاظت و هدایت گفتگو (`ReplyRoutes` / `TalkRoute` / `MetaReply`):** خروج از بحث، اصلاح برداشت قبلی وکیل («منظورم … نبود»)، لغو درخواست سند، ارجاع صریح به شمارهٔ ماده، پرسش دربارهٔ موضوع هم‌جوار (`also`)، مهلت اعتراض، احوال‌پرسی، ابراز ناامیدی/سوگ، خلاصهٔ پرونده و راهنمای «این برنامه چیست».
+3. **پروندهٔ قاعده‌محور ۲۴ موضوع (`RuleDSL` + `CaseFlow` + `Reasoner`):**
+   - هر ۲۴ موضوع (`topics/*.dart`) بدون کلوژر بی‌نام و با گره‌های سریال‌پذیر `RuleDSL` (`FactExpr`، `TextExpr`، `ReadRule`، `GateRule`، `RankRule`، `FilingRule`، `PromptRule`، `FillRule`) تعریف شده‌اند و با `Topic.toJson()` به JSON تبدیل می‌شوند.
+   - پس از استخراج واقعیت‌ها از متن محاوره‌ای (`Sense.norm`، مبلغ، مدت، بله/نه، واژه‌های حقوقی)، `CaseFacts.absorb` پرونده (`CaseFile`) را به‌روزرسانی می‌کند، `Reasoner` تک‌تک ادعاها (`Claim`) و ارکانشان (`Element`) را سه‌ارزشی (`✓`، `✗`، `؟`) می‌سنجد و `CasePlan` هوشمندترین پرسش بعدی (`Slot`) را انتخاب می‌کند.
+4. **لایه‌های تکمیلی و آخرین راه (`TermReply`، `GuideReply`، `LawAnswer`):**
+   - `LawTerms`: تطبیق دقیق واژه‌های پرسش با متن قوانین (با حذف ایست‌واژه‌ها و رتبه‌بندی بر پایهٔ قرارداد `law_terms.json`).
+   - `Glossary` و `LegalGuides`: واژه‌نامهٔ اصطلاحات و ۳۴ راهنمای ساختاری آماده.
+   - `TopicFlow`: درخت تصمیم JSON برای مسیرهای `live` (مانند `assets/brain/topics/cheque.json`).
+   - `TopicPicker` (`Noql`) و نظر دوم `IntentNet` (شبکهٔ سبک n-gram با اطمینان `>= 0.6`).
+   - `QaBank` (۱۲۰ پرسش‌وپاسخ اجاره) و در نهایت رتبه‌بندی قطعی `BM25F` در `KnowledgeEngine` (`LawRanker` + `LawMention` + `LawTopicPrior` + `ConflictsService`).
+
+### ت) حریم خصوصی و ذخیره‌سازی محلی (`MainActivity.kt` + `PrivacyService` + `HistoryStore`)
+- `AndroidManifest.xml` هیچ `uses-permission` (از جمله اینترنت) ندارد و `allowBackup="false"` است.
+- در اندروید، کلید سخت‌افزاری `AES-256-GCM` داخل `AndroidKeyStore` (`dastyar_local_store_v1`) قرار دارد. هر گفتگو در `HistoryStore` کلید رمزشدهٔ مستقل (`history_v1:m:<id>`) با قالب `v: 4` دارد که علاوه‌بر پیام‌ها، `caseJson` (`CaseFile`) و `dialogueJson` (`DialogueState`) را ذخیره می‌کند تا دکمه‌ها و وضعیت پرسش‌های نیمه‌کاره پس از بستن برنامه عیناً بازگردد.
+- در سکوهای فاقد کانال بومی، `PrivacyService` در حالت پیش‌فرضِ برنامه پس از `beginSession()` ذخیرهٔ دیسک را خاموش (`fail-closed`) نگه می‌دارد و در تست‌های واحد از رمزنگاری احرازهویت‌شدهٔ HMAC-SHA256 + CTR با کلید صرفاً در حافظه استفاده می‌کند. کلیپ‌بورد اسناد نیز با پرچم `EXTRA_IS_SENSITIVE` اندروید ۱۳+ کپی می‌شود.
+
+---
+
+## ۳. نقشهٔ کامل پوشه‌ها و فایل‌های پروژه
+
+| مسیر | نقش و فایل‌های اصلی |
 |---|---|
-| گفتگو | ماجرا را به فارسی محاورهای میگیرید. وکیل قاعدمحور موضوع را تشخیص میدهد، حقایق پرونده را نگه میدارد، پرسش بعدی را میپرسد و در صورت پیدا شدن متن قانون، شماره و متن همان ماده را میآورد. |
-| ایمنی | پیامهای خشونت، خطر فوری و خودآسیبی پیش از مسیر حقوقی بررسی میشوند و شمارههای اضطراری (۱۱۰، ۱۱۵، ۱۲۳) میدهند. تکرار دقیق همان متن سرکوب میشود، ولی گزارش تازهٔ خطر دوباره پاسخ میگیرد. |
-| مسیر موضوع | جریانهای قاعدمحور اجاره، ودیعه، تخلیه، چک، کار، خانواده و … با مدارک و گامهای لازم. |
-| سند | ۹ قالب پیشنویس (دادخواست، شکواییه، اظهارنامه، لایحه و …) با پر کردن گامبهگام فیلدها. متن نهایی را میبینید، کپی میکنید یا از طریق منوی گوشی به اشتراک میگذارید. |
-| تاریخچه | تا ۳۰ گفتگو، هر گفتگو تا ۱۰۰ پیام. قابل جستجو، باز کردن، حذف و صدور متنی. وضعیت پرونده و دکمههای همان نوبت هم ذخیره میشوند تا باز کردن دوباره، معنای پرسشها را عوض نکند. |
-| تنظیمات | اندازهٔ متن (چهار سطح)، تم روشن/تیره/سیستم، ذخیرهٔ تاریخچه، ذخیرهٔ موقت پیشنویس، محافظت صفحه در برابر اسکرینشات (در صورتی که گوشی بپذیرد). |
+| `lib/main.dart` | نقطهٔ ورود اپ، بارگذاری پروانهٔ Noql، تنظیم تم/فونت، صفحهٔ رضایت اولیه و راه‌اندازی هم‌زمان در `Loader` |
+| `lib/core/` | هستهٔ بدون وابستگی به لایهٔ دامنه: `engine.dart`، `engine_load.dart`، `engine_query.dart`، `engine_worker.dart` (Isolate دائمی)، `engine_rules.dart` (تولیدشده)، `law_index.dart`، `law_ranker.dart` (BM25F)، `law_mention.dart`، `law_text.dart`، `article_query.dart`، `law_topic_prior.dart`، `conflicts_service.dart`، `persian_text.dart` + `text_norm_rules.dart` (تولیدشده)، `qa_bank.dart`، `replies.dart`، `router.dart`، `jalali.dart`، `models.dart`، `privacy.dart`، `privacy_migration.dart`، `history.dart` + `history_models.dart` + `history_store.dart`، `legacy_cleanup.dart` |
+| `lib/domain/` | منطق حقوقی و مدل‌های خالص (کاملاً بدون `package:flutter`): `templates.dart`، `drafting.dart` و ۵ فایل `draft_{models,words,intent,step,laws}.dart`، `feedback.dart`، `intent_net.dart`، `input_suggestions.dart`، `settings_state.dart` |
+| `lib/domain/advocate/` | هماهنگ‌کننده و همکاران وکیل: `advocate.dart`، `advocate_{data,model,constants,text,texts_loader,reply,reply_guard,reply_case,talk,topic,case,chips,argue,meta,leave}.dart`، `answer_candidate.dart`، `case_{file,state,model,flow,facts,answer,text,plan,recap}.dart`، `dialogue_{state,sections}.dart`، `rule_dsl*.dart` (۵ فایل)، `reasoner.dart`، `reply_{routes,voice}.dart`، `safety_reply.dart`، `talk_{reply,route}.dart`، `term_reply.dart`، `guide_reply.dart`، `law_{answer,terms,terms_rules}.dart`، `topic_{flow,picker,read,score}.dart`، `chip_{plan,texts}.dart`، `glossary.dart`، `phrases.dart`، `text_sense.dart`، `understanding.dart` |
+| `lib/domain/advocate/topics/` | ثبت موضوع‌ها (`all.dart`)، قواعد مشترک (`shared.dart`)، بارگذارها (`rent_texts_loader.dart`، `topic_texts_loader.dart`) و ۲۴ موضوع حقوقی (`accused`، `admin`، `cheque`، `child`، `company`، `consumer`، `cyber`، `debt`، `enforce`، `family*` (۵ فایل)، `fight`، `foreign_contract`، `guarantee`، `inherit`، `injury`، `labor*` (۵ فایل)، `marriage`، `minor_sale`، `neighbor`، `partner`، `property`، `rent*` (۱۴ فایل)، `sale`، `theft`) |
+| `lib/domain/lawyer/` | `legal_guides.dart`، `legal_guides_loader.dart` و لحن راهنماها در `lawyer_voice.dart` |
+| `lib/domain/understanding/` | موتور برداری Dart خالص `Noql`: `noql_tokenizer.dart`، `noql_encoder.dart` (int8)، `topic_reader.dart`، `reader_service.dart` (Isolate با تایم‌اوت ۱۲ ثانیه) و `topic_guess.dart` |
+| `lib/ui/` | رابط کاربری و کنترلر: `chat_controller.dart`، `draft_flow.dart`، `guess_flow.dart`، `reply_flow.dart`، `app_settings.dart`، `chat_models.dart`، `chat_page.dart`، `history_page.dart`، `settings_page.dart`، `about_page.dart`، `privacy_notice_page.dart`، `app_drawer.dart` و ۱۰ ویجت در `lib/ui/widgets/` |
+| `android/` | تنظیمات Gradle (اجبار کلید امضای انتشار مگر با `ALLOW_DEBUG_SIGNING`)، مانیفست صفر-مجوز و `MainActivity.kt` (Keystore AES-GCM، `probe`، `FLAG_SECURE`، کلیپ‌بورد حساس و پاک‌سازی مدل قدیمی) |
+| `assets/` | ۲۴ متن قانون + `_meta.json` (`assets/laws/`)، `pipeline.json`، `relationships.json`، `synonyms.txt`، `replies.json`، `laws_catalog.json`، `data_info.json`، ۹ قالب سند (`assets/templates/`)، `qa/lease_qa.json` و دارایی‌های `assets/brain/` (`noql*`، `intent_model.json`، `law_topics.json`، `legal_terms.json`، `guides/legal_guides.json`، `topic_texts.json`، `advocate_texts.json`، `text_manifest.json` و `topics/{index,cheque,rent_texts}.json`) |
+| `dev/tools/` و `dev/brain/` | ابزارهای بیرون از APK: `check.py` (دروازهٔ کامل)، `library.py`، `lines.py`، `lawtext.py`، `doctor.py`، `pipeline_check.py`، `topic_schema.py`، `data_refs.py`، `text_manifest.py`، `law_diff.py`، `law_registry.py`، `sync_meta.py`، `parity.py`، `debt_check.py`، `coverage_gate.py`، `startup_gate.py`، `ci_{annotate,summary}.py`، `eval_{py,none}.py`، مولدهای `gen_{text_norm,law_terms,engine_rules,priority}.py`، قراردادهای `dev/tools/contracts/*.json`، اسکیماها و `dev/brain/` (آینهٔ پایتون `common.py`/`engine.py`، آموزش `train_intent.py`، `noql/` و بنچمارک‌ها) |
+| `tests/` و `test/` | ۱۰۸ فایل آزمون Flutter/Dart در `test/` (واحد، ویجت، سناریوها، قراردادها و ممیزی گفتگو) + ۵۸ فایل نگهبان و قرارداد Python در `tests/python/` + ورودی‌های آزمون در `tests/{topics,law_terms,text_norm_*}` |
+| `eval/`، `lab/`، `reports/` | مجموعه‌های ارزیابی آفلاین در `eval/`، مسیرهای آزمایشی بیرون از APK در `lab/topics/` و گزارش‌های خودکار CI و ممیزی در `reports/` |
+| `docs/` و `.github/workflows/` | مستندات معماری و قرارداد (`ARCHITECTURE.md`، `CONTRACTS.md`، `PHASES.md`، `ROADMAP.md`، `PRIORITY.md`، `CODE_REVIEW.md`، `GOD_OBJECTS.md`، `LAW_SOURCES.md`، `DEAD_CODE.md`، `REPO_LAYOUT.md`) و گردش‌کارهای CI (`test.yml`، `lawyer-lab.yml`، `intent-eval.yml`، `alt-bench.yml`، `build.yml` و …) |
 
-دو چیز مهم دربارهٔ محدودهٔ کار:
+---
 
-- **هیچ ساختن خودکار جملهای وجود ندارد.** پاسخها از الگوها، مقدارهای پرونده و متنهای
-  ذخیرهشدهٔ قوانین ساخته میشوند. تنها جای کمکیِ «حدس موضوع»، خوانندهٔ برداری
-  Noql و شبکهٔ عصبی سبک نیت است؛ آن هم فقط زمانی که قاعدهها موضوع را نشناختهاند
-  و نتیجهاش بهصورت پرسش از کاربر تأیید میشود.
-- **نتیجهٔ پرونده پیشبینی نمیشود.** مهلتهای قانونی، مرجع صالح و اثر مدارک
-  به پرونده و شعبه بستگی دارند؛ اپ فقط آنچه در متن بستهبندیشده هست میگوید.
+## ۴. گزارش کامل تمام مراحل و فازهای انجام‌شده روی این شاخه
 
-## حریم خصوصی و ذخیرهٔ داده — رفتار واقعی
+روش بازسازی در تمام مراحل به‌صورت افزایشی و آزمون‌محور («اول نگهبان عددی، بعد تغییر کد با حفظ رفتار بیرونی») انجام شد:
 
-- **بار نخست:** صفحهای کوتاه میپرسد که تاریخچه روی همین گوشی ذخیره شود یا
-  «فقط همین اجرا». تا زمانی که انتخاب نکنید، هیچ گفتگویی ذخیره نمیشود.
-- **پس از انتخاب «ذخیره»:** تاریخچه، پروندهٔ گفتگو، پیشنویس ناتمام (اگر روشن
-  کرده باشید) و بازخورد، با `AES/GCM` از طریق Android Keystore مهروموم و در
-  `SharedPreferences` نگه داشته میشوند. **یک alias ثابت** برای همهٔ دادهها
-  وجود دارد؛ «هر گفتگو کلید رمزنگاری جداگانه ندارد».
-- **پیش از نوشتن:** اپ با متد `probe` یک دور کامل seal/open را آزمایش میکند.
-  اگر Keystore قابل استفاده نبود، نوشتن تاریخچه/پیشنویس/بازخورد **خاموش**
-  (fail-closed) میشود تا رکوردی نوشته نشود که فردا خوانده نشود. بنر دائمی در
-  تنظیمات و وضعیت ذخیره در صفحهٔ «اطلاعات و وضعیت دادهها» این را نشان میدهد.
-  مسیر قدیمی `encf1:` (کلید موقت فقط در حافظهٔ همان اجرا) دیگر نوشته نمیشود؛
-  رکوردهای ناخوانای آن با اطلاع به کاربر پاک میشوند.
-- **خاموش کردن تاریخچه** در تنظیمات، تاریخچهٔ موجود را هم پاک میکند و گفتگوی
-  باز را از نو میکند. «پاک کردن همه» از تنظیمات و حذف تکگفتگو از تاریخچه هم
-  موجوداند.
-- **محافظت صفحه** (`FLAG_SECURE`) پیشفرض خاموش است و تنها وقتی متد بومی
-  آنرا تأیید کند، تیک آن روشن میماند.
-- **اشتراکگذاری** متنی است و با دکمهٔ صریح کاربر آغاز میشود؛ اپ خودش چیزی
-  آپلود نمیکند.
-- صفحهٔ «اطلاعات و وضعیت دادهها» شمار قوانین تطبیقدادهشده، قالبهای
-  بازبینیشده و وضعیت رمزنگاری را نشان میدهد.
+| مرحله / فاز | مشکل و بدهی پیشین | کارهای انجام‌شده و فایل‌های تغییریافته | نگهبان و نتیجهٔ تاییدشده |
+|---|---|---|---|
+| **سخت‌سازی P0** | نبود probe برای Keystore، ازدست‌رفتن وضعیت گفتگو در تاریخچه، تکرار پیام ایمنی، نداشتن `toJson` پرونده و نبود دروازهٔ محتوایی | `MainActivity.kt` (`probe`)، `PrivacyService.beginSession` و ذخیرهٔ fail-closed؛ قالب `v: 4` تاریخچه (`dialogueJson`)؛ `CaseFile.toJson/fromJson`؛ مهاجرت امن کلید قدیمی (`privacy_migration.dart`)؛ `check.py trust` در `build.yml` | `privacy_fail_closed_test.dart`، `privacy_migration_test.dart`، `case_persistence_test.dart`، `dialogue_state_test.dart` و `test_trust_gate.py` |
+| **فاز ۰** | نگهبان‌های پایتون فایل‌محور بودند و با تقسیم هر فایل `part` می‌شکستند | ایجاد `dev/tools/library.py` (`DartLibrary`) و `lines.py` به‌عنوان مرجع یکتای خواندن `lib/` و شمارش خط؛ اتصال ۸ نگهبان به آن | `test_guards_use_library.py` و `test_library_tool.py` |
+| **فاز ۱ و ۱ب** | ۲٬۱۰۰+ رشتهٔ نثر ثابت فارسی در فایل‌های Dart پراکنده بود؛ ۱۱۹ آزمون به `contains` متنی وابسته بود؛ ابزارهای پایتون در ریشهٔ مخزن بودند | انتقال کامل نثر آزاد کل لایهٔ وکیل به `assets/brain/topics/rent_texts.json` (۵۲۵ کلید)، `assets/brain/topic_texts.json` (۱٬۱۰۶ کلید در ۲۴ بخش) و `assets/brain/advocate_texts.json` (۴۷۳ کلید در ۱۸ بخش) با بارگذارهای صریح و هش `text_manifest.json`؛ تبدیل همهٔ آزمون‌های متنی به ساختاری؛ انتقال ابزارها به `dev/` و بررسی `pubspec`/APK | `test_{rent,topic,advocate}_text_equivalence.py`، `test_structure_tests.py` (صفر `contains` متنی)، `test_repo_hygiene.py`، `test_apk_bundle_exclusion.py` (`check.py bundle` روی ۲۱ دارایی) |
+| **فاز ۲** | اولویت ۲۰ کاندید پاسخ در زنجیرهٔ کد ضمنی بود و تداخل جفت‌ها آزمون نداشت | تعریف قرارداد `dev/tools/contracts/priority.json` و مولد `dev/tools/gen_priority.py` برای کل **۱۹۰ جفت** ممکن ($\binom{20}{2}$: ۱۱۳ هم‌پوشان با فراخوانی واقعی و ۷۷ جداگانه با اثبات ساختاری) | `docs/PRIORITY.md`، `test/advocate/priority_matrix_test.dart` و `test_priority_matrix.py` |
+| **فاز ۳** | فراخوانی بازگشتی وکیل به خودش با ترفند `file.turns--` کنترل می‌شد | اعمال `ReplyLoopGuard` (`Advocate.maxReplyDepth = 1` و اجبار `again: true`)؛ قفل افزایش یک‌واحدی `file.turns` در هر نوبت؛ افزودن ایندکس صریح قواعد در `docs/ARCHITECTURE.md` | `test_reply_recursion_contract.py` و `test/advocate/reply_recursion_test.dart` |
+| **فاز ۴** | `chat_controller.dart` بیش از ۳۰۰ خط با سه مسئولیت و امکان ناهماهنگی فایل‌های داده بود | تفکیک `chat_controller.dart` به `DraftFlow`، `GuessFlow` و `ReplyFlow` (ثبت خط پایهٔ **۷۰۱** آزمون Dart و ۳۳۱ پایتون)؛ تجمیع دادهٔ ارزیابی در `eval/` و گزارش‌ها در `reports/`؛ قفل تکرارناپذیری داده با SHA-256 | `test_chat_controller_shape.py` و `test/app/chat_flows_test.dart` |
+| **فاز ۵** | نبود سنجش خط پایهٔ استارت، مصرف کش مضاعف رشته‌های خام در `rootBundle` و ابهام دربارهٔ تنبل‌سازی قوانین | افزودن `cache: false` و آزادسازی فوری داده‌های میانی در `engine_load.dart`؛ ثبت `StartupMetrics`؛ حفظ بارگذاری یک‌جای ۲۴ قانون (تنها ۳٫۱۱ MB) و تنبل‌سازی `noql` (۱۲٫۷۲ MB)؛ ایجاد دروازهٔ CI در `startup_gate.py` و ثبت در `reports/startup.txt` | `test/engine/load_budget_test.dart` و `test_startup_budget.py` |
+| **فاز ۶** | بررسی مدل‌های جایگزین برای کاهش حجم `۱۲٫۷۲ MB` مدل `noql` | اجرای بنچمارک مدل‌های آزاد فارسی و ثبت نتیجه در `reports/alt_bench.md`؛ **توقف تغییر مدل به دستور صریح کاربر** تا مدل `noql` قابل فاین‌تون و دست‌نخورده بماند | `test_noql_assets_guard.py` و `check.py noql` |
+| **فاز ۷** | تکرار منطق پارس لاگ CI، جدول ارقام فارسی، `AI_MARKERS`، خوانش `_meta.json` و `open()`های بی‌بست در ابزارهای پایتون | یکپارچه‌سازی `ci_annotate.py` و `ci_summary.py`؛ متمرکزسازی `lawtext.py` برای ۸ ابزار اصلی و `dev/tools/synonyms/`؛ بستن تمام فایل‌ها تا صفر `ResourceWarning` | `test_dev_tools_hygiene.py` و `test_ci_annotate.py` |
+| **فاز ۸** | اجرای همگام `GuideReply`/`LawTerms` روی رشتهٔ UI، نبود ماشین حالت ایمنی، نبود `schemaVersion` در پیش‌نویس/بازخورد و وابستگی `lib/domain/` به فلاتر | اجرای ناهمگام در `EngineWorker` (`prepareWith`/`matchTermsInWorker`) در `ReplyFlow`؛ تعریف `SafetySeverity` و گذار «الان امن است» در `SafetyState`/`SafetyReply`؛ افزودن `schemaVersion = 1` در `DraftSession`/`FeedbackStore`؛ انتقال `AppSettings` به `lib/ui/app_settings.dart` و صفرشدن `DOMAIN_FLUTTER_ALLOWLIST` | `test_phase8_runtime_and_layers.py`، `worker_test.dart`، `safety_reply_test.dart` و `draft_checkpoint_test.dart` |
+| **فاز ۹** | وجود کلوژرهای بی‌نام (`Reader`/`Body`/`Cond`/`Tri`) در ۲۰ موضوع ساده/میانی | پیاده‌سازی موتور سریال‌پذیر `RuleDSL` (`rule_dsl.dart`، `rule_dsl_text.dart`، `rule_dsl_read.dart`، `rule_dsl_json.dart`) و سازنده‌های `.dsl` در `case_model.dart`؛ مهاجرت کامل ۲۰ موضوع تک‌فایلی | `test_phase9_rule_dsl.py` و `test/advocate/rule_dsl_test.dart` |
+| **فاز ۱۰** | کلوژرهای مرکب در ۴ موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) مانع سریال‌سازی کامل موضوع‌ها بودند | توسعهٔ `rule_dsl_topic.dart` (`RankRule`، `FilingRule`، `PromptRule`، `FillRule`، `TxAssessDemands`، `TxRent`) و مهاجرت کامل ۴ موضوع بزرگ با **صفر کلوژر و صفر `=>` در کل ۲۴ موضوع** | `test_phase10_rule_dsl.py` و `test/advocate/phase10_rule_dsl_test.dart` |
+| **فاز ۱۱** | هم‌پوشانی و تکرار ضرایب موتور، الگوهای ماده و جدول‌های نرمال‌سازی بین دارت و پایتون | تکمیل قراردادهای `text_norm.json` و `law_terms.json` و ایجاد قرارداد `engine_rules.json` با مولد `gen_engine_rules.py` → تولید `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py` و اتصال تمام مصرف‌کنندگان دو زبان | `test_engine_rules_parity.py`، `test/core/engine_rules_test.dart`، `check.py enginerules` |
+| **فاز ۱۲** | عددهای جادویی آستانه‌های موضوع (`3`/`5`)، ریسک cast ناایمن در `TopicFlow.route`، چند `open()` بی‌بست در `dev/brain/` و ردیف‌های کهنه در `ROADMAP.md` | تعریف `topicOpenMin`/`topicStrongMin`/`topicDominantMin` در `advocate_data.dart` متصل به `assets/pipeline.json` و `DartLibrary` در `pipeline_check.py`؛ جایگزینی `.cast`/`as String` در `topic_flow.dart` و `topic_flow.py` با بازگشت امن به `'ask'`؛ بستن فایل‌ها در `dev/brain/{common,alt_bench,embed_eval}.py`؛ به‌روزرسانی `ROADMAP.md`، `CONTRACTS.md` و `ARCHITECTURE.md` | `pipeline_contract_test.dart`، `test_pipeline_check.py`، `topic_flow_test.dart`، `test_topic_flow.py` و `test_dev_tools_hygiene.py` |
+| **فاز ۱۳** | نادیده‌گرفته‌شدن `bool` ناموفق در `SharedPreferences` و خروجی تهی در `PrivacyService.seal`؛ کرش احتمالی روی `t` خراب بازخورد، فیلد بدشکل قالب یا `articles` غیرِ`Map` در `TermReply`؛ رقابت پوش در `commit-reports`ِ CI | بررسی بازگشت `bool` در `AppSettings` و `HistoryStore` و ثبت خطا در `lastError`؛ ثبت `_markFallback(null)` در `PrivacyService.seal`؛ پارس نوع‌امن در `FeedbackEntry.fromJson`، `TemplateField`/`LegalTemplate.fromJson` (`FormatException`) و `TermReply._topicLeaf`؛ افزودن حلقهٔ بازآزمایی `pull --rebase` به `.github/workflows/test.yml` | `settings_failure_test.dart`، `privacy_test.dart`، `feedback_test.dart`، `test/drafting/logic_test.dart`، `topic_flow_test.dart` و `test_startup_budget.py` |
 
-## صداقت محتوای حقوقی
+---
 
-| مورد | وضعیت امروز |
-|---|---|
-| متن قوانین | ۲۴ قانون بستهبندیشده، **۰ مورد `verified`**؛ برخی منبع خالی و تاریخ ثبت نشده دارند. ابزار `doctor.py` ۱۲۷ مادهٔ جاافتاده را فقط بهعنوان `info` گزارش میکند. |
-| قالبها | ۹ قالب، **۲ بازبینیشده**. بقیه پیشنویساند و نباید بدون بازبینی انسانی بهعنوان متن رسمی استفاده شوند. |
-| کپی رسمی | ادعای «کپی از منبع رسمی» درست نیست؛ فقط بخشی از متنها منبع دارد و تطبیق کامل نشده است. |
-| release gate | `check.py trust` (در `.github/workflows/build.yml` قبل از ساخت APK انتشار) امروز شکست میخورد؛ `check.py all` عمداً شامل آن نیست تا توسعهٔ روزانه متوقف نشود. |
+## ۵. ضعف‌های فعلی برنامه (تحلیل صادقانه)
 
-برای انتشار، یا متنها باید با منبع رسمی تطبیق و بازبینی شوند، یا صریحاً
-برچسب «غیرقابلاستناد / فقط مطالعه» بگیرند و همان برچسب در رابط کاربری بماند.
+1. **محتوای حقوقی تأییدنشده (مهم‌ترین ریسک محصولی):** هیچ‌کدام از ۲۴ قانون با منبع رسمی تطبیق داده نشده‌اند (`۰/۲۴ verified`)، `doctor.py` هنوز ۱۲۷ مادهٔ جاافتاده را به‌عنوان `info` گزارش می‌کند و ۷ قالب از ۹ قالب سند «پیشنویس» بدون بازبینی انسانی‌اند.
+2. **افت دقت بازیابی روی پرسش‌های مبهم یا خارج از واژگان دقیق (`eval_blind` و `LawTerms`):**
+   - روی جمله‌های ندیده و محاوره‌ای (`eval/eval_blind.txt`) امتیاز فعلی `recall@1 = 0.58` و `MRR = 0.714` است (در مقایسه با `0.93` روی `eval.txt`).
+   - در گزارش ممیزی `reports/term_audit.md` از ۱۴ پرسش سخت، ۸ مورد درست و **۶ مورد باز** مانده است؛ از جمله تطبیق غلط جمله‌های غیرحقوقی (`نزدیک‌ترین ستاره به زمین` یا `بهترین نرم‌افزار ویرایش عکس`) با مواد قانون، و نپذیرفتن پرسش‌های کوتاه حقوقی مانند «قولنامه عادی»، «خیانت در امانت» و «بیع شرط رهن». همچنین در `eval_none.txt` از ۲۸ پرسش نامرتبط، ۱ مورد با اطمینان پاسخ غلط گرفته است.
+3. **محدودیت‌های مدل برداری `Noql` و نفی:** مدل `Noql` روی `eval/understanding_probe.tsv` هنوز در جملهٔ «ماشینم را فروخته ام ولی خریدار پولش را کامل نداده» خطای `opened-WRONG` (`consumer` به‌جای `debt|property`) دارد، جمله‌های منفی و مثبت هم‌ریشه را نزدیک هم می‌بیند (شباهت کسینوسی `۰٫۸۷` تا `۰٫۹۳` در `reports/alt_bench.md`) و آستانه‌های آن (`۰٫۱۴۳` / `۰٫۰۴`) روی ۲۵۰ نمونه تنظیم شده‌اند.
+4. **بدهی دوپیاده‌سازی پایتون ↔ دارت:** با وجود یک‌منبع‌شدن داده‌ها و ضرایب (`text_norm.json`، `law_terms.json`، `engine_rules.json`، `pipeline.json`)، خودِ **الگوریتم** در ۴ جفت (`duplicated_logic.json`: نرمال‌سازی، BM25F، تطبیق واژه و `TopicFlow`) همچنان هم در Dart و هم در Python پیاده شده است و مشتق‌های `_meta.json` (`laws_catalog.json`، `data_info.json`) به‌صورت دستی با `sync_meta.py` همگام می‌شوند.
+5. **محدودیت ذخیره‌سازی بر پایهٔ `SharedPreferences` و نبود پایگاه‌دادهٔ ساختاریافته:** کل تاریخچه، پیش‌نویس و بازخورد در کلید-مقدارهای رمزنگاری‌شدهٔ `SharedPreferences` می‌نشینند، نه SQLite/SQLCipher؛ با افزایش حجم گفتگوها جست‌وجو فقط در حافظه انجام می‌شود و قابلیت مهاجرت ساختاریافتهٔ جداول وجود ندارد.
+6. **فرض «تومان → میلیون تومان» در `Sense.amount`:** در `lib/domain/advocate/text_sense.dart` اعداد ۱ تا ۳ رقمیِ همراه با «تومان» (مثل «۵۰ تومان») به‌طور خودکار به ۵۰ میلیون تومان تبدیل می‌شوند. در گفتگوی محاوره‌ایِ اجاره این حدس کمک می‌کند، اما برای مبالغ واقعیِ خُرد (هزینهٔ دادرسی یا خسارت جزئی) خطر محاسبهٔ نادرست یک‌میلیون‌برابری دارد.
+7. **جمع‌آوری بازخورد بدون چرخهٔ خودکار بهبود:** `FeedbackStore` بازخوردهای مفید/نامفید کاربر را رمزنگاری و با قالب `eval` صادر می‌کند، ولی هنوز ابزار خودکاری برای واردکردن بازخوردهای بررسی‌شده به مجموعهٔ `eval/` یا اندازه‌گیری روند دقت در طول زمان وجود ندارد.
+8. **عدم هم‌خوانی نسخهٔ SDK اعلامی با `pubspec.lock` و اجرای ناکامل ارزیابی در سندباکس:** `pubspec.yaml` حداقل SDK را `>=3.0.0` می‌نویسد در حالی که `pubspec.lock` به `Dart >=3.13.0` / `Flutter >=3.44.0` وابسته است (و در محیط ابری نویسنده ابزارهای `flutter` و `dart` نصب نبودند؛ از این‌رو صحت کدهای Dart از مسیر CI و گزارش‌های رسمی آن تایید شده است).
+9. **داوری ۲۴ موضوع همچنان کد-پایه در `_reply`:** ترتیب کاندیدها از `pipeline.json` قفل شده، اما ارزیابی نهایی مسیرها و پیش‌شرط‌های ۲۴ موضوع هنوز در `advocate_reply*.dart` به‌شکل کد دستوری اجرا می‌شوند و موتور مستقلی برای اجرای مستقیم `Topic.toJson()` وجود ندارد.
 
-## معماری (خلاصهٔ قابل بررسی)
+---
 
-```
-lib/main.dart                 استارتآپ: رضایت → probe → بارگذاری → DastyarApp
-lib/core/                      موتور BM25F، worker، law_index، رمزنگاری،
-                               تاریخچه (history_models + history_store)، مهاجرت
-lib/domain/advocate/           قاعدهها و مسیرهای پاسخ؛ DialogueState اکنون
-                               نمایانهای نازک روی پنج تکهٔ dialogue_sections است؛
-                               متن ثابت از rent_texts_loader، topic_texts_loader
-                               و advocate_texts_loader میآید
-lib/domain/lawyer/            راهنماهای حقوقی
-lib/domain/                   تنظیمات، قالبها، بازخورد و پیشنویس
-lib/ui/                        صفحات گفتگو، تاریخچه، تنظیمات، اطلاعات و رضایت
-android/.../MainActivity.kt    Keystore/AES-GCM، FLAG_SECURE، متد probe
-assets/brain/topics/           دو قرارداد جدا: index.json (مسیرهای تصمیم)
-                               و rent_texts.json (متن ثابت اجاره، ۵۲۵ کلید)
-assets/brain/topic_texts.json  متن ثابت بخش مشترک و ۲۳ موضوع دیگر (۱٬۱۰۶ کلید در ۲۴ بخش)
-assets/brain/advocate_texts.json متن ثابت عمومی وکیل: واژه‌نامه، ایمنی، گفت‌وگو و استدلال (۴۷۰ کلید در ۱۸ بخش)
-dev/tools/ + tests/python/     نگهبانهای قرارداد، اندازه، ساختار و اعتماد محتوا
-docs/                         معماری، قراردادها، بدهیها، نقشهٔ فازها
-```
+## ۶. پیشنهادات اولویت‌دار برای ارتقای بعدی
 
-دو نگهبان تازه از برگشت گاد-آبجکت جلوگیری میکنند:
-`tests/python/test_no_god_objects.py` (حداکثر ۱۲ فیلد حالتی قابل تغییر در هر
-کلاس و facade ماندن `DialogueState`) و `tests/python/test_file_sizes.py`
-(سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
-ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
+1. **تطبیق و ممیزی حقوقی محتوای قوانین و قالب‌ها (اولویت ۱ — شرط انتشار):** تکمیل فیلدهای `status: verified`، `source` و `url` در `assets/laws/_meta.json` با استناد به روزنامهٔ رسمی/سامانهٔ قوانین، بررسی ۱۲۷ مادهٔ جاافتاده (به‌ویژه در `commerce` و `penal_taazirat`) و بازبینی ۷ قالب باقی‌مانده تا سبزشدن `check.py trust`.
+2. **بهبود دقت `LawTerms` و `BM25F` برای ۶ مورد باز `term_audit.md` و `eval_blind` (اولویت ۲):** افزودن بررسی هم‌معنایی/حوزهٔ حقوقی پیش از پذیرش `LawTerms` تا جمله‌های نامرتبطِ دارای یک واژهٔ مشترک عمومی (مانند «زمین» یا «عکس») پذیرفته نشوند، گسترش `assets/synonyms.txt` برای عبارات محاوره‌ای/حقوقی («قولنامه عادی»، «خیانت در امانت»، «بیع شرط») و افزودن نمونه‌های کور تازه از بازخوردها.
+3. **حذف بدهی دوپیاده‌سازی پایتون ↔ دارت (اولویت ۳):** افزودن یک runner سبک CLI در Dart برای اجرای مستقیم `KnowledgeEngine` و `Sense` روی فایل‌های `eval/*.txt` و `tests/*.json` در CI؛ با این کار منطق آینه‌ای در `dev/brain/{common,engine}.py` و `dev/tools/{eval_py,law_terms,topic_flow}.py` قابل حذف خواهد بود.
+4. **ارتقای لایهٔ ذخیره به SQLite + SQLCipher (اولویت ۴):** جایگزینی `SharedPreferences` برای تاریخچهٔ گفتگوها، بازخورد و پرونده‌ها با پایگاه‌دادهٔ رمزنگاری‌شدهٔ SQLCipher جهت پشتیبانی از جست‌وجوی سریع بدون بارگذاری کل پیام‌ها در RAM و مهاجرت نسخه‌دار جداول.
+5. **تایید تعاملی مبالغ در `Sense.amount` (اولویت ۵):** به‌جای ضرب قطعی اعداد کوچک در ۱٬۰۰۰٬۰۰۰، وقتی واحد «میلیون/هزار» صریح ذکر نشده (`!Sense.amountIsExplicit`)، وکیل می‌تواند با دکمه‌های پیشنهادی بین مبلغ خُرد و میلیون تومان تایید بگیرد تا هم مکالمهٔ طبیعی حفظ شود و هم خطای عددی رخ ندهد.
+6. **اجرای موتور موضوع از روی JSON تولیدشدهٔ `RuleDSL` (اولویت ۶):** اکنون که هر ۲۴ موضوع دارای `Topic.toJson()` کامل هستند، می‌توان بارگذار موضوع از JSON ساخت تا به‌روزرسانی قواعد و متون موضوع‌ها بدون کامپایل مجدد کد Dart ممکن شود.
+7. **هم‌راستاسازی `pubspec.yaml` و استانداردسازی چرخهٔ بازخورد (اولویت ۷):** به‌روزرسانی محدودهٔ SDK در `pubspec.yaml` مطابق نسخهٔ CI (`Flutter 3.47.6`) و افزودن ابزار کمکی برای پالایش خروجی `FeedbackStore.exportText` به موارد آزمون رگرسیون.
 
-### دستاورد فازهای اخیر (۰ تا ۵، ۷ و ۸)
+---
 
-- **فاز ۱ (متن به داده):** تمام نثرِ آزادِ کل لایهٔ وکیل (۲۴ موضوع، بخش مشترک و ۲۱ فایل عمومی) به JSON منتقل شد:
-  - **موضوع اجاره (`assets/brain/topics/rent_texts.json`):** ۵۲۵ کلید (۶۷٬۹۷۱ نویسه) در یازده جدول (`texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues`، `recaps`).
-  - **بخش مشترک و ۲۳ موضوع غیرِاجاره (`assets/brain/topic_texts.json`):** ۱٬۱۰۶ کلید (۱۲۱٬۷۰۵ نویسه) در ۲۴ بخش با بارگذار صریح `loadTopicTexts()` و خوانش `topicText(section, key)`.
-  - **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۳ کلید (۱۸ بخش: واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال) با بارگذار صریح `loadAdvocateTexts()`.
-  - **جمع کل:** ۲٬۱۰۴ کلید و **صفر نثر آزاد باقی‌مانده** در کلِ `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`. `tests/python/test_{rent,topic,advocate}_text_equivalence.py` برابری هش، مصرف ۱۰۰٪ کلیدها و اعتبار استنادهای `[[کلید:شماره]]` را می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند.
-- **فاز ۲ (اولویتِ صریح کاندیدها):** جدول صریحِ تمام ۱۹۰ جفتِ ممکنِ ۲۰ کاندیدِ پاسخ‌دهنده در `dev/tools/contracts/priority.json` + تولید خودکار `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (۱۱۳ جفت هم‌پوشان با فراخوانی واقعی و ۷۷ جفت جداگانه با اثبات ساختاری).
-- **فاز ۳ (قفلِ حلقهٔ بازگشت وکیل):** اعمال `ReplyLoopGuard` (`Advocate.maxReplyDepth = 1`، اجبار `again: true` از `ReplyRoutes`، ثبت `lastReplyDepth` و قفل افزایش دقیقاً یک‌واحدیِ `file.turns`) با ایندکس صریح قواعد در `docs/ARCHITECTURE.md` و نگهبان‌های `test_reply_recursion_contract.py` + `reply_recursion_test.dart`.
-- **فاز ۴ (یک منبع داده و کنترلرِ لاغر):** ادغام ورودی‌ها در `eval/` و خروجی‌ها در `reports/`، قفلِ نبود نسخهٔ تکراری با SHA-256 (`test_chat_controller_shape.py`)، و تفکیک `chat_controller.dart` (`۱۳۰` خط، زیر سقف ۱۵۰) به `DraftFlow`، `GuessFlow` و `ReplyFlow`.
-- **فاز ۵ (استارت و حافظهٔ واقعی):** نگه‌داشتن تنبل‌سازی `noql` (`۱۲٫۷۲ MB` از `۱۶٫۸۸ MB` دارایی)، حذف کشِ مضاعف در `lib/core/engine_load.dart` (`loadString(..., cache: false)` و آزادسازی فوری رشته‌های خام پس از نمایه‌سازی)، و ثبت خط پایه + دروازهٔ CI (`dev/tools/startup_gate.py` روی `reports/startup.txt`: بارگذاری سرد `1,140 ms` شامل `63 ms` خواندن فایل و `1,077 ms` نمایه‌سازی؛ `worker` با `1,082 ms`؛ نخستین پرسش `50 ms`؛ حافظه `253.8 MB`).
-- **فاز ۷ (یکپارچه‌سازی و زدودن تکرار در ابزارهای توسعه):** اشتراک پارس لاگ CI در `ci_annotate.py` و `ci_summary.py`، متمرکزکردن `AI_MARKERS`، ارقام فارسی/عربی (`digits`/`to_fa`) و خواندن `_meta.json` (`load_meta`/`law_files`) در `dev/tools/lawtext.py` برای هشت ابزار اصلی و اسکریپت‌های `dev/tools/synonyms/`، و بستن تمام `open()`های بی‌بست تا صفر `ResourceWarning` در کل آزمون‌های پایتون (`test_dev_tools_hygiene.py`).
-- **فاز ۸ (سخت‌افزار زمان اجرا، ماشین حالت ایمنی، نسخه‌بندی ذخیره‌ها و دامنهٔ بی‌فلاتر):**
-  - پیش‌ساخت مسیرهای `GuideReply.follow` و `LawTerms.match` در isolate دائمیِ `EngineWorker` (`prepareWith`/`matchTermsInWorker`) همراه با fallback ایمن همگام؛
-  - افزودن ماشین حالت ایمنی (`SafetySeverity`: `none`/`elevated`/`critical`، پنجرهٔ نوبتی `lastSafetyTurn`، تشدید فوری و گذار `acknowledgedSafe` برای «الان امن است/هستم») در `SafetyState` و `SafetyReply`؛
-  - افزودن `schemaVersion = 1` به `DraftSession` و `FeedbackStore` همراه با مهاجرت خودکار دادهٔ قدیمی و ردّ ایمن نسخهٔ آینده؛
-  - انتقال `AppSettings` از `lib/domain/` به `lib/ui/app_settings.dart` و صفرشدن `DOMAIN_FLUTTER_ALLOWLIST = set()` (`tests/python/test_phase8_runtime_and_layers.py`).
-- **فاز ۶ (حجم مدل/Noql):** بنا به تصمیم صریح کاربر (به‌دلیل آموزش‌پذیربودن و فاین‌تون‌بودن مدل در `noql`) کنار گذاشته شده است و تا درخواست صریح بعدی تغییری روی `assets/brain/noql*` داده نمی‌شود.
-
-## توسعه و بررسی
-
-پیشنیاز: Flutter/Dart (برای اپ)، Python ۳ (برای نگهبانها).
+## ۷. اجرای محلی آزمون‌ها و دروازه‌ها
 
 ```sh
 flutter pub get
 flutter analyze --fatal-warnings
 flutter test
-python3 -m unittest discover -s tests/python -q
+python3 -W error::ResourceWarning -m unittest discover -s tests/python -q
 python3 dev/tools/check.py all
-python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز باشد
+python3 dev/tools/doctor.py
+python3 dev/tools/eval_py.py --check
+python3 dev/tools/eval_none.py --check
+python3 dev/tools/check.py trust   # تا پیش از تایید رسمی قوانین و قالب‌ها عمداً با کد ۱ خارج می‌شود
 ```
 
-**شرط صداقت:** در محیط نویسنده فقط `python3` موجود بود؛ `flutter` و `dart`
-محلاً نصب نبودند. بنابراین ابزارهای Dart در محل اجرا نشدند، ولی CI واقعاً
-اجرا شد و در هر گام خطاهای واقعی را آشکار کرد (از جمله خطاهای `DialogueState` و
-تکرار ایمنی در `9a02d9a`، و آخرین اندازه‌گیری استارت و پوشش کد در `f98bb5d`). در آخرین اجرای سبز CI (کامیت
-`f98bb5d`): `flutter analyze --fatal-warnings` با «No issues found! (10.9s)»،
-`flutter test` با **۷۰۱ آزمون سبز**، پوشش کد **۸۴٫۵٪** (`8,661/10,250` خط)، خط پایهٔ استارت `1,140 ms` (`reports/startup.txt`) و هر دو مجموعهٔ سناریو (**۱۳۰/۱۳۰** و **۱۷/۱۷**)
-تأیید شد و تمام کارهای CI (`Test`، `Lawyer Lab`، `Intent scenarios`) `success`اند
-(گزارشهای خودکار در `reports/lab/analyze.txt`، `reports/lab/failed.txt`، `reports/coverage.txt`، `reports/startup.txt` و
-`reports/last_test.txt`). در محیط محلی ۳۴۲ آزمون پایتون (با `-W error::ResourceWarning` صفر هشدار) و `check.py all` (از جمله
-`text` روی ۶۶ فایل و `refs` روی ۱۹۷ ارجاع) سبزاند، ولی `check.py trust` با ۰/۲۴
-قانون تأییدشده و ۲/۹ قالب بازبینیشده قرمز است — یعنی سبز بودنِ Dart/Python به
-معنای قابلانتشار بودن محتوای حقوقی نیست.
-
-یک ناسازگاری ثبتشده: `pubspec.yaml` حداقل SDK را `>=3.0.0` مینویسد ولی
-`pubspec.lock` عملاً به Dart `>=3.13.0` و Flutter `>=3.44.0` نیاز دارد؛
-تا همساز شدنشان، نسخهٔ دقیق SDK در CI باید قفل شود.
-
-## دستاورد فازهای ۹ تا ۱۲ (تکمیل‌کنندهٔ نقشهٔ راه)
-
-- **فازهای ۹ و ۱۰ (`RuleDSL` و مهاجرت کامل ۲۴ موضوع؛ انجام شد):** کل ۲۴ موضوع (`topics/*.dart` شامل چهار موضوع بزرگ `cheque`، `family`، `labor` و `rent`) از کلوژرهای بی‌نام به گره‌های قابل سریال‌پذیری `RuleDSL` (`rule_dsl*.dart` و `case_model.dart`) مهاجرت کردند و `Topic.toJson()` و هم‌ارزی رفتاری با `test_phase10_rule_dsl.py` و `test/advocate/phase10_rule_dsl_test.dart` قفل شد.
-- **فاز ۱۱ (همگام‌سازی قراردادهای منطق موازی پایتون/دارت؛ انجام شد):** قراردادهای `text_norm.json` (افزودن `tokenize` و `spaced.tools/terms`)، `law_terms.json` (افزودن `ranking` و `generalSource`) و قرارداد تازهٔ `engine_rules.json` (`gen_engine_rules.py` و `check.py enginerules` → `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py`) همهٔ ضرایب، الگوها و جدول‌های موازی موتور و نرمال‌سازی را در دارت و پایتون یک‌منبع کردند (`test_engine_rules_parity.py`، `test/core/engine_rules_test.dart`).
-- **فاز ۱۲ (قفل کامل آستانه‌های خط لوله، تاب‌آوری `TopicFlow` و بهداشت `dev/brain/`؛ انجام شد):** آستانه‌های `topicOpen`/`topicStrong`/`topicDominant` در `advocate_data.dart` یک‌منبع و در `pipeline_check.py` (با `DartLibrary` مشترک) و `pipeline_contract_test.dart` قفل شدند، `TopicFlow.route` روی ورودی ناقص به `'ask'` برمی‌گردد، `open()`های بدون `with` در `dev/brain/` بسته شدند و جدول‌های قدیمی `ROADMAP.md` به‌روز شدند.
-- **فاز ۱۳ (بستن شکست‌های خاموش ذخیره و پارس ایمن؛ انجام شد):** بررسی مقدار بازگشتی `bool` در `AppSettings`/`HistoryStore`، ثبت `fallbackUsed` در `PrivacyService.seal` هنگام خروجی تهی، پارس ایمن در `FeedbackEntry`/`LegalTemplate`/`TermReply._topicLeaf` و بازآزمایی `pull --rebase` در `commit-reports`ِ `.github/workflows/test.yml`.
-- **خارج از برنامه (متوقف‌شده):** فاز ۶ (`assets/brain/noql*`) بنا به تصمیم کاربر متوقف شده است (`lazy_noql_mb=12.72`). باقی‌ماندهٔ غیرکدی: ممیزی انسانی ۲۴ قانون (`0/24 verified`) و ۹ قالب (`2/9`).
-- **مسیر پاسخ و isolate:** تمام مسیرهای سنگینِ پاسخ (`engine.query` در `LawAnswer`/`GuideReply` و `LawTerms.match` در `TermReply`) اکنون در `ReplyFlow` از طریق isolate دائمیِ `EngineWorker` پیش‌ساخته می‌شوند و مسیر همگام تنها به‌عنوان fallback پشتیبان در آزمون‌ها یا خطای isolate می‌ماند.
-- **پاک‌سازی لایه‌ها:** `lib/domain/` اکنون صفر وابستگی به Flutter دارد (`DOMAIN_FLUTTER_ALLOWLIST = set()`؛ `AppSettings` در `lib/ui/app_settings.dart`) و `DraftSession` و `FeedbackStore` هر دو دارای `schemaVersion = 1` و مهاجرت ایمن‌اند.
-- `reports/understanding.txt` دارای یک نمونهٔ `opened-WRONG` است؛ آستانهٔ
-  مدل (امتیاز ۰٫۱۴۳ و حاشیهٔ ۰٫۰۴) روی ۲۵۰ نمونه با دقت ۰٫۷۰۸ تنظیم شده،
-  نه مجموعهٔ مستقل اعتبارسنجی.
-
-## مدارک و مراجع
-
-- `docs/ARCHITECTURE.md` — نقشهٔ اجزا و ترتیب مسیر پاسخ
-- `docs/CONTRACTS.md` — قراردادهای داده و نگهبانهایشان
-- `docs/LAW_SOURCES.md` و `reports/source_check.md` — وضعیت منابع قوانین
-- `docs/GOD_OBJECTS.md` — تاریخچهٔ شکستن گاد-آبجکت و بدهیهای باقیمانده
-- `docs/PHASES.md`, `docs/ROADMAP.md`, `docs/CODE_REVIEW.md` — فازبندی نقاط ضعف
-- `reports/understanding.txt`, `reports/noql_dart_speed.txt` — شواهد مدل و سرعت
-
-پروانهٔ اپ MIT است؛ پروانهٔ Noql و بند وضعیت متن قوانین در `LICENSE` آمدهاند.
-متنها و قالبها تا بازبینی رسمی، **پیشنویساند**.
+**شرط صداقت محیط اجرا:** در محیط ابریِ توسعه، فقط `python3` موجود بود و ابزارهای `flutter` و `dart` محلاً نصب نبودند؛ اما تمام تغییرات Dart و سناریوها در گردش‌کارهای واقعی GitHub Actions (`Test`، `Lawyer Lab` و `Intent scenarios`؛ گزارش‌ها در `reports/last_test.txt`، `reports/coverage.txt`، `reports/startup.txt` و `reports/lab/`) اجرا و با **۷۲۱ آزمون Dart سبز**، پوشش **۹۱٫۸٪**، خط پایهٔ استارت **۱٬۱۳۴ ms** و **۰ خطای تحلیل‌گر** تایید شده‌اند. برای جزئیات عمیق‌تر ببینید: `docs/ARCHITECTURE.md`، `docs/CONTRACTS.md`، `docs/PHASES.md`، `docs/ROADMAP.md` و `docs/CODE_REVIEW.md`.
