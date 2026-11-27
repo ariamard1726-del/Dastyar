@@ -464,6 +464,13 @@ def cmd_lawterms():
     return gen_law_terms.main(['--check'])
 
 
+# ---------------------------------------------------------------- priority
+def cmd_priority():
+    """ماتریس اولویتِ ۲۰ کاندید (۱۹۰ جفت) کامل و مستند/آزمونش تازه است؟"""
+    import gen_priority
+    return gen_priority.main(['--check'])
+
+
 # ---------------------------------------------------------------- textnorm
 def cmd_textnorm():
     """فایل‌های قاعدهٔ متن از قرارداد تولید شده‌اند و تازه‌اند؟"""
@@ -640,6 +647,7 @@ COMMANDS = {
     'refs': cmd_refs,
     'textnorm': cmd_textnorm,
     'lawterms': cmd_lawterms,
+    'priority': cmd_priority,
     'debt': cmd_debt,
     'text': cmd_text,
     'bundle': cmd_bundle,
