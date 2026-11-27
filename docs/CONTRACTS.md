@@ -165,4 +165,3 @@ python dev/tools/check.py refs
   هر جفت یا کهنه‌بودن مستند و آزمون را خطا می‌دهد.
 
 آزمون: `tests/python/test_priority_matrix.py` و `test/advocate/priority_matrix_test.dart`.
-

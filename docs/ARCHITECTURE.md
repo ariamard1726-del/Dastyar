@@ -199,5 +199,5 @@
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۱ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `advocate/reply_routes.dart` ۴۰۶ خط، `advocate/advocate_argue.dart` ۳۷۵ خط، `topics/rent_claims.dart` ۳۶۸ خط (ادعاها)، `advocate/talk_route.dart` ۳۶۰ خط و `core/history_store.dart` ۳۵۰ خط. `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**
-- Python (بدون Flutter SDK): **۳۱۶** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، عددهای مستندات و لینک‌های همین سند.
-- Dart: **۵۷۲** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
+- Python (بدون Flutter SDK): **۳۲۱** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، عددهای مستندات و لینک‌های همین سند.
+- Dart: **۶۹۰** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
