@@ -1,2 +1,2 @@
-::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/reply_recursion_test.dart (failed)
-::error::690 tests passed, 1 failed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود (failed)
+::error::694 tests passed, 1 failed.
