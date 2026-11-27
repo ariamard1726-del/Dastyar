@@ -1,1 +1,5 @@
-🎉 701 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/domain/safety_reply_test.dart: severityOf شدت خطر و acknowledgesSafe اعلام امنیت را تشخیص می‌دهد (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/domain/advocate_texts_test.dart: متنهای عمومی وکیل از فایل دارایی نصب می‌شوند (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/safety_test.dart: تشدید شدت هشدار و گذار «الان امن است» روی ماشین حالت ایمنی (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/engine/worker_test.dart: تطبیق واژه و پیگیری راهنما با پاسخ آمادهٔ worker هم‌نتیجه با مسیر همگام است (failed)
+::error::701 tests passed, 4 failed.

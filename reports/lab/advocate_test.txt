@@ -1,13 +1,3 @@
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۹) کنار گذاشتنِ موضوع > انتخابِ موضوع
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۰) کنار گذاشتنِ موضوع > حدسِ اشتباه
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۱) کنار گذاشتنِ موضوع > ادامهٔ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۳) کنار گذاشتنِ موضوع > پیشنهادِ پاسخ
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۴) کنار گذاشتنِ موضوع > «باشه»
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۵) کنار گذاشتنِ موضوع > موضوعِ کنارِ هم
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۶) کنار گذاشتنِ موضوع > مهلت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۷) کنار گذاشتنِ موضوع > تکرارِ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۸) کنار گذاشتنِ موضوع > قاعدهٔ ثابت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۹) کنار گذاشتنِ موضوع > مهلتِ اعتراض
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۶) ایمنی > پرسش فرضی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۷) ایمنی > دربارهٔ برنامه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۸) ایمنی > دعوا و شکایت
@@ -111,6 +101,16 @@
 ✅ test/advocate/safety_test.dart: گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد
 ✅ test/advocate/safety_test.dart: «الان در خطر هستم» راهنمای فوری می‌گیرد
 ✅ test/advocate/safety_test.dart: جملهٔ عادی، ایمنی را فعال نمی‌کند
+::endgroup::
+::group::❌ test/advocate/safety_test.dart: تشدید شدت هشدار و گذار «الان امن است» روی ماشین حالت ایمنی (failed)
+Expected: AnswerSource:<AnswerSource.safety>
+  Actual: AnswerSource:<AnswerSource.topic>
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+test/advocate/safety_test.dart 101:5                main.<fn>
+::endgroup::
+::group::✅ Passing tests
 ✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
 ✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
 ✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
@@ -137,6 +137,10 @@
 ✅ test/advocate/chip_plan_test.dart: وسط پرونده، دکمه‌ها از بحث‌های همان موضوع می‌آیند
 ✅ test/advocate/chip_plan_test.dart: بی‌پرونده، نمونه‌های آغاز فقط پیش از گفتنِ ماجرا می‌آیند
 ✅ test/advocate/chip_plan_test.dart: خلاصهٔ پرونده فقط جمله‌های ناخالی می‌دهد
+✅ test/advocate/dialogue_state_test.dart: پرسش باز و دکمههایش همانطور برمیگردند
+✅ test/advocate/dialogue_state_test.dart: موضوع منتظرِ تأیید و لیستِ گزینهها همانطور برمیگردند
+✅ test/advocate/dialogue_state_test.dart: راهنمای باز و وضعیت ایمنی از دست نمیروند
+✅ test/advocate/dialogue_state_test.dart: نسخهٔ ناشناخته و شناسهٔ ناشناخته کراش نمیکنند
 ✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است
@@ -147,10 +151,6 @@
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
-✅ test/advocate/dialogue_state_test.dart: پرسش باز و دکمههایش همانطور برمیگردند
-✅ test/advocate/dialogue_state_test.dart: موضوع منتظرِ تأیید و لیستِ گزینهها همانطور برمیگردند
-✅ test/advocate/dialogue_state_test.dart: راهنمای باز و وضعیت ایمنی از دست نمیروند
-✅ test/advocate/dialogue_state_test.dart: نسخهٔ ناشناخته و شناسهٔ ناشناخته کراش نمیکنند
 ✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی هم سالم می‌چرخد
 ✅ test/advocate/case_file_json_test.dart: نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش
@@ -197,4 +197,4 @@
 ✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ::endgroup::
 
-🎉 377 tests passed.
+::error::377 tests passed, 1 failed.
