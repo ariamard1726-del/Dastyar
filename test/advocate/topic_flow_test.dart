@@ -92,7 +92,7 @@ void main() {
     final voice = ReplyVoice(
       engine: engine,
       file: file,
-      unresolved: dialog.unresolved,
+      unresolved: <String>[],
     );
     final termReply = TermReply(
       file: file,
