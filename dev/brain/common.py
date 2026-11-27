@@ -127,7 +127,11 @@ def iter_law_files():
     """فهرست (law_id, fallback_title, full_path) را از _meta.json می‌خواند."""
     laws_dir = os.path.join(ROOT, 'assets', 'laws')
     meta_path = os.path.join(laws_dir, '_meta.json')
-    meta = json.load(open(meta_path, encoding='utf-8')) if os.path.isfile(meta_path) else {}
+    if os.path.isfile(meta_path):
+        with open(meta_path, encoding='utf-8') as f:
+            meta = json.load(f)
+    else:
+        meta = {}
     out = []
     for lid, info in sorted(meta.items()):
         if not isinstance(info, dict) or not info.get('path'):

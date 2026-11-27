@@ -375,7 +375,7 @@ class Advocate {
         bestScore = s;
       }
     }
-    return best != null && bestScore >= 3 ? best.id : null;
+    return best != null && bestScore >= topicOpenMin ? best.id : null;
   }
 
   /// آیا برای این پیام حدسِ خوانندهٔ موضوع به کار می‌آید؟
@@ -387,7 +387,7 @@ class Advocate {
     final n = Sense.norm(raw);
     if (!_guessable(n)) return false;
     for (final t in topics) {
-      if (_score(t, n) >= 3) return false;
+      if (_score(t, n) >= topicOpenMin) return false;
     }
     return true;
   }

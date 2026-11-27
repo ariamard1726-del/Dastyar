@@ -36,6 +36,19 @@ class TopicFlowTests(unittest.TestCase):
     def test_fallback_asks(self):
         self.assertEqual(TF.route('سلام'), 'ask')
 
+    def test_malformed_flow_falls_back_to_ask(self):
+        bad_flow = {
+            'gate': [123, None],
+            'rules': [
+                'not_a_dict',
+                {'any': ['چک']},
+                {'any': [42], 'leaf': 'x'},
+                {'all_groups': ['bad'], 'leaf': 'x'},
+            ],
+        }
+        self.assertEqual(TF.route('چکم برگشت خورد', bad_flow), 'ask')
+        self.assertEqual(TF.route('چکم برگشت خورد', {}), 'ask')
+
     def test_answer_has_disclaimer_and_refs(self):
         a = TF.answer('چکم برگشت خورد')
         self.assertEqual(a['leaf'], 'returned_holder')

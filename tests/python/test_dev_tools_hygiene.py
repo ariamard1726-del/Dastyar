@@ -66,6 +66,8 @@ class DevToolsHygieneTests(unittest.TestCase):
     def test_python_suite_emits_zero_resource_warnings(self):
         code = (
             "import pathlib, sys, unittest; "
+            "sys.path.insert(0, 'dev/brain'); "
+            "import common; common.iter_law_files(); "
             "loader = unittest.TestLoader(); "
             "suite = unittest.TestSuite(); "
             "sys.path.insert(0, 'tests/python'); "
@@ -82,6 +84,12 @@ class DevToolsHygieneTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, f'{res.stdout}\n{res.stderr}')
         self.assertNotIn('ResourceWarning', res.stderr)
         self.assertNotIn('Exception ignored', res.stderr)
+
+    def test_core_brain_scripts_close_files(self):
+        for rel in ('common.py', 'engine.py', 'alt_bench.py', 'embed_eval.py'):
+            src = _read(ROOT / 'dev' / 'brain' / rel)
+            self.assertNotRegex(src, r'(?<!with )open\(',
+                                f'dev/brain/{rel} فایل باز را با with نبسته است')
 
     def test_readme_and_phases_reflect_completed_phases(self):
         phases = _read(ROOT / 'docs' / 'PHASES.md')

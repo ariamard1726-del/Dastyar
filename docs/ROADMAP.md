@@ -26,14 +26,14 @@
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 4`) + `Advocate.restoreCase(json, dialogue: …)`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
 | انتقال متنِ ثابتِ موضوع‌ها به JSON | 🟡 | تمام متنِ آزادِ موضوعِ اجاره (۵۲۵ کلید در ۱۱ جدولِ `rent_texts.json`)، تمام بخش‌های `shared` و ۲۳ موضوعِ غیرِاجاره (۱٬۱۰۶ کلید در ۲۴ بخشِ `assets/brain/topic_texts.json`) و تمام نثرِ ثابتِ ۲۱ فایلِ غیرموضوعیِ `lib/domain/advocate/` (۴۷۰ کلید در ۱۸ بخشِ `assets/brain/advocate_texts.json`؛ جمعاً ۲٬۱۰۱ کلید و ۲۱۹٬۰۸۳ نویسه) به داده منتقل و در `test_rent_text_equivalence.py` + `test_topic_text_equivalence.py` + `test_advocate_text_equivalence.py` + `text_manifest.json` (۶۶ فایل) قفل شده‌اند؛ تنها ۱۵ گزینهٔ قالبیِ `rent_fill.dart`، برچسب‌های ساختاری، الگوهای Regex و closureهای تصمیم در Dart مانده‌اند |
 | حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
-| جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |
+| جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ✅ | موتور `RuleDSL` (`rule_dsl*.dart`) + مهاجرت تمام ۲۴ موضوع به `.dsl(...)` و `Topic.toJson()` با ۰ کلوژر (`test_phase10_rule_dsl.py` + `phase10_rule_dsl_test.dart`) |
 
 ## مرحلهٔ ۲ — یک داور، نه زنجیرهٔ ۷۵۰ خطی
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
 | نوع `AnswerCandidate {source, confidence, why}` | ✅ | `answer_candidate.dart` هر کاندید را نامدار میکند و `AnswerDecision` نام، منبع، دلیل و پاسخِ برنده را نگه میدارد؛ `Advocate.lastDecision` برای بازرسی. ترتیب و رفتار عوض نشد؛ `test/advocate/answer_candidate_test.dart` و `tests/python/test_reply_pipeline_candidate_contract.py` نگهباناند |
-| جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها داده‌ای شد؛ اجرا هنوز `_reply` است |
+| جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها (`netMin`، `topicOpenMin`، `topicStrongMin`، `topicDominantMin`) از `assets/pipeline.json` قفل شدند (`pipeline_check.py` + `pipeline_contract_test.dart`)؛ ارزیابی کاندیدها هنوز در `_reply` با `AnswerArbiter` است |
 | تصمیم دربارهٔ `IntentNet` و `Noql` | ✅ | مقایسهٔ چهار مجموعهٔ نگهداشته (`reports/intent_holdout.md`) نتیجهٔ یکسانی با و بدون IntentNet داد (۵/۱۱، ۶/۹، ۵/۹، ۴/۸). اپ فقط Noql را بار میکند؛IntentNet و مدلش فقط برای سنجش قابلتکرار نگه داشته شدهاند (`tests/python/test_classifier_choice.py`) |
 | `NoqlEncoder` دستنویس — **دارایی اصلی، حفظشده** | ✅ | مدل ۱۲٫۳ MB در `assets/brain/noql.bin` عمداً در APK میماند: تنها مسیر حدس موضوع است (در Isolate، بارگذاری تنبلی، ۱۲s تایمـاوت) و دقتش در `reports/noql_finetune.md` ثبت شده است. چهار فایل `assets/brain/noql*` توسط `check.py noql` و `tests/python/test_noql_assets_guard.py` نگهبانی میشوند. بهینهسازی حافظهٔ `embed` فعلاً انجام نمیشود (ریاضیات حساس، ۳۴۶ms در پسزمینه قابلقبول است) |
 
@@ -45,7 +45,7 @@
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
 | کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
 | خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند |
-| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | 🟡 | `engine.query` در isolate دائمی (`core/engine_worker.dart`) اجرا میشود و API همگام قدیمی دستنخورده مانده؛ `LawTerms.match` هنوز PaLM از پیش ساخته را همگام میخواند (`domain/advocate/term_reply.dart`) |
+| `engine.query` و `LawTerms` بیرون از رشتهٔ UI | ✅ | هر دو در isolate دائمی `EngineWorker` اجرا می‌شوند (`GuideReply.follow` با `prepareWith` و `LawTerms.match` با `matchTermsInWorker` در `ReplyFlow._process`، همراه با fallback همگام در آزمون‌های مستقیم) |
 | ارزانکردن نمایش تدریجی متن | ✅ | حذف کامل نگارش تدریجی؛ پاسخ یکجا نمایش داده میشود (`reveal_text.dart`) |
 | حذف کامل انیمیشن نویسهبهنویسه | ✅ | انیمیشن و `onRevealTick` حذف شدند؛ تنها نشانگر «در حال نوشتن…» پیش از آمدن پاسخ مانده (`tests/python/test_ui_budget.py`) |
 | نگه‌داشتن دکمه‌های پیشنهادی در تاریخچه | ✅ | `StoredMsg.chips`؛ گفتگوی بازیابی‌شده دیگر بی‌دکمه نیست |
@@ -70,7 +70,7 @@
 | جدولِ بدهی‌های موقت داده باشد، نه متن | ✅ | `dev/tools/contracts/duplicated_logic.json` + `check.py debt`: هر جفت، نمونهٔ مشترک، خواندنش از هر دو زبان، و بودنش در همین سند — `tests/python/test_debt_check.py` |
 | `Advocate` گاد-آبجکت نباشد | ✅ | وضعیتِ «روی میز» در `dialogue_state.dart` (۲۵ فیلد)، ساختِ پاسخ در `reply_voice.dart`، ۱۲ مسیرِ نام‌دار در `reply_routes.dart` (`_reply` ۵۶۰ → ۳۳۴ خط)، فیلدهای حالتیِ `Advocate` ۴۶ → ۱۲. تشخیص موضوع (`TopicScore`) و پرسش بعدی (`CasePlan`) از کلاس بیرون آمدند و `test/advocate/isolation_test.dart` بدونِ ساختنِ `Advocate` می‌سنجدشان. ترفندِ `file.turns--` رفت. `chat_controller.dart` ۵۳۰ → ۳۱۲ خط با `draft_flow.dart`. `rent.dart` ۲٬۶۷۹ خط → شش تکه؛ `labor.dart` و `family.dart` هم به چهار تکه با آزمونِ پیش از شکستن. سه همکارِ تازه: `CaseArgument` (استدلال)، `ChipPlan` (دکمه‌ها؛ `advocate_chips.dart` ۱۶۰ → ۲۳ خط)، `MetaReply` (پاسخ‌های «دربارهٔ برنامه»)؛ خلاصهٔ پرونده تابعِ `recapOf` شد. متدهای باقی‌مانده روی بخش‌های `Advocate` از ۱۹۰ به ۵۷ رسید (`LawAnswer`، `TalkReply`، `TalkRoute`، `TopicPicker`، `CaseFlow`، `ReplyRoutes`، `GuideReply`، `TermReply` هم جدا شدند) — ترتیبِ پاسخ‌ها حالا فهرستِ نام‌دار است (`AnswerCandidate`/`AnswerArbiter`)، ولی نیمهٔ دومِ `_reply` هنوز محاسبه و تصمیم را در هم می‌بافد و ادعا نمی‌کنیم تمام شده. موتور: `law_mention.dart`. نگهبان عددی: `tests/python/test_advocate_shape.py` |
 | موتورِ قوانین هم شکسته شود | ✅ | `engine.dart` ۱٬۱۷۸ → **۶۳۸** خط: `LawIndex` (ایندکس + خواندنِ متن)، `LawRanker` (BM25F)، `LawText` (نوشتنِ متن)، `LawMention`، `ArticleQuery`. هر چهار با آزمونِ بی‌نیاز از دارایی‌ها (`test/core/law_*_test.dart`). در موتور چیزی جز بارگذاری و تصمیمِ پاسخ نماند |
-| رفتارهای `Advocate` هم همکار داشته باشند | 🟡 نیمه | جدا شده‌اند: `DialogueState` (حالت)، `ReplyVoice` (ساختِ پاسخ)، `_Routes` (مسیرها)، `CaseArgument` (استدلال: پرونده + صدا + خلاصه + برعکس‌شدن‌ها). هنوز ~۱۹۰ متد در ۸ فایلِ `part` روی خودِ `Advocate` است؛ قدمِ بعد: `CaseFlow` (روندِ پرونده) و `CaseTalk` (گفت‌وگوی انسانی) با همان الگو |
+| رفتارهای `Advocate` هم همکار داشته باشند | ✅ | کل همکارها جدا شدند (`DialogueState`، `ReplyVoice`، `ReplyRoutes`، `CaseArgument`، `CaseFlow`، `TalkReply`، `TalkRoute`، `TopicPicker`، `ChipPlan`، `MetaReply`، `LawAnswer`، `GuideReply`، `TermReply`، `SafetyReply`) و نثر ثابت هم به JSON منتقل شد (`test_advocate_shape.py`) |
 | گفتگوهای گزارش‌شده خودکار آزمون شوند | ✅ | `test/audit/conversations_reported.txt` در فهرست ورودیِ `conversation_audit_test.dart` |
 
 ## بدهی‌های موقتِ ثبت‌شده

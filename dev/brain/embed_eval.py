@@ -35,10 +35,11 @@ def read_rows(name):
     p = os.path.join(HERE, 'eval', name)
     if not os.path.exists(p):
         return rows
-    for l in open(p, encoding='utf-8'):
-        l = l.strip()
-        if l and not l.startswith('#'):
-            rows.append([x.strip() for x in l.split('|')])
+    with open(p, encoding='utf-8') as f:
+        for l in f:
+            l = l.strip()
+            if l and not l.startswith('#'):
+                rows.append([x.strip() for x in l.split('|')])
     return rows
 
 

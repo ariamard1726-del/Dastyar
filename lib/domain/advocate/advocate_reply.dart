@@ -96,7 +96,7 @@ extension _ReplyPipeline on Advocate {
     final due = dueDecision?.reply;
     if (due != null) return due;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
-    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= 5);
+    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= topicStrongMin);
     if (meta != null) return meta;
 
     final tailDecision = Advocate._arbiter.decide(<AnswerCandidate>[
@@ -114,7 +114,7 @@ extension _ReplyPipeline on Advocate {
     if (tail != null) return tail;
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
-    if (!hasCase && read.bestScore < 3) {
+    if (!hasCase && read.bestScore < topicOpenMin) {
       // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
       final confidentGuess = guess != null && guess.confident;
       final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);

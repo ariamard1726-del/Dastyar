@@ -26,26 +26,35 @@ class TopicFlow {
   /// آیا پیام دربارهٔ چک است (چک، چکم، چکی، چکش، ...)؟
   static bool mentionsCheque(String q) => _chequeWord.hasMatch(spaced(q));
 
-  /// شناسهٔ برگ تصمیم برای پرسش؛ `ask` وقتی هیچ قاعده‌ای نخورد.
+  static bool _matchesAny(Object? rawWords, String text) {
+    if (rawWords is! List) return false;
+    for (final w in rawWords) {
+      if (w is String && w.isNotEmpty && text.contains(_prefix(w))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// شناسهٔ برگ تصمیم برای پرسش؛ `ask` وقتی هیچ قاعده‌ای نخورد یا داده ناقص بود.
   static String route(Map<String, dynamic> flow, String q) {
     final text = spaced(q);
     final gate = flow['gate'];
-    if (gate is List && gate.isNotEmpty &&
-        !gate.cast<String>().any((w) => text.contains(_prefix(w)))) {
+    if (gate is List && gate.isNotEmpty && !_matchesAny(gate, text)) {
       return 'ask';
     }
     final rules = flow['rules'];
     if (rules is! List) return 'ask';
-    for (final r in rules.cast<Map<String, dynamic>>()) {
-      final any = r['any'];
-      if (any is List && any.cast<String>().any((w) => text.contains(_prefix(w)))) {
-        return r['leaf'] as String;
-      }
+    for (final r in rules) {
+      if (r is! Map) continue;
+      final leaf = r['leaf'];
+      if (leaf is! String || leaf.isEmpty) continue;
+      if (_matchesAny(r['any'], text)) return leaf;
       final groups = r['all_groups'];
       if (groups is List &&
           groups.isNotEmpty &&
-          groups.cast<List>().every((g) => g.cast<String>().any((w) => text.contains(_prefix(w))))) {
-        return r['leaf'] as String;
+          groups.every((g) => _matchesAny(g, text))) {
+        return leaf;
       }
     }
     return 'ask';

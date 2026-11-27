@@ -30,17 +30,20 @@
 
 ## ۱. خط لولهٔ پاسخ (`assets/pipeline.json`)
 
-ترتیب مسیرهای دانش و آستانهٔ پذیرش طبقه‌بند (`netMin`) در JSON نوشته شده و
-کد Dart باید عیناً همان باشد. دلیل: ترتیب مسیرها رفتار است؛ اگر جایی در کد
-عوض شود و اینجا نه، هیچ آزمونی نمی‌فهمید.
+ترتیب مسیرهای دانش و آستانه‌های پذیرش و موضوع (`netMin`، `topicOpen`،
+`topicStrong` و `topicDominant`) در JSON نوشته شده‌اند و کد Dart باید عیناً
+همان باشد. دلیل: ترتیب مسیرها و آستانه‌هایش رفتارند؛ اگر جایی در کد عوض شود و
+اینجا نه، هیچ آزمونی نمی‌فهمید.
 
 ```
 python dev/tools/check.py pipeline
 ```
 
-`dev/tools/pipeline_check.py` فهرست `Advocate.pipelineOrder` و مقدار
-`Advocate.netMin` را از `lib/domain/advocate/advocate.dart` می‌خواند و با JSON
-می‌سنجد. افزودن مسیر تازه: اول JSON، بعد enum و ترتیب در Dart.
+`dev/tools/pipeline_check.py` از طریق `dev/tools/library.py` (`DartLibrary`)
+فهرست `pipelineOrder` و ثوابت `netMin`، `topicOpenMin`، `topicStrongMin` و
+`topicDominantMin` را از کتابخانهٔ `lib/domain/advocate/advocate.dart` و
+`part`های آن (`advocate_data.dart`) می‌خواند و با JSON می‌سنجد. افزودن مسیر
+تازه یا تغییر آستانه: اول JSON، بعد `advocate_data.dart`.
 
 ## ۲. ساختار مسیر موضوعی (`dev/tools/schemas/topic_flow.schema.json`)
 

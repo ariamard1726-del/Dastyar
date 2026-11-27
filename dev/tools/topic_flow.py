@@ -37,21 +37,39 @@ def spaced(s):
 
 def _has(text, words):
     # پیشوندِ واژه: «برگشتی» و «برگشت» هر دو با «برگشت» تطبیق می‌یابند.
-    return any((' ' + spaced(w).strip()) in text for w in words)
+    if not isinstance(words, list):
+        return False
+    return any(
+        isinstance(w, str) and w and (' ' + spaced(w).strip()) in text
+        for w in words
+    )
 
 
 def route(q, flow=None):
     """برگ تصمیم را برمی‌گرداند؛ ترتیب قاعده‌ها مهم است (اولین تطابق)."""
-    flow = flow or load()
+    if flow is None:
+        flow = load()
+    if not isinstance(flow, dict):
+        return 'ask'
     text = spaced(q)
     # مسیر فقط برای پیام‌هایی است که واژهٔ دروازه (مثلاً «چک») دارند.
-    if flow.get('gate') and not _has(text, flow['gate']):
+    gate = flow.get('gate')
+    if isinstance(gate, list) and gate and not _has(text, gate):
         return 'ask'
-    for rule in flow['rules']:
-        if 'any' in rule and _has(text, rule['any']):
-            return rule['leaf']
-        if 'all_groups' in rule and all(_has(text, g) for g in rule['all_groups']):
-            return rule['leaf']
+    rules = flow.get('rules')
+    if not isinstance(rules, list):
+        return 'ask'
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        leaf = rule.get('leaf')
+        if not isinstance(leaf, str) or not leaf:
+            continue
+        if _has(text, rule.get('any')):
+            return leaf
+        groups = rule.get('all_groups')
+        if isinstance(groups, list) and groups and all(_has(text, g) for g in groups):
+            return leaf
     return 'ask'
 
 

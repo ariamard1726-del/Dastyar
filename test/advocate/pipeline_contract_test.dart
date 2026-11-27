@@ -28,9 +28,12 @@ void main() {
     expect(got, want);
   });
 
-  test('netMin در Dart با pipeline.json یکی است', () {
+  test('آستانه‌های pipeline.json با Dart یکی است', () {
     final th = pipeline['thresholds'] as Map<String, dynamic>;
     expect(netMin, (th['netMin'] as num).toDouble());
+    expect(topicOpenMin, th['topicOpen']);
+    expect(topicStrongMin, th['topicStrong']);
+    expect(topicDominantMin, th['topicDominant']);
   });
 
   test('هر مسیر pipeline.json به یک مقدار AnswerSource نگاشت می‌شود', () {

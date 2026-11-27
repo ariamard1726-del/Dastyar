@@ -143,10 +143,11 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 `pubspec.lock` عملاً به Dart `>=3.13.0` و Flutter `>=3.44.0` نیاز دارد؛
 تا همساز شدنشان، نسخهٔ دقیق SDK در CI باید قفل شود.
 
-## دستاورد فازهای ۹ تا ۱۱ (تکمیل‌کنندهٔ نقشهٔ راه)
+## دستاورد فازهای ۹ تا ۱۲ (تکمیل‌کنندهٔ نقشهٔ راه)
 
 - **فازهای ۹ و ۱۰ (`RuleDSL` و مهاجرت کامل ۲۴ موضوع؛ انجام شد):** کل ۲۴ موضوع (`topics/*.dart` شامل چهار موضوع بزرگ `cheque`، `family`، `labor` و `rent`) از کلوژرهای بی‌نام به گره‌های قابل سریال‌پذیری `RuleDSL` (`rule_dsl*.dart` و `case_model.dart`) مهاجرت کردند و `Topic.toJson()` و هم‌ارزی رفتاری با `test_phase10_rule_dsl.py` و `test/advocate/phase10_rule_dsl_test.dart` قفل شد.
 - **فاز ۱۱ (همگام‌سازی قراردادهای منطق موازی پایتون/دارت؛ انجام شد):** قراردادهای `text_norm.json` (افزودن `tokenize` و `spaced.tools/terms`)، `law_terms.json` (افزودن `ranking` و `generalSource`) و قرارداد تازهٔ `engine_rules.json` (`gen_engine_rules.py` و `check.py enginerules` → `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py`) همهٔ ضرایب، الگوها و جدول‌های موازی موتور و نرمال‌سازی را در دارت و پایتون یک‌منبع کردند (`test_engine_rules_parity.py`، `test/core/engine_rules_test.dart`).
+- **فاز ۱۲ (قفل کامل آستانه‌های خط لوله، تاب‌آوری `TopicFlow` و بهداشت `dev/brain/`؛ انجام شد):** آستانه‌های `topicOpen`/`topicStrong`/`topicDominant` در `advocate_data.dart` یک‌منبع و در `pipeline_check.py` (با `DartLibrary` مشترک) و `pipeline_contract_test.dart` قفل شدند، `TopicFlow.route` روی ورودی ناقص به `'ask'` برمی‌گردد، `open()`های بدون `with` در `dev/brain/` بسته شدند و جدول‌های قدیمی `ROADMAP.md` به‌روز شدند.
 - **خارج از برنامه (متوقف‌شده):** فاز ۶ (`assets/brain/noql*`) بنا به تصمیم کاربر متوقف شده است (`lazy_noql_mb=12.72`). باقی‌ماندهٔ غیرکدی: ممیزی انسانی ۲۴ قانون (`0/24 verified`) و ۹ قالب (`2/9`).
 - **مسیر پاسخ و isolate:** تمام مسیرهای سنگینِ پاسخ (`engine.query` در `LawAnswer`/`GuideReply` و `LawTerms.match` در `TermReply`) اکنون در `ReplyFlow` از طریق isolate دائمیِ `EngineWorker` پیش‌ساخته می‌شوند و مسیر همگام تنها به‌عنوان fallback پشتیبان در آزمون‌ها یا خطای isolate می‌ماند.
 - **پاک‌سازی لایه‌ها:** `lib/domain/` اکنون صفر وابستگی به Flutter دارد (`DOMAIN_FLUTTER_ALLOWLIST = set()`؛ `AppSettings` در `lib/ui/app_settings.dart`) و `DraftSession` و `FeedbackStore` هر دو دارای `schemaVersion = 1` و مهاجرت ایمن‌اند.

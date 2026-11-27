@@ -40,4 +40,20 @@ void main() {
     final refs = [for (final a in (leaves['returned_holder']['articles'] as List)) a['title']];
     expect(refs, containsAll(['ماده 4', 'ماده 11', 'ماده 23']));
   });
+
+  test('دادهٔ ناقص یا بدشکل در جریان موضوعی بدون کرش به ask می‌رود', () {
+    expect(TopicFlow.route(<String, dynamic>{}, 'چکم برگشت خورد'), 'ask');
+    expect(
+      TopicFlow.route(<String, dynamic>{
+        'gate': <Object?>[123, null],
+        'rules': <Object?>[
+          'bad',
+          <String, Object?>{'any': <Object?>['چک']},
+          <String, Object?>{'any': <Object?>[42], 'leaf': 'x'},
+          <String, Object?>{'all_groups': <Object?>['bad'], 'leaf': 'x'},
+        ],
+      }, 'چکم برگشت خورد'),
+      'ask',
+    );
+  });
 }

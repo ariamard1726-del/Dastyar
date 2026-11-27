@@ -18,6 +18,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 PIPELINE_JSON = os.path.join(ROOT, 'assets', 'pipeline.json')
 ADVOCATE_DART = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'advocate.dart')
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from library import DartLibrary  # noqa: E402
+
 # نام‌های JSON (camelCase) به نام‌های enum در Dart.
 DART_NAMES = {
     'safety': 'safety',
@@ -32,6 +35,12 @@ DART_NAMES = {
     'engine': 'engine',
 }
 
+TOPIC_THRESHOLD_MAP = (
+    ('topicOpen', 'topicOpenMin'),
+    ('topicStrong', 'topicStrongMin'),
+    ('topicDominant', 'topicDominantMin'),
+)
+
 
 def load_pipeline(path=PIPELINE_JSON):
     with open(path, encoding='utf-8') as f:
@@ -39,18 +48,8 @@ def load_pipeline(path=PIPELINE_JSON):
 
 
 def library_text(path=ADVOCATE_DART):
-    """متنِ کلِ کتابخانهٔ وکیل: سرِ فایل به‌همراه همهٔ `part`ها.
-
-    جدول‌ها می‌توانند در بخشِ خودشان باشند (`advocate_data.dart`)؛ خواندنِ تنها
-    یک فایل، نگهبان را بی‌سبب قرمز می‌کند و آدم را وسوسه می‌کند جدول را برگرداند.
-    """
-    base = os.path.dirname(path)
-    with open(path, encoding='utf-8') as f:
-        text = f.read()
-    for name in re.findall(r"^part '([^']+)'", text, re.M):
-        with open(os.path.join(base, name), encoding='utf-8') as f:
-            text += '\n' + f.read()
-    return text
+    """متنِ کلِ کتابخانهٔ وکیل از ابزار مشترک `dev/tools/library.py`."""
+    return DartLibrary(ROOT, path).text
 
 
 def dart_pipeline_order(path=ADVOCATE_DART):
@@ -68,6 +67,14 @@ def dart_net_min(path=ADVOCATE_DART):
     if not m:
         raise ValueError('netMin در advocate.dart پیدا نشد')
     return float(m.group(1))
+
+
+def dart_int_const(name, path=ADVOCATE_DART):
+    text = library_text(path)
+    m = re.search(r'\bconst\s+int\s+%s\s*=\s*([0-9]+);' % re.escape(name), text)
+    if not m:
+        raise ValueError('%s در advocate.dart پیدا نشد' % name)
+    return int(m.group(1))
 
 
 def validate(pipeline):
@@ -118,6 +125,14 @@ def check(pipeline_path=PIPELINE_JSON, dart_path=ADVOCATE_DART):
     net_dart = dart_net_min(dart_path)
     if abs(net_json - net_dart) > 1e-9:
         errors.append('netMin در JSON (%s) با Dart (%s) نمی‌خواند' % (net_json, net_dart))
+    for json_key, dart_name in TOPIC_THRESHOLD_MAP:
+        want_val = pipeline['thresholds'][json_key]
+        got_val = dart_int_const(dart_name, dart_path)
+        if want_val != got_val:
+            errors.append(
+                '%s در JSON (%s) با %s در Dart (%s) نمی‌خواند'
+                % (json_key, want_val, dart_name, got_val)
+            )
     return errors, warnings
 
 

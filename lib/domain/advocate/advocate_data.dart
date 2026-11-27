@@ -21,6 +21,15 @@ const Map<String, String> netTopics = {
 /// کمترین اطمینانی که نظر طبقه‌بند با آن پذیرفته می‌شود.
 const double netMin = 0.6;
 
+/// کمترین امتیاز موضوع برای بازکردن پرونده (`thresholds.topicOpen` در `assets/pipeline.json`).
+const int topicOpenMin = 3;
+
+/// آستانهٔ امتیاز قوی موضوع (`thresholds.topicStrong` در `assets/pipeline.json`).
+const int topicStrongMin = 5;
+
+/// آستانهٔ غلبهٔ موضوع تازه بر پروندهٔ جاری (`thresholds.topicDominant` در `assets/pipeline.json`).
+const int topicDominantMin = 5;
+
 /// ترتیب اولویت مسیرهای دانش، همان‌طور که در [respond] اجرا می‌شود.
 ///
 /// این فهرست «قرارداد» است، نه تزئین: هر مسیر تازه باید جای خودش را در

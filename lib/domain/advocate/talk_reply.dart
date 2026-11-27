@@ -208,7 +208,7 @@ class TalkReply {
   /// قاعده‌های عمومی (مثل «دعوای لفظی») ماجرای موضوع‌دار را ندزدند.
   bool anyTopicCue(String n) {
     for (final t in allTopics) {
-      if (_score(t, n) >= 3) return true;
+      if (_score(t, n) >= topicOpenMin) return true;
     }
     return false;
   }
