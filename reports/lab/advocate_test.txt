@@ -1,12 +1,12 @@
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه وقتی نمی‌داند دعوای مستأجر سرِ چیست، اول همین را می‌پرسد
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه خواسته‌ای که کاربر خودش گفته دوباره پرسیده نمی‌شود
-✅ test/advocate/advocate_test.dart: گفتگوی دوطرفه «ادامه بده» در جواب پیشنهاد، یعنی بله
-✅ test/advocate/advocate_test.dart: تشخیص درخواست صریح نوشتن سند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کارهایی می‌توانی بکنی؟» توانایی برنامه را می‌گوید، نه یک ماجرا
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «چه کاری می‌توانم بکنم؟» پرسش از وضع خود کاربر است، نه توانایی برنامه
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه «وکیل کجا پیدا کنم؟» راهنمای پیدا کردن وکیل می‌دهد
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه هزینهٔ وکیل وسط پرونده، پرونده را عوض نمی‌کند
 ✅ test/advocate/advocate_test.dart: نیت‌های عملی و توانایی برنامه پرسش مهلت، وقتی پرونده‌ای نیست، جواب کلی دارد
+✅ test/advocate/pipeline_contract_test.dart: فایل خط لوله در دسترس و دارای order است
+✅ test/advocate/pipeline_contract_test.dart: ترتیب Dart با pipeline.json یکی است
+✅ test/advocate/pipeline_contract_test.dart: netMin در Dart با pipeline.json یکی است
+✅ test/advocate/pipeline_contract_test.dart: هر مسیر pipeline.json به یک مقدار AnswerSource نگاشت می‌شود
 ✅ test/advocate/reported_conversations_test.dart: «تازه هست» بعد از انصراف، درخواست موضوع تازه است
 ✅ test/advocate/reported_conversations_test.dart: «موضوع جدیدی هست» هم درخواست موضوع تازه است
 ::endgroup::
