@@ -1,3 +1,6 @@
+import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/text_norm_rules.dart';
+
 /// مسیر تصمیم موضوعی بدون مدل (همتای dev/tools/topic_flow.py).
 ///
 /// هر پرسش با زیررشته‌های نرمال‌شده به یک برگ تصمیم می‌رسد؛ اگر هیچ قاعده‌ای
@@ -5,24 +8,17 @@
 class TopicFlow {
   TopicFlow._();
 
-  static final RegExp _punct = RegExp(r'[،,.;:!?؟()\[\]«»"\-/]+');
+  static final RegExp _punct = RegExp(TextNormRules.spacedToolsPunct);
   static final RegExp _chequeWord = RegExp(r' چک[\u0600-\u06FF]* ');
-  static final RegExp _diacritics = RegExp('[\u064B-\u065F\u0670]');
 
-  /// نرمال‌سازی همان قاعدهٔ پایتون: یکسان‌سازی نویسه‌ها و فاصله‌دار کردن.
-  static String spaced(String s) {
-    var t = s
-        .replaceAll(_diacritics, '')
-        .replaceAll('ي', 'ی')
-        .replaceAll('ك', 'ک')
-        .replaceAll('\u200c', ' ')
-        .replaceAll('ۀ', 'ه')
-        .replaceAll('ؤ', 'و')
-        .replaceAll('أ', 'ا')
-        .replaceAll('ء', '');
-    t = t.replaceAll(_punct, ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
-    return ' $t ';
-  }
+  /// نرمال‌سازی از قرارداد `dev/tools/contracts/text_norm.json` (`spaced.tools`).
+  static String spaced(String s) => PersianText.spacedWith(
+        s,
+        charMap: TextNormRules.spacedToolsMap,
+        dropRanges: TextNormRules.spacedToolsDropRanges,
+        punct: _punct,
+        pad: TextNormRules.spacedToolsPad,
+      );
 
   /// پیشوندِ واژه: «برگشتی» و «برگشت» هر دو با «برگشت» تطبیق می‌یابند.
   static String _prefix(String w) => ' ${spaced(w).trim()}';

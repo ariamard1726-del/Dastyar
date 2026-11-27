@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/text_norm_rules.dart';
 
 /// امتیاز یک برچسب نیت از خروجی softmax شبکهٔ عصبی.
 class IntentScore {
@@ -77,9 +78,7 @@ class IntentNet {
   };
   static const Set<String> ragLabels = {'legal_question', 'article_lookup'};
 
-  static final RegExp _nonWord = RegExp(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+',
-  );
+  static final RegExp _nonWord = RegExp(TextNormRules.nonWord);
 
   /// بارگذاری از asset؛ در صورت خرابی فایل null برمی‌گرداند تا برنامه
   /// با مسیر نمادین (بدون شبکه) به کارش ادامه دهد.

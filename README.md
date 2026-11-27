@@ -143,10 +143,10 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 `pubspec.lock` عملاً به Dart `>=3.13.0` و Flutter `>=3.44.0` نیاز دارد؛
 تا همساز شدنشان، نسخهٔ دقیق SDK در CI باید قفل شود.
 
-## بدهیهای شناختهشده (نقشهٔ فازهای مانده ۹ تا ۱۱)
+## دستاورد فازهای ۹ تا ۱۱ (تکمیل‌کنندهٔ نقشهٔ راه)
 
-- **فازهای ۹ و ۱۰ — جایگزینی کلوژرهای موضوع‌ها با RuleDSL/شناسهٔ قاعده (پیش‌رو):** در ۴۹ فایل `lib/domain/advocate/topics/*.dart`، منطق تصمیم‌گیری (`body: 118`، `when: 107`، `read: 84`، `effect: 72`، `rank: 51`، `because: 32`، `win: 28`، `counter: 28` و شرط‌های `Element`) هنوز به شکل کلوژر Dart است؛ فاز ۹ موتور `RuleDSL` سبک را معرفی کرده و ۲۰ موضوع ساده/میانی را مهاجرت می‌دهد و فاز ۱۰ چهار موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) را همراه با سریال‌پذیری کامل `Topic` تکمیل می‌کند.
-- **فاز ۱۱ — همگام‌سازی منطق موازی پایتون/دارت (`duplicated_logic.json`) (پیش‌رو):** تثبیت مرجع واحد برای جفت‌های هم‌رفتار `persian_text`، `engine`، `law_terms` و `topic_flow`.
+- **فازهای ۹ و ۱۰ (`RuleDSL` و مهاجرت کامل ۲۴ موضوع؛ انجام شد):** کل ۲۴ موضوع (`topics/*.dart` شامل چهار موضوع بزرگ `cheque`، `family`، `labor` و `rent`) از کلوژرهای بی‌نام به گره‌های قابل سریال‌پذیری `RuleDSL` (`rule_dsl*.dart` و `case_model.dart`) مهاجرت کردند و `Topic.toJson()` و هم‌ارزی رفتاری با `test_phase10_rule_dsl.py` و `test/advocate/phase10_rule_dsl_test.dart` قفل شد.
+- **فاز ۱۱ (همگام‌سازی قراردادهای منطق موازی پایتون/دارت؛ انجام شد):** قراردادهای `text_norm.json` (افزودن `tokenize` و `spaced.tools/terms`)، `law_terms.json` (افزودن `ranking` و `generalSource`) و قرارداد تازهٔ `engine_rules.json` (`gen_engine_rules.py` و `check.py enginerules` → `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py`) همهٔ ضرایب، الگوها و جدول‌های موازی موتور و نرمال‌سازی را در دارت و پایتون یک‌منبع کردند (`test_engine_rules_parity.py`، `test/core/engine_rules_test.dart`).
 - **خارج از برنامه (متوقف‌شده):** فاز ۶ (`assets/brain/noql*`) بنا به تصمیم کاربر متوقف شده است (`lazy_noql_mb=12.72`). باقی‌ماندهٔ غیرکدی: ممیزی انسانی ۲۴ قانون (`0/24 verified`) و ۹ قالب (`2/9`).
 - **مسیر پاسخ و isolate:** تمام مسیرهای سنگینِ پاسخ (`engine.query` در `LawAnswer`/`GuideReply` و `LawTerms.match` در `TermReply`) اکنون در `ReplyFlow` از طریق isolate دائمیِ `EngineWorker` پیش‌ساخته می‌شوند و مسیر همگام تنها به‌عنوان fallback پشتیبان در آزمون‌ها یا خطای isolate می‌ماند.
 - **پاک‌سازی لایه‌ها:** `lib/domain/` اکنون صفر وابستگی به Flutter دارد (`DOMAIN_FLUTTER_ALLOWLIST = set()`؛ `AppSettings` در `lib/ui/app_settings.dart`) و `DraftSession` و `FeedbackStore` هر دو دارای `schemaVersion = 1` و مهاجرت ایمن‌اند.

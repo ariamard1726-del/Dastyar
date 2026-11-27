@@ -167,5 +167,14 @@
     "maxSpan": 15,
     "phraseMinIdf": 4.0
   },
+  "ranking": {
+    "defaultPriority": 50,
+    "missingSpan": 1000000,
+    "coverDigits": 3,
+    "rankCoverDigits": 6,
+    "rankDensityDigits": 2,
+    "minPhraseWords": 2,
+    "minRareHits": 2
+  },
   "generalSource": "دانش عمومی"
 }

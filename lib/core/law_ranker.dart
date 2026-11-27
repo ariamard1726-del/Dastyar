@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:dastyar/core/article_query.dart';
+import 'package:dastyar/core/engine_rules.dart';
 import 'package:dastyar/core/law_index.dart';
 import 'package:dastyar/core/law_mention.dart';
 import 'package:dastyar/core/models.dart';
@@ -36,25 +37,18 @@ class LawRanker {
   /// جفت‌های مترادف، به‌همان ترتیبی که در فایل آمده‌اند.
   final List<List<String>> synonyms;
 
-  // پارامترهای BM25F: اشباعِ بسامد، نرمال‌سازیِ طول، وزنِ عنوان/متن/زمینه.
-  final double _k1 = 0.9;
-  final double _b = 0.7;
-  final double _wT = 3.0;
-  final double _wB = 1.0;
-  final double _wC = 0.5;
+  // پارامترهای BM25F و قواعد تعریف از `dev/tools/contracts/engine_rules.json` می‌آیند.
+  final double _k1 = EngineRules.bm25K1;
+  final double _b = EngineRules.bm25B;
+  final double _wT = EngineRules.bm25WT;
+  final double _wB = EngineRules.bm25WB;
+  final double _wC = EngineRules.bm25WC;
 
-  static final RegExp _defQ = RegExp(
-    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن|گفته می شود',
-  );
-  static const Set<String> _defWords = {
-    'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
-    'گویند', 'کسی', 'کیست', 'گفته', 'شود',
-  };
-  static const Set<String> _defMetaPrefixes = {
-    'مجازات', 'مجازاتی', 'شرایط', 'حکم', 'مهلت', 'موارد', 'نحوه', 'میزان',
-  };
-  static final RegExp _defMark = RegExp(r'عقدی|عبارت|است|گویند|حاصل');
-  static final RegExp _defStrong = RegExp(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)');
+  static final RegExp _defQ = RegExp(EngineRules.defQuestionPattern);
+  static const Set<String> _defWords = EngineRules.defWords;
+  static const Set<String> _defMetaPrefixes = EngineRules.defMetaPrefixes;
+  static final RegExp _defMark = RegExp(EngineRules.defMarkPattern);
+  static final RegExp _defStrong = RegExp(EngineRules.defStrongPattern);
 
   RankResult rank(String question, {int k = 3}) {
   return rankInternal(question, k: k);
@@ -107,7 +101,7 @@ class LawRanker {
                   'همین شمارهٔ ماده در این منابع هم هست: $others. نام قانون را هم بنویسید.';
             }
           }
-          return RankResult([Hit(pick, 99)], note);
+          return RankResult([Hit(pick, EngineRules.explicitScore)], note);
         }
       }
     }
@@ -120,7 +114,7 @@ class LawRanker {
       total += index.idf[t] ?? 1.0;
       if (index.idf.containsKey(t)) {
         terms[t] = 1.0;
-      } else if (t.length >= 3) {
+      } else if (t.length >= EngineRules.prefixMinLen) {
         _addPrefixTerms(t, terms);
       }
     }
@@ -158,7 +152,7 @@ class LawRanker {
       });
       if (s <= 0) continue;
       s = s / (total > 0 ? total : 1.0);
-      if (c.obsolete) s *= 0.1;
+      if (c.obsolete) s *= EngineRules.obsoletePenalty;
       s *= factors[c.lawId] ?? 1.0;
       hits.add(Hit(c, s));
     }
@@ -204,7 +198,7 @@ class LawRanker {
             ? term
             : (body.startsWith('عقد $term') ? 'عقد $term' : null);
         if (p == null) continue;
-        final end = math.min(body.length, p.length + 30);
+        final end = math.min(body.length, p.length + EngineRules.defTailWindow);
         final tail = body.substring(p.length, end);
         if (!_defMark.hasMatch(tail)) continue;
         (_defStrong.hasMatch(tail) ? strong : weak).add(h);
@@ -213,7 +207,7 @@ class LawRanker {
       if (cands.isNotEmpty) break;
     }
     if (cands.isEmpty) return hits;
-    final picked = cands.take(2).toList();
+    final picked = cands.take(EngineRules.defMaxPicked).toList();
     final top = hits.first.score;
     final out = <Hit>[
       Hit(picked[0].chunk, math.max(picked[0].score, top)),
@@ -238,11 +232,11 @@ class LawRanker {
     if (has(t)) {
       covered.add(t);
       got += index.idf[t] ?? index.maxIdf;
-    } else if (!index.idf.containsKey(t) && t.length >= 3) {
+    } else if (!index.idf.containsKey(t) && t.length >= EngineRules.prefixMinLen) {
       var pref = false;
       for (final m in [c.tfT, c.tfB, c.tfC]) {
         for (final v in m.keys) {
-          if (v.length >= 3 && (v.startsWith(t) || t.startsWith(v))) {
+          if (v.length >= EngineRules.prefixMinLen && (v.startsWith(t) || t.startsWith(v))) {
             pref = true;
             break;
           }
@@ -251,7 +245,7 @@ class LawRanker {
       }
       if (pref) {
         covered.add(t);
-        got += 0.5 * index.maxIdf;
+        got += EngineRules.prefixWeight * index.maxIdf;
       }
     }
   }
@@ -284,16 +278,16 @@ class LawRanker {
 }
 
   void _addPrefixTerms(String t, Map<String, double> terms) {
-  for (var len = 3; len < t.length; len++) {
+  for (var len = EngineRules.prefixMinLen; len < t.length; len++) {
     final sub = t.substring(0, len);
     if (index.idf.containsKey(sub)) {
-      terms[sub] = math.max(terms[sub] ?? 0, 0.5);
+      terms[sub] = math.max(terms[sub] ?? 0, EngineRules.prefixWeight);
     }
   }
   var i = _lowerBound(index.vocab, t);
   while (i < index.vocab.length && index.vocab[i].startsWith(t)) {
     final v = index.vocab[i];
-    terms[v] = math.max(terms[v] ?? 0, 0.5);
+    terms[v] = math.max(terms[v] ?? 0, EngineRules.prefixWeight);
     i++;
   }
 }

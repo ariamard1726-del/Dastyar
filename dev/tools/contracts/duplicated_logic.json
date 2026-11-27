@@ -10,7 +10,7 @@
       "shared": [
         "tests/law_terms/cases.json"
       ],
-      "note": "فهرست ایست‌واژه و آستانه‌ها یک‌جا شد (dev/tools/contracts/law_terms.json)؛ خودِ الگوریتم هنوز دو جاست.",
+      "note": "فهرست ایست‌واژه، نگاشت، آستانه‌ها، ضرایب رتبه‌بندی و نام منبع عمومی یک‌جا شد (dev/tools/contracts/law_terms.json) و نرمال‌سازی فاصله‌دار به text_norm.json رفت؛ خودِ الگوریتم تطبیق هنوز دو جاست.",
       "fix": "ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون"
     },
     {
@@ -21,7 +21,7 @@
       "shared": [
         "dev/brain/parity_expected.json"
       ],
-      "note": "استاندارد طلایی از سمت پایتون تولید می‌شود (dev/tools/parity.py --write).",
+      "note": "ضرایب BM25F، الگوهای ماده/منسوخ/تعریف، نام قانون، پایش حوزه‌های خارج از پوشش و عمق تضادها از dev/tools/contracts/engine_rules.json و واژه‌بندی از text_norm.json تولید می‌شوند؛ منطق اجراکننده و استاندارد طلایی (dev/tools/parity.py --write) هنوز دو جاست.",
       "fix": "ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون)"
     },
     {
@@ -32,7 +32,7 @@
       "shared": [
         "tests/topics/*_gold.json"
       ],
-      "note": "همان نمونه‌های gold، هم در پایتون و هم در دارت اجرا می‌شوند.",
+      "note": "نرمال‌سازی فاصله‌دار از text_norm.json می‌آید؛ همان نمونه‌های gold روی هر دو پیاده‌سازی اجرا می‌شوند.",
       "fix": "همان موتور Dart از میز فرمان اجرا شود"
     },
     {
@@ -44,7 +44,7 @@
         "tests/text_norm_golden.json",
         "tests/text_norm_norm_cases.json"
       ],
-      "note": "قاعده‌ها از dev/tools/contracts/text_norm.json تولید می‌شوند؛ کدِ اجراکننده هنوز دو جاست.",
+      "note": "قاعده‌های نویسه، ارقام، محاوره، واژه‌بندی/ایست‌واژه و نرمال‌سازی فاصله‌دار (tools/terms) از dev/tools/contracts/text_norm.json تولید می‌شوند؛ کدِ اجراکننده هنوز دو جاست.",
       "fix": "ارزیابی روی خروجی خودِ اپ"
     }
   ]

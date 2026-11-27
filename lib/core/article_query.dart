@@ -1,3 +1,4 @@
+import 'package:dastyar/core/engine_rules.dart';
 import 'package:dastyar/core/persian_text.dart';
 
 /// الگوی «ماده/اصل ۱۲» در متنِ کاربر و نامِ استانداردِ همان ماده.
@@ -8,9 +9,7 @@ import 'package:dastyar/core/persian_text.dart';
 class ArticleQuery {
   const ArticleQuery._();
 
-  static final RegExp re = RegExp(
-    r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))',
-  );
+  static final RegExp re = RegExp(EngineRules.articleQueryPattern);
 
   /// «ماده ۱۲» یا «اصل ۱۲» با ارقامِ فارسی؛ خالی اگر عبارت ماده نداشته باشد.
   static String canonical(String rawArticle) {

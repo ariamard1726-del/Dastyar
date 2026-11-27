@@ -85,10 +85,10 @@
 
 | بدهی | دو/چند پیاده‌سازی | نگهبان | رفع واقعی |
 |---|---|---|---|
-| الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `dev/tools/law_terms.py` | فهرست و آستانه‌ها یک‌جا شد (`check.py lawterms`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
-| یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `dev/brain/common.py` | قاعده‌ها یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
-| موتور بازیابی | `lib/core/engine.dart` ↔ `dev/tools/eval_py.py` | `dev/tools/check.py parity` + `test/core/parity_test.dart` | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
-| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `dev/tools/topic_flow.py` | `tests/python/test_topic_flow.py` (۴۶ نمونه) | همان موتور Dart از میز فرمان اجرا شود |
+| الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `dev/tools/law_terms.py` | فهرست، آستانه‌ها، ضرایب رتبه‌بندی و نام منبع عمومی یک‌جا شد (`check.py lawterms` + `textnorm`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
+| یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `dev/brain/common.py` | قاعده‌های نویسه، محاوره، واژه‌بندی و نرمال‌سازی فاصله‌دار (`tools`/`terms`) یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
+| موتور بازیابی | `lib/core/engine.dart` + `lib/core/engine_rules.dart` ↔ `dev/tools/eval_py.py` | قاعده‌ها و ضرایب در `engine_rules.json` + `text_norm.json` یک‌جا شدند (`check.py enginerules` + `test_engine_rules_parity.py`)؛ منطق و استاندارد طلایی با `dev/tools/check.py parity` + `test/core/parity_test.dart` قفل‌اند | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
+| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `dev/tools/topic_flow.py` | نرمال‌سازی فاصله‌دار از `text_norm.json` می‌آید؛ `tests/python/test_topic_flow.py` و `test/advocate/topic_flow_test.dart` روی `tests/topics/*_gold.json` | همان موتور Dart از میز فرمان اجرا شود |
 | دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `dev/tools/sync_meta.py` | `dev/tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
 
 ### پرداخت‌شده: ایست‌واژه‌های تطبیق واژه‌ها
@@ -129,6 +129,26 @@
 دارت (`Sense.norm`) و یک بار در پایتون (`common.norm`). این تقلیدِ بین‌زبانی
 با تولید کد رفع نمی‌شود؛ نگهبانش همان دو فایلِ نمونهٔ بالاست و رفعِ کاملش
 یعنی یکی از دو زبان از معادله بیرون برود (مثلاً ارزیابی روی خروجی خودِ اپ).
+
+### پرداخت‌شده: قاعده‌های موتور بازیابی و نمایه (`engine_rules.json`)
+
+در فاز ۱۱ قرارداد سوم (`dev/tools/contracts/engine_rules.json`) نیز جایگزین
+ثوابت و الگوهای موازی موتور بازیابی شد و قراردادهای پیشین هم تکمیل شدند:
+
+- **قواعد موتور (`engine_rules.json`):** `python3 dev/tools/gen_engine_rules.py --write`
+  دو فایل `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py` را تولید می‌کند
+  (`check.py enginerules`) و مصرف‌کنندگان دارت (`article_query`، `law_index`،
+  `law_mention`، `law_ranker`، `conflicts_service`، `engine`، `engine_query`) و
+  پایتون (`dev/tools/{eval_py,eval_none}.py`، `dev/brain/{common,engine}.py`) همگی از آن می‌خوانند.
+- **گسترش `text_norm.json` و `law_terms.json`:** الگوی `nonWord`، `stemMinStem`،
+  `suffixes`/`suffixesIndex`، `stop` و نگاشت‌های `spaced` (`tools` و `terms`) از
+  `text_norm.json` تولید می‌شوند تا `PersianText.spacedWith` جای پیاده‌سازی‌های
+  جدا در `TopicFlow` و `LawTerms` را بگیرد و `eval_py.py`، `check.py` و `train_intent.py`
+  نیز به همان مرجع متصل شوند؛ ضرایب رتبه‌بندی `ranking` و `generalSource` نیز از
+  `law_terms.json` تولید می‌شوند.
+- **قفل‌های دوطرفه:** `tests/python/test_engine_rules_parity.py`،
+  `test/core/engine_rules_test.dart` و ادعاهای تکمیلی در `test_text_norm_parity.py`،
+  `test_law_terms_parity.py` و `test/core/text_norm_rules_test.dart`.
 
 **هشدار:** بدهی بدون نگهبان، همان «خطای بی‌صدا»یی است که در بازبینی اول آمده
 بود. قاعده: تا وقتی یک پیاده‌سازی دوگانه رفع نشده، باید دست‌کم یک آزمون مشترک

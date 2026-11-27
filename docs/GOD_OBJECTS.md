@@ -103,10 +103,10 @@
 
 | فایل | خط | مسئولیت |
 |---|---|---|
-| `engine.dart` | **۲۱۹** | وضعیت + API: پاس دهندههای یک خطی برای آنچه در بخشهاست + `prepareWith` |
-| `engine_load.dart` | **۲۹۸** | تنها جایی که دارایی خوانده میشود: `load` و بارگذاریهای `_load*` |
-| `engine_query.dart` | **۳۰۷** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
-| `engine_worker.dart` | **۱۴۰** | همان پاسخسازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دستنخورده |
+| `engine.dart` | **۱۹۲** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` (قواعد از `engine_rules.dart`) |
+| `engine_load.dart` | **۲۹۸** | تنها جایی که دارایی خوانده می‌شود: `load` و بارگذاری‌های `_load*` |
+| `engine_query.dart` | **۳۰۸** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
+| `engine_worker.dart` | **۱۴۰** | همان پاسخ‌سازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دست‌نخورده |
 
 - با `extension` روی همان کلاس، تا وضعیت و اعضای خصوصی دست‌نخورده بمانند؛
   اعضای ثابت (`_lowCover`، `_anchorGroups`، `normalize`…) داخل بخش‌ها با

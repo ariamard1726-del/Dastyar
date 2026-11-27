@@ -43,7 +43,11 @@ def _sorted_items(mapping):
 def _dart_str(s):
     if "'" in s:
         raise ValueError('نویسهٔ نقل‌قول در رشتهٔ قاعده: %r' % s)
-    return "'%s'" % s
+    escaped = ''.join(
+        '\\u%04x' % ord(ch) if 0x200B <= ord(ch) <= 0x200F else ch
+        for ch in s
+    )
+    return "'%s'" % escaped
 
 
 def _dart_raw(s):
@@ -78,6 +82,8 @@ def _py_raw(s):
 def render_dart(c):
     ch = c['chars']
     nm = c['norm']
+    sp = c['spaced']
+    tk = c['tokenize']
     out = [DART_HEADER, '', '''/// قاعده‌های یکدست‌سازی متن — تنها مرجع، `dev/tools/contracts/text_norm.json`.
 ///
 /// پیش‌تر همین نگاشت‌ها و مجموعه‌ها در `persian_text.dart`، `text_sense.dart`
@@ -133,6 +139,40 @@ class TextNormRules {
     for pat, rep in nm['canon']:
         out.append('    <String>[%s, %s],' % (_dart_raw(pat), _dart_str(rep)))
     out.append('  ];')
+    out.append('')
+    out.append('  // ---- لایهٔ واژه‌بندی و ریشه‌یابی (`PersianText` / `eval_py`) ----')
+    out.append('')
+    out.append('  static const String nonWord = %s;' % _dart_raw(tk['nonWord']))
+    out.append('  static const int stemMinStem = %d;' % tk['stemMinStem'])
+    out.append('  static const List<String> suffixes = <String>[%s];' % ', '.join(
+        _dart_str(s) for s in tk['suffixes']))
+    out.append('  static const List<String> suffixesIndex = <String>[%s];' % ', '.join(
+        _dart_str(s) for s in tk['suffixesIndex']))
+    out.append('  static const Set<String> stop = <String>{')
+    stop_words = sorted(tk['stop'])
+    for i in range(0, len(stop_words), 8):
+        out.append('    %s,' % ', '.join(_dart_str(w) for w in stop_words[i:i + 8]))
+    out.append('  };')
+    out.append('')
+    out.append('  // ---- نسخه‌های فاصله‌دار (`TopicFlow` و `LawTerms`) ----')
+    for key, label in (('tools', 'Tools'), ('terms', 'Terms')):
+        v = sp[key]
+        out.append('')
+        out.append('  static const Map<String, String> spaced%sMap = <String, String>{' % label)
+        for k, rep in _sorted_items(v['map']):
+            out.append('    %s: %s, // U+%04X' % (
+                _dart_str(k), _dart_str(rep), ord(k)))
+        out.append('  };')
+        if v['dropRanges']:
+            out.append('  static const List<List<int>> spaced%sDropRanges = <List<int>>[' % label)
+            for lo, hi in v['dropRanges']:
+                out.append('    <int>[%d, %d],' % (lo, hi))
+            out.append('  ];')
+        else:
+            out.append('  static const List<List<int>> spaced%sDropRanges = <List<int>>[];' % label)
+        out.append('  static const String spaced%sPunct = %s;' % (label, _dart_raw(v['punct'])))
+        out.append('  static const bool spaced%sPad = %s;' % (
+            label, 'true' if v['pad'] else 'false'))
     out.append('}')
     out.append('')
     return '\n'.join(out)
@@ -141,6 +181,7 @@ class TextNormRules {
 def render_py(c):
     ch = c['chars']
     nm = c['norm']
+    tk = c['tokenize']
     out = [PY_HEADER, '']
     out.append('CHAR_MAP = {')
     for k, v in _sorted_items(ch['map']):
@@ -169,7 +210,16 @@ def render_py(c):
         out.append('    (%s, %s),' % (_py_raw(pat), _py_str(rep)))
     out.append(')')
     out.append('')
-    out.append('# نسخه‌های ابزارها: تفاوت‌ها یک‌جا اینجاست، نه در سه پیاده‌سازی.')
+    out.append('NONWORD_PATTERN = %s' % _py_raw(tk['nonWord']))
+    out.append('STEM_MIN_STEM = %d' % tk['stemMinStem'])
+    out.append('SUFFIXES = (%s)' % _py_tuple([_py_str(s) for s in tk['suffixes']]))
+    out.append('SUFFIXES_INDEX = (%s)' % _py_tuple([_py_str(s) for s in tk['suffixesIndex']]))
+    out.append('STOP = frozenset({')
+    for w in sorted(tk['stop']):
+        out.append('    %s,' % _py_str(w))
+    out.append('})')
+    out.append('')
+    out.append('# نسخه‌های ابزارها: تفاوت‌ها یک‌جا اینجاست، نه در پیاده‌سازی‌های جدا.')
     out.append('SPACED = {')
     for name in sorted(c['spaced']):
         if name == 'description':

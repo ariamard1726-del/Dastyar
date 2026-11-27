@@ -12,33 +12,24 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 from common import normalize  # noqa: E402
+import engine_rules as _ER  # noqa: E402
+import law_terms_rules as _LR  # noqa: E402
+import text_norm_rules as _TR  # noqa: E402
 
-NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+'
-)
-ART_QUERY_RE = re.compile(
-    r'(ماده|اصل)\s*(?:(واحده)(?![\u0600-\u06FFa-z0-9])|(\d+)(?:\s*(مکرر)(?:\s*(\d{1,2})(?!\d))?)?)(?!\s*(?:تومان|ریال|درصد|سکه|ماه|سال|روز))'
-)
-DEF_Q_RE = re.compile(
-    r'چیست|چیه|کیست|یعنی چی|یعنی چه|چه معنی|تعریف|چی هست|به چه گویند|به چه کسی می گویند|به چی می گن|گفته می شود'
-)
-DEF_WORDS = {
-    'یعنی', 'چی', 'چه', 'معنی', 'تعریف', 'هست', 'چیست', 'چیه',
-    'گویند', 'کسی', 'کیست', 'گفته', 'شود',
-}
-DEF_META_PREFIXES = {
-    'مجازات', 'مجازاتی', 'شرایط', 'حکم', 'مهلت', 'موارد', 'نحوه', 'میزان',
-}
-DEF_MARK_RE = re.compile(r'عقدی|عبارت|است|گویند|حاصل')
-DEF_STRONG_RE = re.compile(r'^[\s،]*(عقدی|عبارت|شرکتی|کسی)')
-CLEAN_BODY_RE = re.compile(r'^[(\[][^)\]]*[)\]]\s*-?\s*')
+NONWORD = re.compile(_TR.NONWORD_PATTERN)
+ART_QUERY_RE = re.compile(_ER.ARTICLE_QUERY_PATTERN)
+DEF_Q_RE = re.compile(_ER.DEF_QUESTION_PATTERN)
+DEF_WORDS = _ER.DEF_WORDS
+DEF_META_PREFIXES = _ER.DEF_META_PREFIXES
+DEF_MARK_RE = re.compile(_ER.DEF_MARK_PATTERN)
+DEF_STRONG_RE = re.compile(_ER.DEF_STRONG_PATTERN)
+CLEAN_BODY_RE = re.compile(_ER.CLEAN_BODY_PATTERN)
+OBSOLETE_TRIM_RE = re.compile(_ER.OBSOLETE_TRIM_PATTERN)
 
-STOP = set(
-    'و در به از که را با این آن برای یک است هست چه چی چیست کی کجا چرا چطور چگونه '
-    'آیا من تو شما می هم یا تا بر هر بود شد باشد کند کنم کن بگو درباره مورد لطفا ممنون ماده قانون'.split()
-)
-SUF = ['ترین', 'هایی', 'های', 'ها']
-K1, B, WT, WB, WC = 0.9, 0.7, 3.0, 1.0, 0.5
+STOP = _TR.STOP
+SUF = _TR.SUFFIXES_INDEX
+STEM_MIN_STEM = _TR.STEM_MIN_STEM
+K1, B, WT, WB, WC = _ER.BM25_K1, _ER.BM25_B, _ER.BM25_WT, _ER.BM25_WB, _ER.BM25_WC
 
 
 def collapse(s):
@@ -51,7 +42,7 @@ def tok(s):
         if not w or w in STOP:
             continue
         for suf in SUF:
-            if len(w) - len(suf) >= 3 and w.endswith(suf):
+            if len(w) - len(suf) >= STEM_MIN_STEM and w.endswith(suf):
                 w = w[:-len(suf)]
                 break
         out.append(w)
@@ -64,10 +55,10 @@ def phrase(s):
 
 def obsolete(body):
     n = collapse(normalize(body))
-    if len(n) > 300:
+    if len(n) > _ER.OBSOLETE_MAX_LEN:
         return False
-    n = re.sub(r'^[(\[\s]+', '', n)
-    return n.startswith(('منسوخ', 'ملغی', 'ملغا', 'حذف شد'))
+    n = OBSOLETE_TRIM_RE.sub('', n)
+    return n.startswith(_ER.OBSOLETE_PREFIXES)
 
 
 def _wanted_article(m):
@@ -98,7 +89,7 @@ class Engine:
         if os.path.isfile(k_path):
             with open(k_path, encoding='utf-8') as f:
                 text = f.read().replace('\r', '')
-            self.parse(text, 'دانش عمومی', 'knowledge')
+            self.parse(text, _LR.GENERAL_SOURCE, 'knowledge')
 
         for lid, info in meta.items():
             if not isinstance(info, dict) or not info.get('path'):
@@ -196,13 +187,17 @@ class Engine:
                 full = collapse(normalize(name))
                 if not full:
                     continue
-                if not (full.startswith('قانون ') or full.startswith('لایحه ')):
+                if not full.startswith(_ER.LAW_PREFIXES):
                     continue
                 if full in n:
                     hit = True
                     break
-                short = full[6:].strip() if full.startswith('قانون ') else ''
-                if len(short) >= 5 and ('قانون ' + short) in n:
+                short = (
+                    full[len(_ER.SHORT_LAW_PREFIX):].strip()
+                    if full.startswith(_ER.SHORT_LAW_PREFIX)
+                    else ''
+                )
+                if len(short) >= _ER.SHORT_LAW_MIN_LEN and (_ER.SHORT_LAW_PREFIX + short) in n:
                     hit = True
                     break
             if hit:
@@ -237,14 +232,14 @@ class Engine:
         return out
 
     def _add_prefix_terms(self, t, terms):
-        for ln in range(3, len(t)):
+        for ln in range(_ER.PREFIX_MIN_LEN, len(t)):
             sub = t[:ln]
             if sub in self.idf:
-                terms[sub] = max(terms.get(sub, 0.0), 0.5)
+                terms[sub] = max(terms.get(sub, 0.0), _ER.PREFIX_WEIGHT)
         idx = bisect_left(self.vocab, t)
         while idx < len(self.vocab) and self.vocab[idx].startswith(t):
             v = self.vocab[idx]
-            terms[v] = max(terms.get(v, 0.0), 0.5)
+            terms[v] = max(terms.get(v, 0.0), _ER.PREFIX_WEIGHT)
             idx += 1
 
     def _promote_definitions(self, question, hits, factors=None):
@@ -278,7 +273,7 @@ class Engine:
                 )
                 if p is None:
                     continue
-                tail = body[len(p):len(p) + 30]
+                tail = body[len(p):len(p) + _ER.DEF_TAIL_WINDOW]
                 if not DEF_MARK_RE.search(tail):
                     continue
                 (strong if DEF_STRONG_RE.search(tail) else weak).append(h)
@@ -287,7 +282,7 @@ class Engine:
                 break
         if not cands:
             return hits
-        picked = cands[:2]
+        picked = cands[:_ER.DEF_MAX_PICKED]
         top_score = hits[0][1]
         picked_ids = {id(p[0]) for p in picked}
         out = [(picked[0][0], max(picked[0][1], top_score))] + list(picked[1:])
@@ -331,7 +326,7 @@ class Engine:
             if found:
                 qs = set(qt)
                 best = max(found, key=lambda c: len(qs & set(tok(c['source']))))
-                return [(best, 99.0)]
+                return [(best, _ER.EXPLICIT_SCORE)]
 
         if not qt:
             return []
@@ -341,7 +336,7 @@ class Engine:
             total += self.idf.get(t, 1.0)
             if t in self.idf:
                 terms[t] = 1.0
-            elif len(t) >= 3:
+            elif len(t) >= _ER.PREFIX_MIN_LEN:
                 self._add_prefix_terms(t, terms)
 
         n = f' {phrase(question)} '
@@ -377,7 +372,7 @@ class Engine:
                 continue
             s /= total if total > 0 else 1.0
             if c['obs']:
-                s *= 0.1
+                s *= _ER.OBSOLETE_PENALTY
             s *= factors.get(c['law'], 1.0)
             hits.append((c, s))
 

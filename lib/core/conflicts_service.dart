@@ -1,3 +1,5 @@
+import 'package:dastyar/core/engine_rules.dart';
+
 /// سرویس مدیریت زنجیرهٔ تضادها و ارجاعات متقابل مواد قانونی.
 /// داده‌ها (relationships.json) را موتور می‌خواند و به این سرویس می‌دهد.
 class ConflictsService {
@@ -9,7 +11,7 @@ class ConflictsService {
     String articleId,
     Map<String, dynamic> data, {
     List<String>? path,
-    int maxDepth = 32,
+    int maxDepth = EngineRules.conflictsMaxDepth,
   }) {
     final currentPath = path ?? <String>[articleId];
     if (currentPath.length > maxDepth) return const [];
@@ -28,7 +30,7 @@ class ConflictsService {
 
     for (final conflictId in conflicts) {
       if (currentPath.contains(conflictId)) {
-        results.add('${currentPath.join(' -> ')} -> $conflictId ⚠️ (حلقه)');
+        results.add('${currentPath.join(' -> ')} -> $conflictId${EngineRules.conflictsCycleSuffix}');
         continue;
       }
 

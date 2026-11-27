@@ -1,3 +1,4 @@
+import 'package:dastyar/core/engine_rules.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 
@@ -33,7 +34,7 @@ class LawMention {
         final full = _collapsed(name);
         if (full.isEmpty) continue;
 
-        final isLawName = full.startsWith('قانون ') || full.startsWith('لایحه ');
+        final isLawName = EngineRules.lawPrefixes.any(full.startsWith);
         if (!isLawName) continue;
 
         if (n.contains(full)) {
@@ -41,8 +42,11 @@ class LawMention {
           break;
         }
 
-        final short = full.startsWith('قانون ') ? full.substring(6).trim() : '';
-        if (short.length >= 5 && n.contains('قانون $short')) {
+        final short = full.startsWith(EngineRules.shortLawPrefix)
+            ? full.substring(EngineRules.shortLawPrefix.length).trim()
+            : '';
+        if (short.length >= EngineRules.shortLawMinLen &&
+            n.contains('${EngineRules.shortLawPrefix}$short')) {
           hit = true;
           break;
         }

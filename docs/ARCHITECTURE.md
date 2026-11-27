@@ -10,7 +10,7 @@
 
 | لایه | نقش | فایل‌ها |
 |---|---|---|
-| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` (لایهٔ یکتای متن فارسی)، ، `engine` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
+| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` + `text_norm_rules` (لایهٔ یکتای متن فارسی)، `engine` + `engine_rules` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
 | `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین (کاملاً مستقل از فلاتر) | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره و صدور رمزنگاری‌شده، با `schemaVersion = 1`)، `settings_state` (مدل خالص تنظیمات بدون وابستگی فلاتر) |
 | `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller` (سیم‌کشی)، `app_settings` (`AppSettings` متصل به فلاتر)، `draft_flow`، `guess_flow`، `reply_flow`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
 
@@ -68,13 +68,14 @@
 - `Issue.rank`: هر بحث می‌گوید با واقعیت‌های همین پرونده چقدر «پرسشِ بعدیِ طبیعی» است؛ رتبهٔ منفی یعنی به‌عنوان دکمه پیشنهاد نشود (ولی اگر کاربر بپرسد جواب می‌گیرد).
 - `Topic.petition`، `Topic.brief` و `Topic.fill`: دادخواست و لایحه‌ای که به همین وضعیت می‌خورد (`Filing`: قالب، متن دکمه، نام سند) و متن پیشنهادی برای فیلدهای آن قالب از روی واقعیت‌های پرونده.
 
-موتورِ قوانین (`lib/core/engine.dart`) حالا فقط بارگذاری و پاسخ‌سازیِ کلان است و چهار همکار دارد:
+موتورِ قوانین (`lib/core/engine.dart`) حالا فقط بارگذاری و پاسخ‌سازیِ کلان است و چهار همکار و یک مرجعِ قاعده (`engine_rules.dart`) دارد:
 
 - `law_index.dart` (`LawIndex`): بخش‌ها، نمایهٔ واژه‌ها، فهرستِ وارونه و ایندکسِ مواد؛ خواندنِ متنِ قانون هم این‌جاست (`parseInto`، `build`) — `test/core/law_index_test.dart` بدونِ دارایی‌ها.
 - `law_ranker.dart` (`LawRanker`): BM25F، گسترشِ پیشوند، پوشش و جلو‌آوردنِ مادهٔ تعریف‌کننده؛ ورودی‌هایش تزریق می‌شوند (ایندکس، شناساییِ نامِ قانون، ضریبِ موضوعی، مترادف‌ها) — `test/core/law_ranker_test.dart`.
 - `law_mention.dart` (`LawMention`): کدام قانون در این جمله نام برده شده — `test/core/law_mention_test.dart`.
 - `law_text.dart` (`LawText`): نوشتنِ متنِ ماده، فهرستِ قوانین و جملهٔ «پیدا نکردم» — `test/core/law_text_test.dart`.
 - `article_query.dart` (`ArticleQuery`): الگوی «ماده ۱۲» و نامِ استانداردِ آن؛ مشترکِ موتور و رتبه‌بندی.
+- `engine_rules.dart` (`EngineRules`): ثوابت، آستانه‌ها و الگوهای تولیدشده از `dev/tools/contracts/engine_rules.json` (مشترک با `dev/brain/engine_rules.py`).
 
 چینش دکمه‌های پیشنهادی (`_suggest` در `advocate_chips.dart` و `_finish` در `advocate_case.dart`): وقتی وکیل پرسشی با گزینه پرسیده، اول گزینه‌های جواب می‌آید و بعد «تنظیم دادخواست …» و «تنظیم لایحه …». در بقیهٔ حالت‌ها چینش ثابت است: (۱) نزدیک‌ترین پرسش به همین گفتگو (از روی `rank` و حرف‌های خودِ کاربر)، (۲) دادخواست، (۳) لایحه، و بعد بقیهٔ پرسش‌ها. موضوعی که `petition` و `brief` ندارد مثل قبل رفتار می‌کند (عنوان یک قالب در انتهای پیشنهادها).
 
@@ -138,7 +139,7 @@
 
 ## برابری پایتون ↔ دارت
 
-آینهٔ پایتون (`dev/tools/eval_py.py`، `dev/brain/common.py`، `dev/brain/engine.py`) برای ارزیابی سریع آفلاینِ موتور بازیابی است و باید هم‌رفتار دارت بماند: `dev/tools/parity.py --write` خروجی پایتون را در `dev/brain/parity_expected.json` ثبت می‌کند، `dev/tools/check.py parity` تازگی آن را می‌سنجد و `test/core/parity_test.dart` همان ورودی‌ها را به دارت می‌دهد. تغییر یکی بدون دیگری ⇒ CI قرمز.
+آینهٔ پایتون (`dev/tools/eval_py.py`، `dev/tools/eval_none.py`، `dev/brain/common.py`، `dev/brain/engine.py`) برای ارزیابی سریع آفلاینِ موتور بازیابی است و باید هم‌رفتار دارت بماند: قواعد و آستانه‌های هر دو زبان از سه قرارداد واحد (`text_norm.json`، `law_terms.json` و `engine_rules.json`) تولید و با `check.py textnorm` / `lawterms` / `enginerules` بررسی می‌شوند؛ خروجی یکپارچه نیز با `dev/tools/parity.py --write` در `dev/brain/parity_expected.json` ثبت می‌شود، `dev/tools/check.py parity` تازگی آن را می‌سنجد و `test/core/parity_test.dart` همان ورودی‌ها را به دارت می‌دهد. تغییر یکی بدون دیگری ⇒ CI قرمز.
 
 ## هزینهٔ استارت‌آپ
 
@@ -228,7 +229,7 @@
 
 | دستهٔ قاعده | مسئولیت دقیق | فایلِ صاحبِ قاعده |
 |---|---|---|
-| موتور BM25F و نمایه | بارگذاری و پارس مواد، شاخص واژه‌ها، رتبه‌بندی BM25F، نام قانون، الگوی «ماده N» | `engine.dart`، `engine_load.dart`، `engine_query.dart`، `law_index.dart`، `law_ranker.dart`، `law_mention.dart`، `law_text.dart`، `article_query.dart` |
+| موتور BM25F و نمایه | بارگذاری و پارس مواد، شاخص واژه‌ها، رتبه‌بندی BM25F، نام قانون، الگوی «ماده N» و قواعد بازیابی | `engine.dart`، `engine_load.dart`، `engine_query.dart`، `engine_rules.dart`، `law_index.dart`، `law_ranker.dart`، `law_mention.dart`، `law_text.dart`، `article_query.dart` |
 | ضریب موضوعی، تعارض و QA | وزن موضوعی مواد، زنجیرهٔ تعارض/رابطه مواد، ۱۲۰ پرسش‌وپاسخ اجاره و نیت ثابت موتور | `law_topic_prior.dart`، `conflicts_service.dart`، `qa_bank.dart`، `router.dart` |
 | راهنماهای آماده و پاسخ از بانک | ۳۰+ راهنمای ساختاریافته (`legal_guides.json`) و بازگشت به بانک پرسش‌وپاسخ/قانون | `legal_guides.dart`، `guide_reply.dart`، `law_answer.dart` |
 | تنظیم پیش‌نویس سند و کنترلر گفتگو | تشخیص درخواست سند، گام‌بندی فیلدها، ارجاع مواد و سیم‌کشی جریان‌های گفتگو | `drafting.dart`، `draft_intent.dart`، `draft_step.dart`، `draft_words.dart`، `draft_laws.dart`، `draft_models.dart`، `templates.dart`، `draft_flow.dart`، `guess_flow.dart`، `reply_flow.dart`، `chat_controller.dart` |

@@ -11,19 +11,39 @@ class PersianText {
 
   static const String _faDigits = '۰۱۲۳۴۵۶۷۸۹';
 
-  static const Set<String> _stop = {
-    'و', 'در', 'به', 'از', 'که', 'را', 'با', 'این', 'آن', 'برای', 'یک',
-    'است', 'هست', 'چه', 'چی', 'چیست', 'کی', 'کجا', 'چرا', 'چطور',
-    'چگونه', 'آیا', 'من', 'تو', 'شما', 'می', 'هم', 'یا', 'تا', 'بر',
-    'هر', 'بود', 'شد', 'باشد', 'کند', 'کنم', 'کن', 'بگو',
-    'درباره', 'مورد', 'لطفا', 'ممنون', 'ماده', 'قانون',
-  };
+  // ایست‌واژه‌ها، پسوندها و الگوی غیرواژه از `text_norm_rules.dart` می‌آیند.
+  static const Set<String> _stop = TextNormRules.stop;
+  static const List<String> _suffixes = TextNormRules.suffixes;
+  static const List<String> _suffixesIndex = TextNormRules.suffixesIndex;
 
-  static const List<String> _suffixes = ['ترین', 'هایی', 'های', 'ها', 'تر', 'ان', 'ات', 'ی'];
-  static const List<String> _suffixesIndex = ['ترین', 'هایی', 'های', 'ها'];
-
-  static final RegExp _nonWord = RegExp(r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+');
+  static final RegExp _nonWord = RegExp(TextNormRules.nonWord);
   static final RegExp _spaces = RegExp(r'\s+');
+
+  /// نسخهٔ فاصله‌دار و بدون کوچک‌سازی برای مسیر موضوعی و تطبیق عبارت؛
+  /// نگاشت و نشانه‌ها از قرارداد `dev/tools/contracts/text_norm.json` می‌آیند.
+  static String spacedWith(
+    String s, {
+    required Map<String, String> charMap,
+    required List<List<int>> dropRanges,
+    required RegExp punct,
+    required bool pad,
+  }) {
+    final sb = StringBuffer();
+    for (final r in s.runes) {
+      var dropped = false;
+      for (final d in dropRanges) {
+        if (r >= d[0] && r <= d[1]) {
+          dropped = true;
+          break;
+        }
+      }
+      if (dropped) continue;
+      final ch = String.fromCharCode(r);
+      sb.write(charMap[ch] ?? ch);
+    }
+    final t = sb.toString().replaceAll(punct, ' ').replaceAll(_spaces, ' ').trim();
+    return pad ? ' $t ' : t;
+  }
 
   static String normalize(String s) {
     final sb = StringBuffer();
@@ -95,14 +115,18 @@ class PersianText {
 
   static String _stem(String w) {
     for (final suf in _suffixes) {
-      if (w.length - suf.length >= 3 && w.endsWith(suf)) return w.substring(0, w.length - suf.length);
+      if (w.length - suf.length >= TextNormRules.stemMinStem && w.endsWith(suf)) {
+        return w.substring(0, w.length - suf.length);
+      }
     }
     return w;
   }
 
   static String _stemIndex(String w) {
     for (final suf in _suffixesIndex) {
-      if (w.length - suf.length >= 3 && w.endsWith(suf)) return w.substring(0, w.length - suf.length);
+      if (w.length - suf.length >= TextNormRules.stemMinStem && w.endsWith(suf)) {
+        return w.substring(0, w.length - suf.length);
+      }
     }
     return w;
   }

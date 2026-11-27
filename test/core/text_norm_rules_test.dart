@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/text_norm_rules.dart';
+import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topic_flow.dart';
 
 /// لایهٔ متن: قاعده‌ها از `dev/tools/contracts/text_norm.json` تولید می‌شوند و
 /// خروجی‌شان با نمونه‌های مشترک قفل است.
@@ -22,12 +24,32 @@ void main() {
     File('tests/text_norm_norm_cases.json').readAsStringSync(),
   ) as Map<String, dynamic>;
 
+  final contract = jsonDecode(
+    File('dev/tools/contracts/text_norm.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+
   test('normalize با نمونه‌های پایتون یکی است', () {
     final rows = (golden['normalize'] as List).cast<Map<String, dynamic>>();
     expect(rows.length, greaterThanOrEqualTo(10));
     for (final row in rows) {
       final input = row['in'] as String;
       expect(PersianText.normalize(input), row['out'], reason: input);
+    }
+  });
+
+  test('TopicFlow.spaced و LawTerms.spaced با نمونه‌های پایتون یکی است', () {
+    final toolsRows = (golden['spaced'] as List).cast<Map<String, dynamic>>();
+    expect(toolsRows.length, greaterThanOrEqualTo(5));
+    for (final row in toolsRows) {
+      final input = row['in'] as String;
+      expect(TopicFlow.spaced(input), row['out'], reason: input);
+    }
+    final termsRows =
+        (golden['spaced_terms'] as List).cast<Map<String, dynamic>>();
+    expect(termsRows.length, greaterThanOrEqualTo(5));
+    for (final row in termsRows) {
+      final input = row['in'] as String;
+      expect(LawTerms.spaced(input), row['out'], reason: input);
     }
   });
 
@@ -45,10 +67,22 @@ void main() {
     expect(TextNormRules.lowercase, isTrue);
     expect(TextNormRules.normPunct, contains('«'));
     expect(TextNormRules.canon.length, greaterThan(5));
+
+    final tok = contract['tokenize'] as Map<String, dynamic>;
+    expect(TextNormRules.nonWord, tok['nonWord']);
+    expect(TextNormRules.stemMinStem, tok['stemMinStem']);
+    expect(TextNormRules.suffixes, (tok['suffixes'] as List).cast<String>());
+    expect(
+      TextNormRules.suffixesIndex,
+      (tok['suffixesIndex'] as List).cast<String>(),
+    );
+    expect(TextNormRules.stop, (tok['stop'] as List).cast<String>().toSet());
+
     // قاعده‌های قدیمی نباید دوباره در سورس دستی تکرار شوند.
     final src = File('lib/core/persian_text.dart').readAsStringSync();
     expect(src.contains("'ي': 'ی'"), isFalse,
         reason: 'نگاشت نویسه باید فقط در text_norm_rules.dart باشد');
+    expect(src.contains("static const Set<String> _stop = {"), isFalse);
   });
 
   test('نیم‌فاصله، ارقام و بازنویسی‌ها', () {

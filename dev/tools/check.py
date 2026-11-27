@@ -9,9 +9,10 @@
   pipeline ترتیب و آستانه‌های مسیر پاسخ (assets/pipeline.json)
   topics   طرح‌وارهٔ مسیرهای موضوعی (dev/tools/schemas/topic_flow.schema.json)
   refs     هر ارجاع قانونی در داده، در متن قوانین هست
-  textnorm قاعده‌های متن تازه‌اند (dev/tools/contracts/text_norm.json)
-  lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (dev/tools/contracts/law_terms.json)
-  debt     هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (dev/tools/contracts/duplicated_logic.json)
+  textnorm    قاعده‌های متن تازه‌اند (dev/tools/contracts/text_norm.json)
+  lawterms    قاعده‌های تطبیق واژه‌ها تازه‌اند (dev/tools/contracts/law_terms.json)
+  enginerules قاعده‌های موتور بازیابی تازه‌اند (dev/tools/contracts/engine_rules.json)
+  debt        هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (dev/tools/contracts/duplicated_logic.json)
   all      همهٔ موارد بالا (پیش‌فرض؛ trust عمداً بیرون است)
   trust    دروازهٔ انتشار: قانون تأییدنشده یا قالب بازبینینشده نمانده باشد
 
@@ -32,6 +33,7 @@ sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import fnv, normalize  # noqa: E402  (آینهٔ PersianText در دارت)
 from lawtext import AI_MARKERS, digits, load_meta  # noqa: E402
+from text_norm_rules import NONWORD_PATTERN  # noqa: E402
 
 LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 TYPES = {'text', 'multiline', 'number', 'choice', 'check'}
@@ -297,8 +299,7 @@ CRITICAL = [
     ('family', 'مهریه‌ام را نمی‌دهد'),
 ]
 
-_NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
+_NONWORD = re.compile(NONWORD_PATTERN)
 
 
 def strip_nonbmp(s):
@@ -460,6 +461,13 @@ def cmd_priority():
     """ماتریس اولویتِ ۲۰ کاندید (۱۹۰ جفت) کامل و مستند/آزمونش تازه است؟"""
     import gen_priority
     return gen_priority.main(['--check'])
+
+
+# ---------------------------------------------------------------- enginerules
+def cmd_enginerules():
+    """فایل‌های قاعدهٔ موتور بازیابی از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_engine_rules
+    return gen_engine_rules.main(['--check'])
 
 
 # ---------------------------------------------------------------- textnorm
@@ -640,6 +648,7 @@ COMMANDS = {
     'refs': cmd_refs,
     'textnorm': cmd_textnorm,
     'lawterms': cmd_lawterms,
+    'enginerules': cmd_enginerules,
     'priority': cmd_priority,
     'debt': cmd_debt,
     'text': cmd_text,

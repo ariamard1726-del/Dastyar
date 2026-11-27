@@ -1,6 +1,7 @@
 import 'dart:isolate';
 import 'dart:math' as math;
 
+import 'package:dastyar/core/engine_rules.dart';
 import 'package:dastyar/core/models.dart';
 import 'package:dastyar/core/persian_text.dart';
 
@@ -62,18 +63,15 @@ class LawIndex {
     _articleIndex = null;
   }
 
-  static final RegExp _obsoleteTrimRe = RegExp(r'^[\(\[\s]+');
+  static final RegExp _obsoleteTrimRe = RegExp(EngineRules.obsoleteTrimPattern);
   static final RegExp _paraSplitRe = RegExp(r'\n\s*\n');
   static final RegExp _hashPrefixRe = RegExp(r'^#+\s*');
-  static final RegExp _cleanBodyRe = RegExp(r'^[\(\[][^)\]]*[\)\]]\s*-?\s*');
+  static final RegExp _cleanBodyRe = RegExp(EngineRules.cleanBodyPattern);
   static bool isObsolete(String body) {
     var n = PersianText.collapse(PersianText.normalize(body));
-    if (n.length > 300) return false;
+    if (n.length > EngineRules.obsoleteMaxLen) return false;
     n = n.replaceFirst(_obsoleteTrimRe, '');
-    return n.startsWith('منسوخ') ||
-        n.startsWith('ملغی') ||
-        n.startsWith('ملغا') ||
-        n.startsWith('حذف شد');
+    return EngineRules.obsoletePrefixes.any(n.startsWith);
   }
 
   static Future<IndexBuild> buildAsync(List<List<String>> raw) =>

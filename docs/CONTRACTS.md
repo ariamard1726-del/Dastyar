@@ -16,10 +16,11 @@
 | متنِ ثابت موضوع‌های غیرِاجاره و بخش مشترک | `assets/brain/topic_texts.json` + `topic_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_topic_text_equivalence.py`، `test/domain/topic_texts_test.dart` |
 | متنِ ثابت عمومیِ وکیل (گفت‌وگو و استدلال) | `assets/brain/advocate_texts.json` + `advocate_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_advocate_text_equivalence.py`، `test/domain/advocate_texts_test.dart` |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |
-| قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
+| قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید؛ شامل `tokenize` و `spaced.tools/terms`) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
 | جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `dev/tools/contracts/duplicated_logic.json` | `python3 dev/tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
-| ایست‌واژه‌ها و آستانهٔ تطبیق واژه‌ها | `dev/tools/contracts/law_terms.json` | `python3 dev/tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
+| ایست‌واژه‌ها، آستانه و رتبه‌بندی تطبیق واژه‌ها | `dev/tools/contracts/law_terms.json` | `python3 dev/tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
+| قاعده‌های موتور بازیابی و نمایهٔ قوانین | `dev/tools/contracts/engine_rules.json` | `python3 dev/tools/gen_engine_rules.py --check` (در `check.py enginerules`) | `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_engine_rules_parity.py` + `test/core/engine_rules_test.dart` |
 | ماتریس اولویت ۲۰ کاندید (۱۹۰ جفت) | `dev/tools/contracts/priority.json` | `python3 dev/tools/gen_priority.py --check` (در `check.py priority`) | `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_priority_matrix.py` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
@@ -165,3 +166,14 @@ python dev/tools/check.py refs
   هر جفت یا کهنه‌بودن مستند و آزمون را خطا می‌دهد.
 
 آزمون: `tests/python/test_priority_matrix.py` و `test/advocate/priority_matrix_test.dart`.
+
+## ۸. قاعده‌های موتور بازیابی (`dev/tools/contracts/engine_rules.json`)
+
+ضرایب BM25F و آستانه‌های بازیابی (`k1`، `b`، `wTitle`، `wBody`، `wContext`، `obsoletePenalty`، `explicitScore`، `prefixMinLen`، `prefixWeight`، `minScore`، `lowCover`، `coverageMargin`، `nearAlternativeFactor`، `maxNearAlternatives`، `altMinScoreRatio`)، الگوی «ماده/اصل N» (`articleQuery.pattern`)، تشخیص مادهٔ منسوخ و پاک‌سازی سر متن (`obsolete`)، ارتقای مواد تعریفی (`definitionPromotion`)، پیشوندهای نام قانون (`lawMention`)، نگهبان حوزه‌های خارج از پوشش (`unloadedDomain` شامل ۱۱ زوج `anchorGroups`) و عمق زنجیرهٔ تضادها (`conflicts`) پیش‌تر میان `lib/core/*` و ابزارهای پایتونی (`eval_py.py`، `eval_none.py`، `dev/brain/{common,engine}.py`) دستی تکرار می‌شدند.
+
+- **یک مرجع:** `dev/tools/contracts/engine_rules.json`.
+- **تولید:** `python3 dev/tools/gen_engine_rules.py --write` →
+  `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py`.
+- **بررسی:** `python3 dev/tools/check.py enginerules` (و در `check.py all`) کهنه‌بودن هر دو فایل را خطا می‌دهد.
+- **آزمون:** `tests/python/test_engine_rules_parity.py` (تازگی فایل‌های تولیدشده، برابری تک‌تک ثابت‌ها و الگوها بین JSON، پایتون و دارت، و نبود کپی دستی در مصرف‌کننده‌ها) و `test/core/engine_rules_test.dart`.
+
