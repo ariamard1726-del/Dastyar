@@ -10,13 +10,13 @@ String _aimEffect(CaseFile f) {
   if (!f.eq('role', 'landlord')) return '';
   switch (f.get('aim')) {
     case 'evict':
-      return 'از نگاه قانون، موجر برای پس‌گرفتن ملکش راه سریعی دارد، به شرط اینکه قاعده را رعایت کند: با پایان مدت و داشتن اجاره‌نامهٔ کتبیِ شاهددار، «دستور تخلیه» ظرف حدود یک هفته صادر و اجرا می‌شود [[landlord_tenant:3]]؛ شرطش پس‌دادن یا سپردن ودیعهٔ مستأجر است [[landlord_tenant:4]].';
+      return rentText('effectAimEvict');
     case 'unpaid':
-      return 'پرداخت اجاره در موعد، تعهد قانونی مستأجر است [[civil:490]]؛ می‌توانید اجاره‌های عقب‌افتاده را مطالبه کنید و اگر ودیعه‌ای از او دارید، طلبتان از راه دادخواست از آن کسر می‌شود [[landlord_tenant:4]].';
+      return rentText('effectAimUnpaid');
     case 'damage':
-      return 'مستأجر فقط مسئول خرابی‌ای است که از کوتاهی یا زیاده‌روی خودش باشد، نه فرسودگی عادی [[civil:493]]؛ پس کلید کار، مدرکِ خرابی است.';
+      return rentText('effectAimDamage');
     case 'breach':
-      return 'اگر مستأجر از شرطی که در اجاره‌نامه نوشته‌اید تخلف کرده باشد، حق فسخ پیدا می‌کنید [[civil:496]]؛ پس همه‌چیز به متن قرارداد برمی‌گردد.';
+      return rentText('effectAimBreach');
   }
   return '';
 }
@@ -26,46 +26,46 @@ String _endedEffect(CaseFile f) {
   final other = f.eq('role', 'tenant') && !_rentDeposit(f);
   if (_ordered(f)) {
     return f.yes('ended')
-        ? 'با تمام‌شدن مدت، صدور دستور تخلیه راه قانونیِ موجر است [[landlord_tenant:3]]؛ پس تکیهٔ شما روی ودیعه و مهلت است: تا پول پیش را نگرفته‌اید یا به دایرهٔ اجرا سپرده نشده، تخلیه اجرا نمی‌شود [[landlord_tenant:4]].'
-        : 'چون مدت قرارداد تمام نشده، این دستور جای اعتراض دارد: دستور تخلیه فقط برای بعد از پایان مدت است [[landlord_tenant:3]]؛ هم‌زمان با اجرای دستور می‌توانید شکایتتان را به دادگاه بدهید [[landlord_tenant:5]].';
+        ? rentText('effectEndedOrderedYes')
+        : rentText('effectEndedOrderedNo');
   }
   if (f.yes('ended')) {
     if (landlord) {
-      return 'با تمام‌شدن مدت، عقد اجاره خودبه‌خود پایان یافته است [[civil:494]]؛ از این لحظه ماندنِ او بدون رضایت شما مجوزی ندارد و بابت هر روزش اجرت‌المثل طلبکارید.';
+      return rentText('effectEndedYesLandlord');
     }
     if (other) {
-      return 'با تمام‌شدن مدت، عقد اجاره خودبه‌خود پایان یافته است [[civil:494]]؛ از این به بعد ماندن شما و مبلغ اجاره به توافق تازه با او بسته است و او می‌تواند تخلیه را از راه قانونی بخواهد.';
+      return rentText('effectEndedYesOther');
     }
-    return 'با تمام‌شدن مدت، عقد اجاره خودبه‌خود پایان یافته است [[civil:494]] و دو طرف باید هم‌زمان به تعهدشان عمل کنند: شما تخلیه، او پرداخت ودیعه.';
+    return rentText('effectEndedYesDeposit');
   }
   if (landlord) {
-    return 'چون مدت تمام نشده، دستور تخلیهٔ فوری در کار نیست [[landlord_tenant:3]]؛ قرارداد برای هر دو طرف الزام‌آور است [[civil:219]] و فقط با حق فسخی که در اجاره‌نامه دارید می‌شود زودتر تخلیه خواست.';
+    return rentText('effectEndedNoLandlord');
   }
   if (other) {
-    return 'چون مدت قرارداد تمام نشده، قرارداد برای هر دو طرف الزام‌آور است [[civil:219]]؛ او نمی‌تواند پیش از موعد شرایط را یک‌طرفه عوض کند یا شما را به رفتن مجبور کند.';
+    return rentText('effectEndedNoOther');
   }
-  return 'چون مدت قرارداد تمام نشده، قرارداد برای هر دو طرف الزام‌آور است [[civil:219]] و پس‌گرفتن ودیعه پیش از موعد فقط با توافق (فسخ دوطرفه) یا شرطی که در خود قرارداد آمده ممکن است. اگر او راضی به تخلیهٔ زودتر شده، همان را کتبی کنید.';
+  return rentText('effectEndedNoDeposit');
 }
 
 String _contractEffect(CaseFile f) {
   if (f.yes('contract')) {
     if (f.eq('role', 'landlord')) {
       if (!_evicting(f)) {
-        return 'اجاره‌نامهٔ کتبی ستون پروندهٔ شماست؛ مبلغ اجاره، مدت و شرط‌ها را از همان استناد می‌کنیم.';
+        return rentText('effectContractYesNotEvict');
       }
       final ready = f.yes('ended')
-          ? '\nبا این حساب، اگر مدت تمام شده و دو شاهد پای اجاره‌نامه را امضا کرده‌اند، شرایط دستور تخلیه را دارید: درخواست را در دفتر خدمات الکترونیک قضایی ثبت کنید و ودیعهٔ او را آماده داشته باشید تا هم‌زمان با تخلیه پس بدهید [[landlord_tenant:3]] [[landlord_tenant:4]].'
+          ? rentText('effectContractYesEvictReady')
           : '';
-      return 'اجاره‌نامهٔ کتبی کلید «دستور تخلیهٔ فوری» است، به شرط اینکه دو شاهد هم پایش را امضا کرده باشند [[landlord_tenant:2]]؛ اگر امضای شاهد ندارد، باید از راه دادخواست تخلیه بروید که کمی طولانی‌تر است.$ready';
+      return rentText('effectContractYesEvict') + ready;
     }
     return _rentDeposit(f)
-        ? 'اجاره‌نامهٔ کتبی ستون پروندهٔ شماست؛ مبلغ ودیعه و تاریخ پایان را از همان استناد می‌کنیم.'
-        : 'اجاره‌نامهٔ کتبی ستون پروندهٔ شماست؛ مبلغ اجاره و تاریخ پایان را از همان استناد می‌کنیم.';
+        ? rentText('effectContractYesTenantDep')
+        : rentText('effectContractYesTenantOther');
   }
   if (f.eq('role', 'landlord')) {
-    return 'نبودِ اجاره‌نامهٔ کتبی راه دستور تخلیهٔ فوری را می‌بندد، ولی حق شما را از بین نمی‌برد: با رسید واریز اجاره‌ها، پیام‌ها و شاهد، رابطهٔ اجاره را ثابت می‌کنید و از راه دادخواست جلو می‌روید.';
+    return rentText('effectContractNoLandlord');
   }
   return f.eq('role', 'tenant') && !_rentDeposit(f)
-      ? 'نبودِ اجاره‌نامهٔ کتبی کار را سخت‌تر می‌کند ولی ناممکن نه؛ رسید واریز اجاره، پیام‌ها و شهادت شهود می‌تواند رابطهٔ اجاره و شرایطش را ثابت کند.'
-      : 'نبودِ اجاره‌نامهٔ کتبی کار را سخت‌تر می‌کند ولی ناممکن نه؛ رسید واریز ودیعه، پیام‌ها و شهادت شهود می‌تواند پرداخت پول و رابطهٔ اجاره را ثابت کند.';
+      ? rentText('effectContractNoTenantOther')
+      : rentText('effectContractNoTenantDep');
 }

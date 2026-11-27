@@ -98,26 +98,26 @@ Prompt? _rentAskReply(CaseFile f) {
   if (_ordered(f)) return Prompt.none;
   if (f.eq('role', 'tenant')) {
     if (f.eq('matter', 'deposit')) {
-      return const Prompt('موجر برای پس‌ندادن ودیعه چه می‌گوید؟', [
-        'می‌گوید پول ندارم',
-        'می‌گوید صبر کن مستأجر جدید بیاید',
-        'می‌گوید خانه را خراب کرده‌ای',
-        'جواب نمی‌دهد',
+      return Prompt(rentText('promptTenantDepositQ'), [
+        rentText('promptTenantDepositC0'),
+        rentText('promptTenantDepositC1'),
+        rentText('promptTenantDepositC2'),
+        rentText('promptTenantDepositC3'),
       ]);
     }
     if (f.eq('matter', 'evict')) {
-      return const Prompt('موجر برای بلندکردن شما چه دلیلی می‌آورد؟', [
-        'می‌گوید خودم می‌خواهم بنشینم',
-        'می‌گوید خانه را فروخته‌ام',
-        'می‌گوید اجاره را زیاد کن یا برو',
-        'دلیلی نمی‌گوید',
+      return Prompt(rentText('promptTenantEvictQ'), [
+        rentText('promptTenantEvictC0'),
+        rentText('promptTenantEvictC1'),
+        rentText('promptTenantEvictC2'),
+        rentText('promptTenantEvictC3'),
       ]);
     }
     if (f.eq('matter', 'repair')) {
-      return const Prompt('موجر دربارهٔ تعمیر چه می‌گوید؟', [
-        'می‌گوید خودت درست کن',
-        'می‌گوید تقصیر خودت است',
-        'جواب نمی‌دهد',
+      return Prompt(rentText('promptTenantRepairQ'), [
+        rentText('promptTenantRepairC0'),
+        rentText('promptTenantRepairC1'),
+        rentText('promptTenantRepairC2'),
       ]);
     }
     // در بالابردن اجاره و زودتر رفتن، حرفِ موجر خودِ ماجراست و پرسیده شده.
@@ -125,26 +125,26 @@ Prompt? _rentAskReply(CaseFile f) {
     return null;
   }
   if (f.eq('aim', 'evict')) {
-    return const Prompt('مستأجر برای نرفتن چه می‌گوید؟', [
-      'می‌گوید جا پیدا نکرده‌ام',
-      'می‌گوید اول پول پیشم را بده',
-      'می‌گوید قرارداد تمدید شده',
-      'جواب نمی‌دهد',
+    return Prompt(rentText('promptLandlordEvictQ'), [
+      rentText('promptLandlordEvictC0'),
+      rentText('promptLandlordEvictC1'),
+      rentText('promptLandlordEvictC2'),
+      rentText('promptLandlordEvictC3'),
     ]);
   }
   if (f.eq('aim', 'unpaid')) {
-    return const Prompt('مستأجر برای ندادن اجاره چه می‌گوید؟', [
-      'می‌گوید ندارم',
-      'می‌گوید از پول پیش کم کن',
-      'می‌گوید پرداخت کرده‌ام',
-      'جواب نمی‌دهد',
+    return Prompt(rentText('promptLandlordUnpaidQ'), [
+      rentText('promptLandlordUnpaidC0'),
+      rentText('promptLandlordUnpaidC1'),
+      rentText('promptLandlordUnpaidC2'),
+      rentText('promptLandlordUnpaidC3'),
     ]);
   }
   if (f.eq('aim', 'damage')) {
-    return const Prompt('مستأجر دربارهٔ خسارت چه می‌گوید؟', [
-      'می‌گوید از اول خراب بود',
-      'می‌گوید از پول پیش کم کن',
-      'جواب نمی‌دهد',
+    return Prompt(rentText('promptLandlordDamageQ'), [
+      rentText('promptLandlordDamageC0'),
+      rentText('promptLandlordDamageC1'),
+      rentText('promptLandlordDamageC2'),
     ]);
   }
   return null;

@@ -36,6 +36,10 @@ BODIES_BEFORE_SHA256 = 'ab62ffd0256e9f91ee633949d814efb771df351004a8424af4063808
 BODIES_BEFORE_COUNT = 51
 FILLS_BEFORE_SHA256 = '8d141bd9dc618bffceb6d42bcfd279f710539156267e738fda40d82025151fe9'
 FILLS_BEFORE_COUNT = 51
+PROMPTS_BEFORE_SHA256 = 'd57126f6a98e3ec207314f00d81771a7e01183f567e04030ed68d55c16cdd760'
+PROMPTS_BEFORE_COUNT = 28
+EFFECTS_BEFORE_SHA256 = 'a92491ef609a40deaebc6924dd09a4e2006df3f4f49b778876556d61f80a4a13'
+EFFECTS_BEFORE_COUNT = 33
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
@@ -168,9 +172,8 @@ class RentTextEquivalenceTest(unittest.TestCase):
     def test_body_functions_keep_only_short_delegates(self):
         rb = read(ROOT, 'lib/domain/advocate/topics/rent_bodies.dart')
         rbl = read(ROOT, 'lib/domain/advocate/topics/rent_bodies_landlord.dart')
-        rb_bodies = rb[:rb.index('Prompt? _rentAskReply')]
         used = []
-        for rel, src in [('rent_bodies.dart', rb_bodies),
+        for rel, src in [('rent_bodies.dart', rb),
                          ('rent_bodies_landlord.dart', rbl)]:
             code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in src.split('\n'))
             literals = re.findall(r"'((?:\\.|[^'])*)'", code)
@@ -180,12 +183,18 @@ class RentTextEquivalenceTest(unittest.TestCase):
             for var in ('base', 'after', 'none', 'lead', 'deal', 'ask'):
                 self.assertNotIn('const %s =' % var, code,
                                  '%s دوباره const %s دارد' % (rel, var))
+            self.assertFalse(
+                any('\u0600' <= c <= '\u06FF' for lit in literals for c in lit),
+                '%s هنوز متنِ فارسی در کد دارد' % rel)
             ids = re.findall(r"'(body\w+)'", code)
             used.extend(ids)
             for key in ids:
                 self.assertIn(key, self.data['bodies'])
         self.assertEqual(set(used), set(self.data['bodies']),
                          'کلیدِ بدون استفاده یا گم‌شده در جدول bodies')
+        p_ids = re.findall(r"'(prompt\w+)'", '\n'.join(re.sub(r'//.*$', '', ln) for ln in rb.split('\n')))
+        self.assertEqual(set(p_ids), set(self.data['prompts']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول prompts')
 
     def test_fill_texts_are_identical_to_the_pre_move_source(self):
         fills = self.data['fills']
@@ -214,6 +223,36 @@ class RentTextEquivalenceTest(unittest.TestCase):
             if any('\u0600' <= c <= '\u06FF' for c in lit):
                 self.assertIn(lit, tmpl_opts,
                               'متنِ غیرازگزینه دوباره در rent_fill آمده: %s' % lit)
+
+    def test_prompts_and_effects_match_the_pre_move_source(self):
+        prompts = self.data['prompts']
+        self.assertEqual(PROMPTS_BEFORE_COUNT, len(prompts))
+        self.assertEqual(PROMPTS_BEFORE_SHA256, digest(prompts),
+                         'یک نویسه از پرسشهای دکمهدار عوض شده است')
+        self.assertTrue(all(prompts.values()), 'پرسشِ خالی در دارایی نیست')
+        effects = self.data['effects']
+        self.assertEqual(EFFECTS_BEFORE_COUNT, len(effects))
+        self.assertEqual(EFFECTS_BEFORE_SHA256, digest(effects),
+                         'یک نویسه از متنِ اثرهای حقوقی عوض شده است')
+        self.assertTrue(all(effects.values()), 'اثرِ خالی در دارایی نیست')
+        seen = set()
+        for sec in ('texts', 'claims', 'filings', 'plans', 'bodies', 'fills',
+                    'prompts', 'effects'):
+            keys = set(self.data[sec])
+            self.assertFalse(seen & keys, 'تداخل شناسه در بخش %s' % sec)
+            seen |= keys
+
+    def test_effects_keep_only_delegates(self):
+        re_src = read(ROOT, 'lib/domain/advocate/topics/rent_effects.dart')
+        re_code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in re_src.split('\n'))
+        lits = re.findall(r"'((?:\\.|[^'])*)'", re_code)
+        self.assertFalse(any('\u0600' <= c <= '\u06FF' for lit in lits for c in lit),
+                         'rent_effects.dart هنوز متن فارسی دارد')
+        rs_src = read(ROOT, 'lib/domain/advocate/topics/rent_slots.dart')
+        rs_code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in rs_src.split('\n'))
+        used = re.findall(r"'(effect\w+)'", re_code) + re.findall(r"'(effect\w+)'", rs_code)
+        self.assertEqual(set(used), set(self.data['effects']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول effects')
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''

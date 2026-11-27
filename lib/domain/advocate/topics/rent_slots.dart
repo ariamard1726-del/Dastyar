@@ -77,7 +77,7 @@ final List<Slot> _rentSlots = [
       if (!_matter(f, 'evict')) return '';
       return f.yes('official')
           ? _rentOrderBody(f)
-          : 'تا وقتی برگهٔ رسمی از مرجع قضایی نیامده، حرف و تهدید او هیچ الزامی برای شما نمی‌آورد؛ تنها راه قانونی‌اش گرفتن دستور تخلیه است [[landlord_tenant:3]].';
+          : rentText('effectSlotOfficialNo');
     },
   ),
   Slot(
@@ -91,8 +91,8 @@ final List<Slot> _rentSlots = [
         : (Sense.has(n, 'کردم|کرده ام|دادم| آره | اره | بله ') ? 'yes' : null),
     when: _rentDeposit,
     effect: (f) => f.yes('vacated')
-        ? 'چون ملک را تخلیه و تحویل داده‌اید، او دیگر هیچ بهانه‌ای برای نگه‌داشتن ودیعه ندارد [[landlord_tenant:4]]. از این‌جا به بعد پروندهٔ شما یک «مطالبهٔ وجه» سرراست است؛ فقط باید بتوانید تاریخ تخلیه و تحویل کلید را نشان دهید (صورت‌جلسه، پیام، شاهد یا بنگاه).'
-        : 'تا وقتی ملک در دست شماست، برگ برنده با شماست: تخلیه و تحویل ملک موکول به پس‌گرفتن ودیعه یا سپرده‌شدن آن به دایرهٔ اجراست [[landlord_tenant:4]]. پس تا پول را نگرفته‌اید کلید را ندهید.',
+        ? rentText('effectSlotVacatedYes')
+        : rentText('effectSlotVacatedNo'),
   ),
   Slot(
     id: 'ended',
@@ -122,8 +122,8 @@ final List<Slot> _rentSlots = [
     effect: (f) {
       if (!f.eq('role', 'landlord')) return '';
       return f.yes('witness')
-          ? 'با امضای دو شاهد یا کد رهگیری، اجاره‌نامهٔ شما همان سندی است که قانون برای دستور تخلیهٔ فوری می‌خواهد [[landlord_tenant:2]] [[landlord_tenant:3]].'
-          : 'بدون امضای دو شاهد یا کد رهگیری، راه دستور تخلیهٔ یک‌هفته‌ای بسته است و باید «دادخواست تخلیه» بدهید که با جلسهٔ دادگاه و زمان بیشتر همراه است.';
+          ? rentText('effectSlotWitnessYes')
+          : rentText('effectSlotWitnessNo');
     },
   ),
   Slot(
@@ -136,8 +136,8 @@ final List<Slot> _rentSlots = [
     effect: (f) {
       if (!f.eq('role', 'landlord')) return '';
       return f.yes('clause')
-          ? 'شرط فسخ در اجاره‌نامه کلید کار است: با تخلف مستأجر حق فسخ دارید [[civil:496]]؛ فسخ را با اظهارنامه اعلام کنید [[civil_procedure:156]] و بعد تخلیه را بخواهید.'
-          : 'بدون شرط فسخ در قرارداد، تا پایان مدت نمی‌شود اجاره را به هم زد [[civil:219]]؛ راه شما مطالبهٔ اجاره‌های نپرداخته و درخواست تخلیه بلافاصله پس از پایان مدت است.';
+          ? rentText('effectSlotClauseYes')
+          : rentText('effectSlotClauseNo');
     },
   ),
   Slot(
@@ -150,8 +150,8 @@ final List<Slot> _rentSlots = [
     effect: (f) {
       if (!_aim(f, 'damage') && !_aim(f, 'breach')) return '';
       return f.yes('proof')
-          ? 'خوب است؛ همین مدرک‌ها را با «تأمین دلیل» رسمی کنید تا بعداً قابل انکار نباشد [[civil_procedure:149]].'
-          : 'بدون مدرک، ادعا در دادگاه به‌سختی پیش می‌رود؛ پیش از هر کاری «تأمین دلیل» بخواهید تا کارشناس وضعیت را صورت‌جلسه کند [[civil_procedure:149]].';
+          ? rentText('effectSlotProofYes')
+          : rentText('effectSlotProofNo');
     },
   ),
   Slot(
@@ -164,8 +164,8 @@ final List<Slot> _rentSlots = [
     effect: (f) {
       if (!_matter(f, 'repair')) return '';
       return f.yes('told')
-          ? 'همین پیام کتبی پایهٔ کار است: نشان می‌دهد موجر از خرابی خبر داشته و تعمیر نکرده است؛ نسخه‌ای از آن را نگه دارید.'
-          : 'اول کتبی خبر بدهید و مهلت مشخص بگذارید (پیام هم کافی است، اظهارنامه محکم‌تر [[civil_procedure:156]])؛ بدون این، در دادگاه نمی‌شود نشان داد کوتاهی از او بوده.';
+          ? rentText('effectSlotToldYes')
+          : rentText('effectSlotToldNo');
     },
   ),
   Slot(
@@ -178,8 +178,8 @@ final List<Slot> _rentSlots = [
     effect: (f) {
       if (!_matter(f, 'leave')) return '';
       return f.yes('consent')
-          ? 'با رضایت او کار ساده است: اجاره با توافق دو طرف به هم می‌خورد [[civil:283]]؛ فقط همین توافق، تاریخ تخلیه و تاریخ پس‌دادن ودیعه را کتبی کنید.'
-          : 'بدون رضایت او، اجاره تا پایان مدت پابرجاست [[civil:219]]؛ اگر در قرارداد حق فسخ ندارید، عملی‌ترین راه پیشنهاد مستأجر جایگزین است.';
+          ? rentText('effectSlotConsentYes')
+          : rentText('effectSlotConsentNo');
     },
   ),
   Slot(

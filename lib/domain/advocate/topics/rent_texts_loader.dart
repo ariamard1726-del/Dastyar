@@ -9,7 +9,7 @@ import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 /// در `rent_plan.dart` بودند؛
 /// هر تغییرِ متن یعنی پچِ دارت و هیچ نگهبانِ خودکاری نمیتوانست بگوید که
 /// متن عوض شده یا نه. اکنون مرجعِ متن همین فایل است (`texts`، `claims` و
-/// `filings`، `plans`، `bodies` و `fills`) و کد فقط با شناسهٔ پایدار آنرا میخواند.
+/// `filings`، `plans`، `bodies`، `fills`، `prompts` و `effects`) و کد فقط با شناسهٔ پایدار آنرا میخواند.
 /// منطق، شرطها و جملهسازیهای وابسته به پرونده عمداً در Dart ماندهاند.
 const String rentTextsAsset = 'assets/brain/topics/rent_texts.json';
 
@@ -25,13 +25,13 @@ List<String> parseRentTexts(String source) {
   if (data['v'] != 1) {
     throw StateError('$rentTextsAsset: نسخهٔ ناشناخته (${data['v']})');
   }
-  // شش جدولِ جدا، یک فهرستِ شناسه: متنهای پاسخ (`texts`)، متنهای
-  // ادعاها (`claims`)، برچسبهای سند (`filings`)، متنهای طرحِ دعوا
-  // (`plans`)، پارههای داخلِ توابع (`bodies`) و فیلدهای سند (`fills`).
-  // نبودِ هریک خطای صریح است؛ نصبِ ناقصِ متن، پاسخِ نادرست میداد.
+  // هشت جدولِ جدا، یک فهرستِ شناسه: پاسخ (`texts`)، ادعاها (`claims`)،
+  // برچسبهای سند (`filings`)، طرحِ دعوا (`plans`)، پارههای توابع
+  // (`bodies`)، فیلدهای سند (`fills`)، پرسشهای دکمهدار (`prompts`) و
+  // اثرهای حقوقی (`effects`). نبودِ هریک خطای صریح است.
   final installed = <String, String>{};
   for (final section in const [
-      'texts', 'claims', 'filings', 'plans', 'bodies', 'fills'
+      'texts', 'claims', 'filings', 'plans', 'bodies', 'fills', 'prompts', 'effects'
     ]) {
     final raw = data[section];
     if (raw is! Map) {
