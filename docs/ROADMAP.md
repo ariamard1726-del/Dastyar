@@ -24,7 +24,7 @@
 | اسکیمای مسیر موضوعی | ✅ | `dev/tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 4`) + `Advocate.restoreCase(json, dialogue: …)`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
-| انتقال `rent.dart` (۲٬۶۷۶ خط) به JSON | 🟡 | تمام متنِ آزادِ اجاره (۵۲۵ کلید در یازده جدولِ `rent_texts.json`: `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps`) به داده منتقل و هشِ نویسهبهنویسه قفل شده است؛ تنها ۱۵ گزینهٔ متصل به قالبها در `rent_fill.dart`، الگوهای Regex و موضوعهای دیگر (`labor_bodies`، `family_bodies`، `shared` و …) هنوز Dartمحوراند |
+| انتقال متنِ ثابتِ موضوع‌ها به JSON | 🟡 | تمام متنِ آزادِ موضوعِ اجاره (۵۲۵ کلید در ۱۱ جدولِ `rent_texts.json`) و تمام بخش‌های `shared` و ۲۳ موضوعِ غیرِاجاره (۱٬۱۰۶ کلید در ۲۴ بخشِ `assets/brain/topic_texts.json`؛ جمعاً ۱٬۶۳۱ کلید و ۱۸۹٬۶۷۶ نویسه) به داده منتقل و در `test_rent_text_equivalence.py` + `test_topic_text_equivalence.py` + `text_manifest.json` (۶۵ فایل) قفل شده‌اند؛ تنها ۱۵ گزینهٔ قالبیِ `rent_fill.dart`، الگوهای Regex، closureهای تصمیم و نثرِ فایل‌های غیرموضوعیِ `lib/domain/advocate/*.dart` (`glossary.dart`، `talk_route.dart`، `phrases.dart` و …) در Dart مانده‌اند |
 | حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
 | جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ⬜ | پیش‌نیاز سریال‌شدن کامل `Topic` |
 

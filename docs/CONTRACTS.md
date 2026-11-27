@@ -12,7 +12,8 @@
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
 | ماندن پرونده در تاریخچه پس از راهاندازی مجدد | محمولهٔ رمزنگاریشدهٔ `history_v1:m:<id>` (`v: 4`) | `HistoryStore._readSession` | `test/app/case_persistence_test.dart` (با `HistoryStore` تازه؛ قالب ۴ وضعیت گفتگو را هم بازمیگرداند) |
 | صدق تیک «محافظت از صفحه» | نتیجهٔ کانال بومی `setSecureScreen` | `AppSettings.applySecureScreenAtStartup` | `test/app/settings_failure_test.dart` |
-| ارجاع‌های `[[کلید:شماره]]` در کد Dart | متن قوانین | `python dev/tools/check_refs.py` | `tests/python/` (آزمون‌های شناسنامه) |
+| ارجاع‌های `[[کلید:شماره]]` در دانش وکیل | متن قوانین | `python dev/tools/check_refs.py` + `test_law_citations_inside_text_assets_resolve` | `test/advocate/advocate_test.dart` (روی `.dart`، `rent_texts.json` و `topic_texts.json`) + `tests/python/test_topic_text_equivalence.py` |
+| متنِ ثابت موضوع‌های غیرِاجاره و بخش مشترک | `assets/brain/topic_texts.json` + `topic_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_topic_text_equivalence.py`، `test/domain/topic_texts_test.dart` |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |
 | قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
@@ -49,16 +50,25 @@ python dev/tools/check.py pipeline
   `live/gate/topic/law/disclaimer/clarify/rules/leaves` را داشته باشد، هر قاعده
   به برگی موجود اشاره کند، هر برگ `title` و `text` داشته باشد و ارجاعهای
   `articles` از شکل «ماده/اصل N» باشند.
-- **متن ثابت اجاره** (`rent_texts.json`): چهار جدولِ `texts` (پاسخها)،
-  `claims` (متنِ ادعاها)، `filings` (برچسبِ دکمه و نامِ سند) و `plans`
-  (متنِ طرحِ دعوا)؛ هر چهار فهرستِ `id → text`اند و تصمیمگیر نیستند؛ در
-  `index.json` فهرست نمیشوند. شناسهٔ قالبِ سند (`template`) جزءِ تصمیم
-  است و در Dart میماند. درونیابیِ وابسته به پرونده (مثلِ
-  `moneyForum(sum)`) هم در Dart میماند و با `+` به متنِ دارایی چسبیده
-  میشود.
-  هشِ نویسهبهنویسهٔ هر جدول و شمارِ رشتههایش در
+- **متن ثابت اجاره** (`assets/brain/topics/rent_texts.json`): یازده جدولِ `texts`،
+  `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`،
+  `slots`، `issues` و `recaps` (جمعاً ۵۲۵ کلید؛ `id → text`) که تصمیم‌گیر
+  نیستند و در `index.json` فهرست نمی‌شوند. شناسهٔ قالبِ سند (`template`) و
+  ۱۵ گزینهٔ قالبیِ `rent_fill.dart` جزءِ تصمیم‌اند و در Dart می‌مانند.
+  درونیابیِ وابسته به پرونده (مثلِ `moneyForum(sum)`) هم در Dart می‌ماند و
+  با `+` به متنِ دارایی چسبیده می‌شود.
+  هشِ نویسهبه‌نویسهٔ هر جدول و شمارِ رشته‌هایش در
   `tests/python/test_rent_text_equivalence.py` قفل است؛ بارگذاری صریح است
-  (`loadRentTexts`) و نصبِ ناقص خطا میدهد.
+  (`loadRentTexts`) و نصبِ ناقص خطا می‌دهد.
+- **متن ثابت بقیهٔ موضوع‌ها و بخش مشترک** (`assets/brain/topic_texts.json`،
+  در `assets/brain/` و بیرون از `assets/brain/topics/` تا مرز موضوع‌های
+  JSON دست‌نخورده بماند): ۲۴ بخش (`shared`، `labor`، `family` و ۲۱ موضوعِ
+  غیرِاجاره — جمعاً ۱٬۱۰۶ کلید) که از راه `topicText(section, key)` و
+  `loadTopicTexts` خوانده می‌شوند. مصرف ۱۰۰٪ کلیدها، نبودِ نثرِ آزادِ
+  باقی‌مانده در فایل‌های `topics/*.dart`، اعتبار استنادهای `[[کلید:شماره]]`
+  و برابری متن‌ها با پیش از انتقال در
+  `tests/python/test_topic_text_equivalence.py` و `test/domain/topic_texts_test.dart`
+  قفل است.
 
 نگهبان، هر فایلِ اضافه در `assets/brain/topics/` را قرمز میکند تا حالتِ
 میانهٔ «دادهٔ بلااستفاده» دوباره شکل نگیرد.
