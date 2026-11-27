@@ -39,7 +39,7 @@
   - `advocate_reply.dart` (`extension _ReplyPipeline on Advocate`): ده تصمیمِ پاسخ؛ هم‌کتابخانه با `Advocate`، پس متدها خصوصی می‌مانند و API عوض نمی‌شود. سیم‌کشی و API عمومی در `advocate.dart` می‌مانند.
   - `safety_reply.dart` (`class SafetyReply`): پاسخِ خشونت/تهدید/اورژانس، پیش از هر پاسخِ دیگر؛ تنها قاعده‌ای که «حقوقی» نیست.
   - `topic_read.dart` (`class TopicRead`): نتیجهٔ خواندنِ موضوع از پیام (بهترین موضوع، امتیازش، امتیازِ همه) — یک مقدار، بی‌رفتار؛ تصمیم‌ها بیرونِ آن گرفته می‌شوند.
-  - `answer_candidate.dart` (`class AnswerCandidate` / `class AnswerArbiter`): ترتیبِ پاسخ‌ها به‌جای زنجیرهٔ `if`، فهرستی از کاندیدهای نام‌دار است؛ داور اولین پاسخ‌دهنده را برمی‌گرداند و ترتیب = اولویت (بدونِ وزن‌دهی).
+  - `answer_candidate.dart` (`class AnswerCandidate` / `class AnswerArbiter` / `class ReplyLoopGuard`): ترتیبِ پاسخ‌ها به‌جای زنجیرهٔ `if`، فهرستی از کاندیدهای نام‌دار است؛ داور اولین پاسخ‌دهنده را برمی‌گرداند و ترتیب = اولویت (بدونِ وزن‌دهی). نگهبان بازگشت (`ReplyLoopGuard` با `Advocate.maxReplyDepth = 1`) هم همین‌جاست تا حلقهٔ `routes → _reply → routes` یا شمارش دوبارهٔ `file.turns` با `StateError` متوقف شود.
   - `term_reply.dart` (`class TermReply`): پاسخ‌های واژه‌محور — تطبیقِ واژه‌ها با متنِ مواد (`lawTerms`) و مسیرهای تصمیم موضوعی (`topicFlow`).
   - `guide_reply.dart` (`class GuideReply`): راهنمای آماده، واژه‌نامه و آخرین راه (بانک پرسش‌وپاسخ + متن قوانین). `closeCase` را تابع می‌گیرد تا با `CaseFlow` گرهِ ساختِ دوسویه نخورد.
   - `reply_routes.dart` (`class ReplyRoutes`): سیزده مسیرِ یک‌نوبتیِ پاسخ؛ هر کدام `AdvocateReply?` برمی‌گرداند (`null` = این پیام مالِ من نیست). `ReplyRoutes` همکارهایش را در سازنده می‌گیرد (پرونده، گفتگو، صدا، `CaseFlow`، `TopicPicker`، `TalkReply`، `TalkRoute`، یک تابعِ بازگشت به `_reply`) و `_reply` فقط ترتیب را می‌چیند.
@@ -56,7 +56,7 @@
   - `case_recap.dart` (`recapOf`): خلاصهٔ پرونده از روی موضوع و پرونده، بی‌نیاز از وکیل؛ همان چیزی که به `CaseArgument` هم داده می‌شود.
   - `advocate_talk.dart`: گفت‌وگوی انسانی (احوال‌پرسی، خلاصه، حرف مبهم).
   - `advocate_text.dart`: جمله‌بندی و بریدنِ متن برای پاسخ.
-  - `advocate_reply.dart` (۱۶۹ خط): **فقط ترتیب** — بیست `AnswerCandidate` که داور اولین پاسخ‌دهنده را برمی‌گرداند؛ ترتیب = اولویت. `advocate_reply_guard.dart` (۱۳۳): نگهبان‌هایی که پیش از ترتیب تصمیم می‌گیرند (`_leaveReply`، `_filingReply`، `_objectionDeadline`، `_safetyReply`، `_readTopics`، `_correctionReply`). `advocate_reply_case.dart` (۱۸۴): دو شاخهٔ «پرونده باز است / باز نیست» و پرسشِ تغییرِ موضوع (`_noCaseReply`، `_inCaseReply`، `_askSwitch`). ترتیبِ بیست کاندید با `tests/python/test_reply_pipeline_shape.py` قفل است.
+  - `advocate_reply.dart` (۱۶۹ خط): **فقط ترتیب** — بیست `AnswerCandidate` که داور اولین پاسخ‌دهنده را برمی‌گرداند؛ ترتیب = اولویت. `advocate_reply_guard.dart` (۱۴۴): نگهبان‌های پیش از ترتیب (`_guardedReply` برای قفل بازگشت، `_leaveReply`، `_filingReply`، `_objectionDeadline`، `_safetyReply`، `_readTopics`، `_correctionReply`). `advocate_reply_case.dart` (۱۸۴): دو شاخهٔ «پرونده باز است / باز نیست» و پرسشِ تغییرِ موضوع (`_noCaseReply`، `_inCaseReply`، `_askSwitch`). ترتیبِ بیست کاندید با `tests/python/test_reply_pipeline_shape.py` قفل است.
   - `case_file.dart` (۹ خط): فقط `export` — دروازه. `CaseFile` (وضعیت + `toJson`/`fromJson` + `schemaVersion`) در `case_state.dart` (۱۳۶) است و مدل‌های زبانِ موضوع (`Element`، `Claim`، `Slot`، `Issue`، `Filing`، `Prompt`، `Topic`) در `case_model.dart` (۲۸۳). API عمومیِ `Advocate` عمداً روی خودِ کلاس می‌ماند، نه `extension` (عضوِ `extension` از راهِ نوع دیده نمی‌شود؛ `tests/python/test_advocate_shape.py::test_public_api_stays_on_the_class`).
 - `topic_score.dart` (`TopicScore`) و `case_plan.dart` (`CasePlan`): «این پیام کدام موضوع است؟» و «حالا چه بپرسم؟» — دو تابعِ خالص، بی‌نیاز از `Advocate` و بی‌نیاز از بانک قوانین؛ `test/advocate/isolation_test.dart` مستقیم صدایشان می‌زند.
 - `topics/rent.dart` فقط سرِ کتابخانه است (`۲۷` خط، فقط `part`ها)؛ خودِ موضوع در **۱۳** تکه: `rent_patterns.dart` (۳۳۴، الگوهای واژگانی — `const String`)، `rent_reads.dart` (۱۶۶، خواندنِ نقش/موضوع/هدف/بله‌و‌نه)، `rent_bodies.dart` (۱۵۱، متنِ پاسخِ مستأجر و مشترک)، `rent_bodies_landlord.dart` (۱۰۹، متنِ پاسخِ موجر)، `rent_slots.dart` (۲۲۹، واقعیت‌هایی که پرسیده یا خوانده می‌شوند)، `rent_effects.dart` (۷۱، اثرِ حقوقیِ هر واقعیت)، `rent_issues.dart` (۷۲، سرِ فهرست و `rentTopic`) + `rent_issue_both.dart` (۵۹) + `rent_issue_tenant.dart` (۲۳۴) + `rent_issue_landlord.dart` (۱۷۷) که با `[...Both, ...Tenant, ...Landlord]` به همان ترتیبِ پیشین می‌پیوندند (ترتیب = اولویتِ نمایش)، `rent_claims.dart` (۳۶۸، ادعاها)، `rent_plan.dart` (۲۰۶، طرح دعوا/مدرک/مهلت)، `rent_fill.dart` (۲۱۱، متنِ فیلدهای دادخواست). متنِ حقوقی کلمه‌به‌کلمه جابه‌جا شد؛ مقایسهٔ خط‌به‌خط پیش و پس: صفر خطِ گم‌شده (`docs/GOD_OBJECTS.md`). تمام متنهای ثابت اجاره — ۴۲ رشتهٔ پایه، ۸۷ ادعا، ۳۲ برچسبِ سند، ۳۶ طرحِ دعوا، ۵۱ پارهٔ پاسخ (`rent_bodies*`)، ۵۱ متنِ آزادِ فیلدهای سند (`rent_fill`)، ۲۸ پرسشِ دکمه‌دار (`_rentAskReply`)، ۳۳ اثرِ حقوقی (`rent_effects` + `rent_slots`)، ۵۸ متنِ پرسش/توضیح/گزینه (`rent_slots`)، ۵۷ برچسب و عنوان/آغاز (`rent_issue_*` + `rent_issues`) و ۵۰ متنِ پایان طرح و خلاصهٔ پرونده (`rent_plan` / `rentRecap`) — اکنون در یازده جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps`ِ `assets/brain/topics/rent_texts.json`اند (جمعاً ۵۲۵ کلید) و `rentText(id)` (`rent_texts_loader.dart`) آنها را میخواند؛ منطق، closureها و ۱۵ گزینهٔ قالبمحور `rent_fill` در Dart ماندهاند. هشِ نویسهبهنویسه در `tests/python/test_rent_text_equivalence.py` قفل است.
@@ -183,6 +183,63 @@
   این آزمون هنگام نوشتن همین بانک یک ناهماهنگی واقعی (ماده ۴۹۴ نام برده‌شده ولی استناد نشده) را گرفت و اصلاح شد.
 - **محدودیت:** پاسخ‌ها اطلاع‌رسانی عمومی‌اند و جای مشاورهٔ وکیل را نمی‌گیرند؛ سقف افزایش سالانهٔ اجاره (اگر در مقررات سال جاری ابلاغ شده باشد) در متن این مخزن نیست و پاسخ‌ها به بررسی آن ارجاع می‌دهند.
 
+## ایندکس صریح قواعد («کدام قاعده کدام‌جاست»)
+
+مرجعِ سریع برای پیداکردنِ محلِ دقیقِ هر قاعده در کد؛ هر فایلِ نام‌برده زیرِ `lib/` است و قراردادِ ساختاریِ متناظرش در `tests/python/` و `test/` قفل شده است.
+
+### ۱. خطِ تولید پاسخ، اولویت، بازگشت و شمارندهٔ نوبت
+
+| دستهٔ قاعده | مسئولیت دقیق | فایلِ صاحبِ قاعده |
+|---|---|---|
+| گرهِ مرکزی و سقف بازگشت | `respond`، `reset`/`replay`/`restoreCase`، `Advocate.maxReplyDepth = 1`، `lastReplyDepth`، `lastReplyEntries` | `advocate.dart` و `answer_candidate.dart` (`ReplyLoopGuard`) |
+| قفلِ ورود به `_reply` | تنها صدا زنندهٔ `_reply`: اجبار `again: true` در بازگشت و جلوگیری از `turns` تکراری (`_guardedReply`) | `advocate_reply_guard.dart` |
+| ترتیبِ ۲۰ کاندید پاسخ و نوبت | فهرستِ رتبه‌بندی‌نشدهٔ ۲۰ `AnswerCandidate` + افزایش تک‌واحدی `if (!again) file.turns++` | `advocate_reply.dart` (ماتریس: `docs/PRIORITY.md`) |
+| داوری و متادیتای کاندید | انتخاب اولین پاسخ‌دهنده بدون وزن‌دهی (`AnswerCandidate`, `AnswerDecision`, `AnswerArbiter`) | `answer_candidate.dart` |
+| نگهبان‌های پیش از پرونده | انصراف، دکمهٔ سند، مهلتِ اعتراض بی‌پرونده، ایمنی، خواندن موضوع، اصلاح کاربر | `advocate_reply_guard.dart` |
+| دو شاخهٔ پرونده | «پرونده باز نیست» (بازکردن، پیام کوتاه، واژگان، حدس، راهنما) در برابر «پرونده باز است» (تعویض موضوع/ادامه) | `advocate_reply_case.dart` |
+| ۱۳ مسیر یک‌نوبتیِ پاسخ | `newCase`، `noOption`، `pending`، `fight`، `choice`، `wrongGuess`، `more`، `offer` (با `again: true`)، `bareAck`، `side`، `repeat`، `fixedRule`، `deadline` | `reply_routes.dart` |
+| دکمهٔ همیشگی خروج | افزودنِ دکمهٔ «انصراف» به انتهای هر پاسخ (`_withLeave`) | `advocate_leave.dart` |
+| قرارداد و جدول‌های ترتیب | `AnswerSource`، `AdvocateReply`، `pipelineOrder` (هماهنگ با `assets/pipeline.json`)، `netMin`، `netTopics`، `guessTopics` | `advocate_model.dart` و `advocate_data.dart` |
+
+### ۲. فهم محاوره، ایمنی، واژگان، زمان و گفت‌وگو
+
+| دستهٔ قاعده | مسئولیت دقیق | فایلِ صاحبِ قاعده |
+|---|---|---|
+| نرمال‌سازی متن و توکن | یکسان‌سازی حروف/اعراب، حذف نیم‌فاصله و توکن‌سازی (`text_norm.json`) | `persian_text.dart` و `text_norm_rules.dart` |
+| فهم محاوره (`Sense`) | خواندن مبلغ، مدت، بله/خیر/نمی‌دانم، شمار واژه، پرسشِ پیگیری (`chance`/`argue`/`next`) | `text_sense.dart` |
+| ایمنی فوری | تشخیص خطر/خشونت/اورژانس پیش از همهٔ موضوع‌ها (`SafetyReply`) | `safety_reply.dart` |
+| تطبیق واژه با مواد و جریان‌ها | کلیدواژه‌های حقوقی (`law_terms.json`) و گره‌های `assets/brain/topics/*.json` | `law_terms.dart`، `law_terms_rules.dart`، `topic_flow.dart`، `term_reply.dart` |
+| تاریخ و مهلت جلالی | تبدیل تاریخ و محاسبهٔ مهلت‌های اعتراض/تجدیدنظر | `jalali.dart` |
+| واژه‌نامه و نثر ثابت وکیل | توضیح اصطلاح‌ها (`Glossary`)، جمله‌های چرخشی (`Say`)، بارگذار `advocate_texts.json` | `glossary.dart`، `phrases.dart`، `advocate_text.dart`، `advocate_texts_loader.dart` |
+| گفت‌وگوی غیرحقوقی و نامفهوم | دربارهٔ برنامه، سلام، تشکر، توهین کوتاه، سوگ، خلاصه، دسته‌های شروع و ابهام | `advocate_meta.dart`، `talk_route.dart`، `talk_reply.dart`، `advocate_talk.dart` |
+| صدا و چیدمان دکمه‌ها | جایگزینی ارجاع ماده، برش متن با بودجه، سقف تکرار پرسش و ترتیب دکمه‌ها | `reply_voice.dart`، `chip_plan.dart`، `chip_texts.dart`، `advocate_chips.dart` |
+
+### ۳. تشخیص موضوع، وضعیت پرونده و استدلال حقوقی
+
+| دستهٔ قاعده | مسئولیت دقیق | فایلِ صاحبِ قاعده |
+|---|---|---|
+| امتیازدهی و انتخاب موضوع | امتیاز نشانه‌های موضوع (`TopicScore`)، خواندن موضوع (`TopicRead`)، تطبیق بحث و نظر دوم | `topic_score.dart`، `topic_read.dart`، `topic_picker.dart`، `advocate_topic.dart` |
+| حدسِ مدل‌ها | تبدیل خروجی Noql (`TopicGuess`) و طبقه‌بند سبک نیت (`IntentNet`) | `understanding.dart`، `intent_net.dart` |
+| مدل پرونده و وضعیت روی میز | ساختار پرونده (`CaseFile`) و قالب ۴ تاریخچه، مدل موضوع (`Topic`/`Slot`/`Issue`/`Claim`) و پنج تکهٔ گفتگو | `case_file.dart`، `case_state.dart`، `case_model.dart`، `dialogue_state.dart`، `dialogue_sections.dart` |
+| استدلال و پرسش بعدی | ارزیابی ارکان ادعاها (`Reasoner`)، حکم و تغییر نتیجه (`CaseArgument`) و انتخاب پرسشِ بعدی (`CasePlan`) | `reasoner.dart`، `advocate_argue.dart`، `case_plan.dart` |
+| چرخهٔ پرونده | بازکردن، جذب واقعیت‌ها (`absorb`)، اثر حقوقی، واکنش نوبت و خلاصهٔ پرونده (`recapOf`) | `case_flow.dart`، `case_facts.dart`، `case_answer.dart`، `case_text.dart`، `case_recap.dart`، `advocate_case.dart` |
+
+### ۴. بازیابی قوانین، راهنماها و تنظیم سند
+
+| دستهٔ قاعده | مسئولیت دقیق | فایلِ صاحبِ قاعده |
+|---|---|---|
+| موتور BM25F و نمایه | بارگذاری و پارس مواد، شاخص واژه‌ها، رتبه‌بندی BM25F، نام قانون، الگوی «ماده N» | `engine.dart`، `engine_load.dart`، `engine_query.dart`، `law_index.dart`، `law_ranker.dart`، `law_mention.dart`، `law_text.dart`، `article_query.dart` |
+| ضریب موضوعی، تعارض و QA | وزن موضوعی مواد، زنجیرهٔ تعارض/رابطه مواد، ۱۲۰ پرسش‌وپاسخ اجاره و نیت ثابت موتور | `law_topic_prior.dart`، `conflicts_service.dart`، `qa_bank.dart`، `router.dart` |
+| راهنماهای آماده و پاسخ از بانک | ۳۰+ راهنمای ساختاریافته (`legal_guides.json`) و بازگشت به بانک پرسش‌وپاسخ/قانون | `legal_guides.dart`، `guide_reply.dart`، `law_answer.dart` |
+| تنظیم پیش‌نویس سند | تشخیص درخواست سند، بله/خیر فیلد، گام‌بندی فیلدها، ارجاع مواد، قالب‌ها و جریان UI | `drafting.dart`، `draft_intent.dart`، `draft_step.dart`، `draft_words.dart`، `draft_laws.dart`، `draft_models.dart`، `templates.dart`، `draft_flow.dart` |
+
+### ۵. قواعد ۲۴ موضوع حقوقی (`lib/domain/advocate/topics/`)
+
+- **ثبت و مشترکات:** ترتیب ارزیابی ۲۴ موضوع در `all.dart` (`allTopics`)؛ تکه‌های مشترک مرجع/هزینه/زمان در `shared.dart`؛ بارگذاری متن موضوع‌ها از `assets/brain/topic_texts.json` در `topic_texts_loader.dart`.
+- **اجاره و ودیعه (۱۳ بخش):** `rent.dart` (سر کتابخانه)، `rent_patterns.dart`، `rent_reads.dart`، `rent_slots.dart`، `rent_effects.dart`، `rent_issues.dart`، `rent_issue_both.dart`، `rent_issue_tenant.dart`، `rent_issue_landlord.dart`، `rent_claims.dart`، `rent_plan.dart`، `rent_bodies.dart`، `rent_bodies_landlord.dart`، `rent_fill.dart` و بارگذار `rent_texts_loader.dart`.
+- **کار و خانواده (هر کدام ۴ بخش):** `labor.dart` (`labor_patterns.dart`، `labor_claims.dart`، `labor_bodies.dart`، `labor_issues.dart`) و `family.dart` (`family_patterns.dart`، `family_claims.dart`، `family_bodies.dart`، `family_issues.dart`).
+- **۲۱ موضوع تک‌فایلی:** `accused.dart` (متهم)، `admin.dart` (دیوان عدالت و اداری)، `cheque.dart` (چک)، `child.dart` (حضانت و فرزند)، `company.dart` (شرکت تجاری)، `consumer.dart` (حمایت از مصرف‌کننده)، `cyber.dart` (جرایم رایانه‌ای)، `debt.dart` (طلب و دین)، `enforce.dart` (اجرای احکام)، `fight.dart` (نزاع و دروازهٔ `fightGate`)، `foreign_contract.dart` (قرارداد با طرف خارجی)، `guarantee.dart` (ضمانت)، `inherit.dart` (ارث و وصیت)، `injury.dart` (دیه و تصادف)، `marriage.dart` (نکاح و شروط)، `minor_sale.dart` (معاملهٔ صغیر)، `neighbor.dart` (همسایگی و آپارتمان)، `partner.dart` (شراکت)، `property.dart` (املاک و ثبت)، `sale.dart` (بیع و قرارداد)، `theft.dart` (سرقت و خیانت در امانت).
+
 ## بازبینی معماری (ممیزی این نسخه)
 
 **آنچه سالم است**
@@ -199,5 +256,5 @@
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۱ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `advocate/reply_routes.dart` ۴۰۶ خط، `advocate/advocate_argue.dart` ۳۷۵ خط، `topics/rent_claims.dart` ۳۶۸ خط (ادعاها)، `advocate/talk_route.dart` ۳۶۰ خط و `core/history_store.dart` ۳۵۰ خط. `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**
-- Python (بدون Flutter SDK): **۳۲۱** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، عددهای مستندات و لینک‌های همین سند.
+- Python (بدون Flutter SDK): **۳۲۷** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، عددهای مستندات و لینک‌های همین سند.
 - Dart: **۶۹۰** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.

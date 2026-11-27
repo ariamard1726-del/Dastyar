@@ -8,6 +8,17 @@ part of 'advocate.dart';
 // فایلِ ۴۱۰خطیِ خطِ تولید جدا شدند.
 
 extension _ReplyGuards on Advocate {
+  /// نگهبان بازگشتِ `_reply`: سقف عمق و قفلِ `again: true`.
+  AdvocateReply _guardedReply(
+    String raw, {
+    TopicGuess? guess,
+    bool again = false,
+  }) =>
+      _loopGuard.run(
+        again: again,
+        body: () => _reply(raw, guess: guess, again: again),
+      );
+
   /// «انصراف»، «خروج از موضوع»، «نمی‌خواهم این بحث را ادامه دهم»: پرونده بسته
   /// می‌شود و از کاربر موضوعِ تازه خواسته می‌شود.
   AdvocateReply? _leaveReply(String raw) {

@@ -138,7 +138,7 @@ class Advocate {
     picker: _picker,
     talk: _talk,
     talkRoute: _talkRoute,
-    reply: (raw, {bool again = true}) => _reply(raw, again: again),
+    reply: (raw, {bool again = true}) => _guardedReply(raw, again: again),
   );
 
   /// مسیرِ گفت‌وگوی عمومی: سلام، سوگ، خلاصه، دستهٔ مشکل، «خارج شدم و برگشتم».
@@ -175,9 +175,13 @@ class Advocate {
 
   /// داورِ فهرستِ پاسخ‌ها؛ ترتیب = اولویت.
   static const AnswerArbiter _arbiter = AnswerArbiter();
+  /// سقف بازگشتِ خط پاسخ در یک نوبت (`routes → _reply → routes`).
+  static const int maxReplyDepth = 1;
+  final ReplyLoopGuard _loopGuard = ReplyLoopGuard(maxDepth: maxReplyDepth);
+  int get lastReplyDepth => _loopGuard.lastDepth;
+  int get lastReplyEntries => _loopGuard.lastEntries;
 
   /// آخرین تصمیم: کدام کاندید با چه منبع و دلیلی برنده شد.
-  /// فقط برای بازرسی است؛ رفتار و ترتیب کاندیدها عوض نمیشود.
   AnswerDecision? lastDecision;
 
   /// پاسخ‌های واژه‌محور: متنِ مواد و مسیرِ موضوع.
@@ -277,11 +281,6 @@ class Advocate {
     return null;
   }
 
-  /// آیا پیام می‌گوید «همین حالا» کسی در خطر است؟
-  ///
-  /// این حالت به پرونده و به اینکه پیش‌تر هشدار داده‌ام یا نه گره نمی‌خورد؛
-  /// هر بار که کاربر این را بگوید، پاسخ فوری می‌گیرد.
-
   /// متن‌های پیشنهادی برای فیلدهای یک قالب، از روی واقعیت‌های همین پرونده
   /// (شناسهٔ فیلد → متن).
   Map<String, String> fillFor(String templateId) {
@@ -296,6 +295,7 @@ class Advocate {
     dialog.also = null;
     voice.relevantChip = '';
     voice.reset();
+    _loopGuard.reset();
     file.turns = 0;
     file.disclaimed = false;
     unresolved.clear();
@@ -352,7 +352,7 @@ class Advocate {
     _preparedEngineReply = engineReply;
     _preparedText = raw;
     try {
-      return _withLeave(_reply(raw, guess: guess));
+      return _withLeave(_guardedReply(raw, guess: guess));
     } finally {
       _preparedEngineReply = null;
       _preparedText = '';
