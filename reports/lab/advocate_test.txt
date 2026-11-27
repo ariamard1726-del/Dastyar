@@ -64,15 +64,15 @@
 ✅ test/advocate/reply_stages_test.dart: ۳. پرسشِ تغییرِ موضوع، پروندهٔ جاری را عوض نمی‌کند
 ✅ test/advocate/reply_stages_test.dart: ۴. اصلاحِ کاربر پروندهٔ اشتباه را دور می‌ریزد و از نو باز می‌کند
 ✅ test/advocate/reply_stages_test.dart: ۵. هیچ پاسخِ این مراحل بی‌متن نمی‌ماند و هیچ استنادِ بی‌متنی
-✅ test/advocate/family_test.dart: نقش و خشونت در برداشتِ وکیل دیده می‌شوند
-✅ test/advocate/family_test.dart: پروندهٔ تازه با پرسشِ نقش شروع می‌شود
-✅ test/advocate/family_test.dart: ادعاها و پرسش‌های اصلی موضوع سرِ جایشان‌اند
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
 ✅ test/advocate/topic_switch_test.dart: «خیر» همان پرونده را نگه می‌دارد
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در جواب سؤال تغییر موضوع، پرونده را می‌بندد
 ✅ test/advocate/topic_switch_test.dart: وقتی خودِ کاربر موضوع را عوض می‌کند، بی‌پرسش می‌رود
+✅ test/advocate/family_test.dart: نقش و خشونت در برداشتِ وکیل دیده می‌شوند
+✅ test/advocate/family_test.dart: پروندهٔ تازه با پرسشِ نقش شروع می‌شود
+✅ test/advocate/family_test.dart: ادعاها و پرسش‌های اصلی موضوع سرِ جایشان‌اند
 ✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
 ✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی هم سالم می‌چرخد
 ✅ test/advocate/case_file_json_test.dart: نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش
