@@ -91,22 +91,28 @@ docs/                         معماری، قراردادها، بدهیها،
 (سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
 ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
 
-برای فاز ۱ِ «متن به داده»، ۴۲ رشتهٔ پاسخ، ۵۱ پاره و ۲۸ پرسش/گزینهٔ
-دکمه‌دار (`_rentAskReply`) در `rent_bodies.dart` و `rent_bodies_landlord.dart`،
-۸۷ رشتهٔ ادعا، ۳۲ برچسبِ سند، ۳۶ متنِ طرحِ دعوا، ۵۱ متنِ آزادِ فیلدهای
-سند (`rent_fill.dart`) و ۳۳ متنِ اثرِ حقوقی (`rent_effects.dart` و بندهای
-`effect:` در `rent_slots.dart`) — جمعاً ۳۶۰ کلید — به هشت جدولِ `texts` /
-`claims` / `filings` / `plans` / `bodies` / `fills` / `prompts` / `effects` در
-`assets/brain/topics/rent_texts.json` منتقل شدند؛ در Dart فقط پوستهٔ
-`rentText(id)`، شرطهای پرونده و مقادیرِ فیلدهای گزینهایِ قالبها ماندند و
-ترتیبِ `Claim`ها دستنخورده است. درونیابیها با `+` یا `StringBuffer` به متن
-دارایی میچسبند. `tests/python/test_rent_text_equivalence.py` هشِ **پیش از
-جابهجایی** هر جدول (`60f7d07b…f2e`، `abd7d7a1…6041`، `706c5bee…325db`،
-`c9f084ec…18214`، `ab62ffd0…8b0ba`، `8d141bd9…1fe9`، `d57126f6…760` و
-`a92491ef…4a13`) و شمار رشتهها و تطابق گزینههای `rent_fill` با قالبها را
-میسنجد، قراردادِ دوگانهٔ `index.json` / `rent_texts.json` را قفل میکند و
-مانعِ برگشتِ متن به Dart میشود. بارگذاری صریح است (`loadRentTexts`)؛
-نبودِ هرکدام از هشت جدول خطا میدهد، نه جایگزینِ بیصدا.
+برای فاز ۱ِ «متن به داده»، تمام متنِ آزادِ موضوع اجاره — ۴۲ رشتهٔ پاسخ،
+۵۱ پاره و ۲۸ پرسش/گزینهٔ دکمه‌دار (`_rentAskReply`) در `rent_bodies.dart` و
+`rent_bodies_landlord.dart`، ۸۷ رشتهٔ ادعا و ۳۲ برچسبِ سند در
+`rent_claims.dart`، ۳۶ متنِ طرحِ دعوا و ۵۰ متنِ پایان طرح/خلاصه در
+`rent_plan.dart`، ۵۱ متنِ آزادِ فیلدهای سند (`rent_fill.dart`)، ۳۳ متنِ
+اثرِ حقوقی (`rent_effects.dart` و `rent_slots.dart`)، ۵۸ متنِ پرسش/توضیح/
+گزینه (`rent_slots.dart`) و ۵۷ برچسب و عنوان/آغاز (`rent_issue_*.dart` و
+`rent_issues.dart`) — جمعاً **۵۲۵ کلید** — به یازده جدولِ `texts` /
+`claims` / `filings` / `plans` / `bodies` / `fills` / `prompts` / `effects` /
+`slots` / `issues` / `recaps` در `assets/brain/topics/rent_texts.json`
+منتقل شدند؛ در Dart فقط پوستهٔ `rentText(id)`، الگوهای Regex، شرطهای
+پرونده و ۱۵ مقدارِ گزینه‌ایِ متصل به قالبها در `rent_fill.dart` ماندند و
+ترتیبِ `Claim`ها و `Issue`ها دستنخورده است. درونیابیها با `+` یا
+`StringBuffer` به متن دارایی میچسبند.
+`tests/python/test_rent_text_equivalence.py` هشِ **پیش از جابهجایی** هر
+جدول (`60f7d07b…f2e`، `abd7d7a1…6041`، `706c5bee…325db`، `c9f084ec…18214`،
+`ab62ffd0…8b0ba`، `8d141bd9…1fe9`، `d57126f6…760`، `a92491ef…4a13`،
+`e2dcd97d…7d6e`، `5607256e…7981` و `ca6a9478…ae3a`) و شمار رشتهها و تطابق
+گزینههای `rent_fill` با قالبها را میسنجد، قراردادِ دوگانهٔ `index.json` /
+`rent_texts.json` را قفل میکند و مانعِ برگشتِ متن به Dart میشود. بارگذاری
+صریح است (`loadRentTexts`)؛ نبودِ هرکدام از یازده جدول خطا میدهد، نه
+جایگزینِ بیصدا.
 
 ## توسعه و بررسی
 
@@ -125,13 +131,13 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 محلاً نصب نبودند. بنابراین ابزارهای Dart در محل اجرا نشدند، ولی CI واقعاً
 اجرا شد و خطاهای واقعی را پیدا کرد (از جمله نبودِ constructor پیشفرض پس از
 اضافهشدن `factory` و تکرارِ هشدار ایمنی). پس از رفع آنها CI سبز ماند؛ در
-آخرین اجرا (کامیت `c90f4e1`): `flutter analyze` با «No issues found»،
+آخرین اجرا (کامیت `9d66336`): `flutter analyze` با «No issues found»،
 `flutter test` با **۵۶۴ آزمون سبز** و ۱۳۰/۱۳۰ سناریو تأیید شد و سه کارِ CI
 (`Test`، `Lawyer Lab`، `Intent scenarios`) همه successاند. گزارشهای خودکار در
 `reports/lab/analyze.txt` و `reports/last_test.txt` از همان اجرای CIاند
 (یک کامیت میانی (`5525823`) بهخاطر متن خالی `plan32` CI قرمز شد و همان روز با
 کامیت `a5abed2` رفع شد؛ نتیجهٔ نهایی همان است که در گزارشها میبینید. پیش از آن
-کامیت `307f4d4` با ۵۶۴ آزمون و پیشتر `dfb8875` با ۵۶۳ آزمون سبز بود). در محیط محلی ۳۰۴ آزمون پایتون و
+کامیت `307f4d4` با ۵۶۴ آزمون و پیشتر `dfb8875` با ۵۶۳ آزمون سبز بود). در محیط محلی ۳۰۶ آزمون پایتون و
 `check.py all` سبزاند، ولی `check.py trust` با ۰/۲۴ قانون تأییدشده و ۲/۹
 قالب بازبینیشده قرمز است — یعنی سبز بودنِ Dart/Python به معنای قابلانتشار
 بودن محتوای حقوقی نیست.
@@ -147,14 +153,13 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
   ۸ ثانیه هر نوبت، اندازهگیری p95 روی گوشی ردهپایین نیست.
 - دو مسیر (`guide_reply.dart`, `law_answer.dart`) هنوز `engine.query` را
   همگام صدا میزنند و `LawTerms.match` همگام است.
-- فاز ۱ ناتمام است: متنِ پرسش/توضیحِ `Slot`ها در `rent_slots.dart`
-  (`ask`/`why`/`options`)، برچسبِ دکمههای `rent_issue_*.dart` (`chip`)،
-  مقادیر گزینهای قالبها و توابعِ موضوعهای دیگر (`labor_bodies`,
-  `family_bodies`, `shared`) هنوز در Dartاند و بقیهٔ موضوعها هنوز
-  Dartمحورند. تنها `cheque` و متنهای پاسخ/ادعا/سند/طرح/پرسش دکمه‌دار/اثر
-  اجاره (هشت جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`،
-  `prompts` و `effects`؛ ۳۶۰ کلید) به قراردادِ داده منتقل شدند؛ «همهٔ متنها
-  در دادهاند» صادق نیست.
+- فاز ۱ ناتمام است: ۱۵ مقدار گزینهایِ متصل به قالبها در `rent_fill.dart`،
+  الگوهای Regex و توابعِ موضوعهای دیگر (`labor_bodies`, `family_bodies`,
+  `shared`) هنوز در Dartاند و بقیهٔ موضوعها هنوز Dartمحورند. تنها
+  `cheque` و تمام متنِ آزادِ موضوع اجاره (یازده جدولِ `texts`، `claims`،
+  `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`،
+  `issues` و `recaps`؛ ۵۲۵ کلید) به قراردادِ داده منتقل شدند؛ «همهٔ
+  متنها در دادهاند» صادق نیست.
 - چهار جفت منطق Dart/Python تنها با guardهای parity و نمونههای مشترک هماهنگ
   نگه داشته میشوند؛ اپ پایتون مرجع تطبیق نیست.
 - ایمنی بر پایهٔ الگوهاست؛ ماشین حالتی با شدت و پنجرهٔ زمانی و پوشش کامل
