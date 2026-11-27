@@ -1,3 +1,67 @@
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۷) پرسش فرضی > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۸) پرسش فرضی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۱۹) پرسش فرضی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۸) دربارهٔ برنامه > دعوا و شکایت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۹) دربارهٔ برنامه > انتخابِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۰) دربارهٔ برنامه > حدسِ اشتباه
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۱) دربارهٔ برنامه > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۳) دربارهٔ برنامه > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۴) دربارهٔ برنامه > «باشه»
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۵) دربارهٔ برنامه > موضوعِ کنارِ هم
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۶) دربارهٔ برنامه > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۷) دربارهٔ برنامه > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۸) دربارهٔ برنامه > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۷, ۱۹) دربارهٔ برنامه > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۹) دعوا و شکایت > انتخابِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۱) دعوا و شکایت > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۶) دعوا و شکایت > مهلت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۸) دعوا و شکایت > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۸, ۱۹) دعوا و شکایت > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۹, ۱۸) انتخابِ موضوع > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۹, ۱۹) انتخابِ موضوع > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۱) حدسِ اشتباه > ادامهٔ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۳) حدسِ اشتباه > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۷) حدسِ اشتباه > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۰, ۱۸) حدسِ اشتباه > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۳) ادامهٔ حرفِ قبلی > پیشنهادِ پاسخ
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۸) ادامهٔ حرفِ قبلی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۱, ۱۹) ادامهٔ حرفِ قبلی > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۲, ۱۷) تنظیمِ سند > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۳, ۱۸) پیشنهادِ پاسخ > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۴, ۱۸) «باشه» > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۵, ۱۸) موضوعِ کنارِ هم > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۶, ۱۸) مهلت > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۶, ۱۹) مهلت > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۷, ۱۸) تکرارِ حرفِ قبلی > قاعدهٔ ثابت
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۱۸, ۱۹) قاعدهٔ ثابت > مهلتِ اعتراض
+✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) همهٔ ۲۴ موضوع follow[next] دارند پس (۱۰, ۱۴) در عمل جداست
+✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۷) جداست
+✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) برچسب‌های تنظیم سند کوتاه‌اند و با کلیدواژهٔ مسیرهای دیگر تداخل ندارند
+✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۷) و (۱۶) هم‌خوان است
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
+✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
+✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
@@ -120,81 +184,17 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
-test/advocate/rule_dsl_test.dart:62:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('cert', 'yes')
-        ^^^
-test/advocate/rule_dsl_test.dart:63:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('pct', '25')
-        ^^^
-test/advocate/rule_dsl_test.dart:64:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('amount', '500000000');
-        ^^^
-test/advocate/rule_dsl_test.dart:76:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('proof', 'none')
-        ^^^
-test/advocate/rule_dsl_test.dart:77:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('admits', 'no')
-        ^^^
-test/advocate/rule_dsl_test.dart:78:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('amount', '20000000');
-        ^^^
-::endgroup::
-::group::❌ loading test/advocate/rule_dsl_test.dart (failed)
-Failed to load "test/advocate/rule_dsl_test.dart":
-Compilation failed for testPath=test/advocate/rule_dsl_test.dart: test/advocate/rule_dsl_test.dart:62:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('cert', 'yes')
-        ^^^
-test/advocate/rule_dsl_test.dart:63:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('pct', '25')
-        ^^^
-test/advocate/rule_dsl_test.dart:64:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('amount', '500000000');
-        ^^^
-test/advocate/rule_dsl_test.dart:76:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('proof', 'none')
-        ^^^
-test/advocate/rule_dsl_test.dart:77:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('admits', 'no')
-        ^^^
-test/advocate/rule_dsl_test.dart:78:9: Error: The method 'set' isn't defined for the type 'CaseFile'.
- - 'CaseFile' is from 'package:dastyar/domain/advocate/case_state.dart' ('lib/domain/advocate/case_state.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'set'.
-      ..set('amount', '20000000');
-        ^^^
-.
-
-::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
-✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
 ✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
 ✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
+✅ test/advocate/rule_dsl_test.dart: همهٔ ۲۰ موضوع فاز ۹ به‌صورت RuleDSL تعریف شده و JSON معتبر می‌دهند
+✅ test/advocate/rule_dsl_test.dart: FactExpr ارزیابی سه‌ارزشی و دوارزشی و toJson را درست انجام می‌دهد
+✅ test/advocate/rule_dsl_test.dart: موضوع‌های مهاجرت‌یافته در سناریوهای کلیدی خروجی دقیق می‌دهند
 ::endgroup::
 
-::error::378 tests passed, 1 failed.
+🎉 381 tests passed.
