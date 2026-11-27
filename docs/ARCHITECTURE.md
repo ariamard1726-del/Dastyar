@@ -257,4 +257,4 @@
 
 **آزمون‌ها**
 - Python (بدون Flutter SDK): **۳۳۱** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها و کنترلر گفتگو، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، نبودِ تکرار داده‌ها، عددهای مستندات و لینک‌های همین سند.
-- Dart: **۶۹۵** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
+- Dart: **۷۰۱** آزمون (`flutter test`: ۶۹۵ آزمون پیشین + ۶ آزمونِ تازهٔ `test/app/chat_flows_test.dart`) و `flutter analyze --fatal-warnings` بدونِ ایراد (`No issues found!`) به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
