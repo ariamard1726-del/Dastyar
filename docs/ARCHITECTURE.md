@@ -200,4 +200,4 @@
 
 **آزمون‌ها**
 - Python (بدون Flutter SDK): **۳۱۶** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، عددهای مستندات و لینک‌های همین سند.
-- Dart: **۵۶۸** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
+- Dart: **۵۷۲** آزمون (`flutter test`) و `flutter analyze --fatal-warnings` بدونِ ایراد به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.
