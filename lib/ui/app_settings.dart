@@ -8,6 +8,10 @@ import 'package:dastyar/domain/settings_state.dart';
 /// لایهٔ رابط برای [SettingsSnapshot]: فقط اعلان تغییر و خواندن/نوشتن دیسک.
 /// تمام قواعد مقادیر معتبر و تبدیلها در `settings_state.dart` مستقل از فلاتراند.
 class AppSettings extends ChangeNotifier {
+  AppSettings({Future<SharedPreferences> Function()? prefsProvider})
+      : _prefsProvider = prefsProvider ?? SharedPreferences.getInstance;
+
+  final Future<SharedPreferences> Function() _prefsProvider;
   SettingsSnapshot _state = const SettingsSnapshot();
 
   /// وضعیت خالص، برای آزمونها و هر مصرفکنندهٔ غیرفلاتری.
@@ -68,9 +72,18 @@ class AppSettings extends ChangeNotifier {
   /// گزینش آگاهانهٔ بار نخست. کاربر میداند داده روی همین گوشی میماند.
   Future<void> acceptConsent({required bool saveHistory}) async {
     _state = _state.copyWith(consentGiven: true, saveHistory: saveHistory);
-    final p = _prefs ??= await SharedPreferences.getInstance();
-    await p.setBool('consentGiven', true);
-    await p.setBool('saveHistory', saveHistory);
+    try {
+      final p = _prefs ??= await _prefsProvider();
+      final consentOk = await p.setBool('consentGiven', true);
+      final historyOk = await p.setBool('saveHistory', saveHistory);
+      if (!consentOk || !historyOk) {
+        _fail('رضایت تاریخچه');
+        return;
+      }
+    } catch (_) {
+      _fail('رضایت تاریخچه');
+      return;
+    }
     notifyListeners();
   }
 
@@ -116,8 +129,8 @@ class AppSettings extends ChangeNotifier {
       String label) async {
     notifyListeners();
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
-      await write(p);
+      final p = _prefs ??= await _prefsProvider();
+      if (!await write(p)) _fail(label);
     } catch (_) {
       _fail(label);
     }
@@ -169,7 +182,7 @@ class AppSettings extends ChangeNotifier {
     secureScreen = false;
     lastError = 'محافظت از صفحه روی این گوشی اعمال نشد؛ تیک آن خاموش شد.';
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
+      final p = _prefs ??= await _prefsProvider();
       await p.setBool('secureScreen', false);
     } catch (_) {
       // پیامِ خطا حتی اگر نوشتن prefs هم شکست خورد، دیده میشود.
@@ -193,8 +206,10 @@ class AppSettings extends ChangeNotifier {
       return;
     }
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
-      await p.setBool('secureScreen', v);
+      final p = _prefs ??= await _prefsProvider();
+      if (!await p.setBool('secureScreen', v)) {
+        _fail('تنظیم محافظت صفحه');
+      }
     } catch (_) {
       _fail('تنظیم محافظت صفحه');
     }

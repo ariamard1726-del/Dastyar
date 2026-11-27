@@ -70,6 +70,7 @@ class PrivacyService {
         'text': plain,
       });
       if (res != null && res.isNotEmpty) return res;
+      _markFallback(null);
     } on MissingPluginException catch (e) {
       // محیط تست واحد یا سکوی فاقد کانال اندروید
       _markFallback(e);

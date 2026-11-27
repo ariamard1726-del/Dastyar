@@ -77,6 +77,8 @@ class StartupBudgetTests(unittest.TestCase):
         self.assertIn('dev/tools/startup_gate.py reports/startup.txt', wf)
         self.assertIn('reports/startup.txt', wf)
         self.assertIn('path: reports', wf)
+        self.assertIn('rebase.autoStash=true pull --rebase', wf)
+        self.assertIn('for i in 1 2 3 4 5', wf)
         phases = (ROOT / 'docs' / 'PHASES.md').read_text(encoding='utf-8')
         self.assertIn('## فاز ۵ — استارت و حافظه (انجام شد)', phases)
 

@@ -199,7 +199,9 @@ class HistoryStore {
       if (s.dialogueJson != null) 'dialogue': s.dialogueJson,
     };
     final sealed = await PrivacyService.seal(jsonEncode(payload));
-    await prefs.setString(_msgKey(s.id), sealed);
+    if (!await prefs.setString(_msgKey(s.id), sealed)) {
+      throw StateError('SharedPreferences.setString failed');
+    }
   }
 
   Future<void> _writeIndex() async {
@@ -219,7 +221,9 @@ class HistoryStore {
     ];
     final sealed =
         await PrivacyService.seal(jsonEncode({'v': _format, 'sessions': heads}));
-    await prefs.setString(_key, sealed);
+    if (!await prefs.setString(_key, sealed)) {
+      throw StateError('SharedPreferences.setString failed');
+    }
   }
 
   /// نوشتن دستهٔ فعلی؛ تا وقتی چیزی برای نوشتن هست ادامه می‌دهد.

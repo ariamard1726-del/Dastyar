@@ -149,7 +149,15 @@ jobs:
           git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
           git add reports/understanding.txt reports/noql_dart_speed.txt reports/startup.txt reports/coverage.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
-          # rebase ممکن است به‌خاطر push هم‌زمان شکست بخورد؛ ولی push دیگر
-          # بی‌صدا رد نمی‌شود.
-          git pull --rebase || true
-          git push origin HEAD:"${GITHUB_REF_NAME}"
+          # هنگام تداخل پوش هم‌زمان با Lawyer Lab / alt-bench چند بار rebase+push می‌شود،
+          # ولی شکست نهایی پوش همچنان خطا می‌دهد تا بی‌صدا رد نشود.
+          pushed=false
+          for i in 1 2 3 4 5; do
+            if git -c rebase.autoStash=true pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              pushed=true
+              break
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          [ "$pushed" = "true" ]

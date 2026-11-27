@@ -155,4 +155,34 @@ void main() {
       expect(e.answer('شماره اضطراری ایران'), contains('۱۱۵'));
     });
   });
+
+  group('تاب‌آوری مدل قالب‌ها', () {
+    test('JSON ناقص قالب به‌جای TypeError خطای FormatException می‌دهد', () {
+      expect(
+        () => LegalTemplate.fromJson(<String, dynamic>{'title': 'بدون شناسه'}),
+        throwsFormatException,
+      );
+      expect(
+        () => LegalTemplate.fromJson(<String, dynamic>{'id': 'x', 'title': 'بی‌متن'}),
+        throwsFormatException,
+      );
+      expect(
+        () => LegalTemplate.fromJson(<String, dynamic>{
+          'id': 'x',
+          'title': 'فیلد خراب',
+          'body': 'متن',
+          'fields': <Object?>['not-a-map'],
+        }),
+        throwsFormatException,
+      );
+      final minimal = LegalTemplate.fromJson(<String, dynamic>{
+        'id': 'min',
+        'title': 'حداقلی',
+        'version': 2.0,
+        'body': 'متن نمونه',
+      });
+      expect(minimal.version, 2);
+      expect(minimal.fields, isEmpty);
+    });
+  });
 }

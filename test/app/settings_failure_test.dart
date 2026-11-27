@@ -89,4 +89,29 @@ void main() {
     s.clearError();
     expect(s.lastError, isNull);
   });
+
+  test('خطای ذخیرهٔ رضایت یا تنظیمات در SharedPreferences در lastError ثبت می‌شود', () async {
+    final failing = AppSettings(
+      prefsProvider: () => Future<SharedPreferences>.error(StateError('disk full')),
+    );
+
+    await failing.acceptConsent(saveHistory: true);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    await failing.setFontScale(1.2);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    await failing.setSaveHistory(false);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    messenger.setMockMethodCallHandler(
+      PrivacyService.channel,
+      (call) async => call.method == 'setSecureScreen' ? true : null,
+    );
+    await failing.setSecureScreen(true);
+    expect(failing.lastError, isNotNull);
+  });
 }

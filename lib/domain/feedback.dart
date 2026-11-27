@@ -16,12 +16,15 @@ class FeedbackEntry {
 
   Map<String, dynamic> toJson() => {'q': q, 'a': a, 'v': vote, 't': at};
 
-  factory FeedbackEntry.fromJson(Map<String, dynamic> j) => FeedbackEntry(
-        (j['q'] ?? '').toString(),
-        (j['a'] ?? '').toString(),
-        j['v'] == -1 ? -1 : 1,
-        (j['t'] ?? 0) as int,
-      );
+  factory FeedbackEntry.fromJson(Map<String, dynamic> j) {
+    final rawTime = j['t'];
+    return FeedbackEntry(
+      (j['q'] ?? '').toString(),
+      (j['a'] ?? '').toString(),
+      j['v'] == -1 ? -1 : 1,
+      rawTime is int ? rawTime : (rawTime is num ? rawTime.toInt() : 0),
+    );
+  }
 }
 
 class FeedbackStore {

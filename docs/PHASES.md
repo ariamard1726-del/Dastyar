@@ -29,6 +29,7 @@
 | ۱۰ | کلوژرهای مرکب در ۴ موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) | مهاجرت کامل ۴ موضوع بزرگ (`rule_dsl_topic.dart` + سازنده‌های `.dsl`) و سریال‌پذیرشدن `Topic.toJson()` روی هر ۲۴ موضوع | حذف کلوژرهای بی‌نام و توابع کمکی از کل ۲۴ موضوع با نگهبان `test_phase10_rule_dsl.py` و آزمون‌های `test/advocate/phase10_rule_dsl_test.dart` | **انجام شد** |
 | ۱۱ | همگام‌سازی جفت‌های منطق موازی پایتون/دارت (`duplicated_logic.json`) | تکمیل قراردادهای `text_norm.json` و `law_terms.json` و افزودن قرارداد `engine_rules.json` با تولید خودکار دوطرفه | عبور تمام جفت‌های برابری، آزمون‌های دوطرفه (`engine_rules`/`text_norm`/`law_terms`) و تازگی کامل مستندات معماری | **انجام شد** |
 | ۱۲ | آستانه‌های جادویی خط لوله (`topicOpen`/`topicStrong`/`topicDominant`)، شکنندگی `TopicFlow.route` روی دادهٔ ناقص، `open(` بی‌بست در `dev/brain/` و جدول‌های قدیمی `ROADMAP` | اتصال مستقیم آستانه‌های `assets/pipeline.json`، استفاده از `DartLibrary` در `pipeline_check.py`، ایمن‌سازی `TopicFlow.route` و هم‌تراز پایتونی، بستن فایل‌ها در `dev/brain/` و هم‌راستاسازی اسناد | قفل تمام ۴ آستانهٔ `pipeline.json`، بازگشت امن به `'ask'` در ورودی ناقص، ۰ `ResourceWarning` در `common.iter_law_files()`/تست‌ها و تازگی `ROADMAP`/`PHASES`/`CONTRACTS` | **انجام شد** |
+| ۱۳ | شکست خاموش `setBool`/`setString` و `seal` تهی، حساسیت `FeedbackEntry`/`LegalTemplate`/`TermReply._topicLeaf` به دادهٔ بدشکل و رقابت پوش هم‌زمان در `commit-reports` | ثبت خطای `SharedPreferences`/`seal` در `lastError`/`fallbackUsed`، پارس ایمن نوعی در `FeedbackEntry`/`LegalTemplate`/`TermReply._topicLeaf` و بازآزمایی `pull --rebase` در `test.yml` | شکست ذخیره‌سازی بی‌صدا رد نشود، ورود دادهٔ بدشکل کل بازخورد/قالب/موضوع را نشکند و `commit-reports` با `Lawyer Lab` تداخل پوش نداشته باشد | **انجام شد** |
 
 ## فاز ۰ — ابزارِ مشترکِ خواندن (انجام شد)
 
@@ -343,6 +344,10 @@ APK فقط به امیدِ `pubspec.yaml` بود. کلید نسخهٔ قدیمی
   - **تاب‌آوری `TopicFlow.route`:** حذف `.cast<...>()` و `as String` شکننده در `lib/domain/advocate/topic_flow.dart` و هم‌ترازسازی `dev/tools/topic_flow.py` تا ورودی بدشکل یا `{}` بدون خطا به `'ask'` برگردد (`test/advocate/topic_flow_test.dart` و `tests/python/test_topic_flow.py`).
   - **بهداشت بستن فایل در `dev/brain/`:** افزودن `with open(...)` در `dev/brain/common.py` (`iter_law_files`)، `dev/brain/alt_bench.py` و `dev/brain/embed_eval.py` (بدون دست‌کاری در `dev/brain/noql/*`) با نگهبان `-W error::ResourceWarning` در `tests/python/test_dev_tools_hygiene.py`.
   - **به‌روزرسانی `docs/ROADMAP.md` و `docs/CONTRACTS.md`:** بستن وضعیت‌های تاریخی منسوخ مراحل ۱ تا ۴ در `ROADMAP.md` (`RuleDSL`، اجرای ناهمگام `LawTerms.match`، همکاران `Advocate`) مطابق وضع واقعی کد.
+- **فاز ۱۳ — بستن شکست‌های خاموش ذخیره‌سازی، پارس ایمن و پایداری گزارش‌دهی CI (انجام شد):**
+  - **جلوگیری از شکست خاموش ذخیره و رمزنگاری:** بررسی خروجی `bool` در `AppSettings` (`_save`، `acceptConsent`، `setSecureScreen`) و `HistoryStore` (`_writeSession`، `_writeIndex`) برای ثبت صریح در `lastError`، و فراخوانی `_markFallback(null)` در `PrivacyService.seal` هنگام خروجی تهی/`null` از کانال بومی.
+  - **پارس نوع‌امن داده‌ها:** ایمن‌سازی `FeedbackEntry.fromJson` در برابر timestamp نامعتبر، جایگزینی `.cast<Map>()` با بررسی ایمن در `TermReply._topicLeaf`، و اعتبارسنجی صریح `TemplateField.fromJson` / `LegalTemplate.fromJson` با `FormatException` (`test/app/{settings_failure_test,feedback_test}.dart`، `test/core/privacy_test.dart`، `test/drafting/logic_test.dart` و `test/advocate/topic_flow_test.dart`).
+  - **پایداری `commit-reports` در `.github/workflows/test.yml`:** افزودن حلقهٔ بازآزمایی `git -c rebase.autoStash=true pull --rebase` پیش از `git push` (هم‌تراز با `lawyer-lab.yml`) با حفظ شکست صریح در صورت عدم موفقیت نهایی (`tests/python/test_startup_budget.py`).
 
 ## وضعیتِ P0های بازبینیِ انتشار (شاخهٔ جاری)
 

@@ -1,5 +1,9 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'dart:convert';
 
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/feedback.dart';
 
 List<String> _rows(String t) => t
@@ -8,6 +12,8 @@ List<String> _rows(String t) => t
     .toList();
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('export: 👎 به سطر ارزیابی و 👍 به توضیح تبدیل می‌شود', () {
     final t = FeedbackStore.exportText([
       FeedbackEntry('ولی قهری بچه کیه', 'ماده 1184 ...', -1, 1),
@@ -30,5 +36,24 @@ void main() {
     final rows = _rows(t);
     expect(rows.length, 1);
     expect(rows.first.split('|').length, 3);
+  });
+
+  test('مقدار نامعتبر تاریخ در یک رکورد، بقیهٔ بازخوردها را از بین نمی‌برد', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'feedback_v1': jsonEncode({
+        'v': 1,
+        'entries': [
+          {'q': 'سؤال سالم', 'a': 'پاسخ سالم', 'v': 1, 't': 100},
+          {'q': 'سؤال با تاریخ بد', 'a': 'پاسخ', 'v': -1, 't': 'bad-ts'},
+          {'q': 'سؤال با تاریخ اعشاری', 'a': 'پاسخ', 'v': 1, 't': 42.9},
+        ],
+      }),
+    });
+    PrivacyService.persistenceAllowed = true;
+    final list = await FeedbackStore.all();
+    expect(list.length, 3);
+    expect(list[0].at, 100);
+    expect(list[1].at, 0);
+    expect(list[2].at, 42);
   });
 }

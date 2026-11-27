@@ -201,5 +201,20 @@ void main() {
       );
       expect(settings.secureScreen, isTrue);
     });
+
+    test('اگر کانال بومی در seal مقدار خالی بدهد، fallbackUsed و lastError ثبت می‌شوند', () async {
+      PrivacyService.fallbackUsed = false;
+      PrivacyService.lastError = null;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(PrivacyService.channel, (call) async {
+        if (call.method == 'seal') return '';
+        return null;
+      });
+
+      final sealed = await PrivacyService.seal('متن آزمایشی');
+      expect(sealed, startsWith(PrivacyService.fallbackPrefix));
+      expect(PrivacyService.fallbackUsed, isTrue);
+      expect(PrivacyService.lastError, isNotNull);
+    });
   });
 }

@@ -134,14 +134,19 @@ AdvocateReply? _topicLeaf(Map<String, dynamic> flow, String leafId) {
   final leaf = leaves[leafId];
   if (leaf is! Map) return null;
   final laws = <LawText>[];
-  for (final a in (leaf['articles'] as List? ?? const []).cast<Map>()) {
-    final lawId = a['law'].toString();
-    final title = a['title'].toString();
-    final at = engine.chunkOf(lawId, title);
-    if (at == null) continue;
-    final c = engine.chunks[at];
-    laws.add(LawText(c.title, c.source, c.body, '',
-        status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
+  final rawArticles = leaf['articles'];
+  if (rawArticles is List) {
+    for (final a in rawArticles) {
+      if (a is! Map) continue;
+      final lawId = (a['law'] ?? '').toString();
+      final title = (a['title'] ?? '').toString();
+      if (lawId.isEmpty || title.isEmpty) continue;
+      final at = engine.chunkOf(lawId, title);
+      if (at == null) continue;
+      final c = engine.chunks[at];
+      laws.add(LawText(c.title, c.source, c.body, '',
+          status: engine.meta[c.lawId]?['status']?.toString() ?? ''));
+    }
   }
   final refs = laws.map((l) => '«${l.title}»').join('، ');
   final text = '${leaf['title']}\n\n${leaf['text']}'
