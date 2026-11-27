@@ -2,6 +2,7 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/jalali.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/qa_bank.dart';
+import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/case_plan.dart';
 import 'package:dastyar/domain/advocate/dialogue_state.dart';

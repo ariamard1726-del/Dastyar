@@ -1,5 +1,6 @@
-"""بررسی ارجاع‌های استنادی: هر `[[کلید:شماره]]` در کد باید به ماده‌ای واقعی
-در فایل قانونِ همان کلید (`assets/laws/_meta.json`) اشاره کند.
+"""بررسی ارجاع‌های استنادی: هر `[[کلید:شماره]]` در کد یا دارایی‌های متنی
+باید به ماده‌ای واقعی در فایل قانونِ همان کلید (`assets/laws/_meta.json`)
+اشاره کند.
 
 اجرا:  python dev/tools/check_refs.py          (خروجی ۰ = همه درست)
 """
@@ -11,8 +12,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-REF = re.compile(r"\[\[([a-z_]+):([0-9]+)\]\]")
+REF = re.compile(r"\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]")
 PERSIAN = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+
+TEXT_JSON_ASSETS = (
+    "assets/brain/advocate_texts.json",
+    "assets/brain/topic_texts.json",
+    "assets/brain/topics/rent_texts.json",
+)
 
 
 def law_files() -> dict[str, Path]:
@@ -32,9 +39,15 @@ def article_exists(text: str, num: str, word: str = "ماده") -> bool:
 
 def collect_refs() -> dict[tuple[str, str], list[str]]:
     found: dict[tuple[str, str], list[str]] = {}
-    for path in (ROOT / "lib").rglob("*.dart"):
+    paths = list((ROOT / "lib").rglob("*.dart"))
+    for rel in TEXT_JSON_ASSETS:
+        p = ROOT / rel
+        if p.exists():
+            paths.append(p)
+    for path in paths:
         for m in REF.finditer(path.read_text(encoding="utf-8")):
-            found.setdefault((m.group(1), m.group(2)), []).append(str(path.relative_to(ROOT)))
+            num = m.group(2) + (" مکرر" if m.group(3) else "")
+            found.setdefault((m.group(1), num), []).append(str(path.relative_to(ROOT)))
     return found
 
 

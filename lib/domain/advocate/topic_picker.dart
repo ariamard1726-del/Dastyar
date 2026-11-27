@@ -65,7 +65,7 @@ class TopicPicker {
   String sideNote() {
     final s = dialog.side;
     if (s == null) return '';
-    return 'به «${s.title}» هم اشاره کردید. این ماجرای جداگانه‌ای است، یا به همین پرونده مربوط می‌شود؟';
+    return advocateFormat('pickerSideNote', {'title': s.title});
   }
 
   bool guessable(String n) =>
@@ -128,10 +128,10 @@ class TopicPicker {
     dialog.choices = list;
     dialog.choiceText = raw;
     return _out(
-      'می‌خواهم مطمئن شوم موضوع را درست گرفته‌ام.',
+      advocateText('pickerGuessLead'),
       ask: list.length == 1
-          ? 'ماجرای شما دربارهٔ «${first.title}» است؟'
-          : 'ماجرای شما به کدام نزدیک‌تر است؟',
+          ? advocateFormat('pickerGuessOneAsk', {'title': first.title})
+          : advocateText('pickerGuessManyAsk'),
       chips: [for (final t in list) t.title, ChipTexts.noneChip],
     );
   }

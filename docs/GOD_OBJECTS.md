@@ -45,7 +45,7 @@
 
 | فایل | خط | چرا مانده | گامِ بعدی |
 |---|---|---|---|
-| — | — | **خالی.** هیچ فایلِ `lib/**/*.dart` بالای ۴۲۰ خط نیست (بزرگ‌ترین: `advocate.dart` ۴۱۰) | — |
+| — | — | **خالی.** هیچ فایلِ `lib/**/*.dart` بالای ۴۲۰ خط نیست (بزرگ‌ترین: `advocate.dart` ۴۱۱) | — |
 
 ## روندِ پرونده: چرا چهار فایل، و چرا `extension`
 
@@ -61,8 +61,8 @@
 |---|---|
 | `case_flow.dart` (۱۰۴) | خودِ کلاس: پرونده، گفتگو، صدا، و ابزارهای کوتاه (`_out`، `_pick`، `_lookup`) |
 | `case_facts.dart` (۱۲۵) | تنها جایی که `file.facts` نوشته می‌شود: `absorb`، `closeCase`، `roleUnknown` |
-| `case_answer.dart` (۳۱۶) | تصمیمِ نوبت: `open`، `inCase`، `finish` |
-| `case_text.dart` (۲۳۰) | جمله‌سازی: `filing`، `addEffects`، `noteAmount`، `generic`، `leadSettled`، `nextAsk`، `react` |
+| `case_answer.dart` (۳۱۵) | تصمیمِ نوبت: `open`، `inCase`، `finish` |
+| `case_text.dart` (۲۲۹) | جمله‌سازی: `filing`، `addEffects`، `noteAmount`، `generic`، `leadSettled`، `nextAsk`، `react` |
 
 قفلِ این تقسیم `tests/python/test_case_flow_shape.py` است و **پیش** از دست‌زدن به
 فایل نوشته شد: امضای ۱۸ عضو، یک‌بار تعریف شدنِ هر کدام، بودِ چهار فایلِ صاحب، و
@@ -172,6 +172,7 @@
 | `rent_bodies_landlord.dart` | **۱۰۹** | متنِ پاسخِ سمتِ موجر |
 | متنِ ثابتِ اجاره | تمام متنِ آزادِ موضوع اجاره (۴۲ رشته + ۵۱ پاره + ۲۸ پرسش در `rent_bodies*` + ۸۷ رشته و ۳۲ برچسب در `rent_claims` + ۳۶ طرح و ۵۰ خلاصه/پایان در `rent_plan` + ۵۱ متن در `rent_fill` + ۳۳ اثر + ۵۸ پرسش/گزینه در `rent_slots` + ۵۷ برچسب/عنوان در `rent_issue*`) | یازده جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps` در `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (۵۲۵ کلید، یازده هشِ نویسهبهنویسه قفلاند) |
 | متنِ ثابتِ بخش مشترک و ۲۳ موضوعِ دیگر | تمام نثرِ آزاد در `topics/shared.dart`، `labor_*`، `family_*` و ۲۱ موضوعِ `accused`..`theft` (۲۹۰ کلید در موج الف + ۸۱۶ کلید در موج ب) | ۲۴ بخش در `assets/brain/topic_texts.json` + بارگذار صریح `topic_texts_loader.dart` + فراخوانی `topicText(section, key)` (۱٬۱۰۶ کلید؛ مجموعاً ۱٬۶۳۱ کلید در کل موضوع‌ها؛ صفر نثرِ آزادِ باقی‌مانده در `topics/*.dart`) |
+| متنِ ثابتِ عمومیِ وکیل (موج ج) | تمام نثرِ آزادِ ۲۱ فایلِ غیرموضوعی در `lib/domain/advocate/` (`glossary`، `phrases`، `understanding`، `reply_voice`، `advocate_constants`، `safety_reply`، `advocate_meta`، `talk_route`، `talk_reply`، `advocate_talk`، `topic_picker`، `reply_routes`، `case_text`، `advocate_argue`، `law_answer`، `term_reply`، `guide_reply`، `case_answer`، `advocate_reply*`) | ۱۸ بخش در `assets/brain/advocate_texts.json` (۴۷۰ کلید، ۲۹٬۴۰۷ نویسه) + بارگذار صریح `advocate_texts_loader.dart` + `advocateText` / `advocateFormat` / `advocateTextSeq` (سر جمعِ سه دارایی: ۲٬۱۰۱ کلید) |
 
 - فهرستِ بحث‌ها با همان ترتیبِ پیشین به هم می‌پیوندد
   (`_rentIssues = [...Both, ...Tenant, ...Landlord]`). **ترتیب، اولویتِ نمایش
@@ -192,13 +193,13 @@
   همان چیزی که «بدون تغییرِ رفتار» را نقض می‌کند.
 
 پس تقسیم بر اساسِ *صاحب* انجام شد و سپس در گام‌های بعدی تمام **نثر ثابت فارسی**
-(۶۷٬۹۷۱ نویسهٔ اجاره در ۵۲۵ کلیدِ `assets/brain/topics/rent_texts.json` و
+(۶۷٬۹۷۱ نویسهٔ اجاره در ۵۲۵ کلیدِ `assets/brain/topics/rent_texts.json`،
 ۱۲۱٬۷۰۵ نویسهٔ بخش مشترک و ۲۳ موضوعِ دیگر در ۱٬۱۰۶ کلیدِ
-`assets/brain/topic_texts.json`؛ جمعاً ۱٬۶۳۱ کلید) بدون تغییر در رفتار یا
-هزینهٔ کامپایل الگوهای `const String`/closureها به داده منتقل شد. تنها
-متنِ ثابتِ کلاس‌های غیرموضوعی (`glossary.dart`، `phrases.dart`،
-`talk_route.dart` و مانند آن‌ها) و ۱۵ مقدارِ گزینه‌ایِ متصل به قالب‌ها در
-`rent_fill.dart` هنوز در Dart مانده‌اند.
+`assets/brain/topic_texts.json` و ۲۹٬۴۰۷ نویسهٔ متن‌های عمومی وکیل در ۴۷۰ کلیدِ
+`assets/brain/advocate_texts.json`؛ جمعاً ۲٬۱۰۱ کلید) بدون تغییر در رفتار یا
+هزینهٔ کامپایل الگوهای `const String`/closureها به داده منتقل شد. تنها ۱۵
+مقدارِ گزینه‌ایِ متصل به قالب‌ها در `rent_fill.dart` و الگوهای Regex/closureها
+در Dart مانده‌اند.
 
 ## چرا بعضی چیزها را «نشکستم»
 
@@ -224,7 +225,7 @@
 سه فایل، سه `extension` جدا روی همان `Advocate` (نامِ extension در یک کتابخانه
 باید یکتا باشد)، همگی `part`ِ `advocate.dart`؛ هیچ امضا و هیچ فراخوانی عوض نشد.
 
-- عددها: **۴۱۱ → ۱۲۱ | ۱۳۳ | ۱۸۱**. بزرگ‌ترین فایلِ `lib/` حالا `advocate.dart` ۴۱۰ است.
+- عددها: **۴۱۱ → ۱۲۱ | ۱۳۳ | ۱۸۱**. بزرگ‌ترین فایلِ `lib/` حالا `advocate.dart` ۴۱۱ است.
 - مقایسهٔ خط‌به‌خط با `git show HEAD:`: **۰ خطِ گم‌شده**؛ ۶ خطِ افزوده (دو
   `part of`، دو `}`، دو سرِ `extension`).
 - قفلِ پیش از تغییر: `tests/python/test_reply_pipeline_shape.py` چهار ادعا دارد —

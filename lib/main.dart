@@ -10,6 +10,7 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
@@ -255,6 +256,15 @@ class _LoaderState extends State<Loader> {
           await loadTopicTexts();
         } catch (e) {
           problems.add('متنِ موضوعهای وکیل بار نشد؛ بعضی پاسخها کامل نیستند.');
+        }
+      }(),
+      // متنِ عمومیِ گفت‌وگو، واژه‌نامه، ایمنی و استدلال وکیل از داده خوانده
+      // میشود؛ نبودنش به جای پاسخ ناقصِ بیصدا، خطای صریح میدهد.
+      () async {
+        try {
+          await loadAdvocateTexts();
+        } catch (e) {
+          problems.add('متنهای عمومی وکیل بار نشدند؛ پاسخگویی کامل نیست.');
         }
       }(),
       _repo.load().catchError((Object e) {

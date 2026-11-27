@@ -7,16 +7,11 @@ const int _budget = 380;
 
 const int _roomyBudget = 760;
 
-const List<String> _yesNo = yesNoChips;
+List<String> get _yesNo => yesNoChips;
 
-const List<String> _replyChips = [
-  'انکار می‌کند',
-  'امروز و فردا می‌کند',
-  'جواب نمی‌دهد',
-  'هنوز چیزی نگفته‌ام',
-];
+List<String> get _replyChips => advocateTextSeq('constReplyChip', 4);
 
-const List<String> _goalChips = ['توافق و سازش', 'مسیر قانونی تا آخر'];
+List<String> get _goalChips => advocateTextSeq('constGoalChip', 2);
 
 /// کاربر خودش گفته دنبال چیست؛ دیگر نمی‌پرسم.
 const String _goalSaid =
@@ -38,12 +33,12 @@ const Set<String> _adversarial = {
 const String _newMatter =
     ' راستی | در ضمن | ضمنا | (?:یه|یک) (?:مشکل|سوال|موضوع|مورد|چیز|گرفتاری) (?:دیگه|دیگر|دیگه ای|دیگری) | (?:مشکل|سوال|موضوع|مورد) (?:دیگه|دیگر) ';
 
-const String _dontKnowChip = 'نمی‌دانم';
+String get _dontKnowChip => advocateText('constDontKnowChip');
 
-const Map<String, String> _followChips = {
-  'next': 'قدم بعدی چیست؟',
-  'evidence': 'چه مدرکی لازم است؟',
-  'cost': 'هزینه‌اش چقدر است؟',
-  'chance': 'شانس موفقیتم چقدر است؟',
-  'time': 'چقدر طول می‌کشد؟',
-};
+Map<String, String> get _followChips => {
+      'next': advocateText('constFollowChip_next'),
+      'evidence': advocateText('constFollowChip_evidence'),
+      'cost': advocateText('constFollowChip_cost'),
+      'chance': advocateText('constFollowChip_chance'),
+      'time': advocateText('constFollowChip_time'),
+    };

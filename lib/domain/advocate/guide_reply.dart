@@ -87,20 +87,22 @@ class GuideReply {
     dialog.guide = g;
     final sb = StringBuffer();
     if (switched) {
-      sb.write('این موضوعِ جداگانه‌ای است؛ پس آن را جدا بررسی می‌کنم.\n\n');
+      sb.write(advocateText('guideSwitchedLead'));
     } else if (g.empathy.isNotEmpty && LawyerVoice.expressesDistress(raw)) {
       sb.write('${g.empathy}\n\n');
     }
     sb.write(g.answer);
     sb.write(_guideSteps(g));
     if (g.cautions.isNotEmpty) {
-      sb.write('\n\nحواستان باشد:');
+      sb.write(advocateText('guideCautionsLead'));
       for (final c in g.cautions) {
         sb.write('\n• $c');
       }
     }
     final refs = [for (final r in g.refs) '[[${r.lawId}:${r.article}]]'];
-    if (refs.isNotEmpty) sb.write('\n\nمستند این حرف‌ها ${refs.join(' ')} است.');
+    if (refs.isNotEmpty) {
+      sb.write(advocateFormat('guideRefsLine', {'refs': refs.join(' ')}));
+    }
     voice.lastBody = g.answer;
     dialog.guideAsked = g.followUp.isNotEmpty;
     dialog.guideStepped = false;
@@ -112,7 +114,7 @@ class GuideReply {
 
   String _guideSteps(LegalGuide g) {
     if (g.steps.isEmpty) return '';
-    final sb = StringBuffer('\n\nقدم‌هایی که پیشنهاد می‌کنم:');
+    final sb = StringBuffer(advocateText('guideStepsLead'));
     var i = 1;
     for (final s in g.steps) {
       sb.write('\n${Sense.fa(i)}) $s');
@@ -122,7 +124,9 @@ class GuideReply {
   }
 
   List<String> _guideChips(LegalGuide g) {
-    final out = <String>[if (g.steps.isNotEmpty) 'قدم بعدی چیست؟'];
+    final out = <String>[
+      if (g.steps.isNotEmpty) advocateText('guideNextStepChip'),
+    ];
     for (final id in g.templateIds) {
       final title = draftTitles[id];
       if (title != null) {
@@ -144,15 +148,19 @@ class GuideReply {
       if (dialog.guideStepped) {
         dialog.guideStepped = false;
         return _out(
-          'قدم‌ها همان‌هاست که گفتم. از اولی شروع کنید: ${g.steps.first}',
-          ask: 'کجای کار گیر کرده‌اید یا نگران کدام قدم هستید؟',
+          advocateFormat('guideStepsAlready', {'first': g.steps.first}),
+          ask: advocateText('guideStepsStuckAsk'),
           chips: _guideChips(g),
           source: AnswerSource.guide,
         );
       }
       dialog.guideStepped = true;
-      return _out('برای «${g.title}»${_guideSteps(g).replaceFirst('\n\n', ' ')}',
-          ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
+      return _out(
+          advocateFormat('guideStepsFor', {
+            'title': g.title,
+            'steps': _guideSteps(g).replaceFirst('\n\n', ' '),
+          }),
+          ask: advocateText('guideStepsWhichAsk'),
           chips: _guideChips(g),
           budget: _roomyBudget,
           source: AnswerSource.guide);
@@ -166,7 +174,10 @@ class GuideReply {
       final r = engine.query('${g.title} $n');
       if (_isLawHit(r)) {
         return AdvocateReply(
-          'دربارهٔ این بخش از «${g.title}» تحلیل آماده‌ای ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:\n\n${r.text}',
+          advocateFormat('guideEngineIntro', {
+            'title': g.title,
+            'text': r.text,
+          }),
           chips: _guideChips(g),
           laws: [
             for (final h in r.contextHits.where(_isLaw).take(2))
@@ -181,8 +192,12 @@ class GuideReply {
     if (dialog.guideAsked && g.steps.isNotEmpty && !Sense.isQuestion(n)) {
       dialog.guideAsked = false;
       dialog.guideStepped = true;
-      return _out('${_pick(Say.fine)} با این حساب${_guideSteps(g).replaceFirst('\n\n', ' ')}',
-          ask: 'کدام‌یک از این قدم‌ها را تا حالا برداشته‌اید؟',
+      return _out(
+          advocateFormat('guideFollowWithThat', {
+            'fine': _pick(Say.fine),
+            'steps': _guideSteps(g).replaceFirst('\n\n', ' '),
+          }),
+          ask: advocateText('guideStepsWhichAsk'),
           chips: _guideChips(g),
           source: AnswerSource.guide);
     }

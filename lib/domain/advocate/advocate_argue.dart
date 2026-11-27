@@ -2,9 +2,9 @@ part of 'advocate.dart';
 
 // استدلال: سنجش ادعاها و گفتنِ نظر وکیل دربارهٔ هرکدام.
 
-const List<String> _ords = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم'];
+List<String> get _ords => advocateTextSeq('argueOrd', 6);
 
-const List<String> _counts = ['یک', 'دو', 'سه', 'چهار', 'پنج', 'شش'];
+List<String> get _counts => advocateTextSeq('argueCount', 6);
 
 String _ord(int k) =>
     k >= 1 && k <= _ords.length ? _ords[k - 1] : Sense.fa(k);
@@ -83,16 +83,18 @@ class CaseArgument {
       final old = before[name];
       if (old == null) {
         if (v.claim.label.isEmpty || i == 0 || !leadKept) continue;
-        return 'این را هم کنار بقیه گذاشتم: «$name» خواستهٔ جداگانه‌ای است و حسابش را جدا نگه می‌دارم.';
+        return advocateFormat('argueShiftAdded', {'name': name});
       }
       if (old == v.standing || v.standing == Standing.open) continue;
       if (!file.covered.contains('f:argue')) continue;
       final was = old == Standing.strong
-          ? 'محکم بود'
-          : (old == Standing.open ? 'هنوز باز بود' : 'گیر داشت');
+          ? advocateText('argueShiftWasStrong')
+          : (old == Standing.open
+              ? advocateText('argueShiftWasOpen')
+              : advocateText('argueShiftWasWeak'));
       return v.standing == Standing.strong
-          ? 'این حرفتان حساب را عوض کرد: «$name» که $was، حالا همهٔ شرط‌هایش جمع است.'
-          : 'این حرفتان حساب را عوض کرد: «$name» که $was، حالا گیر دارد.';
+          ? advocateFormat('argueShiftNowStrong', {'name': name, 'was': was})
+          : advocateFormat('argueShiftNowWeak', {'name': name, 'was': was});
     }
     return '';
   }
@@ -117,7 +119,8 @@ class CaseArgument {
           if (!was.contains(x)) x,
       ];
       if (gone.isEmpty || came.isEmpty) continue;
-      return 'برداشتم را اصلاح کردم: قبلاً نوشته بودم «${gone.first}»؛ حالا «${came.first}».';
+      return advocateFormat(
+          'argueCorrection', {'old': gone.first, 'now': came.first});
     }
     return '';
   }
@@ -147,35 +150,41 @@ class CaseArgument {
     final sb = StringBuffer();
     if (v.standing == Standing.strong) {
       sb.write(why.isEmpty
-          ? 'بله؛ با چیزهایی که گفته‌اید همهٔ شرط‌های قانونی‌اش جمع است. '
-          : 'بله؛ چون ${_join(why)}. ');
-      sb.write('پس ${c.win(file)}');
+          ? advocateText('argueVerdictStrongPlain')
+          : advocateFormat('argueVerdictStrongWhy', {'why': _join(why)}));
+      sb.write(advocateFormat('argueVerdictWinPrefix', {'win': c.win(file)}));
       final counter = c.counter;
       if (counter != null) {
         final x = counter(file);
         if (x.isNotEmpty) sb.write('\n${_pick(Say.counter)} $x');
       }
     } else if (v.standing == Standing.open) {
-      sb.write('هنوز نمی‌توانم قطعی بگویم، ولی معلوم است به چه بسته است.');
-      if (why.isNotEmpty) sb.write(' تا اینجا به نفع شماست که ${_join(why)}.');
+      sb.write(advocateText('argueVerdictOpenLead'));
+      if (why.isNotEmpty) {
+        sb.write(advocateFormat('argueVerdictOpenWhy', {'why': _join(why)}));
+      }
       sb.write(v.open.length == 1
-          ? ' یک چیز مانده:'
-          : ' ${_count(v.open.length)} چیز مانده:');
+          ? advocateText('argueVerdictOpenOne')
+          : advocateFormat('argueVerdictOpenMany', {'count': _count(v.open.length)}));
       for (final e in v.elements) {
         if (e.holds == null) sb.write('\n• ${e.element.text}');
       }
-      sb.write(
-          '\nاگر ${v.open.length == 1 ? 'آن هم' : 'آن‌ها هم'} برقرار باشد، ${c.win(file)}');
+      sb.write(advocateFormat('argueVerdictOpenIf', {
+        'pronoun': v.open.length == 1
+            ? advocateText('argueWordIt')
+            : advocateText('argueWordThey'),
+        'win': c.win(file),
+      }));
     } else {
-      sb.write('با چیزهایی که تا اینجا گفته‌اید، فعلاً نه.');
+      sb.write(advocateText('argueVerdictWeakLead'));
       for (final e in v.elements) {
         if (e.holds != false) continue;
         sb.write(e.element.ifNo.isEmpty
-            ? ' این شرط برقرار نیست: ${e.element.text}'
+            ? advocateFormat('argueVerdictWeakIfNoMissing', {'text': e.element.text})
             : ' ${e.element.ifNo}');
       }
       if (why.isNotEmpty) {
-        sb.write('\nاز آن طرف، ${_join(why)}؛ این‌ها به کارتان می‌آید.');
+        sb.write(advocateFormat('argueVerdictWeakWhy', {'why': _join(why)}));
       }
     }
     return sb.toString();
@@ -186,7 +195,7 @@ class CaseArgument {
     final b = e.because;
     if (b == null) return '';
     final x = b(file).trim();
-    return x.isEmpty ? '' : '، چون $x';
+    return x.isEmpty ? '' : advocateFormat('argueBecausePrefix', {'because': x});
   }
 
   String _argueOne(ClaimView v) {
@@ -194,8 +203,8 @@ class CaseArgument {
     final total = v.elements.length;
     final sb = StringBuffer('${_pick(Say.argue)}\n');
     sb.write(total == 1
-        ? 'هدف: ${c.goal}. برای رسیدن به آن، قانون یک شرط دارد:\n'
-        : 'هدف: ${c.goal}. برای رسیدن به آن، قانون ${_count(total)} شرط دارد:\n');
+        ? advocateFormat('argueOneGoalOne', {'goal': c.goal})
+        : advocateFormat('argueOneGoalMany', {'goal': c.goal, 'count': _count(total)}));
     for (var i = 0; i < total; i++) {
       final e = v.elements[i].element;
       final h = v.elements[i].holds;
@@ -207,28 +216,50 @@ class CaseArgument {
       } else {
         mark = '؟ ${_pick(Say.unknown)}.';
       }
-      sb.write('• شرط ${_ord(i + 1)}: ${e.text}\n   $mark\n');
+      sb.write(advocateFormat('argueOneCondPrefix', {
+        'ord': _ord(i + 1),
+        'text': e.text,
+        'mark': mark,
+      }));
     }
     final ok = v.met;
     final failed = v.failed;
     final open = v.open;
     if (failed.isEmpty && open.isEmpty) {
-      sb.write(
-          '${total == 1 ? 'نتیجه: این شرط برقرار است' : 'نتیجه: هر ${_count(total)} شرط جمع است'}؛ پس ${c.win(file)}\n'
-          'ارزیابی من: پروندهٔ قوی‌ای دارید، به شرط اینکه همین‌ها را با مدرک نشان بدهید.');
+      final lead = total == 1
+          ? advocateText('argueOneResultStrongOne')
+          : advocateFormat('argueOneResultStrongMany', {'count': _count(total)});
+      sb.write(advocateFormat('argueOneResultStrongEnd', {
+        'lead': lead,
+        'win': c.win(file),
+      }));
     } else if (failed.isNotEmpty) {
-      sb.write(
-          'نتیجه: چون شرط ${_join([for (final k in failed) _ord(k)])} برقرار نیست، کار فعلاً همین‌جا گیر است؛ اول باید همین گره باز شود تا این راه به نتیجه برسد');
+      sb.write(advocateFormat('argueOneResultFailLead', {
+        'failed': _join([for (final k in failed) _ord(k)]),
+      }));
       sb.write(ok > 0
-          ? ' (${_count(ok)} شرط دیگر را دارید و به کارتان می‌آید).'
+          ? advocateFormat('argueOneResultFailMore', {'count': _count(ok)})
           : '.');
       if (open.isNotEmpty) {
-        sb.write(
-            ' شرط ${_join([for (final k in open) _ord(k)])} هم هنوز برایم روشن نیست.');
+        sb.write(advocateFormat('argueOneResultFailOpen', {
+          'open': _join([for (final k in open) _ord(k)]),
+        }));
       }
     } else {
-      sb.write(
-          'نتیجه تا اینجا: ${ok == 0 ? 'هنوز هیچ‌کدام از شرط‌ها برایم محرز نیست' : '${_count(ok)} شرط از ${_count(total)} شرط محرز است'} و حرف آخر به شرط ${_join([for (final k in open) _ord(k)])} بستگی دارد. اگر ${open.length == 1 ? 'آن هم' : 'آن‌ها هم'} برقرار باشد، ${c.win(file)}');
+      final metText = ok == 0
+          ? advocateText('argueOneResultOpenNone')
+          : advocateFormat('argueOneResultOpenSome', {
+              'met': _count(ok),
+              'total': _count(total),
+            });
+      sb.write(advocateFormat('argueOneResultOpenTail', {
+        'metText': metText,
+        'open': _join([for (final k in open) _ord(k)]),
+        'pronoun': open.length == 1
+            ? advocateText('argueWordIt')
+            : advocateText('argueWordThey'),
+        'win': c.win(file),
+      }));
     }
     final counter = c.counter;
     if (counter != null) {
@@ -239,25 +270,24 @@ class CaseArgument {
   }
 
   /// وقتی یک ماجرا چند خواسته دارد: اول حکمِ هر کدام در یک خط، بعد دلیلِ
-  /// هر حکم، و در آخر دفاعی که باید منتظرش بود. قوی و ضعیف جدا گفته می‌شود
+  /// هر حکم، و در آخر دفاعی که باید منتظرش بود. قوی و ضعف جدا گفته می‌شود
   /// تا کاربر بداند روی کدام تکیه کند.
   String _argueMany(List<ClaimView> views) {
     String name(ClaimView v) =>
         v.claim.label.isEmpty ? v.claim.goal : v.claim.label;
     final sb = StringBuffer('${_pick(Say.argue)}\n');
-    sb.write(
-        'با آنچه تا اینجا گفته‌اید ${_count(views.length)} خواسته دارید و وضع هر کدام فرق می‌کند:\n');
+    sb.write(advocateFormat('argueManyLead', {'count': _count(views.length)}));
     for (final v in views) {
       final String verdict;
       switch (v.standing) {
         case Standing.strong:
-          verdict = 'دستتان پر است';
+          verdict = advocateText('argueManyStrong');
         case Standing.open:
           verdict = v.open.length == 1
-              ? 'به یک نکته بسته است'
-              : 'به ${_count(v.open.length)} نکته بسته است';
+              ? advocateText('argueManyOpenOne')
+              : advocateFormat('argueManyOpenMany', {'count': _count(v.open.length)});
         case Standing.weak:
-          verdict = 'فعلاً گیر دارد';
+          verdict = advocateText('argueManyWeak');
       }
       sb.write('• ${name(v)}: $verdict.\n');
     }
@@ -268,35 +298,43 @@ class CaseArgument {
         case Standing.strong:
           final why = _reasons(v);
           sb.write(why.isEmpty
-              ? 'همهٔ شرط‌هایش جمع است؛ پس ${c.win(file)}'
-              : '${_join(why)}؛ پس ${c.win(file)}');
+              ? advocateFormat('argueManyStrongAll', {'win': c.win(file)})
+              : advocateFormat('argueManyStrongWhy', {
+                  'why': _join(why),
+                  'win': c.win(file),
+                }));
         case Standing.open:
           sb.write(v.met == 0
-              ? 'هنوز هیچ شرطی برایم محرز نیست. '
-              : '${_count(v.met)} شرط از ${_count(v.elements.length)} شرط محرز است. ');
+              ? advocateText('argueManyOpenNone')
+              : advocateFormat('argueManyOpenSome', {
+                  'met': _count(v.met),
+                  'total': _count(v.elements.length),
+                }));
           final rest = [
             for (final e in v.elements)
               if (e.holds == null) e.element.text,
           ];
           if (rest.length == 1) {
-            sb.write('مانده این‌که ${rest.first}');
+            sb.write(advocateFormat('argueManyOpenOneLeft', {'item': rest.first}));
           } else {
-            sb.write('مانده:');
+            sb.write(advocateText('argueManyOpenManyLeft'));
             for (final x in rest) {
               sb.write('\n   • $x');
             }
           }
-          sb.write('\nاگر برقرار باشد، ${c.win(file)}');
+          sb.write(advocateFormat('argueManyOpenWin', {'win': c.win(file)}));
         case Standing.weak:
           for (final e in v.elements) {
             if (e.holds != false) continue;
             sb.write(e.element.ifNo.isEmpty
-                ? 'این شرط برقرار نیست: ${e.element.text} '
+                ? advocateFormat('argueManyWeakIfNoMissing', {'text': e.element.text})
                 : '${e.element.ifNo} ');
           }
           if (v.open.isNotEmpty) {
-            sb.write(
-                '${v.open.length == 1 ? 'یک شرط' : '${_count(v.open.length)} شرط'} دیگرش هم هنوز روشن نیست.');
+            final countLabel = v.open.length == 1
+                ? advocateText('argueManyCondOne')
+                : advocateFormat('argueManyCondMany', {'count': _count(v.open.length)});
+            sb.write(advocateFormat('argueManyWeakMore', {'countLabel': countLabel}));
           }
       }
     }
@@ -309,15 +347,16 @@ class CaseArgument {
         if (v.standing == Standing.weak) name(v),
     ];
     if (strong.isNotEmpty || weak.isNotEmpty) {
-      sb.write('\n\nجمع‌بندی من: ');
+      sb.write(advocateText('argueManySummaryLead'));
       if (strong.isNotEmpty) {
-        sb.write(
-            'روی ${_join(strong)} محکم بایستید، به شرط اینکه همین‌ها را با مدرک نشان بدهید');
+        sb.write(advocateFormat('argueManySummaryStrong', {
+          'strong': _join(strong),
+        }));
       }
       if (weak.isNotEmpty) {
         sb.write(strong.isEmpty
-            ? 'نقطهٔ ضعف شما ${_join(weak)} است؛ پیش از هر کاری باید گره‌اش را باز کنیم'
-            : '؛ نقطهٔ ضعفتان ${_join(weak)} است');
+            ? advocateFormat('argueManySummaryWeakOnly', {'weak': _join(weak)})
+            : advocateFormat('argueManySummaryWeakAlso', {'weak': _join(weak)}));
       }
       sb.write('.');
     }

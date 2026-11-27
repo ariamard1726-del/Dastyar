@@ -33,9 +33,7 @@ extension _ReplyCaseFlow on Advocate {
           for (final t in dialog.choices) '• ${t.title}',
         ];
         return _out(
-          'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
-          'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
-          'سطحی می‌شود. از کدام شروع کنیم؟',
+          advocateFormat('caseMultiTopicPrompt', {'lines': lines.join('\n')}),
           chips: [for (final t in dialog.choices) t.title, ChipTexts.noneChip],
         );
       }
@@ -64,7 +62,7 @@ extension _ReplyCaseFlow on Advocate {
     final g = _guides.glossary(n);
     if (g != null) {
       return _out(g,
-          ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+          ask: dialog.guide == null ? advocateText('caseGlossaryAsk') : '',
           source: AnswerSource.glossary);
     }
     final guide = dialog.guide;
@@ -168,16 +166,18 @@ extension _ReplyCaseFlow on Advocate {
   AdvocateReply _askSwitch(Topic t, String raw) {
     dialog.pendingTopic = t;
     dialog.pendingText = raw;
-    final curTitle = _current()?.title ?? 'موضوع قبلی';
+    final curTitle = _current()?.title ?? advocateText('caseSwitchFallbackTitle');
     // پرسشِ خودِ پرونده کنار می‌رود تا در این نوبت فقط یک پرسش باشد و
     // «بله/خیر» دو معنا نداشته باشد.
     file.pending = '';
     dialog.askText = '';
     dialog.askChips = const [];
     return _out(
-      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
-      'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
-      ask: 'این موضوع تازه است یا به همان ماجرای قبلی مربوط است؟',
+      advocateFormat('caseSwitchBody', {
+        'curTitle': curTitle,
+        'newTitle': t.title,
+      }),
+      ask: advocateText('caseSwitchAsk'),
       chips: const [ChipTexts.newTopicYesChip, ChipTexts.newTopicNoChip],
     );
   }

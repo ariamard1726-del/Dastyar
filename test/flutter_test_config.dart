@@ -6,6 +6,7 @@
 // چیزِ دیگری را تأیید می‌کند.
 import 'dart:async';
 
+import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import 'package:dastyar/domain/lawyer/legal_guides.dart';
@@ -17,6 +18,7 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   await loadLegalGuides();
   await loadRentTexts();
   await loadTopicTexts();
+  await loadAdvocateTexts();
   if (!legalGuidesLoaded) {
     throw StateError('راهنماها در آزمون نصب نشدند');
   }

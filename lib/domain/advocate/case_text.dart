@@ -12,8 +12,7 @@ extension _CaseText on CaseFlow {
   /// پرسش‌های سند را شروع می‌کند).
   AdvocateReply filing(Filing g) {
     final fill = fillFor(g.template);
-    final sb = StringBuffer(
-        '«${g.name}» را می‌شود با همین اطلاعاتی که داده‌اید نوشت؛ نام و نشانی دو طرف را هم موقع نوشتن می‌پرسم.');
+    final sb = StringBuffer(advocateFormat('ctFilingIntro', {'name': g.name}));
     for (final k in const [
       'subject',
       'basis_detail',
@@ -23,14 +22,19 @@ extension _CaseText on CaseFlow {
     ]) {
       final v = fill[k];
       if (v != null && v.isNotEmpty) {
-        sb.write('\nمتنی که برای شرح آن پیشنهاد می‌کنم: «$v»');
+        sb.write(advocateFormat('ctFilingBody', {'body': v}));
         break;
       }
     }
     final papers = fill['evidence'] ?? fill['attachments'] ?? '';
-    if (papers.isNotEmpty) sb.write('\nپیوست‌ها: $papers.');
-    const ask = 'همین حالا بنویسمش؟';
-    const chips = ['بله، بنویس', 'نه، لازم نیست'];
+    if (papers.isNotEmpty) {
+      sb.write(advocateFormat('ctFilingPapers', {'papers': papers}));
+    }
+    final ask = advocateText('ctFilingAsk');
+    final chips = [
+      advocateText('ctDraftChipYes'),
+      advocateText('ctDraftChipNo'),
+    ];
     file.covered.add('o:draft');
     dialog.askText = ask;
     dialog.askChips = chips;
@@ -65,8 +69,7 @@ extension _CaseText on CaseFlow {
       if (s.id != 'amount' && s.id != 'salary') continue;
       final v = file.n(s.id);
       if (v == null) continue;
-      parts.add(
-          'رقم را «${Sense.toman(v)}» فهمیدم؛ اگر منظورتان چیز دیگری بود، با واحدش بنویسید (مثلاً «۳۰ میلیون» یا «۵۰۰ هزار»).');
+      parts.add(advocateFormat('ctNoteAmount', {'amount': Sense.toman(v)}));
       return;
     }
   }
@@ -115,8 +118,8 @@ extension _CaseText on CaseFlow {
       dialog.offer = 'argue';
       return _Ask(
           settled == Standing.strong
-              ? 'تا اینجا آن‌قدر می‌دانم که بگویم دست شما چقدر پر است؛ بگویم؟'
-              : 'با همین‌ها می‌توانم بگویم گرهِ کار کجاست و چطور باز می‌شود؛ بگویم؟',
+              ? advocateText('ctNextSettledStrong')
+              : advocateText('ctNextSettledOpen'),
           _yesNo);
     }
     if (q != null) {
@@ -129,7 +132,7 @@ extension _CaseText on CaseFlow {
       var lead = '';
       if (served.isNotEmpty) {
         if (c == 0 && dialog.lastServed.isNotEmpty && served != dialog.lastServed) {
-          lead = 'حالا دربارهٔ «$served»: ';
+          lead = advocateFormat('ctNextServedLead', {'served': served});
         }
         dialog.lastServed = served;
       }
@@ -162,14 +165,13 @@ extension _CaseText on CaseFlow {
         !file.covered.contains('f:argue') &&
         file.covered.add('o:argue')) {
       dialog.offer = 'argue';
-      return const _Ask(
-          'می‌خواهید بگویم از نظر قانون دست شما چقدر پر است؟', _yesNo);
+      return _Ask(advocateText('ctNextAskArgue'), _yesNo);
     }
     if (t.follow['next'] != null &&
         !file.covered.contains('f:next') &&
         file.covered.add('o:next')) {
       dialog.offer = 'next';
-      return const _Ask('قدم‌های عملی را به ترتیب بگویم؟', _yesNo);
+      return _Ask(advocateText('ctNextAskNext'), _yesNo);
     }
     if (!file.covered.contains('o:draft')) {
       for (final id in draftIds) {
@@ -178,8 +180,9 @@ extension _CaseText on CaseFlow {
         file.covered.add('o:draft');
         dialog.offer = 'draft';
         dialog.offerDraft = id;
-        return _Ask('می‌خواهید «$title» را با همین اطلاعات برایتان بنویسم؟',
-            const ['بله، بنویس', 'نه، لازم نیست']);
+        return _Ask(
+            advocateFormat('ctNextAskDraft', {'title': title}),
+            [advocateText('ctDraftChipYes'), advocateText('ctDraftChipNo')]);
       }
     }
     return const _Ask('', []);
@@ -189,42 +192,38 @@ extension _CaseText on CaseFlow {
   String react(String id, String n) {
     final unsure = Sense.words(n) <= 5 && Sense.saysDontKnow(n);
     if (id == 'q:reply') {
-      if (unsure) {
-        return 'اشکالی ندارد. اگر بعداً حرفی زد یا پیامی داد، نگهش دارید؛ به کار می‌آید.';
-      }
+      if (unsure) return advocateText('ctReactReplyUnsure');
       if (Sense.has(n,
           'جواب ن|تلفن|بلاک|غیب|گم و گور|در دسترس|پیداش|خاموش|فرار|رفته')) {
-        return 'پس عملاً در دسترس نیست. نگران این نباشید؛ ابلاغ رسمی برای همین وقت‌هاست و غیبت او جلوی کار شما را نمی‌گیرد.';
+        return advocateText('ctReactReplyOffline');
       }
       if (Sense.has(n,
           'انکار|قبول ن|زیر بار|حاشا|گردن ن|نمیدم|نمیده |نمیدهد|دروغ|منکر')) {
-        return 'پس زیر بار نمی‌رود؛ یعنی با حرف حل نمی‌شود و همه‌چیز به مدرک شما برمی‌گردد.';
+        return advocateText('ctReactReplyDeny');
       }
       if (Sense.has(n,
           'امروز و فردا|امروز فردا|قول|میدم|میده |میدهد|صبر|وقت بده|مهلت|ندارم|نداره|دستم خالی|وضعم')) {
-        return 'پس اصل حرف شما را رد نمی‌کند و فقط عقب می‌اندازد. این به نفع شماست: هر پیام یا قولی که داده نگه دارید، چون نشان می‌دهد خودش هم حق شما را قبول دارد.';
+        return advocateText('ctReactReplyStall');
       }
       if (Sense.has(n, 'تهدید|فحش|فحاشی|دعوا|داد و بیداد|کتک|توهین')) {
-        return 'این برخورد را جدی بگیرید و هر پیام یا صدایی که دارید نگه دارید؛ خودش می‌تواند موضوع شکایت جداگانه باشد.';
+        return advocateText('ctReactReplyThreat');
       }
       if (Sense.has(n,
           'هیچی|چیزی نگفت|حرف نزد|نگفتم|نگفته ام|هنوز ن|خبر نداره|نپرسیدم')) {
-        return 'پس هنوز رسماً از او نخواسته‌اید. معمولاً قدم اول همین است که خواسته‌تان را طوری به او برسانید که بعداً قابل اثبات باشد.';
+        return advocateText('ctReactReplyUnasked');
       }
-      return 'خوب شد که گفته‌اید؛ این را کنار بقیهٔ ماجرا یادداشت کردم.';
+      return advocateText('ctReactReplyOther');
     }
-    if (unsure) {
-      return 'اشکالی ندارد؛ لازم نیست همین حالا تصمیم بگیرید. هر دو راه را جلوی شما می‌گذارم: اول توافق، و اگر جواب نداد مسیر قانونی.';
-    }
+    if (unsure) return advocateText('ctReactGoalUnsure');
     if (Sense.has(n,
         'توافق|سازش|صلح|دوستانه|مسالمت|کنار بیا|زود|بی دردسر|آبرو|کدخدامنشی')) {
-      return 'پس اول راهِ توافق را امتحان می‌کنیم: خواسته‌تان را رسمی ولی محترمانه اعلام می‌کنید و مهلت می‌دهید. اگر جواب نداد، مسیر قانونی سر جایش است.';
+      return advocateText('ctReactGoalPeace');
     }
     if (Sense.has(n,
         'قانونی|شکایت|دادگاه|تا آخر|تا اخر|تا ته|حقمو|حقم|کوتاه نمیام|محکوم')) {
-      return 'پس مسیر رسمی را می‌رویم؛ از همین حالا باید مدرک‌ها را مرتب کنیم.';
+      return advocateText('ctReactGoalLaw');
     }
-    return 'متوجه شدم؛ همین را هدف می‌گیرم.';
+    return advocateText('ctReactGoalOther');
   }
 
 }

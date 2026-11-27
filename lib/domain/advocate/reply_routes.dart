@@ -98,16 +98,16 @@ class ReplyRoutes {
       if (x != ChipTexts.newCaseChip && file.topic.isNotEmpty) {
         dialog.pendingTopic = null;
         return _out(
-          'باشد، ماجرای تازهای هم هست.',
-          ask: 'اول ماجرای جاری را تمام میکنیم یا میخواهید آنرا کنار بگذارید؟',
+          advocateText('rrNewCaseBusyBody'),
+          ask: advocateText('rrNewCaseBusyAsk'),
           chips: [ChipTexts.newTopicChip, ChipTexts.leaveChip],
         );
       }
       flow.closeCase();
       dialog.loose.clear();
       return _out(
-        'باشد، آن موضوع را کنار می‌گذارم.',
-        ask: 'ماجرای تازه چیست؟ از هر جا که راحت‌ترید شروع کنید.',
+        advocateText('rrNewCaseDropBody'),
+        ask: advocateText('rrNewCaseDropAsk'),
       );
     }
     return null;
@@ -118,8 +118,8 @@ class ReplyRoutes {
     // «گزینه‌ای وجود ندارد»: اعتراض به نبودن راه خروج. راه خروج را نشان می‌دهیم.
     if (DraftWords.isComplaintNoOption(raw)) {
       return _out(
-        'درست می‌گویید؛ راه خروج را روشن نگفته بودم. برای بیرون آمدن از این موضوع، «انصراف» یا «موضوع تازه‌ای دارم» را بزنید یا همان را بنویسید.',
-        ask: 'می‌خواهید این موضوع را کنار بگذاریم یا ادامه دهیم؟',
+        advocateText('rrNoOptionBody'),
+        ask: advocateText('rrNoOptionAsk'),
         chips: const [ChipTexts.newCaseChip],
       );
     }
@@ -159,7 +159,7 @@ class ReplyRoutes {
         // «خیر» یعنی همان پرونده؛ این را صریح می‌گوییم تا کاربر نداند که
         // برنامه سرگردان شده است.
         return AdvocateReply(
-          'باشد، همین پرونده را ادامه می‌دهیم.\n\n${r.text}',
+          advocateFormat('rrPendingContinue', {'text': r.text}),
           chips: r.chips,
           laws: r.laws,
           source: r.source,
@@ -185,11 +185,9 @@ class ReplyRoutes {
         Sense.has(n,
             'جر ?و ?بحث|بگو ?مگو|دعوای لفظی|دعوا(?:م|مون)? (?:شد|کردم)|بحث(?:م|مون)? (?:شد|کردیم|کردم)')) {
       return _out(
-        'دعوای لفظی به‌تنهایی جرم نیست؛ دادگاه برای «حرف زدن» پرونده باز نمی‌کند. '
-        'اگر در همان دعوا تهدید، توهین یا برخورد فیزیکی هم بوده، هر کدام مسیر '
-        'جداگانه‌ای دارد و باید بگویید کدام پیش آمده.',
-        ask: 'در آن دعوا چه چیزی اتفاق افتاد؛ فقط حرف بود، تهدید شد، یا برخورد فیزیکی هم شد؟',
-        chips: const ['فقط حرف بود', 'تهدید شد', 'برخورد فیزیکی شد'],
+        advocateText('rrFightBody'),
+        ask: advocateText('rrFightAsk'),
+        chips: advocateTextSeq('rrFightChip', 3),
       );
     }
     return null;
@@ -212,9 +210,8 @@ class ReplyRoutes {
           (Sense.words(n) <= 3 && Sense.saysNo(n))) {
         dialog.branchAsked = true;
         return _out(
-          'باشد.',
-          ask:
-              'پس خودتان بگویید: چه اتفاقی افتاده و طرف مقابل کیست؟ هرچه بیشتر تعریف کنید بهتر می‌فهمم.',
+          advocateText('rrChoiceNoneBody'),
+          ask: advocateText('rrChoiceNoneAsk'),
           chips: ChipTexts.branchChips,
         );
       }
@@ -233,9 +230,8 @@ class ReplyRoutes {
       flow.closeCase();
       dialog.loose.clear();
       return _out(
-        'ببخشید، اشتباه برداشت کردم.',
-        ask:
-            'موضوع شما چیست؟ با یکی دو جمله بگویید چه شده و طرف مقابل کیست.',
+        advocateText('rrWrongGuessBody'),
+        ask: advocateText('rrWrongGuessAsk'),
         chips: talkRoute.branchStart(),
       );
     }
@@ -264,7 +260,7 @@ class ReplyRoutes {
     if (voice.offeredMore && rest.isNotEmpty && short && Sense.saysNo(n)) {
       final t0 = picker.current();
       if (t0 != null) return flow.finish(t0, [_pick(Say.fine)]);
-      return _out(_pick(Say.fine), ask: 'چیز دیگری هست که بخواهید بدانید؟');
+      return _out(_pick(Say.fine), ask: advocateText('rrMoreDoneAsk'));
     }
     return null;
   }
@@ -285,8 +281,7 @@ class ReplyRoutes {
               Sense.has(n, '^ (?:بگو|بگید|بگویید|حتما|لطفا|ادامه) '))) {
         flow.clearOffer();
         if (offer == 'draft') {
-          return _out(
-              'برای نوشتنش کافی است بگویید «بنویس»؛ چند سؤال کوتاه می‌پرسم و متن را آماده می‌کنم.');
+          return _out(advocateText('rrOfferDraftBody'));
         }
         return reply(offer == 'argue' ? 'استدلالت چیه؟' : 'قدم بعدی چیست؟',
             again: true);
@@ -339,8 +334,11 @@ class ReplyRoutes {
       // کاربر می‌گوید همان پرونده است؛ اشارهٔ کناری را رها می‌کنیم.
       final cur = picker.current();
       if (cur != null) {
-        return _out('باشد، همین پرونده را ادامه می‌دهیم.',
-            ask: dialog.askText.isEmpty ? 'ادامه بدهید.' : dialog.askText, chips: dialog.askChips);
+        return _out(advocateText('rrSideContinueBody'),
+            ask: dialog.askText.isEmpty
+                ? advocateText('rrSideContinueAsk')
+                : dialog.askText,
+            chips: dialog.askChips);
       }
     }
     return null;
@@ -361,12 +359,14 @@ class ReplyRoutes {
         final span = due.span.label;
         final end = due.end.fa;
         return _out(
-          'حساب تقویمی‌اش این می‌شود: ${due.start.fa} به‌اضافهٔ $span می‌شود $end. '
-          'در مهلت‌های قانونی معمولاً روز ابلاغ حساب نمی‌شود؛ با آن قاعده مهلت از ${due.startNext.fa} شروع می‌شود و آخرین روزش $end است. '
-          'ولی اینکه این مهلت در قانون $span است یا نه، به نوع رأی و مرجع ابلاغ‌کننده بستگی دارد و متن آن را در بانک ندارم؛ '
-          'پس همین عدد را با متن قانون یا دفتر خدمات قضایی تطبیق دهید.',
-          ask: 'این مهلت مربوط به اعتراض، تجدیدنظر یا فرجام است؟',
-          chips: const ['اعتراض', 'تجدیدنظر', 'فرجام'],
+          advocateFormat('rrDeadlineBody', {
+            'start': due.start.fa,
+            'span': span,
+            'end': end,
+            'startNext': due.startNext.fa,
+          }),
+          ask: advocateText('rrDeadlineAsk'),
+          chips: advocateTextSeq('rrDeadlineChip', 3),
         );
       }
     }
@@ -378,9 +378,9 @@ class ReplyRoutes {
     // کاربر همان حرف قبلی‌اش را دوباره فرستاده: دوباره از اول نمی‌پرسیم.
     if (hasCase && Understanding.isRepeat(prevN, n)) {
       return _out(
-        'این را پیش‌تر گفته‌اید و چیز تازه‌ای در آن نیست؛ همان ماجرا را در نظر دارم و از همان‌جا ادامه می‌دهم.',
+        advocateText('rrRepeatBody'),
         ask: dialog.askText.isEmpty
-            ? 'چه تغییری کرده، یا دقیقاً چه می‌خواهید بدانید؟'
+            ? advocateText('rrRepeatAsk')
             : dialog.askText,
         chips: dialog.askChips,
       );
@@ -393,17 +393,13 @@ class ReplyRoutes {
     // ثبت طلاق و تعارض قوانین: پاسخ مستند به متن قانون.
     final divorce = Understanding.divorceRegistration(n);
     if (divorce != null) {
-      return _out(divorce,
-          ask: 'گواهی عدم امکان سازش را گرفته‌اید، و آیا به دفترخانه تسلیم کرده‌اید؟',
-          full: true);
+      return _out(divorce, ask: advocateText('rrDivorceAsk'), full: true);
     }
     // قاعدهٔ تعارض پیش از فهرست مواد: پرسشی که شرط قرارداد و حق قانونی را
     // با هم دارد، باید با همان قاعده جواب بگیرد، نه با یک ارجاع ساده.
     final rule = Understanding.conflictRule(n);
     if (rule != null) {
-      return _out(rule,
-          ask: 'این حکم برای همین پرونده است؟ اگر بگویید چه شده، همان را روی متن قانون می‌سنجم.',
-          full: true);
+      return _out(rule, ask: advocateText('rrConflictAsk'), full: true);
     }
     return null;
   }

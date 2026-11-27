@@ -74,8 +74,8 @@ lib/core/                      موتور BM25F، worker، law_index، رمزن�
                                تاریخچه (history_models + history_store)، مهاجرت
 lib/domain/advocate/           قاعدهها و مسیرهای پاسخ؛ DialogueState اکنون
                                نمایانهای نازک روی پنج تکهٔ dialogue_sections است؛
-                               متن ثابت اجاره از rent_texts_loader و متن ثابت
-                               بخش مشترک و ۲۳ موضوع دیگر از topic_texts_loader میآید
+                               متن ثابت از rent_texts_loader، topic_texts_loader
+                               و advocate_texts_loader میآید
 lib/domain/lawyer/            راهنماهای حقوقی
 lib/domain/                   تنظیمات، قالبها، بازخورد و پیشنویس
 lib/ui/                        صفحات گفتگو، تاریخچه، تنظیمات، اطلاعات و رضایت
@@ -83,6 +83,7 @@ android/.../MainActivity.kt    Keystore/AES-GCM، FLAG_SECURE، متد probe
 assets/brain/topics/           دو قرارداد جدا: index.json (مسیرهای تصمیم)
                                و rent_texts.json (متن ثابت اجاره، ۵۲۵ کلید)
 assets/brain/topic_texts.json  متن ثابت بخش مشترک و ۲۳ موضوع دیگر (۱٬۱۰۶ کلید در ۲۴ بخش)
+assets/brain/advocate_texts.json متن ثابت عمومی وکیل: واژه‌نامه، ایمنی، گفت‌وگو و استدلال (۴۷۰ کلید در ۱۸ بخش)
 dev/tools/ + tests/python/     نگهبانهای قرارداد، اندازه، ساختار و اعتماد محتوا
 docs/                         معماری، قراردادها، بدهیها، نقشهٔ فازها
 ```
@@ -93,7 +94,7 @@ docs/                         معماری، قراردادها، بدهیها،
 (سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
 ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
 
-برای فاز ۱ِ «متن به داده»، تمام نثرِ آزادِ هر ۲۴ موضوع و بخش مشترک به JSON منتقل شد:
+برای فاز ۱ِ «متن به داده»، تمام نثرِ آزادِ کل لایهٔ وکیل (۲۴ موضوع، بخش مشترک و ۲۱ فایل عمومی) به JSON منتقل شد:
 - **موضوع اجاره (`assets/brain/topics/rent_texts.json`):** ۵۲۵ کلید (۶۷٬۹۷۱ نویسه) در
   یازده جدول (`texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`،
   `effects`، `slots`، `issues`، `recaps`)؛ در Dart فقط پوستهٔ `rentText(id)`، الگوهای
@@ -101,13 +102,19 @@ docs/                         معماری، قراردادها، بدهیها،
 - **بخش مشترک و ۲۳ موضوع غیرِاجاره (`assets/brain/topic_texts.json`):** ۱٬۱۰۶ کلید
   (۱۲۱٬۷۰۵ نویسه) در ۲۴ بخش (`shared`، `labor`، `family` و ۲۱ موضوعِ `accused` تا
   `theft`) با بارگذار صریح `loadTopicTexts()` و خوانش `topicText(section, key)`.
-- **جمع کل:** ۱٬۶۳۱ کلید (۱۸۹٬۶۷۶ نویسه) و **صفر نثر آزاد باقی‌مانده** در کلِ
-  `lib/domain/advocate/topics/*.dart`.
-`tests/python/test_rent_text_equivalence.py` و `tests/python/test_topic_text_equivalence.py`
-برابری هش پیش/پسِ انتقال، مصرف ۱۰۰٪ کلیدها، نبود نثر آزادِ جدید در کد موضوع‌ها و
-درستی استنادهای `[[کلید:شماره]]` را می‌سنجند؛ `text_manifest.json` نیز ۶۵ فایل متن‌دار
-را قفل می‌کند. بارگذاری در `main.dart` و `flutter_test_config.dart` صریح است؛
-نبودِ هر بخش یا کلید، خطای صریح می‌دهد نه جایگزینِ بی‌صدا.
+- **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۰ کلید (۲۹٬۴۰۷ نویسه)
+  در ۱۸ بخش (واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال؛ تمام
+  ۲۱ فایلِ غیرموضوعیِ `lib/domain/advocate/*.dart`) با بارگذار صریح
+  `loadAdvocateTexts()` و خوانش `advocateText` / `advocateFormat` / `advocateTextSeq`.
+- **جمع کل:** ۲٬۱۰۱ کلید (۲۱۹٬۰۸۳ نویسه) و **صفر نثر آزاد باقی‌مانده** در کلِ
+  `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`.
+`tests/python/test_rent_text_equivalence.py`،
+`tests/python/test_topic_text_equivalence.py` و
+`tests/python/test_advocate_text_equivalence.py` برابری هش پیش/پسِ انتقال، مصرف
+۱۰۰٪ کلیدها، نبود نثر آزادِ جدید در کد و درستی استنادهای `[[کلید:شماره]]` را
+می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند. بارگذاری در
+`main.dart` و `flutter_test_config.dart` صریح است؛ نبودِ هر بخش یا کلید، خطای
+صریح می‌دهد نه جایگزینِ بی‌صدا.
 
 ## توسعه و بررسی
 

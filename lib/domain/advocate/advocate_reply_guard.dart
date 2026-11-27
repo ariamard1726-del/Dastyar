@@ -16,8 +16,8 @@ extension _ReplyGuards on Advocate {
     dialog.loose.clear();
     dialog.branchAsked = true;
     return _out(
-      'باشد، این موضوع را کنار گذاشتم.',
-      ask: 'موضوع تازه‌تان چیست؟',
+      advocateText('guardLeaveBody'),
+      ask: advocateText('guardLeaveAsk'),
       chips: ChipTexts.branchChips,
     );
   }
@@ -32,9 +32,8 @@ extension _ReplyGuards on Advocate {
     if (hasCase) return null;
     if (!Sense.has(n, 'مهلت') || !Sense.has(n, 'اعتراض|ابلاغ')) return null;
     return _out(
-      'مهلت اعتراض معمولاً از تاریخ ابلاغ شمرده می‌شود، ولی مدت دقیق به نوع رأی و مرجع بستگی دارد و متن آن قانون در بانک من نیست. '
-      'برای همین، ابلاغ‌نامه و تاریخ دقیق آن را نگه دارید و پیش از گذشتن مهلت، با وکیل یا دفتر خدمات قضایی تأیید کنید.',
-      ask: 'رأی یا تصمیمی که ابلاغ شده از کدام مرجع است؟ تاریخ ابلاغ را هم بگویید.',
+      advocateText('guardObjectionBody'),
+      ask: advocateText('guardObjectionAsk'),
       full: true,
     );
   }
@@ -125,8 +124,8 @@ extension _ReplyGuards on Advocate {
     dialog.loose.clear();
     if (nb != null && ns >= 3) return _open(nb, fixed);
     return _out(
-      'ببخشید، برداشتم اشتباه بود. موضوع را دوباره بفرمایید: چه اتفاقی افتاده است؟',
-      ask: 'طرف مقابل کیست و دقیقاً چه کرده است؟',
+      advocateText('guardCorrectionBody'),
+      ask: advocateText('guardCorrectionAsk'),
       chips: _branchStart(),
     );
 

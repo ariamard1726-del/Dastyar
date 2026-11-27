@@ -57,12 +57,19 @@ AdvocateReply? lawTerms(String raw, String n) {
     final words = tm.matched.map((w) => '«$w»').join('، ');
     final gap = tm.missing.isEmpty
         ? ''
-        : ' واژهٔ ${tm.missing.map((w) => '«$w»').join('، ')} در این ماده نیست.';
+        : advocateFormat('termMissingWord', {
+            'words': tm.missing.map((w) => '«$w»').join('، '),
+          });
     voice.rest = '';
     voice.offeredMore = false;
     return AdvocateReply(
-      'در «$lawName» ${PersianText.toFaDigits(c.title)} واژه‌های $words با هم آمده‌اند.$gap\n\n${c.body}\n\n'
-      'این ماده لزوماً حکم اصلی ماجرای شما نیست؛ اگر بگویید چه شده، می‌سنجم که به همین ماده مربوط است یا نه.',
+      advocateFormat('termMatched', {
+        'lawName': lawName,
+        'title': PersianText.toFaDigits(c.title),
+        'words': words,
+        'gap': gap,
+        'body': c.body,
+      }),
       laws: [
         LawText(c.title, c.source, c.body, '',
             status: engine.meta[c.lawId]?['status']?.toString() ?? ''),
@@ -77,14 +84,15 @@ AdvocateReply? lawTerms(String raw, String n) {
   // نگفتم» و چه چیزی کمکش می‌کند — نه اینکه فهرست واژه‌های ناشناس ببیند.
   final unknownText = unknown.isEmpty
       ? ''
-      : 'واژه‌های ${unknown.map((w) => '«$w»').join('، ')} با همین ریخت در '
-          'هیچ‌یک از قوانین من نیست (شاید با تعبیر دیگری آمده باشد). ';
+      : advocateFormat('termUnknownWords', {
+          'unknown': unknown.map((w) => '«$w»').join('، '),
+        });
   return _out(
-    '$unknownText'
-    'واژه‌های ${known.map((w) => '«$w»').join('، ')} در متن قوانین من هست، ولی '
-    'ماده‌ای که همهٔ این‌ها را با هم داشته باشد پیدا نکردم؛ حدس نمی‌زنم و '
-    'مادهٔ بی‌ربط هم نمی‌آورم.',
-    ask: 'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟',
+    advocateFormat('termNotAllFound', {
+      'unknownText': unknownText,
+      'known': known.map((w) => '«$w»').join('، '),
+    }),
+    ask: advocateText('termNotAllFoundAsk'),
   );
 }
 
@@ -121,7 +129,7 @@ AdvocateReply? _topicLeaf(Map<String, dynamic> flow, String leafId) {
   }
   final refs = laws.map((l) => '«${l.title}»').join('، ');
   final text = '${leaf['title']}\n\n${leaf['text']}'
-      '${refs.isEmpty ? '' : '\n\nمواد مستند: ${PersianText.toFaDigits(refs)}'}\n\n'
+      '${refs.isEmpty ? '' : advocateFormat('topicLeafRefs', {'refs': PersianText.toFaDigits(refs)})}\n\n'
       '${flow['disclaimer'] ?? ''}';
   voice.rest = '';
   voice.offeredMore = false;

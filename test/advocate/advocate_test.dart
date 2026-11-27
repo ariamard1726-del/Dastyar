@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import '../support/reply_shape.dart';
@@ -46,6 +47,7 @@ void main() {
     }
     yield* loadedRentTexts.values;
     yield* loadedTopicTexts.values;
+    yield* loadedAdvocateTexts.values;
   }
 
   test('هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست', () {

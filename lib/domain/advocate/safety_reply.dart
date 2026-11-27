@@ -40,21 +40,23 @@ class SafetyReply {
     // «الان در خطر هستم» جوابِ پرسش خودِ ماست و باید سریع‌ترین راه را بدهد.
     if (asksSelfHarm(n)) {
       return _out(
-        'اگر همین حالا ممکن است به خودتان آسیب بزنید، لطفاً فوراً کسی را '
-        'که به او اعتماد دارید خبر کنید و ۱۱۰ یا ۱۱۵ را بگیرید. در ماجرای '
-        'خانوادگی، اورژانس اجتماعی ۱۲۳ هم شبانهروزی پاسخ میدهد. من یک '
-        'دستیار حقوقی آفلاینم و نمیتوانم در این لحظه جای کمک فوری را بگیرم. '
-        'وقتی ایمن شدید، اگر ماجرای حقوقیای هست، آنرا مطرح میکنیم.',
-        ask: 'آیا کسی همین حالا نزدیک شماست و جای امنی هستید؟',
-        chips: const ['الان امن هستم', 'هنوز در خطر هستم'],
+        advocateText('safetySelfHarmText'),
+        ask: advocateText('safetySelfHarmAsk'),
+        chips: [
+          advocateText('safetyChipSafeNow'),
+          advocateText('safetyChipDangerNow'),
+        ],
         source: AnswerSource.safety,
       );
     }
     if (asksDanger(n)) {
       return _out(
-        'اگر همین حالا کسی در خطر است، اول از محل دور شوید و ۱۱۰ یا ۱۱۵ را بگیرید. اگر درگیری خانوادگی است، اورژانس اجتماعی ۱۲۳ هم شبانه‌روزی پاسخ می‌دهد. تا وقتی امن نشده، هیچ فرایند حقوقی را شروع نکنید؛ هرچه اتفاق افتاد را با تاریخ و ساعت یادداشت کنید و اگر آسیب جسمی دارید، پیش از محو شدن اثرش به پزشکی قانونی بروید.',
-        ask: 'آیا الان جای امنی هستید و کسی همراهتان است؟',
-        chips: const ['الان امن هستم', 'هنوز در خطر هستم'],
+        advocateText('safetyDangerText'),
+        ask: advocateText('safetyDangerAsk'),
+        chips: [
+          advocateText('safetyChipSafeNow'),
+          advocateText('safetyChipDangerNow'),
+        ],
         source: AnswerSource.safety,
       );
     }
@@ -66,17 +68,23 @@ class SafetyReply {
             'خاله|عمه|عمو|دایی|مادر|پدر|برادر|خواهر|شوهر|زنم|همسرم|بچه|پسرم|دخترم|مادرم|پدرم|خانواده|نامادری|ناپدری');
     if (called) {
       return _out(
-        'خوب کردید که زنگ زدید. اگر درگیری ادامه دارد، از جای امن دور شوید و دوباره ۱۱۰ یا ۱۱۵ را بگیرید. اگر ماجرا در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند.',
-        ask: 'الان وضعیت چطور است؟ آیا کسی هنوز در خطر است؟',
-        chips: const ['الان در خطر هستم', 'الان امن است'],
+        advocateText('safetyCalledText'),
+        ask: advocateText('safetyCalledAsk'),
+        chips: [
+          advocateText('safetyChipInDanger'),
+          advocateText('safetyChipSafe'),
+        ],
         source: AnswerSource.safety,
       );
     }
     if (violent) {
       return _out(
-        'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.',
-        ask: 'الان کسی در خطر است؟',
-        chips: const ['الان در خطر هستم', 'الان امن است'],
+        advocateText('safetyViolentText'),
+        ask: advocateText('safetyViolentAsk'),
+        chips: [
+          advocateText('safetyChipInDanger'),
+          advocateText('safetyChipSafe'),
+        ],
         source: AnswerSource.safety,
       );
     }

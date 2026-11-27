@@ -14,6 +14,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LIB = os.path.join(ROOT, 'lib')
+BRAIN = os.path.join(ROOT, 'assets', 'brain')
 
 # عبارت‌هایی که هیچ‌جا در متنِ پاسخ نباید بیایند.
 BANNED = {
@@ -30,6 +31,20 @@ def _dart_files():
                 yield os.path.join(base, f)
 
 
+def _brain_json_files():
+    for rel in (
+        'assets/brain/advocate_texts.json',
+        'assets/brain/topic_texts.json',
+        'assets/brain/topics/rent_texts.json',
+        'assets/brain/topics/cheque.json',
+        'assets/brain/guides/legal_guides.json',
+        'assets/replies.json',
+    ):
+        path = os.path.join(ROOT, rel)
+        if os.path.exists(path):
+            yield path
+
+
 def _code_only(path):
     """سورس بدون کامنت: هم `//` و هم `///` و هم بلوک `/* */`."""
     with open(path, encoding='utf-8') as f:
@@ -43,6 +58,13 @@ class ToneTests(unittest.TestCase):
         bad = []
         for path in _dart_files():
             body = _code_only(path)
+            for phrase, why in BANNED.items():
+                if phrase in body:
+                    bad.append('%s → «%s» (%s)' %
+                               (os.path.relpath(path, ROOT), phrase, why))
+        for path in _brain_json_files():
+            with open(path, encoding='utf-8') as f:
+                body = f.read()
             for phrase, why in BANNED.items():
                 if phrase in body:
                     bad.append('%s → «%s» (%s)' %

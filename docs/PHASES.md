@@ -165,27 +165,36 @@
   ۱۲۱٬۷۰۵ نویسه؛ سر جمعِ ۲۴ موضوع و `shared`: **۱٬۶۳۱ کلید**) به JSON
   منتقل شدند و با `loadTopicTexts()` و `topicText(section, key)` خوانده
   می‌شوند (`topic_texts_loader.dart`).
-- `test_topic_text_equivalence.py` مصرف ۱۰۰٪ کلیدها، نبود نثر آزاد در هر
-  ۲۴ موضوع و `shared.dart`، برابری هش و شمار رشته‌های هر ۲۴ بخش با متنِ
-  پیش از جابه‌جایی، و اعتبار تمام استنادهای `[[کلید:شماره]]` درون JSONها
-  را می‌سنجد؛ `text_manifest.json` هم اکنون ۶۵ فایل متن‌دار را قفل می‌کند.
+- **متن‌های عمومی وکیل (`assets/brain/advocate_texts.json`):** در موج ج، تمام
+  نثرِ ثابتِ ۲۱ فایل غیرموضوعیِ `lib/domain/advocate/*.dart` (`glossary.dart`،
+  `phrases.dart`، `understanding.dart`، `reply_voice.dart`،
+  `advocate_constants.dart`، `safety_reply.dart`، `advocate_meta.dart`،
+  `talk_route.dart`، `talk_reply.dart`، `advocate_talk.dart`،
+  `topic_picker.dart`، `reply_routes.dart`، `case_text.dart`،
+  `advocate_argue.dart`، `law_answer.dart`، `term_reply.dart`،
+  `guide_reply.dart`، `case_answer.dart`، `advocate_reply*.dart`) در ۱۸ بخش
+  (**۴۷۰ کلید** و ۲۹٬۴۰۷ نویسه؛ سر جمعِ کل نثر وکیل در سه دارایی: **۲٬۱۰۱ کلید**)
+  به JSON منتقل شد و از راه `loadAdvocateTexts()` و `advocateText` /
+  `advocateFormat` / `advocateTextSeq` خوانده می‌شود (`advocate_texts_loader.dart`).
+- `test_topic_text_equivalence.py` و `test_advocate_text_equivalence.py` مصرف
+  ۱۰۰٪ کلیدها، نبود نثر آزاد در هر ۲۴ موضوع، `shared.dart` و ۲۱ فایل عمومی
+  وکیل، برابری هش و شمار رشته‌ها با متنِ پیش از جابه‌جایی، تطابق جای‌نگهدارهای
+  `advocateFormat` و اعتبار تمام استنادهای `[[کلید:شماره]]` درون JSONها را
+  می‌سنجند؛ `text_manifest.json` هم اکنون ۶۶ فایل متن‌دار را قفل می‌کند.
 - **تصمیمِ مرز دارایی:** `assets/brain/topics/` فقط شامل `index.json`،
-  `cheque.json` و `rent_texts.json` می‌ماند؛ `topic_texts.json` در
-  `assets/brain/` قرار دارد تا قراردادِ موضوع‌های تصویب‌شده برهم نخورد.
+  `cheque.json` و `rent_texts.json` می‌ماند؛ `topic_texts.json` و
+  `advocate_texts.json` در `assets/brain/` قرار دارند تا قراردادِ موضوع‌های
+  تصویب‌شده برهم نخورد.
 
 **باقی‌ماندهٔ فاز ۱ (ثبت‌شده، پوشانده‌نشده):**
 
-1. ۱۵ مقدار گزینه‌ایِ متصل به قالبها در `rent_fill.dart` و الگوهای
-   Regex/شرطهای پرونده و closureهای تصمیم در Dartاند؛ بخشِ **نثرِ ثابتِ
-   آزادِ هر ۲۴ موضوع و `shared.dart`** در `rent_texts.json` (۵۲۵ کلید) و
-   `topic_texts.json` (۱٬۱۰۶ کلید) کامل شده است.
-2. نثرِ ثابتِ فارسی در فایل‌های **غیرموضوعیِ** `lib/domain/advocate/*.dart`
-   (`glossary.dart`، `talk_route.dart`، `phrases.dart`، `advocate_argue.dart`،
-   `understanding.dart`، `talk_reply.dart`، `reply_routes.dart`،
-   `case_text.dart`، `safety_reply.dart`، `advocate_meta.dart`،
-   `advocate_reply.dart`، `law_answer.dart` و …) و نیز تأیید رسمیِ ۰/۲۴
-   متنِ قانون هنوز در کد و پیش‌نویس مانده‌اند. **این بدهی با برچسب باقی
-   می‌ماند، نه اینکه «همهٔ متنها در دادهاند» ادعا شود.**
+1. ۱۵ مقدار گزینه‌ایِ متصل به قالبها در `rent_fill.dart`، برچسب‌های ساختاری و
+   الگوهای Regex/شرطهای پرونده و closureهای تصمیم در Dartاند؛ بخشِ **نثرِ ثابتِ
+   آزادِ کل لایهٔ وکیل** (۲۴ موضوع، `shared.dart` و ۲۱ فایل عمومی) در
+   `rent_texts.json` (۵۲۵ کلید)، `topic_texts.json` (۱٬۱۰۶ کلید) و
+   `advocate_texts.json` (۴۷۰ کلید؛ سر جمع ۲٬۱۰۱ کلید) کامل شده است.
+2. تأیید رسمیِ ۰/۲۴ متنِ قانون هنوز انجام نشده و این بدهی با برچسب باقی
+   می‌ماند، نه اینکه «همهٔ متنها تأیید شده‌اند» ادعا شود.
 
 **معیارِ پذیرش:** ۱۳۰/۱۳۰ سناریو بی‌تغییر؛ `flutter test` بی‌تغییر؛ زمانِ
 `KnowledgeEngine.load()` بدتر نشود (سنجشِ CI موجود در `test/engine/load_budget_test.dart`)؛

@@ -12,8 +12,9 @@
 | سریال‌شدن پروندهٔ گفتگو | `CaseFile.toJson/fromJson` + `CaseFile.schemaVersion` | — | `test/advocate/case_file_json_test.dart` |
 | ماندن پرونده در تاریخچه پس از راهاندازی مجدد | محمولهٔ رمزنگاریشدهٔ `history_v1:m:<id>` (`v: 4`) | `HistoryStore._readSession` | `test/app/case_persistence_test.dart` (با `HistoryStore` تازه؛ قالب ۴ وضعیت گفتگو را هم بازمیگرداند) |
 | صدق تیک «محافظت از صفحه» | نتیجهٔ کانال بومی `setSecureScreen` | `AppSettings.applySecureScreenAtStartup` | `test/app/settings_failure_test.dart` |
-| ارجاع‌های `[[کلید:شماره]]` در دانش وکیل | متن قوانین | `python dev/tools/check_refs.py` + `test_law_citations_inside_text_assets_resolve` | `test/advocate/advocate_test.dart` (روی `.dart`، `rent_texts.json` و `topic_texts.json`) + `tests/python/test_topic_text_equivalence.py` |
+| ارجاع‌های `[[کلید:شماره]]` در دانش وکیل | متن قوانین | `python dev/tools/check_refs.py` + `test_law_citations_inside_*` | `test/advocate/advocate_test.dart` (روی `.dart`، `rent_texts.json`، `topic_texts.json` و `advocate_texts.json`) + `tests/python/test_topic_text_equivalence.py` + `tests/python/test_advocate_text_equivalence.py` |
 | متنِ ثابت موضوع‌های غیرِاجاره و بخش مشترک | `assets/brain/topic_texts.json` + `topic_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_topic_text_equivalence.py`، `test/domain/topic_texts_test.dart` |
+| متنِ ثابت عمومیِ وکیل (گفت‌وگو و استدلال) | `assets/brain/advocate_texts.json` + `advocate_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_advocate_text_equivalence.py`، `test/domain/advocate_texts_test.dart` |
 | شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |
 | قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |

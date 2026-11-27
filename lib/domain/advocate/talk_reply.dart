@@ -56,8 +56,8 @@ class TalkReply {
   AdvocateReply? hopeless(String n) {
     if (Sense.words(n) > 10 || !Sense.has(n, _hopelessPattern)) return null;
     return _out(
-      'هنوز برای ناامیدشدن زود است؛ تقریباً همیشه راهی هست.',
-      ask: 'چه اتفاقی افتاده؟',
+      advocateText('tpHopelessBody'),
+      ask: advocateText('tpHopelessAsk'),
       chips: _idleChips,
     );
   }
@@ -70,16 +70,20 @@ class TalkReply {
     }
     if (topic == null) {
       return _out(
-        'هنوز ماجرایی تعریف نکرده‌اید که خلاصه‌اش کنم.',
-        ask: 'چه شده؟ کوتاه هم بگویید کافی است.',
+        advocateText('tpSummaryEmptyBody'),
+        ask: advocateText('tpSummaryEmptyAsk'),
         chips: _idleChips,
       );
     }
-    final sb = StringBuffer('خلاصه و بدون حاشیه:\n');
+    final sb = StringBuffer(advocateText('tpSummaryHeader'));
     final got = recapOf(topic, file);
-    if (got.isNotEmpty) sb.write('• ماجرا: ${_join(got)}.\n');
+    if (got.isNotEmpty) {
+      sb.write(advocateFormat('tpSummaryStory', {'got': _join(got)}));
+    }
     final open = _sentences(_strip(topic.opening(file)));
-    if (open.isNotEmpty) sb.write('• حرف قانون: ${open.first}\n');
+    if (open.isNotEmpty) {
+      sb.write(advocateFormat('tpSummaryLaw', {'law': open.first}));
+    }
     final plan = topic.follow['next'];
     if (plan != null) {
       final steps = [
@@ -87,7 +91,7 @@ class TalkReply {
           if (RegExp('^[۰-۹]+[)]').hasMatch(l.trim())) _brief(l.trim()),
       ];
       if (steps.isNotEmpty) {
-        sb.write('• کاری که باید بکنید:\n');
+        sb.write(advocateText('tpSummaryTodo'));
         for (final s in steps.take(4)) {
           sb.write('   $s\n');
         }
@@ -95,7 +99,7 @@ class TalkReply {
     }
     final q = CasePlan.nextSlot(topic, file);
     if (q != null) {
-      sb.write('• چیزی که هنوز نمی‌دانم و مهم است: ${q.ask}');
+      sb.write(advocateFormat('tpSummaryMissing', {'ask': q.ask}));
     }
     return _out(sb.toString().trimRight(),
         chips: _suggest(topic), budget: _roomyBudget);
@@ -107,19 +111,19 @@ class TalkReply {
     if (Sense.has(n, 'ممنون|مرسی|متشکر|سپاس|دستت درد نکنه|دمت گرم|لطف کردی|تشکر')) {
       return _out(
         topic == null
-            ? 'خواهش می‌کنم. هر وقت سؤالی بود، همین‌جا هستم.'
+            ? advocateText('tpThanksIdle')
             : dialog.askText.isNotEmpty
-                ? 'خواهش می‌کنم.'
-                : 'خواهش می‌کنم. اگر در ادامهٔ کار به مشکلی خوردید یا طرف مقابل حرکت تازه‌ای کرد، همین‌جا بگویید تا قدم بعد را با هم بچینیم.',
+                ? advocateText('tpThanksAsked')
+                : advocateText('tpThanksCase'),
         chips: _idleChips,
       );
     }
     if (Sense.has(n, 'خداحافظ|خدانگهدار|خدا نگهدار|فعلا |بای ')) {
-      return _out('خدانگهدار. امیدوارم کارتان به‌خوبی پیش برود.');
+      return _out(advocateText('tpBye'));
     }
     if (Sense.has(n, '^ (?:سلام|درود|وقت بخیر|صبح بخیر|عصر بخیر|شب بخیر|خسته نباشی)')) {
       if (topic != null) {
-        return _out('سلام دوباره. پرونده‌تان را به خاطر دارم.',
+        return _out(advocateText('tpGreetCase'),
             ask: dialog.askText, chips: dialog.askChips);
       }
       // پیش‌تر سلام چهار ماجرای آمادهٔ دیگران را پیشنهاد می‌داد؛ کاربر تازه
@@ -127,24 +131,16 @@ class TalkReply {
       // (حقوقی/کیفری/اداری/نمی‌دانم) و راهِ انصراف هم روی دکمه‌ها هست.
       dialog.branchAsked = true;
       return _out(
-        'سلام، خوش آمدید.',
-        ask: 'مشکلتان چیست؟',
+        advocateText('tpGreetIdleBody'),
+        ask: advocateText('tpGreetIdleAsk'),
         chips: ChipTexts.branchChips,
       );
     }
     if (Sense.has(n,
         'خوبی|خوبید|چطوری|چطورید|حالت چطوره|حالتون چطوره|حال ?و ?احوال|چه خبر|خوب هستی|خوبین')) {
       // چرخش: هر نوبت جملهٔ دیگری، تا گفتگو تکراری به نظر نرسد.
-      const replies = [
-        'ممنون که می‌پرسید؛ من آماده‌ام.',
-        'مرسی، خوبم. شما چطورید؟',
-        'ممنون، سرحالم. اگر ماجرایی دارید، بگویید.',
-      ];
-      const asks = [
-        'چه کمکی از دستم برمی‌آید؟',
-        'چه چیزی شما را نگران کرده است؟',
-        'امروز چه کاری می‌توانم برایتان بکنم؟',
-      ];
+      final replies = advocateTextSeq('tpHowReply', 3);
+      final asks = advocateTextSeq('tpHowAsk', 3);
       final i = file.turns > 0 ? file.turns - 1 : 0;
       if (topic == null) {
         // همان جهت‌دهیِ سلام: اول شاخهٔ کار، بعد ماجرا.
@@ -177,33 +173,32 @@ class TalkReply {
     // کلمه‌های خودِ کاربر را نقل می‌کنم و توضیح می‌خواهم.
     if (!known) return unclearReply(raw);
     final heard = who.isNotEmpty
-        ? 'پس طرفِ ماجرا $who است.'
-        : 'گفتید «${_clip(raw)}».';
+        ? advocateFormat('tpCuriousParty', {'who': who})
+        : advocateFormat('tpCuriousQuote', {'quote': _clip(raw)});
     final k = dialog.loose.length;
     if (k <= 1) {
       return _out(area.isEmpty ? heard : '$heard $area',
           ask: who.isNotEmpty
-              ? 'دقیقاً چه اتفاقی افتاد و از چه زمانی؟'
+              ? advocateText('tpCuriousAskWho')
               : Sense.words(n) >= 4
-                  ? 'این از کِی پیش آمده و تا حالا برایش چه کرده‌اید؟'
-                  : 'طرف مقابل کیست و دقیقاً چه کرده است؟');
+                  ? advocateText('tpCuriousAskLong')
+                  : advocateText('tpCuriousAskShort'));
     }
     if (k == 2) {
-      return _out(area.isEmpty ? 'متوجه شدم.' : area,
-          ask:
-              'و خودتان الان چه می‌خواهید: مال یا پولتان برگردد، از او شکایت کنید، یا از خودتان دفاع کنید؟');
+      return _out(area.isEmpty ? advocateText('tpCuriousStep2Body') : area,
+          ask: advocateText('tpCuriousStep2Ask'));
     }
     // برای ماجرایی که تحلیل آماده ندارم، دست‌کم راهِ کلی را روراست می‌گویم.
     if (Sense.has(allN, 'پول|خسارت|پس بد|برگرد|غرامت|هزینه')) {
       return _out(
-        'برای این نوع ماجرا تحلیل آماده‌ای ندارم، ولی راه کلیِ پس‌گرفتن پول یا خسارت این است: اول کتبی و قابل اثبات مطالبه کنید (پیام یا اظهارنامهٔ رسمی)، و اگر نداد، دادخواست مطالبهٔ وجه یا خسارت بدهید.',
-        ask: 'مبلغش حدوداً چقدر است و چه مدرکی از این ماجرا دارید؟',
+        advocateText('tpCuriousMoneyBody'),
+        ask: advocateText('tpCuriousMoneyAsk'),
       );
     }
     if (Sense.has(allN, 'شکایت|مجازات|زندان|جرم')) {
       return _out(
-        'برای این نوع ماجرا تحلیل آماده‌ای ندارم، ولی راه کلیِ شکایت این است: شکوائیه را با مدارکتان در دفتر خدمات الکترونیک قضایی ثبت می‌کنید و دادسرا رسیدگی را شروع می‌کند.',
-        ask: 'چه مدرک یا شاهدی از این ماجرا دارید؟',
+        advocateText('tpCuriousCrimBody'),
+        ask: advocateText('tpCuriousCrimAsk'),
       );
     }
     return unclearReply(raw);
@@ -228,16 +223,11 @@ class TalkReply {
     if (dialog.unclearPhrase.isNotEmpty && dialog.unclearTurn == file.turns - 1) {
       dialog.unclearPhrase = '';
       dialog.unclearTurn = -10;
-      return 'هنوز مطمئن نیستم چه اتفاقی را بررسی کنیم، و حدس‌زدن هم به ضرر '
-          'شماست. من در این موضوع‌ها کار می‌کنم: اجاره و ودیعه، کار و حقوق، '
-          'چک و طلب، خانواده، ارث، همسایه و ملک، خرید و مصرف‌کننده، تصادف، '
-          'و شکایت و دفاع. اگر ماجرای شما در یکی از این‌هاست، در یک جمله '
-          'بگویید چه کسی چه کاری کرد؛ اگر نیست، صادقانه بگویم که تحلیل '
-          'آماده‌ای برایش ندارم و باید با وکیل مشورت کنید.';
+      return advocateText('tpUnclearRepeat');
     }
     dialog.unclearPhrase = _quoteWords(raw);
     dialog.unclearTurn = file.turns;
-    return 'منظورتان از «${dialog.unclearPhrase}» چیست؟ کمی بیشتر توضیح می‌دهید؟';
+    return advocateFormat('tpUnclearFirst', {'phrase': dialog.unclearPhrase});
   }
 
   /// همان پاسخِ نامفهوم، ولی این بار با دکمه‌های شروع تا کاربر در بن‌بست
@@ -255,8 +245,8 @@ class TalkReply {
     return _out(
       text,
       ask: stuck
-          ? 'کدام‌یک به ماجرای شما نزدیک‌تر است؟'
-          : 'اگر یکی از این‌ها نزدیک است، همان را بزنید:',
+          ? advocateText('tpUnclearStuckAsk')
+          : advocateText('tpUnclearChipsAsk'),
       chips: out,
     );
   }
