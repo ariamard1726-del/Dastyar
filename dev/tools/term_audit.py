@@ -33,7 +33,8 @@ STR = r"'((?:[^'\\]|\\.)*)'"
 
 def dart_turns():
     """همهٔ پیام‌های کاربر (لیست دوم هر _Case) را از فایل سناریو استخراج می‌کند."""
-    src = open(SCENARIOS, encoding='utf-8').read()
+    with open(SCENARIOS, encoding='utf-8') as f:
+        src = f.read()
     out = []
     for m in re.finditer(r"_Case\(\s*" + STR + r"\s*,\s*\[((?:\s*" + STR + r"\s*,?)*)\]", src):
         for t in re.findall(STR, m.group(2)):
@@ -75,7 +76,8 @@ def main(argv):
     regress = 0
 
     if not turns_only:
-        cases = json.load(open(os.path.join(ROOT, 'tests', 'law_terms', 'cases.json'), encoding='utf-8'))
+        with open(os.path.join(ROOT, 'tests', 'law_terms', 'cases.json'), encoding='utf-8') as f:
+            cases = json.load(f)
         _, fails = LT.run_cases()
         lines += ['## نمونه‌های رگرسیون (cases.json)', '',
                   'شکست: %d از %d' % (len(fails) if isinstance(fails, list) else 0, len(cases)), '']
@@ -84,7 +86,8 @@ def main(argv):
             lines += ['- شکست: ' + str(f) for f in fails]
             lines.append('')
 
-        audit = json.load(open(AUDIT, encoding='utf-8'))
+        with open(AUDIT, encoding='utf-8') as f:
+            audit = json.load(f)
         lines += ['## پرسش‌های سخت (audit.json)', '',
                   '| وضعیت | پرسش | نتیجه | دلیل |', '|---|---|---|---|']
         open_n = ok_n = 0
@@ -116,7 +119,8 @@ def main(argv):
                                                     '، '.join(res['unknown']) or '—'))
     text = '\n'.join(lines) + '\n'
     os.makedirs(os.path.dirname(REPORT), exist_ok=True)
-    open(REPORT, 'w', encoding='utf-8').write(text)
+    with open(REPORT, 'w', encoding='utf-8') as f:
+        f.write(text)
     print(text)
     return 1 if regress else 0
 

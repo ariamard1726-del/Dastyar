@@ -19,7 +19,8 @@ class TopicFlowTests(unittest.TestCase):
     def test_heldout_majority_correct(self):
         # مجموعهٔ کنترل: نتیجه گزارش می‌شود؛ حداقل نیمی از آن باید درست باشد.
         flow = TF.load()
-        g = json.load(open(os.path.join(ROOT, 'tests', 'topics', 'cheque_heldout.json'), encoding='utf-8'))
+        with open(os.path.join(ROOT, 'tests', 'topics', 'cheque_heldout.json'), encoding='utf-8') as f:
+            g = json.load(f)
         ok = sum(1 for x in g if TF.route(x['q'], flow) == x['leaf'])
         self.assertGreaterEqual(ok, len(g) // 2)
 

@@ -29,7 +29,11 @@ ap.add_argument('--out')
 ap.add_argument('--force', action='store_true', help='با وجود تعارض بنویس و نسخهٔ بلندتر را نگه دار')
 a = ap.parse_args()
 
-text = open(a.raw, encoding='utf-8').read().replace('\r', '')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lawtext import FA_DIGITS as FA  # noqa: E402
+
+with open(a.raw, encoding='utf-8') as _f:
+    text = _f.read().replace('\r', '')
 
 # --- یکدست‌سازی حروف (ي ك عربی، کشیده، فاصلهٔ قبل از نیم‌فاصله)
 for old, new in (('ي', 'ی'), ('ك', 'ک'), ('ة', 'ه'), ('ـ', ''), ('ۀ', 'هٔ'),
@@ -41,7 +45,6 @@ text = re.sub(r'[ \t]+', ' ', text)
 
 CHAPTER = re.compile(r'^(فصل|باب|بخش|مبحث)\s.{0,80}$')
 MARK = re.compile(r'ماده\s*([0-9۰-۹]+)\s*(مکرر\s*[0-9۰-۹]*)?\s*[-–—]\s*')
-FA = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
 
 arts = []          # (key, chapter, text)
 chapter = ''
@@ -147,7 +150,8 @@ for key in order:
     out_lines += [key, body, '']
 dest = os.path.join(LAWS, a.out)
 os.makedirs(os.path.dirname(dest), exist_ok=True)
-open(dest, 'w', encoding='utf-8').write('\n'.join(out_lines).rstrip() + '\n')
+with open(dest, 'w', encoding='utf-8') as _f:
+    _f.write('\n'.join(out_lines).rstrip() + '\n')
 
 # متن تازه‌واردشده همیشه «تطبیق‌نشده» ثبت می‌شود؛ verified را فقط
 # dev/tools/law_registry.py verify می‌نویسد، بعد از مقایسهٔ ماده‌به‌ماده با منبع.

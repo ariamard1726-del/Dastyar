@@ -47,7 +47,8 @@ class PipelineCheckTests(unittest.TestCase):
 
     def test_pipeline_json_is_declared_asset(self):
         # اگر فایل در APK نباشد، آزمون Dart و کد نمی‌توانند به آن برسند.
-        pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+        with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as f:
+            pubspec = f.read()
         self.assertIn('assets/pipeline.json', pubspec)
 
     def test_every_order_entry_has_a_note(self):

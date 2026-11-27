@@ -119,7 +119,8 @@ def check():
         path = os.path.join(TEST_DIR, name + '_gold.json')
         if not os.path.isfile(path):
             continue
-        gold = json.load(open(path, encoding='utf-8'))
+        with open(path, encoding='utf-8') as f:
+            gold = json.load(f)
         for g in gold:
             gold_all.append(g)
             got = route(g['q'], flow)

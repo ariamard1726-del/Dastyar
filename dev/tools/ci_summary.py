@@ -2,10 +2,11 @@ import os
 import re
 import sys
 
-test_f, data_f, dst, sha = sys.argv[1:5]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ci_annotate import blocks, cross_blocks, cut  # noqa: E402
 
 
-def read(p):
+def read_lines(p):
     try:
         with open(p, encoding='utf-8', errors='replace') as f:
             return f.read().splitlines()
@@ -13,62 +14,38 @@ def read(p):
         return []
 
 
-def cut(s):
-    return s.replace('/home/runner/work/Dastyar/Dastyar/', '').strip()[:300]
+def summarize(test_f, data_f, dst, sha):
+    lines = read_lines(test_f)
+    out = ['commit: ' + sha[:7]]
+    summ = [cut(l, 300, ellipsis=False) for l in lines
+            if re.search(r'\d+ tests? passed|All tests passed', l)]
+    out += summ[-1:] or ['(خلاصهٔ تست پیدا نشد)']
 
+    if os.environ.get('DATA_FAILED') == '1':
+        out.append('--- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---')
+        out += [cut(l, 300, ellipsis=False) for l in read_lines(data_f)[-15:]]
 
-lines = read(test_f)
-out = ['commit: ' + sha[:7]]
-summ = [cut(l) for l in lines
-        if re.search(r'\d+ tests? passed|All tests passed', l)]
-out += summ[-1:] or ['(خلاصهٔ تست پیدا نشد)']
-
-if os.environ.get('DATA_FAILED') == '1':
-    out.append('--- بررسی داده‌ها شکست خورد (آخرین خط‌ها) ---')
-    out += [cut(l) for l in read(data_f)[-15:]]
-
-# بلوک‌های تست ناموفقِ «flutter test» (خروجی compact با نشانگر [E])
-status_re = re.compile(r'^\d{2}:\d{2} \+\d+')
-i = 0
-while i < len(lines):
-    if ' [E]' in lines[i]:
+    for head, detail in blocks(lines, max_detail=20, detail_only=False, limit=300, ellipsis=False):
         out.append('--- تست ناموفق ---')
-        out.append(cut(lines[i]))
-        j, k = i + 1, 0
-        while j < len(lines) and k < 20 and not status_re.match(lines[j]):
-            t = cut(lines[j])
-            if t and not t.startswith(('package:', 'dart:')):
-                out.append('   ' + t)
-                k += 1
-            j += 1
-        i = j
-    else:
-        i += 1
+        out.append(head)
+        out.extend('   ' + t for t in detail)
 
-i = 0
-while i < len(lines):
-    if '❌' in lines[i]:
-        out.append(cut(lines[i]))
-        j, k = i + 1, 0
-        while (j < len(lines) and k < 8
-               and '❌' not in lines[j] and '✅' not in lines[j]):
-            t = cut(lines[j])
-            if t and not t.startswith(('package:', 'dart:')):
-                out.append('   ' + t)
-                k += 1
-            j += 1
-        i = j
-    else:
-        i += 1
+    for head, detail in cross_blocks(lines, max_detail=8, skip_ci_prefix=False, limit=300, ellipsis=False):
+        out.append(head)
+        out.extend('   ' + t for t in detail)
 
-errs = [cut(l) for l in lines
-        if re.search(r': Error:|Compilation failed|Failed to load', l)]
-if errs:
-    out.append('--- خطای کامپایل ---')
-    out += errs[:15]
+    errs = [cut(l, 300, ellipsis=False) for l in lines
+            if re.search(r': Error:|Compilation failed|Failed to load', l)]
+    if errs:
+        out.append('--- خطای کامپایل ---')
+        out += errs[:15]
 
-os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
-summary_text = '\n'.join(out[:140]) + '\n'
-with open(dst, 'w', encoding='utf-8') as f:
-    f.write(summary_text)
-print(summary_text, end='', flush=True)
+    os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
+    summary_text = '\n'.join(out[:140]) + '\n'
+    with open(dst, 'w', encoding='utf-8') as f:
+        f.write(summary_text)
+    return summary_text
+
+
+if __name__ == '__main__':
+    print(summarize(*sys.argv[1:5]), end='', flush=True)

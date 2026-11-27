@@ -94,27 +94,19 @@ docs/                         معماری، قراردادها، بدهیها،
 (سقف طول فایلها). `test_advocate_shape.py` و `test_engine_shape.py` هم
 ترتیب مسیرها و مرزهای کلاسهای اصلی را قفل میکنند.
 
-برای فاز ۱ِ «متن به داده»، تمام نثرِ آزادِ کل لایهٔ وکیل (۲۴ موضوع، بخش مشترک و ۲۱ فایل عمومی) به JSON منتقل شد:
-- **موضوع اجاره (`assets/brain/topics/rent_texts.json`):** ۵۲۵ کلید (۶۷٬۹۷۱ نویسه) در
-  یازده جدول (`texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`،
-  `effects`، `slots`، `issues`، `recaps`)؛ در Dart فقط پوستهٔ `rentText(id)`، الگوهای
-  Regex، شرطهای پرونده و ۱۵ مقدارِ گزینه‌ایِ متصل به قالبها در `rent_fill.dart` ماندند.
-- **بخش مشترک و ۲۳ موضوع غیرِاجاره (`assets/brain/topic_texts.json`):** ۱٬۱۰۶ کلید
-  (۱۲۱٬۷۰۵ نویسه) در ۲۴ بخش (`shared`، `labor`، `family` و ۲۱ موضوعِ `accused` تا
-  `theft`) با بارگذار صریح `loadTopicTexts()` و خوانش `topicText(section, key)`.
-- **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۰ کلید (۲۹٬۴۰۷ نویسه)
-  در ۱۸ بخش (واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال؛ تمام
-  ۲۱ فایلِ غیرموضوعیِ `lib/domain/advocate/*.dart`) با بارگذار صریح
-  `loadAdvocateTexts()` و خوانش `advocateText` / `advocateFormat` / `advocateTextSeq`.
-- **جمع کل:** ۲٬۱۰۱ کلید (۲۱۹٬۰۸۳ نویسه) و **صفر نثر آزاد باقی‌مانده** در کلِ
-  `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`.
-`tests/python/test_rent_text_equivalence.py`،
-`tests/python/test_topic_text_equivalence.py` و
-`tests/python/test_advocate_text_equivalence.py` برابری هش پیش/پسِ انتقال، مصرف
-۱۰۰٪ کلیدها، نبود نثر آزادِ جدید در کد و درستی استنادهای `[[کلید:شماره]]` را
-می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند. بارگذاری در
-`main.dart` و `flutter_test_config.dart` صریح است؛ نبودِ هر بخش یا کلید، خطای
-صریح می‌دهد نه جایگزینِ بی‌صدا.
+### دستاورد فازهای اخیر (۰ تا ۵ و ۷)
+
+- **فاز ۱ (متن به داده):** تمام نثرِ آزادِ کل لایهٔ وکیل (۲۴ موضوع، بخش مشترک و ۲۱ فایل عمومی) به JSON منتقل شد:
+  - **موضوع اجاره (`assets/brain/topics/rent_texts.json`):** ۵۲۵ کلید (۶۷٬۹۷۱ نویسه) در یازده جدول (`texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues`، `recaps`).
+  - **بخش مشترک و ۲۳ موضوع غیرِاجاره (`assets/brain/topic_texts.json`):** ۱٬۱۰۶ کلید (۱۲۱٬۷۰۵ نویسه) در ۲۴ بخش با بارگذار صریح `loadTopicTexts()` و خوانش `topicText(section, key)`.
+  - **نثر عمومی وکیل (`assets/brain/advocate_texts.json`):** ۴۷۰ کلید (۲۹٬۴۰۷ نویسه) در ۱۸ بخش (واژه‌نامه، عبارت‌های چرخشی، ایمنی، راهنما، گفت‌وگو و استدلال) با بارگذار صریح `loadAdvocateTexts()`.
+  - **جمع کل:** ۲٬۱۰۱ کلید (۲۱۹٬۰۸۳ نویسه) و **صفر نثر آزاد باقی‌مانده** در کلِ `lib/domain/advocate/*.dart` و `lib/domain/advocate/topics/*.dart`. `tests/python/test_{rent,topic,advocate}_text_equivalence.py` برابری هش، مصرف ۱۰۰٪ کلیدها و اعتبار استنادهای `[[کلید:شماره]]` را می‌سنجند؛ `text_manifest.json` نیز ۶۶ فایل متن‌دار را قفل می‌کند.
+- **فاز ۲ (اولویتِ صریح کاندیدها):** جدول صریحِ تمام ۱۹۰ جفتِ ممکنِ ۲۰ کاندیدِ پاسخ‌دهنده در `dev/tools/contracts/priority.json` + تولید خودکار `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (۱۱۳ جفت هم‌پوشان با فراخوانی واقعی و ۷۷ جفت جداگانه با اثبات ساختاری).
+- **فاز ۳ (قفلِ حلقهٔ بازگشت وکیل):** اعمال `ReplyLoopGuard` (`Advocate.maxReplyDepth = 1`، اجبار `again: true` از `ReplyRoutes`، ثبت `lastReplyDepth` و قفل افزایش دقیقاً یک‌واحدیِ `file.turns`) با ایندکس صریح قواعد در `docs/ARCHITECTURE.md` و نگهبان‌های `test_reply_recursion_contract.py` + `reply_recursion_test.dart`.
+- **فاز ۴ (یک منبع داده و کنترلرِ لاغر):** ادغام ورودی‌ها در `eval/` و خروجی‌ها در `reports/`، قفلِ نبود نسخهٔ تکراری با SHA-256 (`test_chat_controller_shape.py`)، و تفکیک `chat_controller.dart` (`۱۳۰` خط، زیر سقف ۱۵۰) به `DraftFlow`، `GuessFlow` و `ReplyFlow`.
+- **فاز ۵ (استارت و حافظهٔ واقعی):** نگه‌داشتن تنبل‌سازی `noql` (`۱۲٫۷۲ MB` از `۱۶٫۸۸ MB` دارایی)، حذف کشِ مضاعف در `lib/core/engine_load.dart` (`loadString(..., cache: false)` و آزادسازی فوری رشته‌های خام پس از نمایه‌سازی)، و ثبت خط پایه + دروازهٔ CI (`dev/tools/startup_gate.py` روی `reports/startup.txt`: بارگذاری سرد `1,140 ms` شامل `63 ms` خواندن فایل و `1,077 ms` نمایه‌سازی؛ `worker` با `1,082 ms`؛ نخستین پرسش `50 ms`؛ حافظه `253.8 MB`).
+- **فاز ۷ (یکپارچه‌سازی و زدودن تکرار در ابزارهای توسعه):** اشتراک پارس لاگ CI در `ci_annotate.py` و `ci_summary.py`، متمرکزکردن `AI_MARKERS`، ارقام فارسی/عربی (`digits`/`to_fa`) و خواندن `_meta.json` (`load_meta`/`law_files`) در `dev/tools/lawtext.py` برای هشت ابزار اصلی و اسکریپت‌های `dev/tools/synonyms/`، و بستن تمام `open()`های بی‌بست تا صفر `ResourceWarning` در کل آزمون‌های پایتون (`test_dev_tools_hygiene.py`).
+- **فاز ۶ (کاهش حجم مدل/Noql):** عمداً برای مرحلهٔ آخر و پس از بررسی جداگانه نگه داشته شده است.
 
 ## توسعه و بررسی
 
@@ -132,16 +124,13 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 **شرط صداقت:** در محیط نویسنده فقط `python3` موجود بود؛ `flutter` و `dart`
 محلاً نصب نبودند. بنابراین ابزارهای Dart در محل اجرا نشدند، ولی CI واقعاً
 اجرا شد و در هر گام خطاهای واقعی را آشکار کرد (از جمله خطاهای `DialogueState` و
-تکرار ایمنی در `9a02d9a` که در `dfb8875` رفع شدند، متن خالی `plan32` در
-`5525823` که در `a5abed2` رفع شد، و دو تستِ شمارشِ استنادهای `advocate_test.dart`
-پس از انتقال متنِ ۲۱ موضوع در `da62cd9` که در `4c7af12` به خواندن از
-`loadedRentTexts`/`loadedTopicTexts` به‌روز شدند). در آخرین اجرای سبز CI (کامیت
-`4c7af12`): `flutter analyze --fatal-warnings` با «No issues found»،
-`flutter test` با **۵۶۸ آزمون سبز** و هر دو مجموعهٔ سناریو (**۱۳۰/۱۳۰** و **۱۷/۱۷**)
-تأیید شد و هر سه کار CI (`Test`، `Lawyer Lab`، `Intent scenarios`) همه `success`اند
-(گزارشهای خودکار در `reports/lab/analyze.txt`، `reports/lab/failed.txt` و
-`reports/last_test.txt`). در محیط محلی ۳۱۱ آزمون پایتون و `check.py all` (از جمله
-`text` روی ۶۵ فایل و `refs` روی ۱۹۷ ارجاع) سبزاند، ولی `check.py trust` با ۰/۲۴
+تکرار ایمنی در `9a02d9a`، و آخرین اندازه‌گیری استارت و پوشش کد در `f98bb5d`). در آخرین اجرای سبز CI (کامیت
+`f98bb5d`): `flutter analyze --fatal-warnings` با «No issues found! (10.9s)»،
+`flutter test` با **۷۰۱ آزمون سبز**، پوشش کد **۸۴٫۵٪** (`8,661/10,250` خط)، خط پایهٔ استارت `1,140 ms` (`reports/startup.txt`) و هر دو مجموعهٔ سناریو (**۱۳۰/۱۳۰** و **۱۷/۱۷**)
+تأیید شد و تمام کارهای CI (`Test`، `Lawyer Lab`، `Intent scenarios`) `success`اند
+(گزارشهای خودکار در `reports/lab/analyze.txt`، `reports/lab/failed.txt`، `reports/coverage.txt`، `reports/startup.txt` و
+`reports/last_test.txt`). در محیط محلی ۳۴۲ آزمون پایتون (با `-W error::ResourceWarning` صفر هشدار) و `check.py all` (از جمله
+`text` روی ۶۶ فایل و `refs` روی ۱۹۷ ارجاع) سبزاند، ولی `check.py trust` با ۰/۲۴
 قانون تأییدشده و ۲/۹ قالب بازبینیشده قرمز است — یعنی سبز بودنِ Dart/Python به
 معنای قابلانتشار بودن محتوای حقوقی نیست.
 
@@ -151,17 +140,10 @@ python3 dev/tools/check.py trust   # امروز انتظار میرود قرمز
 
 ## بدهیهای شناختهشده (پوشانده نشده)
 
-- عملکرد: مدل `noql.bin` حدود ۱۲٫۳MB است و در حافظهٔ شناور حدود ۳۳٫۸MB؛
-  ایندکس در worker و isolate اصلی کپی میشود. بودجههای ۱۵ ثانیه بارگذاری و
-  ۸ ثانیه هر نوبت، اندازهگیری p95 روی گوشی ردهپایین نیست.
+- عملکرد و حجم مدل (فاز ۶): مدل `assets/brain/noql*` حدود `12.72 MB` از کل `16.88 MB` دارایی است و به‌صورت تنبل در Isolate بارگذاری می‌شود؛ کاهش حجم مدل برای مرحلهٔ آخر (فاز ۶) مانده است. بودجهٔ CI برای استارت `15,000 ms` و نخستین پرسش `5,000 ms` است و بارگذاری سرد اندازه‌گیری‌شده در CI روی `reports/startup.txt` برابر `1,140 ms` (`RSS = 253.8 MB`) است (اندازه‌گیری p95 روی گوشی رده‌پایین هنوز نداریم).
 - دو مسیر (`guide_reply.dart`, `law_answer.dart`) هنوز `engine.query` را
   همگام صدا میزنند و `LawTerms.match` همگام است.
-- فاز ۱ هنوز کامل نیست: نثرِ آزادِ تمام ۲۴ موضوع و `shared.dart` به JSON
-  (`rent_texts.json` و `topic_texts.json`؛ جمعاً ۱٬۶۳۱ کلید) منتقل شده، ولی
-  ۱۵ مقدار گزینهایِ متصل به قالبها در `rent_fill.dart`، الگوهای Regex، closureهای
-  تصمیم و نثرِ ثابت در فایلهای غیرموضوعی `lib/domain/advocate/*.dart`
-  (`glossary.dart`، `talk_route.dart`، `phrases.dart`، `advocate_argue.dart` و …)
-  هنوز در Dartاند؛ بنابراین «همهٔ متنها در دادهاند» صادق نیست.
+- باقی‌ماندهٔ فاز ۱ (با برچسب بدهی): تمام نثرِ آزادِ کل لایهٔ وکیل (۲٬۱۰۱ کلید در `rent_texts.json`، `topic_texts.json` و `advocate_texts.json`) به داده منتقل شده است؛ تنها ۱۵ مقدار گزینه‌ایِ متصل به قالبها در `rent_fill.dart`، برچسب‌های ساختاری، الگوهای Regex و closureهای تصمیم در Dartاند، و متن قوانین هنوز با منبع رسمی تطبیق (`verified`) نشده است.
 - چهار جفت منطق Dart/Python تنها با guardهای parity و نمونههای مشترک هماهنگ
   نگه داشته میشوند؛ اپ پایتون مرجع تطبیق نیست.
 - ایمنی بر پایهٔ الگوهاست؛ ماشین حالتی با شدت و پنجرهٔ زمانی و پوشش کامل

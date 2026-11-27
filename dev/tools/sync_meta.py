@@ -14,20 +14,12 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lawtext import digits, load_meta, to_fa  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-META = os.path.join(ROOT, 'assets', 'laws', '_meta.json')
 CATALOG = os.path.join(ROOT, 'assets', 'laws_catalog.json')
 INFO = os.path.join(ROOT, 'assets', 'data_info.json')
-
-FA = '۰۱۲۳۴۵۶۷۸۹'
-
-
-def digits(s):
-    return s.translate(str.maketrans(FA + '٠١٢٣٤٥٦٧٨٩', '0123456789' * 2))
-
-
-def to_fa(s):
-    return s.translate(str.maketrans('0123456789', FA))
 
 
 def load(path):
@@ -40,7 +32,7 @@ def dump(obj):
 
 
 def build():
-    meta = json.loads(load(META))
+    meta = load_meta()
     catalog = json.loads(load(CATALOG))
     info = json.loads(load(INFO))
 

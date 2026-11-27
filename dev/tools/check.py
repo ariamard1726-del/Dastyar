@@ -31,21 +31,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import fnv, normalize  # noqa: E402  (آینهٔ PersianText در دارت)
+from lawtext import AI_MARKERS, digits, load_meta  # noqa: E402
 
 LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 TYPES = {'text', 'multiline', 'number', 'choice', 'check'}
 
 STRICT = os.environ.get('STRICT') == '1' or '--strict' in sys.argv
-
-# نشانهٔ متنی که ممکن است با هوش مصنوعی نوشته شده باشد، نه از منبع رسمی.
-AI_MARKERS = [
-    'هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
-    'chatgpt', 'gemini', 'claude', 'as an ai', 'language model',
-]
-
-
-def digits(s):
-    return s.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
 
 
 # ---------------------------------------------------------------- corpus
@@ -54,8 +45,7 @@ def cmd_corpus():
     warnings = []
 
     try:
-        with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as _f:
-            META = json.load(_f)
+        META = load_meta()
     except Exception as _e:
         META = {}
         errors.append('_meta.json: %s' % _e)
@@ -200,7 +190,8 @@ def cmd_corpus():
 def cmd_assets():
     fix = '--fix' in sys.argv
     P = os.path.join(ROOT, 'pubspec.yaml')
-    L = open(P, encoding='utf-8').read().split('\n')
+    with open(P, encoding='utf-8') as _f:
+        L = _f.read().split('\n')
     ents = [m.group(1) for l in L for m in [re.match(r'^    - (\S+)\s*$', l)] if m]
     files = {e for e in ents if not e.endswith('/')}
     need = []
@@ -225,7 +216,8 @@ def cmd_assets():
         if re.match(r'^  assets:\s*$', l):
             out += ['    - ' + e for e in sorted(files)] + ['    - ' + d for d in need]
             skip = True
-    open(P, 'w', encoding='utf-8').write('\n'.join(out))
+    with open(P, 'w', encoding='utf-8') as _f:
+        _f.write('\n'.join(out))
     print('fixed')
     return 0
 
@@ -241,8 +233,7 @@ def cmd_meta():
 
     require = ('--require-verified' in sys.argv
                or os.environ.get('REQUIRE_VERIFIED') == '1')
-    with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as f:
-        meta = json.load(f)
+    meta = load_meta()
     errors, warnings, verified = law_registry.validate(
         meta, LAWS_DIR, require_verified=require)
 
@@ -535,12 +526,14 @@ def bundle_problems(entries, dart_sources):
 
 
 def cmd_bundle():
-    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as _f:
+        pubspec = _f.read()
     dart = []
     for directory, _, files in os.walk(os.path.join(ROOT, 'lib')):
         for name in files:
             if name.endswith('.dart'):
-                dart.append(open(os.path.join(directory, name), encoding='utf-8').read())
+                with open(os.path.join(directory, name), encoding='utf-8') as _f:
+                    dart.append(_f.read())
     entries = bundle_entries(pubspec)
     bad = bundle_problems(entries, dart)
     if bad:
@@ -582,10 +575,11 @@ def noql_bundle_problems(entries):
 
 
 def cmd_noql():
-    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
-    reader = open(os.path.join(
-        ROOT, 'lib', 'domain', 'understanding', 'reader_service.dart'),
-        encoding='utf-8').read()
+    with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as _f:
+        pubspec = _f.read()
+    with open(os.path.join(ROOT, 'lib', 'domain', 'understanding', 'reader_service.dart'),
+              encoding='utf-8') as _f:
+        reader = _f.read()
     bad = noql_bundle_problems(bundle_entries(pubspec))
     for name, rel in NOQL_READER_PATHS.items():
         if "static const String %s = '%s';" % (name, rel) not in reader:
@@ -603,8 +597,7 @@ def cmd_trust():
     """دروازهٔ صداقتِ انتشار: محتوای حقوقیِ قابل استناد باید کاملاً بازبینی شده باشد."""
     import law_registry
 
-    with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as f:
-        meta = json.load(f)
+    meta = load_meta()
     errors, warnings, verified = law_registry.validate(
         meta, LAWS_DIR, require_verified=True)
     unreviewed = []

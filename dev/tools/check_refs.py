@@ -6,14 +6,18 @@
 """
 from __future__ import annotations
 
-import json
 import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+try:
+    from . import lawtext
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import lawtext  # noqa: E402
+
+ROOT = lawtext.ROOT
 REF = re.compile(r"\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]")
-PERSIAN = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 
 TEXT_JSON_ASSETS = (
     "assets/brain/advocate_texts.json",
@@ -23,15 +27,15 @@ TEXT_JSON_ASSETS = (
 
 
 def law_files() -> dict[str, Path]:
-    meta = json.loads((ROOT / "assets/laws/_meta.json").read_text(encoding="utf-8"))
-    return {k: ROOT / "assets/laws" / v["path"] for k, v in meta.items() if v.get("path")}
+    return lawtext.law_files()
 
 
 def article_exists(text: str, num: str, word: str = "ماده") -> bool:
     # ماده‌ها در متن قانون به شکل «ماده 35» یا «ماده ۳۵» در ابتدای سطر می‌آیند.
     # قانون اساسی به‌جای «ماده»، «اصل» دارد.
     pat = re.compile(
-        r"^\s*%s\s*(?:%s|%s)\s*$" % (word, re.escape(num), re.escape(num.translate(PERSIAN))),
+        r"^\s*%s\s*(?:%s|%s)\s*$"
+        % (word, re.escape(num), re.escape(lawtext.to_fa(num))),
         re.MULTILINE,
     )
     return bool(pat.search(text))

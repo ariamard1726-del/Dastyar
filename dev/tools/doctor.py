@@ -18,16 +18,13 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lawtext import ARTICLE, norm, parse  # noqa: E402  خوانندهٔ یکتای متنِ قانون
+from lawtext import AI_MARKERS, ARTICLE, norm, parse  # noqa: E402  خوانندهٔ یکتای متنِ قانون
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LAWS = os.path.join(ROOT, 'assets', 'laws')
 STRICT = '--strict' in sys.argv or os.environ.get('STRICT') == '1'
 
 errors, warnings, infos = [], [], []
-
-AI_MARKERS = ['هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
-              'chatgpt', 'gemini', 'claude', 'as an ai', 'language model']
 
 
 def load_json(path, label):
@@ -95,7 +92,8 @@ for full in sorted(all_files):
 sources_by_law = {}   # lid -> (فهرست منبع‌ها، مجموعهٔ عنوان مواد نرمال‌شده)
 for full, lid in sorted(registered.items(), key=lambda x: x[1]):
     rel = os.path.relpath(full, LAWS)
-    raw = open(full, 'rb').read()
+    with open(full, 'rb') as _f:
+        raw = _f.read()
     try:
         text = raw.decode('utf-8')
     except UnicodeDecodeError as e:
@@ -189,7 +187,8 @@ for tp in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json')))
 
 # ---------- ۷: pubspec ----------
 try:
-    ps = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as _f:
+        ps = _f.read()
     for m in re.finditer(r'^\s*-\s+(assets/\S+)\s*$', ps, re.M):
         if not os.path.exists(os.path.join(ROOT, m.group(1))):
             errors.append('pubspec.yaml: %s وجود ندارد' % m.group(1))

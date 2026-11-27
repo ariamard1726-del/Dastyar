@@ -37,6 +37,12 @@ import re
 import sys
 from urllib.parse import urlparse
 
+try:
+    from . import lawtext
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import lawtext  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 META = os.path.join(LAWS_DIR, '_meta.json')
@@ -53,9 +59,7 @@ OFFICIAL_HOSTS = {
     'rc.majlis.ir': 'مرکز پژوهش‌های مجلس شورای اسلامی',
 }
 
-FA = '۰۱۲۳۴۵۶۷۸۹'
-AR = '٠١٢٣٤٥٦٧٨٩'
-DATE_FA = re.compile(r'^[۰-۹]{4}/[۰-۹]{2}/[۰-۹]{2}$')
+DATE_FA = re.compile(r'^[\u06f0-\u06f9]{4}/[\u06f0-\u06f9]{2}/[\u06f0-\u06f9]{2}$')
 PERSIAN = re.compile(r'[\u0600-\u06FF]')
 SHELL = re.compile(
     r'(\bgit\b|\bpython3?\b|\bcat\b|\bnano\b|\btail\b|\bgrep\b|\bpush\b|'
@@ -67,11 +71,11 @@ SHA = re.compile(r'^[0-9a-f]{64}$')
 
 # ------------------------------------------------------------------ پایه
 def to_latin(s):
-    return s.translate(str.maketrans(FA + AR, '0123456789' * 2))
+    return lawtext.digits(s)
 
 
 def to_fa(s):
-    return s.translate(str.maketrans('0123456789' + AR, FA * 2))
+    return lawtext.to_fa(s)
 
 
 def sha256_of(path):
@@ -128,8 +132,7 @@ def today_fa():
 
 
 def load_meta(path=None):
-    with open(path or META, encoding='utf-8') as f:
-        return json.load(f)
+    return lawtext.load_meta(path=path or META)
 
 
 def save_meta(meta, path=None):
