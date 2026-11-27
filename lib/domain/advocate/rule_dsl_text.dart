@@ -1,12 +1,19 @@
 import 'package:dastyar/domain/advocate/case_state.dart';
 import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 import 'package:dastyar/domain/advocate/topics/shared.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
 enum SharedText { moneyCost, moneyTime, anyLawyer }
 
-enum NumFmt { toman, fa }
+enum NumFmt { toman, fa, span }
+
+String _formatNum(int v, NumFmt fmt) => switch (fmt) {
+      NumFmt.toman => Sense.toman(v),
+      NumFmt.fa => Sense.fa(v),
+      NumFmt.span => Sense.span(v),
+    };
 
 /// عبارت‌های متنیِ قاعده‌مند (`opening`، `effect`، `body`، `win`، `counter`،
 /// `because`، `follow`) و ساختار `Recap`/`Drafts`.
@@ -25,6 +32,17 @@ class Tx extends TextExpr {
 
   @override
   Map<String, dynamic> toJson() => {'op': 'topicText', 'key': key};
+}
+
+class TxRent extends TextExpr {
+  final String key;
+  const TxRent(this.key);
+
+  @override
+  String evalText(CaseFile f) => rentText(key);
+
+  @override
+  Map<String, dynamic> toJson() => {'op': 'rentText', 'key': key};
 }
 
 class TxRaw extends TextExpr {
@@ -67,18 +85,91 @@ class TxForum extends TextExpr {
 class TxNum extends TextExpr {
   final String factKey;
   final NumFmt fmt;
-  const TxNum(this.factKey, {this.fmt = NumFmt.toman});
+  final bool defaultZero;
+  const TxNum(this.factKey, {this.fmt = NumFmt.toman, this.defaultZero = false});
 
   @override
   String evalText(CaseFile f) {
-    final v = f.n(factKey);
+    final v = f.n(factKey) ?? (defaultZero ? 0 : null);
     if (v == null) return '';
-    return fmt == NumFmt.toman ? Sense.toman(v) : Sense.fa(v);
+    return _formatNum(v, fmt);
   }
 
   @override
-  Map<String, dynamic> toJson() =>
-      {'op': 'num', 'factKey': factKey, 'fmt': fmt.name};
+  Map<String, dynamic> toJson() => {
+        'op': 'num',
+        'factKey': factKey,
+        'fmt': fmt.name,
+        if (defaultZero) 'defaultZero': true,
+      };
+}
+
+class TxNumOffset extends TextExpr {
+  final String factKey;
+  final int delta;
+  final NumFmt fmt;
+  final bool defaultZero;
+  const TxNumOffset(
+    this.factKey,
+    this.delta, {
+    this.fmt = NumFmt.fa,
+    this.defaultZero = true,
+  });
+
+  @override
+  String evalText(CaseFile f) {
+    final base = f.n(factKey) ?? (defaultZero ? 0 : null);
+    if (base == null) return '';
+    return _formatNum(base + delta, fmt);
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'op': 'numOffset',
+        'factKey': factKey,
+        'delta': delta,
+        'fmt': fmt.name,
+        if (!defaultZero) 'defaultZero': false,
+      };
+}
+
+class TxScaleMul extends TextExpr {
+  final String baseKey;
+  final String scaleKey;
+  final double factor;
+  final int divisor;
+  final NumFmt fmt;
+  final bool divideFirst;
+  const TxScaleMul(
+    this.baseKey,
+    this.scaleKey,
+    this.factor, {
+    this.divisor = 12,
+    this.fmt = NumFmt.toman,
+    this.divideFirst = false,
+  });
+
+  @override
+  String evalText(CaseFile f) {
+    final s = f.n(baseKey);
+    final m = f.n(scaleKey);
+    if (s == null || m == null) return '';
+    final v = divideFirst
+        ? (s * factor * (m / divisor)).round()
+        : (s * factor * m / divisor).round();
+    return _formatNum(v, fmt);
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'op': 'scaleMul',
+        'baseKey': baseKey,
+        'scaleKey': scaleKey,
+        'factor': factor,
+        'divisor': divisor,
+        'fmt': fmt.name,
+        if (divideFirst) 'divideFirst': true,
+      };
 }
 
 class TxSwitch extends TextExpr {
@@ -156,6 +247,43 @@ class TxJoin extends TextExpr {
       };
 }
 
+class TxListJoin extends TextExpr {
+  final TextExpr? prefix;
+  final TextExpr separator;
+  final TextExpr? suffix;
+  final List<RecapItem> items;
+  final TextExpr? empty;
+  const TxListJoin({
+    this.prefix,
+    required this.separator,
+    this.suffix,
+    required this.items,
+    this.empty,
+  });
+
+  @override
+  String evalText(CaseFile f) {
+    final out = <String>[];
+    for (final item in items) {
+      if (item.when != null && !item.when!.evalCond(f)) continue;
+      final t = item.text.evalText(f);
+      if (t.isNotEmpty) out.add(t);
+    }
+    if (out.isEmpty) return empty?.evalText(f) ?? '';
+    return '${prefix?.evalText(f) ?? ''}${out.join(separator.evalText(f))}${suffix?.evalText(f) ?? ''}';
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'op': 'listJoin',
+        if (prefix != null) 'prefix': prefix!.toJson(),
+        'separator': separator.toJson(),
+        if (suffix != null) 'suffix': suffix!.toJson(),
+        'items': [for (final i in items) i.toJson()],
+        if (empty != null) 'empty': empty!.toJson(),
+      };
+}
+
 class RecapItem {
   final FactExpr? when;
   final TextExpr text;
@@ -179,22 +307,45 @@ class RecapRule {
   List<Map<String, dynamic>> toJson() => [for (final i in items) i.toJson()];
 }
 
+class DraftCase {
+  final FactExpr when;
+  final List<String> ids;
+  const DraftCase(this.when, this.ids);
+
+  Map<String, dynamic> toJson() => {'when': when.toJson(), 'ids': ids};
+}
+
 class DraftRule {
   final FactExpr? when;
   final List<String> thenIds;
   final List<String> elseIds;
+  final List<DraftCase> cases;
+
   const DraftRule.fixed(this.thenIds)
       : when = null,
-        elseIds = const [];
+        elseIds = const [],
+        cases = const [];
   const DraftRule.when(this.when,
-      {required this.thenIds, this.elseIds = const []});
+      {required this.thenIds, this.elseIds = const []})
+      : cases = const [];
+  const DraftRule.cases(this.cases, {this.elseIds = const []})
+      : when = null,
+        thenIds = const [];
 
-  List<String> evalDrafts(CaseFile f) =>
-      when == null || when!.evalCond(f) ? thenIds : elseIds;
+  List<String> evalDrafts(CaseFile f) {
+    if (cases.isNotEmpty) {
+      for (final c in cases) {
+        if (c.when.evalCond(f)) return c.ids;
+      }
+      return elseIds;
+    }
+    return when == null || when!.evalCond(f) ? thenIds : elseIds;
+  }
 
   Map<String, dynamic> toJson() => {
+        if (cases.isNotEmpty) 'cases': [for (final c in cases) c.toJson()],
         if (when != null) 'when': when!.toJson(),
-        'then': thenIds,
+        if (thenIds.isNotEmpty) 'then': thenIds,
         if (elseIds.isNotEmpty) 'else': elseIds,
       };
 }

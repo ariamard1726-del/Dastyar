@@ -63,8 +63,8 @@ class ReadAmount extends ReadRule {
 
 class ReadNumBefore extends ReadRule {
   final String unitPattern;
-  final int min;
-  final int max;
+  final int? min;
+  final int? max;
   final bool fallbackLoose;
   const ReadNumBefore(this.unitPattern,
       {this.min = 1, this.max = 100, this.fallbackLoose = false});
@@ -73,7 +73,9 @@ class ReadNumBefore extends ReadRule {
   String? evalRead(String n) {
     final v = Sense.numberBefore(n, unitPattern) ??
         (fallbackLoose ? Sense.looseAmount(n) : null);
-    if (v == null || v < min || v > max) return null;
+    if (v == null) return null;
+    if (min != null && v < min!) return null;
+    if (max != null && v > max!) return null;
     return '$v';
   }
 
@@ -81,10 +83,56 @@ class ReadNumBefore extends ReadRule {
   Map<String, dynamic> toJson() => {
         'op': 'numBefore',
         'unit': unitPattern,
-        'min': min,
-        'max': max,
+        if (min != null) 'min': min,
+        if (max != null) 'max': max,
         'fallbackLoose': fallbackLoose,
       };
+}
+
+class ReadMonths extends ReadRule {
+  final int min;
+  const ReadMonths({this.min = 1});
+
+  @override
+  String? evalRead(String n) {
+    final m = Sense.months(n);
+    if (m == null || m < min) return null;
+    return m.round().toString();
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {'op': 'months', 'min': min};
+}
+
+class ReadGuard extends ReadRule {
+  final String guardPattern;
+  final ReadRule inner;
+  const ReadGuard(this.guardPattern, this.inner);
+
+  @override
+  String? evalRead(String n) =>
+      Sense.has(n, guardPattern) ? inner.evalRead(n) : null;
+
+  @override
+  Map<String, dynamic> toJson() =>
+      {'op': 'guard', 'pattern': guardPattern, 'inner': inner.toJson()};
+}
+
+class ReadBeforeMatch extends ReadRule {
+  final String splitPattern;
+  final ReadRule inner;
+  const ReadBeforeMatch(this.splitPattern, this.inner);
+
+  @override
+  String? evalRead(String n) {
+    final m = Sense.rx(splitPattern).firstMatch(n);
+    final slice = m == null ? n : n.substring(0, m.end);
+    return inner.evalRead(slice);
+  }
+
+  @override
+  Map<String, dynamic> toJson() =>
+      {'op': 'beforeMatch', 'split': splitPattern, 'inner': inner.toJson()};
 }
 
 class ReadSaysNoOrHas extends ReadRule {

@@ -168,10 +168,11 @@ class Issue {
     required TextExpr body,
     FactExpr? when,
     this.covers = const {},
-    this.rank,
+    RankRule? rank,
   })    : body = body.evalText,
         when = when == null ? null : when.evalCond,
-        rules = IssueRules(body: body, when: when);
+        rank = rank == null ? null : rank.evalRank,
+        rules = IssueRules(body: body, when: when, rank: rank);
 }
 
 /// سندی که وکیل برای همین پرونده پیشنهاد می‌کند.
@@ -241,21 +242,29 @@ class Topic {
     DraftRule? drafts,
     this.claims = const [],
     List<RecapItem>? recap,
-    this.petition,
-    this.brief,
-    this.fill,
-    this.askReply,
+    FilingRule? petition,
+    FilingRule? brief,
+    FillRule? fill,
+    PromptRule? askReply,
   })    : gate = gate == null ? null : gate.evalGate,
         opening = opening.evalText,
         follow = {for (final e in follow.entries) e.key: e.value.evalText},
         drafts = drafts == null ? null : drafts.evalDrafts,
         recap = recap == null ? null : RecapRule(recap).evalRecap,
+        petition = petition == null ? null : petition.evalFiling,
+        brief = brief == null ? null : brief.evalFiling,
+        fill = fill == null ? null : fill.evalFill,
+        askReply = askReply == null ? null : askReply.evalPrompt,
         rules = TopicRules(
           gate: gate,
           opening: opening,
           follow: follow,
           drafts: drafts,
           recap: recap,
+          petition: petition,
+          brief: brief,
+          fill: fill,
+          askReply: askReply,
         );
 
   bool get isDeclarative => rules != null;

@@ -1,29 +1,52 @@
 part of 'rent.dart';
 
 // واقعیت‌هایی که وکیل در موضوعِ اجاره می‌پرسد یا از حرفِ کاربر می‌خواند.
-//
-// هر `Slot` یک پرسش، الگوی خواندنش و اثرِ حقوقی‌اش را کنارِ هم دارد؛ این فهرست
-// «چه می‌دانیم» است، نه «چه می‌گوییم».
+
+const FactExpr _needsContract = FactAny([
+  FactAll([
+    _landlordSide,
+    FactAny([FactNot(FactHas('aim')), FactEq('aim', 'evict'), FactEq('aim', 'unpaid')]),
+  ]),
+  FactAll([
+    _tenantSide,
+    FactAny([
+      FactNot(FactHas('matter')),
+      FactIn('matter', ['deposit', 'raise', 'repair', 'deliver']),
+    ]),
+  ]),
+]);
+
+const FactExpr _needsEnded = FactAny([
+  FactAll([
+    _landlordSide,
+    FactAny([FactNot(FactHas('aim')), FactEq('aim', 'evict')]),
+  ]),
+  FactAll([
+    _tenantSide,
+    FactNot(FactIn('matter', ['repair', 'leave', 'deliver'])),
+  ]),
+]);
 
 final List<Slot> _rentSlots = [
-  Slot(
+  Slot.dsl(
     id: 'role',
     first: true,
     // نقش با اشارهٔ گذرا یا نقلِ حرفِ طرف مقابل عوض نمی‌شود؛ فقط با حرفِ
     // صریحِ خودِ کاربر.
     sticky: true,
-    readSure: _rentRoleSaid,
+    readSure: _rentRoleSaidRead,
     ask: rentText('slotRoleAsk'),
     why: rentText('slotRoleWhy'),
     options: [rentText('slotRoleOpt0'), rentText('slotRoleOpt1')],
-    read: _rentRole,
-    readPending: (n) => Sense.has(n, 'موجر|صاحب|مالک')
-        ? 'landlord'
-        : (Sense.has(n, 'مستاجر') ? 'tenant' : null),
+    read: _rentRoleRead,
+    readPending: const ReadCases([
+      ReadCase('موجر|صاحب|مالک', 'landlord'),
+      ReadCase('مستاجر', 'tenant'),
+    ]),
     yesValue: '',
     noValue: '',
   ),
-  Slot(
+  Slot.dsl(
     id: 'matter',
     first: true,
     sticky: true,
@@ -38,13 +61,13 @@ final List<Slot> _rentSlots = [
       rentText('slotMatterOpt4'),
       rentText('slotMatterOpt5'),
     ],
-    read: _rentMatter,
+    read: _rentMatterRead,
     yesValue: '',
     noValue: '',
-    when: (f) => f.eq('role', 'tenant'),
-    effect: (f) => _matter(f, 'deposit') ? _rentDepositLaw() : '',
+    when: _isTenantRole,
+    effect: const TxCond(_mDeposit, _rentDepositLaw),
   ),
-  Slot(
+  Slot.dsl(
     id: 'aim',
     first: true,
     sticky: true,
@@ -57,172 +80,191 @@ final List<Slot> _rentSlots = [
       rentText('slotAimOpt2'),
       rentText('slotAimOpt3'),
     ],
-    read: _rentAim,
+    read: _rentAimRead,
     yesValue: '',
     noValue: '',
-    when: (f) => f.eq('role', 'landlord'),
+    when: _landlordSide,
     effect: _aimEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'official',
     ask: rentText('slotOfficialAsk'),
     why: rentText('slotOfficialWhy'),
     options: [rentText('slotOfficialOpt0'), rentText('slotOfficialOpt1')],
-    read: _rentOfficial,
-    readPending: (n) => Sense.has(n, 'خودش|حرف|نیومده|نیامده|نه هنوز')
-        ? 'no'
-        : (Sense.has(n, 'اومده|آمده|رسیده|ابلاغ شد') ? 'yes' : null),
-    when: (f) => _matter(f, 'evict'),
-    effect: (f) {
-      if (!_matter(f, 'evict')) return '';
-      return f.yes('official')
-          ? _rentOrderBody(f)
-          : rentText('effectSlotOfficialNo');
-    },
+    read: _rentOfficialRead,
+    readPending: const ReadCases([
+      ReadCase('خودش|حرف|نیومده|نیامده|نه هنوز', 'no'),
+      ReadCase('اومده|آمده|رسیده|ابلاغ شد', 'yes'),
+    ]),
+    when: _mEvict,
+    effect: const TxCond(
+      _mEvict,
+      TxCond(
+        FactYes('official'),
+        _rentOrderBody,
+        TxRent('effectSlotOfficialNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'vacated',
     ask: rentText('slotVacatedAsk'),
     why: rentText('slotVacatedWhy'),
     options: [rentText('slotVacatedOpt0'), rentText('slotVacatedOpt1')],
-    read: _rentVacated,
-    readPending: (n) => Sense.has(n, 'نکرد|هنوز| نه |ندادم|دست (?:خودمه|منه)')
-        ? 'no'
-        : (Sense.has(n, 'کردم|کرده ام|دادم| آره | اره | بله ') ? 'yes' : null),
+    read: _rentVacatedRead,
+    readPending: const ReadCases([
+      ReadCase('نکرد|هنوز| نه |ندادم|دست (?:خودمه|منه)', 'no'),
+      ReadCase('کردم|کرده ام|دادم| آره | اره | بله ', 'yes'),
+    ]),
     when: _rentDeposit,
-    effect: (f) => f.yes('vacated')
-        ? rentText('effectSlotVacatedYes')
-        : rentText('effectSlotVacatedNo'),
+    effect: const TxCond(
+      FactYes('vacated'),
+      TxRent('effectSlotVacatedYes'),
+      TxRent('effectSlotVacatedNo'),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'ended',
     ask: rentText('slotEndedAsk'),
     why: rentText('slotEndedWhy'),
     options: [rentText('slotEndedOpt0'), rentText('slotEndedOpt1')],
-    read: _rentEnded,
+    read: _rentEndedRead,
     when: _needsEnded,
     effect: _endedEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'contract',
     ask: rentText('slotContractAsk'),
     why: rentText('slotContractWhy'),
     options: [rentText('slotContractOpt0'), rentText('slotContractOpt1')],
-    read: _rentContract,
+    read: _rentContractRead,
     when: _needsContract,
     effect: _contractEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'witness',
     ask: rentText('slotWitnessAsk'),
     why: rentText('slotWitnessWhy'),
     options: [rentText('slotWitnessOpt0'), rentText('slotWitnessOpt1')],
-    read: _rentWitness,
-    when: (f) => _evicting(f) && f.yes('contract') && !f.no('ended'),
-    effect: (f) {
-      if (!f.eq('role', 'landlord')) return '';
-      return f.yes('witness')
-          ? rentText('effectSlotWitnessYes')
-          : rentText('effectSlotWitnessNo');
-    },
+    read: _rentWitnessRead,
+    when: const FactAll([_evicting, FactYes('contract'), FactNot(FactNo('ended'))]),
+    effect: const TxCond(
+      _landlordSide,
+      TxCond(
+        FactYes('witness'),
+        TxRent('effectSlotWitnessYes'),
+        TxRent('effectSlotWitnessNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'clause',
     ask: rentText('slotClauseAsk'),
     why: rentText('slotClauseWhy'),
     options: [rentText('slotClauseOpt0'), rentText('slotClauseOpt1')],
-    read: _rentClause,
-    when: (f) => (_evicting(f) && f.no('ended')) || _aim(f, 'breach'),
-    effect: (f) {
-      if (!f.eq('role', 'landlord')) return '';
-      return f.yes('clause')
-          ? rentText('effectSlotClauseYes')
-          : rentText('effectSlotClauseNo');
-    },
+    read: _rentClauseRead,
+    when: const FactAny([
+      FactAll([_evicting, FactNo('ended')]),
+      _aBreach,
+    ]),
+    effect: const TxCond(
+      _landlordSide,
+      TxCond(
+        FactYes('clause'),
+        TxRent('effectSlotClauseYes'),
+        TxRent('effectSlotClauseNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'proof',
     ask: rentText('slotProofAsk'),
     why: rentText('slotProofWhy'),
     options: [rentText('slotProofOpt0'), rentText('slotProofOpt1')],
-    read: _rentProof,
-    when: (f) => _aim(f, 'damage') || _aim(f, 'breach'),
-    effect: (f) {
-      if (!_aim(f, 'damage') && !_aim(f, 'breach')) return '';
-      return f.yes('proof')
-          ? rentText('effectSlotProofYes')
-          : rentText('effectSlotProofNo');
-    },
+    read: _rentProofRead,
+    when: const FactAny([_aDamage, _aBreach]),
+    effect: const TxCond(
+      FactAny([_aDamage, _aBreach]),
+      TxCond(
+        FactYes('proof'),
+        TxRent('effectSlotProofYes'),
+        TxRent('effectSlotProofNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'told',
     ask: rentText('slotToldAsk'),
     why: rentText('slotToldWhy'),
     options: [rentText('slotToldOpt0'), rentText('slotToldOpt1')],
-    read: _rentTold,
-    when: (f) => _matter(f, 'repair'),
-    effect: (f) {
-      if (!_matter(f, 'repair')) return '';
-      return f.yes('told')
-          ? rentText('effectSlotToldYes')
-          : rentText('effectSlotToldNo');
-    },
+    read: _rentToldRead,
+    when: _mRepair,
+    effect: const TxCond(
+      _mRepair,
+      TxCond(
+        FactYes('told'),
+        TxRent('effectSlotToldYes'),
+        TxRent('effectSlotToldNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'consent',
     ask: rentText('slotConsentAsk'),
     why: rentText('slotConsentWhy'),
     options: [rentText('slotConsentOpt0'), rentText('slotConsentOpt1')],
-    read: _rentConsent,
-    when: (f) => _matter(f, 'leave'),
-    effect: (f) {
-      if (!_matter(f, 'leave')) return '';
-      return f.yes('consent')
-          ? rentText('effectSlotConsentYes')
-          : rentText('effectSlotConsentNo');
-    },
+    read: _rentConsentRead,
+    when: _mLeave,
+    effect: const TxCond(
+      _mLeave,
+      TxCond(
+        FactYes('consent'),
+        TxRent('effectSlotConsentYes'),
+        TxRent('effectSlotConsentNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'amount',
     ask: rentText('slotAmountAsk'),
     why: rentText('slotAmountWhy'),
-    read: (n) => Sense.amount(n)?.toString(),
-    readPending: (n) => Sense.looseAmount(n)?.toString(),
+    read: const ReadAmount(),
+    readPending: const ReadAmount(loose: true),
     yesValue: '',
     noValue: '',
     when: _rentDeposit,
-    effect: (f) => _rentDeposit(f) ? moneyForum(f.n('amount')) : '',
+    effect: const TxCond(_rentDeposit, TxForum('amount')),
   ),
-  Slot(
+  Slot.dsl(
     id: 'due',
     ask: rentText('slotDueAsk'),
     why: rentText('slotDueWhy'),
-    read: (n) => Sense.amount(n)?.toString(),
-    readPending: (n) => Sense.looseAmount(n)?.toString(),
+    read: const ReadAmount(),
+    readPending: const ReadAmount(loose: true),
     yesValue: '',
     noValue: '',
-    when: (f) => _aim(f, 'unpaid') || _aim(f, 'damage'),
-    effect: (f) => _aim(f, 'unpaid') || _aim(f, 'damage')
-        ? moneyForum(f.n('due'))
-        : '',
+    when: const FactAny([_aUnpaid, _aDamage]),
+    effect: const TxCond(FactAny([_aUnpaid, _aDamage]), TxForum('due')),
   ),
   // واقعیت‌هایی که فقط از حرف کاربر خوانده می‌شوند و پرسیده نمی‌شوند.
-  Slot(
+  Slot.dsl(
     id: 'place',
     ask: '',
     why: '',
-    read: (n) => Sense.has(n,
-            'مغازه|تجاری|دکان|دکون|محل کسب|سرقفلی|حق کسب|پاساژ|دفتر کار|کارگاه')
-        ? 'shop'
-        : null,
+    read: const ReadCases([
+      ReadCase(
+        'مغازه|تجاری|دکان|دکون|محل کسب|سرقفلی|حق کسب|پاساژ|دفتر کار|کارگاه',
+        'shop',
+      ),
+    ]),
     yesValue: '',
     noValue: '',
   ),
-  Slot(
+  Slot.dsl(
     id: 'owes',
     ask: '',
     why: '',
-    read: (n) => Sense.has(n, _cUnpaid) ? 'yes' : null,
+    read: const ReadCases([ReadCase(_cUnpaid, 'yes')]),
     yesValue: '',
     noValue: '',
   ),

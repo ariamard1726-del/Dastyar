@@ -4,174 +4,205 @@ part of 'rent.dart';
 
 final List<Issue> _rentIssuesLandlord = [
   // ---- موجر
-  Issue(
+  Issue.dsl(
     id: 'selfHelp',
     chip: rentText('issueSelfHelpChip'),
     cues: _cSelfHelp,
-    body: (f) => _rentSelfHelpBody(),
+    body: _rentSelfHelpBody,
     when: _landlordSide,
-    rank: (f) => _r(_evicting(f), 4, 1),
+    rank: const RankCases([RankCase(_evicting, 4)], fallback: 1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lrenewed',
     chip: rentText('issueLrenewedChip'),
     cues: _cLRenewed,
-    body: (f) => _rentLandlordRenewedBody(),
+    body: _rentLandlordRenewedBody,
     when: _landlordSide,
-    rank: (f) => _r(_evicting(f) && !f.no('ended'), 2, -1),
+    rank: const RankCases(
+      [RankCase(FactAll([_evicting, FactNot(FactNo('ended'))]), 2)],
+      fallback: -1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'object',
     chip: rentText('issueObjectChip'),
     cues: _cLObject,
-    body: (f) => _rentObjectBody(),
+    body: _rentObjectBody,
     when: _landlordSide,
-    rank: (f) => _r(_evicting(f) && f.yes('ended'), 1),
+    rank: const RankCases([
+      RankCase(FactAll([_evicting, FactYes('ended')]), 1),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lnoPlace',
     chip: rentText('issueLnoPlaceChip'),
     cues: _cLNoPlace,
     body: _rentLandlordNoPlaceBody,
     when: _landlordSide,
-    rank: (f) => _r(_evicting(f) && !f.no('ended'), 3, -1),
+    rank: const RankCases(
+      [RankCase(FactAll([_evicting, FactNot(FactNo('ended'))]), 3)],
+      fallback: -1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'gone',
     chip: rentText('issueGoneChip'),
     cues: _cGone,
-    body: (f) => _rentGoneBody(),
+    body: _rentGoneBody,
     when: _landlordSide,
   ),
-  Issue(
+  Issue.dsl(
     id: 'misuse',
     chip: rentText('issueMisuseChip'),
     cues: _cMisuse,
-    body: (f) => _rentMisuseBody(),
+    body: _rentMisuseBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _r(_aim(f, 'breach'), 2),
+    rank: const RankCases([RankCase(_aBreach, 2)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lsublet',
     chip: rentText('issueLsubletChip'),
     cues: _cSublet,
     body: _rentSubletBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _r(_aim(f, 'breach'), 3),
+    rank: const RankCases([RankCase(_aBreach, 3)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'ldepFirst',
     chip: rentText('issueLdepFirstChip'),
     cues: _cLDepFirst,
-    body: (f) => _rentLandlordDepFirstBody(),
+    body: _rentLandlordDepFirstBody,
     when: _landlordSide,
-    rank: (f) => _r(_evicting(f), 3),
+    rank: const RankCases([RankCase(_evicting, 3)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'loffset',
     chip: rentText('issueLoffsetChip'),
     cues: _cLOffset,
-    body: (f) => _rentLandlordOffsetBody(),
+    body: _rentLandlordOffsetBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'unpaid') || _aim(f, 'damage'), 3, -1),
+    rank: const RankCases(
+      [RankCase(FactAny([_aUnpaid, _aDamage]), 3)],
+      fallback: -1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'ldeposit',
     chip: rentText('issueLdepositChip'),
     cues: _cLDeposit,
-    body: (f) => _rentLandlordDepositBody(),
+    body: _rentLandlordDepositBody,
     when: _landlordSide,
-    rank: (f) => 3,
+    rank: const RankConst(3),
   ),
-  Issue(
+  Issue.dsl(
     id: 'early',
     chip: rentText('issueEarlyChip'),
     cues: _cEarly,
-    body: (f) => _rentEarlyBody(),
+    body: _rentEarlyBody,
     when: _landlordSide,
-    rank: (f) => f.yes('ended') ? -1 : _r(f.no('ended'), 4, 1),
+    rank: const RankCases(
+      [
+        RankCase(FactYes('ended'), -1),
+        RankCase(FactNo('ended'), 4),
+      ],
+      fallback: 1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lraise',
     chip: rentText('issueLraiseChip'),
     cues: _cRaise,
-    body: (f) => _rentLandlordRaiseBody(),
+    body: _rentLandlordRaiseBody,
     when: _landlordSide,
   ),
-  Issue(
+  Issue.dsl(
     id: 'lbills',
     chip: rentText('issueLbillsChip'),
     cues: _cBills,
-    body: (f) => _rentLandlordBillsBody(),
+    body: _rentLandlordBillsBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'unpaid'), 2),
+    rank: const RankCases([RankCase(_aUnpaid, 2)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lcantPay',
     chip: rentText('issueLcantPayChip'),
     cues: _cLCantPay,
-    body: (f) => _rentLandlordCantPayBody(),
+    body: _rentLandlordCantPayBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'unpaid'), 3, -1),
+    rank: const RankCases([RankCase(_aUnpaid, 3)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lpaid',
     chip: rentText('issueLpaidChip'),
     cues: _cLPaid,
-    body: (f) => _rentLandlordPaidBody(),
+    body: _rentLandlordPaidBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'unpaid'), 2, -1),
+    rank: const RankCases([RankCase(_aUnpaid, 2)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'unpaid',
     chip: rentText('issueUnpaidChip'),
     cues: _cUnpaid,
     body: _rentUnpaidBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _aim(f, 'unpaid') ? -1 : _r(_evicting(f), 3, 1),
+    rank: const RankCases(
+      [
+        RankCase(_aUnpaid, -1),
+        RankCase(_evicting, 3),
+      ],
+      fallback: 1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lwear',
     chip: rentText('issueLwearChip'),
     cues: _cLWear,
-    body: (f) => _rentLandlordWearBody(),
+    body: _rentLandlordWearBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'damage'), 4, -1),
+    rank: const RankCases([RankCase(_aDamage, 4)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lbuilt',
     chip: rentText('issueLbuiltChip'),
     cues: _cLBuilt,
-    body: (f) => _rentLandlordBuiltBody(),
+    body: _rentLandlordBuiltBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'breach') || _aim(f, 'damage'), 2),
+    rank: const RankCases([
+      RankCase(FactAny([_aBreach, _aDamage]), 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'ldamage',
     chip: rentText('issueLdamageChip'),
     cues: _cLDamage,
-    body: (f) => _rentLandlordDamageBody(),
+    body: _rentLandlordDamageBody,
     when: _landlordSide,
     covers: const {'aim'},
-    rank: (f) => _aim(f, 'damage') ? -1 : _r(_evicting(f), 2, 1),
+    rank: const RankCases(
+      [
+        RankCase(_aDamage, -1),
+        RankCase(_evicting, 2),
+      ],
+      fallback: 1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lguarantor',
     chip: rentText('issueLguarantorChip'),
     cues: _cLGuarantor,
-    body: (f) => _rentLandlordGuarantorBody(),
+    body: _rentLandlordGuarantorBody,
     when: _landlordSide,
-    rank: (f) => _r(_aim(f, 'unpaid'), 1),
+    rank: const RankCases([RankCase(_aUnpaid, 1)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'lsilent',
     chip: rentText('issueLsilentChip'),
     cues: _cSilent,
     body: _rentSilentBody,
     when: _landlordSide,
-    rank: (f) => 1,
+    rank: const RankConst(1),
   ),
 ];

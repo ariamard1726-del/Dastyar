@@ -10,9 +10,9 @@ void main() {
       ..facts['role'] = 'wife'
       ..facts['violence'] = 'yes'
       ..facts['proofV'] = 'medical';
-    expect(familyRecap(f), contains('زنِ این زندگی هستید'));
-    expect(familyRecap(f), contains('کتک و آزار در کار بوده'));
-    expect(familyRecap(f), contains('گواهی پزشکی قانونی دارید'));
+    expect(familyTopic.recap!(f), contains('زنِ این زندگی هستید'));
+    expect(familyTopic.recap!(f), contains('کتک و آزار در کار بوده'));
+    expect(familyTopic.recap!(f), contains('گواهی پزشکی قانونی دارید'));
   });
 
   test('پروندهٔ تازه با پرسشِ نقش شروع می‌شود', () {

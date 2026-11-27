@@ -90,7 +90,7 @@ class RentTextEquivalenceTest(unittest.TestCase):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_claims.dart')
         self.assertNotRegex(src, r'^const String\s+_rent\w+\s*=',
                             'متنِ ادعا دوباره به Dart برگشته است')
-        ids = [i for i in re.findall(r"rentText\('([^']+)'\)", src)
+        ids = [i for i in re.findall(r"(?:rentText|TxRent)\('([^']+)'\)", src)
                if i.startswith('claim')]
         self.assertEqual(len(ids), CLAIMS_BEFORE_COUNT)
         self.assertEqual(set(ids), set(self.data['claims']),
@@ -108,11 +108,12 @@ class RentTextEquivalenceTest(unittest.TestCase):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_claims.dart')
         self.assertNotIn('const Filing(', src,
                          'برچسبِ سند دوباره const در Dart شده است')
-        self.assertNotRegex(src, r"Filing\(\s*'[^']+'\s*,\s*'",
+        self.assertNotRegex(src, r"Filing(?:Spec)?\(\s*'[^']+'\s*,\s*'",
                             'متنِ برچسبِ سند دوباره به Dart برگشته است')
-        self.assertEqual(FILING_CTOR_COUNT, len(re.findall(r'\bFiling\(', src)))
-        ids = re.findall(r"rentText\('(filing\d+_(?:chip|name))'\)", src)
-        self.assertEqual(FILING_CTOR_COUNT * 2, len(ids))
+        specs = re.findall(r'\bFilingSpec\(', src)
+        self.assertEqual(16, len(specs))
+        ids = re.findall(r"TxRent\('(filing\d+_(?:chip|name))'\)", src)
+        self.assertEqual(FILINGS_BEFORE_COUNT, len(ids))
         self.assertEqual(set(ids), set(self.data['filings']),
                          'هر برچسبِ سند دقیقاً از دارایی خوانده میشود')
 
@@ -127,44 +128,35 @@ class RentTextEquivalenceTest(unittest.TestCase):
 
     def test_plan_bodies_keep_only_delegates_and_interpolations(self):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_plan.dart')
-        body = src.split('String _rentPlan(CaseFile f) {')[1].split(
-            'String _rentEvidence')[0]
-        ids = re.findall(r"rentText\('(plan\d+)'\)", body)
+        body = src.split('const TextExpr _rentPlan =')[1].split(
+            'const TextExpr _rentEvidence')[0]
+        ids = re.findall(r"TxRent\('(plan\d+)'\)", body)
         self.assertEqual(RENT_PLAN_BODY_COUNT, len(ids))
         self.assertEqual(set(ids), set(list(self.data['plans'])[:RENT_PLAN_BODY_COUNT]))
         # شرطها و شناسهها کوتاهاند؛ متنِ بلند فقط در دارایی است.
         literals = re.findall(r"'((?:\\.|[^'])*)'", body)
         self.assertLessEqual(max(map(len, literals)), 24,
                              'متنِ بلند دوباره به بدنهٔ _rentPlan برگشته است')
-        found = {key: (tail.strip() or None) for key, tail in re.findall(
-            r"return rentText\('(plan\d+)'\)(?:\s*\+\s*([^;]+))?;", body)}
-        expected = {key: PLAN_SUFFIXES.get(key) for key in list(self.data['plans'])[:RENT_PLAN_BODY_COUNT]}
-        self.assertEqual(expected, found,
-                         'درونیابیِ انتهایی دستنخورده بماند')
-        # شش متنِ بعدی از `_rentDeadline` و `_rentRefuse`اند؛ شاخهای که
-        # درونیابی در میانه دارد عمداً در Dart مانده است.
+        for key in ('plan0', 'plan1', 'plan12'):
+            self.assertRegex(
+                body, r"TxConcat\(\[TxRent\('%s'\), _rentSumForum\]\)" % key)
+        self.assertRegex(
+            body, r"TxConcat\(\[TxRent\('plan8'\), _rentPeace\]\)")
         for index in range(RENT_PLAN_BODY_COUNT, 19):
             key = 'plan%d' % index
-            self.assertEqual(1, src.count("rentText('%s')" % key))
-            self.assertIn("return rentText('%s');" % key, src)
+            self.assertEqual(1, src.count("TxRent('%s')" % key))
         for index in range(19, 19 + CHANCE_BODY_COUNT):
             key = 'plan%d' % index
-            self.assertEqual(1, src.count("rentText('%s')" % key))
-            self.assertIn("return lead + rentText('%s');" % key, src)
+            self.assertEqual(1, src.count("TxRent('%s')" % key))
         self.assertNotIn('const lead =', src)
-        self.assertEqual(1, src.count("rentText('planLead')"))
-        self.assertIn("final lead = rentText('planLead');", src)
+        self.assertEqual(CHANCE_BODY_COUNT, src.count("TxRent('planLead')"))
         self.assertNotIn('$lead ', src,
                          'درونیابیِ قدیمیِ $lead دوباره برگشته است')
-        for key in ('plan30', 'plan31'):
-            self.assertIn("return rentText('%s');" % key, src)
-        self.assertIn("StringBuffer(rentText('plan32'));", src)
-        self.assertIn("sb.write(rentText('plan33'));", src)
-        self.assertIn("return rentText('plan34_a') + _rentPeace() + "
-                      "rentText('plan34_b');", src)
-        self.assertNotIn('${_rentPeace()}', src,
+        for key in ('plan30', 'plan31', 'plan32', 'plan33', 'plan34_a', 'plan34_b'):
+            self.assertEqual(1, src.count("TxRent('%s')" % key))
+        self.assertNotIn('${_rentPeace', src,
                          'درونیابیِ قدیمی داخل رشته برگشته است')
-        self.assertEqual(3, src.count('_rentPeace()'))
+        self.assertEqual(3, src.count('_rentPeace'))
 
     def test_body_pieces_match_the_pre_move_source(self):
         bodies = self.data['bodies']
@@ -226,6 +218,8 @@ class RentTextEquivalenceTest(unittest.TestCase):
                 for field in json.load(f).get('fields', []):
                     tmpl_opts.update(field.get('options', []))
         for lit in re.findall(r"'((?:\\.|[^'])*)'", code):
+            if lit == '، ':
+                continue
             if any('\u0600' <= c <= '\u06FF' for c in lit):
                 self.assertIn(lit, tmpl_opts,
                               'متنِ غیرازگزینه دوباره در rent_fill آمده: %s' % lit)
@@ -316,13 +310,12 @@ class RentTextEquivalenceTest(unittest.TestCase):
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''
         for rel in DART_FILES:
-            with open(os.path.join(ROOT, rel), encoding='utf-8') as f:
-                src = f.read()
+            src = read(ROOT, rel)
             self.assertNotRegex(src, r'^const String\s+_rent\w+\s*=',
                                 '%s دوباره متن را به خود گرفته است' % rel)
             all_src += src
         for key in self.data['texts']:
-            self.assertIn("String _%s() => rentText('%s');" % (key, key), all_src,
+            self.assertIn("TxRent('%s')" % key, all_src,
                           'پوستهٔ متنِ %s در Dart نیست' % key)
 
     def test_loader_is_installed_before_any_reply(self):

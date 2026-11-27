@@ -3,6 +3,7 @@ import 'package:dastyar/domain/advocate/case_state.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_json.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_read.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_text.dart';
+export 'package:dastyar/domain/advocate/rule_dsl_topic.dart';
 
 /// زبانِ داده‌ای شرط‌های موضوع (`FactExpr`): جایگزین قابل سریال‌سازی برای
 /// کلوژرهای `when` و `Element.test`.
@@ -29,6 +30,24 @@ class FactHas extends FactExpr {
   bool? evalTri(CaseFile f) => f.has(key);
   @override
   Map<String, dynamic> toJson() => {'op': 'has', 'key': key};
+}
+
+class FactTouched extends FactExpr {
+  final String key;
+  const FactTouched(this.key);
+  @override
+  bool? evalTri(CaseFile f) => f.touched(key);
+  @override
+  Map<String, dynamic> toJson() => {'op': 'touched', 'key': key};
+}
+
+class FactCovered extends FactExpr {
+  final String key;
+  const FactCovered(this.key);
+  @override
+  bool? evalTri(CaseFile f) => f.covered.contains(key);
+  @override
+  Map<String, dynamic> toJson() => {'op': 'covered', 'key': key};
 }
 
 class FactHasNum extends FactExpr {
@@ -103,6 +122,24 @@ class FactNumMin extends FactExpr {
   @override
   Map<String, dynamic> toJson() =>
       {'op': 'numMin', 'key': key, 'min': min, 'missingNull': missingNull};
+}
+
+class FactNumMax extends FactExpr {
+  final String key;
+  final int max;
+  final bool missingNull;
+  const FactNumMax(this.key, this.max, {this.missingNull = true});
+
+  @override
+  bool? evalTri(CaseFile f) {
+    final v = f.n(key);
+    if (v == null) return missingNull ? null : false;
+    return v <= max;
+  }
+
+  @override
+  Map<String, dynamic> toJson() =>
+      {'op': 'numMax', 'key': key, 'max': max, 'missingNull': missingNull};
 }
 
 class FactNot extends FactExpr {

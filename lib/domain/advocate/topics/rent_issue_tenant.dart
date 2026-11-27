@@ -4,231 +4,256 @@ part of 'rent.dart';
 
 final List<Issue> _rentIssuesTenant = [
   // ---- مستأجر
-  Issue(
+  Issue.dsl(
     id: 'order',
     chip: rentText('issueOrderChip'),
     cues: _cOrder,
     body: _rentOrderBody,
     when: _tenantSide,
     covers: const {'official', 'matter'},
-    rank: (f) => _ordered(f)
-        ? -1
-        : _r(_matter(f, 'evict'), 3, _r(f.yes('ended'), 1)),
+    rank: const RankCases([
+      RankCase(_ordered, -1),
+      RankCase(_mEvict, 3),
+      RankCase(FactYes('ended'), 1),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'orderDeposit',
     chip: rentText('issueOrderDepositChip'),
     cues: _cOrderDeposit,
-    body: (f) => _rentOrderDepositBody(),
+    body: _rentOrderDepositBody,
     when: _ordered,
-    rank: (f) => 4,
+    rank: const RankConst(4),
   ),
-  Issue(
+  Issue.dsl(
     id: 'guarantee',
     chip: rentText('issueGuaranteeChip'),
     cues: _cGuarantee,
-    body: (f) => _rentGuaranteeBody(),
+    body: _rentGuaranteeBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'deposit'), 1),
+    rank: const RankCases([RankCase(_mDeposit, 1)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'partial',
     chip: rentText('issuePartialChip'),
     cues: _cPartial,
-    body: (f) => _rentPartialBody(),
+    body: _rentPartialBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'repair'), 2, -1),
+    rank: const RankCases([RankCase(_mRepair, 2)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'defect',
     chip: rentText('issueDefectChip'),
     cues: _cDefect,
-    body: (f) => _rentDefectBody(),
+    body: _rentDefectBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'repair'), 3, _r(_matter(f, 'leave'), 3)),
+    rank: const RankCases([RankCase(_mRepair, 3), RankCase(_mLeave, 3)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'selfRepair',
     chip: rentText('issueSelfRepairChip'),
     cues: _cSelfRepair,
-    body: (f) => _rentSelfRepairBody(),
+    body: _rentSelfRepairBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'repair'), 4),
+    rank: const RankCases([RankCase(_mRepair, 4)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'improve',
     chip: rentText('issueImproveChip'),
     cues: _cImprove,
-    body: (f) => _rentImproveBody(),
+    body: _rentImproveBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'leave') || _matter(f, 'repair'), 1,
-        _r(_matter(f, 'deposit'), 0, -1)),
+    rank: const RankCases(
+      [
+        RankCase(FactAny([_mLeave, _mRepair]), 1),
+        RankCase(_mDeposit, 0),
+      ],
+      fallback: -1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'access',
     chip: rentText('issueAccessChip'),
     cues: _cAccess,
-    body: (f) => _rentAccessBody(),
+    body: _rentAccessBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'evict'), 2),
+    rank: const RankCases([RankCase(_mEvict, 2)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'deliver',
     chip: rentText('issueDeliverChip'),
     cues: _cDeliver,
-    body: (f) => _rentDeliverBody(),
-    when: (f) => _tenantSide(f) && !f.yes('vacated'),
-    rank: (f) => -1,
+    body: _rentDeliverBody,
+    when: const FactAll([_tenantSide, FactNot(FactYes('vacated'))]),
+    rank: const RankConst(-1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'third',
     chip: rentText('issueThirdChip'),
     cues: _cThird,
-    body: (f) => _rentThirdBody(),
+    body: _rentThirdBody,
     when: _tenantSide,
-    rank: (f) => -1,
+    rank: const RankConst(-1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'handover',
     chip: rentText('issueHandoverChip'),
     cues: _cHandover,
-    body: (f) => _rentHandoverBody(),
+    body: _rentHandoverBody,
     when: _tenantSide,
     covers: const {'vacated'},
-    rank: (f) => _r(_matter(f, 'deposit') && f.no('vacated'), 4,
-        _r(_matter(f, 'leave'), 2)),
+    rank: const RankCases([
+      RankCase(FactAll([_mDeposit, FactNo('vacated')]), 4),
+      RankCase(_mLeave, 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'late',
     chip: rentText('issueLateChip'),
     cues: _cLate,
-    body: (f) => _rentLateBody(),
+    body: _rentLateBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'evict') || _matter(f, 'order'), 2),
+    rank: const RankCases([
+      RankCase(FactAny([_mEvict, _mOrder]), 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'bills',
     chip: rentText('issueBillsChip'),
     cues: _cBills,
-    body: (f) => _rentBillsBody(),
+    body: _rentBillsBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'deposit'), 1),
+    rank: const RankCases([RankCase(_mDeposit, 1)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'noMoney',
     chip: rentText('issueNoMoneyChip'),
     cues: _cNoMoney,
     body: _rentNoMoneyBody,
     when: _depositTalk,
-    rank: (f) => _r(_matter(f, 'deposit'), 3, -1),
+    rank: const RankCases([RankCase(_mDeposit, 3)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'waitNew',
     chip: rentText('issueWaitNewChip'),
     cues: _cWaitNew,
-    body: (f) => _rentWaitNewBody(),
+    body: _rentWaitNewBody,
     when: _depositTalk,
-    rank: (f) => _r(_matter(f, 'deposit'), 2, -1),
+    rank: const RankCases([RankCase(_mDeposit, 2)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'ownUse',
     chip: rentText('issueOwnUseChip'),
     cues: _cOwnUse,
     body: _rentOwnUseBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'evict'), 3, -1),
+    rank: const RankCases([RankCase(_mEvict, 3)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'sublet',
     chip: rentText('issueSubletChip'),
     cues: _cSublet,
     body: _rentSubletBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'leave'), 3),
+    rank: const RankCases([RankCase(_mLeave, 3)]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'renew',
     chip: rentText('issueRenewChip'),
     cues: _cRenew,
-    body: (f) => _rentRenewBody(),
-    when: (f) => _tenantSide(f) && !f.yes('vacated'),
-    rank: (f) => _r(
-        f.yes('ended') && !_matter(f, 'deposit'), 3, _r(_matter(f, 'raise'), 2)),
+    body: _rentRenewBody,
+    when: const FactAll([_tenantSide, FactNot(FactYes('vacated'))]),
+    rank: const RankCases([
+      RankCase(FactAll([FactYes('ended'), FactNot(_mDeposit)]), 3),
+      RankCase(_mRaise, 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'leave',
     chip: rentText('issueLeaveChip'),
     cues: _cLeave,
-    body: (f) => _rentLeaveBody(),
+    body: _rentLeaveBody,
     when: _tenantSide,
     covers: const {'matter'},
-    rank: (f) => _matter(f, 'leave') ? -1 : _r(f.no('ended'), 1),
+    rank: const RankCases([
+      RankCase(_mLeave, -1),
+      RankCase(FactNo('ended'), 1),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'raise',
     chip: rentText('issueRaiseChip'),
     cues: _cRaise,
     body: _rentRaiseBody,
     when: _tenantSide,
-    rank: (f) => _matter(f, 'raise') ? -1 : _r(_matter(f, 'evict'), 1),
+    rank: const RankCases([
+      RankCase(_mRaise, -1),
+      RankCase(_mEvict, 1),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'noReason',
     chip: rentText('issueNoReasonChip'),
     cues: _cNoReason,
     body: _rentNoReasonBody,
-    when: (f) =>
-        _tenantSide(f) && (!f.has('matter') || f.eq('matter', 'evict')),
-    rank: (f) => _r(_matter(f, 'evict'), 1, -1),
+    when: const FactAll([
+      _tenantSide,
+      FactAny([FactNot(FactHas('matter')), FactEq('matter', 'evict')]),
+    ]),
+    rank: const RankCases([RankCase(_mEvict, 1)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'evict',
     chip: rentText('issueEvictChip'),
     cues: _cEvict,
-    body: (f) => _rentEvictBody(),
+    body: _rentEvictBody,
     when: _tenantSide,
-    rank: (f) => _matter(f, 'evict')
-        ? -1
-        : _r(_matter(f, 'raise'), 3,
-            _r(_matter(f, 'deposit') && f.no('vacated'), 2)),
+    rank: const RankCases([
+      RankCase(_mEvict, -1),
+      RankCase(_mRaise, 3),
+      RankCase(FactAll([_mDeposit, FactNo('vacated')]), 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'fixSelf',
     chip: rentText('issueFixSelfChip'),
     cues: _cFixSelf,
-    body: (f) => _rentFixSelfBody(),
+    body: _rentFixSelfBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'repair'), 3, -1),
+    rank: const RankCases([RankCase(_mRepair, 3)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'blame',
     chip: rentText('issueBlameChip'),
     cues: _cBlame,
-    body: (f) => _rentBlameBody(),
-    when: (f) => _matter(f, 'repair'),
-    rank: (f) => 2,
+    body: _rentBlameBody,
+    when: _mRepair,
+    rank: const RankConst(2),
   ),
-  Issue(
+  Issue.dsl(
     id: 'repair',
     chip: rentText('issueRepairChip'),
     cues: _cRepair,
-    body: (f) => _rentRepairBody(),
+    body: _rentRepairBody,
     when: _tenantSide,
   ),
-  Issue(
+  Issue.dsl(
     id: 'silent',
     chip: rentText('issueSilentChip'),
     cues: _cSilent,
     body: _rentSilentBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'deposit') || _matter(f, 'repair'), 1, -1),
+    rank: const RankCases(
+      [RankCase(FactAny([_mDeposit, _mRepair]), 1)],
+      fallback: -1,
+    ),
   ),
-  Issue(
+  Issue.dsl(
     id: 'damage',
     chip: rentText('issueDamageChip'),
     cues: _cDamage,
     body: _rentDamageBody,
     when: _tenantSide,
-    rank: (f) => _r(_matter(f, 'deposit'), 3),
+    rank: const RankCases([RankCase(_mDeposit, 3)]),
   ),
 ];

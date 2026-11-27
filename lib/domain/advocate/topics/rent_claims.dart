@@ -3,366 +3,329 @@ part of 'rent.dart';
 // ادعاهای حقوقیِ این موضوع: ارکان، شرط و نتیجه.
 
 final List<Claim> rentClaims = [
-  Claim(
+  Claim.dsl(
     goal: rentText('claim0_goal'),
-    when: (f) => _aim(f, 'unpaid'),
+    when: _aUnpaid,
     cues: 'اجاره|کرایه|طلب|پول',
     uses: const ['due'],
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim0_e0_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim0_e0_because'),
-        ifNo:
-            rentText('claim0_e0_ifNo'),
+        because: const TxRent('claim0_e0_because'),
+        ifNo: rentText('claim0_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim0_win'),
-    counter: (f) =>
-        rentText('claim0_counter'),
+    win: const TxRent('claim0_win'),
+    counter: const TxRent('claim0_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim1_goal'),
-    when: (f) => _aim(f, 'damage'),
+    when: _aDamage,
     cues: 'خسارت|خراب|تعمیر',
     uses: const ['due'],
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim1_e0_text'),
-        (f) => f.tri('proof'),
+        const FactTri('proof'),
         needs: const ['proof'],
-        because: (f) => rentText('claim1_e0_because'),
-        ifNo:
-            rentText('claim1_e0_ifNo'),
+        because: const TxRent('claim1_e0_because'),
+        ifNo: rentText('claim1_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim1_win'),
-    counter: (f) =>
-        rentText('claim1_counter'),
+    win: const TxRent('claim1_win'),
+    counter: const TxRent('claim1_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim2_goal'),
-    when: (f) => _aim(f, 'breach'),
+    when: _aBreach,
     cues: 'فسخ|تخلیه|بلند|بیرون',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim2_e0_text'),
-        (f) => f.tri('clause'),
+        const FactTri('clause'),
         needs: const ['clause'],
-        because: (f) => rentText('claim2_e0_because'),
-        ifNo:
-            rentText('claim2_e0_ifNo'),
+        because: const TxRent('claim2_e0_because'),
+        ifNo: rentText('claim2_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim2_e1_text'),
-        (f) => f.tri('proof'),
+        const FactTri('proof'),
         needs: const ['proof'],
-        because: (f) => rentText('claim2_e1_because'),
-        ifNo:
-            rentText('claim2_e1_ifNo'),
+        because: const TxRent('claim2_e1_because'),
+        ifNo: rentText('claim2_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim2_win'),
-    counter: (f) =>
-        rentText('claim2_counter'),
+    win: const TxRent('claim2_win'),
+    counter: const TxRent('claim2_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim3_goal'),
-    when: (f) => _evicting(f) && f.no('ended'),
+    when: const FactAll([_evicting, FactNo('ended')]),
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)|فسخ',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim3_e0_text'),
-        (f) => f.tri('clause'),
+        const FactTri('clause'),
         needs: const ['clause'],
-        because: (f) => rentText('claim3_e0_because'),
-        ifNo:
-            rentText('claim3_e0_ifNo'),
+        because: const TxRent('claim3_e0_because'),
+        ifNo: rentText('claim3_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim3_e1_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim3_e1_because'),
+        because: const TxRent('claim3_e1_because'),
         ifNo: rentText('claim3_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim3_win'),
-    counter: (f) =>
-        rentText('claim3_counter'),
+    win: const TxRent('claim3_win'),
+    counter: const TxRent('claim3_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim4_goal'),
-    when: (f) => f.eq('role', 'landlord'),
+    when: _landlordSide,
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim4_e0_text'),
-        (f) => f.tri('ended'),
+        const FactTri('ended'),
         needs: const ['ended'],
-        because: (f) => rentText('claim4_e0_because'),
-        ifNo:
-            rentText('claim4_e0_ifNo'),
+        because: const TxRent('claim4_e0_because'),
+        ifNo: rentText('claim4_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim4_e1_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim4_e1_because'),
-        ifNo:
-            rentText('claim4_e1_ifNo'),
+        because: const TxRent('claim4_e1_because'),
+        ifNo: rentText('claim4_e1_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim4_e2_text'),
-        (f) => f.no('contract') ? false : f.tri('witness'),
+        const FactTriWhen(
+          FactNo('contract'),
+          FactConst(false),
+          FactTri('witness'),
+        ),
         needs: const ['witness'],
-        because: (f) => rentText('claim4_e2_because'),
-        ifNo:
-            rentText('claim4_e2_ifNo'),
+        because: const TxRent('claim4_e2_because'),
+        ifNo: rentText('claim4_e2_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim4_win'),
-    counter: (f) =>
-        rentText('claim4_counter'),
+    win: const TxRent('claim4_win'),
+    counter: const TxRent('claim4_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim5_goal'),
-    when: (f) => !f.has('matter') || f.eq('matter', 'deposit'),
+    when: const FactAny([FactNot(FactHas('matter')), FactEq('matter', 'deposit')]),
     cues: 'ودیعه|پول پیش|رهن|پولم',
     uses: const ['amount'],
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim5_e0_text'),
-        (f) => f.tri('ended'),
+        const FactTri('ended'),
         needs: const ['ended'],
-        because: (f) => rentText('claim5_e0_because'),
-        ifNo:
-            rentText('claim5_e0_ifNo'),
+        because: const TxRent('claim5_e0_because'),
+        ifNo: rentText('claim5_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim5_e1_text'),
-        (f) => f.tri('vacated'),
+        const FactTri('vacated'),
         needs: const ['vacated'],
-        because: (f) => rentText('claim5_e1_because'),
-        ifNo:
-            rentText('claim5_e1_ifNo'),
+        because: const TxRent('claim5_e1_because'),
+        ifNo: rentText('claim5_e1_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim5_e2_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim5_e2_because'),
-        ifNo:
-            rentText('claim5_e2_ifNo'),
+        because: const TxRent('claim5_e2_because'),
+        ifNo: rentText('claim5_e2_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim5_win'),
-    counter: (f) =>
-        rentText('claim5_counter'),
+    win: const TxRent('claim5_win'),
+    counter: const TxRent('claim5_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim6_goal'),
-    when: (f) => f.eq('matter', 'raise'),
+    when: const FactEq('matter', 'raise'),
     cues: 'اجاره|کرایه|زیاد|گرون|بالا|افزایش',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim6_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => rentText('claim6_e0_because'),
-        ifNo:
-            rentText('claim6_e0_ifNo'),
+        because: const TxRent('claim6_e0_because'),
+        ifNo: rentText('claim6_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim6_e1_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim6_e1_because'),
-        ifNo:
-            rentText('claim6_e1_ifNo'),
+        because: const TxRent('claim6_e1_because'),
+        ifNo: rentText('claim6_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim6_win'),
-    counter: (f) =>
-        rentText('claim6_counter'),
+    win: const TxRent('claim6_win'),
+    counter: const TxRent('claim6_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim7_goal'),
-    when: (f) => f.eq('matter', 'evict') || f.eq('matter', 'order'),
+    when: const FactIn('matter', ['evict', 'order']),
     cues: 'بیرون|بلند|تخلیه|بمونم|بمانم|خالی',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim7_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => rentText('claim7_e0_because'),
-        ifNo:
-            rentText('claim7_e0_ifNo'),
+        because: const TxRent('claim7_e0_because'),
+        ifNo: rentText('claim7_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim7_e1_text'),
-        (f) => f.eq('matter', 'order')
-            ? false
-            : (f.no('official') ? true : (f.yes('official') ? false : null)),
+        const FactTriCases([
+          FactCase(FactEq('matter', 'order'), FactConst(false)),
+          FactCase(FactNo('official'), FactConst(true)),
+          FactCase(FactYes('official'), FactConst(false)),
+        ]),
         needs: const ['official'],
-        because: (f) => rentText('claim7_e1_because'),
-        ifNo:
-            rentText('claim7_e1_ifNo'),
+        because: const TxRent('claim7_e1_because'),
+        ifNo: rentText('claim7_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim7_win'),
-    counter: (f) =>
-        rentText('claim7_counter'),
+    win: const TxRent('claim7_win'),
+    counter: const TxRent('claim7_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim8_goal'),
-    when: (f) => f.eq('matter', 'repair'),
+    when: const FactEq('matter', 'repair'),
     cues: 'تعمیر|درست(?:ش)? کن|خراب',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim8_e0_text'),
-        (f) => f.tri('told'),
+        const FactTri('told'),
         needs: const ['told'],
-        because: (f) => rentText('claim8_e0_because'),
-        ifNo:
-            rentText('claim8_e0_ifNo'),
+        because: const TxRent('claim8_e0_because'),
+        ifNo: rentText('claim8_e0_ifNo'),
       ),
-      Element(
+      Element.dsl(
         rentText('claim8_e1_text'),
-        (f) => f.tri('contract'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => rentText('claim8_e1_because'),
-        ifNo:
-            rentText('claim8_e1_ifNo'),
+        because: const TxRent('claim8_e1_because'),
+        ifNo: rentText('claim8_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim8_win'),
-    counter: (f) =>
-        rentText('claim8_counter'),
+    win: const TxRent('claim8_win'),
+    counter: const TxRent('claim8_counter'),
   ),
-  Claim(
+  Claim.dsl(
     goal: rentText('claim9_goal'),
-    when: (f) => f.eq('matter', 'leave'),
+    when: const FactEq('matter', 'leave'),
     cues: 'فسخ|بلند|برم|بروم|تخلیه|زودتر',
     elements: [
-      Element(
+      Element.dsl(
         rentText('claim9_e0_text'),
-        (f) => f.tri('consent'),
+        const FactTri('consent'),
         needs: const ['consent'],
-        because: (f) => rentText('claim9_e0_because'),
-        ifNo:
-            rentText('claim9_e0_ifNo'),
+        because: const TxRent('claim9_e0_because'),
+        ifNo: rentText('claim9_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        rentText('claim9_win'),
-    counter: (f) =>
-        rentText('claim9_counter'),
+    win: const TxRent('claim9_win'),
+    counter: const TxRent('claim9_counter'),
   ),
 ];
 
 // ============================================================== سندها
 
+const FilingRule _rentFiling0 = FilingSpec(
+  'demand_money',
+  TxRent('filing0_chip'),
+  TxRent('filing0_name'),
+);
+
+const FilingRule _rentFiling9 = FilingSpec(
+  'defense_brief',
+  TxRent('filing9_chip'),
+  TxRent('filing9_name'),
+);
+
 /// دادخواست (یا نخستین نوشتهٔ رسمی) که به همین وضعیت می‌خورد.
-Filing? _rentPetition(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    switch (f.get('aim')) {
-      case 'unpaid':
-        return Filing('demand_money', rentText('filing0_chip'),
-            rentText('filing0_name'));
-      case 'damage':
-        return Filing('demand_money', rentText('filing1_chip'),
-            rentText('filing1_name'));
-      case 'evict':
-      case 'breach':
-        if (_noGround(f)) {
-          return f.yes('owes')
-              ? Filing('demand_money',
-                  rentText('filing0_chip'), rentText('filing0_name'))
-              : null;
-        }
-        return Filing(
-            'eviction', rentText('filing2_chip'), rentText('filing2_name'));
-    }
-    return null;
-  }
-  if (!f.eq('role', 'tenant')) return null;
-  switch (f.get('matter')) {
-    case 'deposit':
-      return Filing('demand_money', rentText('filing3_chip'),
-          rentText('filing3_name'));
-    case 'repair':
-      return Filing('formal_notice', rentText('filing4_chip'),
-          rentText('filing4_name'));
-    case 'raise':
-      return Filing('formal_notice', rentText('filing5_chip'),
-          rentText('filing5_name'));
-    case 'leave':
-      return Filing('formal_notice', rentText('filing6_chip'),
-          rentText('filing6_name'));
-    case 'deliver':
-      return Filing('formal_notice', rentText('filing7_chip'),
-          rentText('filing7_name'));
-    case 'evict':
-      return f.yes('official')
-          ? null
-          : Filing('formal_notice', rentText('filing8_chip'),
-              rentText('filing8_name'));
-  }
-  return null;
-}
+const FilingRule _rentPetition = FilingCases([
+  FilingCase(_aUnpaid, _rentFiling0),
+  FilingCase(
+    _aDamage,
+    FilingSpec('demand_money', TxRent('filing1_chip'), TxRent('filing1_name')),
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach']), _noGround, FactYes('owes')]),
+    _rentFiling0,
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach']), _noGround]),
+    null,
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach'])]),
+    FilingSpec('eviction', TxRent('filing2_chip'), TxRent('filing2_name')),
+  ),
+  FilingCase(
+    _mDeposit,
+    FilingSpec('demand_money', TxRent('filing3_chip'), TxRent('filing3_name')),
+  ),
+  FilingCase(
+    _mRepair,
+    FilingSpec('formal_notice', TxRent('filing4_chip'), TxRent('filing4_name')),
+  ),
+  FilingCase(
+    _mRaise,
+    FilingSpec('formal_notice', TxRent('filing5_chip'), TxRent('filing5_name')),
+  ),
+  FilingCase(
+    _mLeave,
+    FilingSpec('formal_notice', TxRent('filing6_chip'), TxRent('filing6_name')),
+  ),
+  FilingCase(
+    _mDeliver,
+    FilingSpec('formal_notice', TxRent('filing7_chip'), TxRent('filing7_name')),
+  ),
+  FilingCase(FactAll([_mEvict, FactYes('official')]), null),
+  FilingCase(
+    _mEvict,
+    FilingSpec('formal_notice', TxRent('filing8_chip'), TxRent('filing8_name')),
+  ),
+]);
 
 /// لایحه‌ای که در پروندهٔ همین دعوا به کار می‌آید.
-Filing? _rentBrief(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    if (_noGround(f)) {
-      return f.yes('owes')
-          ? Filing('defense_brief', rentText('filing9_chip'),
-              rentText('filing9_name'))
-          : null;
-    }
-    switch (f.get('aim')) {
-      case 'unpaid':
-        return Filing('defense_brief', rentText('filing9_chip'),
-            rentText('filing9_name'));
-      case 'damage':
-        return Filing('defense_brief', rentText('filing10_chip'),
-            rentText('filing10_name'));
-      case 'breach':
-        return Filing('defense_brief', rentText('filing11_chip'),
-            rentText('filing11_name'));
-      case 'evict':
-        return Filing(
-            'defense_brief', rentText('filing12_chip'), rentText('filing12_name'));
-    }
-    return null;
-  }
-  if (!f.eq('role', 'tenant')) return null;
-  if (_ordered(f)) {
-    return Filing('defense_brief', rentText('filing13_chip'),
-        rentText('filing13_name'));
-  }
-  if (f.eq('matter', 'deposit')) {
-    return f.covered.contains('damage')
-        ? Filing('defense_brief', rentText('filing14_chip'),
-            rentText('filing14_name'))
-        : Filing('defense_brief', rentText('filing15_chip'),
-            rentText('filing15_name'));
-  }
-  return null;
-}
-
-String _list(List<String> items) => items.join('، ');
-
-/// متن‌های پیشنهادی برای فیلدهای سند، از روی واقعیت‌های همین پرونده.
-/// گزینه‌های فیلدهای انتخابی باید نویسه‌به‌نویسه با قالب یکی باشد.
+const FilingRule _rentBrief = FilingCases([
+  FilingCase(FactAll([_landlordSide, _noGround, FactYes('owes')]), _rentFiling9),
+  FilingCase(FactAll([_landlordSide, _noGround]), null),
+  FilingCase(_aUnpaid, _rentFiling9),
+  FilingCase(
+    _aDamage,
+    FilingSpec('defense_brief', TxRent('filing10_chip'), TxRent('filing10_name')),
+  ),
+  FilingCase(
+    _aBreach,
+    FilingSpec('defense_brief', TxRent('filing11_chip'), TxRent('filing11_name')),
+  ),
+  FilingCase(
+    _aEvict,
+    FilingSpec('defense_brief', TxRent('filing12_chip'), TxRent('filing12_name')),
+  ),
+  FilingCase(
+    FactAll([_isTenantRole, _ordered]),
+    FilingSpec('defense_brief', TxRent('filing13_chip'), TxRent('filing13_name')),
+  ),
+  FilingCase(
+    FactAll([_mDeposit, FactCovered('damage')]),
+    FilingSpec('defense_brief', TxRent('filing14_chip'), TxRent('filing14_name')),
+  ),
+  FilingCase(
+    _mDeposit,
+    FilingSpec('defense_brief', TxRent('filing15_chip'), TxRent('filing15_name')),
+  ),
+]);

@@ -2,65 +2,111 @@ part of 'labor.dart';
 
 // متنِ پاسخ‌ها: پول، خواسته‌ها، طرحِ دعوا و شانس.
 
-String _laborMoney(CaseFile f) {
-  final months = f.n('months');
-  final sal = f.n('salary');
-  if (months == null || sal == null) {
-    final need = months == null && sal == null
-        ? topicText('laborBod_0')
-        : (months == null ? topicText('laborBod_1') : topicText('laborBod_2'));
-    return topicText('laborMoneyAskA') + ' ' + need + ' ' + topicText('laborMoneyAskB');
-  }
-  final years = months / 12.0;
-  final san = (sal * years).round();
-  final alt = (sal * 1.5 * years).round();
-  final sb = StringBuffer(
-      topicText('laborMoneySumA') + ' ' + Sense.span(months) + ' ' + topicText('laborMoneySumB') + ' ' + Sense.toman(sal) + topicText('laborMoneySumC') + '\n' + topicText('laborMoneySumD') + ' ' + Sense.toman(san) + ' ' + topicText('laborMoneySumE'));
-  if (laborFired(f)) {
-    sb.write(
-        '\n' + topicText('laborMoneyFiredA') + ' ' + Sense.toman(alt) + ' ' + topicText('laborMoneyFiredB') + '\n' + topicText('laborMoneyFiredC'));
-  }
-  sb.write(
-      '\n' + topicText('laborMoneyTail'));
-  return sb.toString();
-}
+const TextExpr _laborMoney = TxCond(
+  FactAll([FactHasNum('months'), FactHasNum('salary')]),
+  TxConcat([
+    Tx('laborMoneySumA'),
+    TxRaw(' '),
+    TxNum('months', fmt: NumFmt.span),
+    TxRaw(' '),
+    Tx('laborMoneySumB'),
+    TxRaw(' '),
+    TxNum('salary'),
+    Tx('laborMoneySumC'),
+    TxRaw('\n'),
+    Tx('laborMoneySumD'),
+    TxRaw(' '),
+    TxScaleMul('salary', 'months', 1.0, divideFirst: true),
+    TxRaw(' '),
+    Tx('laborMoneySumE'),
+    TxCond(
+      laborFiredRule,
+      TxConcat([
+        TxRaw('\n'),
+        Tx('laborMoneyFiredA'),
+        TxRaw(' '),
+        TxScaleMul('salary', 'months', 1.5, divideFirst: true),
+        TxRaw(' '),
+        Tx('laborMoneyFiredB'),
+        TxRaw('\n'),
+        Tx('laborMoneyFiredC'),
+      ]),
+    ),
+    TxRaw('\n'),
+    Tx('laborMoneyTail'),
+  ]),
+  TxConcat([
+    Tx('laborMoneyAskA'),
+    TxRaw(' '),
+    TxCases(
+      [
+        TextCase(
+          FactAll([
+            FactNot(FactHasNum('months')),
+            FactNot(FactHasNum('salary')),
+          ]),
+          Tx('laborBod_0'),
+        ),
+        TextCase(FactNot(FactHasNum('months')), Tx('laborBod_1')),
+      ],
+      fallback: Tx('laborBod_2'),
+    ),
+    TxRaw(' '),
+    Tx('laborMoneyAskB'),
+  ]),
+);
 
-/// خواسته‌هایی که با واقعیت‌های همین پرونده جا دارد در دادخواست بیاید؛
-/// ادعایی که شرطش برقرار نیست (مثل سنوات وقتی هنوز سر کارید) نمی‌آید.
-String _laborDemands(CaseFile f) {
-  final out = <String>[];
-  for (final v in Reasoner.assess(laborTopic, f)) {
-    if (v.standing == Standing.weak) continue;
-    final l = v.claim.label;
-    if (l.isEmpty) continue;
-    out.add(l == topicText('laborClaimFiredLabel') ? topicText('laborBod_3') : l);
-  }
-  out.add(topicText('laborBod_4'));
-  return out.join(topicText('laborDemandsSep'));
-}
+final TextExpr _laborPlan = TxConcat([
+  const Tx('laborPlanLead'),
+  const TxRaw('\n'),
+  const TxCond(laborFiredRule, Tx('laborBod_5'), Tx('laborBod_6')),
+  const Tx('laborPlanS2'),
+  const TxRaw('\n'),
+  const Tx('laborPlanS3A'),
+  const TxRaw(' '),
+  TxAssessDemands(
+    claims: laborClaims,
+    replaceLabel: const Tx('laborClaimFiredLabel'),
+    replacedText: const Tx('laborBod_3'),
+    extra: const Tx('laborBod_4'),
+    separator: const Tx('laborDemandsSep'),
+  ),
+  const TxRaw('.\n'),
+  const Tx('laborPlanS4'),
+  const TxRaw('\n'),
+  const Tx('laborPlanS5'),
+]);
 
-String _laborPlan(CaseFile f) {
-  final first = laborFired(f)
-      ? topicText('laborBod_5')
-      : topicText('laborBod_6');
-  return topicText('laborPlanLead') + '\n' + first + topicText('laborPlanS2') + '\n' + topicText('laborPlanS3A') + ' ' + _laborDemands(f) + '.\n' + topicText('laborPlanS4') + '\n' + topicText('laborPlanS5');
-}
-
-String _laborChance(CaseFile f) {
-  final plus = <String>[];
-  final minus = <String>[];
-  final m = f.n('months');
-  if (m != null && m >= 12) plus.add(topicText('laborChanceSpanA') + ' ' + Sense.span(m) + ' ' + topicText('laborChanceSpanB'));
-  if (f.yes('contract')) plus.add(topicText('laborBod_7'));
-  if (f.yes('insured')) plus.add(topicText('laborBod_8'));
-  if (f.no('contract')) minus.add(topicText('laborBod_9'));
-  if (f.no('insured')) minus.add(topicText('laborBod_10'));
-  final sb = StringBuffer(
-      topicText('laborBod_11'));
-  if (plus.isNotEmpty) sb.write('\n' + topicText('laborChancePlusLead') + ' ' + plus.join(topicText('laborChancePlusSep')) + '.');
-  if (minus.isNotEmpty) {
-    sb.write('\n' + topicText('laborChanceMinusLead') + ' ' + minus.join(topicText('laborChanceMinusSep')) + topicText('laborChanceMinusTail'));
-  }
-  sb.write('\n' + topicText('laborChanceTail'));
-  return sb.toString();
-}
+const TextExpr _laborChance = TxConcat([
+  Tx('laborBod_11'),
+  TxListJoin(
+    prefix: TxConcat([TxRaw('\n'), Tx('laborChancePlusLead'), TxRaw(' ')]),
+    separator: Tx('laborChancePlusSep'),
+    suffix: TxRaw('.'),
+    items: [
+      RecapItem(
+        when: FactNumMin('months', 12),
+        text: TxConcat([
+          Tx('laborChanceSpanA'),
+          TxRaw(' '),
+          TxNum('months', fmt: NumFmt.span),
+          TxRaw(' '),
+          Tx('laborChanceSpanB'),
+        ]),
+      ),
+      RecapItem(when: FactYes('contract'), text: Tx('laborBod_7')),
+      RecapItem(when: FactYes('insured'), text: Tx('laborBod_8')),
+    ],
+  ),
+  TxListJoin(
+    prefix: TxConcat([TxRaw('\n'), Tx('laborChanceMinusLead'), TxRaw(' ')]),
+    separator: Tx('laborChanceMinusSep'),
+    suffix: Tx('laborChanceMinusTail'),
+    items: [
+      RecapItem(when: FactNo('contract'), text: Tx('laborBod_9')),
+      RecapItem(when: FactNo('insured'), text: Tx('laborBod_10')),
+    ],
+  ),
+  TxRaw('\n'),
+  Tx('laborChanceTail'),
+]);

@@ -3,30 +3,32 @@ part of 'family.dart';
 // ادعاهای حقوقیِ خانواده: ارکان، شرط و نتیجه.
 
 final List<Claim> familyClaims = [
-  Claim(
+  Claim.dsl(
     goal: topicText('familyClm_0'),
-    when: (f) => f.eq('role', 'wife') && !f.yes('agrees'),
+    when: const FactAll([_famIsWife, FactNot(FactYes('agrees'))]),
     elements: [
-      Element(
+      Element.dsl(
         topicText('familyClm_1'),
-        (f) => f.yes('violence') ? true : null,
+        const FactTriIf(FactYes('violence'), true),
         needs: const ['violence'],
-        because: (f) => topicText('familyClm_2'),
+        because: const Tx('familyClm_2'),
       ),
-      Element(
+      Element.dsl(
         topicText('familyClm_3'),
-        (f) => f.has('proofV') ? !f.eq('proofV', 'none') : null,
+        const FactTriWhen(
+          FactHas('proofV'),
+          FactNot(FactEq('proofV', 'none')),
+        ),
         needs: const ['proofV'],
-        because: (f) => f.eq('proofV', 'medical')
-            ? topicText('familyClm_4')
-            : topicText('familyClm_5'),
-        ifNo:
-            topicText('familyClm_6'),
+        because: const TxCond(
+          FactEq('proofV', 'medical'),
+          Tx('familyClm_4'),
+          Tx('familyClm_5'),
+        ),
+        ifNo: topicText('familyClm_6'),
       ),
     ],
-    win: (f) =>
-        topicText('familyClm_7'),
-    counter: (f) =>
-        topicText('familyClm_8'),
+    win: const Tx('familyClm_7'),
+    counter: const Tx('familyClm_8'),
   ),
 ];

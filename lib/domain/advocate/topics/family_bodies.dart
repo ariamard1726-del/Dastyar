@@ -2,43 +2,99 @@ part of 'family.dart';
 
 // متنِ پاسخ‌ها: ایمنی، مهریه، حضانت و طلاق.
 
-String _famSafety(CaseFile f) =>
-    topicText('familySafetyTopA') + (f.has('childAge') ? ' ' + topicText('familySafetyChild') : '') + ' ' + topicText('familySafetyTopB') + '\n' + topicText('familySafetyRest');
+const TextExpr _famSafety = TxConcat([
+  Tx('familySafetyTopA'),
+  TxCond(
+    FactHas('childAge'),
+    TxConcat([TxRaw(' '), Tx('familySafetyChild')]),
+  ),
+  TxRaw(' '),
+  Tx('familySafetyTopB'),
+  TxRaw('\n'),
+  Tx('familySafetyRest'),
+]);
 
-String _famMehr(CaseFile f) {
-  if (f.eq('role', 'husband')) {
-    return topicText('familyBod_0');
-  }
-  final coins = f.n('coins');
-  final sb = StringBuffer(
-      topicText('familyBod_1'));
-  if (coins != null) {
-    sb.write(coins > 110 ? '\n' + topicText('familyMehrOverA') + ' ' + Sense.fa(coins) + ' ' + topicText('familyMehrOverB') + ' ' + Sense.fa(coins - 110) + ' ' + topicText('familyMehrOverC') : '\n' + topicText('familyMehrUnderA') + ' ' + Sense.fa(coins) + ' ' + topicText('familyMehrUnderB'));
-  }
-  return sb.toString();
-}
+const TextExpr _famMehr = TxCond(
+  _famIsHusband,
+  Tx('familyBod_0'),
+  TxConcat([
+    Tx('familyBod_1'),
+    TxCond(
+      FactHasNum('coins'),
+      TxCond(
+        FactNumMin('coins', 111, missingNull: false),
+        TxConcat([
+          TxRaw('\n'),
+          Tx('familyMehrOverA'),
+          TxRaw(' '),
+          TxNum('coins', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyMehrOverB'),
+          TxRaw(' '),
+          TxNumOffset('coins', -110),
+          TxRaw(' '),
+          Tx('familyMehrOverC'),
+        ]),
+        TxConcat([
+          TxRaw('\n'),
+          Tx('familyMehrUnderA'),
+          TxRaw(' '),
+          TxNum('coins', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyMehrUnderB'),
+        ]),
+      ),
+    ),
+  ]),
+);
 
-String _famCustody(CaseFile f) {
-  final age = f.n('childAge');
-  final sb = StringBuffer();
-  if (age != null && age < 7) {
-    sb.write(topicText('familyCustYoungA') + ' ' + Sense.fa(age) + ' ' + topicText('familyCustYoungB') + ' ' + (f.eq('role', 'husband') ? topicText('familyCustMother') : topicText('familyCustYou')) + ' ' + topicText('familyCustEst'));
-  } else if (age != null) {
-    sb.write(topicText('familyCustYoungA') + ' ' + Sense.fa(age) + ' ' + topicText('familyCustOldB'));
-  } else {
-    sb.write(
-        topicText('familyBod_2'));
-  }
-  sb.write(topicText('familyBod_3'));
-  if (f.yes('violence') && !f.eq('role', 'husband')) {
-    sb.write(topicText('familyBod_4'));
-  }
-  return sb.toString();
-}
+const TextExpr _famCustody = TxConcat([
+  TxCases(
+    [
+      TextCase(
+        FactAll([FactHasNum('childAge'), FactNumMax('childAge', 6)]),
+        TxConcat([
+          Tx('familyCustYoungA'),
+          TxRaw(' '),
+          TxNum('childAge', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyCustYoungB'),
+          TxRaw(' '),
+          TxCond(_famIsHusband, Tx('familyCustMother'), Tx('familyCustYou')),
+          TxRaw(' '),
+          Tx('familyCustEst'),
+        ]),
+      ),
+      TextCase(
+        FactHasNum('childAge'),
+        TxConcat([
+          Tx('familyCustYoungA'),
+          TxRaw(' '),
+          TxNum('childAge', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyCustOldB'),
+        ]),
+      ),
+    ],
+    fallback: Tx('familyBod_2'),
+  ),
+  Tx('familyBod_3'),
+  TxCond(
+    FactAll([FactYes('violence'), _famNotHusband]),
+    Tx('familyBod_4'),
+  ),
+]);
 
-String _famDivorce(CaseFile f) {
-  if (f.eq('role', 'husband')) {
-    return topicText('familyBod_5');
-  }
-  return topicText('familyDivorceWays') + '\n' + (f.yes('violence') ? topicText('familyDivorceVYes') : topicText('familyDivorceVNo'));
-}
+const TextExpr _famDivorce = TxCond(
+  _famIsHusband,
+  Tx('familyBod_5'),
+  TxConcat([
+    Tx('familyDivorceWays'),
+    TxRaw('\n'),
+    TxCond(
+      FactYes('violence'),
+      Tx('familyDivorceVYes'),
+      Tx('familyDivorceVNo'),
+    ),
+  ]),
+);

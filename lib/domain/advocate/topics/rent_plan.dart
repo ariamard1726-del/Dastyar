@@ -2,205 +2,256 @@ part of 'rent.dart';
 
 // نقشهٔ راه: طرحِ دعوا، مدرک، شانس، مهلت و جمع‌بندی.
 
-String _rentPlan(CaseFile f) {
-  final sum = _rentSum(f);
-  if (f.eq('role', 'landlord')) {
-    if (f.eq('aim', 'unpaid')) {
-      return rentText('plan0') + moneyForum(sum);
-    }
-    if (f.eq('aim', 'damage')) {
-      return rentText('plan1') + moneyForum(sum);
-    }
-    if (f.eq('aim', 'breach')) {
-      return rentText('plan2');
-    }
-    if (f.no('ended')) {
-      return rentText('plan3');
-    }
-    return rentText('plan4');
-  }
-  if (f.eq('matter', 'raise')) {
-    return rentText('plan5');
-  }
-  if (_ordered(f)) {
-    return rentText('plan6');
-  }
-  if (f.eq('matter', 'evict')) {
-    return rentText('plan7');
-  }
-  if (f.eq('matter', 'deliver')) {
-    return rentText('plan8') + _rentPeace();
-  }
-  if (f.eq('matter', 'repair')) {
-    return rentText('plan9');
-  }
-  if (f.eq('matter', 'leave')) {
-    return rentText('plan10');
-  }
-  if (f.no('vacated')) {
-    return rentText('plan11');
-  }
-  return rentText('plan12') + moneyForum(sum);
-}
+const TextExpr _rentPlan = TxCases(
+  [
+    TextCase(_aUnpaid, TxConcat([TxRent('plan0'), _rentSumForum])),
+    TextCase(_aDamage, TxConcat([TxRent('plan1'), _rentSumForum])),
+    TextCase(_aBreach, TxRent('plan2')),
+    TextCase(FactAll([_landlordSide, FactNo('ended')]), TxRent('plan3')),
+    TextCase(_landlordSide, TxRent('plan4')),
+    TextCase(FactEq('matter', 'raise'), TxRent('plan5')),
+    TextCase(_ordered, TxRent('plan6')),
+    TextCase(FactEq('matter', 'evict'), TxRent('plan7')),
+    TextCase(
+      FactEq('matter', 'deliver'),
+      TxConcat([TxRent('plan8'), _rentPeace]),
+    ),
+    TextCase(FactEq('matter', 'repair'), TxRent('plan9')),
+    TextCase(FactEq('matter', 'leave'), TxRent('plan10')),
+    TextCase(FactNo('vacated'), TxRent('plan11')),
+  ],
+  fallback: TxConcat([TxRent('plan12'), _rentSumForum]),
+);
 
-String _rentEvidence(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    return rentText('plan30');
-  }
-  if (!_rentDeposit(f)) {
-    return rentText('plan31');
-  }
-  final sb = StringBuffer(rentText('plan32'));
-  if (f.no('contract')) {
-    sb.write(rentText('plan33'));
-  }
-  return rentText('plan32');
-}
+const TextExpr _rentEvidence = TxCases(
+  [
+    TextCase(_landlordSide, TxRent('plan30')),
+    TextCase(FactNot(_rentDeposit), TxRent('plan31')),
+  ],
+  fallback: TxConcat([
+    TxRent('plan32'),
+    TxCond(FactConst(false), TxRent('plan33')),
+  ]),
+);
 
-String _rentChance(CaseFile f) {
-  final lead = rentText('planLead');
-  if (f.eq('role', 'landlord')) {
-    if (f.eq('aim', 'unpaid')) {
-      return lead + rentText('plan19');
-    }
-    if (f.eq('aim', 'damage')) {
-      return lead + rentText('plan20');
-    }
-    if (f.eq('aim', 'breach')) {
-      return lead + rentText('plan21');
-    }
-    return lead + rentText('plan22');
-  }
-  if (f.eq('matter', 'raise')) {
-    return lead + rentText('plan23');
-  }
-  if (_ordered(f)) {
-    return lead + rentText('plan24');
-  }
-  if (f.eq('matter', 'evict')) {
-    return lead + rentText('plan25');
-  }
-  if (f.eq('matter', 'deliver')) {
-    return lead + rentText('plan26');
-  }
-  if (f.eq('matter', 'repair')) {
-    return lead + rentText('plan27');
-  }
-  if (f.eq('matter', 'leave')) {
-    return lead + rentText('plan28');
-  }
-  final plus = <String>[];
-  final minus = <String>[];
-  if (f.yes('vacated')) {
-    plus.add(rentText('recapChanceVacated'));
-  }
-  if (f.yes('ended')) plus.add(rentText('recapChanceEnded'));
-  if (f.yes('contract')) plus.add(rentText('recapChanceContract'));
-  if (f.no('contract')) {
-    minus.add(
-        rentText('recapChanceNoContract'));
-  }
-  if (f.no('ended')) minus.add(rentText('recapChanceNotEnded'));
-  if (f.covered.contains('damage')) {
-    minus.add(
-        rentText('recapChanceDamage'));
-  }
-  final sb = StringBuffer(
-      rentText('recapChanceBase'));
-  if (plus.isNotEmpty) sb.write('\n' + rentText('recapChancePlus') + ' ' + plus.join(rentText('recapChanceSep')) + '.');
-  if (minus.isNotEmpty) sb.write('\n' + rentText('recapChanceMinus') + ' ' + minus.join(rentText('recapChanceSep')) + '.');
-  if (plus.isEmpty && minus.isEmpty) {
-    sb.write(
-        '\n' + rentText('recapChanceNeutral'));
-  }
-  return sb.toString();
-}
+const FactExpr _chanceHasPlus = FactAny([
+  FactYes('vacated'),
+  FactYes('ended'),
+  FactYes('contract'),
+]);
 
-String _rentWhere(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    if (f.eq('aim', 'unpaid') || f.eq('aim', 'damage')) {
-      return moneyForum(_rentSum(f));
-    }
-    return rentText('recapWhereLandlordEvict');
-  }
-  if (_shop(f) && f.covered.contains('goodwill')) {
-    return rentText('recapWhereGoodwill');
-  }
-  return _rentDeposit(f) ? moneyForum(f.n('amount')) : _rentPeace();
-}
+const FactExpr _chanceHasMinus = FactAny([
+  FactNo('contract'),
+  FactNo('ended'),
+  FactCovered('damage'),
+]);
 
-String _rentDeadline(CaseFile f) {
-  if (_ordered(f)) {
-    return rentText('plan13');
-  }
-  if (f.eq('role', 'landlord')) {
-    return rentText('plan14');
-  }
-  return rentText('plan15');
-}
+const TextExpr _rentChance = TxCases(
+  [
+    TextCase(_aUnpaid, TxConcat([TxRent('planLead'), TxRent('plan19')])),
+    TextCase(_aDamage, TxConcat([TxRent('planLead'), TxRent('plan20')])),
+    TextCase(_aBreach, TxConcat([TxRent('planLead'), TxRent('plan21')])),
+    TextCase(_landlordSide, TxConcat([TxRent('planLead'), TxRent('plan22')])),
+    TextCase(
+      FactEq('matter', 'raise'),
+      TxConcat([TxRent('planLead'), TxRent('plan23')]),
+    ),
+    TextCase(_ordered, TxConcat([TxRent('planLead'), TxRent('plan24')])),
+    TextCase(
+      FactEq('matter', 'evict'),
+      TxConcat([TxRent('planLead'), TxRent('plan25')]),
+    ),
+    TextCase(
+      FactEq('matter', 'deliver'),
+      TxConcat([TxRent('planLead'), TxRent('plan26')]),
+    ),
+    TextCase(
+      FactEq('matter', 'repair'),
+      TxConcat([TxRent('planLead'), TxRent('plan27')]),
+    ),
+    TextCase(
+      FactEq('matter', 'leave'),
+      TxConcat([TxRent('planLead'), TxRent('plan28')]),
+    ),
+  ],
+  fallback: TxConcat([
+    TxRent('recapChanceBase'),
+    TxListJoin(
+      prefix: TxConcat([TxRaw('\n'), TxRent('recapChancePlus'), TxRaw(' ')]),
+      separator: TxRent('recapChanceSep'),
+      suffix: TxRaw('.'),
+      items: [
+        RecapItem(
+          when: FactYes('vacated'),
+          text: TxRent('recapChanceVacated'),
+        ),
+        RecapItem(when: FactYes('ended'), text: TxRent('recapChanceEnded')),
+        RecapItem(
+          when: FactYes('contract'),
+          text: TxRent('recapChanceContract'),
+        ),
+      ],
+    ),
+    TxListJoin(
+      prefix: TxConcat([TxRaw('\n'), TxRent('recapChanceMinus'), TxRaw(' ')]),
+      separator: TxRent('recapChanceSep'),
+      suffix: TxRaw('.'),
+      items: [
+        RecapItem(
+          when: FactNo('contract'),
+          text: TxRent('recapChanceNoContract'),
+        ),
+        RecapItem(
+          when: FactNo('ended'),
+          text: TxRent('recapChanceNotEnded'),
+        ),
+        RecapItem(
+          when: FactCovered('damage'),
+          text: TxRent('recapChanceDamage'),
+        ),
+      ],
+    ),
+    TxCond(
+      FactAll([FactNot(_chanceHasPlus), FactNot(_chanceHasMinus)]),
+      TxConcat([TxRaw('\n'), TxRent('recapChanceNeutral')]),
+    ),
+  ]),
+);
 
-String _rentRefuse(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    if (f.eq('aim', 'unpaid') || f.eq('aim', 'damage')) {
-      return rentText('plan16');
-    }
-    return rentText('plan17');
-  }
-  if (!_rentDeposit(f)) {
-    return rentText('plan34_a') + _rentPeace() + rentText('plan34_b');
-  }
-  return rentText('plan18');
-}
+const TextExpr _rentWhere = TxCases(
+  [
+    TextCase(FactAny([_aUnpaid, _aDamage]), _rentSumForum),
+    TextCase(_landlordSide, TxRent('recapWhereLandlordEvict')),
+    TextCase(
+      FactAll([_shop, FactCovered('goodwill')]),
+      TxRent('recapWhereGoodwill'),
+    ),
+  ],
+  fallback: TxCond(_rentDeposit, TxForum('amount'), _rentPeace),
+);
+
+const TextExpr _rentDeadline = TxCases(
+  [
+    TextCase(_ordered, TxRent('plan13')),
+    TextCase(_landlordSide, TxRent('plan14')),
+  ],
+  fallback: TxRent('plan15'),
+);
+
+const TextExpr _rentRefuse = TxCases(
+  [
+    TextCase(FactAny([_aUnpaid, _aDamage]), TxRent('plan16')),
+    TextCase(_landlordSide, TxRent('plan17')),
+    TextCase(
+      FactNot(_rentDeposit),
+      TxConcat([TxRent('plan34_a'), _rentPeace, TxRent('plan34_b')]),
+    ),
+  ],
+  fallback: TxRent('plan18'),
+);
 
 // ============================================================ برداشت وکیل
 
-List<String> rentRecap(CaseFile f) {
-  final tenant = f.eq('role', 'tenant');
-  final landlord = f.eq('role', 'landlord');
-  final sum = _rentSum(f);
-  return [
-    if (landlord) rentText('recapLandlord'),
-    if (tenant) rentText('recapTenant'),
-    if (_shop(f)) rentText('recapShop'),
-    if (_matter(f, 'deposit')) rentText('recapMatterDeposit'),
-    if (_matter(f, 'raise')) rentText('recapMatterRaise'),
-    if (_matter(f, 'evict')) rentText('recapMatterEvict'),
-    if (_matter(f, 'order')) rentText('recapMatterOrder'),
-    if (_matter(f, 'repair')) rentText('recapMatterRepair'),
-    if (_matter(f, 'leave')) rentText('recapMatterLeave'),
-    if (_matter(f, 'deliver')) rentText('recapMatterDeliver'),
-    if (_matter(f, 'evict') && f.yes('official')) rentText('recapOfficialYes'),
-    if (_matter(f, 'evict') && f.no('official'))
-      rentText('recapOfficialNo'),
-    if (_aim(f, 'evict')) rentText('recapAimEvict'),
-    if (_aim(f, 'evict') && f.yes('owes')) rentText('recapAimEvictOwes'),
-    if (_aim(f, 'unpaid')) rentText('recapAimUnpaid'),
-    if (_aim(f, 'damage')) rentText('recapAimDamage'),
-    if (_aim(f, 'breach')) rentText('recapAimBreach'),
-    if (f.yes('ended')) rentText('recapEndedYes'),
-    if (f.no('ended')) rentText('recapEndedNo'),
-    if (!landlord && f.yes('vacated')) rentText('recapVacatedYes'),
-    if (!landlord && f.no('vacated')) rentText('recapVacatedNo'),
-    if (!landlord && f.n('amount') != null)
-      rentText('recapAmountPrefix') + ' ' + Sense.toman(f.n('amount')!) + ' ' + rentText('recapAmountSuffix'),
-    if (landlord && sum != null) rentText('recapSumPrefix') + ' ' + Sense.toman(sum) + ' ' + rentText('recapSumSuffix'),
-    if (f.yes('contract')) rentText('recapContractYes'),
-    if (f.no('contract')) rentText('recapContractNo'),
-    if (landlord && f.yes('witness')) rentText('recapWitnessYes'),
-    if (landlord && f.no('witness')) rentText('recapWitnessNo'),
-    if (landlord && f.yes('clause')) rentText('recapClauseYes'),
-    if (landlord && f.no('clause')) rentText('recapClauseNo'),
-    if (landlord && f.has('aim') && f.yes('proof')) rentText('recapProofYes'),
-    if (landlord && f.has('aim') && f.no('proof'))
-      rentText('recapProofNo'),
-    if (_matter(f, 'repair') && f.yes('told'))
-      rentText('recapToldYes'),
-    if (_matter(f, 'repair') && f.no('told'))
-      rentText('recapToldNo'),
-    if (_matter(f, 'leave') && f.yes('consent')) rentText('recapConsentYes'),
-    if (_matter(f, 'leave') && f.no('consent'))
-      rentText('recapConsentNo'),
-  ];
-}
-
-// ================================================================ ادعاها
+const List<RecapItem> _rentRecap = [
+  RecapItem(when: _landlordSide, text: TxRent('recapLandlord')),
+  RecapItem(when: _isTenantRole, text: TxRent('recapTenant')),
+  RecapItem(when: _shop, text: TxRent('recapShop')),
+  RecapItem(when: _mDeposit, text: TxRent('recapMatterDeposit')),
+  RecapItem(when: _mRaise, text: TxRent('recapMatterRaise')),
+  RecapItem(when: _mEvict, text: TxRent('recapMatterEvict')),
+  RecapItem(when: _mOrder, text: TxRent('recapMatterOrder')),
+  RecapItem(when: _mRepair, text: TxRent('recapMatterRepair')),
+  RecapItem(when: _mLeave, text: TxRent('recapMatterLeave')),
+  RecapItem(when: _mDeliver, text: TxRent('recapMatterDeliver')),
+  RecapItem(
+    when: FactAll([_mEvict, FactYes('official')]),
+    text: TxRent('recapOfficialYes'),
+  ),
+  RecapItem(
+    when: FactAll([_mEvict, FactNo('official')]),
+    text: TxRent('recapOfficialNo'),
+  ),
+  RecapItem(when: _aEvict, text: TxRent('recapAimEvict')),
+  RecapItem(
+    when: FactAll([_aEvict, FactYes('owes')]),
+    text: TxRent('recapAimEvictOwes'),
+  ),
+  RecapItem(when: _aUnpaid, text: TxRent('recapAimUnpaid')),
+  RecapItem(when: _aDamage, text: TxRent('recapAimDamage')),
+  RecapItem(when: _aBreach, text: TxRent('recapAimBreach')),
+  RecapItem(when: FactYes('ended'), text: TxRent('recapEndedYes')),
+  RecapItem(when: FactNo('ended'), text: TxRent('recapEndedNo')),
+  RecapItem(
+    when: FactAll([FactNot(_landlordSide), FactYes('vacated')]),
+    text: TxRent('recapVacatedYes'),
+  ),
+  RecapItem(
+    when: FactAll([FactNot(_landlordSide), FactNo('vacated')]),
+    text: TxRent('recapVacatedNo'),
+  ),
+  RecapItem(
+    when: FactAll([FactNot(_landlordSide), FactHasNum('amount')]),
+    text: TxConcat([
+      TxRent('recapAmountPrefix'),
+      TxRaw(' '),
+      TxNum('amount'),
+      TxRaw(' '),
+      TxRent('recapAmountSuffix'),
+    ]),
+  ),
+  RecapItem(
+    when: FactAll([
+      _landlordSide,
+      FactAny([FactHasNum('due'), FactHasNum('amount')]),
+    ]),
+    text: TxConcat([
+      TxRent('recapSumPrefix'),
+      TxRaw(' '),
+      TxCond(FactHasNum('due'), TxNum('due'), TxNum('amount')),
+      TxRaw(' '),
+      TxRent('recapSumSuffix'),
+    ]),
+  ),
+  RecapItem(when: FactYes('contract'), text: TxRent('recapContractYes')),
+  RecapItem(when: FactNo('contract'), text: TxRent('recapContractNo')),
+  RecapItem(
+    when: FactAll([_landlordSide, FactYes('witness')]),
+    text: TxRent('recapWitnessYes'),
+  ),
+  RecapItem(
+    when: FactAll([_landlordSide, FactNo('witness')]),
+    text: TxRent('recapWitnessNo'),
+  ),
+  RecapItem(
+    when: FactAll([_landlordSide, FactYes('clause')]),
+    text: TxRent('recapClauseYes'),
+  ),
+  RecapItem(
+    when: FactAll([_landlordSide, FactNo('clause')]),
+    text: TxRent('recapClauseNo'),
+  ),
+  RecapItem(
+    when: FactAll([_landlordSide, FactHas('aim'), FactYes('proof')]),
+    text: TxRent('recapProofYes'),
+  ),
+  RecapItem(
+    when: FactAll([_landlordSide, FactHas('aim'), FactNo('proof')]),
+    text: TxRent('recapProofNo'),
+  ),
+  RecapItem(
+    when: FactAll([_mRepair, FactYes('told')]),
+    text: TxRent('recapToldYes'),
+  ),
+  RecapItem(
+    when: FactAll([_mRepair, FactNo('told')]),
+    text: TxRent('recapToldNo'),
+  ),
+  RecapItem(
+    when: FactAll([_mLeave, FactYes('consent')]),
+    text: TxRent('recapConsentYes'),
+  ),
+  RecapItem(
+    when: FactAll([_mLeave, FactNo('consent')]),
+    text: TxRent('recapConsentNo'),
+  ),
+];

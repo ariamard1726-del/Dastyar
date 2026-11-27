@@ -134,8 +134,8 @@
       "lines": 56
     },
     "lib/domain/advocate/topics/cheque.dart": {
-      "sha256": "2d2e4265145b3c817b98cbc03b164247a71201a799ca6bf9df5f5e204c8fadc4",
-      "lines": 259
+      "sha256": "f9f039f1c1f82b1284b42bc6a0fddf1701783866c63bd93623fbab9c0655cd01",
+      "lines": 260
     },
     "lib/domain/advocate/topics/child.dart": {
       "sha256": "900493389e7abfa1e5f57ec9de0acad07c61cfe9ddcc8acc7684ae538ddf4c2d",
@@ -162,20 +162,20 @@
       "lines": 126
     },
     "lib/domain/advocate/topics/family_bodies.dart": {
-      "sha256": "2313bd912e1147cd1bf229da61e3fc584820ed3790dac211c7f7b1574906de5b",
-      "lines": 44
+      "sha256": "944094a846740d21409158fdefa5dfc606bb1328c8e8b1cefb6e191e03b8c2eb",
+      "lines": 100
     },
     "lib/domain/advocate/topics/family_claims.dart": {
-      "sha256": "aace0a06b075716e91a4fa568c39cecd1deebcba09b03f00b80ce17b7a26dcc7",
-      "lines": 32
+      "sha256": "fdd7d48ea34596e560ccf20644f17e9b52c8121965ef541583298d48053d80e7",
+      "lines": 34
     },
     "lib/domain/advocate/topics/family_issues.dart": {
-      "sha256": "5aab7180eb3d9493162984a6b4ab23ab7ab8f0cfaefed56274b37726776b7152",
-      "lines": 195
+      "sha256": "bbddcbb16f49a7d849aa8e66ada62c952f4ef6021efcb31a541ced96f7aa289d",
+      "lines": 240
     },
     "lib/domain/advocate/topics/family_patterns.dart": {
-      "sha256": "18ff3b9572e024feebefc5360b0e413f2015a568132127416d52027ad0d4bc77",
-      "lines": 50
+      "sha256": "ad992c42503593ebf05b20c1ae2c93693fe3ae65991a43998f5eff170bd7db78",
+      "lines": 72
     },
     "lib/domain/advocate/topics/fight.dart": {
       "sha256": "47f18c24c5a6fe01fd010a6371befc6ab448c9f16c8826886ccb95a15aab161d",
@@ -198,20 +198,20 @@
       "lines": 149
     },
     "lib/domain/advocate/topics/labor_bodies.dart": {
-      "sha256": "452b073180f74e5612f8431ad8509a19ba5453f8b38f4113b390b375309e7633",
-      "lines": 66
+      "sha256": "5b96815116a6b47a87525563051d7d21d4590fc05f711e3c83bdbed772b4eda7",
+      "lines": 112
     },
     "lib/domain/advocate/topics/labor_claims.dart": {
-      "sha256": "ee7ddf1192a1e1ba0db634277de2609f4146f1cfda7aca0a27d6b085ee40f43b",
-      "lines": 151
+      "sha256": "dc04ab46b7e4e9831c7dfe8e18ab6a25c7b7365de0383e939aa9d733846eadc6",
+      "lines": 156
     },
     "lib/domain/advocate/topics/labor_issues.dart": {
-      "sha256": "65150736ca5891ae43a6801d75236b2c939278038897bfa2d93fe2b8fcaef836",
-      "lines": 240
+      "sha256": "3aa4dc19e6943c58e7bde47299ee47e37e3cf828aac077b86385739a2f7ffa5b",
+      "lines": 297
     },
     "lib/domain/advocate/topics/labor_patterns.dart": {
-      "sha256": "4c5ab35a80d8064c5c648809293971cde82cb62f396f988a213437a8b69cdf8c",
-      "lines": 115
+      "sha256": "33701b719dcfe080912f821f9c24f2b3a0fbdd028256a7f1ab0bb9085951316c",
+      "lines": 112
     },
     "lib/domain/advocate/topics/marriage.dart": {
       "sha256": "904c78defef1ef2eaccf4be5b5c3e1d24f442c4e44b65329692e919cb5907390",
@@ -234,24 +234,24 @@
       "lines": 144
     },
     "lib/domain/advocate/topics/rent_bodies.dart": {
-      "sha256": "fce00ff5b6936cc35a475523e53063ca8e62ada61a586caf015ccd4ca720673b",
-      "lines": 151
+      "sha256": "fb709da015810771285637b96c8f3b83a12acd5b5f4f9b1d6239d0b7ef416753",
+      "lines": 173
     },
     "lib/domain/advocate/topics/rent_bodies_landlord.dart": {
-      "sha256": "f66ae232c62f05c9eef043d24a737e4c4f3f8c888ad2de9b42db6bb67da55f09",
-      "lines": 109
+      "sha256": "1e35c7bf5bc57a9095a9d0e018eca45632a02b01cacf9f6acf2f8903f239e181",
+      "lines": 138
     },
     "lib/domain/advocate/topics/rent_claims.dart": {
-      "sha256": "d6239daf8cbd393208d82aabbfdcb8dcc66cbe3ca4857431dac764183dda8d9f",
-      "lines": 368
+      "sha256": "3a9392a5b243bbab28dd0ff9cdb2e8cefa8b1b21d12bb9519bd06e68dff28415",
+      "lines": 331
     },
     "lib/domain/advocate/topics/rent_fill.dart": {
-      "sha256": "ecb076b9f917ace3e8fa2a059b3a274c572f0489d149759550f8674fd009833b",
-      "lines": 211
+      "sha256": "aac9b3d6313b9e63795e055d3803f382c85dcee115aee3f0711712876aaf8b8a",
+      "lines": 261
     },
     "lib/domain/advocate/topics/rent_plan.dart": {
-      "sha256": "5fcab1b5f87680747d03bb78e5f0d39eed96fe314cbbc2f6f7a784c461c22cf9",
-      "lines": 206
+      "sha256": "650ba65034e2a7e84a6a7b6f2d2b8c88a933e8fcc3c52a215a59555fd8c25790",
+      "lines": 257
     },
     "lib/domain/advocate/topics/sale.dart": {
       "sha256": "a4a0da681d521729148904eac4dc6f71e9dd5c15a1c792df6587ed759ebd2474",

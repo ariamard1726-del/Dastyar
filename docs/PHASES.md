@@ -26,7 +26,7 @@
 | ۷ | تکرار پارس لاگ CI، جدول ارقام، `AI_MARKERS`، خواندن `_meta.json` و `open()`های بی‌بست در `dev/tools/` | یکپارچه‌سازی در `lawtext.py` و `ci_annotate.py` با ۰ `ResourceWarning` | اشتراک پارس در گزارشگرهای CI، متمرکزشدن ابزارها روی `lawtext.py`، ۰ فایل باز رهاشده و به‌روزرسانی مستندات | **انجام شد** |
 | ۸ | فراخوانی همگام در `GuideReply`/`LawTerms`، نبود ماشین شدت/پنجره در ایمنی، نبود `schemaVersion` در `DraftSession`/`FeedbackStore` و استثنای فلاتر در `lib/domain/settings.dart` | اجرای ناهمگام در `EngineWorker` (`prepareWith`/`matchTermsInWorker`)، ماشین حالت ایمنی (`SafetySeverity` و پنجره)، `schemaVersion = 1` با مهاجرت مقاوم و دامنهٔ صفر-فلاتر | صفر `DOMAIN_FLUTTER_ALLOWLIST`، عبور ایمنی از `SafetySeverity` و «الان امن است»، نسخه‌بندی ذخیره‌ها و حفظ ۱۳۰/۱۳۰ و ۷۰۱+ آزمون سبز | **انجام شد** |
 | ۹ | وجود کلوژرهای بی‌نام (`Reader`/`Body`/`Cond`/`Tri`) در ۲۰ موضوع ساده/میانی | موتور `RuleDSL` (`rule_dsl.dart` / `rule_dsl_text.dart` / `rule_dsl_read.dart` / `rule_dsl_json.dart`) و سازنده‌های `.dsl(...)` در `case_model.dart` | مهاجرت ۲۰ موضوعِ غیرچندفایلی به `Topic.dsl`/`Slot.dsl`/`Issue.dsl`/`Claim.dsl`/`Element.dsl` با ۰ کلوژر، سریال‌پذیری JSON، حفظ ۱۳۰/۱۳۰ و ۷۰۱+ آزمون سبز | **انجام شد** |
-| ۱۰ | کلوژرهای مرکب در ۴ موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) | مهاجرت کامل ۴ موضوع بزرگ و سریال‌پذیرشدن `Topic.toJson()` | حذف کلوژرهای بی‌نام از کل ۲۴ موضوع با نگهبان عددی `Topic.toJson()` | **پیش‌رو** |
+| ۱۰ | کلوژرهای مرکب در ۴ موضوع بزرگ (`cheque`، `family`، `labor`، `rent`) | مهاجرت کامل ۴ موضوع بزرگ (`rule_dsl_topic.dart` + سازنده‌های `.dsl`) و سریال‌پذیرشدن `Topic.toJson()` روی هر ۲۴ موضوع | حذف کلوژرهای بی‌نام و توابع کمکی از کل ۲۴ موضوع با نگهبان `test_phase10_rule_dsl.py` و آزمون‌های `test/advocate/phase10_rule_dsl_test.dart` | **انجام شد** |
 | ۱۱ | همگام‌سازی جفت‌های منطق موازی پایتون/دارت (`duplicated_logic.json`) | یکپارچه‌سازی منبع قوانین تطبیق/نرمال‌سازی و جمع‌بندی مستندات | عبور تمام جفت‌های برابری و تازگی کامل مستندات معماری | **پیش‌رو** |
 
 ## فاز ۰ — ابزارِ مشترکِ خواندن (انجام شد)
@@ -329,11 +329,11 @@ APK فقط به امیدِ `pubspec.yaml` بود. کلید نسخهٔ قدیمی
 
 **نگهبان:** `tests/python/test_phase8_runtime_and_layers.py` و آزمون‌های واحد دارت در `test/engine/worker_test.dart`، `test/domain/safety_reply_test.dart`، `test/advocate/safety_test.dart`، `test/app/draft_checkpoint_test.dart` و `test/core/privacy_test.dart`.
 
-## فازهای پیش‌رو (۹ تا ۱۱)
+## فازهای ۹ تا ۱۰ (انجام شد) و گام نهایی (۱۱)
 
-- **فاز ۹ (`RuleDSL` + مهاجرت ۲۰ موضوع ساده/میانی):** معرفی موتور سبک `FactExpr`/`MatchRule`/`RuleRef` قابل سریال‌پذیری در `case_model.dart` (در کنار حفظ `const String` برای regexها و بدون افت عملکرد) و مهاجرت ۲۰ موضوع غیرچندفایلی.
-- **فاز ۱۰ (مهاجرت ۴ موضوع بزرگ `cheque`، `family`، `labor`، `rent`):** جایگزینی کلوژرهای مرکب با قاعده‌های نام‌دار/DSL و قفل‌کردن سریال‌پذیری `Topic.toJson()` روی کل ۲۴ موضوع.
-- **فاز ۱۱ (همگام‌سازی منطق موازی پایتون/دارت و جمع‌بندی نهایی):** تکمیل مرجع واحد جفت‌های `duplicated_logic.json` و به‌روزرسانی نهایی مستندات.
+- **فاز ۹ (`RuleDSL` + مهاجرت ۲۰ موضوع ساده/میانی؛ انجام شد):** معرفی موتور سبک `FactExpr`/`TextExpr`/`ReadRule`/`GateRule` قابل سریال‌پذیری در `rule_dsl*.dart` و `case_model.dart` (همراه با حفظ `const String` برای regexها و بدون افت عملکرد) و مهاجرت کامل ۲۰ موضوع تک‌فایلی به `Topic.dsl`.
+- **فاز ۱۰ (مهاجرت ۴ موضوع بزرگ `cheque`، `family`، `labor`، `rent`؛ انجام شد):** افزودن `rule_dsl_topic.dart` (`RankRule`، `FilingRule`، `PromptRule`، `FillRule`، `TxCases`، `TxAssessDemands`) و عملگرهای پیشرفته (`FactTouched`، `FactCovered`، `FactNumMax`، `ReadGuard`، `ReadBeforeMatch`، `ReadMonths`، `TxRent`، `TxNumOffset`، `TxScaleMul`، `TxListJoin`) به `RuleDSL`، مهاجرت کامل هر چهار موضوع بزرگ (`cheque.dart`، پنج فایل `family*`، پنج فایل `labor*` و هر ۱۴ فایل `rent*`) با صفر کلوژر و صفر `=>` در کل ۲۴ موضوع، و قفل‌کردن هم‌ارزی رفتاری و `Topic.toJson()` با `test_phase10_rule_dsl.py` و `test/advocate/phase10_rule_dsl_test.dart`.
+- **فاز ۱۱ (همگام‌سازی منطق موازی پایتون/دارت و جمع‌بندی نهایی؛ پیش‌رو):** تکمیل مرجع واحد جفت‌های `duplicated_logic.json` و به‌روزرسانی نهایی مستندات.
 
 ## وضعیتِ P0های بازبینیِ انتشار (شاخهٔ جاری)
 

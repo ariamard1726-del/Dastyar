@@ -33,7 +33,8 @@ class SlotRules {
 class IssueRules {
   final TextExpr body;
   final FactExpr? when;
-  const IssueRules({required this.body, this.when});
+  final RankRule? rank;
+  const IssueRules({required this.body, this.when, this.rank});
 }
 
 class TopicRules {
@@ -42,12 +43,20 @@ class TopicRules {
   final Map<String, TextExpr> follow;
   final DraftRule? drafts;
   final List<RecapItem>? recap;
+  final FilingRule? petition;
+  final FilingRule? brief;
+  final FillRule? fill;
+  final PromptRule? askReply;
   const TopicRules({
     this.gate,
     required this.opening,
     required this.follow,
     this.drafts,
     this.recap,
+    this.petition,
+    this.brief,
+    this.fill,
+    this.askReply,
   });
 }
 
@@ -79,8 +88,11 @@ extension SlotRuleJson on Slot {
         'id': id,
         'ask': ask,
         if (options.isNotEmpty) 'options': options,
+        if (sticky) 'sticky': true,
+        if (priority.isNotEmpty) 'priority': priority,
         if (rules != null) 'read': rules!.read.toJson(),
         if (rules?.readPending != null) 'readPending': rules!.readPending!.toJson(),
+        if (rules?.readSure != null) 'readSure': rules!.readSure!.toJson(),
         if (rules?.effect != null) 'effect': rules!.effect!.toJson(),
         if (rules?.when != null) 'when': rules!.when!.toJson(),
       };
@@ -91,8 +103,10 @@ extension IssueRuleJson on Issue {
         'id': id,
         'chip': chip,
         'cues': cues,
+        if (covers.isNotEmpty) 'covers': covers.toList(),
         if (rules != null) 'body': rules!.body.toJson(),
         if (rules?.when != null) 'when': rules!.when!.toJson(),
+        if (rules?.rank != null) 'rank': rules!.rank!.toJson(),
       };
 }
 
@@ -108,6 +122,10 @@ extension TopicRuleJson on Topic {
           'follow': {for (final e in rules!.follow.entries) e.key: e.value.toJson()},
         if (rules?.drafts != null) 'drafts': rules!.drafts!.toJson(),
         if (rules?.recap != null) 'recap': [for (final r in rules!.recap!) r.toJson()],
+        if (rules?.petition != null) 'petition': rules!.petition!.toJson(),
+        if (rules?.brief != null) 'brief': rules!.brief!.toJson(),
+        if (rules?.fill != null) 'fill': rules!.fill!.toJson(),
+        if (rules?.askReply != null) 'askReply': rules!.askReply!.toJson(),
         'slots': [for (final s in slots) s.toJson()],
         'issues': [for (final i in issues) i.toJson()],
         if (claims.isNotEmpty) 'claims': [for (final c in claims) c.toJson()],

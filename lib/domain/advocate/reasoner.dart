@@ -62,9 +62,13 @@ class Reasoner {
   /// ادعاهای نام‌دار ([Claim.label]) کنار هم مطرح می‌شوند: یک ماجرا می‌تواند
   /// هم اخراج باشد هم حقوق معوق. ادعاهای بی‌نام جایگزینِ هم‌اند (مثلاً موجر
   /// یا مستأجر) و فقط اولین موردِ منطبق برداشته می‌شود.
-  static List<ClaimView> assess(Topic t, CaseFile f) {
+  static List<ClaimView> assess(Topic t, CaseFile f) =>
+      assessClaims(t.claims, f);
+
+  /// سنجش فهرستِ ادعاها با واقعیت‌های فعلی، به همان ترتیب موضوع.
+  static List<ClaimView> assessClaims(List<Claim> claims, CaseFile f) {
     final out = <ClaimView>[];
-    for (final c in t.claims) {
+    for (final c in claims) {
       if (c.elements.isEmpty) continue;
       final w = c.when;
       if (w != null && !w(f)) continue;

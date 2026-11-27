@@ -1,71 +1,72 @@
 part of 'rent.dart';
 
 // اثرِ حقوقیِ واقعیت‌ها در موضوعِ اجاره: چه چیزی از این حرف‌ها نتیجه می‌شود.
-//
-// این تنها فایلِ اجاره است که متنِ «اثر» می‌سازد؛ پرسش‌ها (`rent_slots.dart`)،
-// بحث‌ها (`rent_issue_*.dart`) و متنِ پاسخ (`rent_bodies*.dart`) جای خودشان را
-// دارند. جدا بودنشان یعنی عوض کردنِ یک اثر، فهرستِ بحث‌ها را جابه‌جا نکند.
 
-String _aimEffect(CaseFile f) {
-  if (!f.eq('role', 'landlord')) return '';
-  switch (f.get('aim')) {
-    case 'evict':
-      return rentText('effectAimEvict');
-    case 'unpaid':
-      return rentText('effectAimUnpaid');
-    case 'damage':
-      return rentText('effectAimDamage');
-    case 'breach':
-      return rentText('effectAimBreach');
-  }
-  return '';
-}
+const TextExpr _aimEffect = TxCond(
+  _landlordSide,
+  TxSwitch('aim', {
+    'evict': TxRent('effectAimEvict'),
+    'unpaid': TxRent('effectAimUnpaid'),
+    'damage': TxRent('effectAimDamage'),
+    'breach': TxRent('effectAimBreach'),
+  }),
+);
 
-String _endedEffect(CaseFile f) {
-  final landlord = f.eq('role', 'landlord');
-  final other = f.eq('role', 'tenant') && !_rentDeposit(f);
-  if (_ordered(f)) {
-    return f.yes('ended')
-        ? rentText('effectEndedOrderedYes')
-        : rentText('effectEndedOrderedNo');
-  }
-  if (f.yes('ended')) {
-    if (landlord) {
-      return rentText('effectEndedYesLandlord');
-    }
-    if (other) {
-      return rentText('effectEndedYesOther');
-    }
-    return rentText('effectEndedYesDeposit');
-  }
-  if (landlord) {
-    return rentText('effectEndedNoLandlord');
-  }
-  if (other) {
-    return rentText('effectEndedNoOther');
-  }
-  return rentText('effectEndedNoDeposit');
-}
+const TextExpr _endedEffect = TxCases(
+  [
+    TextCase(
+      _ordered,
+      TxCond(
+        FactYes('ended'),
+        TxRent('effectEndedOrderedYes'),
+        TxRent('effectEndedOrderedNo'),
+      ),
+    ),
+    TextCase(
+      FactYes('ended'),
+      TxCases(
+        [
+          TextCase(_landlordSide, TxRent('effectEndedYesLandlord')),
+          TextCase(_rentOtherMatter, TxRent('effectEndedYesOther')),
+        ],
+        fallback: TxRent('effectEndedYesDeposit'),
+      ),
+    ),
+  ],
+  fallback: TxCases(
+    [
+      TextCase(_landlordSide, TxRent('effectEndedNoLandlord')),
+      TextCase(_rentOtherMatter, TxRent('effectEndedNoOther')),
+    ],
+    fallback: TxRent('effectEndedNoDeposit'),
+  ),
+);
 
-String _contractEffect(CaseFile f) {
-  if (f.yes('contract')) {
-    if (f.eq('role', 'landlord')) {
-      if (!_evicting(f)) {
-        return rentText('effectContractYesNotEvict');
-      }
-      final ready = f.yes('ended')
-          ? rentText('effectContractYesEvictReady')
-          : '';
-      return rentText('effectContractYesEvict') + ready;
-    }
-    return _rentDeposit(f)
-        ? rentText('effectContractYesTenantDep')
-        : rentText('effectContractYesTenantOther');
-  }
-  if (f.eq('role', 'landlord')) {
-    return rentText('effectContractNoLandlord');
-  }
-  return f.eq('role', 'tenant') && !_rentDeposit(f)
-      ? rentText('effectContractNoTenantOther')
-      : rentText('effectContractNoTenantDep');
-}
+const TextExpr _contractEffect = TxCond(
+  FactYes('contract'),
+  TxCond(
+    _landlordSide,
+    TxCond(
+      _evicting,
+      TxConcat([
+        TxRent('effectContractYesEvict'),
+        TxCond(FactYes('ended'), TxRent('effectContractYesEvictReady')),
+      ]),
+      TxRent('effectContractYesNotEvict'),
+    ),
+    TxCond(
+      _rentDeposit,
+      TxRent('effectContractYesTenantDep'),
+      TxRent('effectContractYesTenantOther'),
+    ),
+  ),
+  TxCond(
+    _landlordSide,
+    TxRent('effectContractNoLandlord'),
+    TxCond(
+      _rentOtherMatter,
+      TxRent('effectContractNoTenantOther'),
+      TxRent('effectContractNoTenantDep'),
+    ),
+  ),
+);

@@ -1,109 +1,138 @@
 part of 'rent.dart';
 
 // متن‌های سمتِ موجر: تخلیه، سرقفلی، فروشِ ملک، فوتِ موجر، تغییرِ کاربری و…
-// متنهای ثابت از `rent_texts.json` میآیند؛ تابعهای وابسته به پرونده در
-// همین فایل میمانند. جدا کردنِ فایل فقط برای خواندنِ آسانتر است.
 
-String _rentSubletBody(CaseFile f) => rentText(
-    f.eq('role', 'landlord') ? 'bodySubletLandlord' : 'bodySubletTenant');
+const TextExpr _rentSubletBody = TxCond(
+  _landlordSide,
+  TxRent('bodySubletLandlord'),
+  TxRent('bodySubletTenant'),
+);
 
-String _rentSoldBody(CaseFile f) =>
-    rentText(f.eq('role', 'landlord') ? 'bodySoldLandlord' : 'bodySoldTenant');
+const TextExpr _rentSoldBody = TxCond(
+  _landlordSide,
+  TxRent('bodySoldLandlord'),
+  TxRent('bodySoldTenant'),
+);
 
-String _rentDeathBody(CaseFile f) =>
-    rentText('bodyDeathBase') +
-    rentText(
-        f.eq('role', 'landlord') ? 'bodyDeathLandlord' : 'bodyDeathTenant');
+const TextExpr _rentDeathBody = TxConcat([
+  TxRent('bodyDeathBase'),
+  TxCond(
+    _landlordSide,
+    TxRent('bodyDeathLandlord'),
+    TxRent('bodyDeathTenant'),
+  ),
+]);
 
-String _rentGoodwillBody() => rentText('rentGoodwillBody');
+const TextExpr _rentGoodwillBody = TxRent('rentGoodwillBody');
 
-String _rentUsageBody(CaseFile f) =>
-    rentText('bodyUsageBase') +
-    rentText(
-        f.eq('role', 'landlord') ? 'bodyUsageLandlord' : 'bodyUsageTenant');
+const TextExpr _rentUsageBody = TxConcat([
+  TxRent('bodyUsageBase'),
+  TxCond(
+    _landlordSide,
+    TxRent('bodyUsageLandlord'),
+    TxRent('bodyUsageTenant'),
+  ),
+]);
 
-String _rentCodeBody() => rentText('rentCodeBody');
+const TextExpr _rentCodeBody = TxRent('rentCodeBody');
+const TextExpr _rentSelfHelpBody = TxRent('rentSelfHelpBody');
+const TextExpr _rentLandlordDepositBody = TxRent('rentLandlordDepositBody');
+const TextExpr _rentLandlordDamageBody = TxRent('rentLandlordDamageBody');
+const TextExpr _rentLandlordRaiseBody = TxRent('rentLandlordRaiseBody');
+const TextExpr _rentLandlordBillsBody = TxRent('rentLandlordBillsBody');
+const TextExpr _rentMisuseBody = TxRent('rentMisuseBody');
+const TextExpr _rentObjectBody = TxRent('rentObjectBody');
+const TextExpr _rentWaitNewBody = TxRent('rentWaitNewBody');
 
-String _rentSelfHelpBody() => rentText('rentSelfHelpBody');
+const TextExpr _rentSilentBody = TxCond(
+  _landlordSide,
+  TxConcat([
+    TxRent('bodySilentLandlordA'),
+    TxCond(FactNo('ended'), TxRaw(''), TxRent('bodySilentLandlordOrder')),
+    TxRent('bodySilentLandlordB'),
+  ]),
+  TxConcat([
+    TxRent('bodySilentTenantA'),
+    TxCond(FactNo('vacated'), TxRent('bodySilentTenantKey')),
+    TxRent('bodySilentTenantB'),
+  ]),
+);
 
-String _rentLandlordDepositBody() => rentText('rentLandlordDepositBody');
+const TextExpr _rentOwnUseBody = TxCases(
+  [
+    TextCase(
+      FactNo('ended'),
+      TxConcat([
+        TxRent('bodyOwnUseLead'),
+        TxRaw(' '),
+        _rentBeforeEnd,
+        TxRaw('\n'),
+        TxRent('bodyOwnUseDeal'),
+      ]),
+    ),
+    TextCase(
+      FactYes('ended'),
+      TxConcat([TxRent('bodyOwnUseEnded'), _rentAfterEnd]),
+    ),
+  ],
+  fallback: TxConcat([
+    TxRent('bodyOwnUseLead'),
+    TxRent('bodyOwnUseMid1'),
+    _rentBeforeEnd,
+    TxRent('bodyOwnUseMid2'),
+    _rentAfterEnd,
+    TxRaw('\n'),
+    TxRent('bodyOwnUseDeal'),
+  ]),
+);
 
-String _rentLandlordDamageBody() => rentText('rentLandlordDamageBody');
+const TextExpr _rentNoReasonBody = TxCases(
+  [
+    TextCase(
+      FactNo('ended'),
+      TxConcat([
+        TxRent('bodyNoReasonBefore'),
+        _rentBeforeEnd,
+        TxRaw('\n'),
+        TxRent('bodyNoReasonAsk'),
+      ]),
+    ),
+    TextCase(
+      FactYes('ended'),
+      TxConcat([TxRent('bodyNoReasonEnded'), _rentAfterEnd]),
+    ),
+  ],
+  fallback: TxConcat([
+    TxRent('bodyNoReasonMid1'),
+    _rentBeforeEnd,
+    TxRent('bodyNoReasonMid2'),
+    _rentAfterEnd,
+    TxRaw('\n'),
+    TxRent('bodyNoReasonAsk'),
+  ]),
+);
 
-String _rentLandlordRaiseBody() => rentText('rentLandlordRaiseBody');
+const TextExpr _rentNoTermBody = TxConcat([
+  TxRent('bodyNoTermBase'),
+  TxCond(
+    _landlordSide,
+    TxRent('bodyNoTermLandlord'),
+    TxRent('bodyNoTermTenant'),
+  ),
+]);
 
-String _rentLandlordBillsBody() => rentText('rentLandlordBillsBody');
+const TextExpr _rentLandlordNoPlaceBody = TxCond(
+  FactNo('ended'),
+  TxRent('bodyLandlordNoPlaceNotEnded'),
+  TxRent('bodyLandlordNoPlaceEnded'),
+);
 
-String _rentMisuseBody() => rentText('rentMisuseBody');
-
-String _rentObjectBody() => rentText('rentObjectBody');
-
-String _rentWaitNewBody() => rentText('rentWaitNewBody');
-
-String _rentSilentBody(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    final order = f.no('ended') ? '' : rentText('bodySilentLandlordOrder');
-    return rentText('bodySilentLandlordA') +
-        order +
-        rentText('bodySilentLandlordB');
-  }
-  final key = f.no('vacated') ? rentText('bodySilentTenantKey') : '';
-  return rentText('bodySilentTenantA') + key + rentText('bodySilentTenantB');
-}
-
-String _rentOwnUseBody(CaseFile f) {
-  final deal = rentText('bodyOwnUseDeal');
-  final lead = rentText('bodyOwnUseLead');
-  if (f.no('ended')) return lead + ' ' + _rentBeforeEnd() + '\n' + deal;
-  if (f.yes('ended')) {
-    return rentText('bodyOwnUseEnded') + _rentAfterEnd();
-  }
-  return lead +
-      rentText('bodyOwnUseMid1') +
-      _rentBeforeEnd() +
-      rentText('bodyOwnUseMid2') +
-      _rentAfterEnd() +
-      '\n' +
-      deal;
-}
-
-String _rentNoReasonBody(CaseFile f) {
-  final ask = rentText('bodyNoReasonAsk');
-  if (f.no('ended')) {
-    return rentText('bodyNoReasonBefore') + _rentBeforeEnd() + '\n' + ask;
-  }
-  if (f.yes('ended')) {
-    return rentText('bodyNoReasonEnded') + _rentAfterEnd();
-  }
-  return rentText('bodyNoReasonMid1') +
-      _rentBeforeEnd() +
-      rentText('bodyNoReasonMid2') +
-      _rentAfterEnd() +
-      '\n' +
-      ask;
-}
-
-String _rentNoTermBody(CaseFile f) =>
-    rentText('bodyNoTermBase') +
-    rentText(
-        f.eq('role', 'landlord') ? 'bodyNoTermLandlord' : 'bodyNoTermTenant');
-
-String _rentLandlordNoPlaceBody(CaseFile f) => rentText(f.no('ended')
-    ? 'bodyLandlordNoPlaceNotEnded'
-    : 'bodyLandlordNoPlaceEnded');
-
-String _rentLandlordDepFirstBody() => rentText('rentLandlordDepFirstBody');
-
-String _rentLandlordOffsetBody() => rentText('rentLandlordOffsetBody');
-
-String _rentLandlordRenewedBody() => rentText('rentLandlordRenewedBody');
-
-String _rentLandlordWearBody() => rentText('rentLandlordWearBody');
-
-String _rentLandlordCantPayBody() => rentText('rentLandlordCantPayBody');
-
-String _rentLandlordPaidBody() => rentText('rentLandlordPaidBody');
-
-String _rentLandlordBuiltBody() => rentText('rentLandlordBuiltBody');
-
-String _rentLandlordGuarantorBody() => rentText('rentLandlordGuarantorBody');
+const TextExpr _rentLandlordDepFirstBody = TxRent('rentLandlordDepFirstBody');
+const TextExpr _rentLandlordOffsetBody = TxRent('rentLandlordOffsetBody');
+const TextExpr _rentLandlordRenewedBody = TxRent('rentLandlordRenewedBody');
+const TextExpr _rentLandlordWearBody = TxRent('rentLandlordWearBody');
+const TextExpr _rentLandlordCantPayBody = TxRent('rentLandlordCantPayBody');
+const TextExpr _rentLandlordPaidBody = TxRent('rentLandlordPaidBody');
+const TextExpr _rentLandlordBuiltBody = TxRent('rentLandlordBuiltBody');
+const TextExpr _rentLandlordGuarantorBody =
+    TxRent('rentLandlordGuarantorBody');
