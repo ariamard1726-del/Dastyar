@@ -131,7 +131,7 @@ class TopicTextEquivalenceTest(unittest.TestCase):
 
     def test_law_citations_inside_text_assets_resolve(self):
         files = check_refs.law_files()
-        ref_re = re.compile(r'\[\[([a-z_]+):([0-9]+)\]\]')
+        ref_re = re.compile(r'\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]')
         problems = []
         for path in (ASSET, RENT_ASSET):
             with open(path, encoding='utf-8') as f:
@@ -140,14 +140,15 @@ class TopicTextEquivalenceTest(unittest.TestCase):
                 if sec == 'v' or not isinstance(tbl, dict):
                     continue
                 for k, v in tbl.items():
-                    for law_key, art in ref_re.findall(str(v)):
+                    for law_key, art, mok in ref_re.findall(str(v)):
                         if law_key not in files:
                             problems.append(f'{sec}.{k}: کلید ناشناخته {law_key}')
                             continue
                         word = 'اصل' if law_key == 'constitution' else 'ماده'
+                        num = f'{art} مکرر' if mok == 'm' else art
                         text = files[law_key].read_text(encoding='utf-8')
-                        if not check_refs.article_exists(text, art, word):
-                            problems.append(f'{sec}.{k}: {word} {art} در {law_key}')
+                        if not check_refs.article_exists(text, num, word):
+                            problems.append(f'{sec}.{k}: {word} {num} در {law_key}')
         self.assertEqual(problems, [])
 
 

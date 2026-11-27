@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import '../support/reply_shape.dart';
 
 /// آزمون وکیل بدون مدل: فهم محاوره، حافظهٔ پرونده و درستی استنادها.
@@ -38,13 +40,20 @@ void main() {
   List<AdvocateReply> talk(Advocate a, List<String> turns) =>
       [for (final t in turns) say(a, t)];
 
+  Iterable<String> advocateTexts() sync* {
+    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
+      if (f is File && f.path.endsWith('.dart')) yield f.readAsStringSync();
+    }
+    yield* loadedRentTexts.values;
+    yield* loadedTopicTexts.values;
+  }
+
   test('هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست', () {
     final ref = RegExp(r'\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]');
     final missing = <String>{};
     var count = 0;
-    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
-      if (f is! File || !f.path.endsWith('.dart')) continue;
-      for (final m in ref.allMatches(f.readAsStringSync())) {
+    for (final text in advocateTexts()) {
+      for (final m in ref.allMatches(text)) {
         count++;
         final art =
             '${m[1] == 'constitution' ? 'اصل' : 'ماده'} ${m[2]}${m[3] == 'm' ? ' مکرر' : ''}';
@@ -409,9 +418,8 @@ void main() {
   test('همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است', () {
     final ref = RegExp(r'\[\[([a-z_0-9]+):[0-9]+m?\]\]');
     final used = <String>{};
-    for (final f in Directory('lib/domain/advocate').listSync(recursive: true)) {
-      if (f is! File || !f.path.endsWith('.dart')) continue;
-      for (final m in ref.allMatches(f.readAsStringSync())) {
+    for (final text in advocateTexts()) {
+      for (final m in ref.allMatches(text)) {
         used.add(m[1]!);
       }
     }
