@@ -197,4 +197,4 @@
 ✅ test/advocate/rule_dsl_test.dart: موضوع‌های مهاجرت‌یافته در سناریوهای کلیدی خروجی دقیق می‌دهند
 ::endgroup::
 
-🎉 385 tests passed.
+🎉 386 tests passed.
