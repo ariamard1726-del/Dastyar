@@ -1,2 +1,10 @@
 Analyzing Dastyar...                                            
-No issues found! (ran in 12.3s)
+
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:62:9 • undefined_method
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:63:9 • undefined_method
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:64:9 • undefined_method
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:76:9 • undefined_method
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:77:9 • undefined_method
+  error • The method 'set' isn't defined for the type 'CaseFile'. Try correcting the name to the name of an existing method, or defining a method named 'set' • test/advocate/rule_dsl_test.dart:78:9 • undefined_method
+
+6 issues found. (ran in 10.5s)

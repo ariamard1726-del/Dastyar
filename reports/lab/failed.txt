@@ -1,1 +1,2 @@
-🎉 705 tests passed.
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/rule_dsl_test.dart (failed)
+::error::705 tests passed, 1 failed.
