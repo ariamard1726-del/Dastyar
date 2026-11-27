@@ -36,6 +36,7 @@ SCHEMA = 1
 ASSET_FILES = [
     'assets/brain/guides/legal_guides.json',
     'assets/brain/topics/rent_texts.json',
+    'assets/brain/topic_texts.json',
     'assets/qa/lease_qa.json',
     'assets/replies.json',
     'assets/laws/_meta.json',
@@ -49,7 +50,13 @@ DART_TEXT_FILES = [
     'lib/domain/advocate/topics/rent_plan.dart',
     'lib/domain/advocate/topics/rent_fill.dart',
     'lib/domain/advocate/topics/labor_bodies.dart',
+    'lib/domain/advocate/topics/labor_claims.dart',
+    'lib/domain/advocate/topics/labor_issues.dart',
+    'lib/domain/advocate/topics/labor_patterns.dart',
     'lib/domain/advocate/topics/family_bodies.dart',
+    'lib/domain/advocate/topics/family_claims.dart',
+    'lib/domain/advocate/topics/family_issues.dart',
+    'lib/domain/advocate/topics/family_patterns.dart',
     'lib/domain/advocate/topics/shared.dart',
 ]
 

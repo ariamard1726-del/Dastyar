@@ -3,7 +3,7 @@ part of 'labor.dart';
 // ادعاهای حقوقیِ کار و کارفرما: ارکان، شرط و نتیجه.
 
 final Element _laborRel = Element(
-  'بشود نشان داد که آنجا کار می‌کرده‌اید؛ قرارداد شفاهی هم معتبر است [[labor:7]].',
+  topicText('laborClm_0'),
   (f) {
     if (f.yes('contract') || f.yes('insured') || f.yes('proof')) return true;
     if (f.no('contract') && f.no('insured') && f.no('proof')) return false;
@@ -11,12 +11,12 @@ final Element _laborRel = Element(
   },
   needs: const ['contract', 'insured', 'proof'],
   because: (f) => f.yes('contract')
-      ? 'قرارداد کتبی دارید'
+      ? topicText('laborClm_1')
       : (f.yes('insured')
-          ? 'سابقهٔ بیمه دارید'
-          : (f.yes('proof') ? 'شاهد یا مدرکِ کارکردن دارید' : '')),
+          ? topicText('laborClm_2')
+          : (f.yes('proof') ? topicText('laborClm_3') : '')),
   ifNo:
-      'نه قرارداد کتبی دارید، نه سابقهٔ بیمه، نه شاهد یا مدرک؛ اول باید همین را بسازید (همکار، واریز حقوق، پیام‌های کاری، عکس محل کار).',
+      topicText('laborClm_4'),
 );
 
 /// برگه‌ای امضا نشده باشد که کارفرما آن را «رفتن با میل خود» یا «گرفتنِ همهٔ
@@ -25,7 +25,7 @@ Element _laborUnsigned(String text, String ifNo) => Element(
       text,
       (f) => f.no('signed') ? true : (f.yes('signed') ? false : null),
       needs: const ['signed'],
-      because: (f) => 'هیچ برگهٔ استعفا یا تسویه‌ای امضا نکرده‌اید',
+      because: (f) => topicText('laborClm_5'),
       ifNo: ifNo,
     );
 
@@ -34,8 +34,8 @@ Element _laborUnsigned(String text, String ifNo) => Element(
 /// باشد (اخراج + حقوق معوق + سنوات + بیمه).
 final List<Claim> laborClaims = [
   Claim(
-    label: 'اخراج',
-    goal: 'ناموجه شناخته‌شدنِ اخراج',
+    label: topicText('laborClaimFiredLabel'),
+    goal: topicText('laborClm_6'),
     cues:
         'برگرد(?:م|ی)? سر کار|برمیگرد(?:م|ی)? سر کار|بازگشت به کار|اخراج(?:م|ش)? (?:[^ ]+ ){0,2}(?:قانونی|غیر ?قانونی|درست|ناموجه|موجه)|حق (?:داشت|داره|دارد|داشته) (?:[^ ]+ ){0,2}اخراج|میتون(?:ه|ست|د) (?:[^ ]+ ){0,2}اخراج|خسارت اخراج',
     when: (f) => laborFired(f),
@@ -43,11 +43,11 @@ final List<Claim> laborClaims = [
     elements: [
       _laborRel,
       _laborUnsigned(
-        'خودتان استعفا نداده و تسویه‌حساب امضا نکرده باشید؛ استعفا خودش راه قانونیِ پایان قرارداد است [[labor:21]].',
-        'برگهٔ استعفا یا تسویه را امضا کرده‌اید و کارفرما همین را سندِ «رفتن با میل خود» می‌کند. راهش این است که در ادارهٔ کار نشان دهید زیر فشار یا بدون گرفتن پول امضا کرده‌اید.',
+        topicText('laborClm_7'),
+        topicText('laborClm_8'),
       ),
       Element(
-        'قرارداد با تمام‌شدن مدتش خودبه‌خود پایان نیافته باشد [[labor:21]].',
+        topicText('laborClm_9'),
         (f) {
           if (f.no('contract')) return true;
           if (f.no('expired')) return true;
@@ -56,96 +56,96 @@ final List<Claim> laborClaims = [
         },
         needs: const ['contract', 'expired'],
         because: (f) => f.no('expired')
-            ? 'مدت قرارداد تمام نشده بود'
-            : 'قرارداد مدت‌داری در کار نیست و کارِ مستمرِ بی‌مدت دائمی حساب می‌شود',
+            ? topicText('laborClm_10')
+            : topicText('laborClm_11'),
         ifNo:
-            'مدت قرارداد تمام شده و تمدید نشده؛ از نظر قانون این پایان قرارداد است نه اخراج، و بازگشت به کار ندارد. مزایای پایان کار و بقیهٔ طلب‌ها سر جایش است [[labor:24]].',
+            topicText('laborClm_12'),
       ),
       Element(
-        'کارفرما تشریفات اخراج را طی نکرده باشد: تذکر کتبیِ قبلی و نظر مثبت شورای اسلامی کار یا هیئت تشخیص [[labor:27]].',
+        topicText('laborClm_13'),
         (f) => f.no('warned') ? true : (f.yes('warned') ? false : null),
         needs: const ['warned'],
-        because: (f) => 'هیچ تذکر کتبی‌ای نگرفته‌اید',
+        because: (f) => topicText('laborClm_14'),
         ifNo:
-            'اخطار کتبی گرفته‌اید و کارفرما روی همین تکیه می‌کند. با این حال اخطار به‌تنهایی کافی نیست؛ او باید قصور شما و نظر مثبت شورای اسلامی کار یا هیئت تشخیص را هم نشان دهد [[labor:27]].',
+            topicText('laborClm_15'),
       ),
     ],
     win: (f) =>
-        'اخراج ناموجه شناخته می‌شود: یا با حقوقِ همهٔ این مدت به کار برمی‌گردید، یا اگر نخواهید برگردید، به ازای هر سال سابقه ۴۵ روز حقوق می‌گیرید [[labor:165]].',
+        topicText('laborClm_16'),
     counter: (f) =>
-        'می‌گوید «خودش نیامد» یا «کم‌کاری می‌کرد». جواب اولی مدرکی است که نشان دهد راهتان نداده‌اند (پیام، شاهد)؛ جواب دومی این‌که قصور، بدون تذکر کتبیِ قبلی و نظر مرجع قانونی، اخراج را موجه نمی‌کند [[labor:27]].',
+        topicText('laborClm_17'),
   ),
   Claim(
-    label: 'حقوق معوق',
-    goal: 'وصول حقوق و مزایای پرداخت‌نشده',
+    label: topicText('laborClm_18'),
+    goal: topicText('laborClm_19'),
     cues: 'حقوق[^ ]* (?:[^ ]+ ){0,3}(?:بگیرم|میگیرم|گرفت|وصول|میرسه|میدن)',
     when: (f) => f.eq('event', 'unpaid') || f.yes('owed'),
     uses: const ['salary'],
     elements: [
       _laborRel,
       _laborUnsigned(
-        'رسید یا تسویه‌حسابی که بگوید همه‌چیز را گرفته‌اید امضا نکرده باشید.',
-        'برگه‌ای امضا کرده‌اید که کارفرما آن را دلیل پرداخت می‌آورد؛ باید نشان دهید پولی نگرفته‌اید، مثلاً با صورت‌حساب بانکیِ همان ماه‌ها.',
+        topicText('laborClm_20'),
+        topicText('laborClm_21'),
       ),
     ],
     win: (f) =>
-        'کارفرما باید همهٔ حقوق عقب‌افتاده را بپردازد؛ مزد باید مرتب و در موعد داده شود [[labor:37]].',
+        topicText('laborClm_22'),
     counter: (f) =>
-        'می‌گوید «تسویه کرده‌ام». نشان‌دادنِ پرداخت با اوست؛ اگر فیش یا رسیدی با امضای شما ندارد، ادعایش پذیرفته نمی‌شود. برای همین هیچ برگهٔ تسویه‌ای را پیش از گرفتن پول امضا نکنید.',
+        topicText('laborClm_23'),
   ),
   Claim(
-    label: 'سنوات',
-    goal: 'گرفتن سنوات (مزایای پایان کار)',
+    label: topicText('laborClm_24'),
+    goal: topicText('laborClm_25'),
     cues: 'سنوات|مزایای پایان کار',
     uses: const ['salary'],
     elements: [
       _laborRel,
       Element(
-        'کارتان در آنجا تمام شده باشد؛ سنوات هنگام پایان کار پرداخت می‌شود [[labor:24]].',
+        topicText('laborClm_26'),
         (f) {
           if (laborFired(f) || f.no('working')) return true;
           if (f.yes('working')) return false;
           return null;
         },
         needs: const ['working'],
-        because: (f) => 'کارتان آنجا تمام شده',
+        because: (f) => topicText('laborClm_27'),
         ifNo:
-            'هنوز همان‌جا کار می‌کنید؛ سنوات موقع پایان کار حساب می‌شود و الان قابل‌مطالبه نیست، ولی سابقه‌تان محفوظ است.',
+            topicText('laborClm_28'),
       ),
       Element(
-        'دست‌کم یک سال سابقه داشته باشید [[labor:24]].',
+        topicText('laborClm_29'),
         (f) {
           final m = f.n('months');
           return m == null ? null : m >= 12;
         },
         needs: const ['months'],
-        because: (f) => '${Sense.span(f.n('months') ?? 0)} سابقه دارید',
+        because: (f) => Sense.span(f.n('months') ?? 0) + ' ' + topicText('laborClaimMonthsBecause'),
         ifNo:
-            'متن قانون سنوات را برای یک سال و بیشتر گفته است؛ دربارهٔ کمتر از یک سال، از ادارهٔ کار بپرسید که به نسبت کارکرد حساب می‌کنند یا نه.',
+            topicText('laborClm_30'),
       ),
     ],
     win: (f) =>
-        'کارفرما باید به ازای هر سال سابقه یک ماه آخرین حقوق به‌عنوان سنوات بدهد [[labor:24]]؛ حتی اگر اخراج موجه شناخته شود [[labor:27]].',
+        topicText('laborClm_31'),
     counter: (f) =>
-        'می‌گوید «سنوات را هر سال داده‌ام». نشان‌دادنِ پرداخت با اوست؛ بدون رسیدی با امضای شما، ادعایش پذیرفته نمی‌شود.',
+        topicText('laborClm_32'),
   ),
   Claim(
-    label: 'بیمهٔ ردنشده',
-    goal: 'الزام کارفرما به پرداخت حق‌بیمهٔ مدت کارکرد',
+    label: topicText('laborClm_33'),
+    goal: topicText('laborClm_34'),
     cues: 'بیمه',
     when: (f) => !f.yes('insured'),
     elements: [
       _laborRel,
       Element(
-        'برای مدتی که کار کرده‌اید حق‌بیمه رد نشده باشد [[labor:148]].',
+        topicText('laborClm_35'),
         (f) => f.no('insured') || f.eq('event', 'insurance') ? true : null,
         needs: const ['insured'],
-        because: (f) => 'بیمه‌تان را رد نکرده',
+        because: (f) => topicText('laborClm_36'),
       ),
     ],
     win: (f) =>
-        'کارفرما به پرداخت حق‌بیمهٔ همهٔ مدت کارکردتان ملزم می‌شود؛ بیمه‌کردن کارگر تکلیف اوست [[labor:148]] و مسئول پرداخت حق‌بیمه هم خودش است [[social_security:36]].',
+        topicText('laborClm_37'),
     counter: (f) =>
-        'می‌گوید «خودش نخواست بیمه شود». این تکلیف را قانون روی دوش کارفرما گذاشته [[labor:148]] و با حرف یا توافق برداشته نمی‌شود.',
+        topicText('laborClm_38'),
   ),
 ];

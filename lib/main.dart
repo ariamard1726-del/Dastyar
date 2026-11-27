@@ -11,6 +11,7 @@ import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/core/privacy_migration.dart';
@@ -245,6 +246,15 @@ class _LoaderState extends State<Loader> {
           await loadRentTexts();
         } catch (e) {
           problems.add('متنِ موضوع اجاره بار نشد؛ پاسخهای اجاره کامل نیستند.');
+        }
+      }(),
+      // متنِ ثابتِ موضوعهای دیگر نیز از داده خوانده میشود؛ نبودنش پاسخها را
+      // با خطای صریح متوقف میکند، نه اینکه متن قدیمی بیصدا برگردد.
+      () async {
+        try {
+          await loadTopicTexts();
+        } catch (e) {
+          problems.add('متنِ موضوعهای وکیل بار نشد؛ بعضی پاسخها کامل نیستند.');
         }
       }(),
       _repo.load().catchError((Object e) {

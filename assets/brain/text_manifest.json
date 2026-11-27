@@ -5,6 +5,10 @@
       "sha256": "7484c4253a629ab9323ecad6d4d51b892160137e14cbca9d627d9e3e3684d4f8",
       "lines": 2317
     },
+    "assets/brain/topic_texts.json": {
+      "sha256": "df3313b22c1966e0028e4d67735aae844184033afaeae6e5dbb6a0696f26c39a",
+      "lines": 299
+    },
     "assets/brain/topics/rent_texts.json": {
       "sha256": "be525803b8089cf837fff7831fbe1490d260c4a3c2ce9f19ac790778d711a127",
       "lines": 551
@@ -118,12 +122,36 @@
       "lines": 26
     },
     "lib/domain/advocate/topics/family_bodies.dart": {
-      "sha256": "ba4030f210bb3ba8716dc64e59352052c7391fa7179dbb5e2615e34382e5e05a",
-      "lines": 66
+      "sha256": "2313bd912e1147cd1bf229da61e3fc584820ed3790dac211c7f7b1574906de5b",
+      "lines": 44
+    },
+    "lib/domain/advocate/topics/family_claims.dart": {
+      "sha256": "aace0a06b075716e91a4fa568c39cecd1deebcba09b03f00b80ce17b7a26dcc7",
+      "lines": 32
+    },
+    "lib/domain/advocate/topics/family_issues.dart": {
+      "sha256": "5aab7180eb3d9493162984a6b4ab23ab7ab8f0cfaefed56274b37726776b7152",
+      "lines": 195
+    },
+    "lib/domain/advocate/topics/family_patterns.dart": {
+      "sha256": "18ff3b9572e024feebefc5360b0e413f2015a568132127416d52027ad0d4bc77",
+      "lines": 50
     },
     "lib/domain/advocate/topics/labor_bodies.dart": {
-      "sha256": "e78ef09c0ad4a79fdf20504e3791fa2411ed4e8840773d31286f2085bfec086c",
-      "lines": 74
+      "sha256": "452b073180f74e5612f8431ad8509a19ba5453f8b38f4113b390b375309e7633",
+      "lines": 66
+    },
+    "lib/domain/advocate/topics/labor_claims.dart": {
+      "sha256": "ee7ddf1192a1e1ba0db634277de2609f4146f1cfda7aca0a27d6b085ee40f43b",
+      "lines": 151
+    },
+    "lib/domain/advocate/topics/labor_issues.dart": {
+      "sha256": "65150736ca5891ae43a6801d75236b2c939278038897bfa2d93fe2b8fcaef836",
+      "lines": 240
+    },
+    "lib/domain/advocate/topics/labor_patterns.dart": {
+      "sha256": "4c5ab35a80d8064c5c648809293971cde82cb62f396f988a213437a8b69cdf8c",
+      "lines": 115
     },
     "lib/domain/advocate/topics/rent_bodies.dart": {
       "sha256": "fce00ff5b6936cc35a475523e53063ca8e62ada61a586caf015ccd4ca720673b",
@@ -146,8 +174,8 @@
       "lines": 206
     },
     "lib/domain/advocate/topics/shared.dart": {
-      "sha256": "873338299d1a5048e33d507229fb2c8574698219aa0dbfa33f431cb8370e3265",
-      "lines": 35
+      "sha256": "746c1e36f03e2a4eaf305fca7ddb7079495c89e79e7662707fc3fc5f0f1b1c10",
+      "lines": 30
     }
   },
   "note": "هشِ متن هر فایل؛ با هر تغییرِ متن باید آگاهانه بازنویسی شود (dev/tools/text_manifest.py --write)."

@@ -5,16 +5,16 @@ part of 'family.dart';
 // ---- برداشت وکیل و ادعاها
 
 List<String> familyRecap(CaseFile f) => [
-      if (f.eq('role', 'wife')) 'زنِ این زندگی هستید',
-      if (f.eq('role', 'husband')) 'شوهر هستید',
-      if (f.yes('violence')) 'کتک و آزار در کار بوده',
-      if (f.eq('proofV', 'medical')) 'گواهی پزشکی قانونی دارید',
-      if (f.eq('proofV', 'witness')) 'عکس یا شاهد دارید',
-      if (f.eq('proofV', 'none')) 'برای آن مدرکی ندارید',
-      if (f.n('childAge') != null) 'فرزند ${Sense.fa(f.n('childAge')!)} ساله دارید',
-      if (f.n('coins') != null) 'مهریه ${Sense.fa(f.n('coins')!)} سکه است',
-      if (f.yes('agrees')) 'طرف مقابل به طلاق راضی است',
-      if (f.no('agrees')) 'طرف مقابل به طلاق راضی نیست',
+      if (f.eq('role', 'wife')) topicText('familyPat_0'),
+      if (f.eq('role', 'husband')) topicText('familyPat_1'),
+      if (f.yes('violence')) topicText('familyPat_2'),
+      if (f.eq('proofV', 'medical')) topicText('familyPat_3'),
+      if (f.eq('proofV', 'witness')) topicText('familyPat_4'),
+      if (f.eq('proofV', 'none')) topicText('familyPat_5'),
+      if (f.n('childAge') != null) topicText('familyRecapChildA') + ' ' + Sense.fa(f.n('childAge')!) + ' ' + topicText('familyRecapChildB'),
+      if (f.n('coins') != null) topicText('familyRecapCoinsA') + ' ' + Sense.fa(f.n('coins')!) + ' ' + topicText('familyRecapCoinsB'),
+      if (f.yes('agrees')) topicText('familyPat_6'),
+      if (f.no('agrees')) topicText('familyPat_7'),
     ];
 
 // متنِ پاسخ‌ها: ایمنی، مهریه، حضانت و طلاق.
