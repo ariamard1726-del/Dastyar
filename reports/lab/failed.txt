@@ -1,3 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: هر ماده‌ای که در دانش وکیل نام برده شده واقعاً در بانک قوانین هست (failed)
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/advocate_test.dart: همهٔ ۲۴ قانون بانک در دانش وکیل استناد شده است (failed)
-::error::566 tests passed, 2 failed.
+🎉 568 tests passed.
