@@ -81,12 +81,12 @@
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
 ✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
-✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
 ✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
 ✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
 ✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
 ✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
 ✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
 ✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
 ✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
