@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/topic_flow_test.dart: مواد بدشکل در برگ موضوعی بدون کرش نادیده گرفته می‌شوند (failed)
-::error::720 tests passed, 1 failed.
+🎉 721 tests passed.
