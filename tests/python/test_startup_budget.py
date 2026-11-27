@@ -76,6 +76,7 @@ class StartupBudgetTests(unittest.TestCase):
             encoding='utf-8')
         self.assertIn('dev/tools/startup_gate.py reports/startup.txt', wf)
         self.assertIn('reports/startup.txt', wf)
+        self.assertIn('path: reports', wf)
         phases = (ROOT / 'docs' / 'PHASES.md').read_text(encoding='utf-8')
         self.assertIn('## فاز ۵ — استارت و حافظه (انجام شد)', phases)
 
