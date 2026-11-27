@@ -26,7 +26,7 @@ void main() {
     await e.load();
     var n = 0, top1 = 0, top5 = 0;
     var mrr = 0.0;
-    for (final r in rows('brain/eval/eval.txt')) {
+    for (final r in rows('eval/eval.txt')) {
       final q = r[0], law = r[1], title = r[2];
       final res = e.rank(q, k: 60);
       var rank = 0;
@@ -58,9 +58,9 @@ void main() {
       }
     }
     var ok = 0, n = 0;
-    for (final r in rows('brain/intents.txt')) {
+    for (final r in rows('dev/brain/intents.txt')) {
       final want = r[0], text = r[1];
-      final sug = Drafting.suggest(text, ts);
+      final sug = DraftIntent.suggest(text, ts);
       final got = sug.template?.id ??
           (sug.choices.length <= 3 && sug.choices.any((t) => t.id == want)
               ? want
@@ -69,7 +69,7 @@ void main() {
       if (got == want) {
         ok++;
       } else {
-        final sc = ts.map((t) => '${t.id}=${Drafting.keywordScore(text, t)}').join(' ');
+        final sc = ts.map((t) => '${t.id}=${DraftIntent.keywordScore(text, t)}').join(' ');
         print('EVAL intent wrong: want $want got $got | $text');
         print('EVAL   scores: $sc');
       }

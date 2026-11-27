@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,8 +9,9 @@ import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/legacy_cleanup.dart';
 import 'package:dastyar/core/persian_text.dart';
-import 'package:dastyar/domain/intent_net.dart';
+import 'package:dastyar/domain/lawyer/legal_guides_loader.dart';
 import 'package:dastyar/core/privacy.dart';
+import 'package:dastyar/core/privacy_migration.dart';
 import 'package:dastyar/domain/settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/reader_service.dart';
@@ -30,9 +29,8 @@ Future<void> main() async {
     } catch (_) {}
   });
   final settings = await AppSettings.load();
-  if (settings.secureScreen) {
-    await PrivacyService.setSecureScreen(true);
-  }
+  // اگر گوشی FLAG_SECURE را اعمال نکند، تیک ذخیرهشده نباید دروغ بگوید.
+  await settings.applySecureScreenAtStartup();
   runApp(DastyarApp(settings: settings));
 }
 
@@ -127,11 +125,14 @@ class _LoaderState extends State<Loader> {
 
   /// طبقه‌بند سبک نیت (یک فایل JSON کوچک، نه مدل زبانی). وکیل فقط وقتی
   /// از آن کمک می‌گیرد که قاعده‌های خودش موضوع پیام را نشناخته باشند.
-  IntentNet? _intentNet;
 
   /// خوانندهٔ موضوع (مدل برداری Noql). در پس‌زمینه بار می‌شود تا بالاآمدن
   /// برنامه را کند نکند؛ تا آماده نشده، وکیل فقط با قاعده‌ها کار می‌کند.
+  /// خوانندهٔ موضوع (مدل برداری Noql). ۱۲ مگابایت وزن دارد؛ بارش آن تا
+  /// نخستین پیامی که قاعدهها نتوانستند موضوعش را بفهمند به تأخیر میافتد تا
+  /// استارتآپ سریعتر و مصرف حافظهٔ همزمان کمتر شود.
   ReaderService? _reader;
+  Future<ReaderService?>? _readerStarting;
   bool _readerTried = false;
   bool _ready = false;
   String? _error;
@@ -145,10 +146,36 @@ class _LoaderState extends State<Loader> {
   @override
   void dispose() {
     _reader?.dispose();
+    _engine.dispose();
     super.dispose();
   }
 
-  Future<TopicGuess?> _guess(String text) async => _reader?.read(text);
+  Future<TopicGuess?> _guess(String text) async {
+    final reader = await _ensureReader();
+    return reader?.read(text);
+  }
+
+  /// تنها یک بار بارگذاری آغاز میشود، حتی اگر چند پیام پشت سر هم حدس بخواهند.
+  Future<ReaderService?> _ensureReader() async {
+    final ready = _reader;
+    if (ready != null) return ready;
+    final starting = _readerStarting;
+    if (starting != null) return starting;
+    _readerTried = true;
+    final future = ReaderService.start();
+    _readerStarting = future;
+    try {
+      final r = await future;
+      if (!mounted) {
+        r?.dispose();
+        return null;
+      }
+      _reader = r;
+      return r;
+    } finally {
+      _readerStarting = null;
+    }
+  }
 
   String _fa(int n) => PersianText.toFaDigits(n.toString());
 
@@ -156,9 +183,13 @@ class _LoaderState extends State<Loader> {
     final r = _reader;
     if (r == null) {
       return [
-        _readerTried
-            ? 'مدل برداری بار نشد؛ برنامه فقط با قاعده‌های خودش پیام را می‌فهمد.'
-            : 'مدل برداری هنوز در حال آماده‌شدن است.',
+        if (!_readerTried)
+          'مدل برداری هنوز بار نشده است؛ فقط وقتی قاعدهها موضوع پیامی را '
+          'نشناختند بار میشود تا استارتآپ و حافظه صرفهجویی شود.'
+        else if (_readerStarting != null)
+          'مدل برداری در حال آمادهشدن است.'
+        else
+          'مدل برداری بار نشد؛ برنامه فقط با قاعدههای خودش پیام را میفهمد.',
       ];
     }
     final g = r.last;
@@ -171,42 +202,51 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> _init() async {
-    unawaited(ReaderService.start().then((r) {
-      _readerTried = true;
-      if (mounted) {
-        _reader = r;
-      } else {
-        r?.dispose();
-      }
-    }));
     // هر خطای بارگذاری به کاربر گفته می‌شود؛ بارگذاری ناقصِ بی‌صدا یعنی
     // دکمه‌ای که کار نمی‌کند و کاربر نمی‌داند چرا.
     final problems = <String>[];
+    // قبل از خواندن تاریخچه: کلید/دادهٔ نسخهٔ پیشین یکبار مهاجرت میشود.
+    final migration = await PrivacyMigration.run();
+    if (migration.migrated > 0) {
+      problems.add('${migration.migrated} رکورد قدیمی با کلید سختافزاری دوباره مهروموم شد.');
+    }
+    if (migration.dropped > 0) {
+      problems.add('${migration.dropped} رکورد قدیمی که کلیدش قابلاعتماد نبود حذف شد.');
+    }
     await Future.wait([
-      _engine.load().catchError((Object e) {
+      _engine.load(startWorker: true).catchError((Object e) {
         problems.add('بارگذاری دانش قوانین با خطا روبه‌رو شد.');
       }),
+      // راهنماهای آماده از فایلِ داده خوانده می‌شوند؛ اگر نباشند، پاسخ‌های
+      // «راهنمای وکیل» بی‌صدا خالی می‌مانند.
+      () async {
+        try {
+          await loadLegalGuides();
+        } catch (e) {
+          problems.add('راهنماهای آماده بار نشدند؛ بعضی پاسخ‌ها کامل نیستند.');
+        }
+      }(),
       _repo.load().catchError((Object e) {
         problems.add('قالب‌های سند بار نشدند؛ «تنظیم سند» کار نمی‌کند.');
       }),
       _history.load().catchError((Object e) {
         problems.add('تاریخچهٔ گفتگوها بار نشد؛ گفتگوهای قبلی دیده نمی‌شوند.');
       }),
-      IntentNet.load().then((n) {
-        _intentNet = n;
-      }).catchError((Object e) {
-        // طبقه‌بند اختیاری است؛ نبودش فقط یعنی «نظر دوم» نداریم.
-        _intentNet = null;
-      }),
       // پاک‌کردن ردّ قابلیت‌هایی که دیگر در برنامه نیستند (فایل مدل زبانی
       // و مشاورهٔ نیمه‌کاره) تا جای گوشی و دادهٔ کاربر بی‌دلیل نماند.
       LegacyCleanup.run(),
+      PrivacyService.discardLegacyKey(),
     ]);
     // [HistoryStore.load] خطا را می‌بلعد و در `lastError` می‌گذارد.
     final historyError = _history.lastError;
     if (historyError != null) problems.add('تاریخچه: $historyError');
     if (_repo.problems.isNotEmpty) {
       problems.add('${_repo.problems.length} قالب سند خوانده نشد.');
+    }
+    // سکوت در مورد افتادن به رمزنگاری جایگزین بدترین حالت است: کاربر فکر
+    // میکند کلید روی سختافزار است، در حالی که در حافظهٔ محلی برنامه است.
+    if (PrivacyService.fallbackUsed && PrivacyService.lastError != null) {
+      problems.add(PrivacyService.lastError!);
     }
     _error = problems.isEmpty ? null : problems.join('\n');
     if (widget.settings.saveDraftProgress && _repo.templates.isNotEmpty) {
@@ -230,7 +270,6 @@ class _LoaderState extends State<Loader> {
       settings: widget.settings,
       loadError: _error,
       initialDraft: _initialDraft,
-      intentNet: _intentNet,
       guesser: _guess,
       readerNotes: _readerNotes,
     );

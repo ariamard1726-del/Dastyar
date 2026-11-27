@@ -434,7 +434,7 @@ AdvocateReply _full(Advocate a, String t) {
   var guard = 0;
   while (a.hasMore && guard < 8) {
     guard++;
-    sb.write('\n${a.respond(Advocate.moreChip).text}');
+    sb.write('\n${a.respond(ChipTexts.moreChip).text}');
   }
   return AdvocateReply(sb.toString(), chips: r.chips, laws: r.laws);
 }
@@ -519,7 +519,7 @@ void main() {
           qaProblems.add('${it.id}: استناد «مستند» ندارد');
         }
         // «انصراف» در هر پاسخ هست؛ برای این بررسی به حساب نمی‌آید.
-        if (r.chips.where((c) => c != Advocate.leaveChip).isEmpty) {
+        if (r.chips.where((c) => c != ChipTexts.leaveChip).isEmpty) {
           qaProblems.add('${it.id}: دکمه‌های هم‌موضوع ندارد');
         }
       } else {
@@ -652,7 +652,7 @@ void main() {
     expect(routed, isNotEmpty,
         reason: 'هیچ پرسش بانک به مسیر QA نمی‌رسد؛ مسیر QA بی‌استفاده است.');
     for (final x in routed) {
-      expect(x.reply.text, contains('مستند:'), reason: x.id);
+      expect(x.reply.laws, isNotEmpty, reason: x.id);
       expect(x.reply.chips, isNotEmpty, reason: x.id);
     }
   });

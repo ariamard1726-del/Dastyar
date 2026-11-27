@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/persian_text.dart';
@@ -47,6 +48,20 @@ class _HistoryPageState extends State<HistoryPage> {
     }).toList();
   }
 
+  /// صدور متنی قبل از آنکه محدودیت ۳۰ گفتگو، قدیمیترینها را پاک کند.
+  Future<void> _exportAll() async {
+    final text = HistoryStore.exportText(widget.history.sessions);
+    if (text.isEmpty) return;
+    try {
+      await Share.share(text, subject: 'گفتگوهای دستیار');
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('اشتراکگذاری انجام نشد.')),
+      );
+    }
+  }
+
   Future<void> _delete(ChatSession s) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -75,7 +90,16 @@ class _HistoryPageState extends State<HistoryPage> {
     final all = widget.history.sessions;
     final list = _filteredSessions();
     return Scaffold(
-      appBar: AppBar(title: const Text('تاریخچه')),
+      appBar: AppBar(
+        title: const Text('تاریخچه'),
+        actions: [
+          IconButton(
+            tooltip: 'صدور متن گفتگوها',
+            onPressed: all.isEmpty ? null : _exportAll,
+            icon: const Icon(Icons.ios_share_outlined),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: all.isEmpty
             ? const Center(

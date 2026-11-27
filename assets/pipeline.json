@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "description": "ترتیب قراردادی مسیرهای دانش و آستانه‌های تصمیم. این فایل تنها منبع حقیقت است؛ dev/tools/pipeline_check.py آن را با Advocate.pipelineOrder و Advocate.netMin در lib/domain/advocate/advocate.dart می‌سنجد و هر واگرایی خطاست. تغییر ترتیب یعنی تغییر رفتار و باید در همین فایل و در Dart هم‌زمان انجام شود.",
+  "order": [
+    "safety",
+    "topic",
+    "lawTerms",
+    "glossary",
+    "guide",
+    "topicFlow",
+    "guess",
+    "intentNet",
+    "qaBank",
+    "engine"
+  ],
+  "thresholds": {
+    "netMin": 0.6,
+    "topicOpen": 3,
+    "topicStrong": 5,
+    "topicDominant": 5
+  },
+  "notes": {
+    "safety": "ایمنی خشونت/اورژانس پیش از هر موضوع و مستقل از امتیاز موضوع اجرا می‌شود.",
+    "topic": "پروندهٔ موضوع‌های قاعده‌محور (lib/domain/advocate/topics/).",
+    "lawTerms": "تطبیق واژه‌های پیام با متن قوانین (LawTerms).",
+    "glossary": "واژه‌نامهٔ اصطلاحات حقوقی.",
+    "guide": "راهنمای ازپیش‌نوشتهٔ وکیل (legal_guides).",
+    "topicFlow": "مسیر تصمیم موضوعی از assets/brain/topics/*.json (فقط موضوع‌های live).",
+    "guess": "حدس خوانندهٔ موضوع (Noql) که پرونده را باز کرد.",
+    "intentNet": "نظر دوم طبقه‌بند سبک نیت (IntentNet).",
+    "qaBank": "بانک پرسش‌وپاسخ (assets/qa).",
+    "engine": "بازیابی BM25F از متن قوانین."
+  }
+}

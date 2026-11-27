@@ -58,12 +58,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  group('Drafting.pickChoice و تشخیص بله/نه', () {
+  group('DraftIntent.pickChoice و تشخیص بله/نه', () {
     test('اشکال طبیعی بله و نه شناخته می‌شوند', () {
-      expect(Drafting.isYes('بله!'), isTrue);
-      expect(Drafting.isYes('آره، آماده کن'), isTrue);
-      expect(Drafting.isNo('نه ممنون'), isTrue);
-      expect(Drafting.isNo('نه، فقط توضیح بده'), isTrue);
+      expect(DraftWords.isYes('بله!'), isTrue);
+      expect(DraftWords.isYes('آره، آماده کن'), isTrue);
+      expect(DraftWords.isNo('نه ممنون'), isTrue);
+      expect(DraftWords.isNo('نه، فقط توضیح بده'), isTrue);
     });
 
     test('انتخاب قالب با زیررشته، یکسان‌سازی ئ/ی و شماره گزینه', () {
@@ -71,19 +71,19 @@ void main() {
           .where((t) => t.id == 'cheque_complaint' || t.id == 'cheque_execution')
           .toList();
       expect(
-        Drafting.pickChoice('اجراییه', chequeChoices)?.id,
+        DraftIntent.pickChoice('اجراییه', chequeChoices)?.id,
         'cheque_execution',
       );
       expect(
-        Drafting.pickChoice('شکایت کیفری', chequeChoices)?.id,
+        DraftIntent.pickChoice('شکایت کیفری', chequeChoices)?.id,
         'cheque_complaint',
       );
       expect(
-        Drafting.pickChoice('۲', chequeChoices)?.id,
+        DraftIntent.pickChoice('۲', chequeChoices)?.id,
         chequeChoices[1].id,
       );
       expect(
-        Drafting.pickChoice('مجازات چک برگشتی چیست؟', chequeChoices),
+        DraftIntent.pickChoice('مجازات چک برگشتی چیست؟', chequeChoices),
         isNull,
       );
     });
@@ -100,7 +100,7 @@ void main() {
 
       await sendMessage(tester, 'چکم برگشت خورد');
       expect(find.text('چکم برگشت خورد'), findsOneWidget);
-      expect(find.text(Drafting.chooseText), findsNothing);
+      expect(find.text(DraftIntent.chooseText), findsNothing);
       expect(find.textContaining('چند سؤال کوتاه می‌پرسم'), findsNothing);
       expect(find.textContaining('چک'), findsWidgets);
     });
@@ -111,7 +111,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await sendMessage(tester, 'برام بنویسش');
-      expect(find.text(Drafting.chooseText), findsOneWidget);
+      expect(find.text(DraftIntent.chooseText), findsOneWidget);
 
       await sendMessage(tester, 'نه');
       expect(find.textContaining('فعلاً متنی نمی‌نویسم'), findsOneWidget);

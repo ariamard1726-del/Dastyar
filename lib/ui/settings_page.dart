@@ -57,6 +57,42 @@ class _SettingsPageState extends State<SettingsPage> {
         child: ListView(
           padding: const EdgeInsets.all(12),
           children: [
+            if (s.lastError != null)
+              Card(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: ListTile(
+                  leading: Icon(Icons.warning_amber_outlined,
+                      color: Theme.of(context).colorScheme.error),
+                  title: Text(
+                    s.lastError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ),
+                  trailing: TextButton(
+                    onPressed: () {
+                      s.clearError();
+                      setState(() {});
+                    },
+                    child: const Text('بستن'),
+                  ),
+                ),
+              ),
+            if (widget.history.lastNotice != null)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(widget.history.lastNotice!),
+                  trailing: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.history.lastNotice = null;
+                      });
+                    },
+                    child: const Text('بستن'),
+                  ),
+                ),
+              ),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(14),
@@ -126,9 +162,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       'تاریخچه به‌صورت رمزنگاری‌شده ذخیره می‌شود؛ در گوشی مشترک می‌توانید خاموشش کنید.',
                     ),
                     value: s.saveHistory,
-                    onChanged: (v) {
-                      s.setSaveHistory(v);
-                      setState(() {});
+                    onChanged: (v) async {
+                      await s.setSaveHistory(v);
+                      if (mounted) setState(() {});
                     },
                   ),
                   SwitchListTile(
@@ -137,9 +173,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       'به‌صورت پیش‌فرض خاموش است. با روشن‌کردن، فرم ناتمام رمزنگاری می‌شود تا پس از بسته شدن برنامه ادامه یابد و با پایان فرم پاک می‌شود.',
                     ),
                     value: s.saveDraftProgress,
-                    onChanged: (v) {
-                      s.setSaveDraftProgress(v);
-                      setState(() {});
+                    onChanged: (v) async {
+                      await s.setSaveDraftProgress(v);
+                      if (mounted) setState(() {});
                     },
                   ),
                   SwitchListTile(
@@ -148,9 +184,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       'مخفی‌سازی صفحه در فهرست برنامه‌های اخیر و جلوگیری از ثبت تصویر صفحه.',
                     ),
                     value: s.secureScreen,
-                    onChanged: (v) {
-                      s.setSecureScreen(v);
-                      setState(() {});
+                    onChanged: (v) async {
+                      await s.setSecureScreen(v);
+                      if (mounted) setState(() {});
                     },
                   ),
                   ListTile(

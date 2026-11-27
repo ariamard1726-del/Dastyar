@@ -5,7 +5,7 @@ import 'dart:typed_data';
 /// گذرِ رو به جلوی مدل Noql (ALBERT، ۱۲ لایه با وزن مشترک) به Dart خالص.
 ///
 /// وزن‌ها از `assets/brain/noql.bin` می‌آیند (قالب NOQL1، ساختهٔ
-/// `brain/noql/export.py`): ماتریس‌ها int8 سطربه‌سطر و بقیه float32. هیچ
+/// `dev/brain/noql/export.py`): ماتریس‌ها int8 سطربه‌سطر و بقیه float32. هیچ
 /// کتابخانهٔ بومی‌ای در کار نیست؛ ضرب‌ها با `Float32x4` انجام می‌شود.
 /// خروجی بردار ۷۶۸تاییِ یکه‌شدهٔ جمله است (میانگین توکن‌ها).
 class NoqlEncoder {

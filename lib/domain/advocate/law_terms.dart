@@ -1,5 +1,6 @@
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/domain/advocate/law_terms_rules.dart';
 
 /// نتیجهٔ تطبیق واژه‌های پرسش با متن قوانین.
 class TermMatch {
@@ -35,7 +36,7 @@ class TermMatch {
   });
 }
 
-/// تطبیق واژه‌های متن کاربر با متن قوانین (نسخهٔ دارت آیینهٔ tools/law_terms.py).
+/// تطبیق واژه‌های متن کاربر با متن قوانین (نسخهٔ دارت آیینهٔ dev/tools/law_terms.py).
 ///
 /// هر پرسش به «دنباله‌های پیوسته» از واژه‌های معنادار شکسته می‌شود؛ ایست‌واژه،
 /// واژهٔ بی‌بار و علامت دنباله را می‌شکنند. سپس ماده‌ای انتخاب می‌شود که بیشترین
@@ -47,35 +48,30 @@ class LawTerms {
 
   final KnowledgeEngine engine;
 
-  /// املای محاوره‌ای یا عربیِ رایج که در متن قوانین به صورت دیگری آمده است.
-  static const Map<String, String> alias = {'افحش': 'فاحش'};
+  // قاعده‌ها در `dev/tools/contracts/law_terms.json` هستند و از آن‌جا تولید
+  // می‌شوند (`law_terms_rules.dart`). پیش‌تر فهرست ۱۵۳ واژه‌ای و آستانه‌ها
+  // این‌جا و در `dev/tools/law_terms.py` دستی نگه داشته می‌شد و آزمون آینه فقط
+  // از واگرایی جلوگیری می‌کرد، نه از خودِ دوتا‌بودن.
+  /// املای محاوره‌ای یا عربیِ رایج که در متن قوانین جور دیگری است.
+  static const Map<String, String> alias = LawTermsRules.alias;
 
   /// واژه‌های گفتاری یا عمومیِ بی‌بار که در تطبیق شرکت نمی‌کنند.
-  static const Set<String> generic = {
-    'دارم', 'داریم', 'داره', 'دارد', 'بگو', 'بگید', 'بگویید', 'بدونم',
-    'بدانم', 'خوام', 'خواستم', 'میخوام', 'بخوام', 'کنم', 'کنیم', 'باید',
-    'چکار', 'کار', 'چیکار', 'بشه', 'شده', 'شد', 'کرد', 'کردم',
-    'کرده', 'نیست', 'باشه', 'ایا', 'یه', 'اون', 'اینو', 'اونو',
-    'ما', 'شما', 'حالا', 'الان', 'خیلی', 'واقعا', 'فقط', 'همه',
-    'چی', 'یکی', 'کسی', 'جای', 'نکنه', 'بکنم', 'نمی', 'ام',
-    'رو', 'را', 'های', 'ها', 'ای', 'ی', 'ت', 'م',
-    'ش', 'ه', 'گزارش', 'دو', 'سه', 'چهار', 'پنج', 'شش',
-    'هفت', 'هشت', 'نه', 'ده', 'صد', 'هزار', 'نمیده', 'نداده',
-    'ندادن', 'داده', 'برده', 'اومده', 'خورده', 'بوده', 'میشه', 'میکنم',
-    'نکرده', 'دادم', 'گرفتم', 'بدم', 'بده', 'برم', 'ترین', 'کدام',
-    'بهترین', 'بهتر', 'خواهد', 'تواند', 'کدوم', 'منو', 'برام', 'بهتره',
-    'میخواد', 'می‌خواهد',
-  };
+  static const Set<String> generic = LawTermsRules.generic;
 
   /// کوتاه‌تر از این تعداد نویسه، واژهٔ معنادار حساب نمی‌شود.
-  static const int minLen = 2;
+  static const int minLen = LawTermsRules.minLen;
 
-  static const int topCount = 300;
-  static const int rareDf = 60;
-  static const double minCover = 0.5;
-  static const double phraseMinIdf = 4.0;
-  static const int maxSpan = 15;
-  static const String generalSource = 'دانش عمومی';
+  static const int topCount = LawTermsRules.topCount;
+
+  static const int rareDf = LawTermsRules.rareDf;
+
+  static const double minCover = LawTermsRules.minCover;
+
+  static const double phraseMinIdf = LawTermsRules.phraseMinIdf;
+
+  static const int maxSpan = LawTermsRules.maxSpan;
+
+  static const String generalSource = LawTermsRules.generalSource;
 
   static final RegExp _punct = RegExp(r'[،,.;:!?؟()\[\]«»"\-/]+');
   static final RegExp _nonWord = RegExp(
@@ -171,7 +167,7 @@ class LawTerms {
     return f;
   }
 
-  /// همتای `glossary_match` در tools/law_terms.py: اگر عبارتی از فهرست واژه‌های
+  /// همتای `glossary_match` در dev/tools/law_terms.py: اگر عبارتی از فهرست واژه‌های
   /// حقوقی در پرسش باشد، ماده‌ٔ همان عبارت پذیرفته می‌شود (بلندترین عبارت برنده است).
   TermMatch? _glossary(String q) {
     final entries = engine.legalTerms['entries'];
@@ -285,7 +281,7 @@ class LawTerms {
     }
     final near = _span(bt, matched) <= maxSpan;
     // واژهٔ نادرِ پرسش که در ماده نیست یعنی ماده بخشی از پرسش را پوشش می‌دهد؛
-    // با عبارت یا عنوان پذیرفته نمی‌شود (همتای tools/law_terms.py).
+    // با عبارت یا عنوان پذیرفته نمی‌شود (همتای dev/tools/law_terms.py).
     final rareMissing = [
       for (final t in known)
         if ((postings[t]?.length ?? 0) <= rareDf && !matched.contains(t)) t

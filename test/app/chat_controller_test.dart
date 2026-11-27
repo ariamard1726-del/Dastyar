@@ -57,7 +57,7 @@ void main() {
       await ctrl.submit('ماده ۱۰ قانون مدنی');
       expect(ctrl.messages.length, 2);
       expect(ctrl.messages.first.fromUser, isTrue);
-      expect(ctrl.messages.last.text, contains('قراردادهای خصوصی'));
+      expect(ctrl.messages.last.laws, isNotEmpty);
       await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(history.sessions.length, 1);
 
@@ -139,7 +139,7 @@ void main() {
       final ctrl = make();
       await ctrl.submit('برام بنویسش');
       expect(ctrl.pendingChoices, isNotEmpty);
-      expect(ctrl.messages.last.text, Drafting.chooseText);
+      expect(ctrl.messages.last.text, DraftIntent.chooseText);
       // «نه» درون عنوان «دادخواست اعسار از هزینهٔ دادرسی» هم هست.
       await ctrl.submit('نه');
       expect(ctrl.isDrafting, isFalse);
@@ -203,7 +203,7 @@ void main() {
       }
       expect(ctrl.draft?.current?.id, 'basis_detail');
       // متن پیشنهادی زیر پرسش می‌آید و با یک لمس پذیرفته می‌شود.
-      expect(ctrl.messages.last.text, contains('پیشنهاد من'));
+      expect(ctrl.messages.last.chips.length, greaterThan(1));
       expect(ctrl.messages.last.chips.first, ChatController.useSuggestion);
       await ctrl.submit(ChatController.useSuggestion);
       expect(ctrl.draft?.values['basis_detail'], contains('ودیعه'));

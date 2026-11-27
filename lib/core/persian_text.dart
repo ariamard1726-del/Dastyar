@@ -1,4 +1,11 @@
+import 'text_norm_rules.dart';
+
 /// لایهٔ متن فارسی: یکدست‌سازی نویسه‌ها، تبدیل ارقام، ریشه‌یابی سبک و واژه‌بندی.
+///
+/// قاعده‌های یکدست‌سازی در `dev/tools/contracts/text_norm.json` هستند و از آن‌جا
+/// تولید می‌شوند (`lib/core/text_norm_rules.dart`). پیش‌تر همان نگاشت در این
+/// فایل و در سه ابزار پایتون جدا نوشته شده بود؛ تغییرِ یک قاعده یعنی ویرایشِ
+/// پنج جا.
 class PersianText {
   PersianText._();
 
@@ -19,21 +26,35 @@ class PersianText {
   static final RegExp _spaces = RegExp(r'\s+');
 
   static String normalize(String s) {
-    const map = {
-      'ي': 'ی', 'ى': 'ی', 'ك': 'ک', 'ۀ': 'ه', 'ة': 'ه',
-      'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا',
-    };
     final sb = StringBuffer();
     for (final r in s.runes) {
-      if (r >= 0x06F0 && r <= 0x06F9) { sb.write(r - 0x06F0); continue; }
-      if (r >= 0x0660 && r <= 0x0669) { sb.write(r - 0x0660); continue; }
-      if (r == 0x200C || r == 0x200D || r == 0x200E || r == 0x200F) { sb.write(' '); continue; }
-      if (r >= 0x064B && r <= 0x065F) continue;
-      if (r == 0x0640) continue;
+      var isDigit = false;
+      for (final d in TextNormRules.digitRanges) {
+        if (r >= d[0] && r <= d[1]) {
+          sb.writeCharCode(r - d[2] + 48);
+          isDigit = true;
+          break;
+        }
+      }
+      if (isDigit) continue;
+      if (TextNormRules.toSpaceCodepoints.contains(r)) {
+        sb.write(' ');
+        continue;
+      }
+      if (TextNormRules.dropCodepoints.contains(r)) continue;
+      var dropped = false;
+      for (final d in TextNormRules.dropRanges) {
+        if (r >= d[0] && r <= d[1]) {
+          dropped = true;
+          break;
+        }
+      }
+      if (dropped) continue;
       final ch = String.fromCharCode(r);
-      sb.write(map[ch] ?? ch);
+      sb.write(TextNormRules.charMap[ch] ?? ch);
     }
-    return sb.toString().toLowerCase();
+    final out = sb.toString();
+    return TextNormRules.lowercase ? out.toLowerCase() : out;
   }
 
   static String toFaDigits(String s) {

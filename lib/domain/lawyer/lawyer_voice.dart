@@ -14,18 +14,28 @@ class LawyerVoice {
 
   static String _phrase(String s) => ' ${PersianText.phrase(s)} ';
 
-  static final Map<String, List<List<String>>> _normTriggers = {
-    for (final g in legalGuides)
-      g.id: [
-        for (final group in g.triggers)
-          [for (final t in group) PersianText.phrase(t)],
-      ],
-  };
+  // راهنماها از فایلِ داده نصب می‌شوند و ممکن است پس از اولین فراخوانی
+  // عوض شوند؛ پس این نقشه‌ها «یک بار برای همیشه» ساخته نمی‌شوند. هر بار که
+  // فهرستِ نصب‌شده عوض شود (با تغییرِ هویتِ شیء)، دوباره ساخته می‌شوند.
+  static List<LegalGuide>? _cachedFor;
+  static Map<String, List<List<String>>> _normTriggers = const {};
+  static Map<String, List<String>> _normExcludes = const {};
 
-  static final Map<String, List<String>> _normExcludes = {
-    for (final g in legalGuides)
-      g.id: [for (final t in g.excludes) PersianText.phrase(t)],
-  };
+  static void _ensure() {
+    if (identical(_cachedFor, legalGuides)) return;
+    _cachedFor = legalGuides;
+    _normTriggers = {
+      for (final g in legalGuides)
+        g.id: [
+          for (final group in g.triggers)
+            [for (final t in group) PersianText.phrase(t)],
+        ],
+    };
+    _normExcludes = {
+      for (final g in legalGuides)
+        g.id: [for (final t in g.excludes) PersianText.phrase(t)],
+    };
+  }
 
   /// آیا پیام ارجاع مستقیم به یک ماده است («ماده ۱۰ قانون مدنی»)؟
   static bool isDirectArticleRef(String rawText) =>
@@ -43,6 +53,7 @@ class LawyerVoice {
   /// همهٔ راهنماهای منطبق، به ترتیب امتیاز (بهترین اول). عنوان دقیق یک
   /// راهنما (یا «دربارهٔ <عنوان>») مستقیماً همان راهنما را برمی‌گرداند.
   static List<LegalGuide> matchGuides(String rawText) {
+    _ensure();
     if (rawText.trim().isEmpty || isDirectArticleRef(rawText)) return const [];
     final p = _phrase(rawText);
     final bare = PersianText.phrase(rawText);

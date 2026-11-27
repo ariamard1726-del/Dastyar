@@ -32,12 +32,12 @@ void main() {
     await e.load();
 
     const files = [
-      'brain/eval/eval.txt',
-      'brain/eval/eval_v2.txt',
-      'brain/eval/eval_v3.txt',
-      'brain/eval/eval_v4.txt',
-      'brain/eval/eval_extra.txt',
-      'brain/eval/eval_blind.txt',
+      'eval/eval.txt',
+      'eval/eval_v2.txt',
+      'eval/eval_v3.txt',
+      'eval/eval_v4.txt',
+      'eval/eval_extra.txt',
+      'eval/eval_blind.txt',
     ];
 
     final far = <String>[];

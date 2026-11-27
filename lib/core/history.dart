@@ -8,12 +8,33 @@ import 'package:dastyar/core/privacy.dart';
 class StoredMsg {
   final String text;
   final bool fromUser;
-  StoredMsg(this.text, this.fromUser);
 
-  Map<String, dynamic> toJson() => {'t': text, 'u': fromUser};
+  /// دکمه‌های پیشنهادی همان پیام. پیش‌تر ذخیره نمی‌شدند و گفتگوی
+  /// بازیابی‌شده همهٔ دکمه‌هایش را از دست می‌داد.
+  final List<String> chips;
 
-  factory StoredMsg.fromJson(Map<String, dynamic> j) =>
-      StoredMsg((j['t'] ?? '').toString(), j['u'] == true);
+  StoredMsg(this.text, this.fromUser, {this.chips = const []});
+
+  Map<String, dynamic> toJson() => {
+        't': text,
+        'u': fromUser,
+        if (chips.isNotEmpty) 'c': chips,
+      };
+
+  factory StoredMsg.fromJson(Map<String, dynamic> j) => StoredMsg(
+        (j['t'] ?? '').toString(),
+        j['u'] == true,
+        chips: parseChips(j['c']),
+      );
+
+  /// دکمه‌های ذخیره‌شده؛ ورودی نامعتبر فهرست خالی می‌دهد.
+  static List<String> parseChips(Object? raw) {
+    if (raw is! List) return const [];
+    return [
+      for (final e in raw)
+        if (e != null && e.toString().trim().isNotEmpty) e.toString(),
+    ];
+  }
 }
 
 class ChatSession {
@@ -22,11 +43,16 @@ class ChatSession {
   int updated;
   List<StoredMsg> messages;
 
+  /// پروندهٔ وکیل در پایان این گفتگو (`CaseFile.toJson`)؛ `null` یعنی
+  /// گفتگو پیش از این نسخه ذخیره شده و پرونده را باید از پیام‌ها بازسازی کرد.
+  Map<String, dynamic>? caseJson;
+
   ChatSession({
     required this.id,
     required this.title,
     required this.updated,
     required this.messages,
+    this.caseJson,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +60,7 @@ class ChatSession {
         'title': title,
         'updated': updated,
         'messages': messages.map((m) => m.toJson()).toList(),
+        if (caseJson != null) 'case': caseJson,
       };
 
   factory ChatSession.fromJson(Map<String, dynamic> j) => ChatSession(
@@ -41,7 +68,15 @@ class ChatSession {
         title: (j['title'] ?? '').toString(),
         updated: j['updated'] is int ? j['updated'] as int : 0,
         messages: parseMessages(j['messages']),
+        caseJson: parseCase(j['case']),
       );
+
+  /// پروندهٔ ذخیره‌شده؛ ورودی نامعتبر `null` می‌دهد (و گفتگو با بازپخش
+  /// پیام‌ها باز می‌شود، نه با کرش).
+  static Map<String, dynamic>? parseCase(Object? raw) {
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return null;
+  }
 
   /// پیام‌های یک رکورد ذخیره‌شده؛ ورودی نامعتبر فهرست خالی می‌دهد.
   static List<StoredMsg> parseMessages(Object? raw) {
@@ -49,7 +84,7 @@ class ChatSession {
     if (raw is! List) return out;
     for (final e in raw) {
       if (e is! Map) continue;
-      out.add(StoredMsg((e['t'] ?? '').toString(), e['u'] == true));
+      out.add(StoredMsg.fromJson(Map<String, dynamic>.from(e)));
     }
     return out;
   }
@@ -71,7 +106,9 @@ class HistoryStore {
   /// مهاجرت شود؛ محتوایش اکنون فقط سرصفحه‌هاست.
   static const String _key = 'history_v1';
   static const String _msgPrefix = 'history_v1:m:';
-  static const int _format = 2;
+  /// ۳: محمولهٔ هر گفتگو علاوه بر پیام‌ها، پروندهٔ وکیل (`case`) هم دارد.
+  /// نسخهٔ ۲ فقط پیام‌ها را می‌نوشت و پرونده بعد از بستهشدن برنامه گم میشد.
+  static const int _format = 3;
 
   static const int maxSessions = 30;
   static const int maxMessages = 100;
@@ -91,6 +128,10 @@ class HistoryStore {
 
   /// آخرین خطای ذخیره‌سازی؛ برای نمایش در صفحهٔ «اطلاعات» و عیب‌یابی.
   String? lastError;
+
+  /// پیامی که کاربر باید بداند (مثلاً حذف خودکار گفتگوی قدیمی). برخلاف
+  /// [lastError] یک شکست نیست، ولی نباید بیص بماند.
+  String? lastNotice;
 
   Future<SharedPreferences> _prefsOrLoad() async {
     final ready = _prefs;
@@ -132,6 +173,8 @@ class HistoryStore {
           _pendingDeletes.add(s.id);
         }
         sessions.removeRange(maxSessions, sessions.length);
+        lastNotice = 'تعداد گفتگوها به $maxSessions محدود است؛ قدیمیترینها '
+            'پاک شدند.';
       }
       // دادهٔ قدیمیِ رمزنشده یک بار به قالب رمزنگاری‌شده منتقل می‌شود.
       if (wasPlain) await flush();
@@ -150,13 +193,20 @@ class HistoryStore {
       if (stored == null || stored.isEmpty) return null;
       final raw = await PrivacyService.open(stored);
       if (raw == null || raw.isEmpty) return null;
-      final messages = ChatSession.parseMessages(jsonDecode(raw));
+      final decoded = jsonDecode(raw);
+      // قالب ۲: فقط آرایهٔ پیامها. قالب ۳: `{v, messages, case?}`.
+      // پروندهٔ وکیل باید همانطور برگردد تا «بله/نه»ها جابهجا نشوند.
+      final messages = decoded is Map
+          ? ChatSession.parseMessages(decoded['messages'])
+          : ChatSession.parseMessages(decoded);
+      final caseJson = decoded is Map ? ChatSession.parseCase(decoded['case']) : null;
       if (messages.isEmpty) return null;
       return ChatSession(
         id: id,
         title: (head['title'] ?? '').toString(),
         updated: head['updated'] is int ? head['updated'] as int : 0,
         messages: messages,
+        caseJson: caseJson,
       );
     } catch (_) {
       // یک گفتگوی خراب، بقیهٔ تاریخچه را از بین نمی‌برد.
@@ -194,9 +244,16 @@ class HistoryStore {
     if (messages.length > maxMessages) {
       messages = messages.sublist(messages.length - maxMessages);
       s.messages = messages;
+      lastNotice = 'این گفتگو به $maxMessages پیام محدود شد؛ قدیمیترین پیامها '
+          'دیگر ذخیره نمیشوند.';
     }
-    final raw = jsonEncode(messages.map((m) => m.toJson()).toList());
-    final sealed = await PrivacyService.seal(raw);
+    final payload = <String, dynamic>{
+      'v': _format,
+      'messages': [for (final m in messages) m.toJson()],
+      // پرونده داخل همان محمولهٔ رمزنگاریشده مینویسد، نه در فهرست سرصفحهها.
+      if (s.caseJson != null) 'case': s.caseJson,
+    };
+    final sealed = await PrivacyService.seal(jsonEncode(payload));
     await prefs.setString(_msgKey(s.id), sealed);
   }
 
@@ -271,6 +328,8 @@ class HistoryStore {
   Future<void> upsert(ChatSession s) async {
     if (s.messages.length > maxMessages) {
       s.messages = s.messages.sublist(s.messages.length - maxMessages);
+      lastNotice = 'این گفتگو به $maxMessages پیام محدود شد؛ قدیمیترین پیامها '
+          'دیگر ذخیره نمیشوند.';
     }
     sessions.removeWhere((x) => x.id == s.id);
     sessions.insert(0, s);
@@ -279,6 +338,8 @@ class HistoryStore {
         _pendingDeletes.add(old.id);
       }
       sessions.removeRange(maxSessions, sessions.length);
+      lastNotice = 'تعداد گفتگوها به $maxSessions محدود است؛ قدیمیترینها '
+          'پاک شدند.';
     }
     _dirty[s.id] = s;
     await flush();
@@ -297,13 +358,32 @@ class HistoryStore {
     sessions.clear();
     _dirty.clear();
     _pendingDeletes.clear();
+    lastNotice = null;
     try {
       final prefs = await _prefsOrLoad();
       for (final k in prefs.getKeys().toList()) {
         if (k == _key || k.startsWith(_msgPrefix)) await prefs.remove(k);
       }
     } catch (e) {
-      lastError = 'پاک‌کردن تاریخچه: $e';
+      lastError = 'پاک کردن تاریخچه: $e';
     }
+  }
+
+  /// صدور متنی تاریخچه برای خودِ کاربر (اسناد حساس از پیش ذخیره نشدهاند).
+  /// چون محدودیت $maxSessions/$maxMessages وجود دارد، کاربر باید بتواند
+  /// گفتگوهایش را قبل از حذف خودکار بیرون ببرد.
+  static String exportText(Iterable<ChatSession> sessions) {
+    final b = StringBuffer();
+    for (final s in sessions) {
+      if (s.messages.isEmpty) continue;
+      b.writeln('# ${s.title.isEmpty ? "گفتگو" : s.title}');
+      for (final m in s.messages) {
+        final body = m.text.trim();
+        if (body.isEmpty) continue;
+        b.writeln('${m.fromUser ? 'شما' : 'دستیار'}: $body');
+      }
+      b.writeln();
+    }
+    return b.toString().trim();
   }
 }

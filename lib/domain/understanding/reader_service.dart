@@ -65,6 +65,12 @@ class ReaderService {
         ],
         errorsAreFatal: false,
       );
+      // وزنها در TransferableTypedData به isolate منتقل شدند؛ نگه داشتن
+      // یک کپی ۱۲ مگابایتی در کش rootBundle فقط اوج حافظه را بالا میبرد.
+      try {
+        // `evict` در Flutter void برمیگرداند؛ await روی آن خطای کامپایل است.
+        rootBundle.evict(weightsAsset);
+      } catch (_) {}
       final hello = await first.future.timeout(const Duration(seconds: 60));
       if (hello is! List || hello.length < 3 || hello[0] is! SendPort) {
         throw StateError('reader did not start: $hello');

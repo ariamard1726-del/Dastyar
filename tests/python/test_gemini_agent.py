@@ -9,7 +9,7 @@ import unittest
 from unittest import mock
 from urllib.error import HTTPError, URLError
 
-from tools import gemini_agent as agent
+from dev.tools import gemini_agent as agent
 
 KEY = "test-only-not-a-real-credential"
 

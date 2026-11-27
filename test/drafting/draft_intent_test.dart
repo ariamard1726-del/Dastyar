@@ -14,12 +14,12 @@ void main() {
   ];
 
   test('سؤال دربارهٔ تنظیم، متن نمی‌خواهد', () {
-    expect(Drafting.detect('تنظیم سند چه شرایطی دارد؟', ts).none, isTrue);
-    expect(Drafting.detect('دادخواست چیست', ts).none, isTrue);
+    expect(DraftIntent.detect('تنظیم سند چه شرایطی دارد؟', ts).none, isTrue);
+    expect(DraftIntent.detect('دادخواست چیست', ts).none, isTrue);
   });
 
   test('درخواست صریح تشخیص داده می‌شود', () {
-    expect(Drafting.detect('می‌خواهم شکوائیه بنویسم', ts).none, isFalse);
-    expect(Drafting.detect('دادخواست تنظیم کن', ts).none, isFalse);
+    expect(DraftIntent.detect('می‌خواهم شکوائیه بنویسم', ts).none, isFalse);
+    expect(DraftIntent.detect('دادخواست تنظیم کن', ts).none, isFalse);
   });
 }

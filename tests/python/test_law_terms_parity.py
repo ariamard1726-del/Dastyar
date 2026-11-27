@@ -1,0 +1,91 @@
+"""قاعده‌های تطبیق واژه‌ها یک‌جا هستند و دو فایل تولیدشده تازه‌اند.
+
+پیش‌تر فهرست ۱۵۳ واژه‌ای و آستانه‌ها در `law_terms.dart` و `law_terms.py`
+دستی نگه داشته می‌شد و این آزمون فقط «واگرایی نکنند» را می‌سنجید؛ خودِ
+دوتا‌بودن رفع نشده بود. حالا مرجع `dev/tools/contracts/law_terms.json` است.
+"""
+
+import json
+import os
+import re
+import sys
+import unittest
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
+sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
+
+import gen_law_terms  # noqa: E402
+import law_terms_rules  # noqa: E402
+
+DART = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms.dart')
+DART_RULES = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms_rules.dart')
+CONTRACT = os.path.join(ROOT, 'dev', 'tools', 'contracts', 'law_terms.json')
+
+
+def _read(path):
+    with open(path, encoding='utf-8') as f:
+        return f.read()
+
+
+def _contract():
+    return json.loads(_read(CONTRACT))
+
+
+def _dart_generic():
+    s = _read(DART_RULES)
+    start = s.index('static const Set<String> generic = <String>{')
+    end = s.index('};', start)
+    return set(re.findall(r"'([^']+)'", s[start:end]))
+
+
+def _dart_number(name):
+    m = re.search(r'static const (?:int|double) %s = ([0-9.]+);' % name, _read(DART_RULES))
+    return float(m.group(1)) if m else None
+
+
+class GeneratedTests(unittest.TestCase):
+    def test_files_are_fresh(self):
+        for path, text in gen_law_terms.targets().items():
+            self.assertEqual(_read(path), text,
+                             'کهنه است: %s — python3 dev/tools/gen_law_terms.py --write'
+                             % os.path.relpath(path, ROOT))
+
+    def test_word_lists_are_one(self):
+        contract = set(_contract()['generic'])
+        self.assertEqual(len(contract), 153)
+        self.assertEqual(_dart_generic(), contract)
+        self.assertEqual(set(law_terms_rules.GENERIC), contract)
+
+    def test_thresholds_match(self):
+        th = _contract()['thresholds']
+        self.assertEqual(law_terms_rules.MIN_LEN, th['minLen'])
+        self.assertEqual(law_terms_rules.TOP, th['top'])
+        self.assertEqual(law_terms_rules.MIN_COVER, th['minCover'])
+        self.assertEqual(law_terms_rules.RARE_DF, th['rareDf'])
+        self.assertEqual(law_terms_rules.MAX_SPAN, th['maxSpan'])
+        self.assertEqual(law_terms_rules.PHRASE_MIN_IDF, th['phraseMinIdf'])
+        self.assertEqual(_dart_number('minLen'), th['minLen'])
+        self.assertEqual(_dart_number('topCount'), th['top'])
+        self.assertEqual(_dart_number('rareDf'), th['rareDf'])
+        self.assertEqual(_dart_number('minCover'), th['minCover'])
+        self.assertEqual(_dart_number('maxSpan'), th['maxSpan'])
+        self.assertEqual(_dart_number('phraseMinIdf'), th['phraseMinIdf'])
+
+    def test_alias_match(self):
+        alias = _contract()['alias']
+        self.assertEqual(law_terms_rules.ALIAS, alias)
+        dart = _read(DART_RULES)
+        for k, v in alias.items():
+            self.assertIn("'%s': '%s'" % (k, v), dart,
+                          'نگاشت %s→%s در فایل تولیدشدهٔ دارت نیست' % (k, v))
+
+    def test_no_second_hand_written_list(self):
+        # اگر کسی فهرست را دستی به law_terms.dart برگرداند، این آزمون می‌گیرد.
+        dart = _read(DART)
+        self.assertNotIn('static const Set<String> generic = {', dart)
+        self.assertNotIn('static const Map<String, String> alias = {', dart)
+
+
+if __name__ == '__main__':
+    unittest.main()

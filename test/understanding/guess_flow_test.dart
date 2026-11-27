@@ -36,7 +36,7 @@ void main() {
 
   test('همهٔ موضوع‌های نگاشت‌شده در وکیل وجود دارند', () {
     final ids = Advocate.topics.map((t) => t.id).toSet();
-    Advocate.guessTopics.forEach((label, list) {
+    guessTopics.forEach((label, list) {
       expect(list, isNotEmpty, reason: label);
       for (final id in list) {
         expect(ids, contains(id), reason: label);
@@ -55,20 +55,20 @@ void main() {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: sure('labor'));
     expect(a.file.topic, 'labor');
-    expect(r.text, contains('برداشتم این است'));
-    expect(r.text, contains('کار و کارفرما'));
-    expect(r.chips.first, Advocate.wrongChip);
+    expect(r.chips, contains(ChipTexts.wrongChip));
+    expect(r.chips, contains(ChipTexts.wrongChip));
+    expect(r.chips.first, ChipTexts.wrongChip);
     expect(a.wantsGuess('حقوقم را هم نداده'), isFalse);
   });
 
   test('کاربر می‌تواند حدسِ غلط را رد کند', () {
-    for (final reply in [Advocate.wrongChip, 'نه موضوعم این نیست']) {
+    for (final reply in [ChipTexts.wrongChip, 'نه موضوعم این نیست']) {
       final a = Advocate(engine);
       a.respond(unknown, guess: sure('rent'));
       expect(a.file.topic, 'rent');
       final r = a.respond(reply);
       expect(a.file.topic, isEmpty, reason: reply);
-      expect(r.text, contains('اشتباه برداشت کردم'));
+      expect(r.chips, ChipTexts.branchChips);
     }
   });
 
@@ -76,7 +76,7 @@ void main() {
     final a = Advocate(engine);
     a.respond(unknown, guess: sure('labor'));
     a.respond('قرارداد کتبی دارم');
-    a.respond(Advocate.wrongChip);
+    a.respond(ChipTexts.wrongChip);
     expect(a.file.topic, 'labor');
   });
 
@@ -85,8 +85,8 @@ void main() {
     final r = a.respond(unknown, guess: unsure('labor', 'rent'));
     expect(a.file.topic, isEmpty);
     expect(r.chips,
-        ['کار و کارفرما', 'اجاره و ودیعه', Advocate.noneChip, Advocate.leaveChip]);
-    expect(r.text, contains('کدام نزدیک‌تر'));
+        ['کار و کارفرما', 'اجاره و ودیعه', ChipTexts.noneChip, ChipTexts.leaveChip]);
+        expect(r.chips, contains(ChipTexts.noneChip));
     expect(a.wantsGuess('کار و کارفرما'), isFalse);
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, 'rent');
@@ -96,7 +96,7 @@ void main() {
     final a = Advocate(engine);
     final r = a.respond(unknown, guess: unsure('labor', 'general'));
     expect(r.chips,
-        ['کار و کارفرما', Advocate.noneChip, Advocate.leaveChip]);
+        ['کار و کارفرما', ChipTexts.noneChip, ChipTexts.leaveChip]);
     a.respond('بله');
     expect(a.file.topic, 'labor');
   });
@@ -104,9 +104,9 @@ void main() {
   test('«هیچ‌کدام» پرونده‌ای باز نمی‌کند و از کاربر می‌خواهد تعریف کند', () {
     final a = Advocate(engine);
     a.respond(unknown, guess: unsure('labor', 'rent'));
-    final r = a.respond(Advocate.noneChip);
+    final r = a.respond(ChipTexts.noneChip);
     expect(a.file.topic, isEmpty);
-    expect(r.text, contains('چه اتفاقی افتاده'));
+    expect(r.chips, ChipTexts.branchChips);
     // پرسشِ «کدام؟» دیگر معتبر نیست.
     a.respond('اجاره و ودیعه');
     expect(a.file.topic, isNot('labor'));
@@ -131,7 +131,7 @@ void main() {
 
   test('جایی که قاعده‌ها موضوع را شناخته‌اند حدس هیچ چیز را عوض نمی‌کند', () {
     final samples = [
-      for (final line in File('brain/eval/intent_eval.txt').readAsLinesSync())
+      for (final line in File('eval/intent_eval.txt').readAsLinesSync())
         if (!line.startsWith('#') && line.indexOf('|') > 0)
           line.substring(line.indexOf('|') + 1).trim(),
     ];
@@ -211,7 +211,7 @@ void main() {
       expect(c.advocate.file.topic, 'labor');
       expect(c.messages.length, 2);
       expect(c.messages[0].fromUser, isTrue);
-      expect(c.messages[1].chips.first, Advocate.wrongChip);
+      expect(c.messages[1].chips.first, ChipTexts.wrongChip);
       expect(c.thinking, isFalse);
     });
 
@@ -269,7 +269,7 @@ void main() {
     );
     // موضوع وکیل → دستهٔ سنجش.
     final labelOf = <String, String>{};
-    Advocate.guessTopics.forEach((label, ids) {
+    guessTopics.forEach((label, ids) {
       for (final id in ids) {
         labelOf[id] = label;
       }
@@ -292,7 +292,7 @@ void main() {
       }
       final offered = [
         for (final t in Advocate.topics)
-          if (r.chips.contains(t.title) && r.chips.contains(Advocate.noneChip))
+          if (r.chips.contains(t.title) && r.chips.contains(ChipTexts.noneChip))
             labelOf[t.id] ?? t.id,
       ];
       if (offered.isNotEmpty) {

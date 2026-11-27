@@ -4,7 +4,7 @@ import 'dart:convert';
 ///
 /// هم‌ارزِ `tokenizer.json` مدل است: یکدست‌کردن فاصله‌ها، Metaspace (هر واژه
 /// با «▁» شروع می‌شود)، مدل Unigram با جست‌وجوی بهترین مسیر، و برای نویسهٔ
-/// ناشناخته بایت‌های UTF-8 آن. مرجعِ درستی‌اش `brain/noql/core.py` است که
+/// ناشناخته بایت‌های UTF-8 آن. مرجعِ درستی‌اش `dev/brain/noql/core.py` است که
 /// خودش روی CI با کتابخانهٔ اصلی مقایسه می‌شود؛ خروجی هر دو در
 /// `test/understanding/noql_ref.json` با همین کد سنجیده می‌شود.
 class NoqlTokenizer {

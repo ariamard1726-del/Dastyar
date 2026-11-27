@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
       - run: pip install numpy
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: python brain/train_brain.py
+      - run: python dev/brain/train_brain.py
         env:
           STEPS: '3000'
       - uses: actions/upload-artifact@v7
@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: python brain/train_nano.py
+      - run: python dev/brain/train_nano.py
         env:
           ITERS: '2500'
       - uses: actions/upload-artifact@v7
