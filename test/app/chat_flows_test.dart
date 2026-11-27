@@ -229,7 +229,8 @@ void main() {
         () async {
       final repo = TemplateRepository()..templates.addAll(templates);
       final demand = templates.firstWhere((t) => t.id == 'demand_money');
-      final initial = DraftSession(demand)..step('تهران');
+      final initial = DraftSession(demand);
+      DraftStep.answer(initial, 'تهران');
       final ctrl = ChatController(
         engine: engine,
         repo: repo,
