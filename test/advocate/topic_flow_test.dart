@@ -10,6 +10,15 @@ import 'package:dastyar/domain/advocate/law_terms.dart';
 import 'package:dastyar/domain/advocate/reply_voice.dart';
 import 'package:dastyar/domain/advocate/topic_flow.dart';
 
+class _FakeTopicEngine extends KnowledgeEngine {
+  _FakeTopicEngine(this._flows);
+
+  final List<Map<String, dynamic>> _flows;
+
+  @override
+  List<Map<String, dynamic>> get topicFlows => _flows;
+}
+
 /// همتای tests/python/test_topic_flow.py: مسیر تصمیم چک در دارت باید با
 /// پایتون یکسان باشد (همان نمونه‌ها، همان برگ‌ها).
 void main() {
@@ -64,8 +73,8 @@ void main() {
   });
 
   test('مواد بدشکل در برگ موضوعی بدون کرش نادیده گرفته می‌شوند', () {
-    final engine = KnowledgeEngine()
-      ..topicFlows.add(<String, dynamic>{
+    final engine = _FakeTopicEngine(<Map<String, dynamic>>[
+      <String, dynamic>{
         'live': true,
         'gate': <String>['چک'],
         'rules': <Map<String, dynamic>>[
@@ -86,7 +95,8 @@ void main() {
           },
         },
         'disclaimer': '',
-      });
+      },
+    ]);
     final file = CaseFile();
     final dialog = DialogueState();
     final voice = ReplyVoice(
