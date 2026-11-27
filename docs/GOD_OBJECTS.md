@@ -33,7 +33,7 @@
 | `chat_bubbles.dart` | ۸۱۴ | ۲۴ (سرِ کتابخانه) + ۸ ویجتِ ۴۷ تا ۲۰۳ خطی |
 | `case_flow.dart` | ۷۴۴ | ۱۰۴ + `case_facts` ۱۲۵ + `case_answer` ۳۱۶ + `case_text` ۲۳۰ |
 | `advocate.dart` | ۵۹۵ | ۴۰۰ (سیم‌کشی + API) + `advocate_model` ۹۰ + `chip_texts` ۵۶ + `advocate_data` ۶۲ |
-| پروندهٔ وکیل | ۴۰۱ (نُه مدل در یک فایل) | `case_file` ۹ (دروازه) + `case_state` ۱۳۶ + `case_model` ۲۸۳ |
+| پروندهٔ وکیل | ۴۰۱ (نُه مدل در یک فایل) | `case_file` ۹ (دروازه) + `case_state` ۱۳۶ + `case_model` ۲۶۲ |
 | خطِ تولیدِ پاسخ | ۴۱۱ در یک فایل | `advocate_reply` ۱۲۱ (ترتیب) + `advocate_reply_guard` ۱۳۰ + `advocate_reply_case` ۱۸۱ |
 | `core/engine.dart` | ۶۳۹ | ۱۵۷ (وضعیت + API) + `engine_load` ۲۰۸ + `engine_query` ۳۰۷ |
 | `drafting.dart` | ۶۵۹ | ۱۹ (سرِ کتابخانه) + `draft_models` ۱۷۱ + `draft_intent` ۲۰۳ + `draft_step` ۲۲۸ + `draft_words` ۷۲ + `draft_laws` ۱۷ |
@@ -248,7 +248,7 @@
 |---|---|---|
 | `case_file.dart` | **۹** | فقط دو `export`؛ همان مسیرِ پیشین برای چهل `import` |
 | `case_state.dart` | **۱۳۶** | `CaseFile`: واقعیت‌ها، شمارشِ پرسش‌ها، `toJson`/`fromJson`، `schemaVersion` |
-| `case_model.dart` | **۲۸۳** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع |
+| `case_model.dart` | **۲۶۲** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl`) |
 
 - **چرا دروازه و نه تغییرِ مسیر:** چهل فایل و آزمون `case_file.dart` را
   `import` می‌کنند. `export` در همان فایل، هم `CaseFile` و هم مدل‌ها را می‌دهد،
@@ -263,7 +263,7 @@
   سقفِ خطِ هر سه فایل، دروازه فقط دو `export` و بی‌کلاس، صاحبِ یکتای هر نام،
   `typedef`ها در فایلِ مدل، و نبودِ `Slot`/`Topic`/`Claim` در فایلِ وضعیت. پیش
   از تقسیم قرمز بود: `401 > 40` و بخش‌های نبوده.
-- سقفِ `case_model` روی **۳۰۰** ثبت شد (اندازهٔ واقعی ۲۸۳) — سقف اندازهٔ امروز
+- سقفِ `case_model` روی **۳۰۰** ثبت شد (اندازهٔ واقعی ۲۶۲) — سقف اندازهٔ امروز
   است، نه آرزو؛ عبور از آن یعنی مدلِ تازه‌ای به همان فایل اضافه شده.
 - آزمونِ دارتِ تازه: `test/advocate/case_model_test.dart` — نُه نام از یک
   `import`، پیش‌فرض‌های عمومیِ هر مدل، و قراردادِ JSON از همان دروازه.

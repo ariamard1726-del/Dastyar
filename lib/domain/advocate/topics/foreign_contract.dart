@@ -11,10 +11,10 @@
 // متن کامل این قانون در بانک قوانین برنامه نیست؛ شماره‌ها را هنگام اقدام
 // با منبع رسمی یا وکیل بسنجید.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic foreignContractTopic = Topic(
+final Topic foreignContractTopic = Topic.dsl(
   id: 'foreign_contract',
   title: topicText('foreignContract_0'),
   cues: {
@@ -25,39 +25,34 @@ final Topic foreignContractTopic = Topic(
   },
   anti: 'کارفرما|حقوق معوق|اجاره|مستاجر|موجر|چک|طلاق|همسر|کرایه|دزد|سرقت|بیمه',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'clause',
       ask: topicText('foreignContract_1'),
       why: topicText('foreignContract_2'),
       options: [topicText('foreignContract_3'), topicText('foreignContract_4'), topicText('foreignContract_5')],
-      read: (n) {
-        if (Sense.has(n, 'داوری|آربیتراژ|آربیتر')) return 'arb';
-        if (Sense.has(n, 'قانون حاکم|حاکم است|تابع قانون|قانون انگلیس|قانون آلمان|قانون امارات|قانون انگلستان|قانون دیگر')) return 'law';
-        if (Sense.has(n, 'نوشته نشده|چیزی ننوشته|بندی نداریم|هیچ بندی|ننوشتیم|نداریم|ندارد')) return 'none';
-        return null;
-      },
-      effect: (f) => f.eq('clause', 'arb')
-          ? topicText('foreignContract_6')
-          : f.eq('clause', 'law')
-              ? topicText('foreignContract_7')
-              : topicText('foreignContract_8'),
+      read: const ReadCases([
+        ReadCase('داوری|آربیتراژ|آربیتر', 'arb'),
+        ReadCase('قانون حاکم|حاکم است|تابع قانون|قانون انگلیس|قانون آلمان|قانون امارات|قانون انگلستان|قانون دیگر', 'law'),
+        ReadCase('نوشته نشده|چیزی ننوشته|بندی نداریم|هیچ بندی|ننوشتیم|نداریم|ندارد', 'none'),
+      ]),
+      effect: const TxSwitch(
+        'clause',
+        {
+          'arb': Tx('foreignContract_6'),
+          'law': Tx('foreignContract_7'),
+        },
+        fallback: Tx('foreignContract_8'),
+      ),
     ),
   ],
-  issues: [],
-  opening: (f) =>
-      topicText('foreignContract_9'),
-  follow: {
-    'next': (f) =>
-        topicText('foreignContract_10'),
-    'where': (f) =>
-        topicText('foreignContract_11'),
-    'evidence': (f) =>
-        topicText('foreignContract_12'),
-    'cost': (f) =>
-        topicText('foreignContract_13'),
-    'chance': (f) =>
-        topicText('foreignContract_14'),
-    'deadline': (f) =>
-        topicText('foreignContract_15'),
+  issues: const [],
+  opening: const Tx('foreignContract_9'),
+  follow: const {
+    'next': Tx('foreignContract_10'),
+    'where': Tx('foreignContract_11'),
+    'evidence': Tx('foreignContract_12'),
+    'cost': Tx('foreignContract_13'),
+    'chance': Tx('foreignContract_14'),
+    'deadline': Tx('foreignContract_15'),
   },
 );

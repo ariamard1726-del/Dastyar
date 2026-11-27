@@ -7,10 +7,10 @@
 // - مواد ۲۲۱ و ۲۲۶–۲۲۷: خسارت ناشی از عدم انجام تعهد.
 // فسخ قرارداد و استرداد ثمن در متن موجود نیست؛ پاسخ آن را به وکیل ارجاع می‌دهد.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic saleTopic = Topic(
+final Topic saleTopic = Topic.dsl(
   id: 'sale',
   title: topicText('sale_0'),
   cues: {
@@ -22,38 +22,26 @@ final Topic saleTopic = Topic(
   anti:
       'اجاره|مستاجر|موجر|چک|طلاق|مهریه|کارفرما|حقوق معوق|حقوقم|دستمزد|سرقت|دزد|تصادف|کتک|تهدید|ملک|آپارتمان',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'proof',
-      ask:
-          topicText('sale_1'),
-      why:
-          topicText('sale_2'),
+      ask: topicText('sale_1'),
+      why: topicText('sale_2'),
       options: [topicText('sale_3'), topicText('sale_4')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'مبایعه|قولنامه|رسید|فیش|پیامک|قرارداد|کتبی|مدرک|سند|بله',
         'نه|ندارم|نداریم|نداشتم|نیست|نبود',
       ),
-      effect: (f) => f.yes('proof')
-          ? topicText('sale_5')
-          : topicText('sale_6'),
+      effect: const TxCond(FactYes('proof'), Tx('sale_5'), Tx('sale_6')),
     ),
   ],
-  issues: [],
-  opening: (f) =>
-      topicText('sale_7'),
-  follow: {
-    'next': (f) =>
-        topicText('sale_8'),
-    'where': (f) =>
-        topicText('sale_9'),
-    'evidence': (f) =>
-        topicText('sale_10'),
-    'cost': (f) =>
-        topicText('sale_11'),
-    'chance': (f) =>
-        topicText('sale_12'),
-    'deadline': (f) =>
-        topicText('sale_13'),
+  issues: const [],
+  opening: const Tx('sale_7'),
+  follow: const {
+    'next': Tx('sale_8'),
+    'where': Tx('sale_9'),
+    'evidence': Tx('sale_10'),
+    'cost': Tx('sale_11'),
+    'chance': Tx('sale_12'),
+    'deadline': Tx('sale_13'),
   },
 );

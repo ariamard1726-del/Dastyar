@@ -2,10 +2,10 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic neighborTopic = Topic(
+final Topic neighborTopic = Topic.dsl(
   id: 'neighbor',
   title: topicText('neighbor_0'),
   cues: {
@@ -17,66 +17,53 @@ final Topic neighborTopic = Topic(
   },
   anti: 'شوهر|طلاق|کارفرما',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'kind',
       ask: topicText('neighbor_1'),
       why: topicText('neighbor_2'),
       options: [topicText('neighbor_3'), topicText('neighbor_4'), topicText('neighbor_5')],
-      read: (n) {
-        if (Sense.has(n, 'سر ?و ?صدا|صدای|آهنگ|موسیقی|مهمونی|پارتی|میکوب|داد و بیداد')) return 'noise';
-        if (Sense.has(n, 'نشتی|نم |آب (?:میده|میاد|چکه)|خسارت|خراب کرد|ترک')) return 'damage';
-        if (Sense.has(n, 'پارکینگ|مشاعات|راه ?پله|پشت ?بام|انباری|شارژ')) return 'common';
-        return null;
-      },
+      read: const ReadCases([
+        ReadCase('سر ?و ?صدا|صدای|آهنگ|موسیقی|مهمونی|پارتی|میکوب|داد و بیداد', 'noise'),
+        ReadCase('نشتی|نم |آب (?:میده|میاد|چکه)|خسارت|خراب کرد|ترک', 'damage'),
+        ReadCase('پارکینگ|مشاعات|راه ?پله|پشت ?بام|انباری|شارژ', 'common'),
+      ]),
       yesValue: '',
       noValue: '',
     ),
-    Slot(
+    Slot.dsl(
       id: 'talked',
       ask: topicText('neighbor_6'),
       why: topicText('neighbor_7'),
       options: [topicText('neighbor_8'), topicText('neighbor_9')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'گفتم|تذکر دادم|صحبت کردم|چند بار گفتم|حرف زدم|گوش نمیده|محل نمیذاره|فایده نداشت',
         'نگفتم|صحبت نکردم|چیزی نگفتم|روم نمیشه',
       ),
-      effect: (f) => f.yes('talked')
-          ? topicText('neighbor_10')
-          : topicText('neighbor_11'),
+      effect: const TxCond(FactYes('talked'), Tx('neighbor_10'), Tx('neighbor_11')),
     ),
   ],
-  opening: (f) =>
-      topicText('neighbor_12'),
+  opening: const Tx('neighbor_12'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'police',
       chip: topicText('neighbor_13'),
       cues: 'پلیس|110|کلانتری|شکایت|کیفری',
-      body: (f) =>
-          topicText('neighbor_14'),
+      body: const Tx('neighbor_14'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'damage',
       chip: topicText('neighbor_15'),
       cues: 'خسارت|نشتی|نم |تعمیر|خراب|هزینه(?:ش| اش)? (?:رو |را )?(?:نمیده|بده)',
-      body: (f) =>
-          topicText('neighbor_16'),
+      body: const Tx('neighbor_16'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        topicText('neighbor_17'),
-    'where': (f) =>
-        topicText('neighbor_18'),
-    'cost': (f) =>
-        topicText('neighbor_19'),
-    'evidence': (f) =>
-        topicText('neighbor_20'),
-    'chance': (f) =>
-        topicText('neighbor_21'),
-    'refuse': (f) =>
-        topicText('neighbor_22'),
+  follow: const {
+    'next': Tx('neighbor_17'),
+    'where': Tx('neighbor_18'),
+    'cost': Tx('neighbor_19'),
+    'evidence': Tx('neighbor_20'),
+    'chance': Tx('neighbor_21'),
+    'refuse': Tx('neighbor_22'),
   },
-  drafts: (f) => const ['formal_notice'],
+  drafts: const DraftRule.fixed(['formal_notice']),
 );

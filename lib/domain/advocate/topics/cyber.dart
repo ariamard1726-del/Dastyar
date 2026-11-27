@@ -2,10 +2,10 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic cyberTopic = Topic(
+final Topic cyberTopic = Topic.dsl(
   id: 'cyber',
   title: topicText('cyber_0'),
   cues: {
@@ -18,158 +18,135 @@ final Topic cyberTopic = Topic(
     'اینستا|تلگرام|واتس ?اپ|پیج|فضای مجازی|اینترنتی|آنلاین|سایت|پیامک': 1,
   },
   anti: 'ازم شکایت|علیه من|متهم|چک',
-  recap: (f) => [
-    if (f.eq('kind', 'money')) topicText('cyber_1'),
-    if (f.eq('kind', 'hack')) topicText('cyber_2'),
-    if (f.eq('kind', 'expose')) topicText('cyber_3'),
-    if (f.eq('self', 'self')) topicText('cyber_4'),
-    if (f.eq('self', 'taken')) topicText('cyber_5'),
-    if (f.yes('proof')) topicText('cyber_6'),
-    if (f.no('proof')) topicText('cyber_7'),
+  recap: const [
+    RecapItem(when: FactEq('kind', 'money'), text: Tx('cyber_1')),
+    RecapItem(when: FactEq('kind', 'hack'), text: Tx('cyber_2')),
+    RecapItem(when: FactEq('kind', 'expose'), text: Tx('cyber_3')),
+    RecapItem(when: FactEq('self', 'self'), text: Tx('cyber_4')),
+    RecapItem(when: FactEq('self', 'taken'), text: Tx('cyber_5')),
+    RecapItem(when: FactYes('proof'), text: Tx('cyber_6')),
+    RecapItem(when: FactNo('proof'), text: Tx('cyber_7')),
   ],
   claims: [
-    Claim(
+    Claim.dsl(
       goal: topicText('cyber_8'),
-      when: (f) => f.eq('kind', 'money'),
+      when: const FactEq('kind', 'money'),
       elements: [
-        Element(
+        Element.dsl(
           topicText('cyber_9'),
-          (f) => f.has('self') ? f.eq('self', 'taken') : null,
-          ifNo:
-              topicText('cyber_10'),
+          const FactTriWhen(FactHas('self'), FactEq('self', 'taken')),
+          ifNo: topicText('cyber_10'),
         ),
-        Element(
+        Element.dsl(
           topicText('cyber_11'),
-          (f) => true,
+          const FactConst(true),
         ),
-        Element(
+        Element.dsl(
           topicText('cyber_12'),
-          (f) => f.tri('proof'),
-          ifNo:
-              topicText('cyber_13'),
+          const FactTri('proof'),
+          ifNo: topicText('cyber_13'),
         ),
       ],
-      win: (f) =>
-          topicText('cyber_14'),
-      counter: (f) =>
-          topicText('cyber_15'),
+      win: const Tx('cyber_14'),
+      counter: const Tx('cyber_15'),
     ),
-    Claim(
+    Claim.dsl(
       goal: topicText('cyber_16'),
-      when: (f) => f.eq('kind', 'expose'),
+      when: const FactEq('kind', 'expose'),
       elements: [
-        Element(
+        Element.dsl(
           topicText('cyber_17'),
-          (f) => true,
+          const FactConst(true),
         ),
-        Element(
+        Element.dsl(
           topicText('cyber_18'),
-          (f) => true,
+          const FactConst(true),
         ),
-        Element(
+        Element.dsl(
           topicText('cyber_19'),
-          (f) => f.tri('proof'),
-          ifNo:
-              topicText('cyber_20'),
+          const FactTri('proof'),
+          ifNo: topicText('cyber_20'),
         ),
       ],
-      win: (f) =>
-          topicText('cyber_21'),
-      counter: (f) =>
-          topicText('cyber_22'),
+      win: const Tx('cyber_21'),
+      counter: const Tx('cyber_22'),
     ),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'kind',
       ask: topicText('cyber_23'),
       why: topicText('cyber_24'),
       options: [topicText('cyber_25'), topicText('cyber_26'), topicText('cyber_27')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'پخش|منتشر|آبرو|تهمت|فیک|شایعه|(?:عکس|فیلم)(?:م|ام|مو|امو|هام|های من|های خصوصی| خصوصی)|حرف(?:ی)? (?:دروغ|پخش)')) return 'expose';
-        if (Sense.has(n, 'پول|برداشت|کارت(?:م| به کارت)|واریز|خالی|فیشینگ|درگاه|کلاهبردار|میلیون|تومان')) return 'money';
-        if (Sense.has(n, 'هک|رمز|وارد (?:پیج|حساب|اکانت)|پیج(?:م|مو)? (?:رو )?(?:گرفت|برد|دزدید)|دسترسی')) return 'hack';
-        return null;
-      },
-      effect: (f) => f.eq('kind', 'hack')
-          ? topicText('cyber_28')
-          : f.eq('kind', 'expose')
-              ? topicText('cyber_29')
-              : '',
+      read: const ReadCases([
+        ReadCase('پخش|منتشر|آبرو|تهمت|فیک|شایعه|(?:عکس|فیلم)(?:م|ام|مو|امو|هام|های من|های خصوصی| خصوصی)|حرف(?:ی)? (?:دروغ|پخش)', 'expose'),
+        ReadCase('پول|برداشت|کارت(?:م| به کارت)|واریز|خالی|فیشینگ|درگاه|کلاهبردار|میلیون|تومان', 'money'),
+        ReadCase('هک|رمز|وارد (?:پیج|حساب|اکانت)|پیج(?:م|مو)? (?:رو )?(?:گرفت|برد|دزدید)|دسترسی', 'hack'),
+      ]),
+      effect: const TxSwitch('kind', {
+        'hack': Tx('cyber_28'),
+        'expose': Tx('cyber_29'),
+      }),
     ),
-    Slot(
+    Slot.dsl(
       id: 'self',
       ask: topicText('cyber_30'),
       why: topicText('cyber_31'),
       options: [topicText('cyber_32'), topicText('cyber_33')],
       yesValue: '',
       noValue: '',
-      when: (f) => f.eq('kind', 'money'),
-      read: (n) {
-        if (Sense.has(n, 'خودم (?:واریز|زدم|دادم|کارت)|واریز کردم|کارت به کارت کردم|بیعانه|پیش ?پرداخت|پول (?:رو )?(?:دادم|ریختم|زدم)')) return 'self';
-        if (Sense.has(n, 'بی ?خبر|بدون اطلاع|نفهمیدم|یهو|یکدفعه|برداشت (?:شد|کردن|زدن)|برداشتن|خالی (?:شد|کردن)|فیشینگ|درگاه|رمز(?:م| دوم)')) return 'taken';
-        return null;
-      },
-      effect: (f) => f.eq('self', 'taken')
-          ? topicText('cyber_34')
-          : topicText('cyber_35'),
+      when: const FactEq('kind', 'money'),
+      read: const ReadCases([
+        ReadCase('خودم (?:واریز|زدم|دادم|کارت)|واریز کردم|کارت به کارت کردم|بیعانه|پیش ?پرداخت|پول (?:رو )?(?:دادم|ریختم|زدم)', 'self'),
+        ReadCase('بی ?خبر|بدون اطلاع|نفهمیدم|یهو|یکدفعه|برداشت (?:شد|کردن|زدن)|برداشتن|خالی (?:شد|کردن)|فیشینگ|درگاه|رمز(?:م| دوم)', 'taken'),
+      ]),
+      effect: const TxCond(
+          FactEq('self', 'taken'), Tx('cyber_34'), Tx('cyber_35')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'proof',
       ask: topicText('cyber_36'),
       why: topicText('cyber_37'),
       options: [topicText('cyber_38'), topicText('cyber_39')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'اسکرین|عکس گرفتم|پیامک(?:ش)? (?:رو )?دارم|شماره (?:تراکنش|پیگیری)|لینک(?:ش)? (?:رو )?دارم|نگه داشتم|نگه داشته ام|مدرک دارم|شماره(?:ش)? (?:رو )?دارم',
         'پاک (?:کرد|شد)|چیزی ندارم|مدرک(?:ی)? ندارم|هیچی ندارم',
       ),
-      effect: (f) => f.yes('proof')
-          ? topicText('cyber_40')
-          : topicText('cyber_41'),
+      effect: const TxCond(
+          FactYes('proof'), Tx('cyber_40'), Tx('cyber_41')),
     ),
   ],
-  opening: (f) => f.eq('kind', 'expose')
-      ? topicText('cyber_42')
-      : topicText('cyber_43'),
+  opening: const TxCond(
+      FactEq('kind', 'expose'), Tx('cyber_42'), Tx('cyber_43')),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'back',
       chip: topicText('cyber_44'),
       cues: 'پول(?:م|مو)? (?:بر ?می ?گرد|پس میاد|برگشت)|بر ?می ?گرد|پس میگیرم|جبران',
-      body: (f) =>
-          topicText('cyber_45'),
+      body: const Tx('cyber_45'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'how',
       chip: topicText('cyber_46'),
       cues: 'چطور(?:ی)? شکایت|چجوری شکایت|کجا شکایت|شکایت کنم|فتا',
-      body: (f) =>
-          topicText('cyber_47'),
+      body: const Tx('cyber_47'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'remove',
       chip: topicText('cyber_48'),
       cues: 'پاک (?:کنه|بشه|کنن)|حذف|جلو(?:ی)?(?:ش)? (?:رو )?بگیر|جلو(?:ی)? (?:پخش|انتشار)|بیشتر پخش|ادامه نده',
-      body: (f) =>
-          topicText('cyber_49'),
+      body: const Tx('cyber_49'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        topicText('cyber_50'),
-    'where': (f) =>
-        topicText('cyber_51'),
-    'evidence': (f) =>
-        topicText('cyber_52'),
-    'cost': (f) =>
-        topicText('cyber_53'),
-    'chance': (f) =>
-        topicText('cyber_54'),
-    'time': (f) =>
-        topicText('cyber_55'),
+  follow: const {
+    'next': Tx('cyber_50'),
+    'where': Tx('cyber_51'),
+    'evidence': Tx('cyber_52'),
+    'cost': Tx('cyber_53'),
+    'chance': Tx('cyber_54'),
+    'time': Tx('cyber_55'),
   },
-  drafts: (f) => const ['complaint'],
+  drafts: const DraftRule.fixed(['complaint']),
 );

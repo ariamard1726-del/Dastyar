@@ -3,10 +3,10 @@
 // شماره مواد و مجازات دقیق در این موضوع عمداً نوشته نشده است: حدس عددی
 // خطرناک است. پاسخ‌ها به جای عدد، به متن رسمی قانون و وکیل ارجاع می‌دهند.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic theftTopic = Topic(
+final Topic theftTopic = Topic.dsl(
   id: 'theft',
   title: topicText('theft_0'),
   cues: {
@@ -18,36 +18,26 @@ final Topic theftTopic = Topic(
   },
   anti: 'متهم|اتهام|احضاریه|ازم شکایت|از من شکایت|علیه من|سرقفلی|حق کسب|کسب و پیشه|متهمم',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'proof',
       ask: topicText('theft_1'),
       why: topicText('theft_2'),
       options: [topicText('theft_3'), topicText('theft_4')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'فیلم|دوربین|شاهد|دیده|شهود|عکس|ضبط',
         'نه|ندارم|نداریم|نبود|نیست',
       ),
-      effect: (f) => f.yes('proof')
-          ? topicText('theft_5')
-          : topicText('theft_6'),
+      effect: const TxCond(FactYes('proof'), Tx('theft_5'), Tx('theft_6')),
     ),
   ],
-  issues: [],
-  opening: (f) =>
-      topicText('theft_7'),
-  follow: {
-    'next': (f) =>
-        topicText('theft_8'),
-    'where': (f) =>
-        topicText('theft_9'),
-    'evidence': (f) =>
-        topicText('theft_10'),
-    'cost': (f) =>
-        topicText('theft_11'),
-    'chance': (f) =>
-        topicText('theft_12'),
-    'deadline': (f) =>
-        topicText('theft_13'),
+  issues: const [],
+  opening: const Tx('theft_7'),
+  follow: const {
+    'next': Tx('theft_8'),
+    'where': Tx('theft_9'),
+    'evidence': Tx('theft_10'),
+    'cost': Tx('theft_11'),
+    'chance': Tx('theft_12'),
+    'deadline': Tx('theft_13'),
   },
 );

@@ -2,10 +2,10 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic marriageTopic = Topic(
+final Topic marriageTopic = Topic.dsl(
   id: 'marriage',
   title: topicText('marriage_0'),
   cues: {
@@ -13,50 +13,41 @@ final Topic marriageTopic = Topic(
     'وام (?:مسکن|اشتغال) (?:زوج|متاهل|جوان)': 4,
     'خوابگاه متاهل|مسکن (?:زوج|متاهل)|هدیه ازدواج|کمک ?هزینه ازدواج': 4,
   },
-  recap: (f) => [
-    if (f.yes('refused')) topicText('marriage_1'),
-    if (f.no('refused')) topicText('marriage_2'),
+  recap: const [
+    RecapItem(when: FactYes('refused'), text: Tx('marriage_1')),
+    RecapItem(when: FactNo('refused'), text: Tx('marriage_2')),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'refused',
       ask: topicText('marriage_3'),
       why: topicText('marriage_4'),
       options: [topicText('marriage_5'), topicText('marriage_6')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'رد (?:کرد|شد)|معطل|نمید(?:ن|ه)|امروز و فردا|میگن (?:بودجه|اعتبار|ضامن)|جواب نمید',
         'میخوام بدونم|میخواهم بدانم|هنوز (?:نرفتم|درخواست ندادم)|فقط سوال',
       ),
-      effect: (f) => f.yes('refused')
-          ? topicText('marriage_7')
-          : '',
+      effect: const TxCond(FactYes('refused'), Tx('marriage_7')),
     ),
   ],
-  opening: (f) =>
-      topicText('marriage_8'),
+  opening: const Tx('marriage_8'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'housing',
       chip: topicText('marriage_9'),
       cues: 'ودیعه|مسکن|رهن',
-      body: (f) =>
-          topicText('marriage_10'),
+      body: const Tx('marriage_10'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'complain',
       chip: topicText('marriage_11'),
       cues: 'شکایت|اعتراض|ندادن|نمیدن|رد کرد',
-      body: (f) =>
-          topicText('marriage_12'),
+      body: const Tx('marriage_12'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        topicText('marriage_13'),
-    'where': (f) =>
-        topicText('marriage_14'),
-    'evidence': (f) =>
-        topicText('marriage_15'),
+  follow: const {
+    'next': Tx('marriage_13'),
+    'where': Tx('marriage_14'),
+    'evidence': Tx('marriage_15'),
   },
 );

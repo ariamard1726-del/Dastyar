@@ -113,7 +113,7 @@ class TopicTextEquivalenceTest(unittest.TestCase):
                                 _is_regex_line(ln),
                                 'متن آزاد فارسی در %s باقی مانده است: %s' % (rel, ln.strip()),
                             )
-                used.extend(re.findall(r"topicText\('([^']+)'\)", '\n'.join(code_lines)))
+                used.extend(re.findall(r"(?:topicText|Tx)\('([^']+)'\)", '\n'.join(code_lines)))
             self.assertEqual(set(used), set(self.data[sec]),
                              'کلید بدون استفاده یا گمشده در بخش %s' % sec)
 

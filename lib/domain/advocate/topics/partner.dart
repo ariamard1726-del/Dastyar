@@ -2,29 +2,24 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
-import 'package:dastyar/domain/advocate/topics/shared.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-// ---- برداشت وکیل
+const List<RecapItem> _partnerRecap = [
+  RecapItem(text: Tx('partner_0')),
+  RecapItem(when: FactYes('written'), text: Tx('partner_1')),
+  RecapItem(when: FactNo('written'), text: Tx('partner_2')),
+  RecapItem(when: FactEq('lease', 'both'), text: Tx('partner_3')),
+  RecapItem(when: FactEq('lease', 'his'), text: Tx('partner_4')),
+  RecapItem(when: FactEq('lease', 'mine'), text: Tx('partner_5')),
+  RecapItem(when: FactEq('goal', 'exit'), text: Tx('partner_6')),
+  RecapItem(when: FactEq('goal', 'stay'), text: Tx('partner_7')),
+];
 
-List<String> partnerRecap(CaseFile f) => [
-      topicText('partner_0'),
-      if (f.yes('written')) topicText('partner_1'),
-      if (f.no('written')) topicText('partner_2'),
-      if (f.eq('lease', 'both')) topicText('partner_3'),
-      if (f.eq('lease', 'his')) topicText('partner_4'),
-      if (f.eq('lease', 'mine')) topicText('partner_5'),
-      if (f.eq('goal', 'exit')) topicText('partner_6'),
-      if (f.eq('goal', 'stay')) topicText('partner_7'),
-    ];
-
-// ---- پرسش‌ها و پاسخ‌ها
-
-final Topic partnerTopic = Topic(
+final Topic partnerTopic = Topic.dsl(
   id: 'partner',
   title: topicText('partner_8'),
-  recap: partnerRecap,
+  recap: _partnerRecap,
   cues: {
     'شرکت (?:زدیم|کردیم|راه انداختیم|داشتیم|داریم)|سهم(?:ش|م| من| منو)(?: رو)? (?:نمیده|نمی ?ده|نمیدهد)': 3,
     'شریک|شراکت|شراکتی': 3,
@@ -32,102 +27,88 @@ final Topic partnerTopic = Topic(
     'سود[^ ]* (?:رو |را )?(?:برمیداره|نمیده|بالا کشید|میبره)|همه سود|سهم(?:م| من| منو)(?: رو)? نمیده|حساب و کتاب': 2,
   },
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'written',
       ask: topicText('partner_9'),
       why: topicText('partner_10'),
       options: [topicText('partner_11'), topicText('partner_12')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'شراکت ?نامه|قرارداد (?:دارم|داریم|نوشتیم)|نوشتیم|کتبی|مشارکت نامه',
         'ننوشتیم|شفاهی|قرارداد (?:نداریم|ندارم)|هیچ(?:ی)? ننوشتیم|رو حساب (?:رفاقت|اعتماد|فامیلی)|نوشته ای? (?:نداریم|ندارم)',
       ),
-      effect: (f) => f.yes('written')
-          ? topicText('partner_13')
-          : topicText('partner_14'),
+      effect: const TxCond(
+          FactYes('written'), Tx('partner_13'), Tx('partner_14')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'lease',
       ask: topicText('partner_15'),
       why: topicText('partner_16'),
       options: [topicText('partner_17'), topicText('partner_18'), topicText('partner_19')],
-      read: (n) {
-        if (Sense.has(n, 'به (?:اسم|نام) (?:هر ?دو|جفت|دوتامون)|هر دو(?:مون)? امضا|با هم (?:[^ ]+ ){0,3}اجاره کردیم|دوتایی اجاره')) return 'both';
-        if (Sense.has(n, 'به (?:اسم|نام) (?:اون|خودش|شریکم|او)')) return 'his';
-        if (Sense.has(n, 'به (?:اسم|نام) (?:من|خودم)')) return 'mine';
-        return null;
-      },
-      readPending: (n) => Sense.has(n, 'هر ?دو|جفت')
-          ? 'both'
-          : (Sense.has(n, 'من|خودم') ? 'mine' : (Sense.has(n, 'اون|او |خودش|شریک') ? 'his' : null)),
+      read: const ReadCases([
+        ReadCase('به (?:اسم|نام) (?:هر ?دو|جفت|دوتامون)|هر دو(?:مون)? امضا|با هم (?:[^ ]+ ){0,3}اجاره کردیم|دوتایی اجاره', 'both'),
+        ReadCase('به (?:اسم|نام) (?:اون|خودش|شریکم|او)', 'his'),
+        ReadCase('به (?:اسم|نام) (?:من|خودم)', 'mine'),
+      ]),
+      readPending: const ReadCases([
+        ReadCase('هر ?دو|جفت', 'both'),
+        ReadCase('من|خودم', 'mine'),
+        ReadCase('اون|او |خودش|شریک', 'his'),
+      ]),
       yesValue: '',
       noValue: '',
-      effect: (f) {
-        switch (f.get('lease')) {
-          case 'both':
-            return topicText('partner_20');
-          case 'his':
-            return topicText('partner_21');
-          default:
-            return topicText('partner_22');
-        }
-      },
+      effect: const TxSwitch(
+        'lease',
+        {'both': Tx('partner_20'), 'his': Tx('partner_21')},
+        fallback: Tx('partner_22'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'goal',
       ask: topicText('partner_23'),
       why: topicText('partner_24'),
       options: [topicText('partner_25'), topicText('partner_26')],
-      read: (n) {
-        if (Sense.has(n, 'جدا (?:شم|بشم|شیم|شوم|بشوم)|تموم(?:ش)? کنم|به هم بزنم|سهمم(?: رو)? بفروشم|بیام بیرون|انحلال')) return 'exit';
-        if (Sense.has(n, 'ادامه|فقط (?:سهم|سود|حق)|سودم(?: رو)? (?:میخوام|بده)')) return 'stay';
-        return null;
-      },
+      read: const ReadCases([
+        ReadCase('جدا (?:شم|بشم|شیم|شوم|بشوم)|تموم(?:ش)? کنم|به هم بزنم|سهمم(?: رو)? بفروشم|بیام بیرون|انحلال', 'exit'),
+        ReadCase('ادامه|فقط (?:سهم|سود|حق)|سودم(?: رو)? (?:میخوام|بده)', 'stay'),
+      ]),
       yesValue: '',
       noValue: '',
-      effect: (f) => f.eq('goal', 'exit')
-          ? topicText('partner_27')
-          : topicText('partner_28'),
+      effect: const TxCond(
+          FactEq('goal', 'exit'), Tx('partner_27'), Tx('partner_28')),
     ),
   ],
-  opening: (f) =>
-      topicText('partner_29'),
+  opening: const Tx('partner_29'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'profit',
       chip: topicText('partner_30'),
       cues: 'سود|دخل|حساب(?: و کتاب)?(?: رو)? (?:پس )?نمیده|برمیداره|بالا کشید|سهم(?:م| من)(?: رو)? نمیده',
-      body: (f) =>
-          topicText('partner_31'),
+      body: const Tx('partner_31'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'criminal',
       chip: topicText('partner_32'),
       cues: 'شکایت|کیفری|خیانت در امانت|کلاهبرداری|دزدی|زندان',
-      body: (f) =>
-          topicText('partner_33'),
+      body: const Tx('partner_33'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'lock',
       chip: topicText('partner_34'),
       cues: 'راه(?:م)? نمیده|قفل(?: رو| را)? عوض|بیرونم کرد|نمیذاره بیام|کلید(?: رو)? (?:نمیده|گرفت)',
-      body: (f) =>
-          topicText('partner_35'),
+      body: const Tx('partner_35'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        topicText('partner_36'),
-    'where': (f) => moneyForum(f.n('amount')),
-    'cost': (f) =>
-        moneyCost + '\n' + topicText('partnerCostTail'),
-    'time': (f) => moneyTime,
-    'evidence': (f) =>
-        topicText('partner_37'),
-    'chance': (f) =>
-        (f.no('written') ? topicText('partnerChanceNoWritten') + ' ' : '') + topicText('partnerChanceRest'),
-    'refuse': (f) =>
-        topicText('partner_38'),
+  follow: const {
+    'next': Tx('partner_36'),
+    'where': TxForum('amount'),
+    'cost': TxJoin('\n', [TxShared(SharedText.moneyCost), Tx('partnerCostTail')]),
+    'time': TxShared(SharedText.moneyTime),
+    'evidence': Tx('partner_37'),
+    'chance': TxJoin(' ', [
+      TxCond(FactNo('written'), Tx('partnerChanceNoWritten')),
+      Tx('partnerChanceRest'),
+    ]),
+    'refuse': Tx('partner_38'),
   },
-  drafts: (f) => const ['formal_notice'],
+  drafts: const DraftRule.fixed(['formal_notice']),
 );

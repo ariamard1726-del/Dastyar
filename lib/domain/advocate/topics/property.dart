@@ -2,10 +2,10 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic propertyTopic = Topic(
+final Topic propertyTopic = Topic.dsl(
   id: 'property',
   title: topicText('property_0'),
   cues: {
@@ -18,156 +18,127 @@ final Topic propertyTopic = Topic(
     'به (?:دو|چند) نفر فروخت|فروش مال غیر|دفترخونه|دفترخانه|سند رسمی|تک ?برگ|بنگاه|مشاور املاک': 2,
   },
   anti: 'اجاره|مستاجر|صاحبخونه|ازم شکایت|علیه من|ارث|شریک|متهم',
-  recap: (f) => [
-    if (f.eq('role', 'buyer')) topicText('property_1'),
-    if (f.eq('role', 'seller')) topicText('property_2'),
-    if (f.yes('written')) topicText('property_3'),
-    if (f.no('written')) topicText('property_4'),
-    if (f.yes('paid')) topicText('property_5'),
-    if (f.no('paid')) topicText('property_6'),
-    if (f.yes('registered')) topicText('property_7'),
-    if (f.no('registered')) topicText('property_8'),
+  recap: const [
+    RecapItem(when: FactEq('role', 'buyer'), text: Tx('property_1')),
+    RecapItem(when: FactEq('role', 'seller'), text: Tx('property_2')),
+    RecapItem(when: FactYes('written'), text: Tx('property_3')),
+    RecapItem(when: FactNo('written'), text: Tx('property_4')),
+    RecapItem(when: FactYes('paid'), text: Tx('property_5')),
+    RecapItem(when: FactNo('paid'), text: Tx('property_6')),
+    RecapItem(when: FactYes('registered'), text: Tx('property_7')),
+    RecapItem(when: FactNo('registered'), text: Tx('property_8')),
   ],
   claims: [
-    Claim(
+    Claim.dsl(
       goal: topicText('property_9'),
-      when: (f) => !f.eq('role', 'seller'),
+      when: const FactNot(FactEq('role', 'seller')),
       elements: [
-        Element(
+        Element.dsl(
           topicText('property_10'),
-          (f) => f.tri('written'),
-          ifNo:
-              topicText('property_11'),
+          const FactTri('written'),
+          ifNo: topicText('property_11'),
         ),
-        Element(
+        Element.dsl(
           topicText('property_12'),
-          (f) => f.tri('paid'),
-          ifNo:
-              topicText('property_13'),
+          const FactTri('paid'),
+          ifNo: topicText('property_13'),
         ),
-        Element(
+        Element.dsl(
           topicText('property_14'),
-          (f) => f.tri('registered'),
-          ifNo:
-              topicText('property_15'),
+          const FactTri('registered'),
+          ifNo: topicText('property_15'),
         ),
       ],
-      win: (f) =>
-          topicText('property_16'),
-      counter: (f) =>
-          topicText('property_17'),
+      win: const Tx('property_16'),
+      counter: const Tx('property_17'),
     ),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'role',
       ask: topicText('property_18'),
       why: topicText('property_19'),
       options: [topicText('property_20'), topicText('property_21')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'خریدم|خریدیم|خریدار(?:م| هستم)|پیش ?خرید|سند(?:م| رو)? (?:رو )?(?:نمیزن|نزد|نمیده)|به نام(?:م| من) نمیزن')) return 'buyer';
-        if (Sense.has(n, 'فروختم|فروخته ام|فروشنده(?: ?ام| هستم)|خریدار (?:پول|نمیده|بقیه)')) return 'seller';
-        return null;
-      },
-      effect: (f) => f.eq('role', 'seller')
-          ? topicText('property_22')
-          : '',
+      read: const ReadCases([
+        ReadCase('خریدم|خریدیم|خریدار(?:م| هستم)|پیش ?خرید|سند(?:م| رو)? (?:رو )?(?:نمیزن|نزد|نمیده)|به نام(?:م| من) نمیزن', 'buyer'),
+        ReadCase('فروختم|فروخته ام|فروشنده(?: ?ام| هستم)|خریدار (?:پول|نمیده|بقیه)', 'seller'),
+      ]),
+      effect: const TxCond(FactEq('role', 'seller'), Tx('property_22')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'written',
       ask: topicText('property_23'),
       why: topicText('property_24'),
       options: [topicText('property_25'), topicText('property_26')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'قولنامه (?:دارم|داریم|نوشتیم|کردیم)|مبایعه ?نامه (?:دارم|داریم|نوشتیم)|قولنامه ای|با قولنامه|کد رهگیری|بنگاه نوشت',
         'قولنامه (?:ندارم|نداریم|ننوشتیم)|شفاهی|هیچی ننوشتیم|نوشته ای? ندار',
       ),
-      effect: (f) => f.yes('written')
-          ? topicText('property_27')
-          : topicText('property_28'),
+      effect: const TxCond(
+          FactYes('written'), Tx('property_27'), Tx('property_28')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'paid',
       ask: topicText('property_29'),
       why: topicText('property_30'),
       options: [topicText('property_31'), topicText('property_32')],
-      when: (f) => !f.eq('role', 'seller'),
-      read: (n) => Sense.yn(
-        n,
+      when: const FactNot(FactEq('role', 'seller')),
+      read: const ReadYn(
         'همه(?:ش| اش)?(?: پول| مبلغ)?(?:ش)? (?:رو |را )?(?:دادم|داده ام|پرداخت)|کل(?: پول| مبلغ)?(?:ش)? (?:رو )?دادم|تسویه (?:کردم|شده)|کامل (?:دادم|پرداخت)',
         'بخشی(?:ش)? مونده|مونده|مانده|باقی ?مونده|قرار(?:ه| بود) (?:موقع|روز) سند|نصف(?:ش)? (?:رو )?دادم|بیعانه دادم',
       ),
-      effect: (f) => f.no('paid')
-          ? topicText('property_33')
-          : '',
+      effect: const TxCond(FactNo('paid'), Tx('property_33')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'registered',
       ask: topicText('property_34'),
       why: topicText('property_35'),
       options: [topicText('property_36'), topicText('property_37')],
-      when: (f) => !f.eq('role', 'seller'),
-      read: (n) => Sense.yn(
-        n,
+      when: const FactNot(FactEq('role', 'seller')),
+      read: const ReadYn(
         'به نام (?:خودش|خودشه|فروشنده)|سند(?:ش)? (?:داره|تک ?برگ)',
         'به نام (?:دیگری|یکی دیگه|کس دیگه|پدرش|شریکش|شرکت|تعاونی)|سند نداره|قولنامه ای(?:ه| است)|وکالتی',
       ),
-      effect: (f) => f.no('registered')
-          ? topicText('property_38')
-          : '',
+      effect: const TxCond(FactNo('registered'), Tx('property_38')),
     ),
   ],
-  opening: (f) =>
-      topicText('property_39'),
+  opening: const Tx('property_39'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'double',
       chip: topicText('property_40'),
       cues: 'به (?:دو|چند|یکی دیگه|یک نفر دیگه|کس دیگه|کس دیگری)[^؟]{0,12}فروخت|دوباره فروخت|معامله معارض|فروش مال غیر',
-      body: (f) =>
-          topicText('property_41'),
+      body: const Tx('property_41'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'noshow',
       chip: topicText('property_42'),
       cues: '(?:دفترخونه|محضر) (?:نیومد|نمیاد|نیاد|نیامد)|حاضر نمیشه|گواهی عدم حضور|نمیاد (?:محضر|سند)',
-      body: (f) =>
-          topicText('property_43'),
+      body: const Tx('property_43'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'tax',
       chip: topicText('property_44'),
       cues: 'مالیات|عوارض|هزینه (?:سند|انتقال|دفترخونه)|مفاصا',
-      body: (f) =>
-          topicText('property_45'),
+      body: const Tx('property_45'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'valid',
       chip: topicText('property_46'),
       cues: 'اعتبار|معتبر|قولنامه (?:دستی|عادی)|ارزش (?:قانونی|داره)|به درد',
-      body: (f) =>
-          topicText('property_47'),
+      body: const Tx('property_47'),
     ),
   ],
-  follow: {
-    'next': (f) => f.eq('role', 'seller')
-        ? topicText('property_48')
-        : topicText('property_49'),
-    'where': (f) =>
-        topicText('property_50'),
-    'evidence': (f) =>
-        topicText('property_51'),
-    'cost': (f) =>
-        topicText('property_52'),
-    'time': (f) =>
-        topicText('property_53'),
-    'chance': (f) =>
-        topicText('property_54'),
-    'refuse': (f) =>
-        topicText('property_55'),
+  follow: const {
+    'next': TxCond(FactEq('role', 'seller'), Tx('property_48'), Tx('property_49')),
+    'where': Tx('property_50'),
+    'evidence': Tx('property_51'),
+    'cost': Tx('property_52'),
+    'time': Tx('property_53'),
+    'chance': Tx('property_54'),
+    'refuse': Tx('property_55'),
   },
-  drafts: (f) => const ['formal_notice'],
+  drafts: const DraftRule.fixed(['formal_notice']),
 );

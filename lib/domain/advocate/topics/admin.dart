@@ -2,13 +2,12 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-String get _noBank =>
-    topicText('admin_0');
+const TextExpr _noBank = Tx('admin_0');
 
-final Topic adminTopic = Topic(
+final Topic adminTopic = Topic.dsl(
   id: 'admin',
   title: topicText('admin_1'),
   cues: {
@@ -22,45 +21,36 @@ final Topic adminTopic = Topic(
   },
   anti: 'کارفرما|شوهر',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'notified',
       ask: topicText('admin_2'),
       why: topicText('admin_3'),
       options: [topicText('admin_4'), topicText('admin_5')],
-      read: (n) => Sense.yn(
-        n,
+      read: const ReadYn(
         'ابلاغ (?:شد|کرد)|نامه(?:ش)? (?:اومد|رو دادن)|رای(?:ش)? (?:اومد|صادر)|کتبی (?:دادن|گفتن)',
         'ابلاغ نشد|کتبی (?:ندادن|نگفتن|نمیدن)|شفاهی گفتن|نامه ای? ندادن',
       ),
-      effect: (f) => f.yes('notified')
-          ? topicText('admin_6')
-          : topicText('admin_7'),
+      effect: const TxCond(FactYes('notified'), Tx('admin_6'), Tx('admin_7')),
     ),
   ],
-  opening: (f) =>
-      topicText('adminOpenA') + '\n' + _noBank + '\n' + topicText('adminOpenB'),
+  opening: const TxJoin('\n', [Tx('adminOpenA'), _noBank, Tx('adminOpenB')]),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'military',
       chip: topicText('admin_8'),
       cues: 'معافیت|سربازی|نظام وظیفه|کمیسیون پزشکی|کفالت',
-      body: (f) =>
-          _noBank + '\n' + topicText('adminMilBody'),
+      body: const TxJoin('\n', [_noBank, Tx('adminMilBody')]),
     ),
-    Issue(
+    Issue.dsl(
       id: 'how',
       chip: topicText('admin_9'),
       cues: 'چطور(?:ی)? شکایت|چجوری شکایت|شکایت کنم|ساجد|دادخواست',
-      body: (f) =>
-          topicText('admin_10'),
+      body: const Tx('admin_10'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        topicText('admin_11'),
-    'where': (f) =>
-        topicText('admin_12'),
-    'deadline': (f) =>
-        topicText('admin_13'),
+  follow: const {
+    'next': Tx('admin_11'),
+    'where': Tx('admin_12'),
+    'deadline': Tx('admin_13'),
   },
 );
