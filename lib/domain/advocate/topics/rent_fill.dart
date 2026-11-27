@@ -7,8 +7,8 @@ Map<String, String> _rentFill(CaseFile f, String template) {
   final sum = _rentSum(f);
   final out = <String, String>{};
   final papers = <String>[
-    if (f.yes('contract')) 'اجاره‌نامه',
-    if (f.yes('witness')) 'گواهی کد رهگیری یا امضای شهود',
+    if (f.yes('contract')) rentText('fillPaperContract'),
+    if (f.yes('witness')) rentText('fillPaperWitness'),
   ];
   switch (template) {
     case 'demand_money':
@@ -18,38 +18,38 @@ Map<String, String> _rentFill(CaseFile f, String template) {
       }
       if (landlord && f.eq('aim', 'damage')) {
         out['basis_detail'] =
-            'خوانده مستأجر ملک اینجانب بوده و در مدت اجاره، بیش از استفادهٔ متعارف به ملک خسارت زده است. مبلغ خواسته هزینهٔ جبران همین خسارت است.';
+            rentText('fillDmDamageDetail');
         out['evidence'] = _list([
           ...papers,
-          'عکس و فیلم از خرابی',
-          'نظر کارشناس (تأمین دلیل)',
-          'فاکتور تعمیر',
+          rentText('fillDmDamageEv0'),
+          rentText('fillDmDamageEv1'),
+          rentText('fillDmDamageEv2'),
         ]);
       } else if (landlord) {
         out['basis_detail'] =
-            'خوانده مستأجر ملک اینجانب است و اجاره‌بهای چند ماه را نپرداخته است. مبلغ خواسته، جمع اجاره‌بهای پرداخت‌نشده است.';
+            rentText('fillDmUnpaidDetail');
         out['evidence'] = _list([
           ...papers,
-          'صورت واریزهای قبلی',
-          'پیام‌های مطالبه',
+          rentText('fillDmUnpaidEv0'),
+          rentText('fillDmUnpaidEv1'),
         ]);
       } else {
         final sb = StringBuffer(
-            'این مبلغ را بابت ودیعهٔ اجاره (پول پیش) به خوانده که موجر است پرداخته‌ام.');
-        if (f.yes('ended')) sb.write(' مدت اجاره پایان یافته است.');
+            rentText('fillDmDepositLead'));
+        if (f.yes('ended')) sb.write(rentText('fillDmDepositEnded'));
         if (f.yes('vacated')) {
-          sb.write(' ملک را تخلیه کرده و تحویل داده‌ام.');
+          sb.write(rentText('fillDmDepositVacated'));
         } else if (f.no('vacated')) {
           sb.write(
-              ' آمادگی خود را برای تخلیه و تحویل ملک هم‌زمان با دریافت ودیعه اعلام کرده‌ام.');
+              rentText('fillDmDepositNotVacated'));
         }
-        sb.write(' با این حال خوانده ودیعه را برنگردانده است.');
+        sb.write(rentText('fillDmDepositTail'));
         out['basis_detail'] = sb.toString();
         out['evidence'] = _list([
           ...papers,
-          'رسید یا تراکنش پرداخت ودیعه',
-          if (f.yes('vacated')) 'صورت‌جلسه یا رسید تحویل کلید',
-          'پیام‌های ردوبدل‌شده',
+          rentText('fillDmDepositEv0'),
+          if (f.yes('vacated')) rentText('fillDmDepositEv1'),
+          rentText('fillDmDepositEv2'),
         ]);
       }
     case 'eviction':
@@ -66,15 +66,15 @@ Map<String, String> _rentFill(CaseFile f, String template) {
           breach ? 'فسخ اجاره به‌علت تخلف مستأجر' : 'پایان مدت اجاره';
       if (breach) {
         out['ground_detail'] =
-            'مستأجر از شرط‌های اجاره‌نامه تخلف کرده و اینجانب با ارسال اظهارنامه، اجاره را فسخ کرده‌ام.';
+            rentText('fillEvBreachDetail');
       } else if (f.yes('owes')) {
         out['ground_detail'] =
-            'مستأجر اجاره‌بهای چند ماه را هم نپرداخته است که جداگانه مطالبه می‌شود.';
+            rentText('fillEvOwesDetail');
       }
       out['evidence'] = _list([
         ...papers,
-        'سند مالکیت',
-        if (breach) 'اظهارنامهٔ فسخ',
+        rentText('fillEvEv0'),
+        if (breach) rentText('fillEvEv1'),
       ]);
     case 'defense_brief':
       final big = sum != null && sum > 100000000;
@@ -92,49 +92,49 @@ Map<String, String> _rentFill(CaseFile f, String template) {
       if (landlord) {
         switch (aim) {
           case 'unpaid':
-            out['subject'] = 'مطالبهٔ اجاره‌بهای پرداخت‌نشده';
+            out['subject'] = rentText('fillDbUnpaidSubject');
             out['merits_defense'] =
-                'خوانده مستأجر ملک اینجانب است و اجاره‌بهای مقرر را در موعد نپرداخته است. پرداخت اجاره در موعد، تکلیف مستأجر است (مادهٔ ۴۹۰ قانون مدنی). تقاضای صدور حکم به پرداخت اجاره‌بهای معوق و خسارات دادرسی را دارم.';
+                rentText('fillDbUnpaidDefense');
           case 'damage':
-            out['subject'] = 'مطالبهٔ خسارت واردشده به ملک';
+            out['subject'] = rentText('fillDbDamageSubject');
             out['merits_defense'] =
-                'خرابی‌های ملک از حد استفادهٔ متعارف بیرون است و از کوتاهی یا زیاده‌روی مستأجر پیش آمده است (مادهٔ ۴۹۳ قانون مدنی). میزان خسارت در نظر کارشناس آمده است. تقاضای صدور حکم به جبران خسارت را دارم.';
+                rentText('fillDbDamageDefense');
           case 'breach':
-            out['subject'] = 'تأیید فسخ اجاره و تخلیهٔ ملک';
+            out['subject'] = rentText('fillDbBreachSubject');
             out['merits_defense'] =
-                'مستأجر از شرط مندرج در اجاره‌نامه تخلف کرده و به همین دلیل اجاره را با اظهارنامه فسخ کرده‌ام (مادهٔ ۴۹۶ قانون مدنی). تقاضای تأیید فسخ و صدور حکم تخلیه را دارم.';
+                rentText('fillDbBreachDefense');
           default:
-            out['subject'] = 'تخلیهٔ ملک اجاره‌ای';
+            out['subject'] = rentText('fillDbEvictSubject');
             out['merits_defense'] =
-                'مدت اجاره پایان یافته و با پایان مدت، اجاره برطرف شده است (مادهٔ ۴۹۴ قانون مدنی)، ولی مستأجر ملک را تحویل نداده است. آمادهٔ استرداد ودیعه هم‌زمان با تخلیه هستم (مادهٔ ۴ قانون روابط موجر و مستأجر). تقاضای صدور و اجرای دستور تخلیه را دارم.';
+                rentText('fillDbEvictDefense');
         }
       } else if (_ordered(f)) {
-        out['subject'] = 'دستور تخلیهٔ ملک اجاره‌ای';
+        out['subject'] = rentText('fillDbOrderedSubject');
         final sb = StringBuffer();
         if (f.no('ended')) {
           sb.write(
-              'مدت اجاره هنوز پایان نیافته است، در حالی که دستور تخلیه فقط پس از انقضای مدت قابل صدور است (مادهٔ ۳ قانون روابط موجر و مستأجر). ');
+              rentText('fillDbOrderedNotEnded'));
         }
         sb.write(
-            'ودیعهٔ اینجانب هنوز مسترد نشده است و اجرای تخلیه موکول به استرداد ودیعه یا سپردن آن به دایرهٔ اجراست (مادهٔ ۴ قانون روابط موجر و مستأجر). تقاضا دارم تا استرداد ودیعه، از اجرای دستور خودداری شود.');
+            rentText('fillDbOrderedTail'));
         out['merits_defense'] = sb.toString();
       } else if (f.covered.contains('damage')) {
-        out['subject'] = 'دفاع در برابر ادعای خسارت موجر';
+        out['subject'] = rentText('fillDbCovDamageSubject');
         out['merits_defense'] =
-            'اثبات خسارت با مدعی است (مادهٔ ۱۹۷ قانون آیین دادرسی مدنی) و مستأجر فقط در صورت کوتاهی یا زیاده‌روی مسئول است (مادهٔ ۴۹۳ قانون مدنی). وضعیت ملک نتیجهٔ استفادهٔ متعارف بوده است. موجر هم نمی‌تواند بدون حکم دادگاه از ودیعه کسر کند (مادهٔ ۴ قانون روابط موجر و مستأجر).';
+            rentText('fillDbCovDamageDefense');
       } else {
-        out['subject'] = 'مطالبهٔ ودیعهٔ اجاره';
+        out['subject'] = rentText('fillDbDepositSubject');
         final sb = StringBuffer();
-        if (f.yes('ended')) sb.write('مدت اجاره پایان یافته است. ');
-        if (f.yes('vacated')) sb.write('ملک را تخلیه کرده و تحویل داده‌ام. ');
+        if (f.yes('ended')) sb.write(rentText('fillDbDepositEnded'));
+        if (f.yes('vacated')) sb.write(rentText('fillDbDepositVacated'));
         sb.write(
-            'موجر مکلف است هم‌زمان با تخلیه، ودیعه را مسترد کند و اگر ادعای خسارت یا بدهی دارد باید دادخواست جداگانه بدهد (مادهٔ ۴ قانون روابط موجر و مستأجر). تقاضای صدور حکم به استرداد ودیعه و خسارات دادرسی را دارم.');
+            rentText('fillDbDepositTail'));
         out['merits_defense'] = sb.toString();
       }
       out['attachments'] = _list([
         ...papers,
-        if (!landlord) 'رسید پرداخت ودیعه',
-        if (_ordered(f)) 'تصویر برگهٔ دستور تخلیه',
+        if (!landlord) rentText('fillDbAttDeposit'),
+        if (_ordered(f)) rentText('fillDbAttOrdered'),
       ]);
     case 'formal_notice':
       out['deadline_days'] = '7';
@@ -151,38 +151,38 @@ Map<String, String> _rentFill(CaseFile f, String template) {
         switch (f.get('aim')) {
           case 'unpaid':
             out['statement_body'] =
-                'شما مستأجر ملک اینجانب هستید و اجاره‌بهای چند ماه را نپرداخته‌اید. خواهشمند است در مهلت تعیین‌شده اجاره‌بهای معوق را بپردازید؛ در غیر این صورت از راه قانونی اقدام می‌کنم.';
+                rentText('fillFnUnpaid');
           case 'breach':
             out['statement_body'] =
-                'شما از شرط‌های اجاره‌نامه تخلف کرده‌اید. به همین دلیل اجاره را فسخ می‌کنم و خواهشمند است در مهلت تعیین‌شده ملک را تخلیه کنید و تحویل دهید.';
+                rentText('fillFnBreach');
           case 'damage':
             out['statement_body'] =
-                'در مدت اجاره به ملک اینجانب خسارت وارد کرده‌اید. خواهشمند است در مهلت تعیین‌شده خسارت را جبران کنید؛ در غیر این صورت از راه قانونی اقدام می‌کنم.';
+                rentText('fillFnDamage');
           default:
             out['statement_body'] =
-                'مدت اجارهٔ ملک اینجانب پایان یافته است و قصد تمدید ندارم. خواهشمند است در مهلت تعیین‌شده ملک را تخلیه کنید و تحویل دهید؛ ودیعهٔ شما هم‌زمان با تخلیه مسترد می‌شود.';
+                rentText('fillFnDefault');
         }
       } else {
         switch (f.get('matter')) {
           case 'repair':
             out['statement_body'] =
-                'ملک اجاره‌ای خرابی‌هایی دارد که استفاده از آن را دشوار کرده است. خواهشمند است در مهلت تعیین‌شده برای تعمیر اقدام کنید؛ در غیر این صورت الزام شما به تعمیر را از دادگاه می‌خواهم.';
+                rentText('fillFnRepair');
           case 'raise':
             out['statement_body'] =
-                'مدت اجاره هنوز پایان نیافته است و اجاره‌بها همان مبلغ مندرج در اجاره‌نامه است. اجاره را تا پایان مدت به همان مبلغ می‌پردازم و افزایش یک‌طرفهٔ آن را نمی‌پذیرم.';
+                rentText('fillFnRaise');
           case 'leave':
             out['statement_body'] =
-                'آمادهٔ تخلیه و تحویل ملک هستم. خواهشمند است در مهلت تعیین‌شده برای تحویل‌گرفتن ملک و استرداد هم‌زمان ودیعه حاضر شوید.';
+                rentText('fillFnLeave');
           case 'deliver':
             out['statement_body'] =
-                'با وجود انعقاد اجاره‌نامه و پرداخت‌های انجام‌شده، ملک هنوز به اینجانب تحویل نشده است. خواهشمند است در مهلت تعیین‌شده ملک را تحویل دهید؛ در غیر این صورت حق فسخ اجاره و مطالبهٔ وجوه پرداختی را برای خود محفوظ می‌دانم.';
+                rentText('fillFnDeliver');
           case 'evict':
             out['statement_body'] =
-                'مدت اجاره پایان نیافته و دستوری از مرجع قضایی صادر نشده است. خواهشمند است از هر اقدام خودسرانه برای تخلیه (تعویض قفل، قطع آب و برق، تهدید) خودداری کنید؛ در غیر این صورت شکایت خواهم کرد.';
+                rentText('fillFnEvict');
           default:
             out['statement_body'] = f.yes('vacated')
-                ? 'ملک را تخلیه کرده و تحویل داده‌ام، ولی ودیعه را برنگردانده‌اید. خواهشمند است در مهلت تعیین‌شده ودیعه را مسترد کنید؛ در غیر این صورت دادخواست مطالبه می‌دهم.'
-                : 'آمادهٔ تخلیه و تحویل ملک هستم، به‌محض دریافت ودیعه. خواهشمند است در مهلت تعیین‌شده برای تحویل‌گرفتن ملک و استرداد هم‌زمان ودیعه حاضر شوید.';
+                ? rentText('fillFnDepVacated')
+                : rentText('fillFnDepNotVacated');
         }
       }
   }

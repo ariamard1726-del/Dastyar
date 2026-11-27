@@ -34,6 +34,8 @@ PLANS_BEFORE_COUNT = 36
 CHANCE_BODY_COUNT = 10
 BODIES_BEFORE_SHA256 = 'ab62ffd0256e9f91ee633949d814efb771df351004a8424af4063808b0c8b0ba'
 BODIES_BEFORE_COUNT = 51
+FILLS_BEFORE_SHA256 = '8d141bd9dc618bffceb6d42bcfd279f710539156267e738fda40d82025151fe9'
+FILLS_BEFORE_COUNT = 51
 RENT_PLAN_BODY_COUNT = 13
 PLAN_SUFFIXES = {
     'plan0': 'moneyForum(sum)',
@@ -184,6 +186,34 @@ class RentTextEquivalenceTest(unittest.TestCase):
                 self.assertIn(key, self.data['bodies'])
         self.assertEqual(set(used), set(self.data['bodies']),
                          'کلیدِ بدون استفاده یا گم‌شده در جدول bodies')
+
+    def test_fill_texts_are_identical_to_the_pre_move_source(self):
+        fills = self.data['fills']
+        self.assertEqual(FILLS_BEFORE_COUNT, len(fills))
+        self.assertEqual(FILLS_BEFORE_SHA256, digest(fills),
+                         'یک نویسه از متنِ فیلدهای سند عوض شده است')
+        self.assertTrue(all(fills.values()), 'فیلدِ خالی در دارایی نیست')
+        for section in ('texts', 'claims', 'filings', 'plans', 'bodies'):
+            self.assertFalse(set(fills) & set(self.data[section]))
+
+    def test_fill_keeps_only_delegates_and_template_choices(self):
+        src = read(ROOT, 'lib/domain/advocate/topics/rent_fill.dart')
+        code = '\n'.join(re.sub(r'//.*$', '', ln) for ln in src.split('\n'))
+        used = re.findall(r"'(fill\w+)'", code)
+        self.assertEqual(set(used), set(self.data['fills']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول fills')
+        # گزینه‌های فیلدهای انتخابی باید دقیقاً برابر قالب بمانند؛ متنِ بلندِ
+        # آزاد نباید دوباره به کد برگردد.
+        tmpl_opts = set()
+        for name in ('demand_money', 'eviction', 'defense_brief', 'formal_notice'):
+            with open(os.path.join(ROOT, 'assets', 'templates', name + '.json'),
+                      encoding='utf-8') as f:
+                for field in json.load(f).get('fields', []):
+                    tmpl_opts.update(field.get('options', []))
+        for lit in re.findall(r"'((?:\\.|[^'])*)'", code):
+            if any('\u0600' <= c <= '\u06FF' for c in lit):
+                self.assertIn(lit, tmpl_opts,
+                              'متنِ غیرازگزینه دوباره در rent_fill آمده: %s' % lit)
 
     def test_dart_keeps_only_delegates_not_a_second_copy(self):
         all_src = ''
