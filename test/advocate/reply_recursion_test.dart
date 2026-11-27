@@ -4,6 +4,7 @@ import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/dialogue_state.dart';
 import 'package:dastyar/domain/advocate/reply_voice.dart';
+import 'package:dastyar/domain/advocate/text_sense.dart';
 
 /// قرارداد فاز ۳: گرهِ مرکزی (`Advocate`) سقف بازگشت صریح دارد (`maxReplyDepth`)
 /// و `file.turns` در هر پیامِ کاربر دقیقاً یکی بالا می‌رود (نه در فراخوانیِ
@@ -135,6 +136,7 @@ void main() {
       closeCase: () {},
     );
 
+    final yesNorm = Sense.norm('بله');
     late final ReplyRoutes routes;
     routes = ReplyRoutes(
       file: file,
@@ -150,7 +152,7 @@ void main() {
         again: again,
         body: () {
           dialog.offer = 'argue';
-          return routes.offer('بله', 'بله', true)!;
+          return routes.offer('بله', yesNorm, true)!;
         },
       ),
     );
@@ -158,7 +160,7 @@ void main() {
     expect(
       () => guard.run<AdvocateReply>(
         again: false,
-        body: () => routes.offer('بله', 'بله', true)!,
+        body: () => routes.offer('بله', yesNorm, true)!,
       ),
       throwsStateError,
     );
