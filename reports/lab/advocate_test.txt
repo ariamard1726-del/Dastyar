@@ -1,25 +1,3 @@
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۹) کنار گذاشتنِ موضوع > انتخابِ موضوع
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۰) کنار گذاشتنِ موضوع > حدسِ اشتباه
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۱) کنار گذاشتنِ موضوع > ادامهٔ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۳) کنار گذاشتنِ موضوع > پیشنهادِ پاسخ
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۴) کنار گذاشتنِ موضوع > «باشه»
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۵) کنار گذاشتنِ موضوع > موضوعِ کنارِ هم
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۶) کنار گذاشتنِ موضوع > مهلت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۷) کنار گذاشتنِ موضوع > تکرارِ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۸) کنار گذاشتنِ موضوع > قاعدهٔ ثابت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۴, ۱۹) کنار گذاشتنِ موضوع > مهلتِ اعتراض
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۶) ایمنی > پرسش فرضی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۷) ایمنی > دربارهٔ برنامه
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۸) ایمنی > دعوا و شکایت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۹) ایمنی > انتخابِ موضوع
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۰) ایمنی > حدسِ اشتباه
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۱) ایمنی > ادامهٔ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۳) ایمنی > پیشنهادِ پاسخ
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۴) ایمنی > «باشه»
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۵) ایمنی > موضوعِ کنارِ هم
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۶) ایمنی > مهلت
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۷) ایمنی > تکرارِ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۸) ایمنی > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۵, ۱۹) ایمنی > مهلتِ اعتراض
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۷) پرسش فرضی > دربارهٔ برنامه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت) (۶, ۸) پرسش فرضی > دعوا و شکایت
@@ -64,79 +42,54 @@
 ✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۷) جداست
 ✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) برچسب‌های تنظیم سند کوتاه‌اند و با کلیدواژهٔ مسیرهای دیگر تداخل ندارند
 ✅ test/advocate/priority_matrix_test.dart: ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت) واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۷) و (۱۶) هم‌خوان است
-✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
-✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
-✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده مستأجر و ودیعه: زبان کوچه و زبان رسمی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و تخلیه: زبان کوچه و اصطلاح حقوقی
+✅ test/advocate/rent_test.dart: سه زبان، یک پرونده موجر و اجارهٔ عقب‌افتاده: «کرایه نداده» و «اجور معوقه»
+✅ test/advocate/rent_test.dart: محور پرونده اشارهٔ گذرا به بحثی دیگر جواب می‌گیرد ولی پرونده را عوض نمی‌کند
+✅ test/advocate/rent_test.dart: محور پرونده خواستهٔ مهم‌تر جای خواستهٔ قبلی را می‌گیرد
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه مستأجر: عوض‌کردن قفل و دستور تخلیه
+✅ test/advocate/rent_test.dart: پاسخ به وضعیت‌های تازه موجر: اقدام خودسرانه و واگذاری به غیر
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی چینش ثابت: پرسشِ همین گفتگو، بعد دادخواست، بعد لایحه
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی دادخواست و لایحه کنار جواب‌های پرسش هم دمِ دست می‌ماند
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی سند هر وضعیت فرق دارد
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی لمس دکمهٔ سند: متن پیشنهادی از واقعیت‌های همین پرونده می‌آید
+✅ test/advocate/rent_test.dart: دکمه‌های پیشنهادی تخلیه‌ای که پایه ندارد پیشنهاد نمی‌شود؛ طلب اجاره جایش می‌آید
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند دستور تخلیه آمده و ودیعه پس داده نشده
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند خسارت به ملک با بحثِ وسایلِ جامانده قاطی نمی‌شود
+✅ test/advocate/rent_test.dart: حرفی که به محور پرونده می‌خورد بی‌جواب نمی‌ماند وقتی گفته «قبول نمی‌کند»، دوباره نمی‌پرسم او چه گفت
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید پرسش به زبانِ همان دعواست و بهانه‌های همان وضعیت را پیش می‌گذارد
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید هیچ گزینه‌ای بی‌جوابِ حقوقی نمی‌ماند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید وقتی دستور تخلیه آمده، نمی‌پرسم موجر چه می‌گوید
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید «نمی‌دانم» در جوابِ پرسشِ باز، حرفِ تازه حساب نمی‌شود
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/intent_map_test.dart: هر موضوع نگاشت‌شده شناسهٔ واقعی یکی از موضوع‌های وکیل است
 ✅ test/advocate/intent_map_test.dart: هر برچسب نگاشت‌شده در فایل مدل نیت وجود دارد
 ✅ test/advocate/intent_map_test.dart: هر برچسب موضوعی در مدل، یا نگاشت دارد یا عمداً بی‌موضوع است
 ✅ test/advocate/intent_map_test.dart: آستانهٔ نظر دوم در بازهٔ معقول است
-✅ test/advocate/labor_test.dart: اخراج در برداشتِ وکیل می‌آید، حتی اگر بعدتر حرفِ بیمه پیش بیاید
-✅ test/advocate/labor_test.dart: پروندهٔ تازه با پرسشِ «چه اتفاقی افتاده؟» شروع می‌شود
-✅ test/advocate/labor_test.dart: پرسش‌های اصلی و کلیدواژه‌های موضوع سرِ جایشان‌اند
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: سناریوهای گفتگو
-::notice title=intent::130 از 130 سناریو درست است
-::endgroup::
-::group::✅ test/advocate/intent_scenarios_test.dart: مجموعه‌های نگه‌داشته: سنجش تعمیم (بدون شکست CI)
-::notice title=intent-holdout::مجموعهٔ دوم: نتیجه: 17 از 17
-::endgroup::
-::group::✅ Passing tests
-✅ test/advocate/intent_scenarios_test.dart: پرسش بانک QA به پاسخ و استناد و دکمه‌های مرتبط می‌رسد
-✅ test/advocate/family_test.dart: نقش و خشونت در برداشتِ وکیل دیده می‌شوند
-✅ test/advocate/family_test.dart: پروندهٔ تازه با پرسشِ نقش شروع می‌شود
-✅ test/advocate/family_test.dart: ادعاها و پرسش‌های اصلی موضوع سرِ جایشان‌اند
-✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
-✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
-✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
-✅ test/advocate/conversation_control_test.dart: «خروج از موضوع» پرونده را می‌بندد
-✅ test/advocate/conversation_control_test.dart: «چرا از موضوع خارج نمی شوی» پرونده را می‌بندد
-✅ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد
-✅ test/advocate/conversation_control_test.dart: «انصراف از ضمانت» در جملهٔ بلند خروج نیست
-✅ test/advocate/conversation_control_test.dart: ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود
-✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
-✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
-✅ test/advocate/conversation_control_test.dart: جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند
-✅ test/advocate/conversation_control_test.dart: قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید
-✅ test/advocate/conversation_control_test.dart: «نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد
-✅ test/advocate/conversation_control_test.dart: «خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد
-✅ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد
-✅ test/advocate/conversation_control_test.dart: «زن داری» پیش از حدس زدن، توضیح می‌خواهد
-✅ test/advocate/conversation_control_test.dart: «شکایت کرده‌ام» یعنی کاربر شاکی است
-✅ test/advocate/safety_test.dart: پیام خشونت + طلاق، پیام ایمنی می‌گیرد نه پرسش پرونده
-✅ test/advocate/safety_test.dart: پیام خشونت با امتیاز موضوع بالا هم ایمنی را از دست نمی‌دهد
-✅ test/advocate/safety_test.dart: گزارش تازهٔ خشونت حتی در همان پرونده هشدار میگیرد
-✅ test/advocate/safety_test.dart: تکرارِ دقیق همان متن، هشدار را دوباره نمیکند
-✅ test/advocate/safety_test.dart: حرفِ خودآسیبی پیش از بحث حقوقی، کمک فوری میگیرد
-✅ test/advocate/safety_test.dart: گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد
-✅ test/advocate/safety_test.dart: «الان در خطر هستم» راهنمای فوری می‌گیرد
-✅ test/advocate/safety_test.dart: جملهٔ عادی، ایمنی را فعال نمی‌کند
-✅ test/advocate/law_terms_test.dart: همهٔ نمونه‌های tests/law_terms/cases.json با LawTerms یکسان است
-✅ test/advocate/law_terms_test.dart: قرارداد: عبارت «متن کوتاه» در قوانین نیست و پاسخ کلی ندارد
-✅ test/advocate/law_terms_test.dart: بیع شرط و رهن: پاسخ به «کدام نزدیک‌تر» نمی‌رسد
-✅ test/advocate/law_terms_test.dart: غبن افحش: جملهٔ استناد کامل است و ماده ۴۱۶ نشان داده می‌شود
-✅ test/advocate/reply_stages_test.dart: ۱. ایمنی پیش از هر قاعدهٔ دیگر: پرونده بی‌صدا باز می‌شود
-✅ test/advocate/reply_stages_test.dart: ۲. انصراف پرونده را کامل پاک می‌کند، نه نصفه
-✅ test/advocate/reply_stages_test.dart: ۳. پرسشِ تغییرِ موضوع، پروندهٔ جاری را عوض نمی‌کند
-✅ test/advocate/reply_stages_test.dart: ۴. اصلاحِ کاربر پروندهٔ اشتباه را دور می‌ریزد و از نو باز می‌کند
-✅ test/advocate/reply_stages_test.dart: ۵. هیچ پاسخِ این مراحل بی‌متن نمی‌ماند و هیچ استنادِ بی‌متنی
-✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
-✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
-✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
-✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
-✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
-✅ test/advocate/topic_flow_test.dart: همهٔ موضوعات: نمونه‌های توسعه همه درست‌اند
-✅ test/advocate/topic_flow_test.dart: تشخیص پیام دربارهٔ چک
-✅ test/advocate/topic_flow_test.dart: پاسخ برگ دارنده شامل مادهٔ ۴ و ۱۱ و ۲۳ است
-✅ test/advocate/reported_conversations_test.dart: «تازه هست» بعد از انصراف، درخواست موضوع تازه است
-✅ test/advocate/reported_conversations_test.dart: «موضوع جدیدی هست» هم درخواست موضوع تازه است
-✅ test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند
-✅ test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند
-✅ test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند
-✅ test/advocate/reported_conversations_test.dart: پرسش فرضی با طرفهای نامدار، پروندهٔ شخصی باز نمیکند
-✅ test/advocate/chip_plan_test.dart: وسط پرونده، دکمه‌ها از بحث‌های همان موضوع می‌آیند
-✅ test/advocate/chip_plan_test.dart: بی‌پرونده، نمونه‌های آغاز فقط پیش از گفتنِ ماجرا می‌آیند
-✅ test/advocate/chip_plan_test.dart: خلاصهٔ پرونده فقط جمله‌های ناخالی می‌دهد
+✅ test/advocate/reply_shape_test.dart: پرسش اضطراری از مسیر ایمنی و با دکمهٔ خروج میآید
+✅ test/advocate/reply_shape_test.dart: ماجرای اجاره پروندهٔ اجاره باز میکند و دکمههای همان موضوع را دارد
+✅ test/advocate/meta_and_tone_test.dart: برنامه را بستن و باز کردن، پرسشِ «منظورتان چیست» نمی‌گیرد
+✅ test/advocate/meta_and_tone_test.dart: پیامِ کوتاهِ سوگ، تسلیت می‌گیرد نه نقلِ کلمه‌ها
+✅ test/advocate/meta_and_tone_test.dart: «مرد» به‌معنای شخص، سوگ شمرده نمی‌شود
+✅ test/advocate/meta_and_tone_test.dart: واژهٔ «برنامه» در جملهٔ حقوقی، پاسخِ برنامه را نمی‌دهد
+✅ test/advocate/meta_and_tone_test.dart: ادعای خرابی، لحنِ «زیاد می‌شنوم» و «خوشبختانه» ندارد
+✅ test/advocate/meta_and_tone_test.dart: پرسشِ بی‌جواب، بار سوم تکرار نمی‌شود
+✅ test/advocate/meta_and_tone_test.dart: واژهٔ ضرب‌وجرح بی‌آدم و بی‌آسیب، حکم و ماده نمی‌گیرد
+✅ test/advocate/meta_and_tone_test.dart: ضرب‌وجرحِ واقعی با طرفِ روشن، همان پاسخ پیشین را دارد
+✅ test/advocate/meta_and_tone_test.dart: پیامِ نامفهومِ کوتاه، از بار اول راهِ خروج دارد
+✅ test/advocate/answer_source_test.dart: ترتیب اعلام‌شده، یکتا و با ایمنی شروع می‌شود
+✅ test/advocate/answer_source_test.dart: هر پاسخ یک مسیر مشخص دارد (هیچ پاسخ بی‌برچسبی نیست)
+✅ test/advocate/answer_source_test.dart: واژه‌ای که مستقیماً به ماده می‌رسد، برچسب lawTerms دارد
+✅ test/advocate/answer_source_test.dart: پرسش بی‌ربط، پاسخ «خارج از حوزه» می‌گیرد، نه موضوع تازه
+✅ test/advocate/reply_contract_test.dart: هیچ پاسخی بی‌برچسب، خالی یا با رشتهٔ خالی نیست
+✅ test/advocate/reply_contract_test.dart: هر ماده‌ای که در پاسخ می‌آید، متن و عنوان دارد
+✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
+✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
+✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
 ✅ test/advocate/conversation_fixes_test.dart: «متن قانون را ببینم» متن همان مواد را کامل و با ارقام فارسی می‌آورد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرای کاربر معلوم است، جواب ماده «چه شده؟» نمی‌پرسد
 ✅ test/advocate/conversation_fixes_test.dart: وقتی ماجرایی در میان نیست، پرسیدنِ «چه شده؟» درست است
@@ -147,23 +100,10 @@
 ✅ test/advocate/conversation_fixes_test.dart: سؤال مهلت بدون تاریخ، به حساب‌کردن نمی‌پرد
 ✅ test/advocate/conversation_fixes_test.dart: عنوان ماده در متن نمایش‌داده‌شده ارقام فارسی دارد
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
-✅ test/advocate/dialogue_state_test.dart: پرسش باز و دکمههایش همانطور برمیگردند
-✅ test/advocate/dialogue_state_test.dart: موضوع منتظرِ تأیید و لیستِ گزینهها همانطور برمیگردند
-✅ test/advocate/dialogue_state_test.dart: راهنمای باز و وضعیت ایمنی از دست نمیروند
-✅ test/advocate/dialogue_state_test.dart: نسخهٔ ناشناخته و شناسهٔ ناشناخته کراش نمیکنند
-✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
-✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی هم سالم می‌چرخد
-✅ test/advocate/case_file_json_test.dart: نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش
-✅ test/advocate/case_file_json_test.dart: ورودی بدشکل پروندهٔ خالی می‌دهد، نه کرش
-✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
-✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
-✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
-✅ test/advocate/topic_picker_test.dart: موضوعِ باز از پرونده خوانده می‌شود، نه از وکیل
-✅ test/advocate/topic_picker_test.dart: بی‌پرسشِ باز، هیچ پیامی «جواب» شمرده نمی‌شود
-✅ test/advocate/topic_picker_test.dart: واژهٔ تک‌افتاده به راهنمای نزدیکش نمی‌چسبد
-✅ test/advocate/case_model_test.dart: نُه نام، از یک import
-✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
-✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
+✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
 ✅ test/advocate/understanding_test.dart: پیام کوتاه تکرار حساب نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار حرف در پروندهٔ باز پاسخ ادامه می‌دهد، نه پرسش از اول
@@ -183,18 +123,78 @@
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/understanding_test.dart: مهلت اعتراض به ابلاغ: از حوزه بیرون نمی‌دهد و راه درست را می‌گوید
 ✅ test/advocate/understanding_test.dart: غبن با اسقاط شرط: قاعدهٔ تعارض پیش از فهرست ماده‌ها جواب می‌دهد
-✅ test/advocate/branch_chips_test.dart: سلام فقط پنج دکمهٔ دسته را نشان می‌دهد، نه نمونه‌های آماده
-✅ test/advocate/branch_chips_test.dart: انتخاب «حقوقی» ماجرا را کامل می‌پرسد و بعد پرونده باز می‌شود
-✅ test/advocate/branch_chips_test.dart: «کیفری» و «اداری» پرسشِ متناسب با همان شاخه دارند
-✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» سرزنش نمی‌کند و ماجرا را می‌پرسد
-✅ test/advocate/branch_chips_test.dart: «انصراف» گفتگو را می‌بندد و فقط دکمهٔ خروج می‌ماند
-✅ test/advocate/branch_chips_test.dart: «نمی‌دانم» بعد از بازشدن پرونده، جوابِ پرونده است نه انتخابِ دسته
-✅ test/advocate/branch_chips_test.dart: کیفری انتخاب‌شده، پرسشِ دسته را در نوبت‌های بعد تکرار نمی‌کند
-✅ test/advocate/reply_contract_test.dart: هیچ پاسخی بی‌برچسب، خالی یا با رشتهٔ خالی نیست
-✅ test/advocate/reply_contract_test.dart: هر ماده‌ای که در پاسخ می‌آید، متن و عنوان دارد
-✅ test/advocate/reply_contract_test.dart: راه خروج همیشه در دسترس است: «انصراف» آخرین دکمه
-✅ test/advocate/reply_contract_test.dart: هیچ استنادی بی‌متن نمی‌ماند (unresolved خالی است)
-✅ test/advocate/reply_contract_test.dart: ترتیب خط لوله بدون تکرار و با ایمنی در ابتدا
+✅ test/advocate/safety_test.dart: پیام خشونت + طلاق، پیام ایمنی می‌گیرد نه پرسش پرونده
+✅ test/advocate/safety_test.dart: پیام خشونت با امتیاز موضوع بالا هم ایمنی را از دست نمی‌دهد
+✅ test/advocate/safety_test.dart: گزارش تازهٔ خشونت حتی در همان پرونده هشدار میگیرد
+✅ test/advocate/safety_test.dart: تکرارِ دقیق همان متن، هشدار را دوباره نمیکند
+✅ test/advocate/safety_test.dart: حرفِ خودآسیبی پیش از بحث حقوقی، کمک فوری میگیرد
+✅ test/advocate/safety_test.dart: گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد
+✅ test/advocate/safety_test.dart: «الان در خطر هستم» راهنمای فوری می‌گیرد
+✅ test/advocate/safety_test.dart: جملهٔ عادی، ایمنی را فعال نمی‌کند
+✅ test/advocate/intent_hint_test.dart: برچسب‌های نگاشت‌شده هم در طبقه‌بند هست و هم در موضوع‌های وکیل
+✅ test/advocate/conversation_control_test.dart: «بنویسم» کاربر درخواست سند نیست
+✅ test/advocate/conversation_control_test.dart: «گزینه‌ای وجود ندارد» راه خروج نشان داده می‌شود
+✅ test/advocate/conversation_control_test.dart: «انصراف» پرونده را می‌بندد
+✅ test/advocate/conversation_control_test.dart: «خروج از موضوع» پرونده را می‌بندد
+✅ test/advocate/conversation_control_test.dart: «چرا از موضوع خارج نمی شوی» پرونده را می‌بندد
+✅ test/advocate/conversation_control_test.dart: «نمی خواهم این بحث را ادامه دهم» پرونده را می‌بندد
+✅ test/advocate/conversation_control_test.dart: «انصراف از ضمانت» در جملهٔ بلند خروج نیست
+✅ test/advocate/conversation_control_test.dart: ماجرای دیوار مشترک به پروندهٔ همسایه می‌رود
+✅ test/advocate/conversation_control_test.dart: خشونت خانوادگی: پاسخ امنیت است، نه قدم‌های کار
+✅ test/advocate/conversation_control_test.dart: گزارش تماس با اورژانس پاسخ می‌گیرد
+✅ test/advocate/conversation_control_test.dart: جملهٔ بی‌ربطِ بلند در پرونده، قدم‌های پرونده را تکرار نمی‌کند
+✅ test/advocate/conversation_control_test.dart: قرارداد با شرکت خارجی موضوع خودش را باز می‌کند و مبنای قانونی را می‌گوید
+✅ test/advocate/conversation_control_test.dart: «نفهمی» توضیح می‌خواهد؛ «نفهمیدم» همان پاسخ را نمی‌گیرد
+✅ test/advocate/conversation_control_test.dart: «خیلی خلی» پاسخ آرام می‌گیرد و گفتگو ادامه دارد
+✅ test/advocate/conversation_control_test.dart: دسترسی به اطلاعات: قانون ۱۳۸۷ را می‌گوید و اصل ۳۴ را بی‌دلیل نمی‌آورد
+✅ test/advocate/conversation_control_test.dart: «زن داری» پیش از حدس زدن، توضیح می‌خواهد
+✅ test/advocate/conversation_control_test.dart: «شکایت کرده‌ام» یعنی کاربر شاکی است
+✅ test/advocate/case_file_json_test.dart: رفت‌وبرگشت، همهٔ واقعیت‌ها را نگه می‌دارد
+✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی هم سالم می‌چرخد
+✅ test/advocate/case_file_json_test.dart: نسخهٔ ناشناخته پروندهٔ خالی می‌دهد، نه کرش
+✅ test/advocate/case_file_json_test.dart: ورودی بدشکل پروندهٔ خالی می‌دهد، نه کرش
+✅ test/advocate/case_file_json_test.dart: مقدارهای عددی واقعیت به رشته تبدیل می‌شوند
+✅ test/advocate/case_file_json_test.dart: copyFrom محتوای پرونده را در نمونهٔ موجود می‌ریزد
+✅ test/advocate/case_file_json_test.dart: پروندهٔ خالی محتوا حساب نمی‌شود
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج: اخراج، سنوات و بیمه مطرح است؛ حقوق معوق نه
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز اخراج با حقوقِ نگرفته: هر چهار ادعا
+✅ test/advocate/reasoner_test.dart: ادعاهای روی میز کسی که بیمه بوده ادعای بیمه ندارد
+✅ test/advocate/intent_hint_test.dart: جایی که قاعده‌ها موضوع را شناخته‌اند، طبقه‌بند هیچ چیز را عوض نمی‌کند
+✅ test/advocate/reasoner_test.dart: ادعاهای بی‌نام جایگزین هم‌اند: در موضوع‌های دیگر فقط یکی سنجیده می‌شود
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها اخراج بدون اخطار، بدون امضا، وسط قرارداد: محکم
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها تمام‌شدن مدت قرارداد اخراج نیست
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها امضای استعفا ادعای اخراج را سست می‌کند ولی سنوات را نه
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها تا وقتی سر کار است سنوات قابل‌مطالبه نیست
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها بدون قرارداد و بیمه، شاهد رابطهٔ کاری را ثابت می‌کند
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها «نمی‌دانم» شرط را نامعلوم نگه می‌دارد، نه برقرار و نه رد
+✅ test/advocate/reasoner_test.dart: سنجش شرط‌ها هر شرط دست‌کم یک مادهٔ قانون را نشان می‌دهد یا دلیلش را می‌گوید
+✅ test/advocate/reasoner_test.dart: پرسش بعدی پیش از هر چیز می‌پرسد چه اتفاقی افتاده
+✅ test/advocate/reasoner_test.dart: پرسش بعدی در اخراج، اول اثبات رابطهٔ کاری و بعد شرط‌های خودِ اخراج
+✅ test/advocate/reasoner_test.dart: پرسش بعدی وقتی قرارداد نیست سراغ بیمه و بعد شاهد می‌رود
+✅ test/advocate/reasoner_test.dart: پرسش بعدی ادعایی که رد شده دیگر پرسشی نمی‌خواهد
+✅ test/advocate/reasoner_test.dart: پرسش بعدی ودیعهٔ اجاره: اول نقش و موضوع، بعد شرط‌ها به ترتیب، آخر مبلغ
+✅ test/advocate/reasoner_test.dart: پرسش بعدی موضوعی که شرط‌هایش به پرسش گره نخورده همان ترتیب قبلی را دارد
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج: پرسش‌ها به ترتیبِ اثر، و پیشنهاد تحلیل پیش از پرسش‌های فرعی
+✅ test/advocate/reasoner_test.dart: گفتگو استدلال با عوض‌شدن واقعیت عوض می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو اخراج همراه با حقوق نگرفته: هر دو خواسته دیده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو حرفِ بیمه وسط ماجرا، اخراج را از یاد وکیل نمی‌برد
+✅ test/advocate/reasoner_test.dart: گفتگو پرسشِ «می‌توانم…؟» حکمِ همان خواسته را می‌گیرد، با دلیل
+✅ test/advocate/reasoner_test.dart: گفتگو «سنوات به من می‌رسد؟» برای کسی که هنوز سر کار است: فعلاً نه، با دلیل
+✅ test/advocate/reasoner_test.dart: گفتگو «نمی‌دانم … یا نه» خبر است، نه پرسش؛ حکم نمی‌دهد
+✅ test/advocate/reasoner_test.dart: گفتگو تا شرطی از ادعای اصلی نامعلوم است، تحلیل پیشنهاد نمی‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو وقتی کاربر حرفش را برعکس می‌کند، می‌گوید برداشتش را عوض کرده
+✅ test/advocate/reasoner_test.dart: گفتگو بعد از تحلیل، حرف تازه‌ای که نتیجه را عوض کند همان‌جا گفته می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
+✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
+✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
+✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
+✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
+✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
+✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
+✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
+✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
 ::endgroup::
 
 🎉 377 tests passed.
