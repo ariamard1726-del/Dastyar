@@ -59,9 +59,9 @@ void main() {
     expect(const FactNumMin('pct', 20).evalTri(empty), isNull);
 
     final filled = CaseFile()
-      ..set('cert', 'yes')
-      ..set('pct', '25')
-      ..set('amount', '500000000');
+      ..facts['cert'] = 'yes'
+      ..facts['pct'] = '25'
+      ..facts['amount'] = '500000000';
     expect(const FactTri('cert').evalTri(filled), isTrue);
     expect(const FactNumMin('pct', 20).evalTri(filled), isTrue);
     expect(const FactNumMin('pct', 30).evalTri(filled), isFalse);
@@ -73,9 +73,9 @@ void main() {
   test('موضوع‌های مهاجرت‌یافته در سناریوهای کلیدی خروجی دقیق می‌دهند', () {
     final debtTopic = allTopics.firstWhere((t) => t.id == 'debt');
     final f = CaseFile()
-      ..set('proof', 'none')
-      ..set('admits', 'no')
-      ..set('amount', '20000000');
+      ..facts['proof'] = 'none'
+      ..facts['admits'] = 'no'
+      ..facts['amount'] = '20000000';
     expect(debtTopic.claims.single.elements[0].test(f), isFalse);
     expect(debtTopic.claims.single.elements[1].test(f), isFalse);
     expect(debtTopic.recap!(f), isNotEmpty);
