@@ -196,6 +196,7 @@ Future<void> load({bool startWorker = false}) async {
       'synonyms': [for (final r in _syn) List<String>.from(r)],
       'relationships': _relationships,
       'lawTopics': _lawTopicsRaw,
+      'legalTerms': _legalTerms,
     };
     _worker = await EngineWorker.start(data);
   } else {
@@ -257,7 +258,9 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
     _lawPrior = LawTopicPrior.fromJson(data['lawTopics']);
   }
   _qaBank = QaBank.empty;
-  _legalTerms = const {};
+  _legalTerms = data['legalTerms'] is Map<String, dynamic>
+      ? Map<String, dynamic>.from(data['legalTerms'] as Map<String, dynamic>)
+      : const <String, dynamic>{};
   _topicFlows = const [];
   final built = LawIndex.build((data['raw'] as List).cast<List<String>>());
   _index.adopt(built);
