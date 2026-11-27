@@ -78,6 +78,7 @@ class KnowledgeEngine {
   Map<String, dynamic> _repliesRaw = const {};
   Object? _lawTopicsRaw;
   EngineWorker? _worker;
+  StartupMetrics? _startup;
 
   static const List<String> _unloadedPenalTerms = [
     'سرقت', 'دزدی', 'کلاهبرداری', 'قتل', 'ضرب و جرح', 'خیانت در امانت',
@@ -107,6 +108,7 @@ class KnowledgeEngine {
   final List<String> warnings = [];
 
   int get size => _index.chunks.length;
+  StartupMetrics? get startupMetrics => _startup;
 
   /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
   List<Chunk> get chunks => _index.chunks;

@@ -144,13 +144,13 @@
 
 خوانندهٔ موضوع (مدل ۱۲ مگابایتی Noql) حتی در پسزمینه هم زود بار نمیشود: نخستین پیامی که قاعدهها نتوانستند موضوعش را بفهمند، بارگذاریاش آغاز میشود. تا آماده نشده، وکیل فقط با قاعدهها کار میکند و وزنها پس از انتقال به isolate از کش `rootBundle` پاک میشوند. زمان آمادهشدن و زمان آخرین خواندن روی همان دستگاه در صفحهٔ «اطلاعات و وضعیت دادهها» دیده میشود.
 
-متن قوانین `.txt` است و یک بار در `KnowledgeEngine.load()` پارس میشود؛ ساخت نمایه در isolate جدا اجرا میشود تا UI مسدود نشود. `test/engine/load_budget_test.dart` سقف استارتآپ و `test/engine/turn_budget_test.dart` سقف هزینهٔ هر نوبت را نگه میدارند.
+متن ۲۴ فایل قانون (~۳٫۲ مگابایت از کل ~۱۷٫۵ مگابایت دارایی) یک بار در `KnowledgeEngine.load()` بدون کش‌کردنِ رشته‌های خام در `rootBundle` (`cache: false`) خوانده می‌شود و ساخت نمایه در isolate جدا (`EngineWorker` / `LawIndex.buildAsync`) اجرا می‌شود تا UI مسدود نشود؛ چون `BM25F` در نوبت اول به `IDF` سراسری هر ۲۴ قانون نیاز دارد، این بخش آگاهانه یک‌جا بارگذاری می‌شود (تنها بخش سنگین ۱۲٫۹ مگابایتی یعنی Noql به‌صورت تنبل بار می‌شود). `StartupMetrics` سنجه‌های بارگذاری را نگه می‌دارد، `test/engine/load_budget_test.dart` گزارش `reports/startup.txt` را می‌نویسد، `dev/tools/startup_gate.py` در CI از پس‌رفت زمانی جلوگیری می‌کند و `test/engine/turn_budget_test.dart` سقف هزینهٔ هر نوبت را نگه می‌دارد.
 
 ## دروازه‌های CI (`.github/workflows/test.yml`)
 
 - داده: `dev/tools/check.py all` (corpus، assets، meta، intent، parity) + `doctor.py` + `eval_py.py --check` + `eval_none.py --check`
 - تحلیل: `flutter analyze --fatal-warnings`
-- تست: `flutter test`؛ گزارش در `reports/last_test.txt`
+- تست و خط پایه: `flutter test --coverage` + `coverage_gate.py` + `startup_gate.py reports/startup.txt`؛ گزارش در `reports/last_test.txt` و `reports/startup.txt`
 - `lawyer-lab.yml`: رونوشت گفتگوهای `test/lab/probe.txt` با همان کنترلر برنامه در `reports/lab/transcripts.txt`
 
 قرارداد کامل داده/کد و این‌که هر کدام با چه ابزاری سنجیده می‌شوند: `docs/CONTRACTS.md`. وضعیت مراحل بازسازی: `docs/ROADMAP.md`.
@@ -256,5 +256,5 @@
 6. بزرگ‌ترین فایل‌های امروز: `advocate.dart` ۴۱۱ خط (سیم‌کشی + API عمومی + پنج `static`؛ بردنِ API به `extension` آزموده و برگشت خورد، `docs/GOD_OBJECTS.md`) و `advocate/reply_routes.dart` ۴۰۶ خط، `advocate/advocate_argue.dart` ۳۷۵ خط، `topics/rent_claims.dart` ۳۶۸ خط (ادعاها)، `advocate/talk_route.dart` ۳۶۰ خط و `core/history_store.dart` ۳۵۰ خط. `lawyer/legal_guides.dart` ۱۰۲ و `advocate_case.dart` ۲۲ خط‌اند؛ عددهای قبلی (۱۳۹۶ و ۶۳۷) مربوط به پیش از بازآرایی بود.
 
 **آزمون‌ها**
-- Python (بدون Flutter SDK): **۳۳۱** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها و کنترلر گفتگو، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، نبودِ تکرار داده‌ها، عددهای مستندات و لینک‌های همین سند.
+- Python (بدون Flutter SDK): **۳۳۶** آزمون (`python3 -m unittest discover -s tests/python`): داده، معماری، شکلِ فایل‌ها و کنترلر گفتگو، معادل‌بودن متن (`۵۲۵` کلید اجاره + `۱٬۱۰۶` کلید سایر موضوع‌ها + `۴۷۰` کلید عمومی وکیل)، قرارداد اولویت (`۱۹۰` جفت)، قفلِ بازگشت و شمارشِ نوبت، نبودِ تکرار داده‌ها، دروازهٔ استارت/حافظه، عددهای مستندات و لینک‌های همین سند.
 - Dart: **۷۰۱** آزمون (`flutter test`: ۶۹۵ آزمون پیشین + ۶ آزمونِ تازهٔ `test/app/chat_flows_test.dart`) و `flutter analyze --fatal-warnings` بدونِ ایراد (`No issues found!`) به‌علاوهٔ ۱۳۰/۱۳۰ و ۱۷/۱۷ سناریوی گفتگو در CI؛ گزارشِ آخرین اجرا در `reports/last_test.txt`.

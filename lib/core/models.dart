@@ -65,3 +65,26 @@ class CatalogLaw {
   final List<String> aliases;
   CatalogLaw(this.id, this.title, this.category, this.priority, this.aliases);
 }
+
+/// سنجه‌های اندازه‌گیری‌شدهٔ بارگذاریِ اخیر موتور دانش (استارت و ایندکس).
+class StartupMetrics {
+  final int assetsMillis;
+  final int indexMillis;
+  final int totalMillis;
+  final int rawChars;
+  final int lawsCount;
+  final int chunksCount;
+  final int vocabSize;
+  final bool withWorker;
+
+  const StartupMetrics({
+    required this.assetsMillis,
+    required this.indexMillis,
+    required this.totalMillis,
+    required this.rawChars,
+    required this.lawsCount,
+    required this.chunksCount,
+    required this.vocabSize,
+    required this.withWorker,
+  });
+}
