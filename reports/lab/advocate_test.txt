@@ -37,10 +37,10 @@
 ✅ test/advocate/intro_and_law_test.dart: «دستیار چکارهایی را می تواند انجام دهد» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: «خودت را معرفی کن و بگو چکارهایی می توانی انجام دهی» پاسخ توانایی می‌گیرد
 ✅ test/advocate/intro_and_law_test.dart: پرسش با شمارهٔ مشترک، ماده‌ی قانون کودک را جواب نمی‌دهد
+✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/case_model_test.dart: نُه نام، از یک import
 ✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
 ✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
-✅ test/advocate/intro_and_law_test.dart: «معرفی کن» دربارهٔ وکیل، توانایی‌ها را نمی‌گوید
 ✅ test/advocate/topic_switch_test.dart: «انصراف» در همهٔ مراحل گفتگو آخرین دکمه است و یک بار می‌آید
 ✅ test/advocate/topic_switch_test.dart: موضوع تازه وسط پرونده: اعلام می‌کند و «بله/خیر» می‌پرسد
 ✅ test/advocate/topic_switch_test.dart: «بله» پرونده را به موضوع تازه می‌برد
