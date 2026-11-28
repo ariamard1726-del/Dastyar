@@ -1,1 +1,3 @@
-🎉 855 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/app/laws_drawer_test.dart: دراور فهرست قوانین باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/app/laws_drawer_test.dart: دراور فهرست قوانین دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند (failed)
+::error::939 tests passed, 2 failed.
