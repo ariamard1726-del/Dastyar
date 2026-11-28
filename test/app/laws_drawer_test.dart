@@ -168,9 +168,10 @@ void main() {
     Future<void> openDrawer(WidgetTester tester) async {
       await tester.tap(find.byTooltip('فهرست قوانین'));
       for (var i = 0; i < 80; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump(const Duration(milliseconds: 100));
       }
-      await tester.pumpAndSettle();
+      // توجه: pumpAndSettle هرگز به سکون نمی‌رسد چون CircularProgressIndicator
+      // (حالت لودینگ) یک انیمیشنِ تکرارشونده است؛ از پمپ‌های ثابت استفاده می‌شود.
       final err = tester.takeException();
       expect(err, isNull, reason: 'Error: DRW-open exception: $err');
     }
@@ -214,11 +215,15 @@ void main() {
 
       final cheque = find.text('قانون صدور چک');
       await tester.ensureVisible(cheque);
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.byTooltip('کپی کل قانون'), findsNothing,
           reason: 'Error: DRW-light copy button visible before expand');
       await tester.tap(cheque);
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.byTooltip('کپی کل قانون'), findsOneWidget,
           reason: 'Error: DRW-light copy button missing after expand');
 
@@ -265,12 +270,16 @@ void main() {
           reason: 'Error: DRW-dark placeholder missing');
 
       await tester.enterText(find.byType(TextField), 'ماده ۱۰');
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.byTooltip('پاک کردن جست‌وجو'), findsOneWidget,
           reason: 'Error: DRW-dark clear button missing after typing');
 
       await tester.tap(find.byTooltip('پاک کردن جست‌وجو'));
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.text('قانون مدنی'), findsOneWidget,
           reason: 'Error: DRW-dark law list missing after clear');
       expect(find.byTooltip('پاک کردن جست‌وجو'), findsNothing,
