@@ -1,16 +1,2 @@
 Analyzing Dastyar...                                            
-
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:10:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:10:25 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:11:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:11:35 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:13:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:13:25 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:14:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:14:35 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:16:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:16:25 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:17:12 • undefined_identifier
-  error • Undefined name 'Sense'. Try correcting the name to one that is defined, or defining the name • test/advocate/amount_clarification_test.dart:17:25 • undefined_identifier
-
-12 issues found. (ran in 10.2s)
+No issues found! (ran in 10.3s)
