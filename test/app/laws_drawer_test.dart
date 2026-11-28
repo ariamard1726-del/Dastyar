@@ -164,6 +164,14 @@ void main() {
   });
 
   group('دراور فهرست قوانین', () {
+    setUpAll(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      // کش استاتیک LawsLibrary را قبل از همهٔ WidgetTestهای این گروه پر
+      // می‌کنیم؛ دیگر هیچ‌کدام از آن‌ها منتظر load نیستند و
+      // CircularProgressIndicator هرگز معلق نمی‌ماند.
+      await LawsLibrary.load();
+    });
+
     // helper مشترک: باز کردن دراور با دکمهٔ سه‌نقطه و انتظار برای بارگذاری ۲۴ قانون.
     Future<void> openDrawer(WidgetTester tester) async {
       await tester.tap(find.byTooltip('فهرست قوانین'));
@@ -177,7 +185,6 @@ void main() {
     }
 
     testWidgets('باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون', (tester) async {
-      await LawsLibrary.load();
       String? copied;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(SystemChannels.platform, (call) async {
@@ -247,7 +254,6 @@ void main() {
 
     testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
         (tester) async {
-      await LawsLibrary.load();
       await tester.pumpWidget(
         MaterialApp(
           themeMode: ThemeMode.dark,
