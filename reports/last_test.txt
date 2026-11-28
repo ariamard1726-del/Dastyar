@@ -1,11 +1,11 @@
-commit: a648846
-🎉 852 tests passed.
+commit: d817065
+🎉 855 tests passed.
 --- analyze ---
-No issues found! (ran in 12.6s)
+No issues found! (ran in 15.3s)
 --- coverage ---
-coverage: 8478/9212 خط (92.0%) | آستانه 40.0%
+coverage: 8540/9288 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=1472 assets_ms=74 index_ms=1397 worker_load_ms=1455 first_query_ms=77 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=256.6
+STARTUP-BASELINE load_ms=1588 assets_ms=96 index_ms=1491 worker_load_ms=1509 first_query_ms=96 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=257.6
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
