@@ -1,4 +1,4 @@
-STARTUP-BASELINE load_ms=1473 assets_ms=74 index_ms=1398 worker_load_ms=1445 first_query_ms=66 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=255.2
+STARTUP-BASELINE load_ms=1154 assets_ms=59 index_ms=1095 worker_load_ms=893 first_query_ms=46 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=254.3
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000

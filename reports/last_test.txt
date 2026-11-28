@@ -1,13 +1,13 @@
-commit: 966f46f
-🎉 952 tests passed.
+commit: 6ce6c7f
+🎉 967 tests passed.
 --- analyze ---
-2 issues found. (ran in 13.5s)
+2 issues found. (ran in 9.3s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:144:21 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:146:30 • prefer_const_constructors
 --- coverage ---
-coverage: 8868/9651 خط (91.9%) | آستانه 40.0%
+coverage: 8979/9775 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=1473 assets_ms=74 index_ms=1398 worker_load_ms=1445 first_query_ms=66 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=255.2
+STARTUP-BASELINE load_ms=1154 assets_ms=59 index_ms=1095 worker_load_ms=893 first_query_ms=46 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=254.3
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
