@@ -230,14 +230,17 @@ void main() {
       expect(find.text('قانون مدنی'), findsOneWidget,
           reason: 'Error: DRW-light civil law not listed');
 
-      final cheque = find.text('قانون صدور چک');
-      await tester.ensureVisible(cheque);
+      // باز کردن قانونِ ردیف سوم فهرست (قانون مسئولیت مدنی، ۱۶ ماده) که
+      // همیشه در پنجرهٔ اولیهٔ ListView.builder رندر می‌شود؛ قانون‌های
+      // انتهایی فهرست در درخت نیستند و ensureVisible به خطا می‌خورد.
+      final small = find.text('قانون مسئولیت مدنی');
+      await tester.ensureVisible(small);
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(find.byTooltip('کپی کل قانون'), findsNothing,
           reason: 'Error: DRW-light copy button visible before expand');
-      await tester.tap(cheque);
+      await tester.tap(small);
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
