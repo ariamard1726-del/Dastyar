@@ -41,7 +41,7 @@
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| SQLite + SQLCipher به‌جای SharedPreferences | ⬜ | کوئری، ایندکس و مهاجرت واقعی |
+| SQLite + SQLCipher به‌جای SharedPreferences | ⏳ | واسط `KeyValueStore`، `SharedPrefsKeyValueStore`، `MemoryKeyValueStore` و مهاجرت یک‌بارهٔ `StorageMigration.migrateOneShot` پیاده‌سازی و بدون `SharedPreferences` آزموده شدند (`lib/core/local_store.dart`، `lib/core/storage_migration.dart`، `test/core/local_store_migration_test.dart`)؛ اتصال درایور واقعی `sqflite_sqlcipher` منتظر محیط دارای دسترسی به `pub.dev` است |
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
 | کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
 | خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند؛ در گام ۱۴ خطاهای `FeedbackStore`، `DraftCheckpointStore` و `HistoryStore` نیز به `FeedbackBar`، `SettingsPage`، `HistoryPage` و `ReplyFlow` رسیدند |

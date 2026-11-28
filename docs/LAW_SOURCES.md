@@ -96,3 +96,5 @@ GitHub: `qavanin.ir` صفحهٔ بررسی مرورگر برمی‌گرداند�
 
 مواد ۶۹ و ۷۲ قانون مجازات اسلامی هم به مواد ۶۸ و ۷۱ چسبیده بودند و جدا پیدا
 نمی‌شدند؛ بدون تغییر در واژه‌ها جدا شدند.
+
+ممیزی کامل هر **۱۲۷** شمارهٔ جاافتاده در خروجی `dev/tools/doctor.py` (در ۷ قانون `commerce`، `penal_taazirat`، `direct_taxes`، `registration`، `civil`، `social_security` و `civil_procedure`) همراه با وضعیت هر مورد در متن فعلی مخزن در `docs/LAW_GAPS.md` ثبت شده است.

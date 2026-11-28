@@ -10,8 +10,8 @@
 
 | لایه | نقش | فایل‌ها |
 |---|---|---|
-| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` + `text_norm_rules` (لایهٔ یکتای متن فارسی)، `engine` + `engine_rules` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `history`، `legacy_cleanup` |
-| `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین (کاملاً مستقل از فلاتر) | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره و صدور رمزنگاری‌شده، با `schemaVersion = 1`)، `settings_state` (مدل خالص تنظیمات بدون وابستگی فلاتر) |
+| `lib/core/` | زیرساخت و بازیابی BM25F، بدون شناخت از قابلیت‌های وکیل | `persian_text` + `text_norm_rules` (لایهٔ یکتای متن فارسی)، `asset_loader` (`AssetTextLoader`) + `engine` + `engine_rules` + `models` + `law_topic_prior` (نمایهٔ BM25F و بازیابی ماده)، `router` (`QueryRouter` برای نیت‌های ثابت موتور)، `conflicts_service`، `replies`، `privacy`، `local_store` (`KeyValueStore`، `SharedPrefsKeyValueStore`، `MemoryKeyValueStore`) + `storage_migration` (`StorageMigration`)، `history`، `legacy_cleanup` |
+| `lib/domain/` | قابلیت‌های حقوقی و مدل‌های آفلاین (کاملاً مستقل از فلاتر و `SharedPreferences`) | `advocate/` (وکیل)، `drafting` + `templates` (تنظیم سند)، `understanding/` (خوانندهٔ موضوع با مدل برداری Noql)، `intent_net` (طبقه‌بند نیت)، `input_suggestions`، `lawyer/` (راهنماها)، `feedback` (ذخیره روی `KeyValueStore` و صدور رمزنگاری‌شده، با `schemaVersion = 1`)، `settings_state` (مدل خالص تنظیمات بدون وابستگی فلاتر) |
 | `lib/ui/` | نمایش و وضعیت گفتگو | `chat_page`، `chat_controller` (سیم‌کشی)، `app_settings` (`AppSettings` متصل به فلاتر)، `draft_flow`، `guess_flow`، `reply_flow`، `chat_models`، صفحه‌های تنظیمات/تاریخچه/درباره، `widgets/chat_bubbles`، `widgets/feedback_bar` |
 
 ## جریان یک پیام (تنها یک مسیر)
@@ -116,7 +116,7 @@
 ## حریم خصوصی
 
 - مانیفست اصلی هیچ مجوزی ندارد (اینترنت هم نه).
-- تاریخچه و پیش‌نویس با `PrivacyService` (Android Keystore، AES-256-GCM) رمز می‌شوند.
+- تاریخچه و پیش‌نویس با `PrivacyService` (Android Keystore، AES-256-GCM) رمز می‌شوند و از طریق واسط انتزاعی `KeyValueStore` (`lib/core/local_store.dart`) و مسیر مهاجرت یک‌بارهٔ `StorageMigration.migrateOneShot` (`lib/core/storage_migration.dart`) بدون وابستگی مستقیمِ `lib/domain/` و `HistoryStore` به `SharedPreferences` مدیریت می‌شوند.
 - **تاریخچهٔ افزایشی:** هر گفتگو کلید رمزشدهٔ خودش را دارد (`history_v1:m:<id>`) و کلید `history_v1` فقط سرصفحه‌ها را نگه می‌دارد. با هر پیام فقط همان گفتگو نوشته می‌شود؛ نوشتن‌ها در یک صف سریالی (`_writer`) اجرا می‌شوند تا نسخهٔ قدیمی روی تازه ننشیند. خطای یک رکورد بقیهٔ تاریخچه را از بین نمی‌برد و در `HistoryStore.lastError` ثبت می‌شود. قالب ۴ (`v: 4`) علاوه بر پرونده، وضعیت «روی میز» (`dialogueJson`) را هم در همان محمولهٔ رمزنگاری‌شده می‌نویسد تا دکمه‌ها و پرسش‌های نیمه‌کاره پس از بازگشایی همان معنا را داشته باشند. قالب تک‌کلیدی نسخهٔ قبل خودکار و رمزشده مهاجرت می‌کند.
 - `LegacyCleanup` در اولین اجرا فایل مدل زبانی و تنظیمات به‌جامانده از نسخه‌های قدیمی را پاک می‌کند.
 
@@ -250,7 +250,7 @@
 
 **بدهی‌های باقی‌مانده**
 1. ✅ `lib/domain/settings.dart` حذف شد (فاز ۸)؛ `AppSettings` به `lib/ui/app_settings.dart` منتقل شد و `DOMAIN_FLUTTER_ALLOWLIST = set()` صفر است.
-2. `lib/core/` برای بارگذاری دارایی‌ها از `rootBundle` فلاتر استفاده می‌کند (`engine_load.dart`). قاعدهٔ آزمون فقط اجازهٔ `flutter/services` را در core می‌دهد؛ جدا کردن کامل نیازمند تزریق یک «منبع داده» است.
+2. `lib/core/` برای بارگذاری پیش‌فرض در `engine_load.dart` هنوز fallback `rootBundle` دارد تا آزمون‌های قدیمی بی‌آرگومان حفظ شوند، اما `KnowledgeEngine({AssetTextLoader? assetLoader})` (`lib/core/asset_loader.dart`) تزریق خالص Dart را پذیرفته، `lib/main.dart` آن را از UI تزریق می‌کند و `test/core/engine_pure_dart_test.dart` بدون `rootBundle` کل ۲۴ قانون را بارگذاری می‌کند (`test_phase19_decoupling.py`). همچنین `HistoryStore`، `FeedbackStore` و `DraftCheckpointStore` از `SharedPreferences` مستقیم جدا و به `KeyValueStore` (`lib/core/local_store.dart`) متصل شدند.
 3. کد مرده: حذف شد (`HybridIntentRouter`، `persian_normalizer`، `lawFactors`، `mentionedLaws`). گزارش در `docs/DEAD_CODE.md`.
 4. ✅ `eval/` و `reports/` دوقلو نبودند؛ ادغام شدند (`docs/REPO_LAYOUT.md`).
 5. ✅ `chat_controller.dart` (۱۳۰، زیر سقف ۱۵۰ خط) اکنون فقط سیم‌کشیِ بین سه همکارِ مستقل است: `draft_flow.dart` (۲۹۷، فرم و پیش‌نویس سند)، `guess_flow.dart` (۸۵، حدسِ موضوع با مدل) و `reply_flow.dart` (۲۷۶، صفِ نوبت، پیش‌ساخت worker برای `query` و `LawTerms` و ذخیره/بازیابی نشست)؛ نگهبان فاز ۴ (`tests/python/test_chat_controller_shape.py`) اندازه، تفکیک و نبود نسخهٔ تکراری فایل‌های داده‌ای را قفل می‌کند.

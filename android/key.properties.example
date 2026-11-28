@@ -1,0 +1,7 @@
+# نمونهٔ پیکربندی امضای انتشار اندروید (این فایل نمونه است و کلید واقعی ندارد).
+# برای ساخت release محلی، یک کپی به نام `android/key.properties` بسازید (در gitignore است).
+# در CI نیز گردش‌کار build.yml از Secrets و dev/tools/setup_release_signing.py استفاده می‌کند.
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=dastyar
+storeFile=upload-keystore.jks

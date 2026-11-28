@@ -103,8 +103,8 @@
 
 | فایل | خط | مسئولیت |
 |---|---|---|
-| `engine.dart` | **۱۹۲** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` (قواعد از `engine_rules.dart`) |
-| `engine_load.dart` | **۳۱۴** | تنها جایی که دارایی خوانده می‌شود: `load`، `_loadPipeline` (`assets/pipeline.json`) و بارگذاری‌های `_load*` |
+| `engine.dart` | **۱۹۸** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` + تزریق `AssetTextLoader` (قواعد از `engine_rules.dart`) |
+| `engine_load.dart` | **۳۲۰** | تنها جایی که دارایی خوانده می‌شود: `load`، `_readAsset`، `_loadPipeline` (`assets/pipeline.json`) و بارگذاری‌های `_load*` |
 | `engine_query.dart` | **۳۱۱** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
 | `engine_worker.dart` | **۱۴۰** | همان پاسخ‌سازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دست‌نخورده |
 
