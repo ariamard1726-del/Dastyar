@@ -40,12 +40,12 @@
      "ماده 24"
     ],
     [
-     "civil_procedure",
-     "ماده 523"
+     "financial_sentences",
+     "ماده 25"
     ],
     [
-     "civil_procedure",
-     "ماده 526"
+     "financial_sentences",
+     "ماده 9"
     ]
    ]
   },
@@ -108,12 +108,12 @@
      "ماده 3"
     ],
     [
-     "criminal_procedure",
-     "ماده 503"
-    ],
-    [
      "financial_sentences",
      "ماده 18"
+    ],
+    [
+     "civil_execution",
+     "ماده 90"
     ]
    ]
   },
@@ -142,12 +142,12 @@
      "ماده 8"
     ],
     [
-     "civil_procedure",
-     "ماده 506"
-    ],
-    [
      "financial_sentences",
      "ماده 9"
+    ],
+    [
+     "civil_procedure",
+     "ماده 506"
     ]
    ]
   },
@@ -176,12 +176,12 @@
      "ماده 14"
     ],
     [
-     "criminal_procedure",
-     "ماده 437"
-    ],
-    [
      "financial_sentences",
      "ماده 13"
+    ],
+    [
+     "criminal_procedure",
+     "ماده 437"
     ]
    ]
   },
@@ -282,8 +282,8 @@
      "ماده 10"
     ],
     [
-     "penal_taazirat",
-     "ماده 650"
+     "cheque",
+     "ماده 12"
     ]
    ]
   },

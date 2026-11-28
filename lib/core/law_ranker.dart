@@ -158,8 +158,41 @@ class LawRanker {
     }
     hits.sort((a, b) => b.score.compareTo(a.score));
     return RankResult(
-      promoteDefinitions(question, hits, factors).take(k).toList(),
+      promoteDefinitions(question, topicRerank(hits, factors), factors)
+          .take(k)
+          .toList(),
     );
+  }
+
+  /// بازرتبه‌بندی موضوع‌محور (فاز ۲): اگر موضوعی تشخیص داده‌شده باشد (حداقل
+  /// یک قانون از [factors] ضریب > ۱ گرفته باشد)، مادهٔ متعلق به قانونِ موضوع
+  /// که پشتِ صدر است، فقط وقتی جلو می‌رود که امتیازش ≥
+  /// `EngineRules.topicRerankEps` × امتیاز رقیبِ بی‌موضوع باشد. هیچ ماده‌ای
+  /// حذف نمی‌شود؛ در نبود موضوع، ترتیب امروز حفظ می‌شود. آینهٔ
+  /// `_topic_rerank` در `dev/tools/eval_py.py`.
+  static List<Hit> topicRerank(List<Hit> hits, [Map<String, double> factors = const {}]) {
+    if (factors.isEmpty) return hits;
+    final boosted = <String>{
+      for (final e in factors.entries)
+        if (e.value > 1.0) e.key,
+    };
+    if (boosted.isEmpty) return hits;
+    const eps = EngineRules.topicRerankEps;
+    final out = List<Hit>.of(hits);
+    for (var i = 1; i < out.length; i++) {
+      if (!boosted.contains(out[i].chunk.lawId)) continue;
+      var j = i;
+      while (j > 0) {
+        final prev = out[j - 1];
+        final cur = out[j];
+        if (boosted.contains(prev.chunk.lawId)) break;
+        if (prev.score <= 0 || cur.score < prev.score * eps) break;
+        out[j] = prev;
+        out[j - 1] = cur;
+        j -= 1;
+      }
+    }
+    return out;
   }
 
   /// اگر پرسش از نوع «X چیست» بود، تا دو مادهٔ منسوخ‌نشده‌ای که متنشان با

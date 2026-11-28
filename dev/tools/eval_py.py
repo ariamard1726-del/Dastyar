@@ -344,7 +344,33 @@ class Engine:
             hits.append((c, s))
 
         hits.sort(key=lambda h: -h[1])
+        hits = self._topic_rerank(question, hits, factors)
         return self._promote_definitions(question, hits, factors)[:k]
+
+    def _topic_rerank(self, question, hits, factors):
+        """بازرتبه‌بندی موضوع‌محور (فاز ۲): اگر موضوعی تشخیص داده شده باشد
+        (حداقل یک قانون ضریب > ۱ از `law_factors` گرفته باشد)، مادهٔ متعلق به
+        قانونِ موضوع که پشتِ صدر است، فقط وقتی بالا می‌آید که امتیازش ≥
+        `TOPIC_RERANK_EPS` × امتیاز رقیبِ بی‌موضوع باشد. هیچ ماده‌ای حذف
+        نمی‌شود و در نبود موضوع، ترتیب امروز حفظ می‌شود."""
+        boosted = {l for l, f in (factors or {}).items() if f > 1.0}
+        if not boosted:
+            return hits
+        eps = _ER.TOPIC_RERANK_EPS
+        out = list(hits)
+        for i in range(1, len(out)):
+            if out[i][0]['law'] not in boosted:
+                continue
+            j = i
+            while j > 0:
+                prev, cur = out[j - 1], out[j]
+                if prev[0]['law'] in boosted:
+                    break
+                if prev[1] <= 0 or cur[1] < prev[1] * eps:
+                    break
+                out[j], out[j - 1] = prev, cur
+                j -= 1
+        return out
 
 
 def run(eng, path, verbose):

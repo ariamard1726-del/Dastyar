@@ -29,6 +29,7 @@ class EngineRules {
   static const double nearAlternativeFactor = 0.5;
   static const int maxNearAlternatives = 2;
   static const double altMinScoreRatio = 0.4;
+  static const double topicRerankEps = 0.9;
 
   // ---- تشخیص مادهٔ منسوخ و پاک‌سازی سرِ متن ----
   static const int obsoleteMaxLen = 300;

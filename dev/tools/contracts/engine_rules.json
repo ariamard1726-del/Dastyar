@@ -19,7 +19,8 @@
     "coverageMargin": 0.25,
     "nearAlternativeFactor": 0.5,
     "maxNearAlternatives": 2,
-    "altMinScoreRatio": 0.4
+    "altMinScoreRatio": 0.4,
+    "topicRerankEps": 0.9
   },
   "obsolete": {
     "maxLen": 300,

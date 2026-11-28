@@ -129,6 +129,7 @@ class EngineRules {
     out.append('  static const double nearAlternativeFactor = %s;' % _dart_double(bm['nearAlternativeFactor']))
     out.append('  static const int maxNearAlternatives = %d;' % bm['maxNearAlternatives'])
     out.append('  static const double altMinScoreRatio = %s;' % _dart_double(bm['altMinScoreRatio']))
+    out.append('  static const double topicRerankEps = %s;' % _dart_double(bm['topicRerankEps']))
     out.append('')
 
     out.append('  // ---- تشخیص مادهٔ منسوخ و پاک‌سازی سرِ متن ----')
@@ -203,6 +204,7 @@ def render_py(c):
     out.append('NEAR_ALTERNATIVE_FACTOR = %s' % repr(float(bm['nearAlternativeFactor'])))
     out.append('MAX_NEAR_ALTERNATIVES = %d' % bm['maxNearAlternatives'])
     out.append('ALT_MIN_SCORE_RATIO = %s' % repr(float(bm['altMinScoreRatio'])))
+    out.append('TOPIC_RERANK_EPS = %s' % repr(float(bm['topicRerankEps'])))
     out.append('')
     out.append('OBSOLETE_MAX_LEN = %d' % ob['maxLen'])
     out.append('OBSOLETE_TRIM_PATTERN = %s' % _py_raw(ob['trimPattern']))

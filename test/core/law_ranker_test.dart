@@ -46,6 +46,38 @@ void main() {
     expect(r.hits.first.score, greaterThan(0));
   });
 
+  test('بازرتبه‌بندی موضوع‌محور: قانون موضوع فقط در هم‌امتیازی نزدیک جلو می‌رود', () {
+    Chunk mk(String law, String title) =>
+        Chunk(law, 's', '', title, 'متن', false, const {}, const {}, const {}, 10);
+    final outHit = Hit(mk('civil', 'ماده ۱۰۰'), 1.0);
+    final inHit = Hit(mk('rent', 'ماده ۲۰۰'), 0.95); // ≥ 0.9 × 1.0 ⇒ جلو آمد
+    final farHit = Hit(mk('labor', 'ماده ۳۰۰'), 0.5); // بقیه دست‌نخورده
+    final res = LawRanker.topicRerank(
+      [outHit, inHit, farHit],
+      const {'rent': 1.4},
+    );
+    expect(res.map((h) => h.chunk.lawId), ['rent', 'civil', 'labor']);
+  });
+
+  test('بازرتبه‌بندی موضوع‌محور: قانون موضوع که خیلی عقب است جلو نمی‌آید', () {
+    Chunk mk(String law) =>
+        Chunk(law, 's', '', 't', 'متن', false, const {}, const {}, const {}, 10);
+    final res = LawRanker.topicRerank(
+      [Hit(mk('civil'), 1.0), Hit(mk('rent'), 0.80)],
+      const {'rent': 1.4},
+    );
+    expect(res.first.chunk.lawId, 'civil');
+  });
+
+  test('بازرتبه‌بندی موضوع‌محور: نبود موضوع، ترتیب امروز را حفظ می‌کند', () {
+    Chunk mk(String law) =>
+        Chunk(law, 's', '', 't', 'متن', false, const {}, const {}, const {}, 10);
+    final hits = [Hit(mk('civil'), 1.0), Hit(mk('rent'), 0.5)];
+    expect(identical(LawRanker.topicRerank(hits), hits), isTrue);
+    expect(LawRanker.topicRerank(hits, const {'labor': 0.45}).first.chunk.lawId,
+        'civil');
+  });
+
   test('پوشش: مادهٔ مربوط بیش از مادهٔ بی‌ربط واژه‌های پرسش را دارد', () {
     final idx = build();
     final rk = rankerOf(idx);
