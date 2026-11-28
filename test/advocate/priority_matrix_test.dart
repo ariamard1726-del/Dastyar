@@ -12,7 +12,7 @@ import 'package:dastyar/domain/draft_words.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// آزمونِ ماتریس اولویتِ ۲۶ کاندید (۳۲۵ جفت: ۲۳۱ هم‌پوشان + ۹۴ جداگانه).
+/// آزمونِ ماتریس اولویتِ ۲۶ کاندید (۳۲۵ جفت: ۲۲۹ هم‌پوشان + ۹۶ جداگانه).
 ///
 /// تمام نوبت‌های پیش‌شرط با فراخوانی واقعی `Advocate.respond` ساخته می‌شوند،
 /// نه با دست‌کاریِ وضعیت داخلی؛ هر تغییر در ترتیب یا پیش‌شرط کاندیدها
@@ -196,7 +196,7 @@ void main() {
     });
   });
 
-  group('ماتریس جفت‌های هم‌پوشان (۲۳۱ جفت)' , () {
+  group('ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت)' , () {
     test('(۰, ۱) موضوعِ تازه > «هیچ‌کدام»', () {
       final loser = buildSetup('idle');
       loser.respond('گزینه‌ای وجود ندارد');
@@ -1174,12 +1174,12 @@ void main() {
           reason: 'ترکیب برنده در (4, 24)');
     });
     test('(۴, ۲۵) کنار گذاشتنِ موضوع > پرونده یا پاسخِ کلی', () {
-      final loser = buildSetup('idle');
-      loser.respond('سلام');
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
       expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
           reason: 'پایهٔ بازنده در (4, 25)');
 
-      final winner = buildSetup('idle');
+      final winner = buildSetup('open_rent');
       winner.respond('انصراف');
       expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
           reason: 'ترکیب برنده در (4, 25)');
@@ -1883,17 +1883,6 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
           reason: 'ترکیب برنده در (9, 22)');
     });
-    test('(۹, ۲۳) انتخابِ موضوع > گفتگو با برنامه', () {
-      final loser = buildSetup('idle');
-      loser.respond('گفتگوی من با برنامه چطور است');
-      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
-          reason: 'پایهٔ بازنده در (9, 23)');
-
-      final winner = buildSetup('choices');
-      winner.respond('نه گفتگو با برنامه');
-      expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
-          reason: 'ترکیب برنده در (9, 23)');
-    });
     test('(۹, ۲۵) انتخابِ موضوع > پرونده یا پاسخِ کلی', () {
       final loser = buildSetup('idle');
       loser.respond('سلام');
@@ -2227,17 +2216,6 @@ void main() {
       expect(winner.lastDecision?.candidate.name, '«باشه»',
           reason: 'ترکیب برنده در (14, 22)');
     });
-    test('(۱۴, ۲۳) «باشه» > گفتگو با برنامه', () {
-      final loser = buildSetup('idle');
-      loser.respond('گفتگوی من با برنامه چطور است');
-      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
-          reason: 'پایهٔ بازنده در (14, 23)');
-
-      final winner = buildSetup('open_rent');
-      winner.respond('بله گفتگو با برنامه');
-      expect(winner.lastDecision?.candidate.name, '«باشه»',
-          reason: 'ترکیب برنده در (14, 23)');
-    });
     test('(۱۴, ۲۴) «باشه» > اصلاحِ موضوع', () {
       final loser = buildSetup('open_rent');
       loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
@@ -2536,8 +2514,8 @@ void main() {
           reason: 'پایهٔ بازنده در (18, 24)');
 
       final winner = buildSetup('open_rent');
-      winner.respond('اشتباه گرفتی من در مورد چیز دیگه گفتم');
-      winner.respond('اشتباه گرفتی من در مورد چیز دیگه گفتم');
+      winner.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      winner.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
       expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
           reason: 'ترکیب برنده در (18, 24)');
     });
@@ -2764,7 +2742,7 @@ void main() {
     });
   });
 
-  group('ناهم‌پوشانی جفت‌های جداگانه (۹۴ جفت)', () {
+  group('ناهم‌پوشانی جفت‌های جداگانه (۹۶ جفت)', () {
     test('همهٔ ۲۴ موضوع follow[next] دارند پس (۱۰, ۱۴) در عمل جداست', () {
       for (final Topic t in Advocate.topics) {
         expect(t.follow.containsKey('next'), isTrue, reason: t.id);

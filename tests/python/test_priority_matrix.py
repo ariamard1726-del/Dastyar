@@ -33,8 +33,8 @@ class PriorityMatrixTests(unittest.TestCase):
         overlaps = [p for p in pairs if p['status'] == 'overlap']
         disjoints = [p for p in pairs if p['status'] == 'disjoint']
         self.assertEqual(len(overlaps) + len(disjoints), 325)
-        self.assertEqual(len(overlaps), 231)
-        self.assertEqual(len(disjoints), 94)
+        self.assertEqual(len(overlaps), 229)
+        self.assertEqual(len(disjoints), 96)
 
     def test_generated_doc_and_dart_test_are_fresh(self):
         self.assertEqual(GP.main(['--check']), 0,

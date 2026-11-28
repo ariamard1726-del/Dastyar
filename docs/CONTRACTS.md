@@ -160,8 +160,8 @@ python dev/tools/check.py refs
 ۲۶ کاندید خطِ تولیدِ پاسخ در `lib/domain/advocate/advocate_reply.dart`
 ($\binom{26}{2} = ۳۲۵$ جفتِ ممکن) به ترتیبِ `hitDecision` (۱۶)، `dueDecision` (۲)
 و `tailDecision` (۸) داوری می‌شوند. هر ۳۲۵ جفت در همین قرارداد فهرست
-شده‌اند: **۲۳۱ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
-بازنده و ورودی مرکب) و **۹۴ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
+شده‌اند: **۲۲۹ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
+بازنده و ورودی مرکب) و **۹۶ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
 
 - **تولید:** `python3 dev/tools/gen_priority.py --write` ← `docs/PRIORITY.md`
   و `test/advocate/priority_matrix_test.dart`.
