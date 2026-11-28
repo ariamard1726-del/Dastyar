@@ -177,6 +177,7 @@ void main() {
     }
 
     testWidgets('باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون', (tester) async {
+      await LawsLibrary.load();
       String? copied;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(SystemChannels.platform, (call) async {
@@ -210,6 +211,10 @@ void main() {
       await openDrawer(tester);
       expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget,
           reason: 'Error: DRW-light placeholder missing');
+      expect(find.byType(CircularProgressIndicator), findsNothing,
+          reason: 'Error: DRW-light drawer still loading');
+      expect(find.text('قوانین بار نشدند'), findsNothing,
+          reason: 'Error: DRW-light drawer error state');
       expect(find.text('قانون مدنی'), findsOneWidget,
           reason: 'Error: DRW-light civil law not listed');
 
@@ -242,6 +247,7 @@ void main() {
 
     testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
         (tester) async {
+      await LawsLibrary.load();
       await tester.pumpWidget(
         MaterialApp(
           themeMode: ThemeMode.dark,
@@ -266,6 +272,10 @@ void main() {
 
       await openDrawer(tester);
 
+      expect(find.byType(CircularProgressIndicator), findsNothing,
+          reason: 'Error: DRW-dark drawer still loading');
+      expect(find.text('قوانین بار نشدند'), findsNothing,
+          reason: 'Error: DRW-dark drawer error state');
       expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget,
           reason: 'Error: DRW-dark placeholder missing');
 
