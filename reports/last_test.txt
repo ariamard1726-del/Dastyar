@@ -1,25 +1,25 @@
-commit: 920e99a
-🎉 949 tests passed.
+commit: 4039214
+🎉 952 tests passed.
 --- analyze ---
-2 issues found. (ran in 9.6s)
+2 issues found. (ran in 12.7s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:144:21 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:146:30 • prefer_const_constructors
 --- coverage ---
-coverage: 8850/9633 خط (91.9%) | آستانه 40.0%
+coverage: 8868/9651 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=811 assets_ms=48 index_ms=762 worker_load_ms=786 first_query_ms=37 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=254.4
+STARTUP-BASELINE load_ms=1320 assets_ms=77 index_ms=1242 worker_load_ms=1232 first_query_ms=63 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=253.9
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
 --- dart_eval ---
 # گزارش ارزیابی مستقیم کد واقعی Dart (PersianText / KnowledgeEngine / LawTerms / TopicFlow)
 DART_EVAL text_norm ok: golden=45 sense=14 parity=20
-DART_EVAL eval.txt: n=30 recall@1=0.93 recall@5=1.00 MRR=0.961
+DART_EVAL eval.txt: n=30 recall@1=0.93 recall@5=1.00 MRR=0.967
 DART_EVAL eval_extra.txt: n=30 recall@1=0.83 recall@5=0.93 MRR=0.881
 DART_EVAL eval_blind.txt: n=31 recall@1=0.68 recall@5=0.97 MRR=0.805
-DART_EVAL eval_all_laws.txt: n=31 recall@1=0.90 recall@5=1.00 MRR=0.930
-DART_EVAL eval_feedback.txt: n=18 recall@1=0.50 recall@5=0.83 MRR=0.660
-DART_EVAL eval_everyday_laws.txt: n=43 law@1=0.95
+DART_EVAL eval_all_laws.txt: n=31 recall@1=0.90 recall@5=1.00 MRR=0.935
+DART_EVAL eval_feedback.txt: n=18 recall@1=0.56 recall@5=0.89 MRR=0.698
+DART_EVAL eval_everyday_laws.txt: n=43 law@1=0.98
 DART_EVAL eval_none.txt: n=28 rejected=28 false_confident=0 (0.0%)
 DART_EVAL law_terms: cases=38/38 audit_ok=14 audit_open=0
 DART_EVAL topic_flow: files=4 cases=56/56

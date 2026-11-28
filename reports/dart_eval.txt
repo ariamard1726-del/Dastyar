@@ -1,11 +1,11 @@
 # گزارش ارزیابی مستقیم کد واقعی Dart (PersianText / KnowledgeEngine / LawTerms / TopicFlow)
 DART_EVAL text_norm ok: golden=45 sense=14 parity=20
-DART_EVAL eval.txt: n=30 recall@1=0.93 recall@5=1.00 MRR=0.961
+DART_EVAL eval.txt: n=30 recall@1=0.93 recall@5=1.00 MRR=0.967
 DART_EVAL eval_extra.txt: n=30 recall@1=0.83 recall@5=0.93 MRR=0.881
 DART_EVAL eval_blind.txt: n=31 recall@1=0.68 recall@5=0.97 MRR=0.805
-DART_EVAL eval_all_laws.txt: n=31 recall@1=0.90 recall@5=1.00 MRR=0.930
-DART_EVAL eval_feedback.txt: n=18 recall@1=0.50 recall@5=0.83 MRR=0.660
-DART_EVAL eval_everyday_laws.txt: n=43 law@1=0.95
+DART_EVAL eval_all_laws.txt: n=31 recall@1=0.90 recall@5=1.00 MRR=0.935
+DART_EVAL eval_feedback.txt: n=18 recall@1=0.56 recall@5=0.89 MRR=0.698
+DART_EVAL eval_everyday_laws.txt: n=43 law@1=0.98
 DART_EVAL eval_none.txt: n=28 rejected=28 false_confident=0 (0.0%)
 DART_EVAL law_terms: cases=38/38 audit_ok=14 audit_open=0
 DART_EVAL topic_flow: files=4 cases=56/56

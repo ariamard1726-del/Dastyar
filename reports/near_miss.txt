@@ -1,16 +1,16 @@
 00:00 +0: NEAR-MISS report (no assertions)
 NEAR eval/eval.txt n=30 exact@1 0.93 near@1 0.97 law@1 1.00 near@5 1.00
-NEAR eval/eval_v2.txt n=49 exact@1 0.47 near@1 0.57 law@1 0.82 near@5 0.90
+NEAR eval/eval_v2.txt n=49 exact@1 0.45 near@1 0.57 law@1 0.84 near@5 0.90
 NEAR eval/eval_v3.txt n=20 exact@1 0.25 near@1 0.35 law@1 0.75 near@5 0.55
-NEAR eval/eval_v4.txt n=18 exact@1 0.39 near@1 0.39 law@1 0.83 near@5 0.67
+NEAR eval/eval_v4.txt n=18 exact@1 0.39 near@1 0.39 law@1 0.83 near@5 0.72
 NEAR eval/eval_extra.txt n=30 exact@1 0.83 near@1 0.90 law@1 1.00 near@5 0.97
 NEAR eval/eval_blind.txt n=31 exact@1 0.68 near@1 0.81 law@1 0.94 near@5 1.00
-NEAR TOTAL n=178 exact@1 0.61 near@1 0.69 law@1 0.89 near@5 0.88
+NEAR TOTAL n=178 exact@1 0.61 near@1 0.69 law@1 0.90 near@5 0.89
 NEAR far | eval/eval_v2.txt | چه کسانی محجور حساب می‌شوند | want civil ماده 1207 | got civil_procedure ماده 337
 NEAR far | eval/eval_v2.txt | مالک تا چه حد در مال خودش حق تصرف دارد | want civil ماده 30 | got civil_procedure ماده 171
 NEAR far | eval/eval_v2.txt | زن و شوهر باید چطور با هم رفتار کنند | want civil ماده 1103 | got civil ماده 1221
 NEAR far | eval/eval_v2.txt | بدهکارهای زندانی را باید جدا از مجرمان نگه دارند | want financial_sentences ماده 5 | got criminal_procedure ماده 46
-NEAR far | eval/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got criminal_procedure ماده 151
+NEAR far | eval/eval_v2.txt | حساب‌های بانکی بدهکار را از کجا پیدا کنیم | want financial_sentences ماده 19 | got financial_sentences ماده 8
 NEAR far | eval/eval_v3.txt | ازدواج موقت کی منقطع حساب میشه | want civil ماده 1075 | got family_protection ماده 21
 NEAR far | eval/eval_v3.txt | ولی قهری بچه کیه | want civil ماده 1180 | got civil ماده 1184
 NEAR far | eval/eval_v3.txt | قیم می‌تونه ملک بچه رو بفروشه | want civil ماده 1241 | got constitution اصل 50
@@ -22,7 +22,6 @@ NEAR far | eval/eval_v3.txt | زن و شوهر از هم ارث می‌برن | 
 NEAR far | eval/eval_v3.txt | آیا آدم می‌تونه آزادی خودشو از بین ببره | want civil ماده 960 | got criminal_procedure ماده 558
 NEAR far | eval/eval_v4.txt | ضامن یکی شدم و خودم بدهیش رو دادم می‌تونم از خودش پس بگیرم | want civil ماده 709 | got criminal_procedure ماده 199
 NEAR far | eval/eval_v4.txt | وصیت کرده بیشتر اموالش رو به یک نفر بدن اگه ورثه قبول نکنن چی میشه | want civil ماده 843 | got civil ماده 849
-NEAR far | eval/eval_v4.txt | چکم گم شده یا دزدیده شده چطور جلوی پرداختش رو بگیرم | want cheque ماده 14 | got constitution اصل 50
 NEAR far | eval/eval_v4.txt | اگه برای تحویل جنس و پرداخت پول زمان نذاشته باشیم چی میشه | want civil ماده 344 | got civil ماده 296
 NEAR far | eval/eval_v4.txt | قرارداد رو می‌شه یک‌طرفه به هم زد | want civil ماده 219 | got constitution اصل 50
 NEAR far | eval/eval_v4.txt | چه کسانی از مرده ارث می‌برن | want civil ماده 862 | got civil ماده 866
