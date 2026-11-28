@@ -2,118 +2,72 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
-import 'package:dastyar/domain/advocate/topics/shared.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-// ---- برداشت وکیل و ادعاها
+const String _anyRe = 'هیچ';
 
-List<String> debtRecap(CaseFile f) => [
-      if (f.n('amount') != null) '${Sense.toman(f.n('amount')!)} طلب دارید',
-      if (f.eq('proof', 'doc')) 'رسید یا نوشته دارید',
-      if (f.eq('proof', 'transfer')) 'واریز بانکی دارید',
-      if (f.eq('proof', 'msg')) 'پیام‌هایی دارید که بدهی را نشان می‌دهد',
-      if (f.eq('proof', 'witness')) 'شاهد دارید',
-      if (f.eq('proof', 'none')) 'هیچ مدرکی در دست ندارید',
-      if (f.yes('admits')) 'خودش اصل بدهی را قبول دارد',
-      if (f.no('admits')) 'او بدهی را انکار می‌کند',
-    ];
+const List<RecapItem> _debtRecap = [
+  RecapItem(
+    when: FactHasNum('amount'),
+    text: TxJoin(' ', [TxNum('amount'), Tx('debtRecapAmt')]),
+  ),
+  RecapItem(when: FactEq('proof', 'doc'), text: Tx('debt_0')),
+  RecapItem(when: FactEq('proof', 'transfer'), text: Tx('debt_1')),
+  RecapItem(when: FactEq('proof', 'msg'), text: Tx('debt_2')),
+  RecapItem(when: FactEq('proof', 'witness'), text: Tx('debt_3')),
+  RecapItem(when: FactEq('proof', 'none'), text: Tx('debt_4')),
+  RecapItem(when: FactYes('admits'), text: Tx('debt_5')),
+  RecapItem(when: FactNo('admits'), text: Tx('debt_6')),
+];
 
-final List<Claim> debtClaims = [
-  Claim(
-    goal: 'گرفتن حکم پرداخت طلب',
+final List<Claim> _debtClaims = [
+  Claim.dsl(
+    goal: topicText('debt_7'),
     cues: 'پول(?:م|مو)|طلب(?:م|مو)|حکم|محکوم',
     uses: const ['amount'],
     elements: [
-      Element(
-        'اصل بدهی را بتوانید ثابت کنید؛ با نوشته، واریز، پیام، شاهد یا اقرار خودش [[civil_procedure:197]].',
-        (f) => f.has('proof') ? !f.eq('proof', 'none') : null,
+      Element.dsl(
+        topicText('debt_8'),
+        const FactTriWhen(FactHas('proof'), FactNot(FactEq('proof', 'none'))),
         needs: const ['proof'],
-        because: (f) => f.eq('proof', 'doc')
-            ? 'رسید یا نوشته دارید'
-            : (f.eq('proof', 'transfer')
-                ? 'واریز بانکی دارید'
-                : (f.eq('proof', 'witness')
-                    ? 'شاهد دارید'
-                    : 'پیام‌هایی دارید که بدهی را نشان می‌دهد')),
-        ifNo:
-            'بدون دلیل، اگر او انکار کند و قسم بخورد دعوا رد می‌شود [[civil_procedure:272]]؛ پس پیش از دادخواست باید دلیل ساخت، مثلاً با گرفتن اقرار کتبی در پیام.',
+        because: const TxSwitch(
+          'proof',
+          {
+            'doc': Tx('debt_9'),
+            'transfer': Tx('debt_10'),
+            'witness': Tx('debt_11'),
+          },
+          fallback: Tx('debt_12'),
+        ),
+        ifNo: topicText('debt_13'),
       ),
-      Element(
-        'او بدهی را قبول داشته باشد، یا دلیل شما از انکارش محکم‌تر باشد.',
-        (f) {
-          if (f.yes('admits')) return true;
-          if (!f.no('admits')) return null;
-          if (f.eq('proof', 'doc') || f.eq('proof', 'transfer')) return true;
-          return f.has('proof') ? false : null;
-        },
+      Element.dsl(
+        topicText('debt_14'),
+        const FactTriCases(
+          [
+            FactCase(FactYes('admits'), FactConst(true)),
+            FactCase(FactNot(FactNo('admits')), FactConst(null)),
+            FactCase(FactIn('proof', ['doc', 'transfer']), FactConst(true)),
+          ],
+          fallback: FactTriIf(FactHas('proof'), false),
+        ),
         needs: const ['admits', 'proof'],
-        because: (f) => f.yes('admits')
-            ? 'خودش اصل بدهی را قبول دارد'
-            : 'مدرک کتبی یا بانکیِ شما از انکار او محکم‌تر است',
-        ifNo:
-            'با انکار او و دلیلِ ضعیف، نتیجه به سوگند و قرائن بسته است و قابل پیش‌بینی نیست.',
+        because: const TxCond(
+            FactYes('admits'), Tx('debt_15'), Tx('debt_16')),
+        ifNo: topicText('debt_17'),
       ),
     ],
-    win: (f) =>
-        'دادگاه او را به پرداخت اصل طلب، خسارت تأخیر و هزینهٔ دادرسی محکوم می‌کند [[civil_procedure:522]] [[civil_procedure:519]].',
-    counter: (f) =>
-        'می‌گوید «پس داده‌ام». در این صورت بار اثبات برمی‌گردد روی دوش خودش: وقتی اصل بدهی ثابت شد، اصل بر باقی‌بودن آن است [[civil_procedure:198]].',
+    win: const Tx('debt_18'),
+    counter: const Tx('debt_19'),
   ),
 ];
 
-// ---- پرسش‌ها و پاسخ‌ها
-
-String? _debtProof(String n) {
-  if (Sense.has(n,
-      'هیچ مدرک|مدرک(?:ی)? ندارم|نه سند|هیچی ندارم|فقط خودم و خودش|خودم و خودش میدون|کسی (?:نمیدونه|ندید|نبود)|شاهد(?:ی)? ندارم|هیچ(?:ی)? ننوشتیم|رسید(?:ی)? (?:نگرفتم|ندارم)|دست به دست|بدون (?:مدرک|رسید|سند)')) {
-    return 'none';
-  }
-  if (Sense.has(n, 'سفته|رسید (?:دارم|گرفتم|داد)|دست ?نوشته|دستخط|قرارداد|نوشته (?:دارم|داد)|سند (?:دارم|داد)|امضا کرد')) {
-    return 'doc';
-  }
-  if (Sense.has(n, 'کارت به کارت|واریز|حواله|انتقال(?:ی)? بانک|فیش|تراکنش|به حسابش|پایا|ساتنا')) return 'transfer';
-  if (Sense.has(n, 'پیام|چت|واتساپ|تلگرام|اس ام اس|پیامک|ویس|صدا[^ ]* (?:رو )?ضبط|اسکرین')) return 'msg';
-  if (Sense.has(n, 'شاهد (?:دارم|هست|داریم)|شاهد |جلوی (?:[^ ]+ ){0,3}دادم|(?:بقیه|چند نفر|دوستام|خانواده) (?:دیدن|میدونن|بودن)')) return 'witness';
-  return null;
-}
-
-String _debtProofEffect(CaseFile f) {
-  final amt = f.n('amount');
-  final sum = amt == null ? 'اون پولی' : 'اون ${Sense.toman(amt)}ی';
-  switch (f.get('proof')) {
-    case 'none':
-      return 'وقتی نه نوشته‌ای هست، نه واریز بانکی و نه شاهد، کار سخت می‌شود ولی بسته نیست. قاعده این است که مدعی باید ادعایش را ثابت کند [[civil_procedure:197]]؛ پس باید «دلیل بسازیم»:\n'
-          '۱) اقرار کتبی بگیرید: با پیام متنی (نه تماس) مؤدبانه یادآوری کنید: «$sum که بهت قرض دادم رو کی برمی‌گردونی؟» هر جوابی مثل «فعلاً ندارم» یا «ماه بعد می‌دم» یعنی اصل بدهی را قبول کرده است.\n'
-          '۲) اظهارنامهٔ رسمی بفرستید [[civil_procedure:156]]؛ سکوت یا جواب او می‌تواند قرینه باشد.\n'
-          '۳) آخرین تیر، سوگند است: اگر هیچ دلیلی نماند، می‌توانید از دادگاه بخواهید او قسم بخورد که بدهکار نیست [[civil_procedure:272]]. اگر قسم خورد، دعوا ساقط می‌شود؛ ولی اگر نه قسم خورد و نه آن را به شما برگرداند، با سوگند شما محکوم می‌شود [[civil:1328]].\n'
-          'پس پیش از دادخواست، تمام زورتان را روی قدم اول بگذارید.';
-    case 'transfer':
-      return 'رسید واریز بانکی خوب است، ولی یک نقطه‌ضعف دارد: ثابت می‌کند پول رفته، نه اینکه «قرض» بوده؛ ممکن است بگوید بابت طلب خودش گرفته. برای بستن این راه فرار، یک پیام یا شاهد که عنوان قرض را نشان بدهد کنارش بگذارید. دادگاه مجموع این قرینه‌ها را کنار هم می‌بیند [[civil:1321]].';
-    case 'msg':
-      return 'پیام‌ها اگر در آن‌ها بدهی را قبول کرده باشد، ارزش اقرار دارند و خیلی به کار می‌آیند. همین حالا از گفتگو اسکرین‌شات و خروجی بگیرید و خودِ گوشی را هم نگه دارید؛ اگر انکار کرد، دادگاه می‌تواند کارشناس بفرستد. صدای ضبط‌شده به‌تنهایی دلیل قطعی نیست و فقط قرینه است [[civil:1321]].';
-    case 'witness':
-      return 'شهادت شهود دلیل معتبری است، به شرط اینکه شاهدها خودشان دیده یا شنیده باشند، نه اینکه از شما شنیده باشند. اسم و نشانی‌شان را آماده کنید. اگر کنارش یک واریز یا پیام هم باشد، پرونده محکم می‌شود.';
-    case 'doc':
-      return 'نوشته‌ای که امضای او پایش باشد سند است و در دادگاه قابل استناد [[civil:1284]]. با این مدرک، پروندهٔ شما از جهت اثبات محکم است و بحث اصلی، وصول پول خواهد بود.';
-    default:
-      return '';
-  }
-}
-
-String _debtPlan(CaseFile f) {
-  return 'ترتیب کاری که پیشنهاد می‌کنم:\n'
-      '${f.eq('proof', 'doc') ? '۱) اصل رسید یا نوشته را نگه دارید و یک کپی برابر اصل برای ضمیمهٔ دادخواست بگیرید.' : '۱) اول دلیل را محکم کنید (پیام کتبیِ قبول بدهی، رسید، شاهد).'}\n'
-      '۲) اظهارنامهٔ رسمی بفرستید و مهلت بدهید [[civil_procedure:156]]؛ تاریخ مطالبه برای خسارت تأخیر مهم است [[civil_procedure:522]].\n'
-      '۳) دادخواست «مطالبهٔ وجه» با خسارت تأخیر و هزینهٔ دادرسی.\n'
-      '۴) اگر بیم آن هست که مالش را جابه‌جا کند، هم‌زمان تأمین خواسته بگیرید [[civil_procedure:108]].\n'
-      '${moneyForum(f.n('amount'))}';
-}
-
-final Topic debtTopic = Topic(
+final Topic debtTopic = Topic.dsl(
   id: 'debt',
-  title: 'طلب و قرض',
-  claims: debtClaims,
-  recap: debtRecap,
+  title: topicText('debt_24'),
+  claims: _debtClaims,
+  recap: _debtRecap,
   cues: {
     'پول(?:م|مو)? (?:مرا |من را |من رو |رو |را )?(?:پس )?(?:نمیده|نمیدهد|نداده|نمیدن|نمیدهند)|طلبکار هستم|بدهکار (?:است|هست|فرار)|خسارت تاخیر تادیه|از بدهکار': 3,
     'قرض (?:دادم|داده بودم|داده ام|گرفت|کرد)|پول (?:دادم|قرض)|دستی (?:دادم|گرفت)|قرض الحسنه دادم': 3,
@@ -123,103 +77,111 @@ final Topic debtTopic = Topic(
   },
   anti: 'بدهکارم|بدهی دارم|قرض گرفتم|قرض کردم|طلبکار(?:ا|ها|م)? (?:اومد|دارم|زیاد)|نمیتونم (?:بدم|پس بدم)|سایت|اینستا|تلگرام|کلاهبردار|حکم گرفتم|رای گرفتم|محکوم شد|اجرای حکم',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'proof',
-      ask: 'برای این طلب چه مدرکی دارید؟ رسید یا نوشته، واریز بانکی، پیام، شاهد؛ یا هیچ‌کدام؟',
-      why: 'در دعوای طلب همه‌چیز دور اثبات می‌چرخد؛ نوع مدرک تعیین می‌کند مستقیم دادخواست بدهیم یا اول باید دلیل جمع کنیم.',
-      options: ['رسید یا نوشته دارم', 'واریز بانکی دارم', 'پیام یا شاهد دارم', 'هیچ مدرکی ندارم'],
-      read: _debtProof,
-      readPending: (n) => Sense.saysNo(n) || Sense.has(n, 'هیچ') ? 'none' : null,
+      ask: topicText('debt_25'),
+      why: topicText('debt_26'),
+      options: [topicText('debt_27'), topicText('debt_28'), topicText('debt_29'), topicText('debt_30')],
+      read: const ReadCases([
+        ReadCase(
+            'هیچ مدرک|مدرک(?:ی)? ندارم|نه سند|هیچی ندارم|فقط خودم و خودش|خودم و خودش میدون|کسی (?:نمیدونه|ندید|نبود)|شاهد(?:ی)? ندارم|هیچ(?:ی)? ننوشتیم|رسید(?:ی)? (?:نگرفتم|ندارم)|دست به دست|بدون (?:مدرک|رسید|سند)',
+            'none'),
+        ReadCase('سفته|رسید (?:دارم|گرفتم|داد)|دست ?نوشته|دستخط|قرارداد|نوشته (?:دارم|داد)|سند (?:دارم|داد)|امضا کرد', 'doc'),
+        ReadCase('کارت به کارت|واریز|حواله|انتقال(?:ی)? بانک|فیش|تراکنش|به حسابش|پایا|ساتنا', 'transfer'),
+        ReadCase('پیام|چت|واتساپ|تلگرام|اس ام اس|پیامک|ویس|صدا[^ ]* (?:رو )?ضبط|اسکرین', 'msg'),
+        ReadCase('شاهد (?:دارم|هست|داریم)|شاهد |جلوی (?:[^ ]+ ){0,3}دادم|(?:بقیه|چند نفر|دوستام|خانواده) (?:دیدن|میدونن|بودن)', 'witness'),
+      ]),
+      readPending: const ReadSaysNoOrHas(_anyRe, 'none'),
       yesValue: '',
       noValue: 'none',
-      effect: _debtProofEffect,
+      effect: const TxSwitch('proof', {
+        'none': TxConcat([
+          Tx('debtNoneA'),
+          TxCond(
+            FactHasNum('amount'),
+            TxConcat([Tx('debtSumPrefix'), TxRaw(' '), TxNum('amount'), Tx('debtSumSuffix')]),
+            Tx('debtSumGeneric'),
+          ),
+          TxRaw(' '),
+          Tx('debtNoneB'),
+        ]),
+        'transfer': Tx('debt_20'),
+        'msg': Tx('debt_21'),
+        'witness': Tx('debt_22'),
+        'doc': Tx('debt_23'),
+      }),
     ),
-    Slot(
+    Slot.dsl(
       id: 'admits',
-      ask: 'خودش اصل بدهی را قبول دارد و فقط امروز و فردا می‌کند، یا کلاً انکار می‌کند؟',
-      why: 'اگر قبول دارد، می‌شود همین قبول‌داشتن را کتبی و تبدیل به دلیل کرد؛ اگر انکار می‌کند، بار اثبات کامل روی دوش ماست.',
-      options: ['قبول دارد ولی نمی‌دهد', 'انکار می‌کند'],
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('debt_31'),
+      why: topicText('debt_32'),
+      options: [topicText('debt_33'), topicText('debt_34')],
+      read: const ReadYn(
         'قبول دار|میگه میدم|قول میده|امروز فردا|هی میگه|انکار نمیکنه|میگه ندارم|وعده میده|دست به سر',
         'انکار(?! نمی)|زیرش (?:میزنه|زد)|میگه نگرفتم|میگه بدهکار نیستم|حاشا|گردن نمیگیره|منکر',
       ),
-      effect: (f) => f.yes('admits')
-          ? 'اینکه اصل بدهی را قبول دارد، بهترین فرصت شماست: تا نظرش عوض نشده، این قبول‌داشتن را کتبی کنید؛ یا با پیام متنی، یا با یک رسید دوخطی که تاریخ پرداخت را هم در آن بنویسد. اقرار او قوی‌ترین دلیل شما می‌شود.'
-          : (f.eq('proof', 'doc')
-              ? 'انکارِ او با وجود نوشتهٔ امضاشده خیلی به کارش نمی‌آید: اگر بگوید «امضای من نیست»، دادگاه خط و امضا را به کارشناس می‌دهد و اصل سند را از شما می‌خواهد؛ پس اصل رسید را سالم نگه دارید و به کسی ندهید [[civil:1284]].'
-              : 'وقتی انکار می‌کند، اصل بر برائت اوست و اثبات با شماست [[civil_procedure:197]]؛ پس قدرت پرونده دقیقاً به اندازهٔ مدرک شماست.'),
+      effect: const TxCond(
+        FactYes('admits'),
+        Tx('debt_35'),
+        TxCond(FactEq('proof', 'doc'), Tx('debt_36'), Tx('debt_37')),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'amount',
-      ask: 'مبلغ طلب چقدر است؟',
-      why: 'مبلغ، مرجع رسیدگی و هزینهٔ دادرسی را تعیین می‌کند و نشان می‌دهد چه مقدار دوندگی به‌صرفه است.',
-      read: (n) => Sense.amount(n)?.toString(),
-      readPending: (n) => Sense.looseAmount(n)?.toString(),
+      ask: topicText('debt_38'),
+      why: topicText('debt_39'),
+      read: const ReadAmount(),
+      readPending: const ReadAmount(loose: true),
       yesValue: '',
       noValue: '',
-      effect: (f) => moneyForum(f.n('amount')),
+      effect: const TxForum('amount'),
     ),
   ],
-  opening: (f) =>
-      'اصل حرف قانون ساده است: کسی که قرض گرفته باید همان را برگرداند [[civil:648]]، و وقتی بدهی ثابت شد، اصل بر باقی‌بودن آن است مگر خودش ثابت کند پرداخته [[civil_procedure:198]]. پس تمام بازی سرِ «اثبات اصل بدهی» است.',
+  opening: const Tx('debt_40'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'record',
-      chip: 'صدایش را ضبط کنم؟',
+      chip: topicText('debt_41'),
       cues: 'ضبط|ویس|صدا[^ ]* (?:رو |را )?(?:بگیرم|دارم)|مکالمه',
-      body: (f) =>
-          'صدای ضبط‌شده در دادگاه دلیل مستقل و قطعی نیست؛ در بهترین حالت «قرینه» است که کنار دلایل دیگر به قاضی اطمینان می‌دهد [[civil:1321]]. برای همین توصیهٔ من پیام متنی است: ماندگارتر است، انکارش سخت‌تر است و راحت‌تر به پرونده ضمیمه می‌شود.',
+      body: const Tx('debt_42'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'interest',
-      chip: 'ضرر دیرکردش را هم می‌توانم بگیرم؟',
+      chip: topicText('debt_43'),
       cues: 'سود|دیرکرد|خسارت تاخیر|ضرر[^ ]* (?:تاخیر|تورم)|تورم|ارزش پول|به نرخ روز',
-      body: (f) =>
-          'بله، ولی نه با عنوان «سود». آنچه دادگاه می‌دهد «خسارت تأخیر تأدیه» است: اگر طلب پول رایج باشد، شما مطالبه کرده باشید و او با داشتن توان نپرداخته باشد، دادگاه بر پایهٔ شاخص تورم بانک مرکزی از سررسید تا روز پرداخت حساب می‌کند [[civil_procedure:522]]. برای همین می‌گویم مطالبهٔ رسمی (اظهارنامه) را زودتر انجام دهید. سودِ توافقیِ جدا بین افراد عادی را دادگاه نمی‌پذیرد.',
+      body: const Tx('debt_44'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'hide',
-      chip: 'اگر اموالش را به نام دیگری بزند؟',
+      chip: topicText('debt_45'),
       cues: 'به نام (?:زنش|همسرش|بچه|کس دیگه|دیگری)|اموال[^ ]* (?:رو )?(?:منتقل|انتقال)|فرار (?:از دین|کنه|کرد)|در بره|مال(?:ی)? ندار|هیچی نداره',
-      body: (f) =>
-          'دو ابزار برای این وضعیت دارید:\n'
-          '• پیشگیری: همراه دادخواست «تأمین خواسته» بگیرید تا معادل طلبتان از اموالش پیش از رأی توقیف شود [[civil_procedure:108]].\n'
-          '• درمان: اگر به قصد فرار از بدهی مالش را به دیگری منتقل کند، این کار جرم است و می‌شود طلب را از همان مال گرفت [[financial_sentences:21]].\n'
-          'و اگر پس از حکم واقعاً مالی پیدا نشد، به درخواست شما تا پرداخت یا اثبات اعسار بازداشت می‌شود [[financial_sentences:3]].',
+      body: const Tx('debt_46'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'jail',
-      chip: 'می‌توانم زندانش کنم؟',
+      chip: topicText('debt_47'),
       cues: 'زندان|حبس|بازداشت|جلب|شکایت کیفری|کلاهبرداری',
-      body: (f) =>
-          'ندادنِ بدهی به‌خودی‌خود جرم نیست و با شکایت کیفری به جایی نمی‌رسید؛ این یک دعوای حقوقی است. کلاهبرداری فقط وقتی است که از اول با حیله و صحنه‌سازی پول را از شما گرفته باشد [[fraud_intensify:1]].\n'
-          'اما بازداشت در مرحلهٔ اجرا ممکن است: وقتی حکم قطعی گرفتید و نپرداخت و مالی هم پیدا نشد، به درخواست شما حبس می‌شود تا بپردازد یا اعسارش ثابت شود [[financial_sentences:3]].',
+      body: const Tx('debt_48'),
     ),
   ],
-  follow: {
-    'next': _debtPlan,
-    'where': (f) => moneyForum(f.n('amount')),
-    'cost': (f) => moneyCost,
-    'time': (f) => moneyTime,
-    'deadline': (f) =>
-        'برای اصل طلب مهلت قانونیِ کوتاهی ندارید. ولی زمان به ضرر شماست: حافظهٔ شاهدها کم‌رنگ می‌شود، پیام‌ها پاک می‌شود و او فرصت جابه‌جاکردن اموال پیدا می‌کند. اگر برای پرداخت موعدی گذاشته بودید، پیش از رسیدن آن نمی‌توانید مطالبه کنید [[civil:651]].',
-    'evidence': (f) =>
-        'به ترتیب قدرت: (۱) نوشته یا رسید با امضای او [[civil:1284]]؛ (۲) اقرار او در پیام یا نزد دادگاه؛ (۳) شهادت شاهدانی که خودشان دیده‌اند؛ (۴) تراکنش بانکی به‌همراه قرینه‌ای که نشان دهد قرض بوده [[civil:1321]]؛ (۵) در نبود همهٔ این‌ها، سوگند [[civil_procedure:272]].',
-    'chance': (f) {
-      switch (f.get('proof')) {
-        case 'doc':
-          return 'با سندِ امضاشده، ارزیابی من مثبت است؛ بحث اصلی وصول خواهد بود، نه اثبات.';
-        case 'none':
-          return 'بی‌تعارف: با وضعیت فعلی و بدون هیچ دلیلی، اگر او در دادگاه انکار کند و قسم بخورد، دعوا رد می‌شود [[civil_procedure:272]]. برای همین می‌گویم پیش از دادخواست، اول اقرار کتبی بگیرید؛ با یک پیامِ قبول بدهی، ورق برمی‌گردد.';
-        case '':
-          return 'شانس این پرونده را مدرک تعیین می‌کند، نه حق‌به‌جانب‌بودن؛ بگویید چه در دست دارید تا دقیق بگویم.';
-        default:
-          return 'با مدرکی که دارید پرونده قابل دفاع است، ولی هرچه قرینه‌ها بیشتر کنار هم بنشینند (واریز + پیام + شاهد) دست قاضی برای رأی‌دادن به نفع شما بازتر می‌شود [[civil:1321]].';
-      }
-    },
-    'refuse': (f) =>
-        'اگر با اظهارنامه هم نداد، دادخواست می‌دهیم و با حکم قطعی، اجرای احکام اموالش را توقیف می‌کند [[financial_sentences:1]] [[financial_sentences:2]]. اگر مالی نبود و اعسارش ثابت نشده بود، به درخواست شما بازداشت می‌شود [[financial_sentences:3]].',
+  follow: const {
+    'next': TxJoin('\n', [
+      Tx('debtPlanLead'),
+      TxCond(FactEq('proof', 'doc'), Tx('debtPlanDoc'), Tx('debtPlanNoDoc')),
+      Tx('debtPlanRest'),
+      TxForum('amount'),
+    ]),
+    'where': TxForum('amount'),
+    'cost': TxShared(SharedText.moneyCost),
+    'time': TxShared(SharedText.moneyTime),
+    'deadline': Tx('debt_49'),
+    'evidence': Tx('debt_50'),
+    'chance': TxSwitch(
+      'proof',
+      {'doc': Tx('debt_51'), 'none': Tx('debt_52'), '': Tx('debt_53')},
+      fallback: Tx('debt_54'),
+    ),
+    'refuse': Tx('debt_55'),
   },
-  drafts: (f) => const ['formal_notice', 'demand_money'],
+  drafts: const DraftRule.fixed(['formal_notice', 'demand_money']),
 );

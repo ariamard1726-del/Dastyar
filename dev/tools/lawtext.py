@@ -1,21 +1,62 @@
 """خوانندهٔ یکتای متنِ قوانین — همان کاری که `library.py` برای کد Dart می‌کند.
 
 پیش از این، `dev/tools/doctor.py` تنها جایی بود که می‌دانست متنِ قانون چگونه بخش
-می‌شود: بلوک‌ها با خطِ خالی جدا می‌شوند، خطِ `#` نامِ منبع است، خطِ `##` سرِ
-فصل، و خطی مثل `ماده 12` / `ماده 12 مکرر` / `اصل 9` / `ماده واحده` سرِ یک
-بخش. اگر ابزارِ دوم (مثل `law_diff.py`) همین را از نو می‌نوشت، دو تعریف از
-«ماده» می‌داشتیم و تفاضل‌ها بی‌صدا اشتباه می‌شدند.
+می‌شود و ده‌ها ابزار دیگر نیز ارقام فارسی/عربی، خواندن `_meta.json` و نشانه‌های
+متن ساختگی (`AI_MARKERS`) را جداگانه کپی کرده بودند.
 
-پس این تعریف یک‌جا زندگی می‌کند و `doctor.py` و `law_diff.py` هر دو از همین
-می‌خوانند.
+پس این تعریف‌ها یک‌جا زندگی می‌کنند تا همهٔ ابزارهای `dev/tools/` از همین بخوانند.
 """
 
+import json
+import os
+from pathlib import Path
 import re
 
-FA_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
+ROOT = Path(__file__).resolve().parents[2]
+LAWS_DIR = ROOT / 'assets' / 'laws'
+META_PATH = LAWS_DIR / '_meta.json'
+
+FA = '\u06f0\u06f1\u06f2\u06f3\u06f4\u06f5\u06f6\u06f7\u06f8\u06f9'
+AR = '\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'
+FA_DIGITS = str.maketrans(FA + AR, '0123456789' * 2)
+TO_FA = str.maketrans('0123456789' + AR, FA * 2)
+
+# نشانهٔ متنی که ممکن است با هوش مصنوعی نوشته شده باشد، نه از منبع رسمی.
+AI_MARKERS = (
+    'هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
+    'chatgpt', 'gemini', 'claude', 'as an ai', 'language model',
+)
 
 # «ماده ۱۲»، «ماده ۱۲ مکرر»، «ماده ۱۲ مکرر ۳»، «ماده واحده»، «اصل ۹»
 ARTICLE = re.compile(r'^(?:ماده|اصل)\s*(?:(واحده)|(\d+)(?:\s*(مکرر(?:\s*\d{1,2})?))?)\s*$')
+
+
+def digits(s):
+    """تبدیل ارقام فارسی و عربی به لاتین."""
+    return str(s).translate(FA_DIGITS)
+
+
+def to_fa(s):
+    """تبدیل ارقام لاتین و عربی به فارسی."""
+    return str(s).translate(TO_FA)
+
+
+def load_meta(path=None, root=None):
+    """خواندن فهرست شناسنامهٔ قوانین (`assets/laws/_meta.json`)."""
+    p = Path(path) if path else (Path(root) / 'assets' / 'laws' / '_meta.json' if root else META_PATH)
+    with open(p, encoding='utf-8') as f:
+        return json.load(f)
+
+
+def law_files(meta=None, root=None):
+    """{شناسه: Path} برای تمام فایل‌های قانون ثبت‌شده در `_meta.json`."""
+    base = Path(root) if root else ROOT
+    data = meta if meta is not None else load_meta(root=base)
+    return {
+        k: base / 'assets' / 'laws' / v['path']
+        for k, v in data.items()
+        if isinstance(v, dict) and v.get('path')
+    }
 
 
 def norm(s):

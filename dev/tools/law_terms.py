@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 
 import eval_py as E  # noqa: E402
 import law_terms_rules as R  # noqa: E402  (قاعده‌ها: dev/tools/contracts/law_terms.json)
+from text_norm_rules import SPACED as _TEXT_SPACED  # noqa: E402
 
 CASES = os.path.join(ROOT, 'tests', 'law_terms', 'cases.json')
 
@@ -39,6 +40,13 @@ MIN_COVER = R.MIN_COVER
 RARE_DF = R.RARE_DF
 MAX_SPAN = R.MAX_SPAN
 PHRASE_MIN_IDF = R.PHRASE_MIN_IDF
+DEFAULT_PRIORITY = R.DEFAULT_PRIORITY
+MISSING_SPAN = R.MISSING_SPAN
+COVER_DIGITS = R.COVER_DIGITS
+RANK_COVER_DIGITS = R.RANK_COVER_DIGITS
+RANK_DENSITY_DIGITS = R.RANK_DENSITY_DIGITS
+MIN_PHRASE_WORDS = R.MIN_PHRASE_WORDS
+MIN_RARE_HITS = R.MIN_RARE_HITS
 GENERAL_SOURCE = R.GENERAL_SOURCE
 
 _engine = None
@@ -58,7 +66,7 @@ def _body_tokens(i, body):
     return _tok_cache[i]
 
 
-_PUNCT_RE = re.compile(r'[،,.;:!?؟()\[\]«»"\-/]+')
+_PUNCT_RE = re.compile(_TEXT_SPACED['terms']['punct'])
 
 
 def query_runs(q):
@@ -182,7 +190,7 @@ def match(q, e=None):
     for t in known:
         for i in e.postings[t]:
             c = e.chunks[i]
-            if c['source'] == 'دانش عمومی' or c['obs']:
+            if c['source'] == GENERAL_SOURCE or c['obs']:
                 continue
             score[i] = score.get(i, 0.0) + e.idf[t]
             hits.setdefault(i, []).append(t)
@@ -213,13 +221,13 @@ def match(q, e=None):
     # واژهٔ نادرِ پرسش که در ماده نیست، یعنی ماده بخشی از پرسش را پوشش می‌دهد؛
     # آن را به‌عنوان پاسخ قطعی نمی‌پذیریم.
     rare_missing = [t for t in known if len(e.postings[t]) <= RARE_DF and t not in matched]
-    by_phrase = bool(ph) and m >= 2
-    accepted = ((by_phrase or head_hit) and not rare_missing) or (cover >= MIN_COVER and rare_n >= 2 and near)
+    by_phrase = bool(ph) and m >= MIN_PHRASE_WORDS
+    accepted = ((by_phrase or head_hit) and not rare_missing) or (cover >= MIN_COVER and rare_n >= MIN_RARE_HITS and near)
     return {
         'accepted': accepted,
         'law': c['law'],
         'title': c['title'],
-        'cover': round(cover, 3),
+        'cover': round(cover, COVER_DIGITS),
         'span': span,
         'matched': matched,
         'phrases': ph,
@@ -252,7 +260,7 @@ def _span(btoks, words):
                 if count[lt] == 0:
                     have -= 1
             left += 1
-    return best if best is not None else 10 ** 6
+    return best if best is not None else MISSING_SPAN
 
 
 def _priorities():
@@ -260,7 +268,7 @@ def _priorities():
     e = engine()
     out = {}
     for l in e.catalog:
-        out[l['id']] = l.get('priority', 50)
+        out[l['id']] = l.get('priority', DEFAULT_PRIORITY)
     return out
 
 
@@ -275,8 +283,8 @@ def _rank_key(e, i, cover, matched, pairs, prio):
     head_words = sum(1 for t in matched if t in head)
     tf = sum(c['T'].get(t, 0) + c['B'].get(t, 0) for t in matched)
     density = tf / max(1, c['len'])
-    return (ph > 0, head_pairs, head_words, round(cover, 6),
-            -prio.get(c['law'], 50), round(density, 2), -i)
+    return (ph > 0, head_pairs, head_words, round(cover, RANK_COVER_DIGITS),
+            -prio.get(c['law'], DEFAULT_PRIORITY), round(density, RANK_DENSITY_DIGITS), -i)
 
 
 def run_cases(path=CASES):

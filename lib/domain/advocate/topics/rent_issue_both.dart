@@ -4,56 +4,63 @@ part of 'rent.dart';
 
 final List<Issue> _rentIssuesBoth = [
   // ---- هر دو طرف
-  Issue(
+  Issue.dsl(
     id: 'goodwill',
-    chip: 'سرقفلی به چه کسی می‌رسد؟',
+    chip: rentText('issueGoodwillChip'),
     cues: _cGoodwill,
-    body: (f) => _rentGoodwillBody,
-    rank: (f) => _r(_shop(f), 4, -1),
+    body: _rentGoodwillBody,
+    rank: const RankCases([RankCase(_shop, 4)], fallback: -1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'death',
-    chip: 'با فوت یکی از دو طرف اجاره چه می‌شود؟',
+    chip: rentText('issueDeathChip'),
     cues: _cDeath,
     body: _rentDeathBody,
-    rank: (f) => -1,
+    rank: const RankConst(-1),
   ),
-  Issue(
+  Issue.dsl(
     id: 'sold',
-    chip: 'اگر ملک فروخته شود چه می‌شود؟',
+    chip: rentText('issueSoldChip'),
     cues: _cSold,
     body: _rentSoldBody,
   ),
-  Issue(
+  Issue.dsl(
     id: 'usage',
-    chip: 'اجرت‌المثل چیست؟',
+    chip: rentText('issueUsageChip'),
     cues: _cUsage,
     body: _rentUsageBody,
-    rank: (f) => f.eq('role', 'landlord')
-        ? _r(f.yes('ended'), 3)
-        : _r(f.yes('ended') && f.no('vacated'), 2),
+    rank: const RankCases([
+      RankCase(FactAll([_landlordSide, FactYes('ended')]), 3),
+      RankCase(
+        FactAll([FactNot(_landlordSide), FactYes('ended'), FactNo('vacated')]),
+        2,
+      ),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'code',
-    chip: 'اجاره‌نامه کد رهگیری ندارد',
+    chip: rentText('issueCodeChip'),
     cues: _cCode,
-    body: (f) => _rentCodeBody,
-    rank: (f) => _r(f.no('witness') || f.no('contract'), 2),
+    body: _rentCodeBody,
+    rank: const RankCases([
+      RankCase(FactAny([FactNo('witness'), FactNo('contract')]), 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'penalty',
-    chip: 'جریمهٔ دیرکردِ قرارداد را می‌شود گرفت؟',
+    chip: rentText('issuePenaltyChip'),
     cues: _cPenalty,
     body: _rentPenaltyBody,
-    rank: (f) => f.eq('role', 'landlord')
-        ? _r(_evicting(f) && f.yes('ended'), 2)
-        : _r(_matter(f, 'deposit') && f.yes('vacated'), 2),
+    rank: const RankCases([
+      RankCase(FactAll([_evicting, FactYes('ended')]), 2),
+      RankCase(FactAll([_mDeposit, FactYes('vacated')]), 2),
+    ]),
   ),
-  Issue(
+  Issue.dsl(
     id: 'noTerm',
-    chip: 'در قرارداد مدت ننوشته‌ایم',
+    chip: rentText('issueNoTermChip'),
     cues: _cNoTerm,
     body: _rentNoTermBody,
-    rank: (f) => _r(f.no('contract'), 2, -1),
+    rank: const RankCases([RankCase(FactNo('contract'), 2)], fallback: -1),
   ),
 ];

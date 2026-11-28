@@ -4,6 +4,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lawtext import digits  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 
@@ -29,10 +32,6 @@ NOTE = re.compile(
     r'|مطابق\s+آخرین\s+اصلاحات'
     r'|^ماده\s*\d+\s*[-–—ـ]?\s*\(\s*در\s+مورد')
 END_CHARS = '.؛:)»!؟?'
-
-
-def digits(s):
-    return s.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
 
 
 def clean(text):

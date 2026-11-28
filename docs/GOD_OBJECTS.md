@@ -16,6 +16,10 @@
    انگشتِ محتوا؛ نه به‌صورتِ `const String` در فایلِ دارت.
 5. **رفتار قفل است.** هر گام باید ۱۳۰ سناریوی گفتگو و آزمون‌های دارت را سبز نگه
    دارد؛ «جابه‌جایی» اجازه دارد فقط چیزی را عوض کند که خروجی را عوض نمی‌کند.
+6. **یک کلاس بیش از ۱۲ فیلدِ حالتیِ قابل تغییر ندارد** (`tests/python/test_no_god_objects.py`).
+   پیشتر `DialogueState` با ۲۵ فیلد خودش گاد-اوبجکت شدهبود؛ اکنون پنج تکهٔ
+   `dialogue_sections.dart` دارد و فقط فیلدهای `final`/`static` مستثنایند. نگهبان
+   وجود تکهها و نبود فیلدهای قدیمی را هم میسنجد، نه فقط شمار خطها را.
 
 ## آنچه انجام شد (خلاصهٔ عددی)
 
@@ -29,7 +33,7 @@
 | `chat_bubbles.dart` | ۸۱۴ | ۲۴ (سرِ کتابخانه) + ۸ ویجتِ ۴۷ تا ۲۰۳ خطی |
 | `case_flow.dart` | ۷۴۴ | ۱۰۴ + `case_facts` ۱۲۵ + `case_answer` ۳۱۶ + `case_text` ۲۳۰ |
 | `advocate.dart` | ۵۹۵ | ۴۰۰ (سیم‌کشی + API) + `advocate_model` ۹۰ + `chip_texts` ۵۶ + `advocate_data` ۶۲ |
-| پروندهٔ وکیل | ۴۰۱ (نُه مدل در یک فایل) | `case_file` ۹ (دروازه) + `case_state` ۱۳۶ + `case_model` ۲۸۳ |
+| پروندهٔ وکیل | ۴۰۱ (نُه مدل در یک فایل) | `case_file` ۹ (دروازه) + `case_state` ۱۳۶ + `case_model` ۲۷۱ |
 | خطِ تولیدِ پاسخ | ۴۱۱ در یک فایل | `advocate_reply` ۱۲۱ (ترتیب) + `advocate_reply_guard` ۱۳۰ + `advocate_reply_case` ۱۸۱ |
 | `core/engine.dart` | ۶۳۹ | ۱۵۷ (وضعیت + API) + `engine_load` ۲۰۸ + `engine_query` ۳۰۷ |
 | `drafting.dart` | ۶۵۹ | ۱۹ (سرِ کتابخانه) + `draft_models` ۱۷۱ + `draft_intent` ۲۰۳ + `draft_step` ۲۲۸ + `draft_words` ۷۲ + `draft_laws` ۱۷ |
@@ -41,7 +45,7 @@
 
 | فایل | خط | چرا مانده | گامِ بعدی |
 |---|---|---|---|
-| — | — | **خالی.** هیچ فایلِ `lib/**/*.dart` بالای ۴۲۰ خط نیست (بزرگ‌ترین: `advocate.dart` ۴۱۲) | — |
+| — | — | **خالی.** هیچ فایلِ `lib/**/*.dart` بالای ۴۲۰ خط نیست (بزرگ‌ترین: `advocate.dart` ۴۰۷) | — |
 
 ## روندِ پرونده: چرا چهار فایل، و چرا `extension`
 
@@ -57,8 +61,8 @@
 |---|---|
 | `case_flow.dart` (۱۰۴) | خودِ کلاس: پرونده، گفتگو، صدا، و ابزارهای کوتاه (`_out`، `_pick`، `_lookup`) |
 | `case_facts.dart` (۱۲۵) | تنها جایی که `file.facts` نوشته می‌شود: `absorb`، `closeCase`، `roleUnknown` |
-| `case_answer.dart` (۳۱۶) | تصمیمِ نوبت: `open`، `inCase`، `finish` |
-| `case_text.dart` (۲۳۰) | جمله‌سازی: `filing`، `addEffects`، `noteAmount`، `generic`، `leadSettled`، `nextAsk`، `react` |
+| `case_answer.dart` (۳۱۵) | تصمیمِ نوبت: `open`، `inCase`، `finish` |
+| `case_text.dart` (۲۲۹) | جمله‌سازی: `filing`، `addEffects`، `noteAmount`، `generic`، `leadSettled`، `nextAsk`، `react` |
 
 قفلِ این تقسیم `tests/python/test_case_flow_shape.py` است و **پیش** از دست‌زدن به
 فایل نوشته شد: امضای ۱۸ عضو، یک‌بار تعریف شدنِ هر کدام، بودِ چهار فایلِ صاحب، و
@@ -99,10 +103,10 @@
 
 | فایل | خط | مسئولیت |
 |---|---|---|
-| `engine.dart` | **۲۱۰** | وضعیت + API: پاس دهندههای یک خطی برای آنچه در بخشهاست |
-| `engine_load.dart` | **۲۶۳** | تنها جایی که دارایی خوانده میشود: `load` و بارگذاریهای `_load*` |
-| `engine_query.dart` | **۳۰۷** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
-| `engine_worker.dart` | **۱۱۳** | همان پاسخسازی در isolate دائمی؛ API همگام دستنخورده |
+| `engine.dart` | **۱۹۲** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` (قواعد از `engine_rules.dart`) |
+| `engine_load.dart` | **۲۹۸** | تنها جایی که دارایی خوانده می‌شود: `load` و بارگذاری‌های `_load*` |
+| `engine_query.dart` | **۳۰۸** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
+| `engine_worker.dart` | **۱۴۰** | همان پاسخ‌سازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دست‌نخورده |
 
 - با `extension` روی همان کلاس، تا وضعیت و اعضای خصوصی دست‌نخورده بمانند؛
   اعضای ثابت (`_lowCover`، `_anchorGroups`، `normalize`…) داخل بخش‌ها با
@@ -156,16 +160,19 @@
 
 | فایل | خط | مسئولیت |
 |---|---|---|
-| `rent_issues.dart` | ۸۱۴ → **۷۲** | تعریفِ موضوع + پیوندِ فهرستِ بحث‌ها |
-| `rent_issue_both.dart` | **۵۹** | بحث‌های مشترک (سرقفلی، فوت، سند) |
-| `rent_issue_tenant.dart` | **۲۳۴** | بحث‌های مستأجر (تخلیه، ودیعه، تعمیر، اجاره‌بها) |
-| `rent_issue_landlord.dart` | **۱۷۷** | بحث‌های موجر (عدمِ پرداخت، تخریب، تخلف از شرط) |
-| `rent_slots.dart` | **۲۲۹** | واقعیت‌هایی که پرسیده یا خوانده می‌شوند |
-| `rent_effects.dart` | **۷۱** | اثرِ حقوقیِ واقعیت‌ها |
+| `rent_issues.dart` | ۸۱۴ → **۷۷** | تعریفِ موضوع + پیوندِ فهرستِ بحث‌ها |
+| `rent_issue_both.dart` | **۶۶** | بحث‌های مشترک (سرقفلی، فوت، سند) |
+| `rent_issue_tenant.dart` | **۲۵۹** | بحث‌های مستأجر (تخلیه، ودیعه، تعمیر، اجاره‌بها) |
+| `rent_issue_landlord.dart` | **۲۰۸** | بحث‌های موجر (عدمِ پرداخت، تخریب، تخلف از شرط) |
+| `rent_slots.dart` | **۲۷۱** | واقعیت‌هایی که پرسیده یا خوانده می‌شوند |
+| `rent_effects.dart` | **۷۲** | اثرِ حقوقیِ واقعیت‌ها |
 | `rent_patterns.dart` | ۵۳۷ → **۳۳۴** | الگوهای واژگانی (`const String`) |
-| `rent_reads.dart` | **۱۶۶** | خواندنِ نقش/موضوع/هدف/بله‌و‌نه از پیام |
-| `rent_bodies.dart` | ۴۶۸ → **۲۶۴** | متنِ پاسخ (مستأجر + مشترک) |
-| `rent_bodies_landlord.dart` | **۲۰۱** | متنِ پاسخِ سمتِ موجر |
+| `rent_reads.dart` | **۱۸۰** | خواندنِ نقش/موضوع/هدف/بله‌و‌نه از پیام |
+| `rent_bodies.dart` | ۴۶۸ → **۱۷۳** | متنِ پاسخ (مستأجر + مشترک) |
+| `rent_bodies_landlord.dart` | **۱۳۸** | متنِ پاسخِ سمتِ موجر |
+| متنِ ثابتِ اجاره | تمام متنِ آزادِ موضوع اجاره (۴۲ رشته + ۵۱ پاره + ۲۸ پرسش در `rent_bodies*` + ۸۷ رشته و ۳۲ برچسب در `rent_claims` + ۳۶ طرح و ۵۰ خلاصه/پایان در `rent_plan` + ۵۱ متن در `rent_fill` + ۳۳ اثر + ۵۸ پرسش/گزینه در `rent_slots` + ۵۷ برچسب/عنوان در `rent_issue*`) | یازده جدولِ `texts`، `claims`، `filings`، `plans`، `bodies`، `fills`، `prompts`، `effects`، `slots`، `issues` و `recaps` در `assets/brain/topics/rent_texts.json` + پوستههای `rentText(id)` (۵۲۵ کلید، یازده هشِ نویسهبهنویسه قفلاند) |
+| متنِ ثابتِ بخش مشترک و ۲۳ موضوعِ دیگر | تمام نثرِ آزاد در `topics/shared.dart`، `labor_*`، `family_*` و ۲۱ موضوعِ `accused`..`theft` (۲۹۰ کلید در موج الف + ۸۱۶ کلید در موج ب) | ۲۴ بخش در `assets/brain/topic_texts.json` + بارگذار صریح `topic_texts_loader.dart` + فراخوانی `topicText(section, key)` (۱٬۱۰۶ کلید؛ مجموعاً ۱٬۶۳۱ کلید در کل موضوع‌ها؛ صفر نثرِ آزادِ باقی‌مانده در `topics/*.dart`) |
+| متنِ ثابتِ عمومیِ وکیل (موج ج) | تمام نثرِ آزادِ ۲۱ فایلِ غیرموضوعی در `lib/domain/advocate/` (`glossary`، `phrases`، `understanding`، `reply_voice`، `advocate_constants`، `safety_reply`، `advocate_meta`، `talk_route`، `talk_reply`، `advocate_talk`، `topic_picker`، `reply_routes`، `case_text`، `advocate_argue`، `law_answer`، `term_reply`، `guide_reply`، `case_answer`، `advocate_reply*`) | ۱۸ بخش در `assets/brain/advocate_texts.json` (۴۷۰ کلید، ۲۹٬۴۰۷ نویسه) + بارگذار صریح `advocate_texts_loader.dart` + `advocateText` / `advocateFormat` / `advocateTextSeq` (سر جمعِ سه دارایی: ۲٬۱۰۱ کلید) |
 
 - فهرستِ بحث‌ها با همان ترتیبِ پیشین به هم می‌پیوندد
   (`_rentIssues = [...Both, ...Tenant, ...Landlord]`). **ترتیب، اولویتِ نمایش
@@ -185,9 +192,14 @@
   `rank: (f) => …`، `cues: _cX`)؛ بردنشان به داده یعنی بازنویسیِ منطقِ تصمیم —
   همان چیزی که «بدون تغییرِ رفتار» را نقض می‌کند.
 
-پس تقسیم بر اساسِ *صاحب* انجام شد، نه بردن به داده. اگر روزی داده واقعاً از کد
-جدا شود، جای طبیعی‌اش `assets/brain/topics/` است، مثل راهنماها — و آن تصمیم
-همراه با سنجشِ زمانِ راه‌اندازی باید گرفته شود، نه به‌عنوانِ تمیزکاری.
+پس تقسیم بر اساسِ *صاحب* انجام شد و سپس در گام‌های بعدی تمام **نثر ثابت فارسی**
+(۶۷٬۹۷۱ نویسهٔ اجاره در ۵۲۵ کلیدِ `assets/brain/topics/rent_texts.json`،
+۱۲۱٬۷۰۵ نویسهٔ بخش مشترک و ۲۳ موضوعِ دیگر در ۱٬۱۰۶ کلیدِ
+`assets/brain/topic_texts.json` و ۲۹٬۴۰۷ نویسهٔ متن‌های عمومی وکیل در ۴۷۰ کلیدِ
+`assets/brain/advocate_texts.json`؛ جمعاً ۲٬۱۰۱ کلید) بدون تغییر در رفتار یا
+هزینهٔ کامپایل الگوهای `const String`/closureها به داده منتقل شد. تنها ۱۵
+مقدارِ گزینه‌ایِ متصل به قالب‌ها در `rent_fill.dart` و الگوهای Regex/closureها
+در Dart مانده‌اند.
 
 ## چرا بعضی چیزها را «نشکستم»
 
@@ -213,7 +225,7 @@
 سه فایل، سه `extension` جدا روی همان `Advocate` (نامِ extension در یک کتابخانه
 باید یکتا باشد)، همگی `part`ِ `advocate.dart`؛ هیچ امضا و هیچ فراخوانی عوض نشد.
 
-- عددها: **۴۱۱ → ۱۲۱ | ۱۳۰ | ۱۸۱**. بزرگ‌ترین فایلِ `lib/` حالا `advocate.dart` ۴۱۲ است.
+- عددها: **۴۱۱ → ۱۲۱ | ۱۳۳ | ۱۸۱**. بزرگ‌ترین فایلِ `lib/` حالا `advocate.dart` ۴۰۷ است.
 - مقایسهٔ خط‌به‌خط با `git show HEAD:`: **۰ خطِ گم‌شده**؛ ۶ خطِ افزوده (دو
   `part of`، دو `}`، دو سرِ `extension`).
 - قفلِ پیش از تغییر: `tests/python/test_reply_pipeline_shape.py` چهار ادعا دارد —
@@ -236,7 +248,7 @@
 |---|---|---|
 | `case_file.dart` | **۹** | فقط دو `export`؛ همان مسیرِ پیشین برای چهل `import` |
 | `case_state.dart` | **۱۳۶** | `CaseFile`: واقعیت‌ها، شمارشِ پرسش‌ها، `toJson`/`fromJson`، `schemaVersion` |
-| `case_model.dart` | **۲۸۳** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع |
+| `case_model.dart` | **۲۷۱** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl`) |
 
 - **چرا دروازه و نه تغییرِ مسیر:** چهل فایل و آزمون `case_file.dart` را
   `import` می‌کنند. `export` در همان فایل، هم `CaseFile` و هم مدل‌ها را می‌دهد،
@@ -251,7 +263,7 @@
   سقفِ خطِ هر سه فایل، دروازه فقط دو `export` و بی‌کلاس، صاحبِ یکتای هر نام،
   `typedef`ها در فایلِ مدل، و نبودِ `Slot`/`Topic`/`Claim` در فایلِ وضعیت. پیش
   از تقسیم قرمز بود: `401 > 40` و بخش‌های نبوده.
-- سقفِ `case_model` روی **۳۰۰** ثبت شد (اندازهٔ واقعی ۲۸۳) — سقف اندازهٔ امروز
+- سقفِ `case_model` روی **۳۰۰** ثبت شد (اندازهٔ واقعی ۲۷۱) — سقف اندازهٔ امروز
   است، نه آرزو؛ عبور از آن یعنی مدلِ تازه‌ای به همان فایل اضافه شده.
 - آزمونِ دارتِ تازه: `test/advocate/case_model_test.dart` — نُه نام از یک
   `import`، پیش‌فرض‌های عمومیِ هر مدل، و قراردادِ JSON از همان دروازه.

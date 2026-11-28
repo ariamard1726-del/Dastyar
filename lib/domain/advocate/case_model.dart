@@ -1,13 +1,10 @@
 import 'package:dastyar/domain/advocate/case_state.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
 
 // زبانِ موضوع: شرط (`Element`)، ادعا (`Claim`)، واقعیت (`Slot`)، بحث
-// (`Issue`)، سند (`Filing`)، پرسشِ موضوع (`Prompt`) و خودِ موضوع (`Topic`)،
-// با typedefهای `Body`/`Reader`/`Cond`/`Tri`.
-//
-// این‌ها مدل‌اند، نه وضعیت: هیچ‌کدام پروندهٔ گفتگو را نگه نمی‌دارند و همه فقط
-// `CaseFile` را می‌خوانند. جدا شدند تا `case_state.dart` (که تنها نویسندهٔ
-// `facts` است) با زبانِ موضوع‌ها قاطی نشود و برعکس.
-
+// (`Issue`)، سند (`Filing`)، پرسشِ موضوع (`Prompt`) و خودِ موضوع (`Topic`).
+// فایل‌های داده‌ای موضوع فقط همین مدل‌ها را می‌سازند و کاری با مکانِ
+// ذخیرهٔ پرونده ندارند.
 typedef Body = String Function(CaseFile f);
 typedef Reader = String? Function(String n);
 typedef Cond = bool Function(CaseFile f);
@@ -15,22 +12,12 @@ typedef Tri = bool? Function(CaseFile f);
 
 /// یک شرط قانونی که برای رسیدن به یک نتیجه باید برقرار باشد.
 class Element {
-  /// شرط به زبان ساده («مدت اجاره تمام شده باشد»)، همراه استناد.
   final String text;
-
-  /// آیا با واقعیت‌های پرونده برقرار است؟ null یعنی هنوز نمی‌دانیم.
   final Tri test;
-
-  /// اگر برقرار نباشد چه می‌شود یا چه باید کرد.
   final String ifNo;
-
-  /// واقعیت‌هایی (شناسهٔ پرسش‌ها) که تکلیف این شرط را روشن می‌کنند. وکیل از
-  /// روی همین می‌فهمد پرسش بعدی‌اش باید چه باشد.
   final List<String> needs;
-
-  /// پایهٔ واقعیِ نتیجه به زبان خودِ کاربر («قرارداد کتبی دارید»)؛ پس از
-  /// «چون» می‌آید. خالی یعنی چیزی برای گفتن نیست.
   final Body? because;
+  final ElementRules? rules;
 
   const Element(
     this.text,
@@ -38,37 +25,30 @@ class Element {
     this.ifNo = '',
     this.needs = const [],
     this.because,
-  });
+  }) : rules = null;
+
+  Element.dsl(
+    this.text,
+    FactExpr rule, {
+    this.ifNo = '',
+    this.needs = const [],
+    TextExpr? because,
+  })    : test = rule.evalTri,
+        because = because == null ? null : because.evalText,
+        rules = ElementRules(rule, because: because);
 }
 
-/// یک ادعای حقوقی و شرط‌هایش. وکیل با سنجیدن تک‌تک شرط‌ها روی واقعیت‌های
-/// همین پرونده استدلال می‌کند و نتیجه می‌گیرد (نه با متن ازپیش‌نوشته).
+/// یک ادعای حقوقی و شرط‌هایش: کدام شواهد چه نتیجه‌ای می‌دهند.
 class Claim {
-  /// نام کوتاه ادعا («حقوق معوق»)؛ وقتی یک ماجرا چند خواسته دارد، با همین
-  /// نام از هم جدا می‌شوند.
   final String label;
-
-  /// هدف به زبان کاربر («پس‌گرفتن ودیعه»).
   final String goal;
-
-  /// این ادعا برای چه وضعیتی است.
   final Cond? when;
   final List<Element> elements;
-
-  /// نتیجه وقتی همهٔ شرط‌ها برقرار است.
   final Body win;
-
-  /// محکم‌ترین حرف طرف مقابل و پاسخ آن.
   final Body? counter;
-
-  /// واقعیت‌هایی که برای حساب‌کردنِ نتیجه (مبلغ، مرجع) لازم است، نه برای
-  /// برقراریِ شرط‌ها.
   final List<String> uses;
-
-  /// نشانه‌های اینکه کاربر دربارهٔ همین خواسته می‌پرسد («می‌توانم برگردم سر
-  /// کار؟»). اگر پرسشش «می‌شود/نمی‌شود» باشد، جوابش حکمِ همین ادعا روی
-  /// واقعیت‌های خودش است، نه یک متن کلی.
   final String cues;
+  final ClaimRules? rules;
 
   const Claim({
     required this.goal,
@@ -79,57 +59,40 @@ class Claim {
     this.counter,
     this.uses = const [],
     this.cues = '',
-  });
+  }) : rules = null;
+
+  Claim.dsl({
+    required this.goal,
+    required this.elements,
+    required TextExpr win,
+    this.label = '',
+    FactExpr? when,
+    TextExpr? counter,
+    this.uses = const [],
+    this.cues = '',
+  })    : win = win.evalText,
+        when = when == null ? null : when.evalCond,
+        counter = counter == null ? null : counter.evalText,
+        rules = ClaimRules(when: when, win: win, counter: counter);
 }
 
-/// یک واقعیتِ مهم پرونده که وکیل باید بداند.
+/// یک واقعیتِ مهم پرونده که وکیل باید بداند و اگر کاربر نگفت، بپرسد.
 class Slot {
   final String id;
-
-  /// پرسشی که وکیل از کاربر می‌پرسد.
   final String ask;
-
-  /// چرا این پرسش مهم است (پاسخ «چرا می‌پرسی؟»).
   final String why;
-
-  /// دکمه‌های پاسخ پیشنهادی.
   final List<String> options;
-
-  /// خواندن مقدار از هر پیامِ کاربر (نه فقط پاسخ همین پرسش).
   final Reader read;
-
-  /// خواندنِ آسان‌گیرتر، فقط وقتی همین پرسش در انتظار پاسخ است.
   final Reader? readPending;
-
-  /// معنای «بله/نه»ی خشک‌وخالی وقتی این پرسش در انتظار است (خالی = بی‌معنا).
   final String yesValue;
   final String noValue;
-
-  /// اثر حقوقیِ این واقعیت؛ وقتی کاربر آن را می‌گوید وکیل همین را توضیح
-  /// می‌دهد.
   final Body? effect;
-
-  /// شرط پرسیدن.
   final Cond? when;
-
-  /// پرسشِ پایه: تا جوابش معلوم نشود، معلوم نیست کدام ادعا روی میز است؛
-  /// پس پیش از هر پرسش دیگری پرسیده می‌شود.
   final bool first;
-
-  /// واقعیتِ «محورِ پرونده» (مثلاً دعوا سرِ چیست): وقتی معلوم شد، اشارهٔ
-  /// گذرا به موضوعی دیگر عوضش نمی‌کند؛ فقط جوابِ همین پرسش یا اصلاحِ صریحِ
-  /// کاربر («نه، منظورم …») آن را تغییر می‌دهد.
   final bool sticky;
-
-  /// برای واقعیتِ [sticky]: مقدارها به ترتیب اهمیت. حرفِ تازه فقط وقتی
-  /// مقدار را عوض می‌کند که به مقدار مهم‌تری برسد (موجری که اول از اجارهٔ
-  /// عقب‌افتاده گفته و بعد می‌گوید «تخلیه هم نمی‌کند»).
   final List<String> priority;
-
-  /// برای واقعیتِ [sticky]: حرفِ صریحِ خودِ کاربر («من موجرم») که حتی مقدارِ
-  /// معلوم‌شده را هم عوض می‌کند. برداشتِ غیرمستقیم از [read] (مثلاً از نقلِ
-  /// حرفِ طرف مقابل) این قدرت را ندارد.
   final String? Function(String n)? readSure;
+  final SlotRules? rules;
 
   Slot({
     required this.id,
@@ -146,29 +109,47 @@ class Slot {
     this.sticky = false,
     this.priority = const [],
     this.readSure,
-  });
+  }) : rules = null;
+
+  Slot.dsl({
+    required this.id,
+    required this.ask,
+    required this.why,
+    required ReadRule read,
+    ReadRule? readPending,
+    this.options = const [],
+    this.yesValue = 'yes',
+    this.noValue = 'no',
+    TextExpr? effect,
+    FactExpr? when,
+    this.first = false,
+    this.sticky = false,
+    this.priority = const [],
+    ReadRule? readSure,
+  })    : read = read.evalRead,
+        readPending = readPending == null ? null : readPending.evalRead,
+        effect = effect == null ? null : effect.evalText,
+        when = when == null ? null : when.evalCond,
+        readSure = readSure == null ? null : readSure.evalRead,
+        rules = SlotRules(
+          read: read,
+          readPending: readPending,
+          effect: effect,
+          when: when,
+          readSure: readSure,
+        );
 }
 
 /// پرسشی که کاربر ممکن است در این موضوع بپرسد و پاسخ وکیل به آن.
 class Issue {
   final String id;
-
-  /// متن دکمهٔ پیشنهادی (به زبان کاربر).
   final String chip;
-
-  /// الگوی تشخیص.
   final String cues;
   final Body body;
   final Cond? when;
-
-  /// واقعیت‌هایی که پاسخ این پرسش خودش اثرشان را گفته است (تا همان حرف
-  /// دوباره به‌عنوان «اثر واقعیت» تکرار نشود).
   final Set<String> covers;
-
-  /// این پرسش با واقعیت‌های همین پرونده چقدر «پرسشِ بعدیِ طبیعی» است
-  /// (صفر = بی‌ربط نیست ولی اولویتی هم ندارد). دکمه‌های پیشنهادی از روی
-  /// همین و حرف‌های خودِ کاربر مرتب می‌شوند.
   final int Function(CaseFile f)? rank;
+  final IssueRules? rules;
 
   Issue({
     required this.id,
@@ -178,89 +159,56 @@ class Issue {
     this.when,
     this.covers = const {},
     this.rank,
-  });
+  }) : rules = null;
+
+  Issue.dsl({
+    required this.id,
+    required this.chip,
+    required this.cues,
+    required TextExpr body,
+    FactExpr? when,
+    this.covers = const {},
+    RankRule? rank,
+  })    : body = body.evalText,
+        when = when == null ? null : when.evalCond,
+        rank = rank == null ? null : rank.evalRank,
+        rules = IssueRules(body: body, when: when, rank: rank);
 }
 
-/// سندی که وکیل برای همین پرونده پیشنهاد می‌کند: کدام قالب، با چه نامی
-/// روی دکمه («تنظیم دادخواست تخلیه») و با چه نامی در متن پاسخ.
+/// سندی که وکیل برای همین پرونده پیشنهاد می‌کند.
 class Filing {
-  /// شناسهٔ قالب سند.
   final String template;
-
-  /// متن دکمه؛ با «تنظیم دادخواست»، «تنظیم اظهارنامه» یا «تنظیم لایحه»
-  /// شروع می‌شود.
   final String chip;
-
-  /// نام همین سند برای این پرونده («دادخواست مطالبهٔ ودیعه»).
   final String name;
-
   const Filing(this.template, this.chip, this.name);
 }
 
-/// پرسشی که خودِ موضوع به‌جای پرسشِ عمومیِ وکیل می‌پرسد، با گزینه‌های
-/// جوابش. گزینه‌ها از زبان کاربر نوشته می‌شوند و بهتر است هرکدام به یکی از
-/// بحث‌های موضوع (`Issue.cues`) بخورد تا جوابِ مشخصِ خودش را بگیرد.
+/// پرسشی که خودِ موضوع به‌جای پرسشِ عمومیِ وکیل می‌پرسد، با گزینه‌های جوابش.
 class Prompt {
   final String text;
   final List<String> chips;
   const Prompt(this.text, [this.chips = const []]);
-
-  /// «در این وضعیت این پرسش را نپرس».
   static const Prompt none = Prompt('');
 }
 
 class Topic {
   final String id;
   final String title;
-
-  /// الگو → وزن. جمع وزن‌ها امتیاز موضوع است.
   final Map<String, int> cues;
-
-  /// اگر یکی از این‌ها در متن باشد، موضوع رد می‌شود.
   final String anti;
-
-  /// شرطِ بازشدن: امتیازِ واژه‌ها به‌تنهایی کافی نیست. برای موضوعی که یک
-  /// واژهٔ عمومی‌اش در جملهٔ بی‌ربط هم می‌آید («مشت» در یک جملهٔ بی‌معنا) و
-  /// بدون شرط، برنامه بی‌آنکه کسی را بشناسد حکم و ماده می‌داد.
   final bool Function(String n)? gate;
   final List<Slot> slots;
   final List<Issue> issues;
-
-  /// نخستین ارزیابی وکیل.
   final Body opening;
-
-  /// پاسخ به پرسش‌های عمومیِ پیگیری: next, where, cost, time, deadline,
-  /// chance, evidence, refuse, lawyer.
   final Map<String, Body> follow;
-
-  /// شناسهٔ قالب‌های سند مرتبط (به ترتیب اولویت).
   final List<String> Function(CaseFile f)? drafts;
-
-  /// ادعاهایی که وکیل می‌تواند درباره‌شان استدلال کند (به ترتیب اولویت).
   final List<Claim> claims;
-
-  /// برداشت وکیل از واقعیت‌های پرونده، به صورت عبارت‌های کوتاهِ خطاب به
-  /// کاربر («مستأجر هستید»، «ملک را تخلیه کرده‌اید»).
   final List<String> Function(CaseFile f)? recap;
-
-  /// دادخواست (یا نخستین نوشتهٔ رسمی، مثل اظهارنامه) که به همین پرونده
-  /// می‌خورد (`null` = هنوز معلوم نیست یا این وضعیت سند مشخصی ندارد).
   final Filing? Function(CaseFile f)? petition;
-
-  /// لایحه‌ای که به همین پرونده می‌خورد.
   final Filing? Function(CaseFile f)? brief;
-
-  /// متن‌های پیشنهادی برای فیلدهای یک قالب سند، ساخته‌شده از واقعیت‌های
-  /// همین پرونده (شناسهٔ فیلد → متن). این متن‌ها مستقیم در سند کاربر
-  /// می‌نشینند؛ پس ساده نوشته می‌شوند، بدون نشانهٔ `[[قانون:ماده]]`، و
-  /// مقدار فیلدهای گزینه‌ای باید نویسه‌به‌نویسه با قالب یکی باشد.
   final Map<String, String> Function(CaseFile f, String template)? fill;
-
-  /// پرسشِ «طرف مقابل چه می‌گوید؟» به زبانِ همین وضعیت. `null` یعنی همان
-  /// پرسش عمومی پرسیده شود و [Prompt.none] یعنی این‌جا جای پرسیدنش نیست
-  /// (مثلاً وقتی برگهٔ رسمی دادگاه در کار است و حرفِ طرف چیزی را عوض
-  /// نمی‌کند).
   final Prompt? Function(CaseFile f)? askReply;
+  final TopicRules? rules;
 
   Topic({
     required this.id,
@@ -279,5 +227,45 @@ class Topic {
     this.brief,
     this.fill,
     this.askReply,
-  });
+  }) : rules = null;
+
+  Topic.dsl({
+    required this.id,
+    required this.title,
+    required this.cues,
+    required this.slots,
+    required this.issues,
+    required TextExpr opening,
+    required Map<String, TextExpr> follow,
+    this.anti = '',
+    GateRule? gate,
+    DraftRule? drafts,
+    this.claims = const [],
+    List<RecapItem>? recap,
+    FilingRule? petition,
+    FilingRule? brief,
+    FillRule? fill,
+    PromptRule? askReply,
+  })    : gate = gate == null ? null : gate.evalGate,
+        opening = opening.evalText,
+        follow = {for (final e in follow.entries) e.key: e.value.evalText},
+        drafts = drafts == null ? null : drafts.evalDrafts,
+        recap = recap == null ? null : RecapRule(recap).evalRecap,
+        petition = petition == null ? null : petition.evalFiling,
+        brief = brief == null ? null : brief.evalFiling,
+        fill = fill == null ? null : fill.evalFill,
+        askReply = askReply == null ? null : askReply.evalPrompt,
+        rules = TopicRules(
+          gate: gate,
+          opening: opening,
+          follow: follow,
+          drafts: drafts,
+          recap: recap,
+          petition: petition,
+          brief: brief,
+          fill: fill,
+          askReply: askReply,
+        );
+
+  bool get isDeclarative => rules != null;
 }

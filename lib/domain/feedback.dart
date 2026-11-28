@@ -16,18 +16,25 @@ class FeedbackEntry {
 
   Map<String, dynamic> toJson() => {'q': q, 'a': a, 'v': vote, 't': at};
 
-  factory FeedbackEntry.fromJson(Map<String, dynamic> j) => FeedbackEntry(
-        (j['q'] ?? '').toString(),
-        (j['a'] ?? '').toString(),
-        j['v'] == -1 ? -1 : 1,
-        (j['t'] ?? 0) as int,
-      );
+  factory FeedbackEntry.fromJson(Map<String, dynamic> j) {
+    final rawTime = j['t'];
+    return FeedbackEntry(
+      (j['q'] ?? '').toString(),
+      (j['a'] ?? '').toString(),
+      j['v'] == -1 ? -1 : 1,
+      rawTime is int ? rawTime : (rawTime is num ? rawTime.toInt() : 0),
+    );
+  }
 }
 
 class FeedbackStore {
   static const String _key = 'feedback_v1';
+  static const int schemaVersion = 1;
   static const int maxEntries = 300;
   static final RegExp _spacesRe = RegExp(r'\s+');
+
+  /// علت آخرین خطای خواندن، نوشتن یا پاک‌کردن بازخوردها (در صورت موفقیت `null`).
+  static String? lastError;
 
   static String _flat(String s) => s.replaceAll(_spacesRe, ' ').trim();
 
@@ -38,33 +45,81 @@ class FeedbackStore {
   }
 
   static Future<List<FeedbackEntry>> all() async {
+    lastError = null;
     try {
       final p = await SharedPreferences.getInstance();
       final stored = p.getString(_key);
       if (stored == null || stored.isEmpty) return [];
       final wasPlain = !PrivacyService.isEncrypted(stored);
       final raw = await PrivacyService.open(stored);
-      if (raw == null || raw.isEmpty) return [];
-      final list = (jsonDecode(raw) as List)
-          .map((e) => FeedbackEntry.fromJson(e as Map<String, dynamic>))
+      if (raw == null || raw.isEmpty) {
+        // کلید موقت اجرای پیشین (`encf1:`) از میان رفته؛ نگهداشتن رکورد
+        // بیفایده است و دوباره نوشتنش همان وعدهٔ دروغین را تکرار میکند.
+        if (stored.startsWith(PrivacyService.fallbackPrefix)) {
+          await p.remove(_key);
+        } else {
+          lastError = PrivacyService.lastError ?? 'بازگشایی بازخوردها ممکن نشد.';
+        }
+        return [];
+      }
+      final decoded = jsonDecode(raw);
+      final List<dynamic> rawEntries;
+      var needsMigration = false;
+      if (decoded is List) {
+        rawEntries = decoded;
+        needsMigration = true;
+      } else if (decoded is Map) {
+        final v = decoded['v'];
+        if (v is int && v > schemaVersion) return [];
+        final entries = decoded['entries'];
+        if (entries is! List) {
+          lastError = 'ساختار فهرست بازخوردها معتبر نیست.';
+          return [];
+        }
+        rawEntries = entries;
+        needsMigration = v != schemaVersion;
+      } else {
+        lastError = 'قالب بازخورد ذخیره‌شده معتبر نیست.';
+        return [];
+      }
+      final list = rawEntries
+          .whereType<Map>()
+          .map((e) => FeedbackEntry.fromJson(Map<String, dynamic>.from(e)))
           .where((e) => e.q.isNotEmpty)
           .toList();
-      if (wasPlain && list.isNotEmpty) {
+      if ((wasPlain || needsMigration) && list.isNotEmpty) {
         await _save(list);
       }
       return list;
-    } catch (_) {
+    } catch (e) {
+      lastError = 'خواندن بازخوردها: $e';
       return [];
     }
   }
 
   static Future<bool> _save(List<FeedbackEntry> list) async {
+    if (!PrivacyService.persistenceAllowed) {
+      lastError = 'ذخیرهٔ بازخورد غیرفعال است: رمزنگاری بومی دردسترس نیست.';
+      return false;
+    }
     try {
       final p = await SharedPreferences.getInstance();
-      final raw = jsonEncode(list.map((e) => e.toJson()).toList());
+      final raw = jsonEncode({
+        'v': schemaVersion,
+        'entries': list.map((e) => e.toJson()).toList(),
+      });
       final sealed = await PrivacyService.seal(raw);
-      return await p.setString(_key, sealed);
-    } catch (_) {
+      if (sealed.isEmpty) {
+        lastError = PrivacyService.lastError ?? 'رمزنگاری بازخوردها انجام نشد.';
+        return false;
+      }
+      final ok = await p.setString(_key, sealed);
+      if (!ok) {
+        lastError = 'نوشتن بازخوردها روی حافظه انجام نشد.';
+      }
+      return ok;
+    } catch (e) {
+      lastError = 'ذخیرهٔ بازخوردها: $e';
       return false;
     }
   }
@@ -82,11 +137,19 @@ class FeedbackStore {
     return _save(list);
   }
 
-  static Future<void> clear() async {
+  static Future<bool> clear() async {
+    lastError = null;
     try {
       final p = await SharedPreferences.getInstance();
-      await p.remove(_key);
-    } catch (_) {}
+      final ok = await p.remove(_key);
+      if (!ok) {
+        lastError = 'حذف بازخوردها از حافظه انجام نشد.';
+      }
+      return ok;
+    } catch (e) {
+      lastError = 'پاک‌کردن بازخوردها: $e';
+      return false;
+    }
   }
 
   /// متنی که می‌شود مستقیم کنار eval*.txt گذاشت:

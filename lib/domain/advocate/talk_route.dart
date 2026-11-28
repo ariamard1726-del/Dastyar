@@ -72,22 +72,22 @@ class TalkRoute {
     // «نفهمی» و «نفهمیدم» فرق دارند: فقط کلمهٔ مستقل «نفهمی» همین پاسخ را می‌گیرد.
     if (w <= 4 && Sense.has(n, r'(?<![^ ])نفهمی(?![^ ])')) {
       return _out(
-        'اگر حرفم روشن نبوده، بگویید کدام بخشش را نفهمیدید؛ همان را ساده‌تر و با مثال توضیح می‌دهم.',
-        ask: topic == null ? 'کدام قسمت برایتان نامفهوم بود؟' : dialog.askText,
+        advocateText('trUnclearWordBody'),
+        ask: topic == null ? advocateText('trUnclearWordAsk') : dialog.askText,
         chips: topic == null ? _idleChips : dialog.askChips,
       );
     }
     if (w <= 5 && Sense.has(n, 'خیلی خل|خیلی خر|خیلی احمق|خنگ')) {
       return _out(
-        'ناراحت شدنتان را می‌فهمم. اگر کمی توضیح بدهید ماجرا چیست، کمکتان می‌کنم.',
-        ask: topic == null ? 'چه اتفاقی افتاده؟' : dialog.askText,
+        advocateText('trInsult1Body'),
+        ask: topic == null ? advocateText('trInsultAsk') : dialog.askText,
         chips: topic == null ? _idleChips : dialog.askChips,
       );
     }
     if (w <= 5 && Sense.has(n, _rudePattern)) {
       return _out(
-        'ناراحت شدنتان را می‌فهمم. اگر بگویید ماجرا چیست، تا جایی که بتوانم کمک می‌کنم.',
-        ask: topic == null ? 'چه اتفاقی افتاده؟' : dialog.askText,
+        advocateText('trInsult2Body'),
+        ask: topic == null ? advocateText('trInsultAsk') : dialog.askText,
         chips: topic == null ? _idleChips : dialog.askChips,
       );
     }
@@ -97,17 +97,20 @@ class TalkRoute {
         Sense.has(n,
             'دسترسی (?:آزاد )?به (?:اطلاعات|اسناد|سند)|اطلاعات[^؟]{0,40}محرمانه|محرمانه[^؟]{0,40}اطلاعات|اطلاعات[^؟]{0,20}(?:خودداری|ندهد|نمی[ ]?ده|نداد)|خودداری[^؟]{0,30}اطلاعات')) {
       return _out(
-        'حق دسترسی به اطلاعات عمومی در «قانون انتشار و دسترسی آزاد به اطلاعات» (مصوب ۱۳۸۷) آمده است. ماده ۲ آن می‌گوید هر شخص ایرانی حق دسترسی به اطلاعات عمومی را دارد، مگر قانون منع کرده باشد. دربارهٔ اینکه این حق در قانون اساسی هم آمده، متن صریحی را نزد خودم تأیید نکرده‌ام؛ پس آن را نمی‌گویم.\n\nبرای پیگیری: درخواست را کتبی به همان دستگاه بدهید و رسید بگیرید؛ اگر پاسخ ندادند یا رد کردند، دلیل رد را کتبی بخواهید و بعد از آن شکایت کنید.',
-        ask: 'آیا درخواستتان را کتبی داده‌اید و جوابی گرفته‌اید؟',
-        chips: const ['بله، کتبی دادم', 'هنوز کتبی نداده‌ام'],
+        advocateText('trInfoAccessBody'),
+        ask: advocateText('trInfoAccessAsk'),
+        chips: [
+          advocateText('trInfoAccessChipYes'),
+          advocateText('trInfoAccessChipNo'),
+        ],
         full: true,
       );
     }
     // «زن داری»: واژه‌ای کوتاه با چند معنی؛ پیش از حدس می‌پرسم.
     if (w <= 3 && Sense.has(n, r'(?<![^ ])زن داری(?![^ ])|(?<![^ ])زن دارم(?![^ ])')) {
       return _out(
-        'منظورتان را درست نگرفتم. آیا می‌خواهید دربارهٔ ازدواج مجدد یا همسر دوم بپرسید، یا ماجرای شما درباره‌ی همسرتان است؟',
-        ask: topic == null ? 'کدام را می‌خواهید؟' : dialog.askText,
+        advocateText('trMarryBody'),
+        ask: topic == null ? advocateText('trMarryAsk') : dialog.askText,
         chips: topic == null ? branchStart() : dialog.askChips,
       );
     }
@@ -116,9 +119,12 @@ class TalkRoute {
         w <= 6 &&
         Sense.has(n, r'شکایت (?:کرده ?(?:ام|م)|کردم|دادم|ثبت کرده ?(?:ام|م)|ثبت کردم)')) {
       return _out(
-        'پس شما شاکی هستید؛ یعنی خودتان شکایت کرده‌اید. شکایت را کجا ثبت کرده‌اید، و علیه چه کسی یا چه کاری است؟',
-        ask: 'شکایت کیفری است یا حقوقی؟ و آیا شماره‌ی پرونده یا رسید دارید؟',
-        chips: const ['شکایت کیفری است', 'شکایت حقوقی است'],
+        advocateText('trComplainantBody'),
+        ask: advocateText('trComplainantAsk'),
+        chips: [
+          advocateText('trComplainantChipCrim'),
+          advocateText('trComplainantChipCivil'),
+        ],
         full: true,
       );
     }
@@ -126,8 +132,8 @@ class TalkRoute {
         Sense.has(n,
             'تو وکیلی|شما وکیل|وکیل هستی|وکیلی ؟|کی هستی|چی هستی|رباتی|ربات هستی|هوش مصنوعی|آدم واقعی|ادم واقعی|آدمی یا|اسمت چیه')) {
       return _out(
-        'نه؛ من وکیل دادگستری نیستم و آدم هم نیستم. یک دستیار حقوقی‌ام که روی همین گوشی و بدون اینترنت کار می‌کند و حرف‌هایتان جایی نمی‌رود. کارم این است که ماجرا را بشنوم، سؤال بپرسم و بر پایهٔ متن قانون راهنمایی کنم؛ جای وکیل در دادگاه را نمی‌گیرم.',
-        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : dialog.askText,
+        advocateText('trIdentityBody'),
+        ask: topic == null ? advocateText('trIdentityAsk') : dialog.askText,
         chips: topic == null ? branchStart() : dialog.askChips,
         full: true,
       );
@@ -141,7 +147,7 @@ class TalkRoute {
       final v = engine.replies.variants('capabilities');
       return _out(
         _pick(v),
-        ask: topic == null ? 'حالا بگویید چه پیش آمده؟' : dialog.askText,
+        ask: topic == null ? advocateText('trIdentityAsk') : dialog.askText,
         chips: topic == null ? branchStart() : dialog.askChips,
         full: true,
       );
@@ -152,8 +158,8 @@ class TalkRoute {
         Sense.has(n,
             'وکیل (?:کجا|کدوم|کجاست|چطور|چگونه|بگیرم|بگیریم|لازمه|لازم|پیدا|خوبی)|پیدا کردن وکیل|(?:هزینه|حق ?الوکاله|حق ?وکالت|دستمزد) (?:وکیل|وکالت)|(?:مشاوره|وکالت|کمک حقوقی) (?:رایگان|مجانی|ارزون|ارزان)')) {
       return _out(
-        'برای پیدا کردن وکیل می‌توانید از فهرست وکلای کانون وکلای دادگستری شهرتان استفاده کنید، یا به مراکز مشاوره حقوقی رایگان و دفاتر خدمات حقوقی مراجعه کنید. هزینهٔ وکالت را پیش از امضای قرارداد با وکیل روشن و کتبی کنید. اگر توان پرداخت ندارید، درباره‌اش هم بپرسید تا راه‌های کمک را بگویم.',
-        ask: topic == null ? 'ماجرای شما چیست؟ اگر بگویید، می‌گویم برایش چه مدارکی لازم است.' : dialog.askText,
+        advocateText('trLawyerBody'),
+        ask: topic == null ? advocateText('trLawyerAsk') : dialog.askText,
         chips: topic == null ? branchStart() : dialog.askChips,
         full: true,
       );
@@ -165,8 +171,8 @@ class TalkRoute {
         Sense.has(n,
             'مهلت (?:شکایت|اعتراض|تجدیدنظر|فرجام|دادخواست|قانونی|دارم|داره|داریم|چقدره|چنده|چند روزه)|تا کی (?:باید|میتونم|میتوانم|مهلت)|مرور زمان|کی باید (?:شکایت|اقدام)')) {
       return _out(
-        'مهلت‌های قانونی، مثل مهلت شکایت، اعتراض یا تجدیدنظر، بسته به نوع ماجرا فرق دارد و بعضی‌شان بسیار کوتاه‌اند. معمولاً از تاریخ ابلاغ یا از روز وقوع ماجرا شمرده می‌شود، پس تاریخ دقیق آن را یادداشت کنید. اگر بگویید ماجرا چیست، همان مهلت مشخص را می‌گویم.',
-        ask: 'ماجرا چیست و کِی ابلاغ شده یا اتفاق افتاده است؟',
+        advocateText('trDeadlineBody'),
+        ask: advocateText('trDeadlineAsk'),
         chips: branchStart(),
         full: true,
       );
@@ -175,7 +181,7 @@ class TalkRoute {
         Sense.has(n,
             'میشه (?:[^ ]+ ){0,3}اعتماد|اعتماد کنم|قابل اعتماد|مطمئنی|از کجا میدونی|از کجا معلوم|درست میگی|حرف(?:ات|هات) درست|منبع(?:ت)? چیه|دروغ نمیگی')) {
       return _out(
-        'سؤال به‌جایی است. هر ماده‌ای که نام می‌برم واقعاً در بانک قوانین برنامه هست و هر وقت بخواهید متنش را نشانتان می‌دهم؛ از خودم ماده نمی‌سازم. ولی سه محدودیت دارم: مدارکتان را ندیده‌ام، ممکن است قانون تازه‌تر شده باشد، و رویهٔ دادگاه‌ها را یک وکیل حضوری بهتر می‌داند. برای تصمیم‌های بزرگ حرف آخر را با وکیل دادگستری چک کنید.',
+        advocateText('trTrustBody'),
         ask: dialog.askText,
         chips: dialog.askText.isEmpty ? _idleChips : dialog.askChips,
         full: true,
@@ -193,16 +199,15 @@ class TalkRoute {
       final lines = [
         for (final l in shown)
           '• ${PersianText.toFaDigits(l.title)}'
-              '${l.source.trim().isEmpty ? '' : ' — ${l.source.trim()}'}:\n'
+              '${l.source.trim().isEmpty ? '' : '${advocateText('trLawsSourceSep')}${l.source.trim()}'}:\n'
               '«${_lawBody(l.body)}»',
       ];
       final rest = voice.lastLaws.length - shown.length;
       if (rest > 0) {
-        lines.add('و ${PersianText.toFaDigits('$rest')} مادهٔ دیگر هم بود؛ '
-            'شماره‌اش را بگویید تا همان را بیاورم.');
+        lines.add(advocateFormat('trLawsMore', {'rest': PersianText.toFaDigits('$rest')}));
       }
       return _out(
-        'متن قانونی که به آن تکیه کردم:\n${lines.join('\n')}',
+        advocateFormat('trLawsLead', {'lines': lines.join('\n')}),
         ask: dialog.askText,
         chips: dialog.askChips,
         full: true,
@@ -215,17 +220,17 @@ class TalkRoute {
       if (topic == null || got.isEmpty) {
         return _out(
           topic == null
-              ? 'هنوز ماجرای مشخصی از شما نشنیده‌ام که بگویم چه فهمیده‌ام.'
-              : 'می‌دانم موضوع «${topic.title}» است، ولی هنوز جزئیات کافی ندارم.',
+              ? advocateText('trUnderstoodEmpty')
+              : advocateFormat('trUnderstoodNoDetail', {'title': topic.title}),
           ask: topic == null || dialog.askText.isEmpty
-              ? 'دقیقاً چه اتفاقی افتاده است؟'
+              ? advocateText('trUnderstoodAsk')
               : dialog.askText,
           chips: topic == null ? _idleChips : dialog.askChips,
         );
       }
       return _out(
         '${_pick(Say.understood)} ${_join(got)}.',
-        ask: 'درست گرفته‌ام، یا جایی را باید اصلاح کنم؟',
+        ask: advocateText('trUnderstoodConfirmAsk'),
         chips: _suggest(topic),
       );
     }
@@ -240,17 +245,17 @@ class TalkRoute {
       }
       if (p != null && p.why.isNotEmpty) {
         return _out(
-          'حق دارید بپرسید. ${p.why}\nاگر نمی‌دانید هم اشکالی ندارد؛ از آن می‌گذرم.',
-          ask: 'سؤالم این بود: ${p.ask}',
+          advocateFormat('trWhyRightPrefix', {'why': p.why}),
+          ask: advocateFormat('trWhyAskPrefix', {'ask': p.ask}),
           chips: [...p.options, _dontKnowChip],
           full: true,
         );
       }
       final why = file.pending == 'q:reply'
-          ? 'چون جوابِ او نشان می‌دهد با چه دفاعی روبه‌رو می‌شوید؛ کسی که انکار می‌کند با کسی که فقط عقب می‌اندازد، دو راهِ متفاوت می‌خواهد.'
+          ? advocateText('trWhyReply')
           : file.pending == 'q:goal'
-              ? 'چون راهِ توافق و راهِ دادگاه دو مسیرِ جدا هستند و نمی‌خواهم وقتتان را در مسیری بگذارم که خودتان نمی‌خواهید.'
-              : 'برای اینکه جوابم به وضعیت خودِ شما بخورد، نه یک توضیح کلی. در حقوق یک جزئیات کوچک، مثل یک تاریخ یا یک امضا، می‌تواند نتیجه را عوض کند.';
+              ? advocateText('trWhyGoal')
+              : advocateText('trWhyDefault');
       return _out(
         why,
         ask: dialog.askText,
@@ -265,16 +270,16 @@ class TalkRoute {
         Sense.has(n,
             'ساده ?تر|ساده بگو|نفهمیدم|متوجه نشدم|گیج شدم|پیچیده|دوباره بگو|یه بار دیگه|نگرفتم')) {
       if (voice.lastBody.isEmpty) {
-        return _out('هنوز چیزی نگفته‌ام که پیچیده باشد.',
-            ask: 'چه مشکلی پیش آمده؟', chips: _idleChips);
+        return _out(advocateText('trSimpleEmptyBody'),
+            ask: advocateText('trSimpleEmptyAsk'), chips: _idleChips);
       }
       final lines = <String>[
         for (final l in _strip(voice.lastBody).split('\n'))
           if (l.trim().isNotEmpty) _brief(l.trim()),
       ];
       return _out(
-        'ساده‌ترش این است:\n${lines.take(4).join('\n')}',
-        ask: 'کدام کلمه یا کدام بخشش هنوز گنگ است؟',
+        advocateFormat('trSimpleLead', {'lines': lines.take(4).join('\n')}),
+        ask: advocateText('trSimpleAsk'),
         chips: topic == null ? _idleChips : _suggest(topic),
       );
     }
@@ -283,7 +288,7 @@ class TalkRoute {
     if (topic != null && w <= 10 && Sense.has(n, _hopelessPattern)) {
       final c = topic.follow['chance'];
       final n2 = topic.follow['next'];
-      final sb = StringBuffer('نه، بن‌بست نیست؛ فقط راهش سرراست نیست.');
+      final sb = StringBuffer(advocateText('trHopelessLead'));
       if (c != null) sb.write('\n${c(file)}');
       if (n2 != null && !file.covered.contains('f:next')) {
         sb.write('\n\n${n2(file)}');
@@ -320,42 +325,36 @@ class TalkRoute {
       }
       closeCase();
       dialog.loose.clear();
-      return _out(
-        'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
-      );
+      return _out(advocateText('trBranchLeave'));
     }
     if (!asked && (hasCase || dialog.loose.isNotEmpty)) return null;
     closeCase();
     dialog.loose.clear();
     if (label == ChipTexts.leaveChip) {
-      return _out(
-        'باشد. هر وقت کاری داشتید، همین‌جا هستم؛ دوباره سلام کنید تا از نو شروع کنیم.',
-      );
+      return _out(advocateText('trBranchLeave'));
     }
     if (label == ChipTexts.unsureChip) {
       return _out(
-        'اشکالی ندارد، لازم نیست اسمش را بدانید.',
-        ask: 'فقط بگویید چه شده: چه کسی چه کاری کرد و از چه زمانی؟ '
-            'هرچه کامل‌تر تعریف کنید، بهتر می‌توانم راهنمایی کنم.',
+        advocateText('trBranchUnsureBody'),
+        ask: advocateText('trBranchUnsureAsk'),
       );
     }
     final tail = label == ChipTexts.criminalChip
-        ? 'و آیا از دادسرا یا کلانتری خبری دارید (احضاریه، شکایت طرف مقابل)؟'
+        ? advocateText('trBranchTailCrim')
         : label == ChipTexts.adminChip
-            ? 'و با کدام اداره یا سازمان طرف هستید؟'
-            : 'و الان چه می‌خواهید: پولتان برگردد، شکایت کنید، یا از خودتان دفاع کنید؟';
+            ? advocateText('trBranchTailAdmin')
+            : advocateText('trBranchTailCivil');
     return _out(
-      'باشد، مشکل $label.',
-      ask: 'ماجرا را کامل بگویید: چه کسی چه کاری کرد و از چه زمانی شروع شد؟ $tail',
+      advocateFormat('trBranchPickedBody', {'label': label}),
+      ask: advocateFormat('trBranchPickedAsk', {'tail': tail}),
     );
   }
 
   /// «مشکل حقوقی دارم» و مانندش: کلمه‌های خودِ کاربر را نقل می‌کنم و
   /// می‌پرسم ماجرا چیست.
   AdvocateReply intake(String raw) => _out(
-        'در خدمتم. «${_quoteWords(raw)}» یعنی چه شده؟',
-        ask:
-            'چه اتفاقی افتاده و طرف مقابل کیست؟ همان‌طور که برای یک دوست تعریف می‌کنید بگویید.',
+        advocateFormat('trIntakeBody', {'words': _quoteWords(raw)}),
+        ask: advocateText('trIntakeAsk'),
         // دکمهٔ اضافه نمی‌گذاریم: کاربر همین حالا دارد ماجرا را می‌گوید.
       );
 }

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/drafting.dart';
 import 'package:dastyar/domain/settings_state.dart';
-import 'package:dastyar/core/privacy.dart';
 
 /// لایهٔ رابط برای [SettingsSnapshot]: فقط اعلان تغییر و خواندن/نوشتن دیسک.
 /// تمام قواعد مقادیر معتبر و تبدیلها در `settings_state.dart` مستقل از فلاتراند.
 class AppSettings extends ChangeNotifier {
+  AppSettings({Future<SharedPreferences> Function()? prefsProvider})
+      : _prefsProvider = prefsProvider ?? SharedPreferences.getInstance;
+
+  final Future<SharedPreferences> Function() _prefsProvider;
   SettingsSnapshot _state = const SettingsSnapshot();
 
   /// وضعیت خالص، برای آزمونها و هر مصرفکنندهٔ غیرفلاتری.
@@ -22,6 +26,12 @@ class AppSettings extends ChangeNotifier {
   bool get saveDraftProgress => _state.saveDraftProgress;
   set saveDraftProgress(bool v) =>
       _state = _state.copyWith(saveDraftProgress: v);
+
+  /// بار نخست بدون پرسش، تاریخچه ذخیره نمیشود.
+  bool get consentGiven => _state.consentGiven;
+
+  /// اگر Keystore دردسترس نباشد، ذخیرهٔ محلی قفل میشود.
+  bool localPersistenceAvailable = true;
 
   bool get secureScreen => _state.secureScreen;
   set secureScreen(bool v) => _state = _state.copyWith(secureScreen: v);
@@ -59,6 +69,32 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// گزینش آگاهانهٔ بار نخست. کاربر میداند داده روی همین گوشی میماند.
+  Future<void> acceptConsent({required bool saveHistory}) async {
+    _state = _state.copyWith(consentGiven: true, saveHistory: saveHistory);
+    try {
+      final p = _prefs ??= await _prefsProvider();
+      final consentOk = await p.setBool('consentGiven', true);
+      final historyOk = await p.setBool('saveHistory', saveHistory);
+      if (!consentOk || !historyOk) {
+        _fail('رضایت تاریخچه');
+        return;
+      }
+    } catch (_) {
+      _fail('رضایت تاریخچه');
+      return;
+    }
+    notifyListeners();
+  }
+
+  /// قفل کردن ذخیرهٔ محلی وقتی رمزنگاری بومی کار نمیکند.
+  void lockLocalPersistence(String reason) {
+    localPersistenceAvailable = false;
+    _state = _state.copyWith(saveHistory: false, saveDraftProgress: false);
+    lastError = reason;
+    notifyListeners();
+  }
+
   static const List<double> scales = SettingsSnapshot.scales;
   static const List<String> scaleNames = SettingsSnapshot.scaleNames;
   static const List<ThemeMode> themeModes = [
@@ -79,6 +115,7 @@ class AppSettings extends ChangeNotifier {
         saveDraftProgress: p.getBool('saveDraftProgress'),
         secureScreen: p.getBool('secureScreen'),
         themeMode: p.getString('themeMode'),
+        consentGiven: p.getBool('consentGiven'),
       );
     } catch (_) {
       // تنظیمات پیشفرض میمانند؛ ولی کاربر باید بداند که خوانده نشد.
@@ -92,8 +129,8 @@ class AppSettings extends ChangeNotifier {
       String label) async {
     notifyListeners();
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
-      await write(p);
+      final p = _prefs ??= await _prefsProvider();
+      if (!await write(p)) _fail(label);
     } catch (_) {
       _fail(label);
     }
@@ -111,12 +148,22 @@ class AppSettings extends ChangeNotifier {
   }
 
   Future<void> setSaveHistory(bool v) async {
+    if (v && !localPersistenceAvailable) {
+      lastError = 'روشن کردن تاریخچه ممکن نیست: رمزنگاری بومی دردسترس نیست.';
+      notifyListeners();
+      return;
+    }
     _state = _state.copyWith(saveHistory: v);
     await _save('saveHistory', (p) => p.setBool('saveHistory', v),
         'تنظیم تاریخچه');
   }
 
   Future<void> setSaveDraftProgress(bool v) async {
+    if (v && !localPersistenceAvailable) {
+      lastError = 'ذخیرهٔ پیشنویس ممکن نیست: رمزنگاری بومی دردسترس نیست.';
+      notifyListeners();
+      return;
+    }
     _state = _state.copyWith(saveDraftProgress: v);
     if (!v) {
       await DraftCheckpointStore.clear();
@@ -135,7 +182,7 @@ class AppSettings extends ChangeNotifier {
     secureScreen = false;
     lastError = 'محافظت از صفحه روی این گوشی اعمال نشد؛ تیک آن خاموش شد.';
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
+      final p = _prefs ??= await _prefsProvider();
       await p.setBool('secureScreen', false);
     } catch (_) {
       // پیامِ خطا حتی اگر نوشتن prefs هم شکست خورد، دیده میشود.
@@ -159,8 +206,10 @@ class AppSettings extends ChangeNotifier {
       return;
     }
     try {
-      final p = _prefs ??= await SharedPreferences.getInstance();
-      await p.setBool('secureScreen', v);
+      final p = _prefs ??= await _prefsProvider();
+      if (!await p.setBool('secureScreen', v)) {
+        _fail('تنظیم محافظت صفحه');
+      }
     } catch (_) {
       _fail('تنظیم محافظت صفحه');
     }

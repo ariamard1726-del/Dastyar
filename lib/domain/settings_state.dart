@@ -12,6 +12,7 @@ class SettingsSnapshot {
     this.saveDraftProgress = false,
     this.secureScreen = false,
     this.themeMode = AppThemeMode.system,
+    this.consentGiven = false,
   });
 
   static const double defaultFontScale = 1.0;
@@ -26,6 +27,9 @@ class SettingsSnapshot {
   final bool secureScreen;
   final AppThemeMode themeMode;
 
+  /// آیا کاربر بار نخست، توضیح ذخیرهٔ محلی را دیده و گزینش کرده است؟
+  final bool consentGiven;
+
   static const SettingsSnapshot defaults = SettingsSnapshot();
 
   SettingsSnapshot copyWith({
@@ -34,6 +38,7 @@ class SettingsSnapshot {
     bool? saveDraftProgress,
     bool? secureScreen,
     AppThemeMode? themeMode,
+    bool? consentGiven,
   }) =>
       SettingsSnapshot(
         fontScale: fontScale ?? this.fontScale,
@@ -41,6 +46,7 @@ class SettingsSnapshot {
         saveDraftProgress: saveDraftProgress ?? this.saveDraftProgress,
         secureScreen: secureScreen ?? this.secureScreen,
         themeMode: themeMode ?? this.themeMode,
+        consentGiven: consentGiven ?? this.consentGiven,
       );
 
   /// مقدار خواندهشده از دیسک اگر معتبر نباشد به پیشفرض برمیگردد؛اینجا
@@ -51,6 +57,7 @@ class SettingsSnapshot {
     bool? saveDraftProgress,
     bool? secureScreen,
     String? themeMode,
+    bool? consentGiven,
   }) =>
       SettingsSnapshot(
         fontScale: fontScale != null && scales.contains(fontScale)
@@ -60,6 +67,7 @@ class SettingsSnapshot {
         saveDraftProgress: saveDraftProgress ?? false,
         secureScreen: secureScreen ?? false,
         themeMode: themeFromRaw(themeMode),
+        consentGiven: consentGiven ?? false,
       );
 
   static AppThemeMode themeFromRaw(String? raw) => switch (raw) {

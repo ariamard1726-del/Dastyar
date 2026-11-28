@@ -12,32 +12,36 @@ import re
 import sys
 
 # خطِ وضعیتِ گزارش‌گر: `00:12 +45 -1: ...` — مرزِ بلوک‌های شکست.
-_STATUS = re.compile(r'^\d{2}:\d{2} \+')
+STATUS_RE = re.compile(r'^\d{2}:\d{2} \+')
 
 # خطوطی که علتِ شکست را می‌گویند.
 _DETAIL = ('Expected:', 'Actual:', 'Which:', 'Error:', 'Exception', 'was thrown')
 
 
-def _cut(s, n=280):
+def cut(s, n=280, ellipsis=True):
     s = s.replace('/home/runner/work/Dastyar/Dastyar/', '').strip()
-    return s if len(s) <= n else s[:n] + '…'
+    if len(s) <= n:
+        return s
+    return s[:n] + ('…' if ellipsis else '')
 
 
-def blocks(lines):
-    """(سرتیتر، جزئیات) هر آزمونِ ناموفق؛ اگر نشانگر `[E]` نبود، یک بلوکِ
-    تهی برمی‌گردد تا دستِ‌کم آخرین خطوط دیده شوند."""
+def blocks(lines, max_detail=3, detail_only=True, limit=280, ellipsis=True):
+    """(سرتیتر، جزئیات) هر آزمونِ ناموفق با نشانگر `[E]` در خروجی `flutter test`."""
     out = []
     i = 0
     while i < len(lines):
         if ' [E]' in lines[i]:
-            head = _cut(lines[i])
+            head = cut(lines[i], limit, ellipsis)
             detail = []
             j = i + 1
-            while j < len(lines) and not _STATUS.match(lines[j]):
-                t = lines[j].strip()
-                if t and any(t.startswith(d) or d in t[:40] for d in _DETAIL):
-                    detail.append(_cut(t))
-                    if len(detail) >= 3:
+            while j < len(lines) and not STATUS_RE.match(lines[j]):
+                t = cut(lines[j], limit, ellipsis)
+                if t and (
+                    (detail_only and any(lines[j].strip().startswith(d) or d in lines[j].strip()[:40] for d in _DETAIL))
+                    or (not detail_only and not t.startswith(('package:', 'dart:')))
+                ):
+                    detail.append(t)
+                    if len(detail) >= max_detail:
                         break
                 j += 1
             out.append((head, detail))
@@ -47,21 +51,22 @@ def blocks(lines):
     return out
 
 
-def cross_blocks(lines):
+def cross_blocks(lines, max_detail=3, skip_ci_prefix=True, limit=280, ellipsis=True):
     """بلوک‌های ❌ (گزارش‌گرِ داخلیِ مخزن) هم همان معنا را دارند."""
     out = []
+    skip = ('package:', 'dart:', '::') if skip_ci_prefix else ('package:', 'dart:')
     i = 0
     while i < len(lines):
         if '❌' in lines[i]:
             detail = []
             j = i + 1
-            while (j < len(lines) and len(detail) < 3
+            while (j < len(lines) and len(detail) < max_detail
                    and '❌' not in lines[j] and '✅' not in lines[j]):
-                t = lines[j].strip()
-                if t and not t.startswith(('package:', 'dart:', '::')):
-                    detail.append(_cut(t))
+                t = cut(lines[j], limit, ellipsis)
+                if t and not t.startswith(skip):
+                    detail.append(t)
                 j += 1
-            out.append((_cut(lines[i]), detail))
+            out.append((cut(lines[i], limit, ellipsis), detail))
             i = j
         else:
             i += 1
@@ -89,7 +94,7 @@ def annotate(lines, limit=8):
         tail = [l for l in lines
                 if l.strip() and not l.strip().startswith('::')][-6:]
         for t in tail:
-            out.append('::error::(بدون بلوکِ [E]) ' + _cut(t))
+            out.append('::error::(بدون بلوکِ [E]) ' + cut(t))
     return out[:limit]
 
 

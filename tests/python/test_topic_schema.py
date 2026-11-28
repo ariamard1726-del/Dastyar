@@ -69,17 +69,20 @@ class TopicSchemaTests(unittest.TestCase):
         self.assertFalse(any('live' in e for e in errors))
 
     def test_shipped_topics_are_all_live(self):
-        index = json.load(open(os.path.join(ROOT, 'assets', 'brain', 'topics', 'index.json'),
-                               encoding='utf-8'))
+        with open(os.path.join(ROOT, 'assets', 'brain', 'topics', 'index.json'),
+                  encoding='utf-8') as f:
+            index = json.load(f)
         self.assertTrue(index['topics'])
         for name in index['topics']:
-            flow = json.load(open(os.path.join(ROOT, 'assets', 'brain', 'topics', name),
-                                  encoding='utf-8'))
+            with open(os.path.join(ROOT, 'assets', 'brain', 'topics', name),
+                      encoding='utf-8') as f:
+                flow = json.load(f)
             self.assertTrue(flow['live'], name)
 
     def test_lab_topics_are_not_packaged(self):
         # اگر lab/ در pubspec بیاید، دوباره در APK بسته‌بندی می‌شود.
-        pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+        with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as f:
+            pubspec = f.read()
         self.assertNotIn('lab/', pubspec)
 
 

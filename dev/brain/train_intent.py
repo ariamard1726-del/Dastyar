@@ -23,6 +23,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from common import ROOT, fnv, normalize  # noqa: E402
+from text_norm_rules import NONWORD_PATTERN  # noqa: E402
 
 NB = int(os.environ.get('NB', '4096'))   # سطل‌های هش ویژگی
 HIDDEN = 64                              # نورون‌های لایهٔ نهان
@@ -40,8 +41,7 @@ PATIENCE = 35        # توقف زودهنگام بر اساس اعتبارسن�
 OUT_MODEL = os.path.join(ROOT, 'assets', 'brain', 'intent_model.json')
 OUT_DIR = os.path.join(ROOT, 'artifacts', 'brain-model')
 
-_NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
+_NONWORD = re.compile(NONWORD_PATTERN)
 
 FILLERS = ['ببین ', 'راستی ', 'آقا ', 'یه مشکل دارم: ', 'سلام، ', 'لطفاً ',
            'به نظرت ', 'یه سوال: ', 'راهنمایی می‌خوام؛ ', 'عجله‌ایه، ']

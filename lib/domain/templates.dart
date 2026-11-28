@@ -22,13 +22,20 @@ class TemplateField {
   });
 
   factory TemplateField.fromJson(Map<String, dynamic> j) {
+    final rawId = j['id'];
+    if (rawId is! String || rawId.trim().isEmpty) {
+      throw const FormatException('template field needs id');
+    }
+    final rawOpts = j['options'];
     return TemplateField(
-      id: j['id'] as String,
-      label: (j['label'] ?? j['id']).toString(),
+      id: rawId,
+      label: (j['label'] ?? rawId).toString(),
       type: (j['type'] ?? 'text').toString(),
       required: j['required'] == true,
       hint: (j['hint'] ?? '').toString(),
-      options: ((j['options'] ?? []) as List).map((e) => e.toString()).toList(),
+      options: rawOpts is List
+          ? rawOpts.map((e) => e.toString()).toList()
+          : const [],
     );
   }
 }
@@ -88,26 +95,54 @@ class LegalTemplate {
   });
 
   factory LegalTemplate.fromJson(Map<String, dynamic> j) {
+    final id = j['id'];
+    final title = j['title'];
+    if (id is! String || id.isEmpty || title is! String || title.isEmpty) {
+      throw const FormatException('template needs id and title');
+    }
     final rawBody = j['body'];
+    if (rawBody == null) {
+      throw const FormatException('template needs body');
+    }
     final body = rawBody is List
         ? rawBody.map((e) => e.toString()).join('\n')
         : rawBody.toString();
+    final rawVer = j['version'];
+    final rawTips = j['tips'];
+    final rawKeywords = j['keywords'];
+    final rawFields = j['fields'];
+    final rawRefs = j['lawRefs'];
     return LegalTemplate(
-      id: j['id'] as String,
-      title: j['title'] as String,
+      id: id,
+      title: title,
       description: (j['description'] ?? '').toString(),
-      version: (j['version'] ?? 1) as int,
+      version: rawVer is int ? rawVer : (rawVer is num ? rawVer.toInt() : 1),
       reviewed: j['reviewed'] == true,
       reviewNote: (j['reviewNote'] ?? '').toString(),
-      tips: ((j['tips'] ?? []) as List).map((e) => e.toString()).toList(),
-      keywords:
-          ((j['keywords'] ?? []) as List).map((e) => e.toString()).toList(),
-      fields: ((j['fields'] ?? []) as List)
-          .map((e) => TemplateField.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      lawRefs: ((j['lawRefs'] ?? []) as List)
-          .map((e) => LawRef.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      tips: rawTips is List
+          ? rawTips.map((e) => e.toString()).toList()
+          : const [],
+      keywords: rawKeywords is List
+          ? rawKeywords.map((e) => e.toString()).toList()
+          : const [],
+      fields: rawFields is List
+          ? [
+              for (final e in rawFields)
+                if (e is Map)
+                  TemplateField.fromJson(Map<String, dynamic>.from(e))
+                else
+                  throw const FormatException('invalid template field'),
+            ]
+          : const [],
+      lawRefs: rawRefs is List
+          ? [
+              for (final e in rawRefs)
+                if (e is Map)
+                  LawRef.fromJson(Map<String, dynamic>.from(e))
+                else
+                  throw const FormatException('invalid lawRef'),
+            ]
+          : const [],
       body: body,
     );
   }

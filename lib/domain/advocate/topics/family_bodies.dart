@@ -2,65 +2,99 @@ part of 'family.dart';
 
 // متنِ پاسخ‌ها: ایمنی، مهریه، حضانت و طلاق.
 
-String _famSafety(CaseFile f) =>
-    'اول از همه: امنیت خودتان${f.has('childAge') ? ' و بچه' : ''} از هر پرونده‌ای مهم‌تر است. اگر خطر فوری هست با ۱۱۰ یا اورژانس اجتماعی ۱۲۳ تماس بگیرید.\n'
-    'از نظر حقوقی سه کار را می‌شود هم‌زمان جلو برد:\n'
-    '۱) ثبت و اثبات کتک: تا آثارش هست به کلانتری یا دادسرا بروید تا به پزشکی قانونی معرفی شوید. گواهی پزشکی قانونی هم برای شکایت کیفری و گرفتن دیه به کار می‌آید [[penal:449]]، هم محکم‌ترین مدرک شما در دادگاه خانواده است.\n'
-    '۲) جدا زندگی‌کردن بدون ازدست‌دادن نفقه: اگر ماندن در آن خانه خوف ضرر بدنی دارد، می‌توانید مسکن جدا اختیار کنید و تا وقتی این خطر هست نفقه هم به عهدهٔ شوهر می‌ماند [[civil:1115]].\n'
-    '۳) طلاق به درخواست زن: اگر ادامهٔ زندگی برایتان سختیِ غیرقابل‌تحمل (عسر و حرج) شده باشد و این در دادگاه ثابت شود، دادگاه می‌تواند شوهر را به طلاق اجبار کند [[civil:1130]]؛ کتک‌زدنِ ثابت‌شده از روشن‌ترین نمونه‌هایی است که دادگاه‌ها می‌پذیرند.';
+const TextExpr _famSafety = TxConcat([
+  Tx('familySafetyTopA'),
+  TxCond(
+    FactHas('childAge'),
+    TxConcat([TxRaw(' '), Tx('familySafetyChild')]),
+  ),
+  TxRaw(' '),
+  Tx('familySafetyTopB'),
+  TxRaw('\n'),
+  Tx('familySafetyRest'),
+]);
 
-String _famMehr(CaseFile f) {
-  if (f.eq('role', 'husband')) {
-    return 'وقتی مهریه به اجرا گذاشته می‌شود، برای شما چند نکته حیاتی است:\n'
-        '• تا ۱۱۰ سکه، ضمانت اجرای حبس دارد؛ بیشتر از آن فقط در صورتی قابل وصول است که ثابت شود مال دارید [[family_protection:22]].\n'
-        '• اگر توان پرداخت یک‌جا ندارید، دادخواست «اعسار و تقسیط» بدهید. اگر ظرف ۳۰ روز از ابلاغ اجرائیه و همراه با فهرست کامل اموال باشد، تا روشن‌شدن نتیجه حبس نمی‌شوید [[financial_sentences:3]]؛ دادگاه با توجه به درآمدتان پیش‌قسط و قسط ماهانه تعیین می‌کند [[financial_sentences:11]].\n'
-        '• خانهٔ مسکونی در حد شأن، اثاث ضروری و ابزار کار جزو مستثنیات دین است و توقیف نمی‌شود [[financial_sentences:24]].\n'
-        '• اموالتان را به نام دیگران نزنید؛ انتقال مال برای فرار از دین جرم است [[financial_sentences:21]].';
-  }
-  final coins = f.n('coins');
-  final sb = StringBuffer(
-      'مهریه حق قطعی شماست: به محض عقد مالک آن شده‌اید [[civil:1082]] و هر وقت بخواهید می‌توانید مطالبه کنید؛ چه طلاق بگیرید چه نگیرید، و فرقی هم نمی‌کند درخواست طلاق از طرف شما باشد یا او.\n'
-      '• تنها جایی که ممکن است از آن بگذرید «طلاق خلع» یا توافقی است که زن برای جلب رضایت شوهر به طلاق، مالی (مثلاً بخشی از مهریه) را می‌بخشد [[civil:1146]]؛ این کاملاً اختیاری است و هیچ‌کس نمی‌تواند مجبورتان کند.\n'
-      '• وصول: تا ۱۱۰ سکه ضمانت اجرای حبس دارد و بیشتر از آن به دارایی شوهر بستگی دارد [[family_protection:22]]. او می‌تواند اعسار بدهد و دادگاه قسط‌بندی کند [[financial_sentences:11]].\n'
-      '• راه: یا از طریق اجرای ثبت با سند ازدواج، یا دادخواست به دادگاه خانواده [[family_protection:4]]؛ می‌توانید در دادگاه محل سکونت خودتان هم طرح دعوا کنید [[family_protection:12]].');
-  if (coins != null) {
-    sb.write(coins > 110
-        ? '\nدربارهٔ ${Sense.fa(coins)} سکهٔ شما: ۱۱۰ سکهٔ اول با ضمانت حبس قابل وصول است و ${Sense.fa(coins - 110)} سکهٔ باقی فقط اگر مالی از او پیدا شود.'
-        : '\nچون مهریهٔ شما ${Sense.fa(coins)} سکه است و از ۱۱۰ سکه بیشتر نیست، کل آن مشمول ضمانت اجرای حبس است.');
-  }
-  return sb.toString();
-}
+const TextExpr _famMehr = TxCond(
+  _famIsHusband,
+  Tx('familyBod_0'),
+  TxConcat([
+    Tx('familyBod_1'),
+    TxCond(
+      FactHasNum('coins'),
+      TxCond(
+        FactNumMin('coins', 111, missingNull: false),
+        TxConcat([
+          TxRaw('\n'),
+          Tx('familyMehrOverA'),
+          TxRaw(' '),
+          TxNum('coins', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyMehrOverB'),
+          TxRaw(' '),
+          TxNumOffset('coins', -110),
+          TxRaw(' '),
+          Tx('familyMehrOverC'),
+        ]),
+        TxConcat([
+          TxRaw('\n'),
+          Tx('familyMehrUnderA'),
+          TxRaw(' '),
+          TxNum('coins', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyMehrUnderB'),
+        ]),
+      ),
+    ),
+  ]),
+);
 
-String _famCustody(CaseFile f) {
-  final age = f.n('childAge');
-  final sb = StringBuffer();
-  if (age != null && age < 7) {
-    sb.write(
-        'فرزند ${Sense.fa(age)} ساله: تا هفت‌سالگی، حضانت با مادر اولویت دارد [[civil:1169]]؛ یعنی فعلاً قانون طرف ${f.eq('role', 'husband') ? 'مادر' : 'شما'} است.');
-  } else if (age != null) {
-    sb.write(
-        'فرزند ${Sense.fa(age)} ساله: بعد از هفت‌سالگی حضانت با پدر است، ولی اگر اختلاف باشد دادگاه بر اساس «مصلحت کودک» تصمیم می‌گیرد، نه صرفاً سن [[civil:1169]].');
-  } else {
-    sb.write(
-        'قاعدهٔ حضانت این است: تا هفت‌سالگی اولویت با مادر و پس از آن با پدر؛ و در اختلاف، ملاک مصلحت کودک است [[civil:1169]].');
-  }
-  sb.write('\n• خرجی بچه در هر حال با پدر است، حتی وقتی حضانت با مادر باشد [[civil:1199]].'
-      '\n• کسی که حضانت ندارد حق ملاقات دارد و دادگاه زمان و مکانش را تعیین می‌کند [[family_protection:29]].'
-      '\n• اگر مادر در دورهٔ حضانتش با دیگری ازدواج کند، حضانت به پدر می‌رسد [[civil:1170]].'
-      '\n• اگر سلامت جسمی یا تربیت بچه نزد یکی از والدین در خطر باشد (مثل اعتیاد زیان‌آور یا کتک‌زدن بچه)، دادگاه می‌تواند حضانت را از او بگیرد [[civil:1173]].');
-  if (f.yes('violence') && !f.eq('role', 'husband')) {
-    sb.write('\nبرای شما این بند آخر مهم است: مدارک خشونت، در پروندهٔ حضانت هم به کار می‌آید.');
-  }
-  return sb.toString();
-}
+const TextExpr _famCustody = TxConcat([
+  TxCases(
+    [
+      TextCase(
+        FactAll([FactHasNum('childAge'), FactNumMax('childAge', 6)]),
+        TxConcat([
+          Tx('familyCustYoungA'),
+          TxRaw(' '),
+          TxNum('childAge', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyCustYoungB'),
+          TxRaw(' '),
+          TxCond(_famIsHusband, Tx('familyCustMother'), Tx('familyCustYou')),
+          TxRaw(' '),
+          Tx('familyCustEst'),
+        ]),
+      ),
+      TextCase(
+        FactHasNum('childAge'),
+        TxConcat([
+          Tx('familyCustYoungA'),
+          TxRaw(' '),
+          TxNum('childAge', fmt: NumFmt.fa),
+          TxRaw(' '),
+          Tx('familyCustOldB'),
+        ]),
+      ),
+    ],
+    fallback: Tx('familyBod_2'),
+  ),
+  Tx('familyBod_3'),
+  TxCond(
+    FactAll([FactYes('violence'), _famNotHusband]),
+    Tx('familyBod_4'),
+  ),
+]);
 
-String _famDivorce(CaseFile f) {
-  if (f.eq('role', 'husband')) {
-    return 'مرد می‌تواند با مراجعه به دادگاه درخواست طلاق بدهد [[civil:1133]]. دادگاه موضوع را به داوری می‌فرستد [[family_protection:27]] و سپس گواهی عدم امکان سازش می‌دهد [[family_protection:26]]. اما ثبت طلاق موکول به پرداخت حقوق مالی زن است (مهریه، نفقه، اجرت‌المثل) مگر با رضایت او یا حکم اعسار و تقسیط [[family_protection:29]].';
-  }
-  return 'زن از سه راه می‌تواند طلاق بگیرد:\n'
-      '۱) توافقی: اگر او هم راضی شود، سریع‌ترین راه است؛ اول به مرکز مشاورهٔ خانواده می‌روید و بعد دادگاه گواهی عدم امکان سازش می‌دهد [[family_protection:25]] [[family_protection:26]].\n'
-      '۲) عسر و حرج: اگر ادامهٔ زندگی برایتان غیرقابل‌تحمل شده و بتوانید ثابتش کنید، دادگاه شوهر را به طلاق اجبار می‌کند [[civil:1130]].\n'
-      '۳) شروط ضمن عقد: اگر در سند ازدواجتان شرط‌های چاپی را امضا کرده باشد (مثل سوءرفتار غیرقابل‌تحمل یا ترک نفقه)، با اثبات تحقق شرط، وکالت در طلاق پیدا می‌کنید [[civil:1119]]. ندادنِ نفقه هم راه جداگانه‌ای است [[civil:1129]].\n'
-      '${f.yes('violence') ? 'در وضعیت شما، با مدارک کتک‌خوردن، راه دوم و سوم هر دو قابل طرح است.' : 'کدام راه مناسب است به این بستگی دارد که او راضی است یا نه و چه مدرکی دارید.'}';
-}
+const TextExpr _famDivorce = TxCond(
+  _famIsHusband,
+  Tx('familyBod_5'),
+  TxConcat([
+    Tx('familyDivorceWays'),
+    TxRaw('\n'),
+    TxCond(
+      FactYes('violence'),
+      Tx('familyDivorceVYes'),
+      Tx('familyDivorceVNo'),
+    ),
+  ]),
+);

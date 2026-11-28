@@ -1,5 +1,6 @@
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/core/text_norm_rules.dart';
 import 'package:dastyar/domain/advocate/law_terms_rules.dart';
 
 /// نتیجهٔ تطبیق واژه‌های پرسش با متن قوانین.
@@ -71,11 +72,18 @@ class LawTerms {
 
   static const int maxSpan = LawTermsRules.maxSpan;
 
+  static const int defaultPriority = LawTermsRules.defaultPriority;
+  static const int missingSpan = LawTermsRules.missingSpan;
+  static const int coverDigits = LawTermsRules.coverDigits;
+  static const int rankCoverDigits = LawTermsRules.rankCoverDigits;
+  static const int rankDensityDigits = LawTermsRules.rankDensityDigits;
+  static const int minPhraseWords = LawTermsRules.minPhraseWords;
+  static const int minRareHits = LawTermsRules.minRareHits;
+
   static const String generalSource = LawTermsRules.generalSource;
 
-  static final RegExp _punct = RegExp(r'[،,.;:!?؟()\[\]«»"\-/]+');
-  static final RegExp _nonWord = RegExp(
-      r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+');
+  static final RegExp _punct = RegExp(TextNormRules.spacedTermsPunct);
+  static final RegExp _nonWord = RegExp(TextNormRules.nonWord);
 
   final Map<int, List<String>> _bodyCache = {};
   final Map<int, List<String>> _headCache = {};
@@ -145,7 +153,7 @@ class LawTerms {
         left++;
       }
     }
-    return best ?? 1000000;
+    return best ?? missingSpan;
   }
 
   List<String> _body(int i, Chunk c) =>
@@ -172,13 +180,13 @@ class LawTerms {
   TermMatch? _glossary(String q) {
     final entries = engine.legalTerms['entries'];
     if (entries is! List) return null;
-    final text = _spaced(q);
+    final text = spaced(q);
     String? bestPhrase;
     Map<String, dynamic>? bestEntry;
     for (final entry in entries.cast<Map<String, dynamic>>()) {
       for (final ph in (entry['phrases'] as List).cast<String>()) {
-        final p = _spaced(ph);
-        if (text.contains(p) && (bestPhrase == null || p.length > _spaced(bestPhrase).length)) {
+        final p = spaced(ph);
+        if (text.contains(p) && (bestPhrase == null || p.length > spaced(bestPhrase).length)) {
           bestPhrase = ph;
           bestEntry = entry;
         }
@@ -200,10 +208,14 @@ class LawTerms {
     );
   }
 
-  static String _spaced(String s) {
-    final n = PersianText.normalize(s).replaceAll(_punct, ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
-    return ' $n ';
-  }
+  /// یکدست‌سازی متن برای تطبیق عبارت از روی قرارداد `text_norm.json` (`spaced.terms`).
+  static String spaced(String s) => PersianText.spacedWith(
+        s,
+        charMap: TextNormRules.spacedTermsMap,
+        dropRanges: TextNormRules.spacedTermsDropRanges,
+        punct: _punct,
+        pad: TextNormRules.spacedTermsPad,
+      );
 
   /// بهترین ماده برای پرسش، با دلیل پذیرش.
   TermMatch match(String q) {
@@ -286,12 +298,12 @@ class LawTerms {
       for (final t in known)
         if ((postings[t]?.length ?? 0) <= rareDf && !matched.contains(t)) t
     ];
-    final accepted = (((ph.isNotEmpty && m >= 2) || headHit) && rareMissing.isEmpty) ||
-        (cover >= minCover && rareN >= 2 && near);
+    final accepted = (((ph.isNotEmpty && m >= minPhraseWords) || headHit) && rareMissing.isEmpty) ||
+        (cover >= minCover && rareN >= minRareHits && near);
     return TermMatch(
       accepted: accepted,
       chunk: c,
-      cover: _round(cover, 3),
+      cover: _round(cover, coverDigits),
       matched: matched,
       missing: [for (final t in uniq) if (!matched.contains(t)) t],
       unknown: unknown,
@@ -324,9 +336,9 @@ class LawTerms {
       ph > 0 ? 1 : 0,
       headPairs,
       headWords,
-      _round(cover, 6),
-      -(prio[c.lawId] ?? 50),
-      _round(density, 2),
+      _round(cover, rankCoverDigits),
+      -(prio[c.lawId] ?? defaultPriority),
+      _round(density, rankDensityDigits),
       -i,
     ];
   }

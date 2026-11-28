@@ -3,30 +3,32 @@ part of 'family.dart';
 // ادعاهای حقوقیِ خانواده: ارکان، شرط و نتیجه.
 
 final List<Claim> familyClaims = [
-  Claim(
-    goal: 'طلاق به درخواست زن، بدون رضایت شوهر',
-    when: (f) => f.eq('role', 'wife') && !f.yes('agrees'),
+  Claim.dsl(
+    goal: topicText('familyClm_0'),
+    when: const FactAll([_famIsWife, FactNot(FactYes('agrees'))]),
     elements: [
-      Element(
-        'ادامهٔ زندگی برایتان سختیِ غیرقابل‌تحمل (عسر و حرج) شده باشد [[civil:1130]].',
-        (f) => f.yes('violence') ? true : null,
+      Element.dsl(
+        topicText('familyClm_1'),
+        const FactTriIf(FactYes('violence'), true),
         needs: const ['violence'],
-        because: (f) => 'کتک و آزار در کار بوده',
+        because: const Tx('familyClm_2'),
       ),
-      Element(
-        'بتوانید آن را در دادگاه ثابت کنید (پزشکی قانونی، گزارش پلیس، شاهد).',
-        (f) => f.has('proofV') ? !f.eq('proofV', 'none') : null,
+      Element.dsl(
+        topicText('familyClm_3'),
+        const FactTriWhen(
+          FactHas('proofV'),
+          FactNot(FactEq('proofV', 'none')),
+        ),
         needs: const ['proofV'],
-        because: (f) => f.eq('proofV', 'medical')
-            ? 'گواهی پزشکی قانونی دارید'
-            : 'عکس یا شاهد دارید',
-        ifNo:
-            'دادگاه به صرفِ گفتهٔ شما حکم نمی‌دهد؛ از همین حالا هر رخداد را ثبت کنید: پزشکی قانونی، تماس با ۱۱۰، شهادت کسانی که دیده‌اند.',
+        because: const TxCond(
+          FactEq('proofV', 'medical'),
+          Tx('familyClm_4'),
+          Tx('familyClm_5'),
+        ),
+        ifNo: topicText('familyClm_6'),
       ),
     ],
-    win: (f) =>
-        'دادگاه می‌تواند شوهر را به طلاق اجبار کند و اگر حاضر نشد، طلاق با اذن دادگاه جاری می‌شود [[civil:1130]].',
-    counter: (f) =>
-        'او معمولاً می‌گوید «یک بگومگوی معمولی بود» یا دادخواست تمکین می‌دهد. اگر خوف ضرر را نشان بدهید، دادگاه حکم به بازگشت نمی‌دهد و نفقه هم سر جایش می‌ماند [[civil:1115]].',
+    win: const Tx('familyClm_7'),
+    counter: const Tx('familyClm_8'),
   ),
 ];

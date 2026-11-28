@@ -2,210 +2,239 @@ part of 'family.dart';
 
 // پرسش‌ها و خودِ تعریفِ موضوعِ خانواده.
 
-final Topic familyTopic = Topic(
+const TextExpr _famCoinsEffect = TxCond(
+  _famIsHusband,
+  TxCond(
+    FactNumMin('coins', 111, missingNull: false),
+    TxConcat([
+      Tx('familySlotCoinsHOverA'),
+      TxRaw(' '),
+      TxNum('coins', fmt: NumFmt.fa, defaultZero: true),
+      TxRaw(' '),
+      Tx('familySlotCoinsHOverB'),
+      TxRaw(' '),
+      TxNumOffset('coins', -110),
+      TxRaw(' '),
+      Tx('familySlotCoinsHOverC'),
+    ]),
+    TxConcat([
+      Tx('familySlotCoinsHUnderA'),
+      TxRaw(' '),
+      TxNum('coins', fmt: NumFmt.fa, defaultZero: true),
+      TxRaw(' '),
+      Tx('familySlotCoinsHUnderB'),
+    ]),
+  ),
+  TxCond(
+    FactNumMin('coins', 111, missingNull: false),
+    TxConcat([
+      Tx('familySlotCoinsWOverA'),
+      TxRaw(' '),
+      TxNum('coins', fmt: NumFmt.fa, defaultZero: true),
+      TxRaw(' '),
+      Tx('familySlotCoinsWOverB'),
+      TxRaw(' '),
+      TxNumOffset('coins', -110),
+      TxRaw(' '),
+      Tx('familySlotCoinsWOverC'),
+    ]),
+    TxConcat([
+      Tx('familySlotCoinsWUnderA'),
+      TxRaw(' '),
+      TxNum('coins', fmt: NumFmt.fa, defaultZero: true),
+      TxRaw(' '),
+      Tx('familySlotCoinsWUnderB'),
+    ]),
+  ),
+);
+
+final Topic familyTopic = Topic.dsl(
   id: 'family',
-  title: 'خانواده',
+  title: topicText('familyIss_0'),
   claims: familyClaims,
-  recap: familyRecap,
-  cues: {
-    'ملاقات (?:با )?(?:فرزند|بچه|دختر|پسر)|(?:بچه|فرزند)[^ ]* (?:[^ ]+ ){0,3}ببینم|ترک انفاق|شروط ضمن عقد|دادگاه خانواده|ممنوع ?الخروج': 3,
+  recap: _familyRecap,
+  cues: const {
+    'ملاقات (?:با )?(?:فرزند|بچه|دختر|پسر)|(?:بچه|فرزند)[^ ]* (?:[^ ]+ ){0,3}ببینم|ترک انفاق|شروط ضمن عقد|دادگاه خانواده|ممنوع ?الخروج':
+        3,
     'طلاق|مهریه|مهریم|نفقه|حضانت|جهیزیه|تمکین|جدا (?:شم|بشم|شیم|بشیم)': 3,
     'شوهر|زنم|خانمم|همسر': 2,
     'کتک|میزنه|دست بزن|ازدواج|عقد(?: |م)|نامزد|خرجی|مادرشوهر': 1,
-    'منو زد|زد(?:ه)? منو|بیرونم کرد|از خونه بیرون|قهر کرد|خیانت|معتاد|رفته خونه (?:باباش|پدرش|مادرش)': 1,
+    'منو زد|زد(?:ه)? منو|بیرونم کرد|از خونه بیرون|قهر کرد|خیانت|معتاد|رفته خونه (?:باباش|پدرش|مادرش)':
+        1,
   },
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'role',
       first: true,
-      ask: 'شما زن هستید یا شوهر؟',
-      why: 'حقوق زن و شوهر در طلاق، مهریه و نفقه یکسان نیست؛ باید بدانم از طرف کدام‌یک حرف می‌زنم.',
-      options: ['زن هستم', 'شوهر هستم'],
-      read: _famRole,
-      readPending: (n) => Sense.has(n, 'زن|خانم|زوجه')
-          ? 'wife'
-          : (Sense.has(n, 'شوهر|مرد|آقا|زوج') ? 'husband' : null),
+      ask: topicText('familyIss_1'),
+      why: topicText('familyIss_2'),
+      options: [topicText('familyIss_3'), topicText('familyIss_4')],
+      read: _famRoleRead,
+      readPending: const ReadCases([
+        ReadCase('زن|خانم|زوجه', 'wife'),
+        ReadCase('شوهر|مرد|آقا|زوج', 'husband'),
+      ]),
       yesValue: '',
       noValue: '',
     ),
-    Slot(
+    Slot.dsl(
       id: 'violence',
       ask: '',
       why: '',
-      read: _famViolence,
-      when: (f) => false,
+      read: _famViolenceRead,
+      when: const FactConst(false),
     ),
-    Slot(
+    Slot.dsl(
       id: 'childAge',
       ask: '',
       why: '',
-      read: _famChildAge,
-      when: (f) => false,
+      read: _famChildAgeRead,
+      when: const FactConst(false),
       effect: _famCustody,
     ),
-    Slot(
+    Slot.dsl(
       id: 'coins',
       ask: '',
       why: '',
-      read: (n) => Sense.numberBefore(n, 'سکه')?.toString(),
-      when: (f) => false,
-      effect: (f) {
-        final c = f.n('coins') ?? 0;
-        if (f.eq('role', 'husband')) {
-          return c > 110
-              ? 'با مهریهٔ ${Sense.fa(c)} سکه، حساب شما این است: فقط تا ۱۱۰ سکه ضمانت حبس دارد؛ برای ${Sense.fa(c - 110)} سکهٔ باقی‌مانده، تا وقتی مالی از شما پیدا نشود کسی نمی‌تواند شما را بازداشت کند [[family_protection:22]]. پس تمرکزتان را روی تقسیط همان ۱۱۰ سکه بگذارید.'
-              : 'چون مهریه ${Sense.fa(c)} سکه است و از ۱۱۰ سکه بیشتر نیست، کل آن ضمانت اجرای حبس دارد [[family_protection:22]]؛ پس دادخواست اعسار و تقسیط را جدی بگیرید و عقب نیندازید.';
-        }
-        return c > 110
-            ? 'دربارهٔ ${Sense.fa(c)} سکهٔ شما: ۱۱۰ سکهٔ اول با ضمانت حبس قابل وصول است و ${Sense.fa(c - 110)} سکهٔ باقی فقط اگر مالی از او پیدا شود [[family_protection:22]].'
-            : 'چون مهریهٔ شما ${Sense.fa(c)} سکه است و از ۱۱۰ سکه بیشتر نیست، کل آن مشمول ضمانت اجرای حبس است [[family_protection:22]].';
-      },
+      read: _famCoinsRead,
+      when: const FactConst(false),
+      effect: _famCoinsEffect,
     ),
-    Slot(
+    Slot.dsl(
       id: 'proofV',
-      ask: 'برای کتک‌خوردن مدرکی دارید؟ مثلاً گواهی پزشکی قانونی، عکس، یا کسی که دیده باشد.',
-      why: 'در دادگاه خانواده و دادسرا، حرف بدون مدرک پیش نمی‌رود؛ گواهی پزشکی قانونی هم شکایت کیفری را ممکن می‌کند هم اثبات عسر و حرج را.',
-      options: ['گواهی پزشکی قانونی دارم', 'عکس یا شاهد دارم', 'هیچ مدرکی ندارم'],
-      read: (n) {
-        if (Sense.has(n, 'پزشکی قانونی|طول درمان|گواهی پزشک|نامه پزشک')) return 'medical';
-        if (Sense.has(n, 'هیچ مدرک|مدرک(?:ی)? ندارم|شاهد(?:ی)? ندارم')) return 'none';
-        if (Sense.has(n, 'عکس دارم|فیلم دارم|شاهد دارم|همسایه ها (?:دیدن|شنیدن)|شاهد هست')) return 'witness';
-        return null;
-      },
-      readPending: (n) => Sense.has(n, 'عکس|فیلم|شاهد|همسایه|مادرم|خواهرم')
-          ? 'witness'
-          : null,
+      ask: topicText('familyIss_5'),
+      why: topicText('familyIss_6'),
+      options: [
+        topicText('familyIss_7'),
+        topicText('familyIss_8'),
+        topicText('familyIss_9'),
+      ],
+      read: const ReadCases([
+        ReadCase('پزشکی قانونی|طول درمان|گواهی پزشک|نامه پزشک', 'medical'),
+        ReadCase('هیچ مدرک|مدرک(?:ی)? ندارم|شاهد(?:ی)? ندارم', 'none'),
+        ReadCase(
+          'عکس دارم|فیلم دارم|شاهد دارم|همسایه ها (?:دیدن|شنیدن)|شاهد هست',
+          'witness',
+        ),
+      ]),
+      readPending: const ReadCases([
+        ReadCase('عکس|فیلم|شاهد|همسایه|مادرم|خواهرم', 'witness'),
+      ]),
       yesValue: 'witness',
       noValue: 'none',
-      when: (f) => f.yes('violence') && !f.eq('role', 'husband'),
-      effect: (f) {
-        switch (f.get('proofV')) {
-          case 'medical':
-            return 'گواهی پزشکی قانونی بهترین مدرک ممکن است؛ اصلش را نگه دارید و اگر چند بار اتفاق افتاده، همهٔ گواهی‌ها را کنار هم بگذارید، چون «تکرار» است که عسر و حرج را برای دادگاه روشن می‌کند [[civil:1130]].';
-          case 'witness':
-            return 'عکس و شاهد خوب است ولی کافی نیست؛ دفعهٔ بعد (که امیدوارم پیش نیاید) بلافاصله به کلانتری بروید تا به پزشکی قانونی معرفی شوید. شاهدهایی که خودشان دیده‌اند را هم از حالا آماده کنید.';
-          default:
-            return 'پس مهم‌ترین کار شما از امروز «مدرک‌سازی» است: هر بار، همان روز کلانتری و پزشکی قانونی؛ عکس تاریخ‌دار از آثار؛ و گفتن ماجرا به یک فرد قابل‌اعتماد که بعداً بتواند شهادت بدهد. بدون مدرک، دادگاه نمی‌تواند به نفع شما رأی بدهد.';
-        }
-      },
+      when: const FactAll([FactYes('violence'), _famNotHusband]),
+      effect: const TxSwitch(
+        'proofV',
+        {
+          'medical': Tx('familyIss_10'),
+          'witness': Tx('familyIss_11'),
+        },
+        fallback: Tx('familyIss_12'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'agrees',
-      ask: 'شوهرتان به طلاق راضی می‌شود، یا مخالف است؟',
-      why: 'اگر راضی باشد راه توافقی کوتاه‌ترین مسیر است؛ اگر نه، باید دلیل قانونی (مثل عسر و حرج یا شرط ضمن عقد) ثابت کنیم.',
-      options: ['راضی است', 'راضی نمی‌شود'],
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('familyIss_13'),
+      why: topicText('familyIss_14'),
+      options: [topicText('familyIss_15'), topicText('familyIss_16')],
+      read: const ReadYn(
         'توافقی|راضیه|راضی است|راضی هست|قبول داره|اونم میخواد|خودش هم میخواد',
         'راضی (?:نیست|نمیش)|طلاق[^ ]* نمیده|قبول نمیکنه|نمیذاره|مخالف',
       ),
-      when: (f) => f.eq('role', 'wife') && f.covered.contains('divorce'),
-      effect: (f) => f.yes('agrees')
-          ? 'اگر راضی است، طلاق توافقی کوتاه‌ترین راه است [[family_protection:25]]؛ فقط حواستان باشد هر توافقی دربارهٔ مهریه، حضانت و نفقهٔ بچه دقیق و کتبی در دادگاه ثبت شود.'
-          : 'وقتی راضی نیست، باید یکی از دلایل قانونی را در دادگاه ثابت کنید: عسر و حرج [[civil:1130]] یا تحقق شروط ضمن عقد [[civil:1119]]. این راه طولانی‌تر است و مدرک می‌خواهد، ولی شدنی است.',
+      when: const FactAll([_famIsWife, FactCovered('divorce')]),
+      effect: const TxCond(
+        FactYes('agrees'),
+        Tx('familyIss_17'),
+        Tx('familyIss_18'),
+      ),
     ),
   ],
-  opening: (f) {
-    if (f.yes('violence') && !f.eq('role', 'husband')) return _famSafety(f);
-    return 'دعواهای خانوادگی همه در «دادگاه خانواده» رسیدگی می‌شود [[family_protection:4]] و معمولاً چند موضوع به هم گره خورده است: طلاق، مهریه، نفقه و حضانت. یکی‌یکی بازشان می‌کنیم.';
-  },
+  opening: const TxCond(
+    FactAll([FactYes('violence'), _famNotHusband]),
+    _famSafety,
+    Tx('familyIss_19'),
+  ),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'cantpay',
-      chip: 'توان پرداخت مهریه را ندارم',
-      cues: 'ندارم (?:که )?بدم|توان(?:ش رو| پرداخت)? ندارم|پول(?:ی)? ندارم|از کجا بیارم|نمیتونم بدم|وسعم نمیرسه|قسطی|تقسیط|اعسار|زندان(?:ی)? (?:میشم|میرم|میکنن)|حبس',
-      body: (f) =>
-          'نداشتنِ پول جرم نیست و قانون برایش راه گذاشته؛ فقط باید به‌موقع و درست اقدام کنید:\n'
-          '۱) دادخواست «اعسار و تقسیط» بدهید. اگر ظرف ۳۰ روز از ابلاغ اجرائیه باشد و فهرست کامل اموالتان را ضمیمه کنید، تا روشن‌شدن نتیجه بازداشت نمی‌شوید [[financial_sentences:3]].\n'
-          '۲) دادگاه با توجه به درآمد و هزینه‌های شما پیش‌قسط و قسط ماهانه تعیین می‌کند [[financial_sentences:11]]. شاهدهایی که وضع مالی شما را از نزدیک می‌دانند و مدارک درآمد (فیش حقوق، اجاره‌نامهٔ خانه‌ای که در آن مستأجرید) را آماده کنید.\n'
-          '۳) خانهٔ مسکونی در حد شأن، اثاث ضروری و ابزار کار توقیف نمی‌شود [[financial_sentences:24]].\n'
-          '۴) دو کار را هرگز نکنید: پنهان‌کردن مال در فهرست اموال، و انتقال دارایی به نام دیگران؛ دومی جرم است [[financial_sentences:21]] و هر دو اعسار شما را به باد می‌دهد.\n'
-          'بیشتر از ۱۱۰ سکه هم فقط از مالی که پیدا شود قابل وصول است، نه با حبس [[family_protection:22]].',
-      when: (f) => f.eq('role', 'husband'),
+      chip: topicText('familyIss_20'),
+      cues:
+          'ندارم (?:که )?بدم|توان(?:ش رو| پرداخت)? ندارم|پول(?:ی)? ندارم|از کجا بیارم|نمیتونم بدم|وسعم نمیرسه|قسطی|تقسیط|اعسار|زندان(?:ی)? (?:میشم|میرم|میکنن)|حبس',
+      body: const Tx('familyIss_21'),
+      when: _famIsHusband,
     ),
-    Issue(
+    Issue.dsl(
       id: 'leave',
-      chip: 'اگر از خانه بروم نفقه‌ام قطع می‌شود؟',
-      cues: 'از خونه (?:برم|رفتم|زدم بیرون)|خونه (?:بابام|پدرم|مادرم)|قهر|ترک (?:منزل|خونه)|برگردم خونه|تمکین|نشوز|ناشزه',
-      body: (f) =>
-          'قاعدهٔ کلی این است که زن باید در خانه‌ای که شوهر تعیین کرده زندگی کند [[civil:1114]] و اگر بدون دلیل موجه ترک کند، نفقه‌اش قطع می‌شود [[civil:1108]].\n'
-          'اما استثنای مهمی دارد: اگر بودن در آن خانه خوف ضرر بدنی، مالی یا آبرویی داشته باشد، می‌توانید جدا زندگی کنید؛ دادگاه حکم به بازگشت نمی‌دهد و نفقه هم سر جایش است [[civil:1115]].\n'
-          'پس نکتهٔ کلیدی «اثبات دلیل رفتن» است: پیش از رفتن یا بلافاصله بعدش، علت را ثبت کنید (گزارش ۱۱۰، پزشکی قانونی، پیام‌های تهدید، شاهد). اگر او دادخواست تمکین داد، با همین مدارک دفاع می‌کنید.',
-      when: (f) => !f.eq('role', 'husband'),
+      chip: topicText('familyIss_22'),
+      cues:
+          'از خونه (?:برم|رفتم|زدم بیرون)|خونه (?:بابام|پدرم|مادرم)|قهر|ترک (?:منزل|خونه)|برگردم خونه|تمکین|نشوز|ناشزه',
+      body: const Tx('familyIss_23'),
+      when: _famNotHusband,
     ),
-    Issue(
+    Issue.dsl(
       id: 'mehr',
-      chip: 'مهریه‌ام چه می‌شود؟',
+      chip: topicText('familyIss_24'),
       cues: 'مهریه|مهریم|سکه',
       body: _famMehr,
       covers: const {'coins'},
     ),
-    Issue(
+    Issue.dsl(
       id: 'custody',
-      chip: 'حضانت بچه با کیست؟',
-      cues: 'حضانت|بچه[^ ]* (?:رو |را )?(?:با کیه|پیش کی|میگیره|ازم میگیر|میدن به|نگه دارم|ببینم|نمیده ببینم)|ملاقات|سرپرستی',
+      chip: topicText('familyIss_25'),
+      cues:
+          'حضانت|بچه[^ ]* (?:رو |را )?(?:با کیه|پیش کی|میگیره|ازم میگیر|میدن به|نگه دارم|ببینم|نمیده ببینم)|ملاقات|سرپرستی',
       body: _famCustody,
     ),
-    Issue(
+    Issue.dsl(
       id: 'nafaqe',
-      chip: 'نفقه چطور؟',
+      chip: topicText('familyIss_26'),
       cues: 'نفقه|خرجی|خرج خونه(?: رو)? نمیده|پول نمیده',
-      body: (f) => f.eq('role', 'husband')
-          ? 'نفقهٔ زن در عقد دائم به عهدهٔ شوهر است [[civil:1106]] و شامل مسکن، خوراک، پوشاک، درمان و نیازهای متعارف می‌شود [[civil:1107]]. تنها وقتی تکلیف ندارید که او بدون دلیل موجه از وظایف زناشویی سر باز بزند [[civil:1108]]؛ و اثبات این با شماست (معمولاً با حکم الزام به تمکین). ندادن نفقه با داشتن توان، جرم هم هست [[family_protection:53]].'
-          : 'نفقه حق شماست: در عقد دائم خرج زندگیِ زن با شوهر است [[civil:1106]] و مسکن، خوراک، پوشاک، درمان و نیازهای متعارف را دربر می‌گیرد [[civil:1107]].\n'
-              '• نفقهٔ گذشته را هم می‌توانید بگیرید [[civil:1206]]؛ دادگاه با نظر کارشناس مبلغ را تعیین و او را محکوم می‌کند [[civil:1111]].\n'
-              '• ندادن نفقه با وجود توان مالی جرم است و با شکایت شما حبس دارد [[family_protection:53]].\n'
-              '• شرطش «تمکین» است، ولی اگر به خاطر ترس از آسیب خانه را ترک کرده باشید، نفقه‌تان قطع نمی‌شود [[civil:1115]].\n'
-              '• نفقهٔ بچه‌ها جداست و در هر حال با پدر است [[civil:1199]].',
+      body: const TxCond(_famIsHusband, Tx('familyIss_27'), Tx('familyIss_28')),
     ),
-    Issue(
+    Issue.dsl(
       id: 'divorce',
-      chip: 'چطور طلاق بگیرم؟',
+      chip: topicText('familyIss_29'),
       cues: 'طلاق|جدا (?:شم|بشم|شیم|بشیم)|جدایی',
       body: _famDivorce,
     ),
-    Issue(
+    Issue.dsl(
       id: 'violence',
-      chip: 'برای کتک‌زدن چه کار کنم؟',
-      cues: 'کتک|میزنه|دست بزن|ضرب|کبود|خشونت|تهدید[^ ]* میکنه|پزشکی قانونی|دیه',
+      chip: topicText('familyIss_30'),
+      cues:
+          'کتک|میزنه|دست بزن|ضرب|کبود|خشونت|تهدید[^ ]* میکنه|پزشکی قانونی|دیه',
       body: _famSafety,
-      when: (f) => !f.eq('role', 'husband'),
+      when: _famNotHusband,
     ),
   ],
-  follow: {
-    'next': (f) {
-      if (f.eq('role', 'husband')) {
-        return 'قدم اول شما روشن‌کردن خواسته است: طلاق، دفاع در برابر مهریه، یا ملاقات و حضانت بچه. هر کدام دادخواست جدا در دادگاه خانواده دارد [[family_protection:4]]. بگویید کدام اولویت دارد تا قدم‌هایش را بچینم.';
-      }
-      final v = f.yes('violence')
-          ? '۱) مدرک خشونت را بسازید: کلانتری، معرفی به پزشکی قانونی، عکس، شاهد.\n'
-              '۲) اگر خانه امن نیست، به جای امن بروید؛ با دلیل موجه، نفقه قطع نمی‌شود [[civil:1115]].\n'
-          : '۱) سند ازدواج و شناسنامه را در جای امن نگه دارید و شرط‌های امضاشده در سند را بخوانید [[civil:1119]].\n'
-              '۲) هر مدرکی دربارهٔ رفتار او یا ندادن نفقه دارید جمع کنید.\n';
-      return 'ترتیبی که پیشنهاد می‌کنم:\n$v'
-          '۳) مهریه را جدا و زودتر مطالبه کنید؛ منتظر طلاق نمانید [[civil:1082]]. خودش اهرم مهمی در مذاکره است.\n'
-          '۴) دادخواست طلاق (و هم‌زمان نفقه و حضانت) را در دادگاه خانوادهٔ محل سکونت خودتان ثبت کنید [[family_protection:12]].\n'
-          '۵) اگر تکلیف بچه یا نفقه فوریت دارد، «دستور موقت» بخواهید تا پیش از رأی نهایی تعیین تکلیف شود [[family_protection:7]].';
-    },
-    'where': (f) =>
-        'همهٔ این دعواها در «دادگاه خانواده» رسیدگی می‌شود [[family_protection:4]] و ثبتش از دفتر خدمات الکترونیک قضایی است. زن می‌تواند در دادگاه محل سکونت خودش هم طرح دعوا کند و لازم نیست به شهر شوهر برود [[family_protection:12]]. شکایت کیفری (کتک، ترک نفقه) جداست و به دادسرا می‌رود.',
-    'cost': (f) =>
-        'دعوای طلاق، حضانت و نفقه «غیرمالی» است و هزینهٔ دادرسی‌اش مبلغ ثابت و کمی است. مهریه «مالی» است و هزینه‌اش به نسبت مبلغ حساب می‌شود [[civil_procedure:503]]؛ اگر توانش را ندارید، هم‌زمان اعسار از هزینهٔ دادرسی بدهید [[civil_procedure:504]]. مطالبهٔ مهریه از طریق اجرای ثبت هم ممکن است.',
-    'time': (f) =>
-        'طلاق توافقی معمولاً چند هفته تا دو سه ماه. طلاق به درخواست زن، چون باید دلیل ثابت شود و به داوری هم می‌رود [[family_protection:27]]، معمولاً چند ماه تا بیش از یک سال طول می‌کشد. برای اینکه در این مدت بلاتکلیف نمانید، دستور موقت دربارهٔ حضانت و نفقه بخواهید [[family_protection:7]].',
-    'chance': (f) {
-      if (f.yes('violence')) {
-        final p = f.get('proofV');
-        return p == 'medical'
-            ? 'با گواهی پزشکی قانونی، پرونده‌تان جان دارد؛ به‌خصوص اگر بیش از یک بار ثبت شده باشد. دادگاه «غیرقابل‌تحمل‌بودن» را از تکرار و شدت می‌فهمد [[civil:1130]].'
-            : 'بی‌تعارف: بدون مدرک، ادعای کتک در دادگاه ثابت نمی‌شود و طلاق به درخواست زن رد می‌شود. شانس شما دقیقاً به اندازهٔ مدرکی است که از امروز جمع می‌کنید [[civil:1130]].';
-      }
-      return 'در طلاق به درخواست زن، همه‌چیز به اثبات دلیل بستگی دارد [[civil:1130]]. مهریه اما تقریباً همیشه گرفتنی است، چون با سند ازدواج ثابت است [[civil:1082]]؛ بحثش فقط سرِ نحوهٔ پرداخت است.';
-    },
-    'evidence': (f) =>
-        'سند ازدواج و شناسنامه (برای همه‌چیز)؛ گواهی پزشکی قانونی، عکس و شاهد (برای خشونت)؛ پیام‌ها و اقرارهای او؛ فیش‌ها و شهادت اطرافیان دربارهٔ ندادن خرجی (برای نفقه)؛ و هر مدرکی از اعتیاد یا رفتار خطرناک او (برای حضانت) [[civil:1173]].',
-    'refuse': (f) =>
-        'اگر به حکم عمل نکند، هر کدام ضمانت اجرا دارد: برای مهریه و نفقه، توقیف اموال و در نهایت حبس [[family_protection:22]] [[family_protection:53]]؛ اگر حکم طلاق قطعی شود و او حاضر نشود، دادگاه خودش اجرای صیغه را ممکن می‌کند [[civil:1130]]؛ و اگر بچه را برخلاف حکم حضانت تحویل ندهد، تا اجرای حکم بازداشت می‌شود [[family_protection:40]].',
+  follow: const {
+    'next': TxCond(
+      _famIsHusband,
+      Tx('familyIss_31'),
+      TxConcat([
+        Tx('familyNextLead'),
+        TxRaw('\n'),
+        TxCond(
+          FactYes('violence'),
+          Tx('familyIss_32'),
+          Tx('familyIss_33'),
+        ),
+        Tx('familyNextRest'),
+      ]),
+    ),
+    'where': Tx('familyIss_34'),
+    'cost': Tx('familyIss_35'),
+    'time': Tx('familyIss_36'),
+    'chance': TxCond(
+      FactYes('violence'),
+      TxCond(
+        FactEq('proofV', 'medical'),
+        Tx('familyIss_37'),
+        Tx('familyIss_38'),
+      ),
+      Tx('familyIss_39'),
+    ),
+    'evidence': Tx('familyIss_40'),
+    'refuse': Tx('familyIss_41'),
   },
-  drafts: (f) => const ['legal_aid'],
+  drafts: const DraftRule.fixed(['legal_aid']),
 );

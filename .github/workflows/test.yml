@@ -47,6 +47,10 @@ jobs:
         id: coverage
         if: steps.ft.outcome == 'success'
         run: python dev/tools/coverage_gate.py coverage/lcov.info --min 40 | tee reports/coverage.txt
+      - name: Startup gate
+        id: startup
+        if: steps.ft.outcome == 'success'
+        run: python dev/tools/startup_gate.py reports/startup.txt --max-load-ms 15000 --max-worker-ms 15000 --max-query-ms 5000
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
@@ -86,6 +90,10 @@ jobs:
             echo "--- coverage ---" >> reports/last_test.txt
             cat reports/coverage.txt >> reports/last_test.txt
           fi
+          if [ -f reports/startup.txt ]; then
+            echo "--- startup ---" >> reports/last_test.txt
+            cat reports/startup.txt >> reports/last_test.txt
+          fi
       - name: Near-miss report
         if: always()
         continue-on-error: true
@@ -100,6 +108,7 @@ jobs:
             reports/last_test.txt
             reports/understanding.txt
             reports/noql_dart_speed.txt
+            reports/startup.txt
             reports/near_miss.txt
             reports/coverage.txt
       - name: Fail if anything failed
@@ -122,7 +131,7 @@ jobs:
         continue-on-error: true
         with:
           name: test-reports-${{ github.run_id }}
-          path: .
+          path: reports
           # بدون run-id، اکشن قدیمیترین اجرای موفق را میگرفت و report گام
           # قبلی روی شاخه مینوشت (رفتار مشاهدهشده در 9ca34d1).
           run-id: ${{ github.run_id }}
@@ -138,9 +147,17 @@ jobs:
             echo "CI: test/lab/scenarios success" >> reports/last_test.txt
           fi
           git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
-          git add reports/understanding.txt reports/noql_dart_speed.txt reports/coverage.txt 2>/dev/null || true
+          git add reports/understanding.txt reports/noql_dart_speed.txt reports/startup.txt reports/coverage.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
-          # rebase ممکن است به‌خاطر push هم‌زمان شکست بخورد؛ ولی push دیگر
-          # بی‌صدا رد نمی‌شود.
-          git pull --rebase || true
-          git push origin HEAD:"${GITHUB_REF_NAME}"
+          # هنگام تداخل پوش هم‌زمان با Lawyer Lab / alt-bench چند بار rebase+push می‌شود،
+          # ولی شکست نهایی پوش همچنان خطا می‌دهد تا بی‌صدا رد نشود.
+          pushed=false
+          for i in 1 2 3 4 5; do
+            if git -c rebase.autoStash=true pull --rebase origin "${GITHUB_REF_NAME}" && git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              pushed=true
+              break
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          [ "$pushed" = "true" ]

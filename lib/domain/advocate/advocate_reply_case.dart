@@ -14,7 +14,7 @@ extension _ReplyCaseFlow on Advocate {
     final best = read.best;
     final bestScore = read.bestScore;
     final scores = read.scores;
-    if (best != null && bestScore >= 3) {
+    if (best != null && bestScore >= topicOpenMin) {
       final others = <Topic>[
         for (final t in Advocate.topics)
           if (t.id != best.id && (scores[t.id] ?? 0) >= 4) t,
@@ -33,9 +33,7 @@ extension _ReplyCaseFlow on Advocate {
           for (final t in dialog.choices) '• ${t.title}',
         ];
         return _out(
-          'در این پیام چند ماجرای جدا بود:\n${lines.join('\n')}\n\n'
-          'هر کدام پرونده، مهلت و مسیر خودش را دارد و یک‌جا جواب‌دادن به همه '
-          'سطحی می‌شود. از کدام شروع کنیم؟',
+          advocateFormat('caseMultiTopicPrompt', {'lines': lines.join('\n')}),
           chips: [for (final t in dialog.choices) t.title, ChipTexts.noneChip],
         );
       }
@@ -56,7 +54,7 @@ extension _ReplyCaseFlow on Advocate {
           js = sc;
         }
       }
-      if (jb != null && js >= 3 && (scores[jb.id] ?? 0) >= 1) {
+      if (jb != null && js >= topicOpenMin && (scores[jb.id] ?? 0) >= 1) {
         dialog.loose.removeLast();
         return _open(jb, n);
       }
@@ -64,7 +62,7 @@ extension _ReplyCaseFlow on Advocate {
     final g = _guides.glossary(n);
     if (g != null) {
       return _out(g,
-          ask: dialog.guide == null ? 'این واژه در ماجرای خودتان پیش آمده؟ چه شده است؟' : '',
+          ask: dialog.guide == null ? advocateText('caseGlossaryAsk') : '',
           source: AnswerSource.glossary);
     }
     final guide = dialog.guide;
@@ -131,7 +129,7 @@ extension _ReplyCaseFlow on Advocate {
     final issue = _matchIssue(topic, n);
     // پیامی که موضوع دیگری را با نشانهٔ روشن می‌آورد، پروندهٔ فعلی را که
     // نشانه‌اش کمتر از نصف است عوض می‌کند (به جای چسبیدن به پروندهٔ قبلی).
-    final dominant = bestScore >= 5 && cur * 2 < bestScore;
+    final dominant = bestScore >= topicDominantMin && cur * 2 < bestScore;
     if (best != null && best.id != topic.id && (cur == 0 || dominant)) {
       // وسط یک پرونده، هر اشاره‌ای به موضوع دیگر به معنی ماجرای تازه
       // نیست (مثلاً «قولنامه داریم» در پروندهٔ اجاره). فقط وقتی می‌پرم که
@@ -139,7 +137,7 @@ extension _ReplyCaseFlow on Advocate {
       final marker = Sense.has(n, _newMatter);
       final answers = _answers(topic, n);
       final long = Sense.words(n) >= 5;
-      final need = marker ? 3 : (topic.id == 'accused' ? 9 : 5);
+      final need = marker ? topicOpenMin : (topic.id == 'accused' ? 9 : topicStrongMin);
       final strong = bestScore >= need ||
           (topic.id != 'accused' && bestScore >= 4 && Sense.isQuestion(n));
       if (strong &&
@@ -168,16 +166,18 @@ extension _ReplyCaseFlow on Advocate {
   AdvocateReply _askSwitch(Topic t, String raw) {
     dialog.pendingTopic = t;
     dialog.pendingText = raw;
-    final curTitle = _current()?.title ?? 'موضوع قبلی';
+    final curTitle = _current()?.title ?? advocateText('caseSwitchFallbackTitle');
     // پرسشِ خودِ پرونده کنار می‌رود تا در این نوبت فقط یک پرسش باشد و
     // «بله/خیر» دو معنا نداشته باشد.
     file.pending = '';
     dialog.askText = '';
     dialog.askChips = const [];
     return _out(
-      'به نظر می‌رسد این حرف با «$curTitle» فرق دارد و درباره‌ی «${t.title}» است. '
-      'هنوز پروندهٔ قبلی باز است و چیزی را پاک نمی‌کنم.',
-      ask: 'این موضوع تازه است یا به همان ماجرای قبلی مربوط است؟',
+      advocateFormat('caseSwitchBody', {
+        'curTitle': curTitle,
+        'newTitle': t.title,
+      }),
+      ask: advocateText('caseSwitchAsk'),
       chips: const [ChipTexts.newTopicYesChip, ChipTexts.newTopicNoChip],
     );
   }

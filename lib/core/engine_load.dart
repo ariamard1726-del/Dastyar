@@ -9,7 +9,7 @@ part of 'engine.dart';
 extension _EngineLoad on KnowledgeEngine {
 Future<void> _loadCatalog() async {
   try {
-    final t = await rootBundle.loadString('assets/laws_catalog.json');
+    final t = await rootBundle.loadString('assets/laws_catalog.json', cache: false);
     final m = jsonDecode(t) as Map<String, dynamic>;
     final cats = (m['categories'] ?? {}) as Map<String, dynamic>;
     cats.forEach((k, v) => categoryNames[k] = v.toString());
@@ -30,7 +30,7 @@ Future<void> _loadCatalog() async {
 
 Future<void> _loadMeta() async {
   try {
-    final t = await rootBundle.loadString('assets/laws/_meta.json');
+    final t = await rootBundle.loadString('assets/laws/_meta.json', cache: false);
     final m = jsonDecode(t) as Map<String, dynamic>;
     m.forEach((k, v) {
       if (v is Map<String, dynamic>) meta[k] = v;
@@ -42,7 +42,7 @@ Future<void> _loadMeta() async {
 
 Future<void> _loadReplies() async {
   try {
-    final t = await rootBundle.loadString('assets/replies.json');
+    final t = await rootBundle.loadString('assets/replies.json', cache: false);
     final m = jsonDecode(t) as Map<String, dynamic>;
     _repliesRaw = m;
     replies.setOverridesRaw(m);
@@ -54,11 +54,12 @@ Future<void> _loadReplies() async {
 Future<void> _loadTopicFlows() async {
   _topicFlows = const [];
   try {
-    final idx = jsonDecode(await rootBundle.loadString('assets/brain/topics/index.json'))
-        as Map<String, dynamic>;
+    final idx = jsonDecode(
+      await rootBundle.loadString('assets/brain/topics/index.json', cache: false),
+    ) as Map<String, dynamic>;
     final out = <Map<String, dynamic>>[];
     for (final name in (idx['topics'] as List).cast<String>()) {
-      final t = await rootBundle.loadString('assets/brain/topics/$name');
+      final t = await rootBundle.loadString('assets/brain/topics/$name', cache: false);
       out.add(jsonDecode(t) as Map<String, dynamic>);
     }
     _topicFlows = out;
@@ -70,7 +71,7 @@ Future<void> _loadTopicFlows() async {
 Future<void> _loadLegalTerms() async {
   _legalTerms = const {};
   try {
-    final t = await rootBundle.loadString('assets/brain/legal_terms.json');
+    final t = await rootBundle.loadString('assets/brain/legal_terms.json', cache: false);
     _legalTerms = jsonDecode(t) as Map<String, dynamic>;
   } catch (e) {
     warnings.add('assets/brain/legal_terms.json: $e');
@@ -80,7 +81,7 @@ Future<void> _loadLegalTerms() async {
 Future<void> _loadQa() async {
   _qaBank = QaBank.empty;
   try {
-    final t = await rootBundle.loadString('assets/qa/lease_qa.json');
+    final t = await rootBundle.loadString('assets/qa/lease_qa.json', cache: false);
     _qaBank = QaBank.fromJson(jsonDecode(t));
   } catch (e) {
     warnings.add('qa/lease_qa.json: $e');
@@ -90,7 +91,7 @@ Future<void> _loadQa() async {
 Future<void> _loadLawTopics() async {
   _lawPrior = LawTopicPrior.empty;
   try {
-    final t = await rootBundle.loadString('assets/brain/law_topics.json');
+    final t = await rootBundle.loadString('assets/brain/law_topics.json', cache: false);
     _lawTopicsRaw = jsonDecode(t);
     if (_lawTopicsRaw != null) {
       _lawPrior = LawTopicPrior.fromJson(_lawTopicsRaw);
@@ -102,7 +103,7 @@ Future<void> _loadLawTopics() async {
 
 Future<void> _loadRelationships() async {
   try {
-    final t = await rootBundle.loadString('assets/relationships.json');
+    final t = await rootBundle.loadString('assets/relationships.json', cache: false);
     final m = jsonDecode(t);
     if (m is Map<String, dynamic>) {
       _relationships = m;
@@ -114,7 +115,7 @@ Future<void> _loadRelationships() async {
 
 Future<List<String>?> _loadKnowledgeChunk() async {
   try {
-    final text = await rootBundle.loadString('assets/knowledge.txt');
+    final text = await rootBundle.loadString('assets/knowledge.txt', cache: false);
     return ['knowledge', 'دانش عمومی', text];
   } catch (e) {
     warnings.add('assets/knowledge.txt: $e');
@@ -123,12 +124,15 @@ Future<List<String>?> _loadKnowledgeChunk() async {
 }
 
 Future<void> load({bool startWorker = false}) async {
+  final totalSw = Stopwatch()..start();
+  final assetsSw = Stopwatch()..start();
   _index.clear();
   catalog.clear();
   categoryNames.clear();
   meta.clear();
   _relationships = const {};
   warnings.clear();
+  _startup = null;
 
   final knowledgeFuture = _loadKnowledgeChunk();
   await Future.wait<void>([
@@ -158,7 +162,7 @@ Future<void> load({bool startWorker = false}) async {
       if (path is! String || path.isEmpty) return null;
       final fullPath = 'assets/laws/$path';
       try {
-        final text = await rootBundle.loadString(fullPath);
+        final text = await rootBundle.loadString(fullPath, cache: false);
         final fallbackTitle = (entry.value['title'] ?? '').toString().trim();
         return [lawId, fallbackTitle, text];
       } catch (e) {
@@ -168,26 +172,55 @@ Future<void> load({bool startWorker = false}) async {
     }),
   );
 
+  var rawChars = 0;
   for (final item in loadedLaws) {
-    if (item != null) raw.add(item);
+    if (item != null) {
+      raw.add(item);
+      rawChars += item[2].length;
+    }
   }
+  if (knowledgeRaw != null) rawChars += knowledgeRaw[2].length;
+  assetsSw.stop();
 
+  final indexSw = Stopwatch()..start();
   // Worker ایندکس را در isolate خودش میسازد و همانجا نگه میدارد تا پرسشها
   // روی رشتهٔ رابط کاربری اجرا نشوند. یک کپی از ایندکس برای APIهای همگام
   // (متن ماده، دکمهها) به این نمونه برگردانده میشود.
-  final data = <String, dynamic>{
-    'raw': raw,
-    'catalog': catalog,
-    'meta': meta,
-    'replies': _repliesRaw,
-    'synonyms': [for (final r in _syn) List<String>.from(r)],
-    'relationships': _relationships,
-    'lawTopics': _lawTopicsRaw,
-  };
   _worker?.dispose();
-  _worker = startWorker ? await EngineWorker.start(data) : null;
+  if (startWorker) {
+    final data = <String, dynamic>{
+      'raw': raw,
+      'catalog': catalog,
+      'meta': meta,
+      'replies': _repliesRaw,
+      'synonyms': [for (final r in _syn) List<String>.from(r)],
+      'relationships': _relationships,
+      'lawTopics': _lawTopicsRaw,
+      'legalTerms': _legalTerms,
+    };
+    _worker = await EngineWorker.start(data);
+  } else {
+    _worker = null;
+  }
+  // داده‌های خام JSON فقط برای ارسال به isolate لازم بودند؛ آزادسازی زودهنگام
+  // از نگه‌داشتن نسخهٔ اضافه در حافظه جلوگیری می‌کند.
+  _repliesRaw = const {};
+  _lawTopicsRaw = null;
   final built = _worker?.built ?? await _buildFallback(raw);
   _index.adopt(built);
+  indexSw.stop();
+  totalSw.stop();
+
+  _startup = StartupMetrics(
+    assetsMillis: assetsSw.elapsedMilliseconds,
+    indexMillis: indexSw.elapsedMilliseconds,
+    totalMillis: totalSw.elapsedMilliseconds,
+    rawChars: rawChars,
+    lawsCount: loadedLaws.where((e) => e != null).length,
+    chunksCount: _index.chunks.length,
+    vocabSize: _index.vocab.length,
+    withWorker: _worker != null,
+  );
 }
 
 /// اگر isolate راهاندازی نشد، همان مسیر پیشین (ساخت ایندکس در isolate موقت،
@@ -225,7 +258,9 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
     _lawPrior = LawTopicPrior.fromJson(data['lawTopics']);
   }
   _qaBank = QaBank.empty;
-  _legalTerms = const {};
+  _legalTerms = data['legalTerms'] is Map<String, dynamic>
+      ? Map<String, dynamic>.from(data['legalTerms'] as Map<String, dynamic>)
+      : const <String, dynamic>{};
   _topicFlows = const [];
   final built = LawIndex.build((data['raw'] as List).cast<List<String>>());
   _index.adopt(built);
@@ -235,7 +270,7 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
 Future<void> _loadSynonyms() async {
   _syn.clear();
   try {
-    final t = await rootBundle.loadString('assets/synonyms.txt');
+    final t = await rootBundle.loadString('assets/synonyms.txt', cache: false);
     for (final line in t.split('\n')) {
       final l = line.trim();
       if (l.isEmpty || l.startsWith('#')) continue;

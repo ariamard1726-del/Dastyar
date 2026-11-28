@@ -1,9 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:dastyar/core/engine.dart';
+import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/privacy.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/domain/templates.dart';
+import 'package:dastyar/ui/app_settings.dart';
+import 'package:dastyar/ui/chat_controller.dart';
+import 'package:dastyar/ui/chat_models.dart';
+import 'package:dastyar/ui/settings_page.dart';
 
 /// تنظیمات نباید بی‌صدا شکست بخورد.
 ///
@@ -88,5 +95,69 @@ void main() {
     expect(s.lastError, isNotNull);
     s.clearError();
     expect(s.lastError, isNull);
+  });
+
+  test('خطای ذخیرهٔ رضایت یا تنظیمات در SharedPreferences در lastError ثبت می‌شود', () async {
+    final failing = AppSettings(
+      prefsProvider: () => Future<SharedPreferences>.error(StateError('disk full')),
+    );
+
+    await failing.acceptConsent(saveHistory: true);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    await failing.setFontScale(1.2);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    await failing.setSaveHistory(false);
+    expect(failing.lastError, isNotNull);
+    failing.clearError();
+
+    messenger.setMockMethodCallHandler(
+      PrivacyService.channel,
+      (call) async => call.method == 'setSecureScreen' ? true : null,
+    );
+    await failing.setSecureScreen(true);
+    expect(failing.lastError, isNotNull);
+  });
+
+  testWidgets('SettingsPage خطای history.lastError را نمایش می‌دهد و با بستن پاک می‌کند',
+      (tester) async {
+    final settings = AppSettings();
+    final history = HistoryStore()..lastError = 'خطای آزمایشی ذخیرهٔ تاریخچه';
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Directionality(
+          textDirection: TextDirection.rtl,
+          child: SettingsPage(settings: settings, history: history),
+        ),
+      ),
+    );
+
+    expect(find.text('خطای آزمایشی ذخیرهٔ تاریخچه'), findsOneWidget);
+    await tester.tap(find.text('بستن'));
+    await tester.pumpAndSettle();
+    expect(history.lastError, isNull);
+    expect(find.text('خطای آزمایشی ذخیرهٔ تاریخچه'), findsNothing);
+  });
+
+  test('ReplyFlow خطای upsert تاریخچه را در problems ثبت می‌کند', () async {
+    final prevAllowed = PrivacyService.persistenceAllowed;
+    try {
+      PrivacyService.persistenceAllowed = false;
+      final ctrl = ChatController(
+        engine: KnowledgeEngine(),
+        repo: TemplateRepository(),
+        history: HistoryStore(),
+        settings: AppSettings()..saveHistory = true,
+      );
+      ctrl.messages.add(ChatMessage('سلام', true));
+      await ctrl.replyFlow.saveSession();
+      expect(ctrl.problems, isNotEmpty);
+      ctrl.dispose();
+    } finally {
+      PrivacyService.persistenceAllowed = prevAllowed;
+    }
   });
 }

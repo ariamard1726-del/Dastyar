@@ -1,0 +1,2368 @@
+{
+  "version": 1,
+  "description": "قراردادِ کاملِ اولویت ۲۰ کاندید خط تولید پاسخ و ماتریس جفت‌به‌جفتِ ۱۹۰ جفت (۱۱۳ هم‌پوشان، ۷۷ جداگانه).",
+  "candidates": [
+    {
+      "index": 0,
+      "name": "موضوعِ تازه",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "دکمه یا عبارتِ «موضوع تازه‌ای دارم» وقتی موضوعِ منتظرِ تأیید روی میز نیست"
+    },
+    {
+      "index": 1,
+      "name": "«هیچ‌کدام»",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "اعتراضِ کاربر به نبودنِ دکمه یا گزینهٔ خروج (`isComplaintNoOption`)"
+    },
+    {
+      "index": 2,
+      "name": "تازه است یا مربوط؟",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "پاسخ به پرسشِ «این موضوع تازه است یا مربوط به قبلی؟» (`pendingTopic != null`)"
+    },
+    {
+      "index": 3,
+      "name": "دکمهٔ دستهٔ مشکل",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "دکمهٔ دستهٔ مشکل یا انصراف کوتاه پس از سلام (`branchAsked` یا آغاز بی‌پرونده)"
+    },
+    {
+      "index": 4,
+      "name": "کنار گذاشتنِ موضوع",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "درخواستِ کنار گذاشتنِ موضوع یا انصراف (`DraftWords.isLeave`، جز شکایتِ نبود گزینه)"
+    },
+    {
+      "index": 5,
+      "name": "ایمنی",
+      "stage": "hitDecision",
+      "source": "AnswerSource.safety",
+      "precondition": "پیامِ خطر یا خودآسیبی (`SafetyReply`، پیش از همهٔ مسیرهای موضوعی، مگر تکرارِ دقیق همان پیام)"
+    },
+    {
+      "index": 6,
+      "name": "پرسش فرضی",
+      "stage": "hitDecision",
+      "source": "AnswerSource.engine",
+      "precondition": "پرسش فرضی با واژهٔ «پرسش»، طولِ دست‌کم ۱۲ واژه و صورتِ جمع یا دست‌کم دو طرفِ الف/ب/ج/د"
+    },
+    {
+      "index": 7,
+      "name": "دربارهٔ برنامه",
+      "stage": "hitDecision",
+      "source": "AnswerSource.qaBank",
+      "precondition": "پیامِ دربارهٔ خودِ برنامه، تاریخچه یا سوگِ کوتاه (`MetaReply`، بدون نشانهٔ حقوقی و موضوع < ۳)"
+    },
+    {
+      "index": 8,
+      "name": "دعوا و شکایت",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "دعوای لفظی و جروبحث بدون خشونت فیزیکی و بدون موضوع (`!hasCase` و `anyTopicCue == false`)"
+    },
+    {
+      "index": 9,
+      "name": "انتخابِ موضوع",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "انتخاب از میان موضوع‌های پیشنهادی (`dialog.choices.isNotEmpty`)"
+    },
+    {
+      "index": 10,
+      "name": "حدسِ اشتباه",
+      "stage": "hitDecision",
+      "source": "AnswerSource.guess",
+      "precondition": "اعتراض کاربر به حدسِ اشتباه (`guessed == true`)"
+    },
+    {
+      "index": 11,
+      "name": "ادامهٔ حرفِ قبلی",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "ادامهٔ حرفِ قبلی وقتی متنِ ناتمام در `voice.rest` مانده است"
+    },
+    {
+      "index": 12,
+      "name": "تنظیمِ سند",
+      "stage": "hitDecision",
+      "source": "AnswerSource.guide",
+      "precondition": "لمسِ دقیقِ دکمهٔ تنظیمِ دادخواست یا لایحه (`filingFor(raw) != null`)"
+    },
+    {
+      "index": 13,
+      "name": "پیشنهادِ پاسخ",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "پاسخ به پیشنهادِ صریحِ تحلیل/قدم بعدی/تنظیم سند (`dialog.offer.isNotEmpty` و `short`)"
+    },
+    {
+      "index": 14,
+      "name": "«باشه»",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "پذیرش یا ردِ کوتاهِ کاربر (`«باشه»`/`«نه»`) وقتی پرسش، پیشنهاد، متن مانده و اشارهٔ کناری خالی‌اند"
+    },
+    {
+      "index": 15,
+      "name": "موضوعِ کنارِ هم",
+      "stage": "hitDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "تصمیم دربارهٔ موضوعِ کنارِ هم (`dialog.side != null`)"
+    },
+    {
+      "index": 16,
+      "name": "مهلت",
+      "stage": "dueDecision",
+      "source": "AnswerSource.lawTerms",
+      "precondition": "محاسبهٔ تقویمیِ پایان مهلت وقتی `!hasCase` و هم تاریخ و هم مدت در پیام باشد"
+    },
+    {
+      "index": 17,
+      "name": "تکرارِ حرفِ قبلی",
+      "stage": "tailDecision",
+      "source": "AnswerSource.topic",
+      "precondition": "تشخیصِ تکرارِ حرفِ قبلی (`hasCase` و شباهت Jaccard >= 0.8 روی دست‌کم ۶ واژهٔ یکتا)"
+    },
+    {
+      "index": 18,
+      "name": "قاعدهٔ ثابت",
+      "stage": "tailDecision",
+      "source": "AnswerSource.lawTerms",
+      "precondition": "قاعده‌های ثابتِ مستند (امتناع از ثبت طلاق یا تعارض غبن فاحش با شرط اسقاط و تخفیف ماده ۳۸)"
+    },
+    {
+      "index": 19,
+      "name": "مهلتِ اعتراض",
+      "stage": "tailDecision",
+      "source": "AnswerSource.lawTerms",
+      "precondition": "مهلتِ اعتراض یا ابلاغ وقتی `!hasCase` و بدون تاریخِ کامل (`_objectionDeadline`)"
+    }
+  ],
+  "setups": {
+    "idle": {
+      "turns": []
+    },
+    "asked": {
+      "turns": [
+        {
+          "raw": "سلام"
+        }
+      ]
+    },
+    "choices": {
+      "turns": [
+        {
+          "raw": "چک برگشتی دارم و صاحبخانه پول پیشم را نمی‌دهد و اول کدام را پیگیری کنم"
+        }
+      ]
+    },
+    "idle_rest": {
+      "turns": [
+        {
+          "raw": "فرق دادخواست و شکوائیه ۱ چیست"
+        }
+      ]
+    },
+    "open_rent": {
+      "turns": [
+        {
+          "raw": "آپارتمان اجاره داده‌ام"
+        },
+        {
+          "raw": "کتاب"
+        }
+      ]
+    },
+    "open_pending": {
+      "turns": [
+        {
+          "raw": "آپارتمان اجاره داده‌ام"
+        },
+        {
+          "raw": "کتاب"
+        },
+        {
+          "raw": "چک صیادی برگشت خورده دارم چکار کنم؟"
+        }
+      ]
+    },
+    "open_guessed": {
+      "turns": [
+        {
+          "raw": "مشکل خاصی برایم پیش آمده راهنمایی بدهید",
+          "guess": "labor"
+        }
+      ]
+    },
+    "open_rest": {
+      "turns": [
+        {
+          "raw": "با شرکت خارجی قرارداد داریم که شعبه در ایران ندارد"
+        }
+      ]
+    },
+    "open_offer": {
+      "turns": [
+        {
+          "raw": "با شرکت خارجی قرارداد داریم که شعبه در ایران ندارد"
+        },
+        {
+          "raw": "ادامه بده"
+        },
+        {
+          "raw": "شرط داوری نوشته شده و می‌خواهم توافق کنم"
+        }
+      ]
+    },
+    "open_rest_offer": {
+      "turns": [
+        {
+          "raw": "با شرکت خارجی قرارداد داریم و شرط داوری نوشته شده و می‌خواهم توافق کنم"
+        }
+      ]
+    },
+    "open_guessed_rest_offer": {
+      "turns": [
+        {
+          "raw": "نامه ابلاغ شده و می‌خواهم توافق کنم",
+          "guess": "admin"
+        }
+      ]
+    },
+    "open_side": {
+      "turns": [
+        {
+          "raw": "آپارتمان اجاره داده‌ام"
+        },
+        {
+          "raw": "چک صیادی برگشت"
+        }
+      ]
+    },
+    "open_pend_rest": {
+      "turns": [
+        {
+          "raw": "آپارتمان اجاره کرده‌ام"
+        },
+        {
+          "raw": "چک صیادی برگشت خورده دارم چکار کنم؟"
+        },
+        {
+          "raw": "خانه نم و رطوبت دارد و چکه می‌کند و قابل سکونت نیست"
+        }
+      ]
+    },
+    "open_pend_offer": {
+      "turns": [
+        {
+          "raw": "با شرکت خارجی قرارداد داریم که شعبه در ایران ندارد"
+        },
+        {
+          "raw": "ادامه بده"
+        },
+        {
+          "raw": "شرط داوری نوشته شده و می‌خواهم توافق کنم"
+        },
+        {
+          "raw": "چک صیادی برگشت خورده دارم چکار کنم؟"
+        }
+      ]
+    },
+    "open_pend_side": {
+      "turns": [
+        {
+          "raw": "آپارتمان اجاره داده‌ام"
+        },
+        {
+          "raw": "چک صیادی برگشت خورده دارم چکار کنم؟"
+        },
+        {
+          "raw": "فروشنده ماشین تحویل نداد"
+        }
+      ]
+    },
+    "open_rent_filing14": {
+      "turns": [
+        {
+          "raw": "مستاجرم و صاحبخانه پول پیشم را نمی‌دهد"
+        },
+        {
+          "raw": "صاحبخانه ادعای خسارت کرده و پولم را کم می‌کند"
+        }
+      ]
+    },
+    "open_guessed_repeat": {
+      "turns": [
+        {
+          "raw": "منظورم این نبود اشتباه گرفتی دوست من",
+          "guess": "labor"
+        }
+      ]
+    }
+  },
+  "pairs": [
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 1,
+      "loser": "«هیچ‌کدام»",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "گزینه‌ای وجود ندارد",
+      "compound_input": "موضوع تازه گزینه‌ای وجود ندارد",
+      "why": "اگر کاربر هم «موضوع تازه» بگوید و هم از نبود گزینهٔ خروج شکایت کند، درخواست موضوع تازه مقدم است تا پروندهٔ باز بسته شود."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 2,
+      "loser": "تازه است یا مربوط؟",
+      "status": "disjoint",
+      "reason_code": "pendingTopic_mutex",
+      "why": "«موضوعِ تازه» (`0`) نیازمند `dialog.pendingTopic == null` است، در حالی که «تازه است یا مربوط؟» (`2`) نیازمند `dialog.pendingTopic != null`."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 3,
+      "loser": "دکمهٔ دستهٔ مشکل",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "خروج",
+      "compound_input": "خروج موضوع تازه",
+      "why": "پیامِ هم‌زمانِ «موضوع تازه» و «خروج» پس از سلام: بازنشانی به موضوع تازه مقدم بر دکمهٔ دستهٔ مشکل است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 4,
+      "loser": "کنار گذاشتنِ موضوع",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "خروج از این موضوع",
+      "compound_input": "خروج از موضوع تازه",
+      "why": "در ترکیبِ «موضوع تازه» و «انصراف»، بسته شدن و اعلان آمادگی برای موضوع تازه مقدم است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 5,
+      "loser": "ایمنی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "الان در خطرم",
+      "compound_input": "موضوع تازه الان در خطرم",
+      "why": "در `hitDecision` فعلی «موضوعِ تازه» (`0`) پیش از «ایمنی» (`5`) می‌آید — در آزمون مرکبِ هر دو، برندهٔ اعلام‌شده باید `0` باشد تا جابه‌جاییِ ناخواستهٔ این دو فوراً دیده شود."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «موضوعِ تازه» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "تاریخچه کجاست؟",
+      "compound_input": "تاریخچه موضوع تازه",
+      "why": "ترکیبِ «موضوع تازه» و اشاره به «چت قبلی/برنامه»: نیت شروع پروندهٔ تازه بر متای برنامه مقدم است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد موضوع تازه",
+      "why": "ترکیبِ «موضوع تازه» و «دعوام شد»: بازنشانی موضوع بر پاسخ عمومی دعوای لفظی مقدم است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه موضوع تازه",
+      "why": "وقتی `choices` روی میز است و کاربر می‌گوید «موضوع تازه» (و «بله/خیر» نگفته)، `0` پیش از `9` پرونده را می‌بندد."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "اشتباه گرفتی",
+      "compound_input": "اشتباه گرفتی موضوع تازه",
+      "why": "وقتی پرونده با حدس باز شده و کاربر «موضوع تازه» می‌گوید، بستنِ صریح در `0` پیش از گزارشِ حدس اشتباه اجرا می‌شود."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "ادامه موضوع تازه",
+      "why": "وقتی متنِ ناتمام در `voice.rest` هست ولی کاربر «موضوع تازه» می‌گوید، شروع موضوع تازه باید باقی‌ماندهٔ بحث قبلی را قطع کند."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «موضوعِ تازه» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "بله",
+      "compound_input": "بله موضوع تازه هست",
+      "why": "وقتی پیشنهاد `offer` روی میز است و کاربر «موضوع تازه» می‌گوید، شروع موضوع تازه مقدم بر دنبال‌کردن پیشنهاد بحث قبلی است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "بله",
+      "compound_input": "بله موضوع تازه",
+      "why": "با وجود پیش‌شرط آماده برای `14`، عبارت «بله موضوع تازه» باید به نام `0` پروندهٔ قبلی را ببندد، نه ادامه بدهد."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "این یک موضوع جداست",
+      "compound_input": "جداست موضوع تازه",
+      "why": "وقتی `side` روی میز است، درخواست «موضوع تازه» پرونده را می‌بندد نه اینکه اشارهٔ کناری را باز کند."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "موضوع تازه مهلت رأی ۱۴۰۳.۱.۱ ۲۰روز",
+      "why": "اگر پیام در عین داشتن تاریخ و مدت مهلت، صریحاً «موضوع تازه» هم داشته باشد، `0` در `hitDecision` مقدم بر `16` در `dueDecision` است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "این پرونده درباره موضوع تازه است",
+      "why": "تکرارِ جمله‌ای که حاوی «موضوع تازه» است باید موضوع را عوض کند، نه اینکه پاسخ «دوباره گفتید» بگیرد.",
+      "prime_input": "این پرونده درباره موضوع تازه است الان"
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "موضوع تازه طلاق ثبت دفترخانه نمیشه",
+      "why": "اگر جملهٔ ثابت همراهِ «موضوع تازه» بیاید، بستن پرونده در `0` بر قاعدهٔ ثابت مقدم است."
+    },
+    {
+      "winner_index": 0,
+      "winner": "موضوعِ تازه",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "موضوع تازه مهلت ابلاغ",
+      "why": "در بی‌پرونده، «موضوع تازه» پیش از راهنمای کلیِ مهلت ابلاغ پاسخ می‌دهد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 2,
+      "loser": "تازه است یا مربوط؟",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "مربوط است",
+      "compound_input": "گزینه نیست مربوط",
+      "why": "اعتراضِ نبودِ گزینهٔ خروج حتی وقتی `pendingTopic` روی میز است باید فوری راه خروج نشان بدهد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 3,
+      "loser": "دکمهٔ دستهٔ مشکل",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "خروج",
+      "compound_input": "گزینه نیست خروج",
+      "why": "اعتراضِ نبود گزینه باید دکمهٔ موضوع تازه را نشان بدهد، نه پاسخ کوتاه خروج در `branchReply`."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 4,
+      "loser": "کنار گذاشتنِ موضوع",
+      "status": "disjoint",
+      "reason_code": "noOption_excluded_in_isLeave",
+      "why": "`DraftWords.isLeave` در «کنار گذاشتنِ موضوع» (`4`) صریحاً `!isComplaintNoOption(raw)` (`1`) را استثنا می‌کند."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 5,
+      "loser": "ایمنی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "الان در خطرم",
+      "compound_input": "گزینه‌ای وجود ندارد الان در خطرم",
+      "why": "ترتیب فعلی `hitDecision`، اعتراضِ نبودِ گزینه (`1`) را پیش از ایمنی (`5`) گذاشته است؛ این قرارداد ترتیب فعلی را قفل می‌کند."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "پرسشها درباره قرارداد بین الف و ب چیست و در قانون چه میشود",
+      "compound_input": "گزینه‌ای وجود ندارد و پرسشها درباره قرارداد بین الف و ب چیست و در قانون چه میشود",
+      "why": "اگر اعتراضِ نبودِ گزینه درون یک پرسش فرضی طولانی بیاید، راه خروج مقدم بر پرسش فرضی است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "تاریخچه",
+      "compound_input": "گزینه‌ای وجود ندارد تاریخچه",
+      "why": "اعتراض به نبود گزینه مقدم بر پاسخ تاریخچهٔ برنامه است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "گزینه‌ای وجود ندارد دعوام شد",
+      "why": "اعتراض به نبود گزینه مقدم بر پاسخ عمومی دعوای لفظی است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه گزینه نیست",
+      "why": "وقتی `choices` هست و کاربر می‌گوید «گزینه نیست» (بدون «نه/هیچ‌کدام»)، `1` مقدم بر `9` است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "اشتباه گرفتی",
+      "compound_input": "گزینه‌ای وجود ندارد اشتباه گرفتی",
+      "why": "اعتراض به نبود گزینه پیش از مسیرِ حدس اشتباه به کاربر راه خروج می‌دهد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "گزینه نیست ادامه",
+      "why": "اعتراض به نبود گزینه باقی‌ماندهٔ `voice.rest` را کنار می‌گذارد و راه خروج نشان می‌دهد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های ««هیچ‌کدام»» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "بله",
+      "compound_input": "بله گزینه نیست",
+      "why": "اعتراض به نبود گزینه پیشنهادِ `offer` را پشت سر می‌گذارد."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "بله",
+      "compound_input": "بله گزینه نیست",
+      "why": "عبارت «بله گزینه نیست» باید به `1` برسد نه پذیرش `14`."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "جداست",
+      "compound_input": "گزینه نیست جداست",
+      "why": "اعتراض به نبود گزینه مقدم بر انتخابِ `side` است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "گزینه‌ای وجود ندارد مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "اعتراض به نبود گزینه در `hitDecision` مقدم بر محاسبهٔ مهلت در `dueDecision` است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "در این صفحه هیچ گزینه ای وجود ندارد متاسفانه",
+      "why": "تکرارِ شکایت از نبود گزینه همچنان راه خروج (`1`) می‌دهد، نه پیام تکرار (`17`).",
+      "prime_input": "در این صفحه هیچ گزینه ای وجود ندارد متاسفانه"
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "گزینه‌ای وجود ندارد طلاق ثبت دفترخانه نمیشه",
+      "why": "اعتراض به نبود گزینه مقدم بر قاعدهٔ ثابت است."
+    },
+    {
+      "winner_index": 1,
+      "winner": "«هیچ‌کدام»",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "گزینه‌ای وجود ندارد مهلت ابلاغ",
+      "why": "اعتراض به نبود گزینه مقدم بر مهلت ابلاغ است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 3,
+      "loser": "دکمهٔ دستهٔ مشکل",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» نیازمند `!hasCase` است در حالی که «تازه است یا مربوط؟» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `3` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 4,
+      "loser": "کنار گذاشتنِ موضوع",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "خروج از بحث",
+      "compound_input": "خروج از همین موضوع قبلی",
+      "why": "وقتی `pendingTopic` روی میز است، پاسخِ «مربوط به همین موضوع قبلی» پیش از `isLeave` اجرا می‌شود تا پرسش دوگزینه‌ای بی‌پاسخ نماند."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 5,
+      "loser": "ایمنی",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "الان در خطرم",
+      "compound_input": "مربوط است الان در خطرم",
+      "why": "در ترتیب فعلی `hitDecision`، پاسخِ «تازه است یا مربوط؟» (`2`) پیش از ایمنی (`5`) می‌آید — در هر جابه‌جایی آینده این تست قرمز می‌شود تا آگاهانه باشد."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «تازه است یا مربوط؟» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "تاریخچه",
+      "compound_input": "مربوط است تاریخچه",
+      "why": "با `pendingTopic` باز، پاسخِ «مربوط است» مقدم بر متای تاریخچه است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که «تازه است یا مربوط؟» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `8` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» نیازمند `!hasCase` است در حالی که «تازه است یا مربوط؟» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `9` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "disjoint",
+      "reason_code": "pendingTopic_mutex",
+      "why": "`CaseFlow.open(..., guessed: true)` هنگام باز کردن پرونده `closeCase()` را صدا زده و `pendingTopic` را پاک می‌کند؛ هم‌زمان `guessed` نیز تنها در همان نوبت بعدی معتبر است و دو پرچم با هم برقرار نمی‌شوند."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_pend_rest",
+      "loser_setup": "open_pend_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "مربوط ادامه",
+      "why": "وقتی `pendingTopic` منتظر پاسخ است، «مربوط» باید تکلیف موضوع را روشن کند نه اینکه `voice.rest` قبلی را ادامه بدهد."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «تازه است یا مربوط؟» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_pend_offer",
+      "loser_setup": "open_pend_offer",
+      "loser_input": "نمی‌دانم",
+      "compound_input": "بله",
+      "why": "پاسخ صریح «بله» وقتی هر دو `pendingTopic` و `offer` روی میز هستند باید موضوع معلق را باز کند نه پیشنهاد قبلی را."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "آره",
+      "compound_input": "خیر مربوط است",
+      "why": "«خیر مربوط است» وقتی `pendingTopic` هست تکلیف تغییر موضوع را روشن می‌کند، نه اینکه `bareAck` روی پروندهٔ قبلی اجرا شود."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_pend_side",
+      "loser_setup": "open_side",
+      "loser_input": "جداست",
+      "compound_input": "جداست",
+      "why": "وقتی هم `pendingTopic` و هم `side` فعال‌اند، `pending` (`2`) پیش از `side` (`15`) جواب می‌دهد."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که «تازه است یا مربوط؟» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `16` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "کتاب دفتر موضوع دیگه است این",
+      "why": "تکرار پیامی که پاسخ «موضوع دیگه است» دارد باید تغییر موضوع را اجرا کند، نه پیام تکرار را.",
+      "prime_input": "کتاب دفتر موضوع دیگه است این الان"
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_pending",
+      "loser_setup": "open_pending",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "موضوع دیگه طلاق ثبت دفترخانه نمیشه",
+      "why": "با `pendingTopic` روی میز، پاسخ کوتاه «موضوع دیگه» همراه قاعدهٔ ثابت اول تکلیف `pendingTopic` را روشن می‌کند."
+    },
+    {
+      "winner_index": 2,
+      "winner": "تازه است یا مربوط؟",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که «تازه است یا مربوط؟» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 4,
+      "loser": "کنار گذاشتنِ موضوع",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "open_rent",
+      "loser_input": "انصراف",
+      "compound_input": "انصراف",
+      "why": "در وضعیت `branchAsked` پس از سلام، «انصراف» با متنِ اختصاصیِ بستهٔ شاخه (`trBranchLeave` در `3`) پیش از نگهبانِ عمومیِ `leaveReply` (`4`) اجرا می‌شود."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 5,
+      "loser": "ایمنی",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "الان در خطرم",
+      "compound_input": "خروج الان در خطرم",
+      "why": "در ترتیب فعلی پس از سلام، «خروج» در `3` پیش از ایمنی (`5`) قرار دارد."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «دکمهٔ دستهٔ مشکل» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "تاریخچه",
+      "compound_input": "خروج تاریخچه",
+      "why": "در وضعیت `branchAsked`، «خروج تاریخچه» توسط `3` گرفته می‌شود."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد خروج",
+      "why": "در وضعیت `branchAsked`، «دعوام شد خروج» توسط `3` گرفته می‌شود."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "disjoint",
+      "reason_code": "branchAsked_vs_choices_mutex",
+      "why": "`dialog.branchAsked` و `dialog.choices` در آغاز `_reply` پاک می‌شوند و هیچ مسیر واحدی هر دو را با هم نمی‌گذارد؛ در وضعیت بی‌پرونده هم دکمه‌های `branchChips` با متنِ `choices` مشترک نیستند."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» نیازمند `!hasCase` است در حالی که «حدسِ اشتباه» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `10` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "branchAsked_vs_rest_mutex",
+      "why": "همهٔ مسیرهایی که `branchAsked = true` می‌گذارند متن کوتاه یا `full: true` دارند (`voice.rest == \"\"`)؛ در نبودِ `branchAsked` نیز هیچ‌یک از `branchChips` با الگوی «ادامه» در `11` نمی‌خواند."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» و «تنظیمِ سند» هم در شرطِ `hasCase` متضادند و هم «تنظیمِ سند» تنها با متنِ دقیقِ یک `Filing.chip` فعال می‌شود که هیچ کلیدواژهٔ کاندیدِ مقابل را ندارد."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» نیازمند `!hasCase` است در حالی که «پیشنهادِ پاسخ» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `13` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» نیازمند `!hasCase` است در حالی که ««باشه»» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `14` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دکمهٔ دستهٔ مشکل» نیازمند `!hasCase` است در حالی که «موضوعِ کنارِ هم» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `15` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "min_tokens_deadline_disjoint",
+      "why": "مهلت (`16`) نیازمند `!hasCase`، کلیدواژهٔ مهلت، نوع رویداد (ابلاغ/رأی)، تاریخ جلالی و مدت (حداقل ۴ واژه) است که با واژه‌سقف و دکمه‌های کوتاهِ «دکمهٔ دستهٔ مشکل» هم‌زمان جا نمی‌شود."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "`branchReply` (`3`) هنگام تایپ آزاد حداکثر ۴ واژه می‌پذیرد و بلندترین دکمهٔ شاخه ۱ واژه است، در حالی که `repeat` (`17`) دست‌کم ۶ واژهٔ یکتا لازم دارد."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "طلاق ثبت نمیشه خروج",
+      "why": "در وضعیت `branchAsked`، پیام کوتاهِ دارای «خروج» و جملهٔ قاعدهٔ ثابت اول به `3` می‌رسد."
+    },
+    {
+      "winner_index": 3,
+      "winner": "دکمهٔ دستهٔ مشکل",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "asked",
+      "loser_setup": "asked",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "خروج مهلت ابلاغ",
+      "why": "در وضعیت `branchAsked`، «خروج مهلت ابلاغ» پیش از راهنمای مهلت ابلاغ توسط `3` گرفته می‌شود."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 5,
+      "loser": "ایمنی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "الان در خطرم",
+      "compound_input": "انصراف الان در خطرم",
+      "why": "در ترتیب فعلی `hitDecision`، انصراف و خروج (`4`) پیش از ایمنی (`5`) اجرا می‌شود تا دستور خروج کاربر بی‌اثر نماند."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "پرسشها درباره قرارداد بین الف و ب چیست و در قانون چه میشود",
+      "compound_input": "خروج از بحث و پرسشها درباره قرارداد بین الف و ب چیست و چه حکمی دارد",
+      "why": "انصرافِ صریح مقدم بر پاسخ به پرسش فرضی است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "تاریخچه",
+      "compound_input": "انصراف تاریخچه",
+      "why": "انصرافِ صریح مقدم بر متای تاریخچه است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد انصراف",
+      "why": "انصرافِ صریح مقدم بر پاسخ عمومی دعوای لفظی است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه انصراف",
+      "why": "وقتی `choices` باز است، «نه انصراف» باید پرونده را ببندد (`4`) نه اینکه تنها شاخه‌پرسش (`9`) باز کند."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "اشتباه گرفتی",
+      "compound_input": "انصراف اشتباه گرفتی",
+      "why": "انصرافِ صریح مقدم بر اعتراض به حدس اشتباه است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "انصراف ادامه",
+      "why": "انصرافِ صریح باقی‌ماندهٔ `voice.rest` را رها می‌کند و بیرون می‌آید."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «کنار گذاشتنِ موضوع» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "بله",
+      "compound_input": "بله انصراف",
+      "why": "انصرافِ صریح مقدم بر پذیرش پیشنهاد `offer` است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "بله",
+      "compound_input": "بله انصراف",
+      "why": "«بله انصراف» پرونده را می‌بندد، نه اینکه با `bareAck` ادامه بدهد."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "جداست",
+      "compound_input": "انصراف جداست",
+      "why": "«انصراف جداست» خروج را اجرا می‌کند، نه بازکردن `side`."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "خروج از بحث مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "انصرافِ صریح مقدم بر محاسبهٔ مهلت است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "خروج از این موضوع و بحث قبلی برای امروز بسه",
+      "why": "تکرارِ جملهٔ خروج همچنان خروج (`4`) را اجرا می‌کند، نه پیام تکرار (`17`).",
+      "prime_input": "از این موضوع و بحث قبلی برای امروز بسه"
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "طلاق ثبت نمیشه انصراف",
+      "why": "انصرافِ صریح مقدم بر قاعدهٔ ثابت است."
+    },
+    {
+      "winner_index": 4,
+      "winner": "کنار گذاشتنِ موضوع",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "انصراف مهلت ابلاغ",
+      "why": "انصرافِ صریح مقدم بر مهلت ابلاغ است."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 6,
+      "loser": "پرسش فرضی",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "پرسشها درباره قرارداد بین الف و ب چیست و در قانون چه میشود",
+      "compound_input": "الان در خطرم و پرسشها درباره قرارداد بین الف و ب چیست و چه میشود",
+      "why": "پیامِ خطر فوری حتی درون یک پرسش فرضیِ طولانی باید بی‌درنگ به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "سگم مرده",
+      "compound_input": "سگم مرده الان در خطرم",
+      "why": "پیامِ سوگ یا برنامه اگر هم‌زمان نشانهٔ خطر داشته باشد باید به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد الان در خطرم",
+      "why": "دعوا همراه نشانهٔ خطر باید فوراً پاسخ ایمنی (`5`) بگیرد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه خودکشی",
+      "why": "وقتی `choices` باز است، «نه خودکشی» باید به ایمنی (`5`) برود، نه انتخاب `9`."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "اشتباه گرفتی",
+      "compound_input": "اشتباه گرفتی الان در خطرم",
+      "why": "هم‌زمانیِ اعتراض به حدس و خودآسیبی باید به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "ادامه الان در خطرم",
+      "why": "درخواست ادامه همراه خطر فوری باید به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «ایمنی» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "بله",
+      "compound_input": "بله الان در خطرم",
+      "why": "پذیرش پیشنهاد همراه خطر فوری باید به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "بله",
+      "compound_input": "بله خودکشی",
+      "why": "پاسخ کوتاه همراه خودکشی باید به ایمنی (`5`) برسد، نه `bareAck`."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "جداست",
+      "compound_input": "جداست الان در خطرم",
+      "why": "اشاره به موضوع دیگر همراه خطر فوری باید به ایمنی (`5`) برسد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "الان در خطرم مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "خطر فوری همراه تاریخ مهلت باید اول ایمنی (`5`) بدهد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "الان در خطر فوری هستم کمک کن من میترسم خیلی",
+      "why": "تکرارِ گزارش خطر با تغییرِ یک واژه (`lastSafetyText != n` و Jaccard >= 0.8) باید دوباره هشدار ایمنی (`5`) بدهد، نه پیام تکرار (`17`).",
+      "prime_input": "الان در خطر فوری هستم کمک کن من میترسم بسیار"
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "الان در خطرم طلاق ثبت دفترخانه نمیشه",
+      "why": "خطر فوری همراه قاعدهٔ ثابت باید اول ایمنی (`5`) بدهد."
+    },
+    {
+      "winner_index": 5,
+      "winner": "ایمنی",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "الان در خطرم مهلت ابلاغ",
+      "why": "خطر فوری همراه مهلت ابلاغ باید اول ایمنی (`5`) بدهد."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 7,
+      "loser": "دربارهٔ برنامه",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "چت قبلی",
+      "compound_input": "چت قبلی پاک شد و پرسشها این است که میان الف و ب چه باید کرد",
+      "why": "پرسش فرضیِ ≥۱۲ واژه که دربارهٔ تاریخچه هم هست باید در `hitDecision` (`6`) بماند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد و پرسشها این است که میان الف و ب کدام یک مقصر بوده است",
+      "why": "پرسش فرضیِ ≥۱۲ واژه با «دعوام شد» نباید وارد دعوای شخصیِ کاربر (`8`) شود."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «انتخابِ موضوع» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «حدسِ اشتباه» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «ادامهٔ حرفِ قبلی» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «پرسش فرضی» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «پیشنهادِ پاسخ» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که ««باشه»» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "پرسش فرضی (`6`) دست‌کم ۱۲ واژه و کلمهٔ «پرسش» می‌خواهد، در حالی که «موضوعِ کنارِ هم» با متن آزاد محدود به سقف واژگانیِ کوتاه (`<= 3..7` واژه) است و دکمه‌هایش هرگز به ۱۲ واژه نمی‌رسند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "در مهلت رأی ۱۴۰۳/۱/۱ و ۲۰ روز پرسشها این است که میان الف و ب چه میشود",
+      "why": "پرسش فرضی در `hitDecision` مقدم بر محاسبهٔ مهلت در `dueDecision` است."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "پرسشها این است که میان الف و ب چه قرارداد و تعهدی در جریان بوده",
+      "why": "تکرارِ پرسش فرضی طولانی همچنان از مسیر پرسش فرضی (`6`) پاسخ می‌گیرد.",
+      "prime_input": "پرسشها این است که میان الف و ب چه قرارداد و تعهدی در جریان بوده"
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "طلاق ثبت دفترخانه نمیشه و پرسشها این است که میان الف و ب چه میشود",
+      "why": "پرسش فرضیِ شاملِ قاعدهٔ ثابت، کل تحلیل فرضی (`6`) را پیش از قاعدهٔ ثابت برمی‌گرداند."
+    },
+    {
+      "winner_index": 6,
+      "winner": "پرسش فرضی",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "در مهلت ابلاغ پرسشها این است که میان الف و ب چه تکلیفی وجود دارد",
+      "why": "پرسش فرضیِ شاملِ مهلت ابلاغ مقدم بر مهلت ابلاغ است."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 8,
+      "loser": "دعوا و شکایت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "دعوام شد",
+      "compound_input": "دعوام شد تاریخچه",
+      "why": "پرسش دربارهٔ تاریخچه/برنامه با لفظ دعوا، پیش از مسیر دعوای لفظی (`8`) بررسی می‌شود."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه تاریخچه",
+      "why": "وقتی `choices` باز است، «نه تاریخچه» باید پاسخ تاریخچه بدهد؛ چون `7` پیش از `9` است."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "اشتباه گرفتی",
+      "compound_input": "اشتباه گرفتی تاریخچه",
+      "why": "شکایت از حدس اشتباه همراه «تاریخچه» در ترتیب فعلی به `7` می‌رسد."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "ادامه تاریخچه",
+      "why": "درخواست ادامه همراه «تاریخچه» در ترتیب فعلی به `7` می‌رسد."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «دربارهٔ برنامه» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "بله",
+      "compound_input": "بله تاریخچه",
+      "why": "پاسخ کوتاه «بله تاریخچه» به `7` می‌رسد."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "بله",
+      "compound_input": "بله تاریخچه",
+      "why": "در پروندهٔ باز، «بله تاریخچه» به `7` می‌رسد نه `bareAck`."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "جداست",
+      "compound_input": "جداست تاریخچه",
+      "why": "«جداست تاریخچه» به `7` می‌رسد نه `side`."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "چت قبلی مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "در ترتیب فعلی `hitDecision`، متای برنامه (`7`) پیش از مهلتِ `dueDecision` (`16`) اجرا می‌شود."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "چت قبلی من کجا رفته و پاک شد",
+      "why": "تکرارِ جملهٔ «چت قبلی من کجا رفته و پاک شد» به جای پیام تکرار، پاسخ واقعی تاریخچه (`7`) را می‌دهد.",
+      "prime_input": "چت قبلی من کجا رفته و پاک شد"
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "غبن فاحش اسقاط",
+      "compound_input": "چت قبلی غبن فاحش اسقاط",
+      "why": "پرسشِ تاریخچه به همراه عبارت تعارض غبن در ترتیب فعلی توسط `7` گرفته می‌شود."
+    },
+    {
+      "winner_index": 7,
+      "winner": "دربارهٔ برنامه",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "چت قبلی مهلت ابلاغ",
+      "why": "پرسشِ تاریخچه همراه «مهلت ابلاغ» توسط `7` گرفته می‌شود."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 9,
+      "loser": "انتخابِ موضوع",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "نه",
+      "compound_input": "نه دعوام شد",
+      "why": "وقتی `choices` هست و کاربر «نه دعوام شد» می‌گوید، `8` پیش از `9` پاسخ دعوای لفظی می‌دهد."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که «حدسِ اشتباه» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `10` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "idle_rest",
+      "loser_setup": "idle_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "ادامه دعوام شد",
+      "why": "در وضعیت بی‌پرونده با `voice.rest`، «ادامه دعوام شد» توسط `8` گرفته می‌شود."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» و «تنظیمِ سند» هم در شرطِ `hasCase` متضادند و هم «تنظیمِ سند» تنها با متنِ دقیقِ یک `Filing.chip` فعال می‌شود که هیچ کلیدواژهٔ کاندیدِ مقابل را ندارد."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که «پیشنهادِ پاسخ» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `13` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که ««باشه»» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `14` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که «موضوعِ کنارِ هم» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `15` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "compound_input": "دعوام شد مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "دعوای لفظی در `hitDecision` (`8`) مقدم بر محاسبهٔ مهلت در `dueDecision` (`16`) است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«دعوا و شکایت» نیازمند `!hasCase` است در حالی که «تکرارِ حرفِ قبلی» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `17` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "غبن فاحش اسقاط",
+      "compound_input": "دعوام شد غبن فاحش اسقاط",
+      "why": "دعوای لفظی همراه عبارت تعارض غبن توسط `8` گرفته می‌شود."
+    },
+    {
+      "winner_index": 8,
+      "winner": "دعوا و شکایت",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "دعوام شد مهلت ابلاغ",
+      "why": "دعوای لفظی همراه «مهلت ابلاغ» توسط `8` گرفته می‌شود."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 10,
+      "loser": "حدسِ اشتباه",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» نیازمند `!hasCase` است در حالی که «حدسِ اشتباه» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `10` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "choices_vs_rest_mutex",
+      "why": "همهٔ مسیرهایی که `dialog.choices` را پر می‌کنند متنِ کوتاه می‌دهند (`voice.rest == \"\"`)، پس `choices.isNotEmpty` و `voice.rest.isNotEmpty` هم‌زمان رخ نمی‌دهند."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» و «تنظیمِ سند» هم در شرطِ `hasCase` متضادند و هم «تنظیمِ سند» تنها با متنِ دقیقِ یک `Filing.chip` فعال می‌شود که هیچ کلیدواژهٔ کاندیدِ مقابل را ندارد."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» نیازمند `!hasCase` است در حالی که «پیشنهادِ پاسخ» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `13` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» نیازمند `!hasCase` است در حالی که ««باشه»» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `14` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«انتخابِ موضوع» نیازمند `!hasCase` است در حالی که «موضوعِ کنارِ هم» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `15` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "min_tokens_deadline_disjoint",
+      "why": "مهلت (`16`) نیازمند `!hasCase`، کلیدواژهٔ مهلت، نوع رویداد (ابلاغ/رأی)، تاریخ جلالی و مدت (حداقل ۴ واژه) است که با واژه‌سقف و دکمه‌های کوتاهِ «انتخابِ موضوع» هم‌زمان جا نمی‌شود."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "انتخاب موضوع (`9`) حداکثر ۳ واژهٔ تایپی یا تطبیقِ دقیق با عنوان موضوع را می‌پذیرد (بلندترین عنوان یعنی `sale` ۷ واژه دارد) و `choices` از `multiTopicPrompt` نیازمند پرسش ترتیب + موضوع دوم یا >= ۱۴ واژه است؛ بیشینه Jaccard روی `7/10 = 0.70 < 0.8`."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "نمیخوام ثبت طلاق",
+      "why": "وقتی `choices` روی میز است، «نمیخوام ثبت طلاق» با «نمیخوام» (نهِ کوتاه) پاسخ انتخاب موضوع (`9`) را می‌گیرد نه قاعدهٔ ثابت."
+    },
+    {
+      "winner_index": 9,
+      "winner": "انتخابِ موضوع",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "choices",
+      "loser_setup": "choices",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "نه مهلت ابلاغ",
+      "why": "وقتی `choices` روی میز است، «نه مهلت ابلاغ» پاسخ انتخاب موضوع (`9`) را می‌گیرد نه مهلت ابلاغ."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 11,
+      "loser": "ادامهٔ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_guessed_rest_offer",
+      "loser_setup": "open_rest",
+      "loser_input": "ادامه بده",
+      "compound_input": "اشتباه گرفتی ادامه",
+      "why": "وقتی پرونده با حدس باز شده و ادامه هم دارد، «اشتباه گرفتی ادامه» باید حدس را اصلاح کند (`10`) نه متن اشتباه را ادامه بدهد (`11`)."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «حدسِ اشتباه» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_guessed_rest_offer",
+      "loser_setup": "open_guessed_rest_offer",
+      "loser_input": "بله",
+      "compound_input": "بله اشتباه گرفتی",
+      "why": "وقتی پرونده با حدس باز شده و پیشنهاد `offer` هم دارد، «بله اشتباه گرفتی» باید حدس را پس بگیرد (`10`) نه پیشنهادِ پروندهٔ اشتباه را باز کند."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "reachable_state_invariant",
+      "why": "هر ۲۴ موضوعِ برنامه در `follow` کلید `\"next\"` دارند؛ بنابراین `open(..., guessed: true)` از راه `nextAsk` یا `file.pending` را پر می‌کند یا `dialog.offer` را، در حالی که «باشه» (`14`) نیازمند خالی‌بودنِ هم‌زمان هر دو است."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "side_precondition_mutex",
+      "why": "`dialog.side` (`15`) تنها در `_inCaseReply` با پیامِ کوتاهِ `< 5` واژه و `!understood` و پس از `clearOffer()` تنظیم می‌شود (بی‌`guessed`، بی‌`rest`، بی‌`offer` و با `prevN < 5` واژه که با `>= 6` واژه در `17` ناسازگار است)."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که «حدسِ اشتباه» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `16` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_guessed_repeat",
+      "loser_setup": "open_rent",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "منظورم این نبود اشتباه گرفتی دوست من",
+      "why": "تکرارِ «منظورم این نبود اشتباه گرفتی» باید پروندهٔ حدسی را ببندد (`10`) نه پیام تکرار بدهد."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_guessed",
+      "loser_setup": "open_guessed",
+      "loser_input": "غبن فاحش اسقاط شرط",
+      "compound_input": "غبن فاحش اسقاط شرط اشتباه گرفتی",
+      "why": "اعتراضِ حدس اشتباه همراه قاعدهٔ ثابت باید اول حدس را ببندد (`10`)."
+    },
+    {
+      "winner_index": 10,
+      "winner": "حدسِ اشتباه",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که «حدسِ اشتباه» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 12,
+      "loser": "تنظیمِ سند",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «ادامهٔ حرفِ قبلی» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "overlap",
+      "setup": "open_rest_offer",
+      "loser_setup": "open_rest_offer",
+      "loser_input": "بله",
+      "compound_input": "ادامه بده",
+      "why": "وقتی هم `voice.rest` مانده و هم `dialog.offer` آماده است، «ادامه بده» اول باقیماندهٔ متن فعلی (`11`) را می‌گوید و سپس به پیشنهاد (`13`) می‌رسد."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "bareAck_precondition_mutex",
+      "why": "«باشه» (`14`) نیازمند خالی‌بودنِ `voice.rest`، `dialog.offer` و `dialog.side` است و دقیقاً با پیش‌شرطِ «ادامهٔ حرفِ قبلی» ناسازگار است."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "side_precondition_mutex",
+      "why": "`dialog.side` (`15`) تنها در `_inCaseReply` با پیامِ کوتاهِ `< 5` واژه و `!understood` و پس از `clearOffer()` تنظیم می‌شود (بی‌`guessed`، بی‌`rest`، بی‌`offer` و با `prevN < 5` واژه که با `>= 6` واژه در `17` ناسازگار است)."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "min_tokens_deadline_disjoint",
+      "why": "مهلت (`16`) نیازمند `!hasCase`، کلیدواژهٔ مهلت، نوع رویداد (ابلاغ/رأی)، تاریخ جلالی و مدت (حداقل ۴ واژه) است که با واژه‌سقف و دکمه‌های کوتاهِ «ادامهٔ حرفِ قبلی» هم‌زمان جا نمی‌شود."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "«ادامهٔ حرفِ قبلی» حداکثر ۴ یا ۳ واژه می‌پذیرد و دکمه‌هایش کوتاه‌اند، در حالی که تکرارِ حرف قبلی (`17`) دست‌کم ۶ واژهٔ یکتا لازم دارد."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_rest",
+      "loser_setup": "open_rest",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "ادامه طلاق ثبت نمیشه",
+      "why": "وقتی `voice.rest` مانده، «ادامه طلاق ثبت نمیشه» باقیماندهٔ پاسخ قبلی را تمام می‌کند."
+    },
+    {
+      "winner_index": 11,
+      "winner": "ادامهٔ حرفِ قبلی",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle_rest",
+      "loser_setup": "idle_rest",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "ادامه مهلت ابلاغ",
+      "why": "در بی‌پرونده با `voice.rest` مانده، «ادامه مهلت ابلاغ» باقیمانده را می‌گوید."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 13,
+      "loser": "پیشنهادِ پاسخ",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «پیشنهادِ پاسخ» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های ««باشه»» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «موضوعِ کنارِ هم» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«تنظیمِ سند» و «مهلت» هم در شرطِ `hasCase` متضادند و هم «تنظیمِ سند» تنها با متنِ دقیقِ یک `Filing.chip` فعال می‌شود که هیچ کلیدواژهٔ کاندیدِ مقابل را ندارد."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "overlap",
+      "setup": "open_rent_filing14",
+      "loser_setup": "open_rent_filing14",
+      "loser_input": "این پرونده قدیمی من هنوز حل نشده است",
+      "compound_input": "تنظیم لایحهٔ دفاع در برابر ادعای خسارت",
+      "why": "تکرارِ دقیقِ دکمهٔ تنظیم لایحه (`filing14_chip`) باید فرمِ سند را باز کند (`12`) نه پاسخِ تکرارِ حرف قبلی (`17`).",
+      "prime_input": "تنظیم لایحهٔ دفاع در برابر ادعای خسارت"
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "disjoint",
+      "reason_code": "exact_filing_chip_disjoint",
+      "why": "«تنظیمِ سند» (`12`) تنها وقتی فعال می‌شود که ورودی دقیقاً برابرِ یکی از دکمه‌های `Filing.chip` پروندهٔ باز باشد (حداکثر ۷ واژه و فقط قالب‌های «تنظیم دادخواست/لایحه …») که با الگوها یا پیش‌شرط‌های «قاعدهٔ ثابت» هیچ اشتراکی ندارد."
+    },
+    {
+      "winner_index": 12,
+      "winner": "تنظیمِ سند",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«تنظیمِ سند» و «مهلتِ اعتراض» هم در شرطِ `hasCase` متضادند و هم «تنظیمِ سند» تنها با متنِ دقیقِ یک `Filing.chip` فعال می‌شود که هیچ کلیدواژهٔ کاندیدِ مقابل را ندارد."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 14,
+      "loser": "«باشه»",
+      "status": "disjoint",
+      "reason_code": "bareAck_precondition_mutex",
+      "why": "«باشه» (`14`) نیازمند خالی‌بودنِ `voice.rest`، `dialog.offer` و `dialog.side` است و دقیقاً با پیش‌شرطِ «پیشنهادِ پاسخ» ناسازگار است."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "side_precondition_mutex",
+      "why": "`dialog.side` (`15`) تنها در `_inCaseReply` با پیامِ کوتاهِ `< 5` واژه و `!understood` و پس از `clearOffer()` تنظیم می‌شود (بی‌`guessed`، بی‌`rest`، بی‌`offer` و با `prevN < 5` واژه که با `>= 6` واژه در `17` ناسازگار است)."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که «پیشنهادِ پاسخ» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `16` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "«پیشنهادِ پاسخ» حداکثر ۴ یا ۳ واژه می‌پذیرد و دکمه‌هایش کوتاه‌اند، در حالی که تکرارِ حرف قبلی (`17`) دست‌کم ۶ واژهٔ یکتا لازم دارد."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_offer",
+      "loser_setup": "open_offer",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "بله طلاق ثبت نمیشه",
+      "why": "با `offer` فعال، «بله طلاق ثبت نمیشه» پیشنهاد معلق (`13`) را اجرا می‌کند."
+    },
+    {
+      "winner_index": 13,
+      "winner": "پیشنهادِ پاسخ",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که «پیشنهادِ پاسخ» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 14,
+      "winner": "«باشه»",
+      "loser_index": 15,
+      "loser": "موضوعِ کنارِ هم",
+      "status": "disjoint",
+      "reason_code": "bareAck_precondition_mutex",
+      "why": "«باشه» (`14`) نیازمند خالی‌بودنِ `voice.rest`، `dialog.offer` و `dialog.side` است و دقیقاً با پیش‌شرطِ «موضوعِ کنارِ هم» ناسازگار است."
+    },
+    {
+      "winner_index": 14,
+      "winner": "«باشه»",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که ««باشه»» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `16` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 14,
+      "winner": "«باشه»",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "word_count_disjoint",
+      "why": "««باشه»» حداکثر ۴ یا ۳ واژه می‌پذیرد و دکمه‌هایش کوتاه‌اند، در حالی که تکرارِ حرف قبلی (`17`) دست‌کم ۶ واژهٔ یکتا لازم دارد."
+    },
+    {
+      "winner_index": 14,
+      "winner": "«باشه»",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "نمیخوام ثبت طلاق",
+      "why": "در پروندهٔ بازِ بی‌مانده و بی‌اسلات، «نمیخوام ثبت طلاق» (۳ واژه) به عنوان پاسخ کوتاه پرونده (`14`) عمل می‌کند."
+    },
+    {
+      "winner_index": 14,
+      "winner": "«باشه»",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که ««باشه»» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 15,
+      "winner": "موضوعِ کنارِ هم",
+      "loser_index": 16,
+      "loser": "مهلت",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که «موضوعِ کنارِ هم» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `16` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 15,
+      "winner": "موضوعِ کنارِ هم",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "side_precondition_mutex",
+      "why": "`dialog.side` (`15`) تنها در `_inCaseReply` با پیامِ کوتاهِ `< 5` واژه و `!understood` و پس از `clearOffer()` تنظیم می‌شود (بی‌`guessed`، بی‌`rest`، بی‌`offer` و با `prevN < 5` واژه که با `>= 6` واژه در `17` ناسازگار است)."
+    },
+    {
+      "winner_index": 15,
+      "winner": "موضوعِ کنارِ هم",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_side",
+      "loser_setup": "open_side",
+      "loser_input": "طلاق ثبت نمیشه",
+      "compound_input": "طلاق ثبت نمیشه جداست",
+      "why": "وقتی `dialog.side` فعال است، «طلاق ثبت نمیشه جداست» اشارهٔ کناری (`15`) را باز می‌کند."
+    },
+    {
+      "winner_index": 15,
+      "winner": "موضوعِ کنارِ هم",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که «موضوعِ کنارِ هم» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 16,
+      "winner": "مهلت",
+      "loser_index": 17,
+      "loser": "تکرارِ حرفِ قبلی",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلت» نیازمند `!hasCase` است در حالی که «تکرارِ حرفِ قبلی» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `17` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 16,
+      "winner": "مهلت",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "طلاق ثبت دفترخانه نمیشه مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "در بی‌پرونده، پیامِ دارای تاریخ/مدت مهلت و قاعدهٔ ثابت، محاسبهٔ تقویمی مهلت (`16`) را پیش از `tailDecision` برمی‌گرداند."
+    },
+    {
+      "winner_index": 16,
+      "winner": "مهلت",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "مهلت ابلاغ ۱۴۰۳/۱/۱ ۲۰ روز",
+      "why": "پیامِ دارای تاریخ و مدت ابلاغ، محاسبهٔ دقیق تقویمیِ `16` را بر پاسخ کلیِ مهلت ابلاغِ `19` مقدم می‌دارد."
+    },
+    {
+      "winner_index": 17,
+      "winner": "تکرارِ حرفِ قبلی",
+      "loser_index": 18,
+      "loser": "قاعدهٔ ثابت",
+      "status": "overlap",
+      "setup": "open_rent",
+      "loser_setup": "open_rent",
+      "loser_input": "طلاق ثبت دفترخانه نمیشه",
+      "compound_input": "طلاق ثبت دفترخانه نمیشه و امتناع میکنه",
+      "why": "در پروندهٔ باز، تکرارِ حرفِ ۶+ واژه‌ایِ پیشین که عبارت قاعدهٔ ثابت را هم دارد با `17` گرفته می‌شود تا کاربر پاسخ تکراری نگیرد.",
+      "prime_input": "طلاق ثبت دفترخانه نمیشه و امتناع میکنه"
+    },
+    {
+      "winner_index": 17,
+      "winner": "تکرارِ حرفِ قبلی",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "disjoint",
+      "reason_code": "hasCase_mutex",
+      "why": "«مهلتِ اعتراض» نیازمند `!hasCase` است در حالی که «تکرارِ حرفِ قبلی» نیازمند پروندهٔ باز (`file.topic.isNotEmpty` یا `hasCase == true`) است؛ حتی با `dialog.guide != null` که `hasCase == true` است، `file.topic` خالی می‌ماند و `19` باز هم غیرفعال است."
+    },
+    {
+      "winner_index": 18,
+      "winner": "قاعدهٔ ثابت",
+      "loser_index": 19,
+      "loser": "مهلتِ اعتراض",
+      "status": "overlap",
+      "setup": "idle",
+      "loser_setup": "idle",
+      "loser_input": "مهلت ابلاغ این نامه",
+      "compound_input": "طلاق ثبت دفترخانه نمیشه مهلت ابلاغ",
+      "why": "در بی‌پرونده، قاعدهٔ ثابت مستندِ `18` مقدم بر راهنمای عمومیِ مهلتِ `19` است."
+    }
+  ]
+}

@@ -6,8 +6,12 @@
   (`assets/brain/guides/legal_guides.json`)، بانک پرسش‌وپاسخ (`assets/qa/`)،
   پاسخ‌های ثابت (`assets/replies.json`) و متادیتای قوانین (`_meta.json`)؛
 * **کدِ Dart**: فایل‌هایی که متنِ پاسخِ موضوع‌ها در آن‌ها نوشته شده است
-  (`rent_bodies*`، `rent_claims`، `rent_plan`، `rent_fill`، `labor_bodies`،
-  `family_bodies`، `shared`).
+  (`rent_bodies*`، `rent_plan`، `rent_fill`، `labor_bodies`،
+  `family_bodies`، `shared`). متنِ ادعاها و برچسبهای سند از
+  `rent_claims.dart` و متنِ طرحِ دعوا از `rent_plan.dart` به جدولهای
+  `claims`، `filings` و `plans` در همان داراییِ `rent_texts.json` رفتهاند؛
+  پوستهٔ `rentText(id)` در فایلِ Dart میماند و با هشِ دارایی پوشیده
+  میشود.
 
 `_meta.json` امروز فقط هشِ متنِ قوانین را دارد. این ابزار همان کار را برای
 **همهٔ** متن‌ها می‌کند تا وقتی نسخهٔ اعتبارسنجی‌شدهٔ قانون می‌آید، تفاضلِ متن
@@ -30,22 +34,52 @@ SCHEMA = 1
 
 # دارایی‌هایی که متنِ حقوقی یا پاسخِ آماده در آن‌هاست.
 ASSET_FILES = [
+    'assets/brain/advocate_texts.json',
     'assets/brain/guides/legal_guides.json',
+    'assets/brain/topics/rent_texts.json',
+    'assets/brain/topic_texts.json',
     'assets/qa/lease_qa.json',
     'assets/replies.json',
     'assets/laws/_meta.json',
 ]
 
-# فایل‌های Dart که متنِ پاسخ در آن‌ها نوشته شده است (نه منطق).
+# فایل‌های Dart که متنِ پاسخ یا پوستهٔ فراخوانیِ آن در آن‌هاست (نه منطق).
 DART_TEXT_FILES = [
+    'lib/domain/advocate/topics/accused.dart',
+    'lib/domain/advocate/topics/admin.dart',
+    'lib/domain/advocate/topics/cheque.dart',
+    'lib/domain/advocate/topics/child.dart',
+    'lib/domain/advocate/topics/company.dart',
+    'lib/domain/advocate/topics/consumer.dart',
+    'lib/domain/advocate/topics/cyber.dart',
+    'lib/domain/advocate/topics/debt.dart',
+    'lib/domain/advocate/topics/enforce.dart',
+    'lib/domain/advocate/topics/family_bodies.dart',
+    'lib/domain/advocate/topics/family_claims.dart',
+    'lib/domain/advocate/topics/family_issues.dart',
+    'lib/domain/advocate/topics/family_patterns.dart',
+    'lib/domain/advocate/topics/fight.dart',
+    'lib/domain/advocate/topics/foreign_contract.dart',
+    'lib/domain/advocate/topics/guarantee.dart',
+    'lib/domain/advocate/topics/inherit.dart',
+    'lib/domain/advocate/topics/injury.dart',
+    'lib/domain/advocate/topics/labor_bodies.dart',
+    'lib/domain/advocate/topics/labor_claims.dart',
+    'lib/domain/advocate/topics/labor_issues.dart',
+    'lib/domain/advocate/topics/labor_patterns.dart',
+    'lib/domain/advocate/topics/marriage.dart',
+    'lib/domain/advocate/topics/minor_sale.dart',
+    'lib/domain/advocate/topics/neighbor.dart',
+    'lib/domain/advocate/topics/partner.dart',
+    'lib/domain/advocate/topics/property.dart',
     'lib/domain/advocate/topics/rent_bodies.dart',
     'lib/domain/advocate/topics/rent_bodies_landlord.dart',
     'lib/domain/advocate/topics/rent_claims.dart',
-    'lib/domain/advocate/topics/rent_plan.dart',
     'lib/domain/advocate/topics/rent_fill.dart',
-    'lib/domain/advocate/topics/labor_bodies.dart',
-    'lib/domain/advocate/topics/family_bodies.dart',
+    'lib/domain/advocate/topics/rent_plan.dart',
+    'lib/domain/advocate/topics/sale.dart',
     'lib/domain/advocate/topics/shared.dart',
+    'lib/domain/advocate/topics/theft.dart',
 ]
 
 

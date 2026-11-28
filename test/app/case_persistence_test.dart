@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/core/history.dart';
 import 'package:dastyar/core/privacy.dart';
-import 'package:dastyar/domain/settings.dart';
+import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/ui/chat_controller.dart';
 
@@ -75,6 +75,24 @@ void main() {
     b.loadSession(saved);
     expect(b.advocate.file.topic, topic);
     expect(b.advocate.file.facts, facts);
+    b.dispose();
+  });
+
+  test('وضعیت گفتگو با تاریخچه ذخیره و همانطور بازیابی میشود', () async {
+    final history = HistoryStore();
+    await history.load();
+    final a = make(history);
+    await a.submit('صاحبخونه پول پیشمو نمیده');
+    await settle();
+    final expected = jsonEncode(a.advocate.dialog.toJson());
+    final saved = history.sessions.first;
+    expect(saved.dialogueJson, isNotNull,
+        reason: 'وضعیت روی میز در محموله نوشته نشده است');
+    a.dispose();
+
+    final b = make(history);
+    b.loadSession(saved);
+    expect(jsonEncode(b.advocate.dialog.toJson()), expected);
     b.dispose();
   });
 

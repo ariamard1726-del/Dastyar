@@ -112,7 +112,7 @@ void main() {
     a.respond('چهار سال با قراردادهای یک‌ساله کار کردم');
     expect(a.file.has('contract'), isFalse, reason: a.file.get('contract'));
     // و در جمع‌بندی هم ادعای «قرارداد کتبی» نیاید.
-    final recap = laborRecap(CaseFile()..facts['contract'] = 'yes').join(' ');
+    final recap = laborTopic.recap!(CaseFile()..facts['contract'] = 'yes').join(' ');
     expect(recap, contains('کتبی')); // با گفتن صریح «کتبی»، همان می‌ماند
   });
 }

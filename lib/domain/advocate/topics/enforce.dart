@@ -2,11 +2,12 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic enforceTopic = Topic(
+final Topic enforceTopic = Topic.dsl(
   id: 'enforce',
-  title: 'اجرای حکم دادگاه',
+  title: topicText('enforce_0'),
   cues: {
     'اجرای (?:حکم|احکام|رای)|حکم(?:م| رو)? اجرا|رای(?:م| رو)? اجرا': 5,
     'حکم (?:گرفتم|قطعی|به نفع)|رای (?:گرفتم|قطعی|به نفع)|محکوم (?:شد|کرد)|محکومیت': 4,
@@ -16,141 +17,110 @@ final Topic enforceTopic = Topic(
     'اجرائیه|دایره اجرا|واحد اجرا': 2,
   },
   anti: 'چک|طلاق|مهریه|احضاریه|ضامن',
-  recap: (f) => [
-    if (f.eq('side', 'winner')) 'حکم به نفع شماست و می‌خواهید اجرا شود',
-    if (f.eq('side', 'loser')) 'حکم علیه شماست',
-    if (f.eq('side', 'third')) 'مال شما را به‌خاطر بدهی کس دیگری توقیف کرده‌اند',
-    if (f.yes('final')) 'حکم قطعی شده',
-    if (f.no('final')) 'حکم هنوز قطعی نشده',
-    if (f.yes('assets')) 'از طرف مقابل مالی سراغ دارید',
-    if (f.no('assets')) 'مالی از طرف مقابل سراغ ندارید',
+  recap: const [
+    RecapItem(when: FactEq('side', 'winner'), text: Tx('enforce_1')),
+    RecapItem(when: FactEq('side', 'loser'), text: Tx('enforce_2')),
+    RecapItem(when: FactEq('side', 'third'), text: Tx('enforce_3')),
+    RecapItem(when: FactYes('final'), text: Tx('enforce_4')),
+    RecapItem(when: FactNo('final'), text: Tx('enforce_5')),
+    RecapItem(when: FactYes('assets'), text: Tx('enforce_6')),
+    RecapItem(when: FactNo('assets'), text: Tx('enforce_7')),
   ],
   claims: [
-    Claim(
-      goal: 'وصول آنچه دادگاه به نفع شما حکم داده',
-      when: (f) => !f.eq('side', 'loser') && !f.eq('side', 'third'),
+    Claim.dsl(
+      goal: topicText('enforce_8'),
+      when: const FactNot(FactIn('side', ['loser', 'third'])),
       elements: [
-        Element(
-          'حکم قطعی شده باشد [[civil_execution:1]].',
-          (f) => f.tri('final'),
-          ifNo:
-              'تا قطعی‌شدن حکم (گذشتن مهلت تجدیدنظر یا تأیید آن) اجرا شروع نمی‌شود؛ در این فاصله فقط می‌شود «تأمین خواسته» گرفت تا مالش را جابه‌جا نکند [[civil_procedure:108]].',
+        Element.dsl(
+          topicText('enforce_9'),
+          const FactTri('final'),
+          ifNo: topicText('enforce_10'),
         ),
-        Element(
-          'خودتان کتباً از دادگاه صدور اجرائیه را بخواهید؛ اجرا خودبه‌خود شروع نمی‌شود [[civil_execution:2]].',
-          (f) => null,
+        Element.dsl(
+          topicText('enforce_11'),
+          const FactConst(null),
         ),
-        Element(
-          'مالی از او پیدا شود که بشود توقیفش کرد [[civil_execution:34]]. لازم نیست خودتان پیدایش کنید: به درخواست شما، اجرا حساب‌ها، ملک و خودروی او را استعلام و توقیف می‌کند [[financial_sentences:2]]؛ و اگر چیزی پیدا نشد، می‌توانید حبس او را تا پرداخت یا اثبات نداری بخواهید [[financial_sentences:3]].',
+        Element.dsl(
+          topicText('enforce_12'),
           // سراغ‌نداشتنِ مال یعنی «هنوز معلوم نیست»، نه اینکه شرط برقرار نیست.
-          (f) => f.yes('assets') ? true : null,
+          const FactTriIf(FactYes('assets'), true),
         ),
       ],
-      win: (f) =>
-          'اجرائیه صادر می‌شود، او ده روز فرصت دارد بپردازد یا مال معرفی کند [[civil_execution:34]]، و اگر نکرد اموالش توقیف و فروخته می‌شود.',
-      counter: (f) =>
-          'او معمولاً دو کار می‌کند: یا مال را به نام دیگری می‌زند، یا «اعسار» می‌دهد تا قسطی شود [[financial_sentences:11]]. برای اولی سریع توقیف بگیرید؛ برای دومی، در جلسهٔ اعسار با مدرک نشان بدهید که توان پرداخت دارد.',
+      win: const Tx('enforce_13'),
+      counter: const Tx('enforce_14'),
     ),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'side',
-      ask: 'حکم به نفع شماست و می‌خواهید اجرا شود، یا حکم علیه شماست؟',
-      why: 'راهکارها برای برنده و بازندهٔ حکم کاملاً برعکس هم است.',
-      options: ['به نفع من است', 'علیه من است', 'مال من را به‌جای دیگری توقیف کرده‌اند'],
+      ask: topicText('enforce_15'),
+      why: topicText('enforce_16'),
+      options: [topicText('enforce_17'), topicText('enforce_18'), topicText('enforce_19')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'به ?جای (?:دیگری|یکی|کس)|بدهی (?:برادر|پدر|شوهر|دیگری|یکی دیگه)|مال من(?:ه| است)? (?:ولی|اما)|ربطی به من نداره|شخص ثالث')) return 'third';
-        if (Sense.has(n, 'علیه من|محکوم شدم|محکومم کرد|حساب(?:م| من)[^ ]* (?:رو |را )?(?:بستن|مسدود|توقیف)|حقوقم[^ ]* (?:رو |را )?(?:توقیف|کسر)|(?:ماشینم|خونم|خونه ام|اموالم)[^ ]* (?:رو |را )?توقیف|باید (?:بدم|بپردازم)')) return 'loser';
-        if (Sense.has(n, 'به نفع (?:من|م)|حکم گرفتم|رای گرفتم|محکوم (?:شد |شده)|نمیده|نمیپردازه|اجرا نمیشه|طلبم')) return 'winner';
-        return null;
-      },
-      effect: (f) => f.eq('side', 'loser')
-          ? 'چند حق دارید که خوب است بدانید: پس از ابلاغ اجرائیه ده روز فرصت دارید بپردازید، قرار پرداخت بگذارید یا مالی معرفی کنید [[civil_execution:34]]؛ خانهٔ مسکونیِ در حدّ نیاز، اثاث ضروری و ابزار کار را نمی‌شود توقیف کرد [[financial_sentences:24]]؛ از حقوق هم فقط یک‌چهارم (اگر زن یا فرزند دارید) یا یک‌سوم قابل توقیف است [[civil_execution:96]]؛ و اگر توان پرداخت یکجا ندارید، می‌توانید اعسار و قسط‌بندی بخواهید [[financial_sentences:11]].'
-          : f.eq('side', 'third')
-              ? 'اگر مال شما را بابت بدهی کس دیگری گرفته‌اند، می‌توانید به همان اجرا اعتراض کنید. اگر مالکیتتان با سند رسمی یا حکم قطعی‌ای ثابت شود که تاریخش پیش از توقیف است، توقیف برداشته می‌شود [[civil_execution:146]]؛ وگرنه دادگاه بدون تشریفات و بدون هزینهٔ دادرسی به اعتراض شما رسیدگی می‌کند [[civil_execution:147]].'
-              : '',
+      read: const ReadCases([
+        ReadCase('به ?جای (?:دیگری|یکی|کس)|بدهی (?:برادر|پدر|شوهر|دیگری|یکی دیگه)|مال من(?:ه| است)? (?:ولی|اما)|ربطی به من نداره|شخص ثالث', 'third'),
+        ReadCase('علیه من|محکوم شدم|محکومم کرد|حساب(?:م| من)[^ ]* (?:رو |را )?(?:بستن|مسدود|توقیف)|حقوقم[^ ]* (?:رو |را )?(?:توقیف|کسر)|(?:ماشینم|خونم|خونه ام|اموالم)[^ ]* (?:رو |را )?توقیف|باید (?:بدم|بپردازم)', 'loser'),
+        ReadCase('به نفع (?:من|م)|حکم گرفتم|رای گرفتم|محکوم (?:شد |شده)|نمیده|نمیپردازه|اجرا نمیشه|طلبم', 'winner'),
+      ]),
+      effect: const TxSwitch('side', {
+        'loser': Tx('enforce_20'),
+        'third': Tx('enforce_21'),
+      }),
     ),
-    Slot(
+    Slot.dsl(
       id: 'final',
-      ask: 'حکم قطعی شده است؟ (یعنی مهلت تجدیدنظر گذشته یا دادگاه تجدیدنظر تأییدش کرده)',
-      why: 'حکمِ غیرقطعی اجرا نمی‌شود.',
-      options: ['بله، قطعی است', 'نه هنوز'],
-      when: (f) => f.eq('side', 'winner'),
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('enforce_22'),
+      why: topicText('enforce_23'),
+      options: [topicText('enforce_24'), topicText('enforce_25')],
+      when: const FactEq('side', 'winner'),
+      read: const ReadYn(
         'قطعی (?:شد|است|هست)|تجدید ?نظر(?:م| هم)? (?:تایید|رد شد)|اجرائیه (?:صادر|گرفتم|اومد)',
         'قطعی (?:نشد|نیست)|هنوز (?:بدوی|تجدید)|تجدید ?نظر (?:داده|خواست|کرد)|اعتراض (?:کرده|داده)',
       ),
-      effect: (f) => f.yes('final')
-          ? 'پس مانعی نیست: حکم قطعی قابل اجراست [[civil_execution:1]]، فقط باید خودتان کتباً صدور اجرائیه را بخواهید [[civil_execution:2]].'
-          : 'تا قطعی نشود اجرا نمی‌شود [[civil_execution:1]]؛ ولی بی‌کار ننشینید و «تأمین خواسته» بخواهید تا در این فاصله مالش را از دسترس خارج نکند [[civil_procedure:108]].',
+      effect: const TxCond(FactYes('final'), Tx('enforce_26'), Tx('enforce_27')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'assets',
-      ask: 'از او مالی سراغ دارید؟ (حساب بانکی، ملک، خودرو، حقوق ماهانه)',
-      why: 'اجرا روی مال انجام می‌شود؛ هر چه دقیق‌تر معرفی کنید، زودتر به پولتان می‌رسید.',
-      options: ['بله، سراغ دارم', 'نه، سراغ ندارم'],
-      when: (f) => f.eq('side', 'winner'),
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('enforce_28'),
+      why: topicText('enforce_29'),
+      options: [topicText('enforce_30'), topicText('enforce_31')],
+      when: const FactEq('side', 'winner'),
+      read: const ReadYn(
         'ماشین داره|خونه داره|ملک داره|مغازه داره|حقوق (?:میگیره|بگیره)|کارمند|حساب داره|سراغ دارم|پولداره|وضعش خوبه',
         'هیچی نداره|چیزی نداره|به نام(?:ش)? (?:نیست|چیزی)|سراغ ندارم|نمیدونم چی داره|همه رو (?:زده|کرده) به نام',
       ),
-      effect: (f) => f.yes('assets')
-          ? 'همان را با نشانی دقیق (پلاک ثبتی، شمارهٔ خودرو، نام محل کار) کتباً به اجرای احکام معرفی کنید تا توقیف شود.'
-          : 'نگران نباشید؛ پیداکردن مال وظیفهٔ شما نیست. به درخواست شما، اجرا باید اموال او را استعلام و توقیف کند [[financial_sentences:2]].',
+      effect: const TxCond(FactYes('assets'), Tx('enforce_32'), Tx('enforce_33')),
     ),
   ],
-  opening: (f) =>
-      'گرفتن حکم نصف راه است؛ نصف دیگرش اجراست و قاعده‌های خودش را دارد. حکم تا قطعی نشده اجرا نمی‌شود [[civil_execution:1]]، و اجرا هم با درخواست کتبی برندهٔ حکم شروع می‌شود، نه خودبه‌خود [[civil_execution:2]].',
+  opening: const Tx('enforce_34'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'salary',
-      chip: 'چقدر از حقوق را می‌شود توقیف کرد؟',
+      chip: topicText('enforce_35'),
       cues: 'حقوق|کسر (?:از|میشه)|یک ?چهارم|یک ?سوم|ربع|ثلث',
-      body: (f) =>
-          'از حقوق و مزایای کارمند یا کارگر، اگر زن یا فرزند داشته باشد یک‌چهارم و اگر نداشته باشد یک‌سوم قابل توقیف است، نه بیشتر [[civil_execution:96]]. اگر بیش از این کسر کرده‌اند، با همین ماده به اجرای احکام اعتراض کنید.',
+      body: const Tx('enforce_36'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'exempt',
-      chip: 'خانه و وسایل زندگی را هم می‌گیرند؟',
+      chip: topicText('enforce_37'),
       cues: 'خونه(?:م| ام)? (?:رو )?(?:میگیرن|میفروشن|توقیف)|مستثنیات|وسایل (?:زندگی|خونه)|ابزار کار|اثاث',
-      body: (f) =>
-          'نه همه‌چیز را. قانون فهرستی به نام «مستثنیات دین» دارد که نمی‌شود توقیف و فروخت: خانهٔ مسکونی در حدّ شأن و نیاز، اثاث ضروری زندگی، آذوقه، ابزار کار و مانند آن [[financial_sentences:24]]. اگر به یکی از این‌ها دست گذاشته‌اند، کتباً به اجرای احکام اعتراض کنید.',
+      body: const Tx('enforce_38'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'install',
-      chip: 'می‌شود قسطی پرداخت؟',
+      chip: topicText('enforce_39'),
       cues: 'قسط|اعسار|ندارم (?:بدم|بپردازم)|نمیتونم (?:بدم|بپردازم)|تقسیط',
-      body: (f) =>
-          'بله. اگر توان پرداخت یکجا ندارید، دادخواست «اعسار» بدهید؛ اگر دادگاه بپذیرد، با توجه به وضع شما مهلت می‌دهد یا بدهی را قسط‌بندی می‌کند [[financial_sentences:11]]. تا وقتی ادعای اعسارتان پذیرفته شده باشد، بابت این بدهی حبس نمی‌شوید [[financial_sentences:3]].',
+      body: const Tx('enforce_40'),
     ),
   ],
-  follow: {
-    'next': (f) => f.eq('side', 'loser')
-        ? 'برای شما که حکم علیه‌تان است:\n'
-            '۱) تاریخ ابلاغ اجرائیه را پیدا کنید؛ ده روز از همان روز حساب می‌شود [[civil_execution:34]].\n'
-            '۲) اگر توان دارید، بپردازید یا با طرف توافق کتبی کنید.\n'
-            '۳) اگر ندارید، فوری دادخواست اعسار و تقسیط بدهید [[financial_sentences:11]].\n'
-            '۴) اگر مالی از مستثنیات دین توقیف شده، اعتراض کنید [[financial_sentences:24]].'
-        : 'برای اجرای حکم:\n'
-            '۱) گواهی قطعیت حکم را از دفتر دادگاه بگیرید [[civil_execution:1]].\n'
-            '۲) کتباً صدور اجرائیه را بخواهید [[civil_execution:2]].\n'
-            '۳) پس از ابلاغ، ده روز صبر کنید [[civil_execution:34]].\n'
-            '۴) اگر نپرداخت، درخواست استعلام و توقیف اموال بدهید [[financial_sentences:2]].\n'
-            '۵) اگر مالی پیدا نشد، درخواست حبس تا پرداخت [[financial_sentences:3]].',
-    'where': (f) =>
-        'همه‌چیز در «واحد اجرای احکام» همان دادگاهی است که حکم نخستین را داده؛ درخواست‌ها از طریق دفتر خدمات الکترونیک قضایی ثبت می‌شود.',
-    'cost': (f) =>
-        'هزینهٔ اجرا را در نهایت بازندهٔ حکم می‌دهد، نه شما. اگر کار به کارشناسی و مزایده برسد، هزینه‌اش را اول شما می‌دهید و بعد از محل فروش برمی‌دارید.',
-    'time': (f) =>
-        'اگر حساب بانکی یا حقوق پیدا شود، چند هفته. اگر به توقیف و مزایدهٔ ملک برسد، معمولاً چند ماه.',
-    'chance': (f) =>
-        'حکم قطعی دیگر بحث‌بردار نیست؛ تنها پرسش این است که مالی برای وصول پیدا می‌شود یا نه. ابزارهای قانون برای این کار قوی است: استعلام و توقیف [[financial_sentences:2]] و در نهایت حبس [[financial_sentences:3]].',
-    'refuse': (f) =>
-        'اگر ظرف ده روز پس از ابلاغ اجرائیه نپرداخت و مالی هم معرفی نکرد [[civil_execution:34]]، شما مال معرفی می‌کنید یا استعلام می‌خواهید [[financial_sentences:2]]؛ و اگر چیزی به دست نیامد، حبس او را تا پرداخت می‌خواهید [[financial_sentences:3]].',
+  follow: const {
+    'next': TxCond(FactEq('side', 'loser'), Tx('enforce_41'), Tx('enforce_42')),
+    'where': Tx('enforce_43'),
+    'cost': Tx('enforce_44'),
+    'time': Tx('enforce_45'),
+    'chance': Tx('enforce_46'),
+    'refuse': Tx('enforce_47'),
   },
-  drafts: (f) => f.eq('side', 'loser') ? const ['insolvency'] : const <String>[],
+  drafts: const DraftRule.when(FactEq('side', 'loser'), thenIds: ['insolvency']),
 );

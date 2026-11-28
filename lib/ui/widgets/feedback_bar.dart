@@ -24,15 +24,21 @@ class _FeedbackBarState extends State<FeedbackBar> {
   }
 
   Future<void> _set(int v) async {
+    final prev = _vote;
     setState(() => _vote = v);
     final ok = await FeedbackStore.add(widget.question, widget.answer, v);
-    _snack(ok ? 'نظر شما فقط روی همین گوشی ذخیره شد' : 'ذخیره نشد');
+    if (!ok && mounted) {
+      setState(() => _vote = prev);
+    }
+    _snack(ok
+        ? 'نظر شما فقط روی همین گوشی ذخیره شد'
+        : (FeedbackStore.lastError ?? 'ذخیره نشد'));
   }
 
   Future<void> _export() async {
     final list = await FeedbackStore.all();
     if (list.isEmpty) {
-      _snack('هنوز نظری ثبت نشده است');
+      _snack(FeedbackStore.lastError ?? 'هنوز نظری ثبت نشده است');
       return;
     }
     final text = FeedbackStore.exportText(list);
@@ -62,8 +68,8 @@ class _FeedbackBarState extends State<FeedbackBar> {
       ),
     );
     if (yes == true) {
-      await FeedbackStore.clear();
-      _snack('نظرها پاک شد');
+      final ok = await FeedbackStore.clear();
+      _snack(ok ? 'نظرها پاک شد' : (FeedbackStore.lastError ?? 'پاک‌کردن نظرها انجام نشد'));
     }
   }
 

@@ -19,5 +19,5 @@ class TopicRead {
   final Map<String, int> scores;
 
   /// آیا موضوعی با نشانهٔ کافی پیدا شد؟ (همان آستانهٔ بازکردنِ پرونده.)
-  bool get opens => best != null && bestScore >= 3;
+  bool get opens => best != null && bestScore >= topicOpenMin;
 }

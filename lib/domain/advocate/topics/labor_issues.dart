@@ -2,145 +2,180 @@ part of 'labor.dart';
 
 // پرسش‌ها، بحث‌ها و خودِ تعریفِ موضوعِ کار.
 
-final Topic laborTopic = Topic(
+final Topic laborTopic = Topic.dsl(
   id: 'labor',
-  title: 'کار و کارفرما',
+  title: topicText('laborIss_0'),
   claims: laborClaims,
-  recap: laborRecap,
-  cues: {
-    'حقوق(?:م|مو)?[^ ]* (?:[^ ]+ ){0,2}(?:نگرفت|پرداخت نکرد|پرداخت نشد|نریخت)|حقوق(?:م|مو)? (?:رو |را )?(?:کم|کمتر) | مزد | مزدم |حق ماموریت|قرارداد(?:م| کارم| کار)? (?:رو |را )?تمدید نکرد|سابقه بیمه|حق بیمه|رد نکردن بیمه|بیمه بیکاری': 3,
-    'دیگ(?:ه|ر) نیا|از (?:محیط |سر )?کار(?:م)? (?:[^ ]+ ){0,1}بیرون|کارگر|کارگاه|کارخانه|استخدام': 2,
+  recap: _laborRecap,
+  cues: const {
+    'حقوق(?:م|مو)?[^ ]* (?:[^ ]+ ){0,2}(?:نگرفت|پرداخت نکرد|پرداخت نشد|نریخت)|حقوق(?:م|مو)? (?:رو |را )?(?:کم|کمتر) | مزد | مزدم |حق ماموریت|قرارداد(?:م| کارم| کار)? (?:رو |را )?تمدید نکرد|سابقه بیمه|حق بیمه|رد نکردن بیمه|بیمه بیکاری':
+        3,
+    'دیگ(?:ه|ر) نیا|از (?:محیط |سر )?کار(?:م)? (?:[^ ]+ ){0,1}بیرون|کارگر|کارگاه|کارخانه|استخدام':
+        2,
     'کارفرما|صاحب ?کار|رئیسم|رییسم|مدیرم': 2,
-    'اخراج|از فردا نیا|دیگه نیا سر|عذرم(?: رو)? خواست|تعدیل نیرو|بیرونم کرد(?:ن|ه)? از (?:کار|شرکت)': 3,
-    'حقوق[^ ]* (?:رو |را )?(?:نمید|نداد)|حقوق معوق|دستمزد|سنوات|اداره کار|عیدی[^ ]* (?:نداد|نمید)|تسویه ?حساب|اضافه ?کار': 3,
+    'اخراج|از فردا نیا|دیگه نیا سر|عذرم(?: رو)? خواست|تعدیل نیرو|بیرونم کرد(?:ن|ه)? از (?:کار|شرکت)':
+        3,
+    'حقوق[^ ]* (?:رو |را )?(?:نمید|نداد)|حقوق معوق|دستمزد|سنوات|اداره کار|عیدی[^ ]* (?:نداد|نمید)|تسویه ?حساب|اضافه ?کار':
+        3,
     'بیمه[^ ]* (?:[^ ]+ ){0,2}رد نکرد|بیمه نکرد|بیمه نمیکنه': 3,
     'سر کار|محل کار|شرکت(?:ی)? که کار': 1,
   },
   anti: 'شوهر|همسرم|طلاق',
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'event',
-      ask: 'دقیقاً چه اتفاقی افتاده؟ اخراجتان کرده‌اند، حقوقتان را نداده‌اند، یا مشکل بیمه است؟',
-      why: 'هر کدام خواستهٔ جداگانه‌ای در ادارهٔ کار دارد و مدرک متفاوتی می‌خواهد.',
-      options: ['اخراجم کرده‌اند', 'حقوقم را نمی‌دهند', 'بیمه‌ام را رد نکرده‌اند'],
-      read: _laborEvent,
+      ask: topicText('laborIss_1'),
+      why: topicText('laborIss_2'),
+      options: [
+        topicText('laborIss_3'),
+        topicText('laborIss_4'),
+        topicText('laborIss_5'),
+      ],
+      read: _laborEventRead,
       first: true,
       yesValue: '',
       noValue: '',
-      effect: (f) => f.eq('event', 'fired')
-          ? 'این حرف کارفرما عملاً یعنی اخراج، و اخراجِ سرِ خود در قانون کار به این سادگی نیست: کارفرما فقط با ثابت‌کردن قصور شما و طی‌کردن تشریفات می‌تواند قرارداد را فسخ کند [[labor:27]]، و اگر مرجع حل اختلاف اخراج را ناموجه بداند، حکم بازگشت به کار و پرداخت حقوق همهٔ این مدت را می‌دهد [[labor:165]].'
-          : (f.eq('event', 'unpaid')
-              ? 'مزد باید مرتب و در موعد پرداخت شود [[labor:37]]؛ حقوق عقب‌افتاده طلب قطعی شماست و ادارهٔ کار برای وصولش رأی می‌دهد.'
-              : ''),
+      effect: const TxSwitch(
+        'event',
+        {
+          'fired': Tx('laborIss_6'),
+          'unpaid': Tx('laborIss_7'),
+        },
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'contract',
-      ask: 'قرارداد کتبی دارید؟',
-      why: 'قرارداد کتبی اثبات رابطهٔ کار را آسان می‌کند؛ اگر نباشد باید از راه شاهد و قرینه ثابتش کنیم.',
-      options: ['بله', 'نه، قرارداد ندارم'],
-      read: _laborContract,
-      effect: (f) => f.yes('contract')
-          ? 'قرارداد کتبی کار اثبات را راحت می‌کند. یک نکته: اگر قراردادتان مدت‌دار بوده و مدتش تمام نشده، هیچ‌کدام از دو طرف حق فسخ یک‌طرفه ندارد [[labor:25]].'
-          : 'نگران نبودِ قرارداد نباشید: قرارداد کار شفاهی هم معتبر است [[labor:7]] و وقتی کار ماهیت مستمر دارد و مدتی ذکر نشده، قرارداد «دائمی» حساب می‌شود [[labor:7]]؛ این به نفع شماست، چون اخراج از قرارداد دائم سخت‌تر است. فقط باید کارکردنتان را ثابت کنیم.',
+      ask: topicText('laborIss_8'),
+      why: topicText('laborIss_9'),
+      options: [topicText('laborIss_10'), topicText('laborIss_11')],
+      read: _laborContractRead,
+      effect: const TxCond(
+        FactYes('contract'),
+        Tx('laborIss_12'),
+        Tx('laborIss_13'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'insured',
-      ask: 'در این مدت بیمهٔ تأمین اجتماعی برایتان رد شده است؟',
-      why: 'سابقهٔ بیمه هم بهترین مدرک رابطهٔ کاری است، هم اگر رد نشده باشد خودش یک طلب جدا از کارفرماست.',
-      options: ['بله، بیمه بوده‌ام', 'نه، بیمه نکرده'],
-      read: _laborInsured,
-      effect: (f) => f.yes('insured')
-          ? 'سابقهٔ بیمه قوی‌ترین مدرک رابطهٔ کاری شماست؛ از سامانهٔ تأمین اجتماعی ریز سوابق را بگیرید.'
-          : 'بیمه‌کردن کارگر تکلیف قانونی کارفرماست، نه لطف او [[labor:148]]، و مسئول پرداخت حق‌بیمه هم خود اوست [[social_security:36]]. می‌توانید هم در ادارهٔ کار «الزام به پرداخت حق‌بیمهٔ ایام کارکرد» را بخواهید، هم به شعبهٔ تأمین اجتماعی شکایت کنید تا بازرس بفرستند.',
+      ask: topicText('laborIss_14'),
+      why: topicText('laborIss_15'),
+      options: [topicText('laborIss_16'), topicText('laborIss_17')],
+      read: _laborInsuredRead,
+      effect: const TxCond(
+        FactYes('insured'),
+        Tx('laborIss_18'),
+        Tx('laborIss_19'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'proof',
-      ask: 'برای اینکه ثابت کنیم آنجا کار می‌کردید چه دارید؟ همکاری که شهادت بدهد، واریز حقوق، پیام‌های کاری؟',
-      why: 'وقتی قرارداد و بیمه نیست، پرونده روی اثبات رابطهٔ کاری می‌ایستد.',
-      options: ['شاهد دارم', 'واریز بانکی یا پیام دارم', 'هیچ مدرکی ندارم'],
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('laborIss_20'),
+      why: topicText('laborIss_21'),
+      options: [
+        topicText('laborIss_22'),
+        topicText('laborIss_23'),
+        topicText('laborIss_24'),
+      ],
+      read: const ReadYn(
         'شاهد|همکار|فیش|واریز|کارت به کارت|پیام|عکس|فیلم|حضور و غیاب|کارت ورود|لباس کار',
         'هیچ مدرک|مدرک(?:ی)? ندارم|شاهد(?:ی)? ندارم',
       ),
-      when: (f) =>
-          f.touched('contract') &&
-          f.touched('insured') &&
-          !f.yes('contract') &&
-          !f.yes('insured'),
-      effect: (f) => f.yes('proof')
-          ? 'همین کافی است تا رابطهٔ کاری را نشان دهیم؛ اسم و شمارهٔ شاهدها و نسخهٔ تراکنش‌ها و پیام‌ها را آماده کنید.'
-          : 'پس از همین امروز مدرک جمع کنید: به همکاران قابل‌اعتماد بگویید، از محیط کار و تابلوی شیفت عکس بگیرید و پیام‌های کاری را نگه دارید. بازرس ادارهٔ کار هم می‌تواند از کارگاه تحقیق کند.',
+      when: const FactAll([
+        FactTouched('contract'),
+        FactTouched('insured'),
+        FactNot(FactYes('contract')),
+        FactNot(FactYes('insured')),
+      ]),
+      effect: const TxCond(
+        FactYes('proof'),
+        Tx('laborIss_25'),
+        Tx('laborIss_26'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'signed',
-      ask: 'برگهٔ استعفا یا تسویه‌حساب امضا کرده‌اید؟',
-      why: 'اگر امضا کرده باشید، کارفرما می‌گوید با میل خودتان رفته‌اید یا همهٔ پولتان را گرفته‌اید؛ باید از قبل برایش جواب داشته باشیم.',
-      options: ['نه، چیزی امضا نکرده‌ام', 'بله، امضا کرده‌ام'],
-      read: _laborSigned,
-      effect: (f) => f.no('signed')
-          ? 'خوب است؛ همین‌طور بمانید. تا پولتان را نگرفته‌اید هیچ برگهٔ استعفا یا تسویه‌ای را امضا نکنید، چون استعفا خودش یکی از راه‌های قانونی پایان قرارداد است [[labor:21]] و جلوی ادعای اخراج را می‌گیرد.'
-          : 'این کار را سخت‌تر می‌کند، ولی تمام نمی‌کند: در ادارهٔ کار بگویید زیر فشار یا بدون گرفتن پول امضا کرده‌اید و شاهد یا قرینه‌اش را بیاورید. اگر استعفا داده‌اید و هنوز ۱۵ روز نگذشته، می‌توانید کتباً آن را پس بگیرید [[labor:21]].',
+      ask: topicText('laborIss_27'),
+      why: topicText('laborIss_28'),
+      options: [topicText('laborIss_29'), topicText('laborIss_30')],
+      read: _laborSignedRead,
+      effect: const TxCond(
+        FactNo('signed'),
+        Tx('laborIss_31'),
+        Tx('laborIss_32'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'expired',
-      ask: 'قراردادتان مدت داشت و مدتش تمام شده بود، یا وسط قرارداد عذرتان را خواستند؟',
-      why: 'اگر مدت قرارداد تمام شده باشد، قانون آن را «پایان قرارداد» می‌داند نه اخراج؛ و نتیجه‌اش کاملاً فرق می‌کند.',
-      options: ['وسط قرارداد بود', 'مدتش تمام شده بود', 'قراردادم دائمی است'],
-      read: _laborExpired,
+      ask: topicText('laborIss_33'),
+      why: topicText('laborIss_34'),
+      options: [
+        topicText('laborIss_35'),
+        topicText('laborIss_36'),
+        topicText('laborIss_37'),
+      ],
+      read: _laborExpiredRead,
       yesValue: '',
       noValue: '',
-      when: (f) => laborFired(f) && f.yes('contract'),
-      effect: (f) => f.yes('expired')
-          ? 'پس از نظر قانون این «پایان مدت قرارداد» است، نه اخراج [[labor:21]]؛ بازگشت به کار ندارد، ولی مزایای پایان کار به شما می‌رسد [[labor:24]].'
-          : 'پس قرارداد با تمام‌شدن مدتش پایان نیافته و کارفرما یک‌طرفه آن را به هم زده است. در قرارداد مدت‌دار هیچ‌کدام از دو طرف حق فسخ ندارد [[labor:25]] و در قرارداد دائم هم اخراج فقط با تشریفات قانونی ممکن است [[labor:27]].',
+      when: const FactAll([laborFiredRule, FactYes('contract')]),
+      effect: const TxCond(
+        FactYes('expired'),
+        Tx('laborIss_38'),
+        Tx('laborIss_39'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'warned',
-      ask: 'پیش از اخراج، تذکر یا اخطار کتبی به شما داده بودند؟',
-      why: 'کارفرما بدون تذکر کتبیِ قبلی نمی‌تواند به بهانهٔ قصور اخراج کند؛ جواب شما تعیین می‌کند اخراج ناموجه حساب می‌شود یا نه.',
-      options: ['نه، هیچ اخطاری ندادند', 'بله، اخطار کتبی داده‌اند'],
-      read: _laborWarned,
-      when: (f) => laborFired(f),
-      effect: (f) => f.no('warned')
-          ? 'این به نفع شماست: کارفرما فقط وقتی می‌تواند به‌خاطر قصور قرارداد را فسخ کند که قبلاً تذکر کتبی داده و نظر مثبت شورای اسلامی کار (یا هیئت تشخیص) را گرفته باشد [[labor:27]].'
-          : 'پس کارفرما روی همین اخطارها تکیه خواهد کرد. با این حال اخطار به‌تنهایی کافی نیست؛ نظر مثبت شورای اسلامی کار یا هیئت تشخیص هم لازم است [[labor:27]]. نسخهٔ اخطارها را نگه دارید.',
+      ask: topicText('laborIss_40'),
+      why: topicText('laborIss_41'),
+      options: [topicText('laborIss_42'), topicText('laborIss_43')],
+      read: _laborWarnedRead,
+      when: laborFiredRule,
+      effect: const TxCond(
+        FactNo('warned'),
+        Tx('laborIss_44'),
+        Tx('laborIss_45'),
+      ),
     ),
-    Slot(
+    Slot.dsl(
       id: 'working',
-      ask: 'هنوز همان‌جا کار می‌کنید یا کارتان تمام شده؟',
-      why: 'سنوات فقط موقع پایان کار قابل‌مطالبه است؛ ولی حقوق عقب‌افتاده و بیمه را همین حالا هم می‌شود خواست.',
-      options: ['هنوز کار می‌کنم', 'دیگر آنجا نیستم'],
-      read: _laborWorking,
+      ask: topicText('laborIss_46'),
+      why: topicText('laborIss_47'),
+      options: [topicText('laborIss_48'), topicText('laborIss_49')],
+      read: _laborWorkingRead,
       yesValue: '',
       noValue: '',
-      when: (f) => f.touched('event') && !laborFired(f),
-      effect: (f) => f.yes('working')
-          ? 'برای حقوق عقب‌افتاده و بیمه لازم نیست اول کار را ترک کنید؛ همین حالا هم می‌توانید به ادارهٔ کار بروید [[labor:157]]. سنوات اما موقع پایان کار حساب می‌شود [[labor:24]].'
-          : '',
+      when: const FactAll([FactTouched('event'), FactNot(laborFiredRule)]),
+      effect: const TxCond(FactYes('working'), Tx('laborIss_50')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'months',
-      ask: 'چند وقت است آنجا کار می‌کنید؟',
-      why: 'سنوات و خسارت اخراج مستقیماً از روی سابقه حساب می‌شود: هر سال، یک ماه (یا ۴۵ روز) حقوق.',
-      read: _laborMonths,
-      readPending: (n) {
-        final m = Sense.months(n);
-        return m == null || m < 1 ? null : m.round().toString();
-      },
+      ask: topicText('laborIss_51'),
+      why: topicText('laborIss_52'),
+      read: _laborMonthsRead,
+      readPending: const ReadMonths(min: 1),
       yesValue: '',
       noValue: '',
-      effect: (f) {
-        final m = f.n('months') ?? 0;
-        return 'سابقهٔ ${Sense.span(m)} یعنی ${m >= 12 ? 'به ازای هر سالش یک ماه حقوق سنوات طلبکارید [[labor:24]]' : 'سنوات به نسبت همین مدت حساب می‌شود [[labor:24]]'}.';
-      },
+      effect: const TxConcat([
+        Tx('laborSlotMonthsA'),
+        TxRaw(' '),
+        TxNum('months', fmt: NumFmt.span, defaultZero: true),
+        TxRaw(' '),
+        Tx('laborSlotMonthsB'),
+        TxRaw(' '),
+        TxCond(
+          FactNumMin('months', 12, missingNull: false),
+          Tx('laborSlotMonthsGe12'),
+          Tx('laborSlotMonthsLt12'),
+        ),
+        TxRaw('.'),
+      ]),
     ),
-    Slot(
+    Slot.dsl(
       id: 'salary',
-      ask: 'آخرین حقوق ماهانه‌تان چقدر بود؟',
-      why: 'همهٔ مطالبات (سنوات، خسارت اخراج، حقوق معوق) بر پایهٔ آخرین حقوق حساب می‌شود.',
-      read: _laborSalary,
-      readPending: (n) => Sense.amount(n)?.toString(),
+      ask: topicText('laborIss_53'),
+      why: topicText('laborIss_54'),
+      read: _laborSalaryRead,
+      readPending: const ReadAmount(),
       yesValue: '',
       noValue: '',
       effect: _laborMoney,
@@ -148,101 +183,115 @@ final Topic laborTopic = Topic(
     // این دو پرسیده نمی‌شوند؛ فقط یادِ پرونده می‌مانند. «اتفاق اصلی» با هر
     // حرف تازه عوض می‌شود، ولی اخراج و حقوقِ نگرفته نباید با آمدنِ حرفِ
     // بیمه از یاد بروند؛ هر کدام ادعای خودش را روی میز نگه می‌دارد.
-    Slot(
+    Slot.dsl(
       id: 'fired',
       ask: '',
       why: '',
-      read: (n) => Sense.has(n, _laborFiredRe) ? 'yes' : null,
+      read: const ReadCases([ReadCase(_laborFiredRe, 'yes')]),
       yesValue: '',
       noValue: '',
     ),
-    Slot(
+    Slot.dsl(
       id: 'owed',
       ask: '',
       why: '',
-      read: (n) => Sense.has(n, _laborUnpaid) ? 'yes' : null,
+      read: const ReadCases([ReadCase(_laborUnpaid, 'yes')]),
       yesValue: '',
       noValue: '',
     ),
   ],
-  opening: (f) =>
-      'قانون کار در این‌جور اختلاف‌ها طرف ضعیف‌تر را تنها نگذاشته و رسیدگی‌اش هم جدا از دادگاه و ساده‌تر است [[labor:157]].',
+  opening: const Tx('laborIss_55'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'sanavat',
-      chip: 'سنوات به من تعلق می‌گیرد؟',
+      chip: topicText('laborIss_56'),
       cues: 'سنوات|پایان کار|مزایای پایان',
-      body: (f) {
-        final m = f.n('months');
-        final sal = f.n('salary');
-        final sb = StringBuffer(
-            'بله، سنوات حق شماست و ربطی به داشتن قرارداد کتبی یا بیمه ندارد: به ازای هر سال سابقه، معادل یک ماه آخرین حقوق [[labor:24]]. حتی اگر کارفرما قصور شما را ثابت کند و اخراج موجه شناخته شود، باز هم همین سنوات را باید بپردازد [[labor:27]] [[labor:165]].');
-        if (m != null && sal != null) {
-          sb.write(
-              '\nبرای شما با ${Sense.span(m)} سابقه و حقوق ${Sense.toman(sal)}، حدود ${Sense.toman((sal * m / 12.0).round())} می‌شود.');
-        } else if (m != null) {
-          sb.write(
-              '\nبرای شما یعنی حقوقِ ${Sense.span(m)} تقسیم بر دوازده؛ آخرین حقوق ماهانه‌تان را که بگویید، رقمش را حساب می‌کنم.');
-        }
-        return sb.toString();
-      },
+      body: const TxConcat([
+        Tx('laborIss_57'),
+        TxCond(
+          FactAll([FactHasNum('months'), FactHasNum('salary')]),
+          TxConcat([
+            TxRaw('\n'),
+            Tx('laborSanavatCalcA'),
+            TxRaw(' '),
+            TxNum('months', fmt: NumFmt.span),
+            TxRaw(' '),
+            Tx('laborSanavatCalcB'),
+            TxRaw(' '),
+            TxNum('salary'),
+            Tx('laborSanavatCalcC'),
+            TxRaw(' '),
+            TxScaleMul('salary', 'months', 1.0),
+            TxRaw(' '),
+            Tx('laborSanavatCalcD'),
+          ]),
+          TxCond(
+            FactHasNum('months'),
+            TxConcat([
+              TxRaw('\n'),
+              Tx('laborSanavatNoSalA'),
+              TxRaw(' '),
+              TxNum('months', fmt: NumFmt.span),
+              TxRaw(' '),
+              Tx('laborSanavatNoSalB'),
+            ]),
+          ),
+        ),
+      ]),
       covers: const {'months'},
     ),
-    Issue(
+    Issue.dsl(
       id: 'howmuch',
-      chip: 'چقدر طلبکار می‌شوم؟',
-      cues: 'چقدر (?:میشه|بهم|باید بده|طلب|میرسه|گیرم)|حساب کن|چقدر میتونم بگیرم|مبلغش چقدر',
+      chip: topicText('laborIss_58'),
+      cues:
+          'چقدر (?:میشه|بهم|باید بده|طلب|میرسه|گیرم)|حساب کن|چقدر میتونم بگیرم|مبلغش چقدر',
       body: _laborMoney,
       covers: const {'months', 'salary'},
     ),
-    Issue(
+    Issue.dsl(
       id: 'sign',
-      chip: 'گفته برگهٔ تسویه را امضا کن',
-      cues: 'استعفا|امضا (?:کنم|بدم|کردم|بزنم)|تسویه ?حساب|رضایت ?نامه|برگه (?:سفید|تسویه)|سفید امضا|انگشت بزن',
+      chip: topicText('laborIss_59'),
+      cues:
+          'استعفا|امضا (?:کنم|بدم|کردم|بزنم)|تسویه ?حساب|رضایت ?نامه|برگه (?:سفید|تسویه)|سفید امضا|انگشت بزن',
       covers: const {'signed'},
-      body: (f) => f.yes('signed')
-          ? 'امضای آن برگه کار را سخت‌تر می‌کند، ولی تمام نمی‌کند. در ادارهٔ کار بگویید زیر فشار یا بدون گرفتن پول امضا کرده‌اید و شاهد یا قرینه‌اش را بیاورید (پیام‌ها، صورت‌حساب بانکیِ همان روزها). اگر برگهٔ استعفا بوده و هنوز ۱۵ روز از آن نگذشته، می‌توانید کتباً پسش بگیرید [[labor:21]]. از این به بعد هیچ برگهٔ دیگری را پیش از گرفتن پول امضا نکنید.'
-          : 'هیچ برگه‌ای را با عنوان «استعفا» یا «تسویه‌حساب کامل» امضا نکنید مگر اینکه واقعاً پولتان را گرفته باشید. استعفا یکی از راه‌های قانونی پایان قرارداد است [[labor:21]] و اگر امضایش کنید، دیگر نمی‌توانید بگویید اخراج شده‌اید و حق بازگشت به کار و خسارت اخراج را از دست می‌دهید.\n'
-          'اگر قبلاً زیر فشار امضا کرده‌اید، باز هم ناامید نشوید؛ در ادارهٔ کار بگویید با اجبار یا بدون دریافت پول بوده و شاهد یا قرینه‌اش را بیاورید.',
+      body: const TxCond(
+        FactYes('signed'),
+        Tx('laborIss_60'),
+        Tx('laborIss_61'),
+      ),
     ),
-    Issue(
+    Issue.dsl(
       id: 'insurance',
-      chip: 'بیمهٔ ردنشده‌ام چه می‌شود؟',
+      chip: topicText('laborIss_62'),
       cues: 'بیمه',
-      body: (f) =>
-          '${f.yes('insured') || f.no('insured') ? '' : 'اول مطمئن شوید: سابقهٔ بیمه‌تان را از سامانهٔ خدمات غیرحضوری تأمین اجتماعی (یا با مراجعه به شعبه) بگیرید تا ببینید برای کدام ماه‌ها حق‌بیمه رد شده است.\n'}'
-          'کارفرما مکلف است کارگرش را بیمه کند [[labor:148]] و مسئول پرداخت حق‌بیمه (سهم خودش و سهم شما) هم اوست [[social_security:36]]. برای ماه‌هایی که رد نشده دو راه هم‌زمان دارید:\n'
-          '• در دادخواست ادارهٔ کار، «پرداخت حق‌بیمهٔ ایام کارکرد» را هم بنویسید.\n'
-          '• به شعبهٔ تأمین اجتماعیِ محل کار شکایت کنید تا بازرسی و مطالبهٔ حق‌بیمه انجام شود.\n'
-          'رأی ادارهٔ کار که رابطهٔ کاری‌تان را تأیید کند، برای تأمین اجتماعی مدرک محکمی است.',
+      body: const TxConcat([
+        TxCond(
+          FactAny([FactYes('insured'), FactNo('insured')]),
+          TxRaw(''),
+          TxConcat([Tx('laborInsIssuePre'), TxRaw('\n')]),
+        ),
+        Tx('laborInsIssueBody'),
+      ]),
       covers: const {'insured', 'event'},
     ),
-    Issue(
+    Issue.dsl(
       id: 'wage',
-      chip: 'حقوق عقب‌افتاده‌ام را چطور بگیرم؟',
+      chip: topicText('laborIss_63'),
       cues: 'حقوق[^ ]* (?:رو |را )?(?:نمید|نداد|عقب)|معوق|دستمزد|عیدی|اضافه ?کار|مرخصی',
-      body: (f) =>
-          'حقوق باید مرتب و در موعد پرداخت شود [[labor:37]]. حقوق معوق، عیدی، اضافه‌کاری و مرخصی استفاده‌نشده را در همان دادخواست ادارهٔ کار یک‌جا بخواهید. بارِ نشان‌دادنِ پرداخت با کارفرماست؛ اگر فیش یا رسید امضاشده نداشته باشد، حرفش پذیرفته نمی‌شود. رأی قطعی هم از طریق اجرای احکام دادگستری وصول می‌شود [[labor:166]].',
+      body: const Tx('laborIss_64'),
       covers: const {'event'},
     ),
   ],
   follow: {
     'next': _laborPlan,
-    'where': (f) =>
-        'دادگاه نه؛ مرجع شما «ادارهٔ کار» شهرستانِ محل کارگاه است. دادخواست را حضوری یا در سامانهٔ جامع روابط کار ثبت می‌کنید و هیئت تشخیص رسیدگی می‌کند [[labor:157]].',
-    'cost': (f) =>
-        'خبر خوب: طرح شکایت در ادارهٔ کار مثل دادگاه هزینهٔ دادرسی ندارد و به وکیل هم نیاز ندارید. فقط وقت و چند بار رفت‌وآمد می‌خواهد.',
-    'time': (f) =>
-        'معمولاً از ثبت دادخواست تا جلسهٔ هیئت تشخیص چند هفته طول می‌کشد. اگر یکی از دو طرف اعتراض کند، هیئت حل اختلاف هم چند هفته تا چند ماه زمان می‌برد [[labor:159]]. در تمام این مدت اگر اخراج ناموجه شناخته شود، حقوق ایام بلاتکلیفی به شما تعلق می‌گیرد [[labor:165]].',
-    'deadline': (f) =>
-        'برای اعتراض به رأی هیئت تشخیص فقط ۱۵ روز وقت دارید [[labor:159]]. برای خودِ شکایت معطل نکنید: هرچه دیرتر بروید، ادعای «ترک کار» از طرف کارفرما باورپذیرتر می‌شود. اگر بیمه بوده‌اید و می‌خواهید بیمهٔ بیکاری بگیرید، مهلتش کوتاه است (متن آن قانون در بانک من نیست؛ از ادارهٔ کار بپرسید، معمولاً ۳۰ روز).',
+    'where': const Tx('laborIss_65'),
+    'cost': const Tx('laborIss_66'),
+    'time': const Tx('laborIss_67'),
+    'deadline': const Tx('laborIss_68'),
     'chance': _laborChance,
-    'evidence': (f) =>
-        'هر چیزی که «کارکردن شما در آنجا» و «مبلغ حقوق» را نشان دهد: قرارداد، فیش حقوقی، واریزهای بانکی، سابقهٔ بیمه، شهادت همکاران، پیام‌های کاری، عکس در محیط کار، کارت ورود یا لباس کار. برای اخراج هم: پیام یا شاهدی که نشان دهد کارفرما گفته نیایید.',
-    'refuse': (f) =>
-        'اگر کارفرما به رأی قطعی عمل نکند، رأی مثل حکم دادگاه از طریق اجرای احکام دادگستری اجرا می‌شود: توقیف حساب، اموال و حتی جلوگیری از فعالیت کارگاه [[labor:166]]. اگر هم در جلسهٔ ادارهٔ کار حاضر نشود، رسیدگی متوقف نمی‌ماند و بر اساس مدارک شما رأی می‌دهند.',
-    'lawyer': (f) =>
-        'در ادارهٔ کار نیازی به وکیل ندارید؛ فرایند طوری طراحی شده که خود کارگر حرفش را بزند. فقط مدارک و شاهدها را مرتب ببرید و خواسته‌ها را کامل بنویسید.',
+    'evidence': const Tx('laborIss_69'),
+    'refuse': const Tx('laborIss_70'),
+    'lawyer': const Tx('laborIss_71'),
   },
-  drafts: (f) => const ['formal_notice'],
+  drafts: const DraftRule.fixed(['formal_notice']),
 );

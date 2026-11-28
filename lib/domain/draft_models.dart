@@ -17,6 +17,8 @@ class DraftCmd {
 }
 
 class DraftSession {
+  static const int schemaVersion = 1;
+
   final LegalTemplate template;
   final Map<String, String> values = {};
   int index = 0;
@@ -38,6 +40,7 @@ class DraftSession {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        'schemaVersion': schemaVersion,
         'templateId': template.id,
         'templateVersion': template.version,
         'index': index,
@@ -51,6 +54,8 @@ class DraftSession {
     Map<String, dynamic> j,
     List<LegalTemplate> templates,
   ) {
+    final rawVer = j['schemaVersion'];
+    if (rawVer is int && rawVer > schemaVersion) return null;
     final tid = (j['templateId'] ?? '').toString();
     if (tid.isEmpty) return null;
     LegalTemplate? tpl;
@@ -90,6 +95,9 @@ class DraftCheckpointStore {
 
   static const String _key = 'active_draft_v1';
 
+  /// علت آخرین خطای خواندن، نوشتن یا پاک‌کردن پیش‌نویس ناتمام.
+  static String? lastError;
+
   /// تمام خواندن/نوشتنها پشت یک صف سریالیاند. «گفتگوی جدید»، «باز کردن
   /// گفتگو» و ذخیرهٔ خودکار پیشنویس میتوانند پشت سر هم رخ دهند؛ بدون
   /// صف، پاک کردن قدیمی میتوانست بعد از ذخیرهٔ تازه بنشیند و پیشنویس کاربر
@@ -103,48 +111,86 @@ class DraftCheckpointStore {
   }
 
   static Future<bool> save(DraftSession session) => _serial(() async {
+        lastError = null;
+        if (!PrivacyService.persistenceAllowed) {
+          lastError = 'ذخیرهٔ پیش‌نویس غیرفعال است: رمزنگاری بومی دردسترس نیست.';
+          return false;
+        }
         if (session.done) {
           // صدا نزدن به `clear` باعث قفلشدن صف میشود: خودمان داخل همان صف هستیم.
           try {
             final prefs = await SharedPreferences.getInstance();
             await prefs.remove(_key);
-          } catch (_) {}
+          } catch (e) {
+            lastError = 'پاک‌کردن پیش‌نویس پایانیافته: $e';
+          }
           return false;
         }
         try {
           final prefs = await SharedPreferences.getInstance();
           final raw = jsonEncode(session.toJson());
           final sealed = await PrivacyService.seal(raw);
-          return await prefs.setString(_key, sealed);
-        } catch (_) {
+          if (sealed.isEmpty) {
+            lastError =
+                PrivacyService.lastError ?? 'رمزنگاری پیش‌نویس انجام نشد.';
+            return false;
+          }
+          final ok = await prefs.setString(_key, sealed);
+          if (!ok) {
+            lastError = 'نوشتن پیش‌نویس ناتمام روی حافظه انجام نشد.';
+          }
+          return ok;
+        } catch (e) {
+          lastError = 'ذخیرهٔ پیش‌نویس ناتمام: $e';
           return false;
         }
       });
 
   static Future<DraftSession?> load(List<LegalTemplate> templates) =>
       _serial(() async {
+        lastError = null;
         if (templates.isEmpty) return null;
         try {
           final prefs = await SharedPreferences.getInstance();
           final stored = prefs.getString(_key);
           if (stored == null || stored.isEmpty) return null;
           final raw = await PrivacyService.open(stored);
-          if (raw == null || raw.isEmpty) return null;
+          if (raw == null || raw.isEmpty) {
+            if (stored.startsWith(PrivacyService.fallbackPrefix)) {
+              await prefs.remove(_key);
+            } else {
+              lastError =
+                  PrivacyService.lastError ?? 'بازگشایی پیش‌نویس ممکن نشد.';
+            }
+            return null;
+          }
           final decoded = jsonDecode(raw);
-          if (decoded is! Map<String, dynamic>) return null;
+          if (decoded is! Map<String, dynamic>) {
+            lastError = 'قالب پیش‌نویس ذخیره‌شده معتبر نیست.';
+            return null;
+          }
           final s = DraftSession.fromJson(decoded, templates);
           if (s == null || s.done) return null;
           return s;
-        } catch (_) {
+        } catch (e) {
+          lastError = 'خواندن پیش‌نویس ناتمام: $e';
           return null;
         }
       });
 
-  static Future<void> clear() => _serial(() async {
+  static Future<bool> clear() => _serial(() async {
+        lastError = null;
         try {
           final prefs = await SharedPreferences.getInstance();
-          await prefs.remove(_key);
-        } catch (_) {}
+          final ok = await prefs.remove(_key);
+          if (!ok) {
+            lastError = 'حذف پیش‌نویس ناتمام از حافظه انجام نشد.';
+          }
+          return ok;
+        } catch (e) {
+          lastError = 'پاک‌کردن پیش‌نویس ناتمام: $e';
+          return false;
+        }
       });
 }
 

@@ -2,73 +2,111 @@ part of 'labor.dart';
 
 // متنِ پاسخ‌ها: پول، خواسته‌ها، طرحِ دعوا و شانس.
 
-String _laborMoney(CaseFile f) {
-  final months = f.n('months');
-  final sal = f.n('salary');
-  if (months == null || sal == null) {
-    final need = months == null && sal == null
-        ? 'سابقهٔ کار و آخرین حقوق ماهانه‌تان'
-        : (months == null ? 'مدت سابقهٔ کارتان' : 'آخرین حقوق ماهانه‌تان');
-    return 'فرمولش ساده است: به ازای هر سال سابقه، یک ماه آخرین حقوق [[labor:24]]. برای اینکه رقم بدهم، $need را بگویید.';
-  }
-  final years = months / 12.0;
-  final san = (sal * years).round();
-  final alt = (sal * 1.5 * years).round();
-  final sb = StringBuffer(
-      'با ${Sense.span(months)} سابقه و حقوق ماهانهٔ ${Sense.toman(sal)}، حساب سرانگشتی این می‌شود:\n'
-      '• سنوات (مزایای پایان کار): هر سال یک ماه حقوق، یعنی حدود ${Sense.toman(san)} [[labor:24]].');
-  if (laborFired(f)) {
-    sb.write(
-        '\n• اگر مرجع حل اختلاف اخراج را ناموجه بداند و شما نخواهید برگردید، به‌جای آن هر سال ۴۵ روز حقوق می‌گیرید، یعنی حدود ${Sense.toman(alt)} [[labor:165]].'
-        '\n• اگر بخواهید برگردید، حکم بازگشت به کار و حقوق کل مدتی که بیکار مانده‌اید را می‌گیرید [[labor:165]].');
-  }
-  sb.write(
-      '\nبه این‌ها حقوق معوق، عیدی و مرخصی استفاده‌نشده هم اضافه می‌شود. این رقم‌ها تقریبی است، چون مبنای قانون «آخرین مزد» است و مزایای جانبی ممکن است حساب نشود؛ رقم قطعی را ادارهٔ کار تعیین می‌کند.');
-  return sb.toString();
-}
+const TextExpr _laborMoney = TxCond(
+  FactAll([FactHasNum('months'), FactHasNum('salary')]),
+  TxConcat([
+    Tx('laborMoneySumA'),
+    TxRaw(' '),
+    TxNum('months', fmt: NumFmt.span),
+    TxRaw(' '),
+    Tx('laborMoneySumB'),
+    TxRaw(' '),
+    TxNum('salary'),
+    Tx('laborMoneySumC'),
+    TxRaw('\n'),
+    Tx('laborMoneySumD'),
+    TxRaw(' '),
+    TxScaleMul('salary', 'months', 1.0, divideFirst: true),
+    TxRaw(' '),
+    Tx('laborMoneySumE'),
+    TxCond(
+      laborFiredRule,
+      TxConcat([
+        TxRaw('\n'),
+        Tx('laborMoneyFiredA'),
+        TxRaw(' '),
+        TxScaleMul('salary', 'months', 1.5, divideFirst: true),
+        TxRaw(' '),
+        Tx('laborMoneyFiredB'),
+        TxRaw('\n'),
+        Tx('laborMoneyFiredC'),
+      ]),
+    ),
+    TxRaw('\n'),
+    Tx('laborMoneyTail'),
+  ]),
+  TxConcat([
+    Tx('laborMoneyAskA'),
+    TxRaw(' '),
+    TxCases(
+      [
+        TextCase(
+          FactAll([
+            FactNot(FactHasNum('months')),
+            FactNot(FactHasNum('salary')),
+          ]),
+          Tx('laborBod_0'),
+        ),
+        TextCase(FactNot(FactHasNum('months')), Tx('laborBod_1')),
+      ],
+      fallback: Tx('laborBod_2'),
+    ),
+    TxRaw(' '),
+    Tx('laborMoneyAskB'),
+  ]),
+);
 
-/// خواسته‌هایی که با واقعیت‌های همین پرونده جا دارد در دادخواست بیاید؛
-/// ادعایی که شرطش برقرار نیست (مثل سنوات وقتی هنوز سر کارید) نمی‌آید.
-String _laborDemands(CaseFile f) {
-  final out = <String>[];
-  for (final v in Reasoner.assess(laborTopic, f)) {
-    if (v.standing == Standing.weak) continue;
-    final l = v.claim.label;
-    if (l.isEmpty) continue;
-    out.add(l == 'اخراج' ? 'بازگشت به کار یا خسارت اخراج' : l);
-  }
-  out.add('عیدی و مرخصی استفاده‌نشده');
-  return out.join('، ');
-}
+final TextExpr _laborPlan = TxConcat([
+  const Tx('laborPlanLead'),
+  const TxRaw('\n'),
+  const TxCond(laborFiredRule, Tx('laborBod_5'), Tx('laborBod_6')),
+  const Tx('laborPlanS2'),
+  const TxRaw('\n'),
+  const Tx('laborPlanS3A'),
+  const TxRaw(' '),
+  TxAssessDemands(
+    claims: laborClaims,
+    replaceLabel: const Tx('laborClaimFiredLabel'),
+    replacedText: const Tx('laborBod_3'),
+    extra: const Tx('laborBod_4'),
+    separator: const Tx('laborDemandsSep'),
+  ),
+  const TxRaw('.\n'),
+  const Tx('laborPlanS4'),
+  const TxRaw('\n'),
+  const Tx('laborPlanS5'),
+]);
 
-String _laborPlan(CaseFile f) {
-  final first = laborFired(f)
-      ? '۱) تا اخراجتان کتبی نشده، خودتان کار را ترک نکنید: فردا سر کار حاضر شوید و اگر راهتان ندادند، همان را با شاهد، پیام یا فیلم ثبت کنید تا بعداً نگویند «خودش نیامد». هیچ برگهٔ استعفا یا تسویه‌حسابی را هم امضا نکنید.\n'
-      : '۱) هر مدرکی که کارکردن شما را نشان می‌دهد جمع کنید و هیچ برگهٔ تسویه‌حسابی را پیش از گرفتن پول امضا نکنید.\n';
-  return 'برنامه‌ای که پیشنهاد می‌کنم:\n'
-      '$first'
-      '۲) در ادارهٔ کارِ محل کارگاه (یا سامانهٔ جامع روابط کار) دادخواست ثبت کنید؛ اختلاف کارگر و کارفرما در دادگاه رسیدگی نمی‌شود، بلکه در هیئت تشخیص [[labor:157]].\n'
-      '۳) خواسته‌ها را کامل بنویسید: ${_laborDemands(f)}.\n'
-      '۴) اگر رأی هیئت تشخیص به نفعتان نبود، ۱۵ روز برای اعتراض به هیئت حل اختلاف وقت دارید [[labor:159]].\n'
-      '۵) رأی قطعی را اجرای احکام دادگستری اجرا می‌کند؛ یعنی توقیف حساب و اموال کارفرما [[labor:166]].';
-}
-
-String _laborChance(CaseFile f) {
-  final plus = <String>[];
-  final minus = <String>[];
-  final m = f.n('months');
-  if (m != null && m >= 12) plus.add('سابقهٔ ${Sense.span(m)} دارید');
-  if (f.yes('contract')) plus.add('قرارداد کتبی دارید');
-  if (f.yes('insured')) plus.add('سابقهٔ بیمه خودش رابطهٔ کاری را ثابت می‌کند');
-  if (f.no('contract')) minus.add('قرارداد کتبی ندارید');
-  if (f.no('insured')) minus.add('بیمه نبوده‌اید');
-  final sb = StringBuffer(
-      'مراجع کار معمولاً سخت‌گیریِ دادگاه را ندارند و با شهادت همکاران و قرینه‌ها هم رابطهٔ کاری را می‌پذیرند.');
-  if (plus.isNotEmpty) sb.write('\nنقاط قوت: ${plus.join('؛ ')}.');
-  if (minus.isNotEmpty) {
-    sb.write(
-        '\nنقطهٔ ضعف: ${minus.join(' و ')}؛ پس همه‌چیز به این بستگی دارد که بتوانید «کارکردن در آنجا» را نشان دهید (شاهد، واریز حقوق، پیام‌های کاری، عکس، کارت یا لباس کار).');
-  }
-  sb.write('\nاگر رابطهٔ کاری ثابت شود، گرفتن سنوات و حقوق معوق تقریباً قطعی است؛ بحث بازگشت به کار به این بستگی دارد که کارفرما دلیل موجهی برای اخراج نشان بدهد یا نه [[labor:165]].');
-  return sb.toString();
-}
+const TextExpr _laborChance = TxConcat([
+  Tx('laborBod_11'),
+  TxListJoin(
+    prefix: TxConcat([TxRaw('\n'), Tx('laborChancePlusLead'), TxRaw(' ')]),
+    separator: Tx('laborChancePlusSep'),
+    suffix: TxRaw('.'),
+    items: [
+      RecapItem(
+        when: FactNumMin('months', 12),
+        text: TxConcat([
+          Tx('laborChanceSpanA'),
+          TxRaw(' '),
+          TxNum('months', fmt: NumFmt.span),
+          TxRaw(' '),
+          Tx('laborChanceSpanB'),
+        ]),
+      ),
+      RecapItem(when: FactYes('contract'), text: Tx('laborBod_7')),
+      RecapItem(when: FactYes('insured'), text: Tx('laborBod_8')),
+    ],
+  ),
+  TxListJoin(
+    prefix: TxConcat([TxRaw('\n'), Tx('laborChanceMinusLead'), TxRaw(' ')]),
+    separator: Tx('laborChanceMinusSep'),
+    suffix: Tx('laborChanceMinusTail'),
+    items: [
+      RecapItem(when: FactNo('contract'), text: Tx('laborBod_9')),
+      RecapItem(when: FactNo('insured'), text: Tx('laborBod_10')),
+    ],
+  ),
+  TxRaw('\n'),
+  Tx('laborChanceTail'),
+]);

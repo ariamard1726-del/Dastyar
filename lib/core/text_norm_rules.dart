@@ -68,4 +68,47 @@ class TextNormRules {
     <String>[r'شکواییه', 'شکوائیه'],
     <String>[r'اجراییه', 'اجرائیه'],
   ];
+
+  // ---- لایهٔ واژه‌بندی و ریشه‌یابی (`PersianText` / `eval_py`) ----
+
+  static const String nonWord = r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+';
+  static const int stemMinStem = 3;
+  static const List<String> suffixes = <String>['ترین', 'هایی', 'های', 'ها', 'تر', 'ان', 'ات', 'ی'];
+  static const List<String> suffixesIndex = <String>['ترین', 'هایی', 'های', 'ها'];
+  static const Set<String> stop = <String>{
+    'آن', 'آیا', 'از', 'است', 'این', 'با', 'باشد', 'بر',
+    'برای', 'به', 'بود', 'بگو', 'تا', 'تو', 'در', 'درباره',
+    'را', 'شد', 'شما', 'قانون', 'لطفا', 'ماده', 'ممنون', 'من',
+    'مورد', 'می', 'هر', 'هست', 'هم', 'و', 'چرا', 'چطور',
+    'چه', 'چگونه', 'چی', 'چیست', 'کجا', 'کن', 'کند', 'کنم',
+    'که', 'کی', 'یا', 'یک',
+  };
+
+  // ---- نسخه‌های فاصله‌دار (`TopicFlow` و `LawTerms`) ----
+
+  static const Map<String, String> spacedToolsMap = <String, String>{
+    'ء': '', // U+0621
+    'أ': 'ا', // U+0623
+    'ؤ': 'و', // U+0624
+    'ك': 'ک', // U+0643
+    'ي': 'ی', // U+064A
+    'ۀ': 'ه', // U+06C0
+    '\u200c': ' ', // U+200C
+  };
+  static const List<List<int>> spacedToolsDropRanges = <List<int>>[
+    <int>[1611, 1631],
+    <int>[1648, 1648],
+  ];
+  static const String spacedToolsPunct = r'[،,.;:!?؟()\[\]«»"\-/]+';
+  static const bool spacedToolsPad = true;
+
+  static const Map<String, String> spacedTermsMap = <String, String>{
+    'ك': 'ک', // U+0643
+    'ي': 'ی', // U+064A
+    'ۀ': 'ه', // U+06C0
+    '\u200c': ' ', // U+200C
+  };
+  static const List<List<int>> spacedTermsDropRanges = <List<int>>[];
+  static const String spacedTermsPunct = r'[،,.;:!?؟()\[\]«»"\-/]+';
+  static const bool spacedTermsPad = true;
 }

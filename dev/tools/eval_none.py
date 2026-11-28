@@ -5,19 +5,23 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(
+    0,
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        'dev',
+        'brain',
+    ),
+)
+import engine_rules as _ER  # noqa: E402
 from eval_py import ART_QUERY_RE, ROOT, Engine, collapse, normalize, phrase, tok  # noqa: E402
 
-MIN_SCORE = 0.3
-LOW_COVER = 0.4
+MIN_SCORE = _ER.MIN_SCORE
+LOW_COVER = _ER.LOW_COVER
 
-UNLOADED_PENAL_TERMS = (
-    'سرقت', 'دزدی', 'کلاهبرداری', 'قتل', 'ضرب و جرح', 'خیانت در امانت',
-    'توهین', 'افترا', 'جعل', 'رشوه', 'اختلاس', 'جرایم رایانه', 'هک',
-)
-PENAL_CONTEXT_MARKERS = ('مجازات', 'دیه', 'قصاص', 'حدود', 'تعزیر', 'جرم')
-LOADED_CRIMINAL_EXCEPTIONS = (
-    'چک', 'ورشکست', 'شرکت', 'سهام', 'برات', 'سفته', 'کارگر', 'کارفرما',
-)
+UNLOADED_PENAL_TERMS = _ER.UNLOADED_PENAL_TERMS
+PENAL_CONTEXT_MARKERS = _ER.PENAL_CONTEXT_MARKERS
+LOADED_CRIMINAL_EXCEPTIONS = _ER.LOADED_CRIMINAL_EXCEPTIONS
 
 
 def _has_term(c, t):
@@ -37,18 +41,18 @@ def coverage(eng, q, c):
         if _has_term(c, t):
             covered.add(t)
             got += w
-        elif len(t) >= 3:
+        elif len(t) >= _ER.PREFIX_MIN_LEN:
             pref = False
             for m in (c['T'], c['B'], c['C']):
                 for k in m:
-                    if len(k) >= 3 and (k.startswith(t) or t.startswith(k)):
+                    if len(k) >= _ER.PREFIX_MIN_LEN and (k.startswith(t) or t.startswith(k)):
                         pref = True
                         break
                 if pref:
                     break
             if pref:
                 covered.add(t)
-                got += 0.5 * mx
+                got += _ER.PREFIX_WEIGHT * mx
 
     n = f' {phrase(q)} '
     for kk, v in eng.syn:
@@ -85,36 +89,20 @@ def hits_unloaded_domain(eng, norm_q, mentioned_ids, top_chunk):
     # ۲) پرسش‌های اختصاصی مالیاتی وقتی قانون مالیات‌های مستقیم بارگذاری نشده
     if eng.lawcount.get('direct_taxes', 0) <= 0 and 'مالیات' in cn:
         if (
-            'مالیات بر درآمد' in cn
-            or 'محاسبه مالیات' in cn
-            or 'نرخ مالیات' in cn
-            or 'معافیت مالیاتی' in cn
+            any(trig in cn for trig in _ER.TAX_TRIGGERS)
             or (not _has_term(top_chunk, 'مالیات') and 'مالیات' not in normalize(top_chunk['source']))
         ):
             return True
 
     # ۳) جزئیات حق بیمه و مستمری تأمین اجتماعی وقتی قانون تأمین اجتماعی بارگذاری نشده
     if eng.lawcount.get('social_security', 0) <= 0:
-        if 'تامین اجتماعی' in cn and ('حق بیمه' in cn or 'مستمری' in cn or 'بازنشستگی' in cn):
+        if 'تامین اجتماعی' in cn and any(trig in cn for trig in _ER.SOCIAL_SECURITY_TRIGGERS):
             return True
 
     # ۴) نگهبان عدم انطباق موضوع محوری: اگر پرسش صریحاً دربارهٔ نهاد حقوقی خاصی باشد
     # اما قطعهٔ برتر بازیابی‌شده هیچ‌یک از واژه‌های آن نهاد را نداشته باشد (برخورد واژه‌های عمومی)
-    anchor_groups = (
-        ('طلاق', ('طلاق', 'خلع', 'مبارات', 'عده')),
-        ('حضانت', ('حضانت', 'طفل')),
-        ('مهریه', ('مهر', 'صداق', 'مهریه')),
-        ('دیه', ('دیه',)),
-        ('سربازی', ('سربازی', 'وظیفه عمومی')),
-        ('گمرک', ('گمرک', 'گمرکی', 'ترخیص')),
-        ('گواهینامه', ('گواهینامه', 'رانندگی')),
-        ('خلافی', ('خلافی', 'رانندگی')),
-        ('ویزا', ('ویزا', 'روادید')),
-        ('شنگن', ('شنگن', 'روادید')),
-        ('پناهندگی', ('پناهندگی', 'پناهنده')),
-    )
     q_words = f' {phrase(norm_q)} '
-    for trigger, required_any in anchor_groups:
+    for trigger, required_any in _ER.ANCHOR_GROUPS:
         if f' {trigger} ' in q_words:
             if not any(_has_term(top_chunk, r) for r in required_any):
                 return True
@@ -132,11 +120,11 @@ def gate(eng, q):
     if art and not mentioned and 'قانون' in n:
         return False
     hits = eng.rank(q, k=4)
-    if art and mentioned and not (hits and hits[0][1] >= 99):
+    if art and mentioned and not (hits and hits[0][1] >= _ER.EXPLICIT_SCORE):
         return False
     if not hits or hits[0][1] < MIN_SCORE:
         return False
-    if (art is None or hits[0][1] < 99) and coverage(eng, q, hits[0][0]) < LOW_COVER:
+    if (art is None or hits[0][1] < _ER.EXPLICIT_SCORE) and coverage(eng, q, hits[0][0]) < LOW_COVER:
         return False
     if art is None and hits_unloaded_domain(eng, n, mentioned, hits[0][0]):
         return False

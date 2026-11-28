@@ -8,6 +8,7 @@
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
+import 'package:dastyar/domain/advocate/dialogue_sections.dart';
 import 'package:dastyar/domain/advocate/reply_voice.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,8 +49,39 @@ void main() {
     expect(r!.chips, contains('الان امن است'));
   });
 
+  test('خودآسیبی پاسخ فوری میگیرد', () {
+    final r = bot.reply(n('دیگه تحمل ندارم، خودمو میکشم'));
+    expect(r, isNotNull);
+    expect(r!.source, AnswerSource.safety);
+    expect(bot.asksSelfHarm(n('نمیخوام زنده بمونم')), isTrue);
+    expect(bot.asksSelfHarm(n('قرارداد اجاره تمام شده')), isFalse);
+  });
+
   test('پیامِ حقوقیِ معمولی ایمنی نیست', () {
     expect(bot.reply(n('چکم برگشت خورد و پولم را نمیدهند')), isNull);
     expect(bot.reply(n('قرارداد اجاره‌ام تمام شده')), isNull);
+  });
+
+  test('severityOf شدت خطر و acknowledgesSafe اعلام امنیت را تشخیص می‌دهد', () {
+    expect(bot.severityOf(n('خودمو میکشم')), SafetySeverity.critical);
+    expect(bot.severityOf(n('الان در خطر هستم')), SafetySeverity.critical);
+    expect(bot.severityOf(n('شوهرم منو زد')), SafetySeverity.elevated);
+    expect(bot.severityOf(n('به پلیس زنگ زدم')), SafetySeverity.elevated);
+    expect(bot.severityOf(n('قرارداد اجاره تمام شده')), SafetySeverity.none);
+
+    expect(bot.acknowledgesSafe(n('الان امن است')), isTrue);
+    expect(bot.acknowledgesSafe(n('الان امن هستم')), isTrue);
+    expect(bot.acknowledgesSafe(n('در خطر نیستم')), isTrue);
+    expect(bot.acknowledgesSafe(n('شوهرم منو زد')), isFalse);
+
+    final s = SafetyState()
+      ..safetyShown = true
+      ..safetySeverity = SafetySeverity.critical
+      ..lastSafetyTurn = 4
+      ..acknowledgedSafe = false;
+    final back = SafetyState.fromJson(s.toJson());
+    expect(back.safetySeverity, SafetySeverity.critical);
+    expect(back.lastSafetyTurn, 4);
+    expect(back.acknowledgedSafe, isFalse);
   });
 }

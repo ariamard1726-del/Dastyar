@@ -3,366 +3,329 @@ part of 'rent.dart';
 // ادعاهای حقوقیِ این موضوع: ارکان، شرط و نتیجه.
 
 final List<Claim> rentClaims = [
-  Claim(
-    goal: 'گرفتن اجاره‌بهای عقب‌افتاده از مستأجر',
-    when: (f) => _aim(f, 'unpaid'),
+  Claim.dsl(
+    goal: rentText('claim0_goal'),
+    when: _aUnpaid,
     cues: 'اجاره|کرایه|طلب|پول',
     uses: const ['due'],
     elements: [
-      Element(
-        'رابطهٔ اجاره و مبلغ اجاره‌بها را بتوانید نشان بدهید (اجاره‌نامه، کد رهگیری یا رسید واریزهای قبلی).',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim0_e0_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید و مبلغ اجاره در آن آمده',
-        ifNo:
-            'بدون اجاره‌نامه باید با رسید واریزهای قبلی، پیام‌ها یا شاهد نشان بدهید اجاره چقدر بوده.',
+        because: const TxRent('claim0_e0_because'),
+        ifNo: rentText('claim0_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        'می‌توانید اجاره‌بهای ماه‌های پرداخت‌نشده را مطالبه کنید؛ پرداخت اجاره در موعد، تعهد قانونی مستأجر است [[civil:490]]. اگر ودیعه‌ای از او دارید، طلبتان فقط از راه دادخواست از آن کسر می‌شود [[landlord_tenant:4]].',
-    counter: (f) =>
-        'مستأجر معمولاً می‌گوید «پرداخت کرده‌ام» یا «از پول پیش کم کن». برای اولی باید رسید نشان بدهد؛ دومی فقط با رضایت شما یا حکم دادگاه شدنی است.',
+    win: const TxRent('claim0_win'),
+    counter: const TxRent('claim0_counter'),
   ),
-  Claim(
-    goal: 'گرفتن خسارت ملک از مستأجر',
-    when: (f) => _aim(f, 'damage'),
+  Claim.dsl(
+    goal: rentText('claim1_goal'),
+    when: _aDamage,
     cues: 'خسارت|خراب|تعمیر',
     uses: const ['due'],
     elements: [
-      Element(
-        'بتوانید خرابی و اندازه‌اش را نشان بدهید (عکس و فیلم، صورت‌جلسهٔ تحویل، نظر کارشناس).',
-        (f) => f.tri('proof'),
+      Element.dsl(
+        rentText('claim1_e0_text'),
+        const FactTri('proof'),
         needs: const ['proof'],
-        because: (f) => 'از خرابی مدرک دارید',
-        ifNo:
-            'بدون مدرک، ادعای خسارت به‌سختی ثابت می‌شود؛ پیش از هر تعمیری «تأمین دلیل» بگیرید تا کارشناس وضعیت را صورت‌جلسه کند [[civil_procedure:149]].',
+        because: const TxRent('claim1_e0_because'),
+        ifNo: rentText('claim1_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        'می‌توانید خسارتی را که از کوتاهی یا زیاده‌روی مستأجر پیش آمده مطالبه کنید؛ فرسودگیِ عادیِ زندگی معمول گردن او نیست [[civil:493]].',
-    counter: (f) =>
-        'می‌گوید «از اول همین‌طور بود» یا «استهلاک عادی است». جوابش صورت‌جلسهٔ تحویلِ اول اجاره و نظر کارشناس است.',
+    win: const TxRent('claim1_win'),
+    counter: const TxRent('claim1_counter'),
   ),
-  Claim(
-    goal: 'فسخ اجاره و تخلیه به‌خاطر تخلف مستأجر',
-    when: (f) => _aim(f, 'breach'),
+  Claim.dsl(
+    goal: rentText('claim2_goal'),
+    when: _aBreach,
     cues: 'فسخ|تخلیه|بلند|بیرون',
     elements: [
-      Element(
-        'در اجاره‌نامه این کار ممنوع شده یا برایش حق فسخ گذاشته باشید [[civil:496]].',
-        (f) => f.tri('clause'),
+      Element.dsl(
+        rentText('claim2_e0_text'),
+        const FactTri('clause'),
         needs: const ['clause'],
-        because: (f) => 'در اجاره‌نامه برای این تخلف حق فسخ دارید',
-        ifNo:
-            'اگر در قرارداد چیزی دربارهٔ آن نیامده، قانون مستأجر را در واگذاری به دیگری آزاد گذاشته است [[civil:474]] و فسخ سخت می‌شود.',
+        because: const TxRent('claim2_e0_because'),
+        ifNo: rentText('claim2_e0_ifNo'),
       ),
-      Element(
-        'بتوانید تخلف را نشان بدهید (استشهاد، عکس یا تأمین دلیل).',
-        (f) => f.tri('proof'),
+      Element.dsl(
+        rentText('claim2_e1_text'),
+        const FactTri('proof'),
         needs: const ['proof'],
-        because: (f) => 'از تخلف مدرک دارید',
-        ifNo:
-            'اول مدرک جمع کنید؛ استشهاد همسایه‌ها و تأمین دلیل کارسازترین‌اند [[civil_procedure:149]].',
+        because: const TxRent('claim2_e1_because'),
+        ifNo: rentText('claim2_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        'می‌توانید اجاره را فسخ کنید و تخلیه را از دادگاه بخواهید؛ حق فسخ از تاریخ تخلف پیدا می‌شود [[civil:496]].',
-    counter: (f) =>
-        'می‌گوید «خودت خبر داشتی و حرفی نزدی». برای همین فسخ را زود و کتبی اعلام کنید [[civil_procedure:156]].',
+    win: const TxRent('claim2_win'),
+    counter: const TxRent('claim2_counter'),
   ),
-  Claim(
-    goal: 'تخلیهٔ ملک پیش از پایان مدت اجاره',
-    when: (f) => _evicting(f) && f.no('ended'),
+  Claim.dsl(
+    goal: rentText('claim3_goal'),
+    when: const FactAll([_evicting, FactNo('ended')]),
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)|فسخ',
     elements: [
-      Element(
-        'در اجاره‌نامه برای خودتان حق فسخ گذاشته باشید (مثلاً برای نپرداختن اجاره) [[civil:496]].',
-        (f) => f.tri('clause'),
+      Element.dsl(
+        rentText('claim3_e0_text'),
+        const FactTri('clause'),
         needs: const ['clause'],
-        because: (f) => 'در اجاره‌نامه حق فسخ دارید',
-        ifNo:
-            'بدون شرط فسخ در قرارداد، تا پایان مدت نمی‌شود مستأجر را بلند کرد [[civil:219]]؛ در این فاصله فقط اجاره‌های نپرداخته را می‌شود مطالبه کرد.',
+        because: const TxRent('claim3_e0_because'),
+        ifNo: rentText('claim3_e0_ifNo'),
       ),
-      Element(
-        'اجاره‌نامهٔ کتبی داشته باشید که آن شرط را نشان بدهد.',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim3_e1_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
-        ifNo: 'شرطی که نوشته نشده باشد، در دادگاه به‌سختی ثابت می‌شود.',
+        because: const TxRent('claim3_e1_because'),
+        ifNo: rentText('claim3_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        'می‌توانید فسخ را با اظهارنامه اعلام کنید و تخلیه را از دادگاه بخواهید [[civil:496]] [[civil_procedure:156]].',
-    counter: (f) =>
-        'مستأجر می‌گوید «تخلفی نکرده‌ام» یا «اجاره را داده‌ام». اثبات تخلف با شماست [[civil_procedure:197]]؛ صورت واریزها و پیام‌های مطالبه را آماده داشته باشید.',
+    win: const TxRent('claim3_win'),
+    counter: const TxRent('claim3_counter'),
   ),
-  Claim(
-    goal: 'گرفتن دستور تخلیهٔ فوری از مستأجر',
-    when: (f) => f.eq('role', 'landlord'),
+  Claim.dsl(
+    goal: rentText('claim4_goal'),
+    when: _landlordSide,
     cues: 'تخلیه|بیرون(?:ش)? کنم|بلند(?:ش)? کنم|خالی (?:کنه|کند|بشه)',
     elements: [
-      Element(
-        'مدت اجاره تمام شده باشد [[landlord_tenant:3]].',
-        (f) => f.tri('ended'),
+      Element.dsl(
+        rentText('claim4_e0_text'),
+        const FactTri('ended'),
         needs: const ['ended'],
-        because: (f) => 'مدت اجاره تمام شده',
-        ifNo:
-            'تا مدت تمام نشده دستور تخلیهٔ فوری نمی‌دهند؛ فقط اگر در قرارداد برای خودتان حق فسخ گذاشته باشید (مثلاً برای نپرداختن اجاره) می‌شود از راه دادگاه جلو رفت.',
+        because: const TxRent('claim4_e0_because'),
+        ifNo: rentText('claim4_e0_ifNo'),
       ),
-      Element(
-        'اجاره‌نامهٔ کتبی داشته باشید.',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim4_e1_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
-        ifNo:
-            'بدون اجاره‌نامهٔ کتبی باید «دادخواست تخلیه» بدهید که زمان‌برتر از دستور تخلیه است.',
+        because: const TxRent('claim4_e1_because'),
+        ifNo: rentText('claim4_e1_ifNo'),
       ),
-      Element(
-        'دو شاهد پای اجاره‌نامه را امضا کرده باشند یا کد رهگیری داشته باشد [[landlord_tenant:2]].',
-        (f) => f.no('contract') ? false : f.tri('witness'),
+      Element.dsl(
+        rentText('claim4_e2_text'),
+        const FactTriWhen(
+          FactNo('contract'),
+          FactConst(false),
+          FactTri('witness'),
+        ),
         needs: const ['witness'],
-        because: (f) => 'اجاره‌نامه شاهد یا کد رهگیری دارد',
-        ifNo:
-            'اجاره‌نامهٔ بی‌شاهد راه دستور تخلیهٔ یک‌هفته‌ای را می‌بندد؛ همان «دادخواست تخلیه» راه شماست.',
+        because: const TxRent('claim4_e2_because'),
+        ifNo: rentText('claim4_e2_ifNo'),
       ),
     ],
-    win: (f) =>
-        'می‌توانید دستور تخلیه بگیرید که ظرف حدود یک هفته اجرا می‌شود؛ فقط باید ودیعهٔ او را هم‌زمان پس بدهید یا به دایرهٔ اجرا بسپارید [[landlord_tenant:3]] [[landlord_tenant:4]].',
-    counter: (f) =>
-        'مستأجر معمولاً می‌گوید «ودیعه‌ام را نداده‌ای» یا «قرارداد شفاهی تمدید شد». برای اولی، ودیعه را به اجرا بسپارید تا بهانه‌ای نماند؛ برای دومی، این اوست که باید تمدید را ثابت کند [[civil_procedure:197]].',
+    win: const TxRent('claim4_win'),
+    counter: const TxRent('claim4_counter'),
   ),
-  Claim(
-    goal: 'پس‌گرفتن ودیعه از موجر',
-    when: (f) => !f.has('matter') || f.eq('matter', 'deposit'),
+  Claim.dsl(
+    goal: rentText('claim5_goal'),
+    when: const FactAny([FactNot(FactHas('matter')), FactEq('matter', 'deposit')]),
     cues: 'ودیعه|پول پیش|رهن|پولم',
     uses: const ['amount'],
     elements: [
-      Element(
-        'مدت اجاره تمام شده باشد (یا با توافق دو طرف به هم خورده باشد) [[civil:494]].',
-        (f) => f.tri('ended'),
+      Element.dsl(
+        rentText('claim5_e0_text'),
+        const FactTri('ended'),
         needs: const ['ended'],
-        because: (f) => 'مدت اجاره تمام شده',
-        ifNo:
-            'تا پایان مدت، موجر تکلیفی به پس‌دادن ودیعه ندارد، مگر با توافق یا شرطی که در خود قرارداد آمده باشد.',
+        because: const TxRent('claim5_e0_because'),
+        ifNo: rentText('claim5_e0_ifNo'),
       ),
-      Element(
-        'ملک را تخلیه و تحویل داده باشید [[landlord_tenant:4]].',
-        (f) => f.tri('vacated'),
+      Element.dsl(
+        rentText('claim5_e1_text'),
+        const FactTri('vacated'),
         needs: const ['vacated'],
-        because: (f) => 'ملک را تخلیه کرده و تحویل داده‌اید',
-        ifNo:
-            'تخلیه و پس‌دادن ودیعه باید هم‌زمان باشد؛ با اظهارنامه اعلام آمادگی کنید و کلید را فقط در برابر پول تحویل بدهید.',
+        because: const TxRent('claim5_e1_because'),
+        ifNo: rentText('claim5_e1_ifNo'),
       ),
-      Element(
-        'بتوانید پرداخت ودیعه و مبلغش را نشان بدهید (اجاره‌نامه، رسید یا تراکنش بانکی).',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim5_e2_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامه دارید و ودیعه در آن آمده',
-        ifNo:
-            'نبودِ اجاره‌نامه مانع نیست، ولی باید با رسید واریز، پیام‌ها یا شاهد، پرداخت ودیعه را ثابت کنید.',
+        because: const TxRent('claim5_e2_because'),
+        ifNo: rentText('claim5_e2_ifNo'),
       ),
     ],
-    win: (f) =>
-        'موجر باید کل ودیعه را برگرداند و حق ندارد سرِ خود چیزی از آن کم کند [[landlord_tenant:4]].',
-    counter: (f) =>
-        'می‌گوید «خانه را خراب کرده‌ای» یا «قبض‌ها مانده». جوابش این است که خودش باید دادخواست خسارت بدهد و فقط به اندازهٔ همان ادعا می‌تواند پول نگه دارد؛ اثباتش هم با اوست [[landlord_tenant:4]] [[civil_procedure:197]].',
+    win: const TxRent('claim5_win'),
+    counter: const TxRent('claim5_counter'),
   ),
-  Claim(
-    goal: 'پرداخت همان اجارهٔ قبلی تا پایان قرارداد',
-    when: (f) => f.eq('matter', 'raise'),
+  Claim.dsl(
+    goal: rentText('claim6_goal'),
+    when: const FactEq('matter', 'raise'),
     cues: 'اجاره|کرایه|زیاد|گرون|بالا|افزایش',
     elements: [
-      Element(
-        'مدت قرارداد هنوز تمام نشده باشد [[civil:219]].',
+      Element.dsl(
+        rentText('claim6_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => 'مدت قرارداد هنوز تمام نشده',
-        ifNo:
-            'با تمام‌شدن مدت، اجاره پایان می‌یابد [[civil:494]] و مبلغ دورهٔ بعد فقط با توافق تعیین می‌شود؛ او مجبور نیست با مبلغ قبلی تمدید کند.',
+        because: const TxRent('claim6_e0_because'),
+        ifNo: rentText('claim6_e0_ifNo'),
       ),
-      Element(
-        'مبلغ اجاره را بتوانید نشان بدهید (اجاره‌نامه یا رسید واریزها).',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim6_e1_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
-        ifNo:
-            'بدون اجاره‌نامه، رسید واریز ماه‌های قبل نشان می‌دهد مبلغ توافق‌شده چقدر بوده.',
+        because: const TxRent('claim6_e1_because'),
+        ifNo: rentText('claim6_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        'تا پایان مدت همان مبلغ قرارداد را می‌پردازید و او نمی‌تواند یک‌طرفه بالایش ببرد [[civil:219]].',
-    counter: (f) =>
-        'می‌گوید «اگر نمی‌دهی بلند شو». تا پایان مدت نمی‌تواند شما را به رفتن مجبور کند، و بعد از آن هم فقط از راه دستور تخلیه و با پس‌دادن ودیعه [[landlord_tenant:3]] [[landlord_tenant:4]].',
+    win: const TxRent('claim6_win'),
+    counter: const TxRent('claim6_counter'),
   ),
-  Claim(
-    goal: 'ماندن در ملک تا وقتی راه قانونی طی نشده',
-    when: (f) => f.eq('matter', 'evict') || f.eq('matter', 'order'),
+  Claim.dsl(
+    goal: rentText('claim7_goal'),
+    when: const FactIn('matter', ['evict', 'order']),
     cues: 'بیرون|بلند|تخلیه|بمونم|بمانم|خالی',
     elements: [
-      Element(
-        'مدت قرارداد هنوز تمام نشده باشد [[civil:219]].',
+      Element.dsl(
+        rentText('claim7_e0_text'),
         _running,
         needs: const ['ended'],
-        because: (f) => 'مدت قرارداد هنوز تمام نشده',
-        ifNo:
-            'با تمام‌شدن مدت، او می‌تواند دستور تخلیه بگیرد [[landlord_tenant:3]]؛ ولی اجرای آن موکول به پس‌دادن یا سپردن ودیعهٔ شماست [[landlord_tenant:4]].',
+        because: const TxRent('claim7_e0_because'),
+        ifNo: rentText('claim7_e0_ifNo'),
       ),
-      Element(
-        'دستور رسمی تخلیه علیه شما نیامده باشد.',
-        (f) => f.eq('matter', 'order')
-            ? false
-            : (f.no('official') ? true : (f.yes('official') ? false : null)),
+      Element.dsl(
+        rentText('claim7_e1_text'),
+        const FactTriCases([
+          FactCase(FactEq('matter', 'order'), FactConst(false)),
+          FactCase(FactNo('official'), FactConst(true)),
+          FactCase(FactYes('official'), FactConst(false)),
+        ]),
         needs: const ['official'],
-        because: (f) => 'برگهٔ رسمی تخلیه‌ای نیامده',
-        ifNo:
-            'برگهٔ رسمی را باید جدی گرفت: اگر دربارهٔ قرارداد حقی دارید (مثلاً تمدید)، هم‌زمان با اجرای دستور به دادگاه شکایت کنید [[landlord_tenant:5]].',
+        because: const TxRent('claim7_e1_because'),
+        ifNo: rentText('claim7_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        'او حق ندارد شما را بیرون کند؛ قرارداد تا پایان مدت برای هر دو طرف الزام‌آور است [[civil:219]] و کار خودسرانه‌اش را می‌شود با دعوای تصرف عدوانی یا مزاحمت جواب داد [[civil_procedure:158]] [[civil_procedure:160]].',
-    counter: (f) =>
-        'می‌گوید «ملک خودم است». مالک‌بودن به او حق اقدام خودسرانه نمی‌دهد؛ تا پایان مدت، استفاده از ملک حق شماست.',
+    win: const TxRent('claim7_win'),
+    counter: const TxRent('claim7_counter'),
   ),
-  Claim(
-    goal: 'الزام موجر به تعمیر خانه',
-    when: (f) => f.eq('matter', 'repair'),
+  Claim.dsl(
+    goal: rentText('claim8_goal'),
+    when: const FactEq('matter', 'repair'),
     cues: 'تعمیر|درست(?:ش)? کن|خراب',
     elements: [
-      Element(
-        'خرابی را به موجر خبر داده و از او خواسته باشید تعمیر کند (ترجیحاً کتبی).',
-        (f) => f.tri('told'),
+      Element.dsl(
+        rentText('claim8_e0_text'),
+        const FactTri('told'),
         needs: const ['told'],
-        because: (f) => 'خرابی را کتبی به موجر خبر داده‌اید',
-        ifNo:
-            'اول کتبی از او بخواهید و مهلت بدهید؛ بدون این، در دادگاه نمی‌توانید نشان دهید کوتاهی از او بوده.',
+        because: const TxRent('claim8_e0_because'),
+        ifNo: rentText('claim8_e0_ifNo'),
       ),
-      Element(
-        'رابطهٔ اجاره را بتوانید نشان بدهید (اجاره‌نامه یا رسید واریزها).',
-        (f) => f.tri('contract'),
+      Element.dsl(
+        rentText('claim8_e1_text'),
+        const FactTri('contract'),
         needs: const ['contract'],
-        because: (f) => 'اجاره‌نامهٔ کتبی دارید',
-        ifNo:
-            'بدون اجاره‌نامه، رسید واریز اجاره و پیام‌ها رابطهٔ اجاره را نشان می‌دهد.',
+        because: const TxRent('claim8_e1_because'),
+        ifNo: rentText('claim8_e1_ifNo'),
       ),
     ],
-    win: (f) =>
-        'تعمیرهایی که برای استفاده از خانه لازم است به عهدهٔ مالک است، مگر در اجاره‌نامه خلافش آمده باشد [[civil:486]]؛ می‌توانید الزام او به تعمیر را از دادگاه بخواهید.',
-    counter: (f) =>
-        'می‌گوید «خودت خراب کرده‌ای» یا «تعمیر جزئی با مستأجر است». اولی را او باید ثابت کند [[civil_procedure:197]]؛ برای دومی، متن اجاره‌نامه و عرف محل ملاک است [[civil:486]].',
+    win: const TxRent('claim8_win'),
+    counter: const TxRent('claim8_counter'),
   ),
-  Claim(
-    goal: 'تمام‌کردن اجاره پیش از موعد و پس‌گرفتن ودیعه',
-    when: (f) => f.eq('matter', 'leave'),
+  Claim.dsl(
+    goal: rentText('claim9_goal'),
+    when: const FactEq('matter', 'leave'),
     cues: 'فسخ|بلند|برم|بروم|تخلیه|زودتر',
     elements: [
-      Element(
-        'موجر به تخلیهٔ زودتر راضی باشد، یا در قرارداد برای خودتان حق فسخ داشته باشید [[civil:219]].',
-        (f) => f.tri('consent'),
+      Element.dsl(
+        rentText('claim9_e0_text'),
+        const FactTri('consent'),
         needs: const ['consent'],
-        because: (f) => 'موجر با زودتر رفتن شما موافق است',
-        ifNo:
-            'بدون رضایت او یا حق فسخ در قرارداد، اجاره تا پایان مدت پابرجاست و اجاره‌بهای بقیهٔ مدت را می‌تواند بخواهد؛ راه عملی، پیشنهاد مستأجر جایگزین است.',
+        because: const TxRent('claim9_e0_because'),
+        ifNo: rentText('claim9_e0_ifNo'),
       ),
     ],
-    win: (f) =>
-        'با توافق، اجاره به هم می‌خورد [[civil:283]] و او باید هم‌زمان با تخلیه ودیعه را پس بدهد [[landlord_tenant:4]]؛ توافق را حتماً کتبی کنید.',
-    counter: (f) =>
-        'بعداً می‌گوید «قبول نکرده بودم». برای همین رضایتش را کتبی (حتی با پیام) بگیرید و تاریخ تخلیه و پس‌دادن ودیعه را در آن بنویسید.',
+    win: const TxRent('claim9_win'),
+    counter: const TxRent('claim9_counter'),
   ),
 ];
 
 // ============================================================== سندها
 
+const FilingRule _rentFiling0 = FilingSpec(
+  'demand_money',
+  TxRent('filing0_chip'),
+  TxRent('filing0_name'),
+);
+
+const FilingRule _rentFiling9 = FilingSpec(
+  'defense_brief',
+  TxRent('filing9_chip'),
+  TxRent('filing9_name'),
+);
+
 /// دادخواست (یا نخستین نوشتهٔ رسمی) که به همین وضعیت می‌خورد.
-Filing? _rentPetition(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    switch (f.get('aim')) {
-      case 'unpaid':
-        return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ اجاره‌بها',
-            'دادخواست مطالبهٔ اجاره‌بها');
-      case 'damage':
-        return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ خسارت',
-            'دادخواست مطالبهٔ خسارت');
-      case 'evict':
-      case 'breach':
-        if (_noGround(f)) {
-          return f.yes('owes')
-              ? const Filing('demand_money',
-                  'تنظیم دادخواست مطالبهٔ اجاره‌بها', 'دادخواست مطالبهٔ اجاره‌بها')
-              : null;
-        }
-        return const Filing(
-            'eviction', 'تنظیم دادخواست تخلیه', 'دادخواست تخلیه');
-    }
-    return null;
-  }
-  if (!f.eq('role', 'tenant')) return null;
-  switch (f.get('matter')) {
-    case 'deposit':
-      return const Filing('demand_money', 'تنظیم دادخواست مطالبهٔ ودیعه',
-          'دادخواست مطالبهٔ ودیعه');
-    case 'repair':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه برای تعمیر',
-          'اظهارنامهٔ درخواست تعمیر');
-    case 'raise':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه دربارهٔ اجاره',
-          'اظهارنامه دربارهٔ مبلغ اجاره');
-    case 'leave':
-      return const Filing('formal_notice', 'تنظیم اظهارنامهٔ تحویل ملک',
-          'اظهارنامهٔ آمادگی برای تحویل ملک');
-    case 'deliver':
-      return const Filing('formal_notice', 'تنظیم اظهارنامه برای تحویل‌گرفتن ملک',
-          'اظهارنامهٔ درخواست تحویل مورد اجاره');
-    case 'evict':
-      return f.yes('official')
-          ? null
-          : const Filing('formal_notice', 'تنظیم اظهارنامه برای مزاحمت موجر',
-              'اظهارنامهٔ اعتراض به مزاحمت موجر');
-  }
-  return null;
-}
+const FilingRule _rentPetition = FilingCases([
+  FilingCase(_aUnpaid, _rentFiling0),
+  FilingCase(
+    _aDamage,
+    FilingSpec('demand_money', TxRent('filing1_chip'), TxRent('filing1_name')),
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach']), _noGround, FactYes('owes')]),
+    _rentFiling0,
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach']), _noGround]),
+    null,
+  ),
+  FilingCase(
+    FactAll([_landlordSide, FactIn('aim', ['evict', 'breach'])]),
+    FilingSpec('eviction', TxRent('filing2_chip'), TxRent('filing2_name')),
+  ),
+  FilingCase(
+    _mDeposit,
+    FilingSpec('demand_money', TxRent('filing3_chip'), TxRent('filing3_name')),
+  ),
+  FilingCase(
+    _mRepair,
+    FilingSpec('formal_notice', TxRent('filing4_chip'), TxRent('filing4_name')),
+  ),
+  FilingCase(
+    _mRaise,
+    FilingSpec('formal_notice', TxRent('filing5_chip'), TxRent('filing5_name')),
+  ),
+  FilingCase(
+    _mLeave,
+    FilingSpec('formal_notice', TxRent('filing6_chip'), TxRent('filing6_name')),
+  ),
+  FilingCase(
+    _mDeliver,
+    FilingSpec('formal_notice', TxRent('filing7_chip'), TxRent('filing7_name')),
+  ),
+  FilingCase(FactAll([_mEvict, FactYes('official')]), null),
+  FilingCase(
+    _mEvict,
+    FilingSpec('formal_notice', TxRent('filing8_chip'), TxRent('filing8_name')),
+  ),
+]);
 
 /// لایحه‌ای که در پروندهٔ همین دعوا به کار می‌آید.
-Filing? _rentBrief(CaseFile f) {
-  if (f.eq('role', 'landlord')) {
-    if (_noGround(f)) {
-      return f.yes('owes')
-          ? const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
-              'لایحهٔ مطالبهٔ اجاره‌بها')
-          : null;
-    }
-    switch (f.get('aim')) {
-      case 'unpaid':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ اجاره‌بها',
-            'لایحهٔ مطالبهٔ اجاره‌بها');
-      case 'damage':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ خسارت',
-            'لایحهٔ مطالبهٔ خسارت');
-      case 'breach':
-        return const Filing('defense_brief', 'تنظیم لایحهٔ فسخ و تخلیه',
-            'لایحهٔ فسخ اجاره و تخلیه');
-      case 'evict':
-        return const Filing(
-            'defense_brief', 'تنظیم لایحهٔ تخلیه', 'لایحهٔ درخواست تخلیه');
-    }
-    return null;
-  }
-  if (!f.eq('role', 'tenant')) return null;
-  if (_ordered(f)) {
-    return const Filing('defense_brief', 'تنظیم لایحه دربارهٔ دستور تخلیه',
-        'لایحه دربارهٔ دستور تخلیه');
-  }
-  if (f.eq('matter', 'deposit')) {
-    return f.covered.contains('damage')
-        ? const Filing('defense_brief', 'تنظیم لایحهٔ دفاع در برابر ادعای خسارت',
-            'لایحهٔ دفاع در برابر ادعای خسارت')
-        : const Filing('defense_brief', 'تنظیم لایحهٔ مطالبهٔ ودیعه',
-            'لایحهٔ مطالبهٔ ودیعه');
-  }
-  return null;
-}
-
-String _list(List<String> items) => items.join('، ');
-
-/// متن‌های پیشنهادی برای فیلدهای سند، از روی واقعیت‌های همین پرونده.
-/// گزینه‌های فیلدهای انتخابی باید نویسه‌به‌نویسه با قالب یکی باشد.
+const FilingRule _rentBrief = FilingCases([
+  FilingCase(FactAll([_landlordSide, _noGround, FactYes('owes')]), _rentFiling9),
+  FilingCase(FactAll([_landlordSide, _noGround]), null),
+  FilingCase(_aUnpaid, _rentFiling9),
+  FilingCase(
+    _aDamage,
+    FilingSpec('defense_brief', TxRent('filing10_chip'), TxRent('filing10_name')),
+  ),
+  FilingCase(
+    _aBreach,
+    FilingSpec('defense_brief', TxRent('filing11_chip'), TxRent('filing11_name')),
+  ),
+  FilingCase(
+    _aEvict,
+    FilingSpec('defense_brief', TxRent('filing12_chip'), TxRent('filing12_name')),
+  ),
+  FilingCase(
+    FactAll([_isTenantRole, _ordered]),
+    FilingSpec('defense_brief', TxRent('filing13_chip'), TxRent('filing13_name')),
+  ),
+  FilingCase(
+    FactAll([_mDeposit, FactCovered('damage')]),
+    FilingSpec('defense_brief', TxRent('filing14_chip'), TxRent('filing14_name')),
+  ),
+  FilingCase(
+    _mDeposit,
+    FilingSpec('defense_brief', TxRent('filing15_chip'), TxRent('filing15_name')),
+  ),
+]);

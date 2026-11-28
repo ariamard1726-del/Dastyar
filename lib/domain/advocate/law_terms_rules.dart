@@ -63,6 +63,18 @@ class LawTermsRules {
   /// کمترین مجموع idf برای اینکه دو واژه «عبارت» حساب شود.
   static const double phraseMinIdf = 4.0;
 
+  /// اولویت پیش‌فرض قانون وقتی در کاتالوگ ثبت نشده باشد.
+  static const int defaultPriority = 50;
+  /// مقدار span وقتی همهٔ واژه‌ها در متن نیستند.
+  static const int missingSpan = 1000000;
+  /// دقت گردکردن پوشش در خروجی و کلید رتبه‌بندی.
+  static const int coverDigits = 3;
+  static const int rankCoverDigits = 6;
+  static const int rankDensityDigits = 2;
+  /// کمینه واژه برای پذیرش با عبارت یا شمار واژه‌های نادر.
+  static const int minPhraseWords = 2;
+  static const int minRareHits = 2;
+
   /// برچسب متنی که از بانک قوانین نیست.
   static const String generalSource = 'دانش عمومی';
 }

@@ -2,11 +2,12 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic consumerTopic = Topic(
+final Topic consumerTopic = Topic.dsl(
   id: 'consumer',
-  title: 'خرید کالا یا خدمت معیوب',
+  title: topicText('consumer_0'),
   cues: {
     'گارانتی|ضمانت ?نامه|خدمات پس از فروش|حقوق مصرف ?کننده': 3,
     'معیوب|خراب (?:بود|از آب|در ?اومد|دراومد|شد)|تقلبی|اصل نبود|پس نمیگیر|عوض نمیکن|تعویض نمیکن|مرجوع': 3,
@@ -15,134 +16,106 @@ final Topic consumerTopic = Topic(
     'خریدم|خریده بودم|فروشنده|مغازه ?دار|فروشگاه|نمایندگی|تعمیرگاه': 1,
   },
   anti: 'چک|صاحبخونه|مستاجر|کارفرما|شوهر|طلاق|ملک|زمین|آپارتمان|سند',
-  recap: (f) => [
-    if (f.yes('proof')) 'فاکتور یا ضمانت‌نامه دارید',
-    if (f.no('proof')) 'فاکتور یا ضمانت‌نامه ندارید',
-    if (f.yes('told')) 'عیب را به فروشنده گفته‌اید و زیر بار نرفته',
-    if (f.no('told')) 'هنوز رسماً به فروشنده اعلام نکرده‌اید',
-    if (f.eq('want', 'refund')) 'می‌خواهید پولتان را پس بگیرید',
-    if (f.eq('want', 'replace')) 'می‌خواهید کالا را با سالمش عوض کنند',
-    if (f.eq('want', 'repair')) 'می‌خواهید تعمیرش کنند',
+  recap: const [
+    RecapItem(when: FactYes('proof'), text: Tx('consumer_1')),
+    RecapItem(when: FactNo('proof'), text: Tx('consumer_2')),
+    RecapItem(when: FactYes('told'), text: Tx('consumer_3')),
+    RecapItem(when: FactNo('told'), text: Tx('consumer_4')),
+    RecapItem(when: FactEq('want', 'refund'), text: Tx('consumer_5')),
+    RecapItem(when: FactEq('want', 'replace'), text: Tx('consumer_6')),
+    RecapItem(when: FactEq('want', 'repair'), text: Tx('consumer_7')),
   ],
   claims: [
-    Claim(
-      goal: 'واداشتن فروشنده به تعویض، تعمیر یا پس‌دادن پول',
+    Claim.dsl(
+      goal: topicText('consumer_8'),
       elements: [
-        Element(
-          'بتوانید نشان بدهید کالا را از همین فروشنده خریده‌اید (فاکتور، ضمانت‌نامه یا رسید کارت‌خوان) [[consumer_protection:3]].',
-          (f) => f.tri('proof'),
-          ifNo:
-              'نبود فاکتور مانع نیست؛ پیامک بانک، رسید کارت‌خوان، جعبه و برچسب کالا یا شهادت همراهتان هم خرید را ثابت می‌کند.',
+        Element.dsl(
+          topicText('consumer_9'),
+          const FactTri('proof'),
+          ifNo: topicText('consumer_10'),
         ),
-        Element(
-          'عیب از پیش در کالا بوده و پنهان بوده باشد، نه اینکه بر اثر استفادهٔ خودتان پیش آمده باشد [[civil:423]].',
-          (f) => null,
+        Element.dsl(
+          topicText('consumer_11'),
+          const FactConst(null),
         ),
-        Element(
-          'همین که عیب را فهمیدید، بدون معطلی به فروشنده اعلام کرده باشید [[civil:435]].',
-          (f) => f.tri('told'),
-          ifNo:
-              'هر روز تأخیر به ضرر شماست؛ همین امروز کتبی (پیام، ایمیل یا اظهارنامه) اعلام کنید تا تاریخ اعلام ثبت شود.',
+        Element.dsl(
+          topicText('consumer_12'),
+          const FactTri('told'),
+          ifNo: topicText('consumer_13'),
         ),
       ],
-      win: (f) =>
-          'فروشنده مسئول سلامت کالاست و باید کالای سالم بدهد یا خسارت را جبران کند [[consumer_protection:2]]؛ اگر عیب به شما ضرر هم زده باشد، علاوه بر جبران، جریمه هم می‌شود [[consumer_protection:18]].',
-      counter: (f) =>
-          'فروشنده معمولاً می‌گوید «خودت خرابش کرده‌ای» یا «مهلت گارانتی گذشته». جواب اولی، نظر کارشناس است: پیش از هر تعمیری «تأمین دلیل» بگیرید تا علت عیب رسمی ثبت شود [[civil_procedure:149]]. دومی هم مسئولیت قانونی او برای عیبِ پنهانِ هنگام فروش را از بین نمی‌برد [[civil:422]].',
+      win: const Tx('consumer_14'),
+      counter: const Tx('consumer_15'),
     ),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'proof',
-      ask: 'فاکتور، ضمانت‌نامه یا دست‌کم رسید پرداخت دارید؟',
-      why: 'اول باید ثابت شود کالا را از چه کسی و چه تاریخی خریده‌اید؛ بقیهٔ حرف‌ها روی همین سوار می‌شود.',
-      options: ['بله، دارم', 'نه، ندارم'],
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('consumer_16'),
+      why: topicText('consumer_17'),
+      options: [topicText('consumer_18'), topicText('consumer_19')],
+      read: const ReadYn(
         'فاکتور (?:دارم|داد|گرفتم)|ضمانت ?نامه (?:دارم|داره|داد)|گارانتی (?:دارم|داره|داشت)|رسید (?:دارم|گرفتم)|کارت کشیدم',
         'فاکتور (?:ندارم|نداد|نگرفتم)|رسید (?:ندارم|نگرفتم)|بدون فاکتور|گارانتی نداشت',
       ),
-      effect: (f) => f.yes('proof')
-          ? 'همان فاکتور و ضمانت‌نامه ستون پروندهٔ شماست؛ فروشنده اصلاً موظف بوده آن را با ذکر قیمت و تاریخ به شما بدهد [[consumer_protection:3]].'
-          : 'ندادن فاکتور و ضمانت‌نامه خودش تخلف فروشنده است [[consumer_protection:3]]؛ خرید را با پیامک بانک، رسید کارت‌خوان یا شاهد ثابت می‌کنیم.',
+      effect: const TxCond(
+          FactYes('proof'), Tx('consumer_20'), Tx('consumer_21')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'told',
-      ask: 'به خودِ فروشنده یا نمایندگی گفته‌اید؟ چه جوابی داد؟',
-      why: 'حق شما برای عیب «فوری» است؛ هر چه دیرتر اعلام کنید، راحت‌تر می‌گویند با عیب کنار آمده‌اید.',
-      options: ['گفتم، قبول نکرد', 'هنوز نگفته‌ام'],
-      read: (n) => Sense.yn(
-        n,
+      ask: topicText('consumer_22'),
+      why: topicText('consumer_23'),
+      options: [topicText('consumer_24'), topicText('consumer_25')],
+      read: const ReadYn(
         'گفتم|بردم(?:ش)? (?:پیش|مغازه|نمایندگی)|قبول نکرد|قبول نمیکن|پس نمیگیره|عوض نمیکن|زیر بار نمیره|جواب نمیده|میگه (?:به من|تقصیر|خودت)',
         'نگفتم|نگفته ام|هنوز (?:نرفتم|نبردم)|خبر ندادم',
       ),
-      effect: (f) => f.yes('told')
-          ? 'خوب است که معطل نکرده‌اید، چون این حق فوری است [[civil:435]]. حالا همان اعلام را «کتبی» هم تکرار کنید تا بعداً نتواند بگوید خبر نداشته.'
-          : 'این را عقب نیندازید: حق شما برای عیب فوری است و باید همین که فهمیدید اعلام کنید [[civil:435]].',
+      effect: const TxCond(
+          FactYes('told'), Tx('consumer_26'), Tx('consumer_27')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'want',
-      ask: 'خودتان کدام را می‌خواهید: پولتان را پس بگیرید، کالای سالم بگیرید، یا تعمیرش کنند؟',
-      why: 'قانون بسته به نوع کالا راه‌های متفاوتی می‌دهد و خواستهٔ شما تعیین می‌کند از کدام در وارد شویم.',
-      options: ['پولم را پس بدهد', 'کالای سالم بدهد', 'تعمیر کند'],
+      ask: topicText('consumer_28'),
+      why: topicText('consumer_29'),
+      options: [topicText('consumer_30'), topicText('consumer_31'), topicText('consumer_32')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'پول(?:م|مو|م رو| را)? ?(?:پس|برگرد)|پس بده|فسخ|مرجوع')) return 'refund';
-        if (Sense.has(n, 'عوض|تعویض|سالم(?:ش)? (?:رو )?بده|یکی دیگه')) return 'replace';
-        if (Sense.has(n, 'تعمیر|درست(?:ش)? کن')) return 'repair';
-        return null;
-      },
-      effect: (f) => f.eq('want', 'refund')
-          ? 'دربارهٔ پس‌گرفتن پول دقیق باشم: برای کالاهای کارخانه‌ای که مشابهش در بازار هست، قانون اول «کالای سالم» را حق شما می‌داند [[consumer_protection:2]]؛ پس‌گرفتن پول وقتی محکم است که همان یک قلم مشخص را خریده باشید (مثل خودروی دست‌دوم) یا فروشنده از دادن سالمش ناتوان باشد [[civil:422]].'
-          : '',
+      read: const ReadCases([
+        ReadCase('پول(?:م|مو|م رو| را)? ?(?:پس|برگرد)|پس بده|فسخ|مرجوع', 'refund'),
+        ReadCase('عوض|تعویض|سالم(?:ش)? (?:رو )?بده|یکی دیگه', 'replace'),
+        ReadCase('تعمیر|درست(?:ش)? کن', 'repair'),
+      ]),
+      effect: const TxCond(FactEq('want', 'refund'), Tx('consumer_33')),
     ),
   ],
-  opening: (f) =>
-      'قاعده به نفع شماست: فروشنده و تولیدکننده، هر دو، مسئول سالم‌بودن کالایی هستند که می‌فروشند [[consumer_protection:2]]. اگر بعد از خرید معلوم شود کالا عیب داشته، شما مختارید که آن را با همان عیب نگه دارید و تفاوت قیمت بگیرید، یا معامله را به هم بزنید [[civil:422]].',
+  opening: const Tx('consumer_34'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'where',
-      chip: 'کجا شکایت کنم؟',
+      chip: topicText('consumer_35'),
       cues: 'کجا (?:شکایت|برم)|تعزیرات|۱۲۴|124|صمت|اتحادیه|شکایت کنم',
-      body: (f) =>
-          'سه در دارید، از ارزان به پرهزینه:\n'
-          '۱) شکایت به انجمن حمایت از مصرف‌کنندگان یا سازمان صمت (تلفن ۱۲۴)؛ اگر سازش نشد، پرونده را به تعزیرات حکومتی می‌فرستند [[consumer_protection:14]]. این راه رایگان و سریع است و فروشنده از جریمه‌اش می‌ترسد.\n'
-          '۲) اتحادیهٔ صنف همان فروشنده.\n'
-          '۳) دادخواست حقوقی برای پس‌گرفتن پول یا خسارت؛ مبالغ پایین در دادگاه صلح رسیدگی می‌شود [[dispute_councils:12]].',
+      body: const Tx('consumer_36'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'ad',
-      chip: 'تبلیغش دروغ بود؛ چه کنم؟',
+      chip: topicText('consumer_37'),
       cues: 'تبلیغ|دروغ گفت|گول(?:م)? زد|فریب|چیز دیگه ای? (?:بود|گفته بود)|مشخصات(?:ش)? فرق',
-      body: (f) =>
-          'تبلیغ خلاف واقع و دادن اطلاعات نادرستی که خریدار را به اشتباه بیندازد صریحاً ممنوع است [[consumer_protection:7]]، و اگر از همان کالا ضرری به شما برسد، فروشنده علاوه بر جبران خسارت جریمه هم می‌شود [[consumer_protection:19]]. از آگهی، صفحهٔ فروش و گفت‌وگوها عکس بگیرید؛ در این پرونده‌ها همان تصویر تبلیغ، مدرک اصلی است.',
+      body: const Tx('consumer_38'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'service',
-      chip: 'نمایندگی قطعه و خدمات نمی‌دهد',
+      chip: topicText('consumer_39'),
       cues: 'قطعه|خدمات پس از فروش|تعمیرگاه|سرویس نمید',
-      body: (f) =>
-          'برای کالاهای بادوام مثل خودرو، لوازم خانگی، موبایل و وسایل برقی، عرضه‌کننده مکلف است نمایندگی رسمی و تعمیرگاه مجاز داشته باشد و قطعه و خدمات پس از فروش بدهد [[consumer_protection:4]]. اگر شانه خالی می‌کند، همین را در شکایت به صمت و تعزیرات بنویسید [[consumer_protection:14]].',
+      body: const Tx('consumer_40'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        'این ترتیب را پیشنهاد می‌کنم:\n'
-        '۱) کالا را دست نزنید و تعمیر نکنید؛ از عیب عکس و فیلم بگیرید.\n'
-        '۲) کتباً (پیام یا اظهارنامه) به فروشنده مهلت کوتاهی بدهید: یا کالای سالم، یا پول.\n'
-        '۳) اگر جواب نداد، با ۱۲۴ یا انجمن حمایت از مصرف‌کنندگان شکایت ثبت کنید [[consumer_protection:14]].\n'
-        '۴) اگر مبلغ قابل‌توجه است، پیش از هر تعمیری «تأمین دلیل» بگیرید تا کارشناس علت عیب را بنویسد [[civil_procedure:149]]، بعد دادخواست بدهید.',
-    'where': (f) =>
-        'شکایت صنفی: سامانه و تلفن ۱۲۴ یا انجمن حمایت از مصرف‌کنندگان، که در صورت سازش‌نشدن به تعزیرات حکومتی می‌رود [[consumer_protection:14]]. دعوای حقوقی: دادگاه صلح یا دادگاه عمومی، بسته به مبلغ [[dispute_councils:12]].',
-    'evidence': (f) =>
-        'فاکتور یا رسید پرداخت، ضمانت‌نامه، عکس و فیلم از عیب، تصویر آگهی یا صفحهٔ فروش، پیام‌هایی که با فروشنده رد و بدل کرده‌اید، و اگر مبلغ بالاست نظر کارشناسِ تأمین دلیل [[civil_procedure:149]].',
-    'cost': (f) =>
-        'شکایت به ۱۲۴، انجمن و تعزیرات هزینه‌ای ندارد. دعوای حقوقی هزینهٔ دادرسی دارد که به نسبت مبلغ حساب می‌شود [[civil_procedure:503]] و اگر ببرید از فروشنده پس می‌گیرید [[civil_procedure:519]].',
-    'chance': (f) =>
-        'شانس شما به دو چیز بسته است: اثبات خرید و اثبات اینکه عیب از قبل بوده. اولی با فاکتور یا تراکنش حل می‌شود؛ دومی را کارشناس می‌گوید. اگر هر دو را داشته باشید، قانون روشن به نفع شماست [[consumer_protection:2]].',
-    'refuse': (f) =>
-        'اگر با تذکر کتبی هم کاری نکرد، پرونده را به تعزیرات بکشید [[consumer_protection:14]]؛ مسئول جبران خسارت کسی است که ضرر را زده، چه شخص باشد چه شرکت [[consumer_protection:16]].',
+  follow: const {
+    'next': Tx('consumer_41'),
+    'where': Tx('consumer_42'),
+    'evidence': Tx('consumer_43'),
+    'cost': Tx('consumer_44'),
+    'chance': Tx('consumer_45'),
+    'refuse': Tx('consumer_46'),
   },
-  drafts: (f) => const ['formal_notice', 'demand_money'],
+  drafts: const DraftRule.fixed(['formal_notice', 'demand_money']),
 );

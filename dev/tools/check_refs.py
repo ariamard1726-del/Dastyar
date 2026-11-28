@@ -1,30 +1,41 @@
-"""بررسی ارجاع‌های استنادی: هر `[[کلید:شماره]]` در کد باید به ماده‌ای واقعی
-در فایل قانونِ همان کلید (`assets/laws/_meta.json`) اشاره کند.
+"""بررسی ارجاع‌های استنادی: هر `[[کلید:شماره]]` در کد یا دارایی‌های متنی
+باید به ماده‌ای واقعی در فایل قانونِ همان کلید (`assets/laws/_meta.json`)
+اشاره کند.
 
 اجرا:  python dev/tools/check_refs.py          (خروجی ۰ = همه درست)
 """
 from __future__ import annotations
 
-import json
 import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-REF = re.compile(r"\[\[([a-z_]+):([0-9]+)\]\]")
-PERSIAN = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+try:
+    from . import lawtext
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import lawtext  # noqa: E402
+
+ROOT = lawtext.ROOT
+REF = re.compile(r"\[\[([a-z_0-9]+):([0-9]+)(m?)\]\]")
+
+TEXT_JSON_ASSETS = (
+    "assets/brain/advocate_texts.json",
+    "assets/brain/topic_texts.json",
+    "assets/brain/topics/rent_texts.json",
+)
 
 
 def law_files() -> dict[str, Path]:
-    meta = json.loads((ROOT / "assets/laws/_meta.json").read_text(encoding="utf-8"))
-    return {k: ROOT / "assets/laws" / v["path"] for k, v in meta.items() if v.get("path")}
+    return lawtext.law_files()
 
 
 def article_exists(text: str, num: str, word: str = "ماده") -> bool:
     # ماده‌ها در متن قانون به شکل «ماده 35» یا «ماده ۳۵» در ابتدای سطر می‌آیند.
     # قانون اساسی به‌جای «ماده»، «اصل» دارد.
     pat = re.compile(
-        r"^\s*%s\s*(?:%s|%s)\s*$" % (word, re.escape(num), re.escape(num.translate(PERSIAN))),
+        r"^\s*%s\s*(?:%s|%s)\s*$"
+        % (word, re.escape(num), re.escape(lawtext.to_fa(num))),
         re.MULTILINE,
     )
     return bool(pat.search(text))
@@ -32,9 +43,15 @@ def article_exists(text: str, num: str, word: str = "ماده") -> bool:
 
 def collect_refs() -> dict[tuple[str, str], list[str]]:
     found: dict[tuple[str, str], list[str]] = {}
-    for path in (ROOT / "lib").rglob("*.dart"):
+    paths = list((ROOT / "lib").rglob("*.dart"))
+    for rel in TEXT_JSON_ASSETS:
+        p = ROOT / rel
+        if p.exists():
+            paths.append(p)
+    for path in paths:
         for m in REF.finditer(path.read_text(encoding="utf-8")):
-            found.setdefault((m.group(1), m.group(2)), []).append(str(path.relative_to(ROOT)))
+            num = m.group(2) + (" مکرر" if m.group(3) else "")
+            found.setdefault((m.group(1), num), []).append(str(path.relative_to(ROOT)))
     return found
 
 

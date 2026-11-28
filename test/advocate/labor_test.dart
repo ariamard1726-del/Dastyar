@@ -10,9 +10,9 @@ void main() {
     final f = CaseFile()
       ..facts['event'] = 'fired'
       ..facts['insured'] = 'no';
-    expect(laborFired(f), isTrue);
-    expect(laborRecap(f), contains('کارفرما شما را اخراج کرده'));
-    expect(laborRecap(f), contains('بیمه نشده‌اید'));
+    expect(laborFiredRule.evalCond(f), isTrue);
+    expect(laborTopic.recap!(f), contains('کارفرما شما را اخراج کرده'));
+    expect(laborTopic.recap!(f), contains('بیمه نشده‌اید'));
   });
 
   test('پروندهٔ تازه با پرسشِ «چه اتفاقی افتاده؟» شروع می‌شود', () {

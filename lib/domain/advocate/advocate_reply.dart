@@ -96,7 +96,7 @@ extension _ReplyPipeline on Advocate {
     final due = dueDecision?.reply;
     if (due != null) return due;
     // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
-    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= 5);
+    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= topicStrongMin);
     if (meta != null) return meta;
 
     final tailDecision = Advocate._arbiter.decide(<AnswerCandidate>[
@@ -114,7 +114,7 @@ extension _ReplyPipeline on Advocate {
     if (tail != null) return tail;
     // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
     // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
-    if (!hasCase && read.bestScore < 3) {
+    if (!hasCase && read.bestScore < topicOpenMin) {
       // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
       final confidentGuess = guess != null && guess.confident;
       final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);
@@ -122,8 +122,8 @@ extension _ReplyPipeline on Advocate {
       final refs = Understanding.linkedArticles(n);
       if (refs.isNotEmpty) {
         return _out(
-          'این واژه به ${refs.join(' ')} مربوط است.',
-          ask: 'ماجرای شما دقیقاً چیست؟ چه کسی و چه کاری کرده است؟',
+          advocateFormat('replyLinkedArticles', {'refs': refs.join(' ')}),
+          ask: advocateText('replyLinkedAsk'),
           full: true,
         );
       }
@@ -134,14 +134,16 @@ extension _ReplyPipeline on Advocate {
     if (Sense.has(n, 'قهر') &&
         Sense.has(n, 'زندان|حبس|بازداشت|جریمه|پلیس|دادگاه')) {
       return _out(
-        'قهر کردن جرم نیست و کسی را به‌خاطر قهر زندانی یا جریمه نمی‌کنند. اگر ماجرای دعوا یا رفتار طرف مقابل نگرانتان کرده، همان را تعریف کنید.',
-        ask: 'چه اتفاقی افتاده است؟',
+        advocateText('replySulkingWarning'),
+        ask: advocateText('replySulkingAsk'),
       );
     }
 
     if (Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
-      return _out('درست است؛ این گفتگو با خود همین برنامه است. هر ماجرایی دارید، بگویید.',
-          ask: 'چه چیزی را بررسی کنیم؟');
+      return _out(
+        advocateText('replyAppChatBody'),
+        ask: advocateText('replyAppChatAsk'),
+      );
     }
 
     final corrected = _correctionReply(n, topic);
@@ -160,9 +162,7 @@ extension _ReplyPipeline on Advocate {
         hasCase: hasCase, loose: dialog.loose.length);
     if (answer != null) return answer;
     return voice.out(
-      'این پرسش فرضی است و طرفهای آن الف، ب و ج هستند؛ من آنرا ماجرای '
-      'شخصی شما در نظر نمیگیرم و نقشِ کسی را حدس نمیزنم. متن قانون '
-      'مرتبطی در بانک من پیدا نشد تا مادهٔ نامربوط بگویم.',
+      advocateText('replyHypotheticalMissing'),
       source: AnswerSource.engine,
     );
   }

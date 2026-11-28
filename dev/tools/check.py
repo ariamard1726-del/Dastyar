@@ -9,10 +9,12 @@
   pipeline ترتیب و آستانه‌های مسیر پاسخ (assets/pipeline.json)
   topics   طرح‌وارهٔ مسیرهای موضوعی (dev/tools/schemas/topic_flow.schema.json)
   refs     هر ارجاع قانونی در داده، در متن قوانین هست
-  textnorm قاعده‌های متن تازه‌اند (dev/tools/contracts/text_norm.json)
-  lawterms قاعده‌های تطبیق واژه‌ها تازه‌اند (dev/tools/contracts/law_terms.json)
-  debt     هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (dev/tools/contracts/duplicated_logic.json)
-  all      همهٔ موارد بالا (پیش‌فرض)
+  textnorm    قاعده‌های متن تازه‌اند (dev/tools/contracts/text_norm.json)
+  lawterms    قاعده‌های تطبیق واژه‌ها تازه‌اند (dev/tools/contracts/law_terms.json)
+  enginerules قاعده‌های موتور بازیابی تازه‌اند (dev/tools/contracts/engine_rules.json)
+  debt        هر جفتِ دوپیاده‌سازی نگهبانِ دوطرفه دارد (dev/tools/contracts/duplicated_logic.json)
+  all      همهٔ موارد بالا (پیش‌فرض؛ trust عمداً بیرون است)
+  trust    دروازهٔ انتشار: قانون تأییدنشده یا قالب بازبینینشده نمانده باشد
 
 اجرا: python3 dev/tools/check.py [زیردستور] [--strict] [--fix] [--require-verified]
 با STRICT=1 یا --strict خالی‌بودن منبع و تاریخ قانون «خطا» می‌شود، نه هشدار.
@@ -30,21 +32,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import fnv, normalize  # noqa: E402  (آینهٔ PersianText در دارت)
+from lawtext import AI_MARKERS, digits, load_meta  # noqa: E402
+from text_norm_rules import NONWORD_PATTERN  # noqa: E402
 
 LAWS_DIR = os.path.join(ROOT, 'assets', 'laws')
 TYPES = {'text', 'multiline', 'number', 'choice', 'check'}
 
 STRICT = os.environ.get('STRICT') == '1' or '--strict' in sys.argv
-
-# نشانهٔ متنی که ممکن است با هوش مصنوعی نوشته شده باشد، نه از منبع رسمی.
-AI_MARKERS = [
-    'هوش مصنوعی', 'تولید شده توسط', 'تولیدشده توسط', 'این متن توسط',
-    'chatgpt', 'gemini', 'claude', 'as an ai', 'language model',
-]
-
-
-def digits(s):
-    return s.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
 
 
 # ---------------------------------------------------------------- corpus
@@ -53,8 +47,7 @@ def cmd_corpus():
     warnings = []
 
     try:
-        with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as _f:
-            META = json.load(_f)
+        META = load_meta()
     except Exception as _e:
         META = {}
         errors.append('_meta.json: %s' % _e)
@@ -199,7 +192,8 @@ def cmd_corpus():
 def cmd_assets():
     fix = '--fix' in sys.argv
     P = os.path.join(ROOT, 'pubspec.yaml')
-    L = open(P, encoding='utf-8').read().split('\n')
+    with open(P, encoding='utf-8') as _f:
+        L = _f.read().split('\n')
     ents = [m.group(1) for l in L for m in [re.match(r'^    - (\S+)\s*$', l)] if m]
     files = {e for e in ents if not e.endswith('/')}
     need = []
@@ -224,7 +218,8 @@ def cmd_assets():
         if re.match(r'^  assets:\s*$', l):
             out += ['    - ' + e for e in sorted(files)] + ['    - ' + d for d in need]
             skip = True
-    open(P, 'w', encoding='utf-8').write('\n'.join(out))
+    with open(P, 'w', encoding='utf-8') as _f:
+        _f.write('\n'.join(out))
     print('fixed')
     return 0
 
@@ -240,8 +235,7 @@ def cmd_meta():
 
     require = ('--require-verified' in sys.argv
                or os.environ.get('REQUIRE_VERIFIED') == '1')
-    with open(os.path.join(LAWS_DIR, '_meta.json'), encoding='utf-8') as f:
-        meta = json.load(f)
+    meta = load_meta()
     errors, warnings, verified = law_registry.validate(
         meta, LAWS_DIR, require_verified=require)
 
@@ -305,8 +299,7 @@ CRITICAL = [
     ('family', 'مهریه‌ام را نمی‌دهد'),
 ]
 
-_NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
+_NONWORD = re.compile(NONWORD_PATTERN)
 
 
 def strip_nonbmp(s):
@@ -463,6 +456,20 @@ def cmd_lawterms():
     return gen_law_terms.main(['--check'])
 
 
+# ---------------------------------------------------------------- priority
+def cmd_priority():
+    """ماتریس اولویتِ ۲۰ کاندید (۱۹۰ جفت) کامل و مستند/آزمونش تازه است؟"""
+    import gen_priority
+    return gen_priority.main(['--check'])
+
+
+# ---------------------------------------------------------------- enginerules
+def cmd_enginerules():
+    """فایل‌های قاعدهٔ موتور بازیابی از قرارداد تولید شده‌اند و تازه‌اند؟"""
+    import gen_engine_rules
+    return gen_engine_rules.main(['--check'])
+
+
 # ---------------------------------------------------------------- textnorm
 def cmd_textnorm():
     """فایل‌های قاعدهٔ متن از قرارداد تولید شده‌اند و تازه‌اند؟"""
@@ -527,12 +534,14 @@ def bundle_problems(entries, dart_sources):
 
 
 def cmd_bundle():
-    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as _f:
+        pubspec = _f.read()
     dart = []
     for directory, _, files in os.walk(os.path.join(ROOT, 'lib')):
         for name in files:
             if name.endswith('.dart'):
-                dart.append(open(os.path.join(directory, name), encoding='utf-8').read())
+                with open(os.path.join(directory, name), encoding='utf-8') as _f:
+                    dart.append(_f.read())
     entries = bundle_entries(pubspec)
     bad = bundle_problems(entries, dart)
     if bad:
@@ -574,10 +583,11 @@ def noql_bundle_problems(entries):
 
 
 def cmd_noql():
-    pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
-    reader = open(os.path.join(
-        ROOT, 'lib', 'domain', 'understanding', 'reader_service.dart'),
-        encoding='utf-8').read()
+    with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as _f:
+        pubspec = _f.read()
+    with open(os.path.join(ROOT, 'lib', 'domain', 'understanding', 'reader_service.dart'),
+              encoding='utf-8') as _f:
+        reader = _f.read()
     bad = noql_bundle_problems(bundle_entries(pubspec))
     for name, rel in NOQL_READER_PATHS.items():
         if "static const String %s = '%s';" % (name, rel) not in reader:
@@ -590,7 +600,43 @@ def cmd_noql():
     return 0
 
 
+# ---------------------------------------------------------------- trust
+def cmd_trust():
+    """دروازهٔ صداقتِ انتشار: محتوای حقوقیِ قابل استناد باید کاملاً بازبینی شده باشد."""
+    import law_registry
+
+    meta = load_meta()
+    errors, warnings, verified = law_registry.validate(
+        meta, LAWS_DIR, require_verified=True)
+    unreviewed = []
+    for path in sorted(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))):
+        with open(path, encoding='utf-8') as f:
+            t = json.load(f)
+        if not t.get('reviewed'):
+            unreviewed.append(os.path.basename(path))
+    unknown = [k for k, v in meta.items() if isinstance(v, dict)
+               and str(v.get('status', '')).strip() != 'verified']
+    print('trust: %d/%d قانون با منبع رسمی تطبیق داده شده' % (verified, len(meta)))
+    print('trust: %d/%d قالب بازبینی شده' %
+          (len(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json'))) - len(unreviewed),
+           len(glob.glob(os.path.join(ROOT, 'assets', 'templates', '*.json')))))
+    if unreviewed:
+        print('خطا: قالبهای بازبینینشده: %s' % '، '.join(unreviewed))
+    if unknown:
+        print('خطا: قانونهای تأییدنشده: %s' % '، '.join(sorted(unknown)))
+    for e in errors:
+        print('خطا: %s' % e)
+    if errors or unknown or unreviewed:
+        print('نتیجه: انتشار مسدود است. متن رسمی یا بازبینی انسانی لازم است؛ '
+              'CI معمولی (check.py all) عمداً این دروازه را شامل نمیشود.')
+        return 1
+    print('نتیجه: محتوای حقوقی قابل انتشار است.')
+    return 0
+
+
 # ---------------------------------------------------------------- main
+RELEASE_ONLY = {'trust'}
+
 COMMANDS = {
     'corpus': cmd_corpus,
     'assets': cmd_assets,
@@ -602,10 +648,13 @@ COMMANDS = {
     'refs': cmd_refs,
     'textnorm': cmd_textnorm,
     'lawterms': cmd_lawterms,
+    'enginerules': cmd_enginerules,
+    'priority': cmd_priority,
     'debt': cmd_debt,
     'text': cmd_text,
     'bundle': cmd_bundle,
     'noql': cmd_noql,
+    'trust': cmd_trust,
 }
 
 
@@ -615,7 +664,8 @@ def main(argv):
         if a in COMMANDS or a == 'all':
             cmd = a
             break
-    names = list(COMMANDS) if cmd == 'all' else [cmd]
+    names = ([n for n in COMMANDS if n not in RELEASE_ONLY]
+             if cmd == 'all' else [cmd])
     failed = []
     for name in names:
         if len(names) > 1:

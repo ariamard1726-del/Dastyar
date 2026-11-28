@@ -68,3 +68,47 @@ class AnswerArbiter {
   AdvocateReply? pick(Iterable<AnswerCandidate> candidates) =>
       decide(candidates)?.reply;
 }
+
+/// نگهبانِ بازگشتِ خطِ پاسخ (`routes → _reply → routes`).
+///
+/// نوبتِ کاربر فقط وقتی بالا می‌رود که `again: false` باشد؛ فراخوانیِ بازگشتیِ
+/// داخلِ یک نوبت باید با `again: true` بیاید و عمقش از [maxDepth] نگذرد.
+class ReplyLoopGuard {
+  ReplyLoopGuard({this.maxDepth = 1});
+
+  final int maxDepth;
+  int _depth = 0;
+  int lastDepth = 0;
+  int lastEntries = 0;
+
+  int get depth => _depth;
+
+  void reset() {
+    if (_depth == 0) {
+      lastDepth = 0;
+      lastEntries = 0;
+    }
+  }
+
+  T run<T>({required bool again, required T Function() body}) {
+    if (_depth > 0 && !again) {
+      throw StateError(
+          'فراخوانی بازگشتیِ _reply باید again: true داشته باشد تا turns دو بار نشمارد');
+    }
+    if (_depth > maxDepth) {
+      throw StateError('سقف بازگشتِ _reply ($maxDepth) رد شد');
+    }
+    if (_depth == 0) {
+      lastDepth = 0;
+      lastEntries = 0;
+    }
+    if (_depth > lastDepth) lastDepth = _depth;
+    lastEntries++;
+    _depth++;
+    try {
+      return body();
+    } finally {
+      _depth--;
+    }
+  }
+}

@@ -101,14 +101,14 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
     final rankK = maxAlternatives > 0 ? math.max(12, maxAlternatives * 4) : 4;
     final r = _ranker.rankInternal(question, mentioned: mentioned, k: rankK);
     final top4 = r.hits.take(4).toList();
-    final ctx = top4.where((h) => h.score >= 0.3).toList();
+    final ctx = top4.where((h) => h.score >= EngineRules.minHitScore).toList();
     final alts = maxAlternatives > 0
         ? _alternativesFromRank(n, mentioned, r, max: maxAlternatives)
         : const <String>[];
 
     if (art != null &&
         loaded.isNotEmpty &&
-        (top4.isEmpty || top4.first.score < 99)) {
+        (top4.isEmpty || top4.first.score < EngineRules.explicitScore)) {
       final kind = art.group(1) == 'اصل' ? 'اصل' : 'ماده';
       final num = ArticleQuery.label(art);
       return EngineReply(
@@ -118,12 +118,12 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
       );
     }
 
-    if (top4.isEmpty || top4.first.score < 0.3) {
+    if (top4.isEmpty || top4.first.score < EngineRules.minHitScore) {
       return EngineReply(text: _text.notFound(), alternatives: alts);
     }
 
     // صریح‌بودنِ پرسش (درخواست مستقیم ماده) از مسیرِ انتخابِ زیر عبور می‌کند:
-    final explicit = art != null && top4.first.score >= 99;
+    final explicit = art != null && top4.first.score >= EngineRules.explicitScore;
 
     // انتخاب مادهٔ پاسخ: رتبهٔ نخستِ BM25F مبناست؛ اما گاهی مادهٔ هم‌جنسِ
     // نادرست (مثلاً نفقهٔ عقد موقت در برابر دائم) رتبهٔ نخست می‌گیرد. اگر
@@ -149,7 +149,7 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
         );
       }
       // بدون برتریِ محسوس، رتبهٔ نخست پاسخ می‌دهد.
-      if (bestCov < topCov + 0.25) bestHit = top4.first;
+      if (bestCov < topCov + EngineRules.coverageMargin) bestHit = top4.first;
     }
 
     if (art == null && _hitsUnloadedDomain(n, mentioned, bestHit.chunk)) {
@@ -161,11 +161,14 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
     if (r.note.isNotEmpty) res += '\n\n${r.note}';
     if (top4.length > 1) {
       final b = top4[0].score;
-      if (b < 99) {
+      if (b < EngineRules.explicitScore) {
         final others = top4
             .skip(1)
-            .where((h) => h.score >= 0.3 && h.score >= b * 0.5 && h != bestHit)
-            .take(2)
+            .where((h) =>
+                h.score >= EngineRules.minHitScore &&
+                h.score >= b * EngineRules.nearAlternativeFactor &&
+                h != bestHit)
+            .take(EngineRules.maxNearAlternatives)
             .toList();
         if (others.isNotEmpty) {
           res += '\n\nمواد نزدیک دیگر:';
@@ -197,17 +200,14 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
     final cn = KnowledgeEngine._collapse(normQuestion);
 
     if (!isLoaded('penal')) {
-      final hasMarker = KnowledgeEngine._penalContextMarkers.any(cn.contains);
-      final hasCrime = KnowledgeEngine._unloadedPenalTerms.any(cn.contains);
-      final hasLoadedExc = KnowledgeEngine._loadedCriminalExceptions.any(cn.contains);
+      final hasMarker = EngineRules.penalContextMarkers.any(cn.contains);
+      final hasCrime = EngineRules.unloadedPenalTerms.any(cn.contains);
+      final hasLoadedExc = EngineRules.loadedCriminalExceptions.any(cn.contains);
       if (hasMarker && hasCrime && !hasLoadedExc) return true;
     }
 
     if (!isLoaded('direct_taxes') && cn.contains('مالیات')) {
-      if (cn.contains('مالیات بر درآمد') ||
-          cn.contains('محاسبه مالیات') ||
-          cn.contains('نرخ مالیات') ||
-          cn.contains('معافیت مالیاتی') ||
+      if (EngineRules.taxTriggers.any(cn.contains) ||
           (!LawIndex.chunkHasTerm(top, 'مالیات') &&
               !top.normSource.contains('مالیات'))) {
         return true;
@@ -215,15 +215,13 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
     }
 
     if (!isLoaded('social_security') && cn.contains('تامین اجتماعی')) {
-      if (cn.contains('حق بیمه') ||
-          cn.contains('مستمری') ||
-          cn.contains('بازنشستگی')) {
+      if (EngineRules.socialSecurityTriggers.any(cn.contains)) {
         return true;
       }
     }
 
     final qWords = ' ${KnowledgeEngine._phrase(normQuestion)} ';
-    for (final (trigger, requiredAny) in KnowledgeEngine._anchorGroups) {
+    for (final (trigger, requiredAny) in EngineRules.anchorGroups) {
       if (qWords.contains(' $trigger ')) {
         if (!requiredAny.any((r) => LawIndex.chunkHasTerm(top, r))) {
           return true;
@@ -277,10 +275,13 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
     if (mentioned.any((l) => !isLoaded(l.id))) return [];
     if (r.hits.length < 2) return [];
     final top = r.hits.first.score;
-    if (top >= 99) return [];
+    if (top >= EngineRules.explicitScore) return [];
     final out = <String>[];
     for (final h in r.hits.skip(1)) {
-      if (h.score < 0.3 || h.score < top * 0.4) continue;
+      if (h.score < EngineRules.minHitScore ||
+          h.score < top * EngineRules.altMinScoreRatio) {
+        continue;
+      }
       final c = h.chunk;
       if (c.source.isEmpty) continue;
       if (!KnowledgeEngine._articleTitleRe.hasMatch(c.normTitle)) continue;

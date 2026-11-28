@@ -30,41 +30,80 @@ class SafetyReply {
   bool asksDanger(String n) => Sense.has(n,
       'الان در خطر(?: هستم|یم)?(?! نیست)|همین حالا در خطر|در خطر فوری|هنوز در خطر|کسی در خطر');
 
-  /// خشونت (کتک، پرت‌کردن چیزی، تهدید) در خانواده، یا گزارش تماس با اورژانس.
-  /// پاسخِ امنیت را می‌دهد و پرونده را نمی‌بندد.
+  /// حرف از آسیب رساندن به خود. وکیل قاعدمحور نباید در چنین لحظهای وارد
+  /// بحث حقوقی شود؛ نخست کمک فوری، سپس در صورت امنیت، بحث حقوقی.
+  bool asksSelfHarm(String n) => Sense.has(n,
+      'خودکش|خودمو میکشم|خودم را میکشم|دیگه تحمل ندارم|دیگر تحمل ندارم|'
+      'نمیخوام زنده بمونم|نمیخواهم زنده بمانم|قصد دارم بمیرم');
+
+  bool acknowledgesSafe(String n) => Sense.has(
+      n,
+      r'^\s*(?:الان )?(?:امن (?:است|هست|هستم)|در خطر نیستم|جای امنی هستم|خطر رفع شد(?:ه)?)\s*$');
+
+  bool _isCalled(String n) =>
+      Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
+      Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
+
+  bool _isViolent(String n) =>
+      Sense.has(n,
+          'کتک|کفش پرت|پرت (?:می|کرد|کنه|میکنه)|چاقو|تهدید|(?:را|رو|منو|مرا|ما را|او را|بچه رو|بچه را) (?:زد|زده|زدن|میزن|می زن|میزنه|میزنن|میزند)') &&
+      Sense.has(n,
+          'خاله|عمه|عمو|دایی|مادر|پدر|برادر|خواهر|شوهر|زنم|همسرم|بچه|پسرم|دخترم|مادرم|پدرم|خانواده|نامادری|ناپدری');
+
+  SafetySeverity severityOf(String n) {
+    if (asksSelfHarm(n) || asksDanger(n)) return SafetySeverity.critical;
+    if (_isCalled(n) || _isViolent(n)) return SafetySeverity.elevated;
+    return SafetySeverity.none;
+  }
+
   AdvocateReply? reply(String n) {
     // «الان در خطر هستم» جوابِ پرسش خودِ ماست و باید سریع‌ترین راه را بدهد.
-    if (asksDanger(n)) {
+    if (asksSelfHarm(n)) {
       return _out(
-        'اگر همین حالا کسی در خطر است، اول از محل دور شوید و ۱۱۰ یا ۱۱۵ را بگیرید. اگر درگیری خانوادگی است، اورژانس اجتماعی ۱۲۳ هم شبانه‌روزی پاسخ می‌دهد. تا وقتی امن نشده، هیچ فرایند حقوقی را شروع نکنید؛ هرچه اتفاق افتاد را با تاریخ و ساعت یادداشت کنید و اگر آسیب جسمی دارید، پیش از محو شدن اثرش به پزشکی قانونی بروید.',
-        ask: 'آیا الان جای امنی هستید و کسی همراهتان است؟',
-        chips: const ['الان امن هستم', 'هنوز در خطر هستم'],
+        advocateText('safetySelfHarmText'),
+        ask: advocateText('safetySelfHarmAsk'),
+        chips: [
+          advocateText('safetyChipSafeNow'),
+          advocateText('safetyChipDangerNow'),
+        ],
         source: AnswerSource.safety,
       );
     }
-    final called = Sense.has(n, 'اورژانس|۱۱۰|۱۱۵|پلیس|کلانتری|بهزیستی') &&
-        Sense.has(n, 'زنگ زدم|زنگ زدیم|تماس گرفتم|خبر دادم|زنگ زده');
-    final violent = Sense.has(n,
-            'کتک|کفش پرت|پرت (?:می|کرد|کنه|میکنه)|چاقو|تهدید|(?:را|رو|منو|مرا|ما را|او را|بچه رو|بچه را) (?:زد|زده|زدن|میزن|می زن|میزنه|میزنن|میزند)') &&
-        Sense.has(n,
-            'خاله|عمه|عمو|دایی|مادر|پدر|برادر|خواهر|شوهر|زنم|همسرم|بچه|پسرم|دخترم|مادرم|پدرم|خانواده|نامادری|ناپدری');
+    if (asksDanger(n)) {
+      return _out(
+        advocateText('safetyDangerText'),
+        ask: advocateText('safetyDangerAsk'),
+        chips: [
+          advocateText('safetyChipSafeNow'),
+          advocateText('safetyChipDangerNow'),
+        ],
+        source: AnswerSource.safety,
+      );
+    }
+    final called = _isCalled(n);
+    final violent = _isViolent(n);
     if (called) {
       return _out(
-        'خوب کردید که زنگ زدید. اگر درگیری ادامه دارد، از جای امن دور شوید و دوباره ۱۱۰ یا ۱۱۵ را بگیرید. اگر ماجرا در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند.',
-        ask: 'الان وضعیت چطور است؟ آیا کسی هنوز در خطر است؟',
-        chips: const ['الان در خطر هستم', 'الان امن است'],
+        advocateText('safetyCalledText'),
+        ask: advocateText('safetyCalledAsk'),
+        chips: [
+          advocateText('safetyChipInDanger'),
+          advocateText('safetyChipSafe'),
+        ],
         source: AnswerSource.safety,
       );
     }
     if (violent) {
       return _out(
-        'این رفتار خشونت است و جدی است. اگر همین حالا کسی در خطر است، ۱۱۰ یا ۱۱۵ را بگیرید؛ اگر در خانواده است، اورژانس اجتماعی ۱۲۳ هم کمک می‌کند. وقتی امنیت برقرار شد، می‌توانیم درباره‌ی شکایت و مدارکش حرف بزنیم.',
-        ask: 'الان کسی در خطر است؟',
-        chips: const ['الان در خطر هستم', 'الان امن است'],
+        advocateText('safetyViolentText'),
+        ask: advocateText('safetyViolentAsk'),
+        chips: [
+          advocateText('safetyChipInDanger'),
+          advocateText('safetyChipSafe'),
+        ],
         source: AnswerSource.safety,
       );
     }
     return null;
-  
   }
 }

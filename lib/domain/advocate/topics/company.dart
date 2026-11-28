@@ -2,11 +2,15 @@
 //
 // قرارداد نگارش در shared.dart آمده است.
 import 'package:dastyar/domain/advocate/case_file.dart';
-import 'package:dastyar/domain/advocate/text_sense.dart';
+import 'package:dastyar/domain/advocate/rule_dsl.dart';
+import 'package:dastyar/domain/advocate/topics/topic_texts_loader.dart';
 
-final Topic companyTopic = Topic(
+const String _pctRe = 'درصد';
+const String _profitRe = 'سود';
+
+final Topic companyTopic = Topic.dsl(
   id: 'company',
-  title: 'شرکت و سهام',
+  title: topicText('company_0'),
   cues: {
     'شرکت(?:مون| ما|م)?[^؟]{0,20}(?:ورشکست|تعطیل|منحل|بسته شد|زیان ده)|ورشکستگی شرکت': 4,
     'سهامدار|هیئت مدیره|هیات مدیره|مجمع عمومی|سهم ?الشرکه|سود سهام': 4,
@@ -16,126 +20,106 @@ final Topic companyTopic = Topic(
     'اختلاس|حیف و میل|سهم(?:م| من) از شرکت': 2,
   },
   anti: 'کارفرما|اخراج|حقوقم|بیمه',
-  recap: (f) => [
-    if (f.eq('type', 'saham')) 'شرکت سهامی است',
-    if (f.eq('type', 'llc')) 'شرکت با مسئولیت محدود است',
-    if (f.n('pct') != null) 'حدود ${Sense.fa(f.n('pct')!)} درصد شرکت مال شماست',
-    if (f.eq('issue', 'profit')) 'سود شما را نمی‌دهند',
-    if (f.eq('issue', 'info')) 'حساب‌وکتاب را به شما نشان نمی‌دهند',
-    if (f.eq('issue', 'abuse')) 'مدیر از موقعیتش سوءاستفاده می‌کند',
+  recap: const [
+    RecapItem(when: FactEq('type', 'saham'), text: Tx('company_1')),
+    RecapItem(when: FactEq('type', 'llc'), text: Tx('company_2')),
+    RecapItem(
+      when: FactHasNum('pct'),
+      text: TxJoin(
+          ' ', [Tx('companyRecapPctA'), TxNum('pct', fmt: NumFmt.fa), Tx('companyRecapPctB')]),
+    ),
+    RecapItem(when: FactEq('issue', 'profit'), text: Tx('company_3')),
+    RecapItem(when: FactEq('issue', 'info'), text: Tx('company_4')),
+    RecapItem(when: FactEq('issue', 'abuse'), text: Tx('company_5')),
   ],
   claims: [
-    Claim(
-      goal: 'طرح دعوای مسئولیت علیه مدیران، به نام شرکت',
+    Claim.dsl(
+      goal: topicText('company_6'),
       elements: [
-        Element(
-          'شرکت از نوع سهامی باشد (این راه در لایحهٔ اصلاحی قانون تجارت برای شرکت سهامی آمده) [[commerce_1347:1]].',
-          (f) => f.isOne('type', const ['saham']),
-          ifNo:
-              'در شرکت با مسئولیت محدود این راه به این شکل نیست؛ آنجا تکیه‌گاه شما شرکت‌نامه و قواعد عمومی مسئولیت است [[commerce:94]] [[civil_liability:1]].',
+        Element.dsl(
+          topicText('company_7'),
+          const FactIn('type', ['saham']),
+          ifNo: topicText('company_8'),
         ),
-        Element(
-          'شما و سهامدارانی که همراهتان می‌شوند، روی هم دست‌کم یک‌پنجم (۲۰ درصد) سهام را داشته باشید [[commerce_1347:276]].',
-          (f) => f.n('pct') == null ? null : f.n('pct')! >= 20,
-          ifNo:
-              'به‌تنهایی به حد نصاب نمی‌رسید؛ باید سهامداران ناراضی دیگر را همراه کنید تا جمعتان به یک‌پنجم برسد.',
+        Element.dsl(
+          topicText('company_9'),
+          const FactNumMin('pct', 20),
+          ifNo: topicText('company_10'),
         ),
-        Element(
-          'مدیر از قانون، اساسنامه یا مصوبهٔ مجمع تخلف کرده یا تقصیری کرده باشد که به شرکت ضرر زده [[commerce_1347:142]].',
-          (f) => f.eq('issue', 'abuse') ? true : null,
+        Element.dsl(
+          topicText('company_11'),
+          const FactTriIf(FactEq('issue', 'abuse'), true),
         ),
       ],
-      win: (f) =>
-          'می‌توانید به نام شرکت و به هزینهٔ خودتان علیه مدیران دعوا کنید و جبران همهٔ خسارت شرکت را بخواهید [[commerce_1347:276]]؛ مدیران در برابر شرکت و دیگران، تک‌تک یا با هم، مسئول‌اند [[commerce_1347:142]].',
-      counter: (f) =>
-          'مدیران می‌گویند «مجمع صورت‌های مالی را تصویب کرده». ولی تصمیم مجمع دربارهٔ ترازنامه بدون خواندن گزارش بازرس اصلاً معتبر نیست [[commerce_1347:90]]؛ اول ببینید گزارش بازرس خوانده شده یا نه.',
+      win: const Tx('company_12'),
+      counter: const Tx('company_13'),
     ),
   ],
   slots: [
-    Slot(
+    Slot.dsl(
       id: 'type',
-      ask: 'شرکت از چه نوعی است: سهامی (خاص یا عام) یا با مسئولیت محدود؟',
-      why: 'حق‌های سهامدار در این دو نوع شرکت از دو قانون متفاوت می‌آید.',
-      options: ['سهامی', 'با مسئولیت محدود'],
+      ask: topicText('company_14'),
+      why: topicText('company_15'),
+      options: [topicText('company_16'), topicText('company_17')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'مسئولیت محدود|مسولیت محدود')) return 'llc';
-        if (Sense.has(n, 'سهامی|سهامدار|هیئت مدیره|هیات مدیره|مجمع عمومی')) return 'saham';
-        return null;
-      },
-      effect: (f) => f.eq('type', 'llc')
-          ? 'در شرکت با مسئولیت محدود، سرمایه به سهام تقسیم نمی‌شود و هر شریک فقط تا اندازهٔ سرمایه‌ای که آورده مسئول بدهی‌های شرکت است [[commerce:94]]؛ یعنی طلبکاران شرکت نمی‌توانند سراغ مال شخصی شما بیایند.'
-          : 'در شرکت سهامی، مسئولیت هر سهامدار محدود به مبلغ اسمی سهام خودش است [[commerce_1347:1]]؛ یعنی بدهی شرکت به مال شخصی شما سرایت نمی‌کند.',
+      read: const ReadCases([
+        ReadCase('مسئولیت محدود|مسولیت محدود', 'llc'),
+        ReadCase('سهامی|سهامدار|هیئت مدیره|هیات مدیره|مجمع عمومی', 'saham'),
+      ]),
+      effect: const TxCond(
+          FactEq('type', 'llc'), Tx('company_18'), Tx('company_19')),
     ),
-    Slot(
+    Slot.dsl(
       id: 'pct',
-      ask: 'حدوداً چند درصد شرکت مال شماست؟',
-      why: 'بعضی حق‌ها، مثل دعوا علیه مدیران، به داشتن حداقلی از سهام بسته است.',
+      ask: topicText('company_20'),
+      why: topicText('company_21'),
       yesValue: '',
       noValue: '',
-      read: (n) {
-        final v = Sense.numberBefore(n, 'درصد');
-        return v == null || v <= 0 || v > 100 ? null : '$v';
-      },
-      readPending: (n) {
-        final v = Sense.numberBefore(n, 'درصد') ?? Sense.looseAmount(n);
-        return v == null || v <= 0 || v > 100 ? null : '$v';
-      },
+      read: const ReadNumBefore(_pctRe, min: 1, max: 100),
+      readPending:
+          const ReadNumBefore(_pctRe, min: 1, max: 100, fallbackLoose: true),
     ),
-    Slot(
+    Slot.dsl(
       id: 'issue',
-      ask: 'مشکل اصلی کدام است: سود نمی‌دهند، حساب‌وکتاب نشان نمی‌دهند، یا مدیر سوءاستفاده می‌کند؟',
-      why: 'برای هر کدام اهرم قانونی جداگانه‌ای هست.',
-      options: ['سود نمی‌دهند', 'حساب نشان نمی‌دهند', 'مدیر سوءاستفاده می‌کند'],
+      ask: topicText('company_22'),
+      why: topicText('company_23'),
+      options: [topicText('company_24'), topicText('company_25'), topicText('company_26')],
       yesValue: '',
       noValue: '',
-      read: (n) {
-        if (Sense.has(n, 'سوء ?استفاده|اختلاس|برداشت(?:ه)? (?:از|کرده)|به نام خودش|قرارداد با خودش|تخلف|بالا کشید|حیف و میل')) return 'abuse';
-        if (Sense.has(n, 'حساب(?: و ?کتاب)?[^ ]* (?:رو |را )?نش[او]ن|صورت ?های مالی|ترازنامه|گزارش نمید|مجمع (?:برگزار|تشکیل) نمی|خبر نمید|شفاف')) return 'info';
-        if (Sense.has(n, 'سود')) return 'profit';
-        return null;
-      },
-      effect: (f) => f.eq('issue', 'profit')
-          ? 'دربارهٔ سود باید دقیق باشم: سهامدار «خودبه‌خود» طلبکار سود نیست. اول مجمع عمومی باید حساب‌های سال را تصویب و وجود سود قابل تقسیم را احراز کند و بعد مبلغ تقسیم را معین کند [[commerce_1347:240]]. پس پرسش کلیدی این است که مجمع سالانه برگزار شده یا نه.'
-          : f.eq('issue', 'info')
-              ? 'مجمع عمومی عادی باید سالی یک بار برای رسیدگی به ترازنامه و حساب سود و زیان تشکیل شود [[commerce_1347:89]] و بدون خواندن گزارش بازرس، تصمیمش دربارهٔ حساب‌ها اعتبار ندارد [[commerce_1347:90]]. برگزارنشدن مجمع خودش تخلف مدیران است.'
-              : 'مدیران و مدیرعامل در برابر شرکت و دیگران مسئول تخلف از قانون، اساسنامه و مصوبه‌های مجمع‌اند و دادگاه سهم هر کدام را در جبران خسارت معین می‌کند [[commerce_1347:142]].',
+      read: const ReadCases([
+        ReadCase('سوء ?استفاده|اختلاس|برداشت(?:ه)? (?:از|کرده)|به نام خودش|قرارداد با خودش|تخلف|بالا کشید|حیف و میل', 'abuse'),
+        ReadCase('حساب(?: و ?کتاب)?[^ ]* (?:رو |را )?نش[او]ن|صورت ?های مالی|ترازنامه|گزارش نمید|مجمع (?:برگزار|تشکیل) نمی|خبر نمید|شفاف', 'info'),
+        ReadCase(_profitRe, 'profit'),
+      ]),
+      effect: const TxSwitch(
+        'issue',
+        {'profit': Tx('company_27'), 'info': Tx('company_28')},
+        fallback: Tx('company_29'),
+      ),
     ),
   ],
-  opening: (f) =>
-      'در شرکت، حق شما از دو جا می‌آید: قانون و اساسنامه. تصمیم‌های اصلی در مجمع عمومی گرفته می‌شود که از اجتماع سهامداران تشکیل می‌شود [[commerce_1347:72]]، و مدیران در برابر شرکت و سهامداران پاسخگوی تخلف‌هایشان هستند [[commerce_1347:142]].',
+  opening: const Tx('company_30'),
   issues: [
-    Issue(
+    Issue.dsl(
       id: 'liable',
-      chip: 'بدهی شرکت گردن من هم می‌افتد؟',
+      chip: topicText('company_31'),
       cues: 'بدهی شرکت|ورشکست|طلبکار(?:ا|ها)ی شرکت|گردن من|مال شخصی|مسئول(?:م| هستم)',
-      body: (f) =>
-          'در شرکت سهامی، مسئولیت شما به مبلغ اسمی سهامتان محدود است [[commerce_1347:1]] و در شرکت با مسئولیت محدود، به سرمایه‌ای که آورده‌اید [[commerce:94]]. پس اصل بر این است که طلبکار شرکت نمی‌تواند سراغ خانه و حساب شخصی شما بیاید. استثنا وقتی است که مدیر بوده و تخلف کرده باشید [[commerce_1347:142]]، یا شخصاً بدهی شرکت را ضمانت کرده باشید [[commerce:403]].',
+      body: const Tx('company_32'),
     ),
-    Issue(
+    Issue.dsl(
       id: 'types',
-      chip: 'انواع شرکت چه فرقی دارند؟',
+      chip: topicText('company_33'),
       cues: 'انواع شرکت|چه نوع شرکت|کدوم شرکت|فرق (?:سهامی|مسئولیت)|ثبت شرکت',
-      body: (f) =>
-          'قانون تجارت هفت نوع شرکت می‌شناسد [[commerce:20]]؛ دو تای رایجش این‌هاست: «سهامی» که سرمایه‌اش به سهام تقسیم می‌شود و مسئولیت هر سهامدار تا مبلغ سهام اوست [[commerce_1347:1]]، و «با مسئولیت محدود» که سهام ندارد و هر شریک تا اندازهٔ آورده‌اش مسئول است [[commerce:94]]. برای کسب‌وکار کوچک دو سه نفره معمولاً دومی ساده‌تر است.',
+      body: const Tx('company_34'),
     ),
   ],
-  follow: {
-    'next': (f) =>
-        'قدم‌ها:\n'
-        '۱) اساسنامه و آخرین آگهی روزنامهٔ رسمی شرکت را بگیرید تا مدیران، بازرس و سال مالی معلوم شود.\n'
-        '۲) کتباً از هیئت‌مدیره برگزاری مجمع سالانه و ارائهٔ صورت‌های مالی را بخواهید [[commerce_1347:89]].\n'
-        '۳) موضوع را کتباً به بازرس شرکت اعلام کنید؛ تصمیم دربارهٔ حساب‌ها بدون گزارش او معتبر نیست [[commerce_1347:90]].\n'
-        '۴) اگر تخلف مدیر روشن است و به یک‌پنجم سهام می‌رسید، دعوای مسئولیت به نام شرکت [[commerce_1347:276]].',
-    'where': (f) =>
-        'دعواهای شرکت در دادگاه عمومی حقوقیِ محل اقامتگاه شرکت است. مدارک ثبتی را از ادارهٔ ثبت شرکت‌ها و روزنامهٔ رسمی بگیرید.',
-    'evidence': (f) =>
-        'اساسنامه، گواهی سهام یا دفتر ثبت سهام، آگهی‌های روزنامهٔ رسمی، صورت‌جلسه‌های مجمع و هیئت‌مدیره، صورت‌های مالی و گزارش بازرس، و نامه‌هایی که به مدیران داده‌اید.',
-    'chance': (f) =>
-        'در دعوای شرکت، کاغذ حرف اول را می‌زند. اگر تخلف مدیر در صورت‌جلسه‌ها و حساب‌ها ردّی داشته باشد و حد نصاب سهام را داشته باشید، دعوا جدی است [[commerce_1347:276]]؛ بدون سند، سخت پیش می‌رود.',
-    'cost': (f) =>
-        'دعوای علیه مدیران را سهامداران «به هزینهٔ خودشان» طرح می‌کنند [[commerce_1347:276]] و چون مالی است، هزینهٔ دادرسی به نسبت مبلغ خسارت حساب می‌شود [[civil_procedure:503]].',
+  follow: const {
+    'next': Tx('company_35'),
+    'where': Tx('company_36'),
+    'evidence': Tx('company_37'),
+    'chance': Tx('company_38'),
+    'cost': Tx('company_39'),
   },
-  drafts: (f) => const ['formal_notice'],
+  drafts: const DraftRule.fixed(['formal_notice']),
 );

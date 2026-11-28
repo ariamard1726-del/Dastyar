@@ -58,8 +58,7 @@ extension _CaseAnswers on CaseFlow {
     var lead = '';
     if (guessed) {
       // پرونده با حدس باز شده؛ این را پنهان نمی‌کنم تا اگر غلط است بگوید.
-      lead =
-          'برداشتم این است که موضوع شما «${t.title}» است؛ اگر اشتباه گرفته‌ام بگویید.';
+      lead = advocateFormat('caseGuessedLead', {'title': t.title});
     } else if (switched) {
       lead = _pick(Say.switched);
     } else if (LawyerVoice.expressesDistress(n) ||
@@ -69,8 +68,7 @@ extension _CaseAnswers on CaseFlow {
     final also = dialog.also;
     dialog.also = null;
     if (also != null && also.id != t.id) {
-      parts.add(
-          'به موضوع «${also.title}» هم اشاره کردید. آن پروندهٔ جدایی است؛ اول همین را روشن می‌کنیم و بعد، هر وقت گفته‌اید، سراغ آن می‌رویم.');
+      parts.add(advocateFormat('caseAlsoNotice', {'title': also.title}));
     }
     return finish(t, parts, lead: lead);
   }
@@ -240,8 +238,10 @@ extension _CaseAnswers on CaseFlow {
           // وسطِ پرونده، حرفِ تازه را کوتاه جواب می‌دهم و رشتهٔ گفتگو را
           // نگه می‌دارم.
           return _out(
-            '${_relevant(lg.answer, n)}\n\nاین می‌تواند پیگیری جداگانه‌ای داشته باشد؛ هر وقت خواستید سراغش می‌رویم.',
-            ask: 'برگردیم سر پروندهٔ خودمان: ${dialog.askText}',
+            advocateFormat('caseGuideSideNote', {
+              'answer': _relevant(lg.answer, n),
+            }),
+            ask: advocateFormat('caseGuideReturnAsk', {'ask': dialog.askText}),
             chips: dialog.askChips,
             full: true,
           );
@@ -291,8 +291,7 @@ extension _CaseAnswers on CaseFlow {
     if (a.text.isEmpty) {
       // دیگر پرسشی ندارم؛ در را باز می‌گذارم.
       if (parts.length <= 1 && body.length < 40) {
-        body =
-            '$body هر وقت سؤال دیگری داشتید یا اتفاق تازه‌ای افتاد، همین‌جا بگویید.';
+        body = advocateFormat('caseOpenQuestionTail', {'body': body});
       }
       chips.addAll(chipPlan().suggest(t));
     } else if (chips.isEmpty) {

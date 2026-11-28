@@ -34,6 +34,7 @@ CASE_PLAN = os.path.join(ADVOCATE_DIR, 'case_plan.dart')
 ISOLATION_TEST = os.path.join(ROOT, 'test', 'advocate', 'isolation_test.dart')
 CONTROLLER = os.path.join(ROOT, 'lib', 'ui', 'chat_controller.dart')
 DRAFT_FLOW = os.path.join(ROOT, 'lib', 'ui', 'draft_flow.dart')
+GUESS_FLOW = os.path.join(ROOT, 'lib', 'ui', 'guess_flow.dart')
 
 # سقف‌های امروز؛ عبور از آن‌ها یعنی بازگشت به عقب.
 MAX_STATE_FIELDS = 13
@@ -623,9 +624,11 @@ class ShapeTests(unittest.TestCase):
         """
         case_reply = _read(os.path.join(ADVOCATE_DIR, 'advocate_reply_case.dart'))
         controller = _read(CONTROLLER)
+        guess_flow = _read(GUESS_FLOW)
+        self.assertIn('GuessFlow(', controller)
         self.assertIn('if (guess == null) {', case_reply,
                       'IntentNet باید فقط در نبودِ حدس Noql پرسیده شود')
-        self.assertIn('wantsGuess(text)', controller,
+        self.assertIn('wantsGuess(text)', guess_flow,
                       'خوانندهٔ Noql فقط وقتی لازم است صدا زده شود')
         # ترتیب هم مهم است: نظر دوم نباید بالاتر از حدس مطمئن Noql بیاید.
         self.assertLess(case_reply.index('usable.confident'),

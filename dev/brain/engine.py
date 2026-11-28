@@ -1,6 +1,8 @@
 import json
 import os
 
+from engine_rules import CONFLICTS_CYCLE_SUFFIX, CONFLICTS_MAX_DEPTH
+
 
 def get_data_path():
     # منبع یکتای دادهٔ روابط: assets/relationships.json (کپی محلی حذف شده است).
@@ -18,7 +20,7 @@ def load_data():
         return None
 
 
-def find_conflicts(article_id, data, path=None, max_depth=32):
+def find_conflicts(article_id, data, path=None, max_depth=CONFLICTS_MAX_DEPTH):
     """زنجیرهٔ تضادها را از یک ماده به‌صورت بازگشتی با محافظت در برابر حلقه و عمق دنبال می‌کند."""
     if path is None:
         path = [str(article_id)]
@@ -33,7 +35,7 @@ def find_conflicts(article_id, data, path=None, max_depth=32):
     for next_art in next_articles:
         next_key = str(next_art)
         if next_key in path:
-            results.append(' -> '.join(path + [next_key]) + ' ⚠️ (حلقه)')
+            results.append(' -> '.join(path + [next_key]) + CONFLICTS_CYCLE_SUFFIX)
             continue
         new_path = path + [next_key]
         results.append(' -> '.join(new_path))

@@ -94,8 +94,8 @@ class LawAnswer {
     // اشاره کند، ماده‌ای با همان شماره از قانونی دیگر را جای آن نمی‌گذارم.
     if (direct && Sense.has(n, 'آیین ?نامه|دستورالعمل|بخشنامه')) {
       return _out(
-        'در بانک قوانین من فقط متن قوانین است؛ آیین‌نامه و دستورالعمل در آن نیست، پس متن این ماده را با اطمینان نمی‌توانم بگویم.',
-        ask: 'اگر منظورتان ماده‌ای از یک قانون است، نام همان قانون یا موضوعش را بگویید.',
+        advocateText('lawRuleUnavailable'),
+        ask: advocateText('lawRuleUnavailableAsk'),
       );
     }
     if (legalish &&
@@ -108,8 +108,8 @@ class LawAnswer {
           !direct &&
           !_sharesContent(n, r.contextHits.first.chunk.body)) {
         return _out(
-          'در بانک قوانین من متنی که مستقیم به این پرسش جواب دهد پیدا نکردم، پس ماده‌ی نامربوط نمی‌دهم.',
-          ask: 'نام دقیق قانون یا شماره‌ی ماده‌ای که دنبالش هستید را بگویید.',
+          advocateText('lawNoDirectMatch'),
+          ask: advocateText('lawNoDirectMatchAsk'),
         );
       }
       if (_isLawHit(r)) {
@@ -119,15 +119,15 @@ class LawAnswer {
                 status: engine.meta[h.chunk.lawId]?['status']?.toString() ?? ''),
         ];
         final lead = direct
-            ? 'این متنِ همان ماده در بانک قوانین من است:'
-            : 'تحلیل آماده‌ای برای این پرسش ندارم؛ نزدیک‌ترین متن قانونی که پیدا کردم این است:';
+            ? advocateText('lawDirectLead')
+            : advocateText('lawFallbackLead');
         voice.rest = '';
         voice.offeredMore = false;
         return AdvocateReply(
           '$lead\n\n${r.text}\n\n'
           // اگر ماجرای کاربر را از پیش می‌دانیم، پرسیدنِ «چه شده؟» یعنی
           // فراموش‌کردنِ حرف‌هایش؛ پس همان را به پروندهٔ باز وصل می‌کنیم.
-          '${hasCase ? 'همین را روی ماجرای خودتان می‌سنجم؛ بگویید کدام بخشش به کارتان می‌آید.' : 'این به ماجرای خودتان مربوط است؟ اگر بگویید چه شده، متناسب با وضعیت شما می‌گویم.'}',
+          '${hasCase ? advocateText('lawInCaseTail') : advocateText('lawOutCaseTail')}',
           laws: laws,
           source: AnswerSource.engine,
         );
@@ -135,8 +135,8 @@ class LawAnswer {
     }
     if (!legalish && Sense.isQuestion(n) && _party(n).isEmpty) {
       return _out(
-        'این یکی از حوزهٔ کار من بیرون است؛ من فقط در مسائل حقوقی (اجاره، کار، چک و طلب، خانواده، شکایت و دفاع) می‌توانم کمک کنم.',
-        ask: 'گرفتاری حقوقی‌ای هست که بخواهید درباره‌اش حرف بزنیم؟',
+        advocateText('lawOutOfScope'),
+        ask: advocateText('lawOutOfScopeAsk'),
       );
     }
     return null;
@@ -147,7 +147,7 @@ class LawAnswer {
     final cites = [for (final r in qa.refs) engine.qa.citeLabel(r)]
         .where((c) => c.isNotEmpty)
         .join('، ');
-    final src = cites.isEmpty ? '' : '\n\nمستند: $cites.';
+    final src = cites.isEmpty ? '' : advocateFormat('lawQaCite', {'cites': cites});
     // متن همان موادی که پاسخ به آن‌ها استناد می‌کند، تا دکمهٔ «متن قانون» کار کند.
     final laws = <LawText>[];
     for (final r in qa.refs) {
@@ -167,8 +167,7 @@ class LawAnswer {
     voice.rest = '';
     voice.offeredMore = false;
     return AdvocateReply(
-      '${qa.answer}$src\n\n'
-      'این پاسخ عمومی است. اگر بگویید ماجرای شما دقیقاً چیست، آن را با وضعیت خودتان تطبیق می‌دهم.',
+      '${qa.answer}$src\n\n${advocateText('lawQaDisclaimer')}',
       chips: [
         ...next,
         if (laws.isNotEmpty) ChipTexts.lawChip,

@@ -75,7 +75,7 @@
 
 ### نکتهٔ معماری (تغییر داده نشد)
 - لایه‌بندی درست است: `core/` و `domain/` هیچ‌جا `ui/` یا `core/` را از `domain/` وارد نمی‌کنند؛ `ui/` فقط به `core/` و `domain/` وابسته است.
-- `lib/domain/settings.dart` `material.dart` را وارد می‌کند (برای مدل تنظیمات). اگر لازم شد، می‌شود مدل را از Flutter جدا کرد.
+- ✅ در فاز ۸، `lib/domain/settings.dart` حذف شد و `AppSettings` به `lib/ui/app_settings.dart` رفت تا `DOMAIN_FLUTTER_ALLOWLIST = set()` شود (نگهبان: `tests/python/test_phase8_runtime_and_layers.py`).
 
 ## ۶. پاکسازی سوم (همین شاخه، نوامبر ۲۰۲۶)
 

@@ -81,8 +81,16 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
     if (ok != true) return;
+    final prevErr = widget.history.lastError;
     await widget.history.delete(s.id);
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    final err = widget.history.lastError;
+    if (err != null && err != prevErr) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err)),
+      );
+    }
   }
 
   @override

@@ -1,228 +1,270 @@
 part of 'rent.dart';
 
 // واقعیت‌هایی که وکیل در موضوعِ اجاره می‌پرسد یا از حرفِ کاربر می‌خواند.
-//
-// هر `Slot` یک پرسش، الگوی خواندنش و اثرِ حقوقی‌اش را کنارِ هم دارد؛ این فهرست
-// «چه می‌دانیم» است، نه «چه می‌گوییم».
+
+const FactExpr _needsContract = FactAny([
+  FactAll([
+    _landlordSide,
+    FactAny([FactNot(FactHas('aim')), FactEq('aim', 'evict'), FactEq('aim', 'unpaid')]),
+  ]),
+  FactAll([
+    _tenantSide,
+    FactAny([
+      FactNot(FactHas('matter')),
+      FactIn('matter', ['deposit', 'raise', 'repair', 'deliver']),
+    ]),
+  ]),
+]);
+
+const FactExpr _needsEnded = FactAny([
+  FactAll([
+    _landlordSide,
+    FactAny([FactNot(FactHas('aim')), FactEq('aim', 'evict')]),
+  ]),
+  FactAll([
+    _tenantSide,
+    FactNot(FactIn('matter', ['repair', 'leave', 'deliver'])),
+  ]),
+]);
 
 final List<Slot> _rentSlots = [
-  Slot(
+  Slot.dsl(
     id: 'role',
     first: true,
     // نقش با اشارهٔ گذرا یا نقلِ حرفِ طرف مقابل عوض نمی‌شود؛ فقط با حرفِ
     // صریحِ خودِ کاربر.
     sticky: true,
-    readSure: _rentRoleSaid,
-    ask: 'شما مستأجر هستید یا موجر (صاحب ملک)؟',
-    why: 'حقوق و راه‌های مستأجر و موجر کاملاً فرق دارد؛ باید بدانم طرف کدام‌یک ایستاده‌ام.',
-    options: ['مستأجر هستم', 'موجر هستم'],
-    read: _rentRole,
-    readPending: (n) => Sense.has(n, 'موجر|صاحب|مالک')
-        ? 'landlord'
-        : (Sense.has(n, 'مستاجر') ? 'tenant' : null),
+    readSure: _rentRoleSaidRead,
+    ask: rentText('slotRoleAsk'),
+    why: rentText('slotRoleWhy'),
+    options: [rentText('slotRoleOpt0'), rentText('slotRoleOpt1')],
+    read: _rentRoleRead,
+    readPending: const ReadCases([
+      ReadCase('موجر|صاحب|مالک', 'landlord'),
+      ReadCase('مستاجر', 'tenant'),
+    ]),
     yesValue: '',
     noValue: '',
   ),
-  Slot(
+  Slot.dsl(
     id: 'matter',
     first: true,
     sticky: true,
     priority: const ['order'],
-    ask: 'اختلافتان با موجر سرِ چیست؟',
-    why: 'پس‌گرفتن پول پیش، بالابردن اجاره، بیرون‌کردن و تعمیر هر کدام قاعده و راه خودش را دارد؛ نمی‌خواهم دربارهٔ چیزی حرف بزنم که مسئلهٔ شما نیست.',
+    ask: rentText('slotMatterAsk'),
+    why: rentText('slotMatterWhy'),
     options: [
-      'پول پیشم را پس نمی‌دهد',
-      'می‌خواهد اجاره را زیاد کند',
-      'می‌خواهد به‌زور بیرونم کند',
-      'خانه را تعمیر نمی‌کند',
-      'دستور تخلیه آمده',
-      'می‌خواهم زودتر بلند شوم',
+      rentText('slotMatterOpt0'),
+      rentText('slotMatterOpt1'),
+      rentText('slotMatterOpt2'),
+      rentText('slotMatterOpt3'),
+      rentText('slotMatterOpt4'),
+      rentText('slotMatterOpt5'),
     ],
-    read: _rentMatter,
+    read: _rentMatterRead,
     yesValue: '',
     noValue: '',
-    when: (f) => f.eq('role', 'tenant'),
-    effect: (f) => _matter(f, 'deposit') ? _rentDepositLaw : '',
+    when: _isTenantRole,
+    effect: const TxCond(_mDeposit, _rentDepositLaw),
   ),
-  Slot(
+  Slot.dsl(
     id: 'aim',
     first: true,
     sticky: true,
     priority: const ['evict', 'breach', 'unpaid', 'damage'],
-    ask: 'مشکلتان با مستأجر چیست؟',
-    why: 'تخلیه، گرفتن اجارهٔ عقب‌افتاده، خسارت و تخلف از قرارداد هر کدام راه و مدرک خودش را دارد.',
+    ask: rentText('slotAimAsk'),
+    why: rentText('slotAimWhy'),
     options: [
-      'ملک را تخلیه نمی‌کند',
-      'اجاره را نمی‌دهد',
-      'به ملک خسارت زده',
-      'خلاف قرارداد عمل کرده',
+      rentText('slotAimOpt0'),
+      rentText('slotAimOpt1'),
+      rentText('slotAimOpt2'),
+      rentText('slotAimOpt3'),
     ],
-    read: _rentAim,
+    read: _rentAimRead,
     yesValue: '',
     noValue: '',
-    when: (f) => f.eq('role', 'landlord'),
+    when: _landlordSide,
     effect: _aimEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'official',
-    ask: 'برگهٔ رسمی تخلیه (از دادگاه یا شورا) هم به دستتان رسیده، یا فقط خودش می‌گوید؟',
-    why: 'حرف و تهدید موجر هیچ الزامی نمی‌آورد؛ ولی برگهٔ رسمی مهلت کوتاهی دارد و باید فوری به آن جواب داد.',
-    options: ['فقط خودش می‌گوید', 'برگهٔ رسمی آمده'],
-    read: _rentOfficial,
-    readPending: (n) => Sense.has(n, 'خودش|حرف|نیومده|نیامده|نه هنوز')
-        ? 'no'
-        : (Sense.has(n, 'اومده|آمده|رسیده|ابلاغ شد') ? 'yes' : null),
-    when: (f) => _matter(f, 'evict'),
-    effect: (f) {
-      if (!_matter(f, 'evict')) return '';
-      return f.yes('official')
-          ? _rentOrderBody(f)
-          : 'تا وقتی برگهٔ رسمی از مرجع قضایی نیامده، حرف و تهدید او هیچ الزامی برای شما نمی‌آورد؛ تنها راه قانونی‌اش گرفتن دستور تخلیه است [[landlord_tenant:3]].';
-    },
+    ask: rentText('slotOfficialAsk'),
+    why: rentText('slotOfficialWhy'),
+    options: [rentText('slotOfficialOpt0'), rentText('slotOfficialOpt1')],
+    read: _rentOfficialRead,
+    readPending: const ReadCases([
+      ReadCase('خودش|حرف|نیومده|نیامده|نه هنوز', 'no'),
+      ReadCase('اومده|آمده|رسیده|ابلاغ شد', 'yes'),
+    ]),
+    when: _mEvict,
+    effect: const TxCond(
+      _mEvict,
+      TxCond(
+        FactYes('official'),
+        _rentOrderBody,
+        TxRent('effectSlotOfficialNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'vacated',
-    ask: 'ملک را تخلیه کرده و کلید را تحویل داده‌اید، یا هنوز در اختیار شماست؟',
-    why: 'قانون پس‌دادن ودیعه را به تخلیه گره زده است؛ اگر هنوز ملک دست شما باشد اهرم فشار دارید، و اگر تحویل داده باشید باید تاریخ تحویل را ثابت کنیم.',
-    options: ['تخلیه کرده‌ام', 'هنوز تخلیه نکرده‌ام'],
-    read: _rentVacated,
-    readPending: (n) => Sense.has(n, 'نکرد|هنوز| نه |ندادم|دست (?:خودمه|منه)')
-        ? 'no'
-        : (Sense.has(n, 'کردم|کرده ام|دادم| آره | اره | بله ') ? 'yes' : null),
+    ask: rentText('slotVacatedAsk'),
+    why: rentText('slotVacatedWhy'),
+    options: [rentText('slotVacatedOpt0'), rentText('slotVacatedOpt1')],
+    read: _rentVacatedRead,
+    readPending: const ReadCases([
+      ReadCase('نکرد|هنوز| نه |ندادم|دست (?:خودمه|منه)', 'no'),
+      ReadCase('کردم|کرده ام|دادم| آره | اره | بله ', 'yes'),
+    ]),
     when: _rentDeposit,
-    effect: (f) => f.yes('vacated')
-        ? 'چون ملک را تخلیه و تحویل داده‌اید، او دیگر هیچ بهانه‌ای برای نگه‌داشتن ودیعه ندارد [[landlord_tenant:4]]. از این‌جا به بعد پروندهٔ شما یک «مطالبهٔ وجه» سرراست است؛ فقط باید بتوانید تاریخ تخلیه و تحویل کلید را نشان دهید (صورت‌جلسه، پیام، شاهد یا بنگاه).'
-        : 'تا وقتی ملک در دست شماست، برگ برنده با شماست: تخلیه و تحویل ملک موکول به پس‌گرفتن ودیعه یا سپرده‌شدن آن به دایرهٔ اجراست [[landlord_tenant:4]]. پس تا پول را نگرفته‌اید کلید را ندهید.',
+    effect: const TxCond(
+      FactYes('vacated'),
+      TxRent('effectSlotVacatedYes'),
+      TxRent('effectSlotVacatedNo'),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'ended',
-    ask: 'مدت قرارداد اجاره تمام شده است؟',
-    why: 'پایان مدت نقطهٔ عطف اجاره است: پیش از آن قرارداد هر دو طرف را پایبند می‌کند و بعد از آن، تخلیه و پس‌دادن ودیعه مطرح می‌شود.',
-    options: ['بله، تمام شده', 'نه، هنوز مانده'],
-    read: _rentEnded,
+    ask: rentText('slotEndedAsk'),
+    why: rentText('slotEndedWhy'),
+    options: [rentText('slotEndedOpt0'), rentText('slotEndedOpt1')],
+    read: _rentEndedRead,
     when: _needsEnded,
     effect: _endedEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'contract',
-    ask: 'اجاره‌نامهٔ کتبی دارید (دستی، بنگاهی یا با کد رهگیری)؟',
-    why: 'اجاره‌نامه هم رابطهٔ اجاره را ثابت می‌کند هم مبلغ و مدت را؛ اگر نباشد باید از راه دیگری ثابتش کنیم.',
-    options: ['بله، دارم', 'نه، شفاهی بود'],
-    read: _rentContract,
+    ask: rentText('slotContractAsk'),
+    why: rentText('slotContractWhy'),
+    options: [rentText('slotContractOpt0'), rentText('slotContractOpt1')],
+    read: _rentContractRead,
     when: _needsContract,
     effect: _contractEffect,
   ),
-  Slot(
+  Slot.dsl(
     id: 'witness',
-    ask: 'پای اجاره‌نامه را دو شاهد امضا کرده‌اند، یا کد رهگیری دارد؟',
-    why: 'دستور تخلیهٔ یک‌هفته‌ای فقط برای اجاره‌نامه‌ای است که شاهد یا ثبت رسمی داشته باشد؛ بدون آن باید از راه دادخواست رفت.',
-    options: ['بله، دارد', 'نه، ندارد'],
-    read: _rentWitness,
-    when: (f) => _evicting(f) && f.yes('contract') && !f.no('ended'),
-    effect: (f) {
-      if (!f.eq('role', 'landlord')) return '';
-      return f.yes('witness')
-          ? 'با امضای دو شاهد یا کد رهگیری، اجاره‌نامهٔ شما همان سندی است که قانون برای دستور تخلیهٔ فوری می‌خواهد [[landlord_tenant:2]] [[landlord_tenant:3]].'
-          : 'بدون امضای دو شاهد یا کد رهگیری، راه دستور تخلیهٔ یک‌هفته‌ای بسته است و باید «دادخواست تخلیه» بدهید که با جلسهٔ دادگاه و زمان بیشتر همراه است.';
-    },
+    ask: rentText('slotWitnessAsk'),
+    why: rentText('slotWitnessWhy'),
+    options: [rentText('slotWitnessOpt0'), rentText('slotWitnessOpt1')],
+    read: _rentWitnessRead,
+    when: const FactAll([_evicting, FactYes('contract'), FactNot(FactNo('ended'))]),
+    effect: const TxCond(
+      _landlordSide,
+      TxCond(
+        FactYes('witness'),
+        TxRent('effectSlotWitnessYes'),
+        TxRent('effectSlotWitnessNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'clause',
-    ask: 'در اجاره‌نامه برای خودتان حق فسخ گذاشته‌اید (مثلاً اگر اجاره را ندهد یا ملک را به دیگری واگذار کند)؟',
-    why: 'پیش از پایان مدت، فقط شرطی که در خودِ قرارداد نوشته شده به موجر اجازهٔ به‌هم‌زدن اجاره را می‌دهد.',
-    options: ['بله، نوشته‌ایم', 'نه، چنین شرطی نیست'],
-    read: _rentClause,
-    when: (f) => (_evicting(f) && f.no('ended')) || _aim(f, 'breach'),
-    effect: (f) {
-      if (!f.eq('role', 'landlord')) return '';
-      return f.yes('clause')
-          ? 'شرط فسخ در اجاره‌نامه کلید کار است: با تخلف مستأجر حق فسخ دارید [[civil:496]]؛ فسخ را با اظهارنامه اعلام کنید [[civil_procedure:156]] و بعد تخلیه را بخواهید.'
-          : 'بدون شرط فسخ در قرارداد، تا پایان مدت نمی‌شود اجاره را به هم زد [[civil:219]]؛ راه شما مطالبهٔ اجاره‌های نپرداخته و درخواست تخلیه بلافاصله پس از پایان مدت است.';
-    },
+    ask: rentText('slotClauseAsk'),
+    why: rentText('slotClauseWhy'),
+    options: [rentText('slotClauseOpt0'), rentText('slotClauseOpt1')],
+    read: _rentClauseRead,
+    when: const FactAny([
+      FactAll([_evicting, FactNo('ended')]),
+      _aBreach,
+    ]),
+    effect: const TxCond(
+      _landlordSide,
+      TxCond(
+        FactYes('clause'),
+        TxRent('effectSlotClauseYes'),
+        TxRent('effectSlotClauseNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'proof',
-    ask: 'از این موضوع مدرکی دارید (عکس، فیلم، صورت‌جلسه یا شاهد)؟',
-    why: 'اثبات خرابی یا تخلف با موجر است؛ بدون مدرک، دادگاه حرف مستأجر را می‌پذیرد.',
-    options: ['بله، دارم', 'نه، ندارم'],
-    read: _rentProof,
-    when: (f) => _aim(f, 'damage') || _aim(f, 'breach'),
-    effect: (f) {
-      if (!_aim(f, 'damage') && !_aim(f, 'breach')) return '';
-      return f.yes('proof')
-          ? 'خوب است؛ همین مدرک‌ها را با «تأمین دلیل» رسمی کنید تا بعداً قابل انکار نباشد [[civil_procedure:149]].'
-          : 'بدون مدرک، ادعا در دادگاه به‌سختی پیش می‌رود؛ پیش از هر کاری «تأمین دلیل» بخواهید تا کارشناس وضعیت را صورت‌جلسه کند [[civil_procedure:149]].';
-    },
+    ask: rentText('slotProofAsk'),
+    why: rentText('slotProofWhy'),
+    options: [rentText('slotProofOpt0'), rentText('slotProofOpt1')],
+    read: _rentProofRead,
+    when: const FactAny([_aDamage, _aBreach]),
+    effect: const TxCond(
+      FactAny([_aDamage, _aBreach]),
+      TxCond(
+        FactYes('proof'),
+        TxRent('effectSlotProofYes'),
+        TxRent('effectSlotProofNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'told',
-    ask: 'خرابی را کتبی (با پیام یا نامه) به موجر خبر داده‌اید؟',
-    why: 'تا موجر رسماً خبردار نشده باشد، نمی‌شود گفت در تعمیر کوتاهی کرده است.',
-    options: ['بله، خبر داده‌ام', 'نه، فقط زبانی گفته‌ام'],
-    read: _rentTold,
-    when: (f) => _matter(f, 'repair'),
-    effect: (f) {
-      if (!_matter(f, 'repair')) return '';
-      return f.yes('told')
-          ? 'همین پیام کتبی پایهٔ کار است: نشان می‌دهد موجر از خرابی خبر داشته و تعمیر نکرده است؛ نسخه‌ای از آن را نگه دارید.'
-          : 'اول کتبی خبر بدهید و مهلت مشخص بگذارید (پیام هم کافی است، اظهارنامه محکم‌تر [[civil_procedure:156]])؛ بدون این، در دادگاه نمی‌شود نشان داد کوتاهی از او بوده.';
-    },
+    ask: rentText('slotToldAsk'),
+    why: rentText('slotToldWhy'),
+    options: [rentText('slotToldOpt0'), rentText('slotToldOpt1')],
+    read: _rentToldRead,
+    when: _mRepair,
+    effect: const TxCond(
+      _mRepair,
+      TxCond(
+        FactYes('told'),
+        TxRent('effectSlotToldYes'),
+        TxRent('effectSlotToldNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'consent',
-    ask: 'موجر با زودتر رفتن شما موافق است؟',
-    why: 'اجاره را پیش از موعد فقط با رضایت دو طرف یا حق فسخی که در قرارداد آمده می‌شود تمام کرد.',
-    options: ['بله، موافق است', 'نه، قبول نمی‌کند'],
-    read: _rentConsent,
-    when: (f) => _matter(f, 'leave'),
-    effect: (f) {
-      if (!_matter(f, 'leave')) return '';
-      return f.yes('consent')
-          ? 'با رضایت او کار ساده است: اجاره با توافق دو طرف به هم می‌خورد [[civil:283]]؛ فقط همین توافق، تاریخ تخلیه و تاریخ پس‌دادن ودیعه را کتبی کنید.'
-          : 'بدون رضایت او، اجاره تا پایان مدت پابرجاست [[civil:219]]؛ اگر در قرارداد حق فسخ ندارید، عملی‌ترین راه پیشنهاد مستأجر جایگزین است.';
-    },
+    ask: rentText('slotConsentAsk'),
+    why: rentText('slotConsentWhy'),
+    options: [rentText('slotConsentOpt0'), rentText('slotConsentOpt1')],
+    read: _rentConsentRead,
+    when: _mLeave,
+    effect: const TxCond(
+      _mLeave,
+      TxCond(
+        FactYes('consent'),
+        TxRent('effectSlotConsentYes'),
+        TxRent('effectSlotConsentNo'),
+      ),
+    ),
   ),
-  Slot(
+  Slot.dsl(
     id: 'amount',
-    ask: 'مبلغ ودیعه چقدر است؟',
-    why: 'مبلغ تعیین می‌کند پرونده به دادگاه صلح می‌رود یا دادگاه عمومی، و هزینهٔ دادرسی هم از روی آن حساب می‌شود.',
-    read: (n) => Sense.amount(n)?.toString(),
-    readPending: (n) => Sense.looseAmount(n)?.toString(),
+    ask: rentText('slotAmountAsk'),
+    why: rentText('slotAmountWhy'),
+    read: const ReadAmount(),
+    readPending: const ReadAmount(loose: true),
     yesValue: '',
     noValue: '',
     when: _rentDeposit,
-    effect: (f) => _rentDeposit(f) ? moneyForum(f.n('amount')) : '',
+    effect: const TxCond(_rentDeposit, TxForum('amount')),
   ),
-  Slot(
+  Slot.dsl(
     id: 'due',
-    ask: 'مبلغی که طلب دارید حدوداً چقدر است؟',
-    why: 'مبلغ تعیین می‌کند پرونده به دادگاه صلح می‌رود یا دادگاه عمومی، و هزینهٔ دادرسی هم از روی آن حساب می‌شود.',
-    read: (n) => Sense.amount(n)?.toString(),
-    readPending: (n) => Sense.looseAmount(n)?.toString(),
+    ask: rentText('slotDueAsk'),
+    why: rentText('slotDueWhy'),
+    read: const ReadAmount(),
+    readPending: const ReadAmount(loose: true),
     yesValue: '',
     noValue: '',
-    when: (f) => _aim(f, 'unpaid') || _aim(f, 'damage'),
-    effect: (f) => _aim(f, 'unpaid') || _aim(f, 'damage')
-        ? moneyForum(f.n('due'))
-        : '',
+    when: const FactAny([_aUnpaid, _aDamage]),
+    effect: const TxCond(FactAny([_aUnpaid, _aDamage]), TxForum('due')),
   ),
   // واقعیت‌هایی که فقط از حرف کاربر خوانده می‌شوند و پرسیده نمی‌شوند.
-  Slot(
+  Slot.dsl(
     id: 'place',
     ask: '',
     why: '',
-    read: (n) => Sense.has(n,
-            'مغازه|تجاری|دکان|دکون|محل کسب|سرقفلی|حق کسب|پاساژ|دفتر کار|کارگاه')
-        ? 'shop'
-        : null,
+    read: const ReadCases([
+      ReadCase(
+        'مغازه|تجاری|دکان|دکون|محل کسب|سرقفلی|حق کسب|پاساژ|دفتر کار|کارگاه',
+        'shop',
+      ),
+    ]),
     yesValue: '',
     noValue: '',
   ),
-  Slot(
+  Slot.dsl(
     id: 'owes',
     ask: '',
     why: '',
-    read: (n) => Sense.has(n, _cUnpaid) ? 'yes' : null,
+    read: const ReadCases([ReadCase(_cUnpaid, 'yes')]),
     yesValue: '',
     noValue: '',
   ),

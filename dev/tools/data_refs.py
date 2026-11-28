@@ -21,8 +21,10 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lawtext  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-META_PATH = os.path.join(ROOT, 'assets', 'laws', '_meta.json')
 TOPIC_GLOB = os.path.join(ROOT, 'assets', 'brain', 'topics', '*.json')
 # مسیرهای در دست ساخت (در APK نیستند) هم بررسی می‌شوند تا ارجاع شکسته‌شان
 # وقتی live شد غافلگیرمان نکند.
@@ -30,20 +32,17 @@ LAB_TOPIC_GLOB = os.path.join(ROOT, 'lab', 'topics', '*.json')
 TEMPLATE_GLOB = os.path.join(ROOT, 'assets', 'templates', '*.json')
 QA_GLOB = os.path.join(ROOT, 'assets', 'qa', '*.json')
 
-ARTICLE_RE = re.compile(r'^(ماده|اصل)\s+([0-9۰-۹]+)')
-QA_REF_RE = re.compile(r'^([^:]+):\s*(ماده|اصل)?\s*([0-9۰-۹]+)$')
+QA_REF_RE = re.compile(r'^([^:]+):\s*(ماده|اصل)?\s*(\d+)$')
 
-_FA_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
 _article_cache = {}
 
 
 def norm_digits(s):
-    return str(s).translate(_FA_DIGITS).strip()
+    return lawtext.digits(s).strip()
 
 
 def load_meta():
-    with open(META_PATH, encoding='utf-8') as f:
-        return json.load(f)
+    return lawtext.load_meta()
 
 
 def articles(law_id, meta):
@@ -61,9 +60,9 @@ def articles(law_id, meta):
     out = set()
     with open(path, encoding='utf-8') as f:
         for line in f:
-            m = ARTICLE_RE.match(line.strip())
-            if m:
-                out.add(norm_digits(m.group(2)))
+            m = lawtext.ARTICLE.match(lawtext.norm(line))
+            if m and m.group(2):
+                out.add(m.group(2))
     _article_cache[law_id] = out
     return out
 
@@ -87,11 +86,11 @@ def check_flow_refs(name, flow, meta, errors):
             if arts is None:
                 errors.append('%s/%s: قانون ناشناخته %r' % (name, leaf_id, law))
                 continue
-            m = ARTICLE_RE.match(title.strip())
-            if not m:
+            m = lawtext.ARTICLE.match(lawtext.norm(title))
+            if not m or not m.group(2):
                 errors.append('%s/%s: عنوان ماده نامعتبر %r' % (name, leaf_id, title))
                 continue
-            if norm_digits(m.group(2)) not in arts:
+            if m.group(2) not in arts:
                 errors.append('%s/%s: %s در متن قانون %s نیست' % (name, leaf_id, title, law))
     return n
 
@@ -141,7 +140,7 @@ def check_qa_refs(meta, errors):
         for item in (data.get('items') or []):
             for ref in (item.get('refs') or []):
                 n += 1
-                m = QA_REF_RE.match(str(ref).strip())
+                m = QA_REF_RE.match(norm_digits(ref))
                 if not m:
                     errors.append('%s/%s: قالب ارجاع نامعتبر %r' % (name, item.get('id'), ref))
                     continue

@@ -125,7 +125,8 @@ def write(data, control, rows, fails):
     for repo, err in fails:
         L += [f'## اجرا نشد: `{repo}`', '', '```', err, '```', '']
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    open(OUT, 'w', encoding='utf-8').write('\n'.join(L) + '\n')
+    with open(OUT, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(L) + '\n')
 
 
 def main():

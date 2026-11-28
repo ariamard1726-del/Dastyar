@@ -82,6 +82,11 @@ class MainActivity : FlutterActivity() {
                             }
                             result.success(true)
                         }
+                        // آیا رمزنگاری بومی واقعاً قابل استفاده است؟ برنامه پیش از
+                        // نوشتن تاریخچه یا پیشنویس این را میپرسد؛ اگر جواب منفی
+                        // باشد، ذخیرهٔ محلی را خاموش میکند، نه اینکه با کلید موقت
+                        // بنویسد که فردا قابل خواندن نیست.
+                        "probe" -> result.success(keystoreUsable())
                         else -> result.notImplemented()
                     }
                 } catch (e: Exception) {
@@ -109,6 +114,16 @@ class MainActivity : FlutterActivity() {
             .build()
         keyGen.init(spec)
         return keyGen.generateKey()
+    }
+
+    /// آزمون کوچک seal/open با همان کلیدی که دادهٔ واقعی با آن مهروموم میشود.
+    /// صرفِ وجودِ alias کافی نیست: ممکن است کلید آسیبپذیر باشد یا دستگاه
+    /// اجازهٔ رمزنگاری ندهد؛ بنابراین یک دور کامل seal/open آزموده میشود.
+    private fun keystoreUsable(): Boolean = try {
+        val sample = sealText("dastyar-probe")
+        openText(sample) == "dastyar-probe"
+    } catch (e: Exception) {
+        false
     }
 
     private fun sealText(plain: String): String {

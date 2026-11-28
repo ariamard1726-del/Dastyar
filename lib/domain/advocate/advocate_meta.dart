@@ -112,20 +112,18 @@ class MetaReply {
   AdvocateReply appMetaReply() {
     final caseOpen = hasCase;
     if (caseOpen) {
-      final title = current()?.title ?? 'همین موضوع';
+      final title = current()?.title ?? advocateText('metaFallbackTitle');
       return _out(
-        'خوب برگشتید. گفتگو و پاسخ‌های «$title» روی همین دستگاه ذخیره می‌شود؛ '
-        'بستن یا باز کردن برنامه چیزی را از بین نمی‌برد. '
-        'اگر بخشی از حرف‌های قبلی را نمی‌بینید، همان را یک بار دیگر بگویید تا در پرونده ثبت شود.',
-        ask: dialog.askText.isEmpty ? 'از کجا ادامه دهیم؟' : dialog.askText,
+        advocateFormat('metaAppCaseBody', {'title': title}),
+        ask: dialog.askText.isEmpty
+            ? advocateText('metaAppCaseAsk')
+            : dialog.askText,
         chips: dialog.askChips,
       );
     }
     return _out(
-      'فهمیدم؛ برنامه را بسته و باز کرده‌اید. گفتگوی قبلی روی همین دستگاه ذخیره '
-      'می‌شود و با بستن برنامه پاک نمی‌شود؛ از فهرست گفتگوها هم بازشدنی است. '
-      'اگر موضوع حقوقی‌تان ادامه دارد، همان را بگویید تا از سرِ همان جا بگیریم.',
-      ask: 'موضوع حقوقی‌تان چیست؟',
+      advocateText('metaAppIdleBody'),
+      ask: advocateText('metaAppIdleAsk'),
       chips: ChipTexts.branchChips,
     );
   }
@@ -149,11 +147,9 @@ class MetaReply {
 
   /// پاسخ به پیامی که فقط واژهٔ موضوع را دارد، نه ماجرا را.
   AdvocateReply gatedReply(Topic t) => _out(
-        'این حرف به «${t.title}» نزدیک است، ولی از همین جمله نمی‌فهمم چه کسی '
-        'چه کاری کرده و آیا کسی آسیب دیده است. در این حالت حکم و شمارهٔ ماده '
-        'نمی‌دهم؛ حدس در این‌جا می‌تواند به ضرر شما باشد.',
-        ask: 'چه کسی به چه کسی ضربه زد، و آیا کسی آسیب دید یا به بیمارستان رفت؟',
-        chips: const ['کتک‌کاری شد', 'فقط تهدید بود', 'کسی آسیب ندید'],
+        advocateFormat('metaGatedBody', {'title': t.title}),
+        ask: advocateText('metaGatedAsk'),
+        chips: advocateTextSeq('metaGatedChip', 3),
       );
 
   /// جملهٔ کوتاهِ سوگ: نه تحلیل حقوقی می‌سازیم، نه نقش همراه عاطفی بازی
@@ -161,18 +157,16 @@ class MetaReply {
   AdvocateReply lossReply() {
     if (hasCase) {
       return _out(
-        'تسلیت می‌گویم. من فقط در مسائل حقوقی می‌توانم کمک کنم و برای این‌گونه '
-        'داغ‌ها حرفِ به‌کاری ندارم؛ اگر این ماجرا پیامد حقوقی دارد (مثل خسارت یا '
-        'شکایت)، همان طرفش را بررسی می‌کنیم. اگر نه، همان پروندهٔ قبلی را ادامه دهیم.',
-        ask: dialog.askText.isEmpty ? 'موضوع حقوقی را ادامه دهیم؟' : dialog.askText,
+        advocateText('metaLossCaseBody'),
+        ask: dialog.askText.isEmpty
+            ? advocateText('metaLossCaseAsk')
+            : dialog.askText,
         chips: dialog.askChips,
       );
     }
     return _out(
-      'تسلیت می‌گویم. من دستیار حقوقی هستم و در این‌گونه مسائل شخصی چیزی برای '
-      'گفتن ندارم که به کارتان بیاید. اگر این ماجرا پیامد حقوقی دارد (مثل خسارت، '
-      'دیه یا شکایت)، همان را بگویید تا از آن طرف بررسی کنیم.',
-      ask: 'موضوع حقوقی‌تان چیست؟',
+      advocateText('metaLossIdleBody'),
+      ask: advocateText('metaLossIdleAsk'),
       chips: ChipTexts.branchChips,
     );
   }

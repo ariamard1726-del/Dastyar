@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/article_query.dart';
+import 'package:dastyar/core/engine_rules.dart';
 import 'package:dastyar/core/law_index.dart';
 import 'package:dastyar/core/law_ranker.dart';
 import 'package:dastyar/core/law_text.dart';
@@ -41,18 +42,14 @@ class KnowledgeEngine {
   /// صاحبش `LawIndex` است تا موتور فقط بارگذاری و پاسخ‌سازی کند.
   final LawIndex _index = LawIndex();
 
-  // زیر این پوشش، پاسخ با هشدار «مطمئن نیستم» نشان داده می‌شود.
-  static const double _lowCover = 0.4;
-
-  // پرسش‌های «X چیست / کیست / یعنی چه»: مادهٔ تعریف‌کننده باید جلو بیاید.
+  // آستانهٔ پوشش از قرارداد `dev/tools/contracts/engine_rules.json` می‌آید.
+  static const double _lowCover = EngineRules.lowCover;
 
   // الگوهای ازپیش‌کامپایل‌شده برای جلوگیری از ساخت مکرر RegExp
   static final RegExp _punctOnlyRe = RegExp(r'[\p{P}]', unicode: true);
   static final RegExp _articleTitleRe = RegExp(
     r'^(?:ماده|اصل)\s*(?:واحده|\d+(?:\s*مکرر(?:\s*\d{1,2})?)?)$',
   );
-
-  // پارامترهای BM25F: اشباع بسامد، نرمال‌سازی طول، و وزن عنوان / متن / زمینه.
 
   final List<CatalogLaw> catalog = [];
   final Map<String, String> categoryNames = {};
@@ -78,35 +75,13 @@ class KnowledgeEngine {
   Map<String, dynamic> _repliesRaw = const {};
   Object? _lawTopicsRaw;
   EngineWorker? _worker;
-
-  static const List<String> _unloadedPenalTerms = [
-    'سرقت', 'دزدی', 'کلاهبرداری', 'قتل', 'ضرب و جرح', 'خیانت در امانت',
-    'توهین', 'افترا', 'جعل', 'رشوه', 'اختلاس', 'جرایم رایانه', 'هک',
-  ];
-  static const List<String> _penalContextMarkers = [
-    'مجازات', 'دیه', 'قصاص', 'حدود', 'تعزیر', 'جرم',
-  ];
-  static const List<String> _loadedCriminalExceptions = [
-    'چک', 'ورشکست', 'شرکت', 'سهام', 'برات', 'سفته', 'کارگر', 'کارفرما',
-  ];
-  static const List<(String, List<String>)> _anchorGroups = [
-    ('طلاق', ['طلاق', 'خلع', 'مبارات', 'عده']),
-    ('حضانت', ['حضانت', 'طفل']),
-    ('مهریه', ['مهر', 'صداق', 'مهریه']),
-    ('دیه', ['دیه']),
-    ('سربازی', ['سربازی', 'وظیفه عمومی']),
-    ('گمرک', ['گمرک', 'گمرکی', 'ترخیص']),
-    ('گواهینامه', ['گواهینامه', 'رانندگی']),
-    ('خلافی', ['خلافی', 'رانندگی']),
-    ('ویزا', ['ویزا', 'روادید']),
-    ('شنگن', ['شنگن', 'روادید']),
-    ('پناهندگی', ['پناهندگی', 'پناهنده']),
-  ];
+  StartupMetrics? _startup;
 
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
   final List<String> warnings = [];
 
   int get size => _index.chunks.length;
+  StartupMetrics? get startupMetrics => _startup;
 
   /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
   List<Chunk> get chunks => _index.chunks;
@@ -179,6 +154,13 @@ class KnowledgeEngine {
   /// پاسخِ ازپیشساختهٔ worker، یا `null` وقتی worker در دسترس نیست.
   Future<EngineReply?> prepareQuery(String question) =>
       _worker?.query(question) ?? Future<EngineReply?>.value(null);
+
+  /// اجرای یک تابعِ سطحِ بالا یا static درون isolate دائمی موتور، یا `null`.
+  Future<R?> prepareWith<A, R>(
+    R Function(KnowledgeEngine engine, A arg) task,
+    A arg,
+  ) =>
+      _worker?.run<A, R>(task, arg) ?? Future<R?>.value(null);
 
   /// آزادسازی isolate هنگام بستن صفحه.
   void dispose() {

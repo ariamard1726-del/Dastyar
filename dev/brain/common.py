@@ -2,18 +2,19 @@ import json
 import os
 import re
 
+import engine_rules as _ER
 import text_norm_rules as _R
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 NB = 1 << 17
 D = 64
 
-# قاعده‌ها از `dev/tools/contracts/text_norm.json` تولید می‌شوند
-# (`dev/brain/text_norm_rules.py`، تولید با `python3 dev/tools/gen_text_norm.py --write`).
+# قاعده‌ها از `dev/tools/contracts/text_norm.json` و `engine_rules.json` تولید
+# می‌شوند (`dev/brain/{text_norm_rules,engine_rules}.py`).
 # نگاشت و بازه‌ها دیگر دستی نوشته نمی‌شوند.
 _MAP = _R.CHAR_MAP
-_NONWORD = re.compile(
-    r'[^\u0621-\u063A\u0641-\u064A\u067E\u0686\u0698\u06A9\u06AF\u06CCa-z0-9]+')
+_NONWORD = re.compile(_R.NONWORD_PATTERN)
+_OBSOLETE_TRIM = re.compile(_ER.OBSOLETE_TRIM_PATTERN)
 NOTE = re.compile(
     r'^\(\s*(?:ماده|توضیح|نکته|تفسیر|شرح)\b|^با\s+حذف\s+این\s+ماده'
     r'|نیز\s+وجود\s+دارد|مطابق\s+آخرین\s+اصلاحات')
@@ -116,17 +117,21 @@ def feats(text, nmin=3, nmax=5):
 
 
 def is_obsolete(body):
-    n = re.sub(r'\s+', ' ', normalize(body)).strip().lstrip('([ ')
-    if len(n) > 300:
+    n = _OBSOLETE_TRIM.sub('', re.sub(r'\s+', ' ', normalize(body)).strip())
+    if len(n) > _ER.OBSOLETE_MAX_LEN:
         return False
-    return n.startswith(('منسوخ', 'ملغی', 'ملغا', 'حذف شد'))
+    return n.startswith(_ER.OBSOLETE_PREFIXES)
 
 
 def iter_law_files():
     """فهرست (law_id, fallback_title, full_path) را از _meta.json می‌خواند."""
     laws_dir = os.path.join(ROOT, 'assets', 'laws')
     meta_path = os.path.join(laws_dir, '_meta.json')
-    meta = json.load(open(meta_path, encoding='utf-8')) if os.path.isfile(meta_path) else {}
+    if os.path.isfile(meta_path):
+        with open(meta_path, encoding='utf-8') as f:
+            meta = json.load(f)
+    else:
+        meta = {}
     out = []
     for lid, info in sorted(meta.items()):
         if not isinstance(info, dict) or not info.get('path'):

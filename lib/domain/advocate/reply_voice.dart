@@ -1,5 +1,6 @@
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 import 'package:dastyar/domain/advocate/case_file.dart';
 import 'package:dastyar/domain/advocate/phrases.dart';
 import 'package:dastyar/domain/advocate/text_sense.dart';
@@ -71,11 +72,10 @@ List<String> cutText(String body, int budget) {
 }
 
 /// دکمه‌های پاسخ به «ادامه بده».
-const List<String> yesNoChips = ['بله، بگو', 'نه، لازم نیست'];
+List<String> get yesNoChips => advocateTextSeq('voiceYesNo', 2);
 
 /// جای پرسشی که دو بار بی‌جواب مانده است.
-const String askDroppedText =
-    'این پرسش را دو بار پرسیدم و جواب ندادید؛ از آن می‌گذرم. هر وقت خواستید، خودتان بگویید.';
+String get askDroppedText => advocateText('voiceAskDropped');
 
 class ReplyVoice {
   ReplyVoice({

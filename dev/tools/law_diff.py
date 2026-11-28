@@ -22,7 +22,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lawtext import articles_of  # noqa: E402  خوانندهٔ یکتای متنِ قانون
+from lawtext import articles_of, load_meta, to_fa as _fa  # noqa: E402  خوانندهٔ یکتای متنِ قانون
 
 
 def parse_law(text):
@@ -94,8 +94,7 @@ def diff_against_dir(root=ROOT, other='.'):
 
 def count_mismatches(root=ROOT):
     """[(شناسه، شمارِ متادیتا، شمارِ واقعی)] برای هر قانونی که نمی‌خواند."""
-    with open(os.path.join(root, 'assets', 'laws', '_meta.json'), encoding='utf-8') as f:
-        meta = json.load(f)
+    meta = load_meta(root=root)
     bad = []
     for key, law in sorted(meta.items()):
         rel = 'assets/laws/' + str(law.get('path', ''))
@@ -106,13 +105,6 @@ def count_mismatches(root=ROOT):
         if real != law.get('articles'):
             bad.append((key, law.get('articles'), real))
     return bad
-
-
-FA = '۰۱۲۳۴۵۶۷۸۹'
-
-
-def _fa(n):
-    return str(n).translate(str.maketrans('0123456789', FA))
 
 
 def _brief(nums, limit=12):

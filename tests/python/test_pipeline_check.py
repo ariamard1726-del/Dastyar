@@ -22,9 +22,18 @@ class PipelineCheckTests(unittest.TestCase):
         want = [PC.DART_NAMES[s] for s in p['order']]
         self.assertEqual(PC.dart_pipeline_order(), want)
 
-    def test_net_min_matches_dart(self):
+    def test_thresholds_match_dart(self):
         p = PC.load_pipeline()
-        self.assertAlmostEqual(p['thresholds']['netMin'], PC.dart_net_min())
+        th = p['thresholds']
+        self.assertAlmostEqual(th['netMin'], PC.dart_net_min())
+        for json_key, dart_name in PC.TOPIC_THRESHOLD_MAP:
+            self.assertEqual(th[json_key], PC.dart_int_const(dart_name))
+
+    def test_pipeline_check_uses_shared_library(self):
+        with open(os.path.join(ROOT, 'dev', 'tools', 'pipeline_check.py'),
+                  encoding='utf-8') as f:
+            src = f.read()
+        self.assertIn('from library import DartLibrary', src)
 
     def test_reordered_pipeline_fails(self):
         p = PC.load_pipeline()
@@ -47,7 +56,8 @@ class PipelineCheckTests(unittest.TestCase):
 
     def test_pipeline_json_is_declared_asset(self):
         # اگر فایل در APK نباشد، آزمون Dart و کد نمی‌توانند به آن برسند.
-        pubspec = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+        with open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8') as f:
+            pubspec = f.read()
         self.assertIn('assets/pipeline.json', pubspec)
 
     def test_every_order_entry_has_a_note(self):

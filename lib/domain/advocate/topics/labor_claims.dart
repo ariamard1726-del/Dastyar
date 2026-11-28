@@ -2,150 +2,155 @@ part of 'labor.dart';
 
 // ادعاهای حقوقیِ کار و کارفرما: ارکان، شرط و نتیجه.
 
-final Element _laborRel = Element(
-  'بشود نشان داد که آنجا کار می‌کرده‌اید؛ قرارداد شفاهی هم معتبر است [[labor:7]].',
-  (f) {
-    if (f.yes('contract') || f.yes('insured') || f.yes('proof')) return true;
-    if (f.no('contract') && f.no('insured') && f.no('proof')) return false;
-    return null;
-  },
+final Element _laborRel = Element.dsl(
+  topicText('laborClm_0'),
+  const FactTriCases([
+    FactCase(
+      FactAny([FactYes('contract'), FactYes('insured'), FactYes('proof')]),
+      FactConst(true),
+    ),
+    FactCase(
+      FactAll([FactNo('contract'), FactNo('insured'), FactNo('proof')]),
+      FactConst(false),
+    ),
+  ]),
   needs: const ['contract', 'insured', 'proof'],
-  because: (f) => f.yes('contract')
-      ? 'قرارداد کتبی دارید'
-      : (f.yes('insured')
-          ? 'سابقهٔ بیمه دارید'
-          : (f.yes('proof') ? 'شاهد یا مدرکِ کارکردن دارید' : '')),
-  ifNo:
-      'نه قرارداد کتبی دارید، نه سابقهٔ بیمه، نه شاهد یا مدرک؛ اول باید همین را بسازید (همکار، واریز حقوق، پیام‌های کاری، عکس محل کار).',
+  because: const TxCases([
+    TextCase(FactYes('contract'), Tx('laborClm_1')),
+    TextCase(FactYes('insured'), Tx('laborClm_2')),
+    TextCase(FactYes('proof'), Tx('laborClm_3')),
+  ]),
+  ifNo: topicText('laborClm_4'),
 );
 
-/// برگه‌ای امضا نشده باشد که کارفرما آن را «رفتن با میل خود» یا «گرفتنِ همهٔ
-/// پول» جا بزند.
-Element _laborUnsigned(String text, String ifNo) => Element(
-      text,
-      (f) => f.no('signed') ? true : (f.yes('signed') ? false : null),
-      needs: const ['signed'],
-      because: (f) => 'هیچ برگهٔ استعفا یا تسویه‌ای امضا نکرده‌اید',
-      ifNo: ifNo,
-    );
+const FactExpr _laborUnsignedTest = FactTriCases([
+  FactCase(FactNo('signed'), FactConst(true)),
+  FactCase(FactYes('signed'), FactConst(false)),
+]);
 
 /// ادعاهای کارگر، به ترتیب اهمیت. هر کدام فقط وقتی روی میز می‌آید که
 /// واقعیت‌های پرونده آن را پیش کشیده باشد؛ یک ماجرا می‌تواند چند ادعا داشته
 /// باشد (اخراج + حقوق معوق + سنوات + بیمه).
 final List<Claim> laborClaims = [
-  Claim(
-    label: 'اخراج',
-    goal: 'ناموجه شناخته‌شدنِ اخراج',
+  Claim.dsl(
+    label: topicText('laborClaimFiredLabel'),
+    goal: topicText('laborClm_6'),
     cues:
         'برگرد(?:م|ی)? سر کار|برمیگرد(?:م|ی)? سر کار|بازگشت به کار|اخراج(?:م|ش)? (?:[^ ]+ ){0,2}(?:قانونی|غیر ?قانونی|درست|ناموجه|موجه)|حق (?:داشت|داره|دارد|داشته) (?:[^ ]+ ){0,2}اخراج|میتون(?:ه|ست|د) (?:[^ ]+ ){0,2}اخراج|خسارت اخراج',
-    when: (f) => laborFired(f),
+    when: laborFiredRule,
     uses: const ['months', 'salary'],
     elements: [
       _laborRel,
-      _laborUnsigned(
-        'خودتان استعفا نداده و تسویه‌حساب امضا نکرده باشید؛ استعفا خودش راه قانونیِ پایان قرارداد است [[labor:21]].',
-        'برگهٔ استعفا یا تسویه را امضا کرده‌اید و کارفرما همین را سندِ «رفتن با میل خود» می‌کند. راهش این است که در ادارهٔ کار نشان دهید زیر فشار یا بدون گرفتن پول امضا کرده‌اید.',
+      Element.dsl(
+        topicText('laborClm_7'),
+        _laborUnsignedTest,
+        needs: const ['signed'],
+        because: const Tx('laborClm_5'),
+        ifNo: topicText('laborClm_8'),
       ),
-      Element(
-        'قرارداد با تمام‌شدن مدتش خودبه‌خود پایان نیافته باشد [[labor:21]].',
-        (f) {
-          if (f.no('contract')) return true;
-          if (f.no('expired')) return true;
-          if (f.yes('expired')) return false;
-          return null;
-        },
+      Element.dsl(
+        topicText('laborClm_9'),
+        const FactTriCases([
+          FactCase(
+            FactAny([FactNo('contract'), FactNo('expired')]),
+            FactConst(true),
+          ),
+          FactCase(FactYes('expired'), FactConst(false)),
+        ]),
         needs: const ['contract', 'expired'],
-        because: (f) => f.no('expired')
-            ? 'مدت قرارداد تمام نشده بود'
-            : 'قرارداد مدت‌داری در کار نیست و کارِ مستمرِ بی‌مدت دائمی حساب می‌شود',
-        ifNo:
-            'مدت قرارداد تمام شده و تمدید نشده؛ از نظر قانون این پایان قرارداد است نه اخراج، و بازگشت به کار ندارد. مزایای پایان کار و بقیهٔ طلب‌ها سر جایش است [[labor:24]].',
+        because: const TxCond(
+          FactNo('expired'),
+          Tx('laborClm_10'),
+          Tx('laborClm_11'),
+        ),
+        ifNo: topicText('laborClm_12'),
       ),
-      Element(
-        'کارفرما تشریفات اخراج را طی نکرده باشد: تذکر کتبیِ قبلی و نظر مثبت شورای اسلامی کار یا هیئت تشخیص [[labor:27]].',
-        (f) => f.no('warned') ? true : (f.yes('warned') ? false : null),
+      Element.dsl(
+        topicText('laborClm_13'),
+        const FactTriCases([
+          FactCase(FactNo('warned'), FactConst(true)),
+          FactCase(FactYes('warned'), FactConst(false)),
+        ]),
         needs: const ['warned'],
-        because: (f) => 'هیچ تذکر کتبی‌ای نگرفته‌اید',
-        ifNo:
-            'اخطار کتبی گرفته‌اید و کارفرما روی همین تکیه می‌کند. با این حال اخطار به‌تنهایی کافی نیست؛ او باید قصور شما و نظر مثبت شورای اسلامی کار یا هیئت تشخیص را هم نشان دهد [[labor:27]].',
+        because: const Tx('laborClm_14'),
+        ifNo: topicText('laborClm_15'),
       ),
     ],
-    win: (f) =>
-        'اخراج ناموجه شناخته می‌شود: یا با حقوقِ همهٔ این مدت به کار برمی‌گردید، یا اگر نخواهید برگردید، به ازای هر سال سابقه ۴۵ روز حقوق می‌گیرید [[labor:165]].',
-    counter: (f) =>
-        'می‌گوید «خودش نیامد» یا «کم‌کاری می‌کرد». جواب اولی مدرکی است که نشان دهد راهتان نداده‌اند (پیام، شاهد)؛ جواب دومی این‌که قصور، بدون تذکر کتبیِ قبلی و نظر مرجع قانونی، اخراج را موجه نمی‌کند [[labor:27]].',
+    win: const Tx('laborClm_16'),
+    counter: const Tx('laborClm_17'),
   ),
-  Claim(
-    label: 'حقوق معوق',
-    goal: 'وصول حقوق و مزایای پرداخت‌نشده',
+  Claim.dsl(
+    label: topicText('laborClm_18'),
+    goal: topicText('laborClm_19'),
     cues: 'حقوق[^ ]* (?:[^ ]+ ){0,3}(?:بگیرم|میگیرم|گرفت|وصول|میرسه|میدن)',
-    when: (f) => f.eq('event', 'unpaid') || f.yes('owed'),
+    when: const FactAny([FactEq('event', 'unpaid'), FactYes('owed')]),
     uses: const ['salary'],
     elements: [
       _laborRel,
-      _laborUnsigned(
-        'رسید یا تسویه‌حسابی که بگوید همه‌چیز را گرفته‌اید امضا نکرده باشید.',
-        'برگه‌ای امضا کرده‌اید که کارفرما آن را دلیل پرداخت می‌آورد؛ باید نشان دهید پولی نگرفته‌اید، مثلاً با صورت‌حساب بانکیِ همان ماه‌ها.',
+      Element.dsl(
+        topicText('laborClm_20'),
+        _laborUnsignedTest,
+        needs: const ['signed'],
+        because: const Tx('laborClm_5'),
+        ifNo: topicText('laborClm_21'),
       ),
     ],
-    win: (f) =>
-        'کارفرما باید همهٔ حقوق عقب‌افتاده را بپردازد؛ مزد باید مرتب و در موعد داده شود [[labor:37]].',
-    counter: (f) =>
-        'می‌گوید «تسویه کرده‌ام». نشان‌دادنِ پرداخت با اوست؛ اگر فیش یا رسیدی با امضای شما ندارد، ادعایش پذیرفته نمی‌شود. برای همین هیچ برگهٔ تسویه‌ای را پیش از گرفتن پول امضا نکنید.',
+    win: const Tx('laborClm_22'),
+    counter: const Tx('laborClm_23'),
   ),
-  Claim(
-    label: 'سنوات',
-    goal: 'گرفتن سنوات (مزایای پایان کار)',
+  Claim.dsl(
+    label: topicText('laborClm_24'),
+    goal: topicText('laborClm_25'),
     cues: 'سنوات|مزایای پایان کار',
     uses: const ['salary'],
     elements: [
       _laborRel,
-      Element(
-        'کارتان در آنجا تمام شده باشد؛ سنوات هنگام پایان کار پرداخت می‌شود [[labor:24]].',
-        (f) {
-          if (laborFired(f) || f.no('working')) return true;
-          if (f.yes('working')) return false;
-          return null;
-        },
+      Element.dsl(
+        topicText('laborClm_26'),
+        const FactTriCases([
+          FactCase(
+            FactAny([laborFiredRule, FactNo('working')]),
+            FactConst(true),
+          ),
+          FactCase(FactYes('working'), FactConst(false)),
+        ]),
         needs: const ['working'],
-        because: (f) => 'کارتان آنجا تمام شده',
-        ifNo:
-            'هنوز همان‌جا کار می‌کنید؛ سنوات موقع پایان کار حساب می‌شود و الان قابل‌مطالبه نیست، ولی سابقه‌تان محفوظ است.',
+        because: const Tx('laborClm_27'),
+        ifNo: topicText('laborClm_28'),
       ),
-      Element(
-        'دست‌کم یک سال سابقه داشته باشید [[labor:24]].',
-        (f) {
-          final m = f.n('months');
-          return m == null ? null : m >= 12;
-        },
+      Element.dsl(
+        topicText('laborClm_29'),
+        const FactNumMin('months', 12),
         needs: const ['months'],
-        because: (f) => '${Sense.span(f.n('months') ?? 0)} سابقه دارید',
-        ifNo:
-            'متن قانون سنوات را برای یک سال و بیشتر گفته است؛ دربارهٔ کمتر از یک سال، از ادارهٔ کار بپرسید که به نسبت کارکرد حساب می‌کنند یا نه.',
+        because: const TxConcat([
+          TxNum('months', fmt: NumFmt.span, defaultZero: true),
+          TxRaw(' '),
+          Tx('laborClaimMonthsBecause'),
+        ]),
+        ifNo: topicText('laborClm_30'),
       ),
     ],
-    win: (f) =>
-        'کارفرما باید به ازای هر سال سابقه یک ماه آخرین حقوق به‌عنوان سنوات بدهد [[labor:24]]؛ حتی اگر اخراج موجه شناخته شود [[labor:27]].',
-    counter: (f) =>
-        'می‌گوید «سنوات را هر سال داده‌ام». نشان‌دادنِ پرداخت با اوست؛ بدون رسیدی با امضای شما، ادعایش پذیرفته نمی‌شود.',
+    win: const Tx('laborClm_31'),
+    counter: const Tx('laborClm_32'),
   ),
-  Claim(
-    label: 'بیمهٔ ردنشده',
-    goal: 'الزام کارفرما به پرداخت حق‌بیمهٔ مدت کارکرد',
+  Claim.dsl(
+    label: topicText('laborClm_33'),
+    goal: topicText('laborClm_34'),
     cues: 'بیمه',
-    when: (f) => !f.yes('insured'),
+    when: const FactNot(FactYes('insured')),
     elements: [
       _laborRel,
-      Element(
-        'برای مدتی که کار کرده‌اید حق‌بیمه رد نشده باشد [[labor:148]].',
-        (f) => f.no('insured') || f.eq('event', 'insurance') ? true : null,
+      Element.dsl(
+        topicText('laborClm_35'),
+        const FactTriIf(
+          FactAny([FactNo('insured'), FactEq('event', 'insurance')]),
+          true,
+        ),
         needs: const ['insured'],
-        because: (f) => 'بیمه‌تان را رد نکرده',
+        because: const Tx('laborClm_36'),
       ),
     ],
-    win: (f) =>
-        'کارفرما به پرداخت حق‌بیمهٔ همهٔ مدت کارکردتان ملزم می‌شود؛ بیمه‌کردن کارگر تکلیف اوست [[labor:148]] و مسئول پرداخت حق‌بیمه هم خودش است [[social_security:36]].',
-    counter: (f) =>
-        'می‌گوید «خودش نخواست بیمه شود». این تکلیف را قانون روی دوش کارفرما گذاشته [[labor:148]] و با حرف یا توافق برداشته نمی‌شود.',
+    win: const Tx('laborClm_37'),
+    counter: const Tx('laborClm_38'),
   ),
 ];

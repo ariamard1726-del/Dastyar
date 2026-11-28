@@ -4,9 +4,9 @@ part of 'engine.dart';
 ///
 /// پیشتر تنها ساختِ ایندکس در isolate بود و پردازشِ هر پیام (`engine.query`)
 /// روی رشتهٔ رابط کاربری اجرا میشد. [EngineWorker] ایندکس را یک بار در همان
-/// isolate میسازد و نگه میدارد و پرسشها را همانجا پاسخ میدهد؛ رابط کاربری فقط
-/// [EngineReply] نهایی را میگیرد. API قدیمی [KnowledgeEngine.query] دستنخورده
-/// مانده است تا صدها آزمون و مسیرهای داخلی وکیل تغییر نکنند.
+/// isolate میسازد و نگه میدارد و پرسشها و تطبیق واژهها را همانجا پاسخ میدهد؛
+/// رابط کاربری فقط نتیجهٔ نهایی را میگیرد. API قدیمی [KnowledgeEngine.query]
+/// دستنخورده مانده است تا صدها آزمون و مسیرهای داخلی وکیل تغییر نکنند.
 class EngineWorker {
   EngineWorker._(this._isolate, this._inbox, this._send, this.built);
 
@@ -20,7 +20,7 @@ class EngineWorker {
   /// تا متن ماده و APIهای همگام همچنان در دسترس بمانند.
   final IndexBuild built;
 
-  final Map<int, Completer<EngineReply?>> _waiting = {};
+  final Map<int, Completer<Object?>> _waiting = {};
   int _next = 0;
   bool _closed = false;
 
@@ -60,20 +60,38 @@ class EngineWorker {
   Future<EngineReply?> query(String question) {
     if (_closed) return Future.value(null);
     final id = _next++;
-    final done = Completer<EngineReply?>();
+    final done = Completer<Object?>();
     _waiting[id] = done;
     _send.send([id, 'q', question]);
-    return done.future.timeout(patience, onTimeout: () {
-      _waiting.remove(id);
-      return null;
-    });
+    return done.future
+        .timeout(patience, onTimeout: () {
+          _waiting.remove(id);
+          return null;
+        })
+        .then((v) => v is EngineReply ? v : null);
+  }
+
+  /// اجرای یک تابعِ سطحِ بالا یا static درون همان isolate دائمی موتور.
+  /// `null` یعنی خطا یا پایان مهلت؛ فراخواننده به مسیر همگام برمیگردد.
+  Future<R?> run<A, R>(R Function(KnowledgeEngine engine, A arg) fn, A arg) {
+    if (_closed) return Future<R?>.value(null);
+    final id = _next++;
+    final done = Completer<Object?>();
+    _waiting[id] = done;
+    _send.send([id, 'fn', fn, arg]);
+    return done.future
+        .timeout(patience, onTimeout: () {
+          _waiting.remove(id);
+          return null;
+        })
+        .then((v) => v is R ? v : null);
   }
 
   void _onMessage(Object? m) {
     if (m is! List || m.length < 2) return;
     final done = _waiting.remove(m.first);
     if (done == null || done.isCompleted) return;
-    done.complete(m[1] is EngineReply ? m[1] as EngineReply : null);
+    done.complete(m[1]);
   }
 
   void dispose() {
@@ -102,11 +120,20 @@ class EngineWorker {
     home.send([inbox.sendPort]);
     home.send(built);
     inbox.listen((m) {
-      if (m is! List || m.length < 3 || m[1] != 'q') return;
+      if (m is! List || m.length < 3) return;
+      final id = m[0];
       try {
-        home.send([m[0], engine.query(m[2] as String)]);
+        switch (m[1]) {
+          case 'q':
+            home.send([id, engine.query(m[2] as String)]);
+          case 'fn':
+            final fn = m[2] as Function;
+            home.send([id, Function.apply(fn, [engine, m[3]])]);
+          default:
+            return;
+        }
       } catch (_) {
-        home.send([m[0], null]);
+        home.send([id, null]);
       }
     });
   }

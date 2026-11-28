@@ -17,9 +17,10 @@ sys.path.insert(0, os.path.join(ROOT, 'dev', 'tools'))
 
 import gen_law_terms  # noqa: E402
 import law_terms_rules  # noqa: E402
+from library import read  # noqa: E402
 
-DART = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms.dart')
-DART_RULES = os.path.join(ROOT, 'lib', 'domain', 'advocate', 'law_terms_rules.dart')
+DART_REL = 'lib/domain/advocate/law_terms.dart'
+DART_RULES_REL = 'lib/domain/advocate/law_terms_rules.dart'
 CONTRACT = os.path.join(ROOT, 'dev', 'tools', 'contracts', 'law_terms.json')
 
 
@@ -33,14 +34,17 @@ def _contract():
 
 
 def _dart_generic():
-    s = _read(DART_RULES)
+    s = read(ROOT, DART_RULES_REL)
     start = s.index('static const Set<String> generic = <String>{')
     end = s.index('};', start)
     return set(re.findall(r"'([^']+)'", s[start:end]))
 
 
 def _dart_number(name):
-    m = re.search(r'static const (?:int|double) %s = ([0-9.]+);' % name, _read(DART_RULES))
+    m = re.search(
+        r'static const (?:int|double) %s = ([0-9.]+);' % name,
+        read(ROOT, DART_RULES_REL),
+    )
     return float(m.group(1)) if m else None
 
 
@@ -72,19 +76,48 @@ class GeneratedTests(unittest.TestCase):
         self.assertEqual(_dart_number('maxSpan'), th['maxSpan'])
         self.assertEqual(_dart_number('phraseMinIdf'), th['phraseMinIdf'])
 
+    def test_ranking_and_source_match(self):
+        c = _contract()
+        rk = c['ranking']
+        self.assertEqual(law_terms_rules.DEFAULT_PRIORITY, rk['defaultPriority'])
+        self.assertEqual(law_terms_rules.MISSING_SPAN, rk['missingSpan'])
+        self.assertEqual(law_terms_rules.COVER_DIGITS, rk['coverDigits'])
+        self.assertEqual(law_terms_rules.RANK_COVER_DIGITS, rk['rankCoverDigits'])
+        self.assertEqual(law_terms_rules.RANK_DENSITY_DIGITS, rk['rankDensityDigits'])
+        self.assertEqual(law_terms_rules.MIN_PHRASE_WORDS, rk['minPhraseWords'])
+        self.assertEqual(law_terms_rules.MIN_RARE_HITS, rk['minRareHits'])
+        self.assertEqual(law_terms_rules.GENERAL_SOURCE, c['generalSource'])
+        self.assertEqual(_dart_number('defaultPriority'), rk['defaultPriority'])
+        self.assertEqual(_dart_number('missingSpan'), rk['missingSpan'])
+        self.assertEqual(_dart_number('coverDigits'), rk['coverDigits'])
+        self.assertEqual(_dart_number('rankCoverDigits'), rk['rankCoverDigits'])
+        self.assertEqual(_dart_number('rankDensityDigits'), rk['rankDensityDigits'])
+        self.assertEqual(_dart_number('minPhraseWords'), rk['minPhraseWords'])
+        self.assertEqual(_dart_number('minRareHits'), rk['minRareHits'])
+        self.assertIn(
+            "static const String generalSource = '%s';" % c['generalSource'],
+            read(ROOT, DART_RULES_REL),
+        )
+
     def test_alias_match(self):
         alias = _contract()['alias']
         self.assertEqual(law_terms_rules.ALIAS, alias)
-        dart = _read(DART_RULES)
+        dart = read(ROOT, DART_RULES_REL)
         for k, v in alias.items():
             self.assertIn("'%s': '%s'" % (k, v), dart,
                           'نگاشت %s→%s در فایل تولیدشدهٔ دارت نیست' % (k, v))
 
     def test_no_second_hand_written_list(self):
-        # اگر کسی فهرست را دستی به law_terms.dart برگرداند، این آزمون می‌گیرد.
-        dart = _read(DART)
+        # اگر کسی فهرست را دستی به law_terms.dart یا law_terms.py برگرداند، این آزمون می‌گیرد.
+        dart = read(ROOT, DART_REL)
         self.assertNotIn('static const Set<String> generic = {', dart)
         self.assertNotIn('static const Map<String, String> alias = {', dart)
+        self.assertNotIn('1000000', dart)
+        self.assertNotIn("'دانش عمومی'", dart)
+
+        py = read(ROOT, 'dev/tools/law_terms.py')
+        self.assertNotIn("'دانش عمومی'", py)
+        self.assertNotIn('return best if best is not None else 1000000', py)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
+import 'package:dastyar/domain/advocate/dialogue_sections.dart';
 
 /// ایمنی، پیش از هر موضوع و مستقل از امتیاز تشخیص موضوع.
 ///
@@ -40,13 +41,27 @@ void main() {
     expect(r.chips, contains('الان امن است'));
   });
 
-  test('پیام ایمنی در یک پرونده تکرار نمی‌شود', () {
+  test('گزارش تازهٔ خشونت حتی در همان پرونده هشدار میگیرد', () {
     final a = fresh();
     final first = a.respond('شوهرم منو زد');
     expect(first.source, AnswerSource.safety);
     final second = a.respond('شوهرم دوباره منو زد');
-    // بار دوم مسیر عادی ادامه می‌یابد، ولی ایمنی دوباره تکرار نمی‌شود.
-    expect(second.source, isNot(AnswerSource.safety));
+    expect(second.source, AnswerSource.safety,
+        reason: 'خشونت تازه نباید بهخاطر یک بار هشدار دادن بیپاسخ بماند');
+  });
+
+  test('تکرارِ دقیق همان متن، هشدار را دوباره نمیکند', () {
+    final a = fresh();
+    expect(a.respond('شوهرم منو زد').source, AnswerSource.safety);
+    expect(a.respond('شوهرم منو زد').source, isNot(AnswerSource.safety));
+  });
+
+  test('حرفِ خودآسیبی پیش از بحث حقوقی، کمک فوری میگیرد', () {
+    final a = fresh();
+    final r = a.respond('دیگه تحمل ندارم، خودمو میکشم');
+    expect(r.source, AnswerSource.safety, reason: r.text);
+    expect(r.source, AnswerSource.safety);
+    expect(r.chips, contains('الان امن هستم'));
   });
 
   test('گفتن دوبارهٔ «در خطر هستم» هم پاسخ فوری می‌گیرد', () {
@@ -69,5 +84,27 @@ void main() {
     final a = fresh();
     final r = a.respond('کارفرما حقوقم را نداده');
     expect(r.source, isNot(AnswerSource.safety));
+  });
+
+  test('تشدید شدت هشدار و گذار «الان امن است» روی ماشین حالت ایمنی', () {
+    final a = fresh();
+    final first = a.respond('شوهرم منو زد و می‌خوام طلاق بگیرم');
+    expect(first.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.elevated);
+    expect(a.dialog.acknowledgedSafe, isFalse);
+
+    final escalated = a.respond('الان در خطر هستم');
+    expect(escalated.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.critical);
+
+    final safeNow = a.respond('الان امن است');
+    expect(safeNow.source, AnswerSource.safety);
+    expect(a.dialog.safetySeverity, SafetySeverity.none);
+    expect(a.dialog.acknowledgedSafe, isTrue);
+    expect(safeNow.ask, isNotEmpty);
+
+    // تکرار «الان امن است» پس از تأیید امنیت دیگر حلقه نمی‌سازد.
+    final secondSafe = a.respond('الان امن است');
+    expect(secondSafe.source, isNot(AnswerSource.safety));
   });
 }
