@@ -29,6 +29,22 @@ void main() {
     expect(best, 'rent');
   });
 
+  test('فروشنده‌ای که ثمن را نگرفته، موضوع طلب است نه مصرف‌کننده', () {
+    final n = Sense.norm(
+        'ماشینم را فروخته ام ولی خریدار پولش را کامل نداده است');
+    var best = '';
+    var bestScore = -1;
+    for (final t in allTopics) {
+      final s = TopicScore.ignoringGate(t, n);
+      if (s > bestScore) {
+        best = t.id;
+        bestScore = s;
+      }
+    }
+    expect(best, 'debt');
+    expect(bestScore, greaterThanOrEqualTo(3));
+  });
+
   test('پرسش بعدی، بی‌نیاز از وکیل', () {
     var asked = 0;
     for (final t in allTopics) {
