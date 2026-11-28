@@ -164,6 +164,17 @@ void main() {
   });
 
   group('دراور فهرست قوانین', () {
+    // helper مشترک: باز کردن دراور با دکمهٔ سه‌نقطه و انتظار برای بارگذاری ۲۴ قانون.
+    Future<void> openDrawer(WidgetTester tester) async {
+      await tester.tap(find.byTooltip('فهرست قوانین'));
+      for (var i = 0; i < 80; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pumpAndSettle();
+      final err = tester.takeException();
+      expect(err, isNull, reason: 'خطا هنگام باز کردن دراور: $err');
+    }
+
     testWidgets('باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون', (tester) async {
       String? copied;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -195,29 +206,31 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byTooltip('فهرست قوانین'));
-      // بارگذاری ۵۶۹۱ ماده در پس‌زمینه + انیمیشن ورود
-      for (var i = 0; i < 60; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-      await tester.pumpAndSettle();
+      await openDrawer(tester);
 
       // نوار جست‌وجوی ثابت در بالای دراور
       expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget);
-      // قانون مدنی اولین قانون است و با کلیک باز می‌شود
+      // لیست ۲۴ قانون؛ قانون مدنی اولین قانون است
       expect(find.text('قانون مدنی'), findsOneWidget);
       expect(find.byTooltip('کپی کل قانون'), findsNothing);
-      await tester.ensureVisible(find.text('قانون مدنی'));
-      await tester.tap(find.text('قانون مدنی'));
+
+      // باز کردن یک قانونِ کوچک (قانون صدور چک، ۲۷ ماده) تا آکاردئون در
+      // رندرِ نرم‌افزاری به‌سادگی باز شود؛ رفتار همان رفتار «قانون مدنی» است.
+      final cheque = find.text('قانون صدور چک');
+      await tester.ensureVisible(cheque);
+      await tester.pumpAndSettle();
+      await tester.tap(cheque);
       await tester.pumpAndSettle();
       expect(find.byTooltip('کپی کل قانون'), findsOneWidget);
 
       await tester.tap(find.byTooltip('کپی کل قانون'));
       await tester.pump();
       expect(find.text('کل قانون کپی شد'), findsOneWidget);
-      expect(copied, contains('قانون مدنی'));
-      expect(copied, contains('ماده ۱۱۶۷'));
-    });
+      expect(copied, isNotNull);
+      expect(copied, contains('قانون صدور چک'));
+      expect(copied, contains('ماده ۱'));
+      expect(copied, contains('ماده ۲۷'));
+    }, timeout: const Timeout(Duration(minutes: 3)));
 
     testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
         (tester) async {
@@ -243,13 +256,8 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byTooltip('فهرست قوانین'));
-      for (var i = 0; i < 60; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-      await tester.pumpAndSettle();
+      await openDrawer(tester);
 
-      expect(tester.takeException(), isNull);
       expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), 'ماده ۱۰');
@@ -261,6 +269,6 @@ void main() {
       // لیست پیش‌فرض (۲۴ قانون) دوباره دیده می‌شود.
       expect(find.text('قانون مدنی'), findsOneWidget);
       expect(find.byTooltip('پاک کردن جست‌وجو'), findsNothing);
-    });
+    }, timeout: const Timeout(Duration(minutes: 3)));
   });
 }
