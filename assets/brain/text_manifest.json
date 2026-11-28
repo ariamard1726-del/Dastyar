@@ -38,8 +38,8 @@
       "lines": 253
     },
     "assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_madani.txt": {
-      "sha256": "4af88c9c7027ea55e8f82af5762bc161aa9179f409abd27591e54a10932c9230",
-      "lines": 4333
+      "sha256": "c51ccfb950879d0c87cce32e42c6a1e4bf4ee3ebea96115899c1895f54618154",
+      "lines": 4335
     },
     "assets/laws/Hoghough_e_Khosousi/Hoghough_e_Madani/ghanoun_e_masouliyat_e_madani.txt": {
       "sha256": "48e28373857be0c9aa6eaca6c9e1ca99e1bc040b50d745efba6d03453ba0ac12",
@@ -114,8 +114,8 @@
       "lines": 260
     },
     "assets/laws/_meta.json": {
-      "sha256": "37286169b446d255e26d289081498cea0678d7d5c0f1f9b8d95e893fc39560ea",
-      "lines": 283
+      "sha256": "1ff226f3f65bf67c1569ae168bf45f748b2022c82d4dfdb008c0f42c4eb8418c",
+      "lines": 284
     },
     "assets/qa/lease_qa.json": {
       "sha256": "25c9d3e79dd2e476a6c7bcd3af9c07b924b05e5ebdb7f46ba5e9fea38eca6cce",
