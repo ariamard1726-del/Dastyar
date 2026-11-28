@@ -11,7 +11,14 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'dev', 'brain'))
-from common import normalize  # noqa: E402
+from common import (  # noqa: E402
+    collapse,
+    is_obsolete as obsolete,
+    iter_law_files,
+    normalize,
+    phrase,
+    tok,
+)
 import engine_rules as _ER  # noqa: E402
 import law_terms_rules as _LR  # noqa: E402
 import text_norm_rules as _TR  # noqa: E402
@@ -32,35 +39,6 @@ STEM_MIN_STEM = _TR.STEM_MIN_STEM
 K1, B, WT, WB, WC = _ER.BM25_K1, _ER.BM25_B, _ER.BM25_WT, _ER.BM25_WB, _ER.BM25_WC
 
 
-def collapse(s):
-    return re.sub(r'\s+', ' ', s).strip()
-
-
-def tok(s):
-    out = []
-    for w in NONWORD.sub(' ', normalize(s)).split(' '):
-        if not w or w in STOP:
-            continue
-        for suf in SUF:
-            if len(w) - len(suf) >= STEM_MIN_STEM and w.endswith(suf):
-                w = w[:-len(suf)]
-                break
-        out.append(w)
-    return out
-
-
-def phrase(s):
-    return collapse(NONWORD.sub(' ', normalize(s)))
-
-
-def obsolete(body):
-    n = collapse(normalize(body))
-    if len(n) > _ER.OBSOLETE_MAX_LEN:
-        return False
-    n = OBSOLETE_TRIM_RE.sub('', n)
-    return n.startswith(_ER.OBSOLETE_PREFIXES)
-
-
 def _wanted_article(m):
     kind = 'اصل' if m.group(1) == 'اصل' else 'ماده'
     if m.group(2):
@@ -78,12 +56,6 @@ class Engine:
         with open(os.path.join(assets_dir, 'laws_catalog.json'), encoding='utf-8') as f:
             cat = json.load(f)
         self.catalog = cat.get('laws', [])
-        meta_path = os.path.join(assets_dir, 'laws', '_meta.json')
-        if os.path.isfile(meta_path):
-            with open(meta_path, encoding='utf-8') as f:
-                meta = json.load(f)
-        else:
-            meta = {}
 
         k_path = os.path.join(assets_dir, 'knowledge.txt')
         if os.path.isfile(k_path):
@@ -91,15 +63,10 @@ class Engine:
                 text = f.read().replace('\r', '')
             self.parse(text, _LR.GENERAL_SOURCE, 'knowledge')
 
-        for lid, info in meta.items():
-            if not isinstance(info, dict) or not info.get('path'):
-                continue
-            p = os.path.join(assets_dir, 'laws', info['path'])
-            if os.path.isfile(p):
-                with open(p, encoding='utf-8') as f:
-                    text = f.read().replace('\r', '')
-                fallback = str(info.get('title', '')).strip()
-                self.parse(text, fallback, lid)
+        for lid, fallback, p in iter_law_files(preserve_order=True):
+            with open(p, encoding='utf-8') as f:
+                text = f.read().replace('\r', '')
+            self.parse(text, fallback, lid)
 
         self.syn = []
         with open(os.path.join(assets_dir, 'synonyms.txt'), encoding='utf-8') as f:
@@ -447,9 +414,10 @@ if __name__ == '__main__':
         'eval_extra.txt': (0.70, 0.90, 0.78),
         'eval_blind.txt': (0.55, 0.80, 0.65),
         'eval_all_laws.txt': (0.75, 0.90, 0.80),
+        'eval_feedback.txt': (0.45, 0.78, 0.60),
     }
     failed = False
-    for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_all_laws.txt'):
+    for f in ('eval.txt', 'eval_extra.txt', 'eval_blind.txt', 'eval_all_laws.txt', 'eval_feedback.txt'):
         p = os.path.join(ROOT, 'eval', f)
         if os.path.exists(p):
             r1, r5, mrr = run(e, p, verbose)

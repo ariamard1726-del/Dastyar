@@ -92,6 +92,28 @@ def spaced(s, variant='tools'):
     return ' ' + t + ' ' if rule['pad'] else t
 
 
+def collapse(s):
+    return re.sub(r'\s+', ' ', s).strip()
+
+
+def phrase(s):
+    return collapse(_NONWORD.sub(' ', normalize(s)))
+
+
+def tok(s):
+    """واژه‌بندی و ریشه‌یابی سبکِ ایندکس؛ آینهٔ `PersianText.tokenizeIndex` در دارت."""
+    out = []
+    for w in _NONWORD.sub(' ', normalize(s)).split(' '):
+        if not w or w in _R.STOP:
+            continue
+        for suf in _R.SUFFIXES_INDEX:
+            if len(w) - len(suf) >= _R.STEM_MIN_STEM and w.endswith(suf):
+                w = w[:-len(suf)]
+                break
+        out.append(w)
+    return out
+
+
 def words(s):
     return [w for w in _NONWORD.sub(' ', normalize(s)).split(' ') if w]
 
@@ -123,7 +145,7 @@ def is_obsolete(body):
     return n.startswith(_ER.OBSOLETE_PREFIXES)
 
 
-def iter_law_files():
+def iter_law_files(preserve_order=False):
     """فهرست (law_id, fallback_title, full_path) را از _meta.json می‌خواند."""
     laws_dir = os.path.join(ROOT, 'assets', 'laws')
     meta_path = os.path.join(laws_dir, '_meta.json')
@@ -132,8 +154,9 @@ def iter_law_files():
             meta = json.load(f)
     else:
         meta = {}
+    items = meta.items() if preserve_order else sorted(meta.items())
     out = []
-    for lid, info in sorted(meta.items()):
+    for lid, info in items:
         if not isinstance(info, dict) or not info.get('path'):
             continue
         full = os.path.join(laws_dir, info['path'])

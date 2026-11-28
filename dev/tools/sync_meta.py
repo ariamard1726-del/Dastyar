@@ -7,7 +7,7 @@
   - assets/data_info.json   → lawsUpdated = آخرین تاریخ دریافت متن در _meta.
 
 اجرا:
-  python3 dev/tools/sync_meta.py           # فقط بررسی تازگی (خروج ۱ اگر مشتق‌ها کهنه‌اند)
+  python3 dev/tools/sync_meta.py --check   # فقط بررسی تازگی (خروج ۱ اگر مشتق‌ها کهنه‌اند)
   python3 dev/tools/sync_meta.py --write   # بازنویسی مشتق‌ها از _meta.json
 """
 import json
@@ -64,7 +64,8 @@ def build():
     return dump(catalog), dump(info)
 
 
-def main():
+def main(argv=None):
+    args = sys.argv[1:] if argv is None else list(argv)
     want_catalog, want_info = build()
     have_catalog, have_info = load(CATALOG), load(INFO)
     stale = []
@@ -75,7 +76,7 @@ def main():
     if not stale:
         print('sync_meta: مشتق‌ها تازه‌اند (کاتالوگ و data_info هم‌راستا با _meta.json).')
         return 0
-    if '--write' not in sys.argv:
+    if '--write' not in args:
         print('خطا: %s از _meta.json مشتق نشده (کهنه است). اجرا: python3 dev/tools/sync_meta.py --write'
               % ' و '.join(stale))
         return 1

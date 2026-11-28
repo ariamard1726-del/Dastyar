@@ -548,21 +548,20 @@
    "unknown": []
   },
   {
-   "accepted": false,
-   "cover": 0.609,
-   "law": "civil",
+   "accepted": true,
+   "cover": 1.0,
+   "law": "registration",
    "matched": [
     "بیع",
-    "شرط"
-   ],
-   "missing": [
+    "شرط",
     "رهن"
    ],
+   "missing": [],
    "phrases": [
-    "بیع شرط"
+    "بیع شرط رهن"
    ],
    "q": "بیع شرط رهن",
-   "title": "ماده 463",
+   "title": "ماده 34",
    "unknown": []
   },
   {
@@ -874,21 +873,20 @@
    "unknown": []
   },
   {
-   "accepted": false,
+   "accepted": true,
    "cover": 1.0,
    "law": "civil",
    "matched": [
+    "قولنامه",
     "عادی"
    ],
-   "missing": [
-    "قولنامه"
+   "missing": [],
+   "phrases": [
+    "قولنامه عادی"
    ],
-   "phrases": [],
    "q": "قولنامه عادی",
-   "title": "ماده 1286",
-   "unknown": [
-    "قولنامه"
-   ]
+   "title": "ماده 1291",
+   "unknown": []
   },
   {
    "accepted": true,
@@ -923,18 +921,20 @@
    "unknown": []
   },
   {
-   "accepted": false,
-   "cover": 0.458,
-   "law": "registration",
+   "accepted": true,
+   "cover": 1.0,
+   "law": "penal_taazirat",
    "matched": [
+    "خیانت",
+    "در",
     "امانت"
    ],
-   "missing": [
-    "خیانت"
+   "missing": [],
+   "phrases": [
+    "خیانت در امانت"
    ],
-   "phrases": [],
    "q": "خیانت در امانت",
-   "title": "ماده 78",
+   "title": "ماده 674",
    "unknown": []
   },
   {
@@ -1086,6 +1086,63 @@
    ],
    "q": "سرقفلی",
    "title": "ماده 6",
+   "unknown": []
+  },
+  {
+   "accepted": false,
+   "cover": 1.0,
+   "law": "civil",
+   "matched": [
+    "نزدیک",
+    "زمین"
+   ],
+   "missing": [
+    "ستاره"
+   ],
+   "phrases": [],
+   "q": "نزدیک‌ترین ستاره به زمین",
+   "title": "ماده 156",
+   "unknown": [
+    "ستاره"
+   ]
+  },
+  {
+   "accepted": false,
+   "cover": 0.667,
+   "law": "criminal_procedure",
+   "matched": [
+    "نرم",
+    "افزار"
+   ],
+   "missing": [
+    "ویرایش",
+    "عکس"
+   ],
+   "phrases": [
+    "نرم افزار"
+   ],
+   "q": "بهترین نرم‌افزار ویرایش عکس",
+   "title": "ماده 681",
+   "unknown": [
+    "ویرایش"
+   ]
+  },
+  {
+   "accepted": false,
+   "cover": 0.618,
+   "law": "penal",
+   "matched": [
+    "اندازه",
+    "گیری"
+   ],
+   "missing": [
+    "مجموعه"
+   ],
+   "phrases": [
+    "اندازه گیری"
+   ],
+   "q": "این مجموعه اندازه‌گیری",
+   "title": "ماده 441",
    "unknown": []
   }
  ],

@@ -21,8 +21,8 @@
       "shared": [
         "dev/brain/parity_expected.json"
       ],
-      "note": "ضرایب BM25F، الگوهای ماده/منسوخ/تعریف، نام قانون، پایش حوزه‌های خارج از پوشش و عمق تضادها از dev/tools/contracts/engine_rules.json و واژه‌بندی از text_norm.json تولید می‌شوند؛ منطق اجراکننده و استاندارد طلایی (dev/tools/parity.py --write) هنوز دو جاست.",
-      "fix": "ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون)"
+      "note": "ضرایب BM25F، الگوهای ماده/منسوخ/تعریف، نام قانون، پایش حوزه‌های خارج از پوشش و عمق تضادها از dev/tools/contracts/engine_rules.json و واژه‌بندی از text_norm.json تولید می‌شوند و توابع کمکی eval_py.py به dev/brain/common.py یکتاسازی شدند؛ علاوه بر آینهٔ پایتون، اجراگر واقعی Dart (test/core/dart_eval_suite_test.dart + dev/tools/dart_eval.py) نیز مستقیماً در CI موتور را ارزیابی می‌کند.",
+      "fix": "ارزیابی مستقیم موتور اپ در CI فعال شد؛ حذف آینهٔ پایتون پس از استخراج کامل گزارش‌های مقایسه"
     },
     {
       "id": "topic_flow",

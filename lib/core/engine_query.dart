@@ -141,15 +141,17 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
           bestHit = h;
         }
       }
-      if (bestCov < KnowledgeEngine._lowCover) {
+      // بدون برتریِ محسوس، رتبهٔ نخست پاسخ می‌دهد و کفِ پوشش روی همان مادهٔ انتخاب‌شده سنجیده می‌شود.
+      final keepFirst = bestCov < topCov + EngineRules.coverageMargin;
+      if (keepFirst) bestHit = top4.first;
+      final chosenCov = keepFirst ? topCov : bestCov;
+      if (chosenCov < KnowledgeEngine._lowCover) {
         return EngineReply(
           text: _text.notFound(),
           contextHits: ctx,
           alternatives: alts,
         );
       }
-      // بدون برتریِ محسوس، رتبهٔ نخست پاسخ می‌دهد.
-      if (bestCov < topCov + EngineRules.coverageMargin) bestHit = top4.first;
     }
 
     if (art == null && _hitsUnloadedDomain(n, mentioned, bestHit.chunk)) {
@@ -183,6 +185,7 @@ bool _asksLawList(String n) => _mention.asksLawList(n);
 
     return EngineReply(
       text: res,
+      answered: true,
       contextHits: ctx,
       alternatives: alts,
       conflictChains: conflictChainsFor(topChunk),

@@ -25,7 +25,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          (python dev/tools/check.py all && python dev/tools/doctor.py && python dev/tools/eval_py.py --check && python dev/tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
+          (python dev/tools/check.py all && python dev/tools/sync_meta.py --check && python dev/tools/doctor.py && python dev/tools/eval_py.py --check && python dev/tools/eval_none.py --check) 2>&1 | tee "$RUNNER_TEMP/data_full.txt"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
@@ -51,6 +51,10 @@ jobs:
         id: startup
         if: steps.ft.outcome == 'success'
         run: python dev/tools/startup_gate.py reports/startup.txt --max-load-ms 15000 --max-worker-ms 15000 --max-query-ms 5000
+      - name: Dart eval gate
+        id: dart_eval
+        if: steps.ft.outcome == 'success'
+        run: python dev/tools/dart_eval.py --report-only --check
       # نام آزمون‌های شکست‌خورده باید در آنوتیشنِ همان اجرا دیده شود؛ خواندن
       # فایل لاگ از گوشی/محیط ابری همیشه ممکن نیست و «۲۵ آزمون شکست خورد»
       # بدون نام، عیب‌یابی را به حدس تبدیل می‌کند.
@@ -94,6 +98,10 @@ jobs:
             echo "--- startup ---" >> reports/last_test.txt
             cat reports/startup.txt >> reports/last_test.txt
           fi
+          if [ -f reports/dart_eval.txt ]; then
+            echo "--- dart_eval ---" >> reports/last_test.txt
+            cat reports/dart_eval.txt >> reports/last_test.txt
+          fi
       - name: Near-miss report
         if: always()
         continue-on-error: true
@@ -111,6 +119,7 @@ jobs:
             reports/startup.txt
             reports/near_miss.txt
             reports/coverage.txt
+            reports/dart_eval.txt
       - name: Fail if anything failed
         if: steps.data.outcome == 'failure' || steps.analyze.outcome == 'failure' || steps.ft.outcome == 'failure'
         run: exit 1
@@ -147,7 +156,7 @@ jobs:
             echo "CI: test/lab/scenarios success" >> reports/last_test.txt
           fi
           git add reports/near_miss.txt reports/last_test.txt 2>/dev/null || true
-          git add reports/understanding.txt reports/noql_dart_speed.txt reports/startup.txt reports/coverage.txt 2>/dev/null || true
+          git add reports/understanding.txt reports/noql_dart_speed.txt reports/startup.txt reports/coverage.txt reports/dart_eval.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "گزارش خودکار تست [skip ci]"
           # هنگام تداخل پوش هم‌زمان با Lawyer Lab / alt-bench چند بار rebase+push می‌شود،
           # ولی شکست نهایی پوش همچنان خطا می‌دهد تا بی‌صدا رد نشود.

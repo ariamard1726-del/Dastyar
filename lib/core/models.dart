@@ -45,12 +45,14 @@ class RankResult {
 
 class EngineReply {
   final String text;
+  final bool answered;
   final List<Hit> contextHits;
   final List<String> alternatives;
   final List<String> conflictChains;
 
   const EngineReply({
     required this.text,
+    this.answered = false,
     this.contextHits = const [],
     this.alternatives = const [],
     this.conflictChains = const [],
