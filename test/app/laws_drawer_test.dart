@@ -172,7 +172,7 @@ void main() {
       }
       await tester.pumpAndSettle();
       final err = tester.takeException();
-      expect(err, isNull, reason: 'خطا هنگام باز کردن دراور: $err');
+      expect(err, isNull, reason: 'Error: DRW-open exception: $err');
     }
 
     testWidgets('باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون', (tester) async {
@@ -207,29 +207,32 @@ void main() {
       );
 
       await openDrawer(tester);
+      expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget,
+          reason: 'Error: DRW-light placeholder missing');
+      expect(find.text('قانون مدنی'), findsOneWidget,
+          reason: 'Error: DRW-light civil law not listed');
 
-      // نوار جست‌وجوی ثابت در بالای دراور
-      expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget);
-      // لیست ۲۴ قانون؛ قانون مدنی اولین قانون است
-      expect(find.text('قانون مدنی'), findsOneWidget);
-      expect(find.byTooltip('کپی کل قانون'), findsNothing);
-
-      // باز کردن یک قانونِ کوچک (قانون صدور چک، ۲۷ ماده) تا آکاردئون در
-      // رندرِ نرم‌افزاری به‌سادگی باز شود؛ رفتار همان رفتار «قانون مدنی» است.
       final cheque = find.text('قانون صدور چک');
       await tester.ensureVisible(cheque);
       await tester.pumpAndSettle();
+      expect(find.byTooltip('کپی کل قانون'), findsNothing,
+          reason: 'Error: DRW-light copy button visible before expand');
       await tester.tap(cheque);
       await tester.pumpAndSettle();
-      expect(find.byTooltip('کپی کل قانون'), findsOneWidget);
+      expect(find.byTooltip('کپی کل قانون'), findsOneWidget,
+          reason: 'Error: DRW-light copy button missing after expand');
 
       await tester.tap(find.byTooltip('کپی کل قانون'));
       await tester.pump();
-      expect(find.text('کل قانون کپی شد'), findsOneWidget);
-      expect(copied, isNotNull);
-      expect(copied, contains('قانون صدور چک'));
-      expect(copied, contains('ماده ۱'));
-      expect(copied, contains('ماده ۲۷'));
+      expect(find.text('کل قانون کپی شد'), findsOneWidget,
+          reason: 'Error: DRW-light toast missing');
+      expect(copied, isNotNull, reason: 'Error: DRW-light clipboard empty');
+      expect(copied, contains('قانون صدور چک'),
+          reason: 'Error: DRW-light clipboard lacks law title');
+      expect(copied, contains('ماده ۱'),
+          reason: 'Error: DRW-light clipboard lacks article 1');
+      expect(copied, contains('ماده ۲۷'),
+          reason: 'Error: DRW-light clipboard lacks article 27');
     }, timeout: const Timeout(Duration(minutes: 3)));
 
     testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
@@ -258,17 +261,20 @@ void main() {
 
       await openDrawer(tester);
 
-      expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget);
+      expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget,
+          reason: 'Error: DRW-dark placeholder missing');
 
       await tester.enterText(find.byType(TextField), 'ماده ۱۰');
       await tester.pumpAndSettle();
-      expect(find.byTooltip('پاک کردن جست‌وجو'), findsOneWidget);
+      expect(find.byTooltip('پاک کردن جست‌وجو'), findsOneWidget,
+          reason: 'Error: DRW-dark clear button missing after typing');
 
       await tester.tap(find.byTooltip('پاک کردن جست‌وجو'));
       await tester.pumpAndSettle();
-      // لیست پیش‌فرض (۲۴ قانون) دوباره دیده می‌شود.
-      expect(find.text('قانون مدنی'), findsOneWidget);
-      expect(find.byTooltip('پاک کردن جست‌وجو'), findsNothing);
+      expect(find.text('قانون مدنی'), findsOneWidget,
+          reason: 'Error: DRW-dark law list missing after clear');
+      expect(find.byTooltip('پاک کردن جست‌وجو'), findsNothing,
+          reason: 'Error: DRW-dark clear button still visible');
     }, timeout: const Timeout(Duration(minutes: 3)));
   });
 }
