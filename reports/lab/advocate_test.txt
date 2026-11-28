@@ -1,16 +1,16 @@
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۴) ادامهٔ حرفِ قبلی > اصلاحِ موضوع
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۵) ادامهٔ حرفِ قبلی > پرونده یا پاسخِ کلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۱۸) تنظیمِ سند > تکرارِ حرفِ قبلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۲۵) تنظیمِ سند > پرونده یا پاسخِ کلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۱۷) پیشنهادِ پاسخ > پاسخِ کلیِ مقدم
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۱۹) پیشنهادِ پاسخ > قاعدهٔ ثابت
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۲) پیشنهادِ پاسخ > هشدارِ قهر
+✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۳) پیشنهادِ پاسخ > گفتگو با برنامه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۴) پیشنهادِ پاسخ > اصلاحِ موضوع
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۵) پیشنهادِ پاسخ > پرونده یا پاسخِ کلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۷) «باشه» > پاسخِ کلیِ مقدم
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۹) «باشه» > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۲) «باشه» > هشدارِ قهر
+✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۴) «باشه» > اصلاحِ موضوع
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۵) «باشه» > پرونده یا پاسخِ کلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۵, ۱۷) موضوعِ کنارِ هم > پاسخِ کلیِ مقدم
@@ -184,11 +184,11 @@
 ✅ test/advocate/reasoner_test.dart: گفتگو خواستهٔ تازه‌ای که وسط حرف پیش می‌آید جدا دیده می‌شود
 ✅ test/advocate/reasoner_test.dart: گفتگو اجاره و طلب: حکم و دلیل از واقعیت‌های خودِ کاربر می‌آید
 ✅ test/advocate/reasoner_test.dart: گفتگو کسی که هنوز سر کار است: سنوات در برنامه و تحلیل نمی‌آید
-✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
-✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
+✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
+✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
 ✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
 ✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
