@@ -1,7 +1,7 @@
 Understanding on eval/understanding_probe.tsv (39 sentences, first message only)
-model called for 16 sentences; open >= 0.143 with margin >= 0.04, ask >= 0.087
-rules only   : {none-ok: 9, opened-right: 23, none-missed: 7}
-rules + model: {none-ok: 5, opened-right: 30, none-missed: 1, opened-WRONG: 1, asked-right: 2}
+model called for 15 sentences; open >= 0.143 with margin >= 0.04, ask >= 0.087
+rules only   : {none-ok: 9, opened-right: 24, none-missed: 6}
+rules + model: {none-ok: 5, opened-right: 31, none-missed: 1, asked-right: 2}
 columns: changed? | rules only | rules + model | guess | [gold] sentence
 
   none-ok       none-ok       general=0.14 (accused=0.13)        [chat] سلام. من یک سوال حقوقی دارم
@@ -13,7 +13,7 @@ columns: changed? | rules only | rules + model | guess | [gold] sentence
   opened-right  opened-right  -                                  [neighbor] برای شکایت از همسایه کجا باید بروم
   opened-right  opened-right  -                                  [inherit] پدرم فوت کرده ارث چطور تقسیم میشود
   none-missed   none-missed   company=0.20 (labor=0.19)          [labor] من در یک شرکت کار میکنم و بیمه ام نمیکنند
-* none-missed   opened-WRONG  consumer=0.17 (debt=0.12)          [debt|property] ماشینم را فروخته ام ولی خریدار پولش را کامل نداده
+  opened-right  opened-right  -                                  [debt|property] ماشینم را فروخته ام ولی خریدار پولش را کامل نداده
   opened-right  opened-right  -                                  [injury|crime] یک نفر با ماشین به من زده و فرار کرده
   opened-right  opened-right  -                                  [family] چطور میتوانم مهریه ام را بگیرم
   opened-right  opened-right  -                                  [family] شرایط حضانت فرزند بعد از طلاق چگونه است؟
