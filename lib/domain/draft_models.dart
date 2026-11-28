@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:dastyar/core/local_store.dart';
 import 'package:dastyar/core/privacy.dart';
 import 'package:dastyar/domain/templates.dart';
 
@@ -110,16 +109,17 @@ class DraftCheckpointStore {
     return next;
   }
 
-  static Future<bool> save(DraftSession session) => _serial(() async {
+  static Future<bool> save(DraftSession session, {KeyValueStore? store}) =>
+      _serial(() async {
         lastError = null;
         if (!PrivacyService.persistenceAllowed) {
           lastError = 'ذخیرهٔ پیش‌نویس غیرفعال است: رمزنگاری بومی دردسترس نیست.';
           return false;
         }
+        final prefs = store ?? LocalStoreRegistry.open();
         if (session.done) {
           // صدا نزدن به `clear` باعث قفلشدن صف میشود: خودمان داخل همان صف هستیم.
           try {
-            final prefs = await SharedPreferences.getInstance();
             await prefs.remove(_key);
           } catch (e) {
             lastError = 'پاک‌کردن پیش‌نویس پایانیافته: $e';
@@ -127,7 +127,6 @@ class DraftCheckpointStore {
           return false;
         }
         try {
-          final prefs = await SharedPreferences.getInstance();
           final raw = jsonEncode(session.toJson());
           final sealed = await PrivacyService.seal(raw);
           if (sealed.isEmpty) {
@@ -146,13 +145,16 @@ class DraftCheckpointStore {
         }
       });
 
-  static Future<DraftSession?> load(List<LegalTemplate> templates) =>
+  static Future<DraftSession?> load(
+    List<LegalTemplate> templates, {
+    KeyValueStore? store,
+  }) =>
       _serial(() async {
         lastError = null;
         if (templates.isEmpty) return null;
         try {
-          final prefs = await SharedPreferences.getInstance();
-          final stored = prefs.getString(_key);
+          final prefs = store ?? LocalStoreRegistry.open();
+          final stored = await prefs.getString(_key);
           if (stored == null || stored.isEmpty) return null;
           final raw = await PrivacyService.open(stored);
           if (raw == null || raw.isEmpty) {
@@ -178,10 +180,10 @@ class DraftCheckpointStore {
         }
       });
 
-  static Future<bool> clear() => _serial(() async {
+  static Future<bool> clear({KeyValueStore? store}) => _serial(() async {
         lastError = null;
         try {
-          final prefs = await SharedPreferences.getInstance();
+          final prefs = store ?? LocalStoreRegistry.open();
           final ok = await prefs.remove(_key);
           if (!ok) {
             lastError = 'حذف پیش‌نویس ناتمام از حافظه انجام نشد.';

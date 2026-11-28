@@ -55,10 +55,14 @@ class StartupBudgetTests(unittest.TestCase):
     def test_engine_loader_avoids_caching_raw_strings(self):
         loader = lib_read(str(ROOT), 'lib/core/engine_load.dart')
         calls = re.findall(r'rootBundle\.loadString\(([^)]+)\)', loader)
-        self.assertGreaterEqual(len(calls), 10)
+        self.assertGreaterEqual(len(calls), 1)
         uncached = [c for c in calls if 'cache: false' not in c]
         self.assertEqual(uncached, [],
                          'این خواندن‌های موتور هنوز در rootBundle کش می‌شوند: %s' % uncached)
+        reads = re.findall(r'_readAsset\(([^)]+)\)', loader)
+        self.assertGreaterEqual(len(reads), 10)
+        main_src = lib_read(str(ROOT), 'lib/main.dart')
+        self.assertIn('rootBundle.loadString(path, cache: false)', main_src)
         self.assertIn('_repliesRaw = const {}', loader)
         self.assertIn('_lawTopicsRaw = null', loader)
         engine = lib_read(str(ROOT), 'lib/core/engine.dart')

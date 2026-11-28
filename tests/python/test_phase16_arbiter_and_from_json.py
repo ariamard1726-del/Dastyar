@@ -28,7 +28,7 @@ class Phase16Tests(unittest.TestCase):
         load = _read('lib/core/engine_load.dart')
         data = _read('lib/domain/advocate/advocate_data.dart')
         self.assertIn('class PipelineConfig', models)
-        self.assertIn("rootBundle.loadString('assets/pipeline.json'", load)
+        self.assertIn("_readAsset('assets/pipeline.json')", load)
         for fn in (
             'resolvePipelineOrder(',
             'resolveNetMin(',

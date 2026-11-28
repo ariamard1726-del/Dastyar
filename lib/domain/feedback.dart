@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:dastyar/core/local_store.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/privacy.dart';
 
@@ -44,11 +43,11 @@ class FeedbackStore {
     return PersianText.truncate(s, 120);
   }
 
-  static Future<List<FeedbackEntry>> all() async {
+  static Future<List<FeedbackEntry>> all({KeyValueStore? store}) async {
     lastError = null;
     try {
-      final p = await SharedPreferences.getInstance();
-      final stored = p.getString(_key);
+      final p = store ?? LocalStoreRegistry.open();
+      final stored = await p.getString(_key);
       if (stored == null || stored.isEmpty) return [];
       final wasPlain = !PrivacyService.isEncrypted(stored);
       final raw = await PrivacyService.open(stored);
@@ -88,7 +87,7 @@ class FeedbackStore {
           .where((e) => e.q.isNotEmpty)
           .toList();
       if ((wasPlain || needsMigration) && list.isNotEmpty) {
-        await _save(list);
+        await _save(list, store: p);
       }
       return list;
     } catch (e) {
@@ -97,13 +96,16 @@ class FeedbackStore {
     }
   }
 
-  static Future<bool> _save(List<FeedbackEntry> list) async {
+  static Future<bool> _save(
+    List<FeedbackEntry> list, {
+    KeyValueStore? store,
+  }) async {
     if (!PrivacyService.persistenceAllowed) {
       lastError = 'ذخیرهٔ بازخورد غیرفعال است: رمزنگاری بومی دردسترس نیست.';
       return false;
     }
     try {
-      final p = await SharedPreferences.getInstance();
+      final p = store ?? LocalStoreRegistry.open();
       final raw = jsonEncode({
         'v': schemaVersion,
         'entries': list.map((e) => e.toJson()).toList(),
@@ -124,23 +126,29 @@ class FeedbackStore {
     }
   }
 
-  static Future<bool> add(String question, String answer, int vote) async {
+  static Future<bool> add(
+    String question,
+    String answer,
+    int vote, {
+    KeyValueStore? store,
+  }) async {
     final q = _flat(question);
     if (q.isEmpty) return false;
     final a = snippet(answer);
-    final list = await all();
+    final p = store ?? LocalStoreRegistry.open();
+    final list = await all(store: p);
     list.removeWhere((e) => e.q == q && e.a == a);
     list.add(FeedbackEntry(q, a, vote, DateTime.now().millisecondsSinceEpoch));
     if (list.length > maxEntries) {
       list.removeRange(0, list.length - maxEntries);
     }
-    return _save(list);
+    return _save(list, store: p);
   }
 
-  static Future<bool> clear() async {
+  static Future<bool> clear({KeyValueStore? store}) async {
     lastError = null;
     try {
-      final p = await SharedPreferences.getInstance();
+      final p = store ?? LocalStoreRegistry.open();
       final ok = await p.remove(_key);
       if (!ok) {
         lastError = 'حذف بازخوردها از حافظه انجام نشد.';

@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import 'package:dastyar/core/asset_loader.dart';
 import 'package:dastyar/core/law_topic_prior.dart';
 import 'package:dastyar/core/article_query.dart';
 import 'package:dastyar/core/engine_rules.dart';
@@ -19,6 +20,7 @@ import 'package:dastyar/core/replies.dart';
 import 'package:dastyar/core/router.dart';
 import 'package:dastyar/core/conflicts_service.dart';
 
+export 'asset_loader.dart';
 export 'models.dart';
 
 // موتورِ دانش: وضعیت و API عمومی.
@@ -33,6 +35,10 @@ part 'engine_query.dart';
 part 'engine_worker.dart';
 
 class KnowledgeEngine {
+  KnowledgeEngine({AssetTextLoader? assetLoader}) : _assetLoader = assetLoader;
+
+  final AssetTextLoader? _assetLoader;
+
   /// پاسخ‌های ثابت؛ از assets/replies.json خوانده می‌شوند.
   final Replies replies = Replies();
   /// متنِ قوانین، نمایهٔ واژه‌ها، ایندکسِ مواد و شمارشِ هر قانون؛

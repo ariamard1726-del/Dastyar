@@ -124,7 +124,9 @@ class Loader extends StatefulWidget {
 }
 
 class _LoaderState extends State<Loader> {
-  final KnowledgeEngine _engine = KnowledgeEngine();
+  final KnowledgeEngine _engine = KnowledgeEngine(
+    assetLoader: (path) => rootBundle.loadString(path, cache: false),
+  );
   final TemplateRepository _repo = TemplateRepository();
   final HistoryStore _history = HistoryStore();
   DraftSession? _initialDraft;

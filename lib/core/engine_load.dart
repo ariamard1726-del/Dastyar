@@ -7,9 +7,15 @@ part of 'engine.dart';
 // بقیهٔ قوانین را متوقف نمی‌کند — همان رفتاری که پیش‌تر داشت.
 
 extension _EngineLoad on KnowledgeEngine {
+Future<String> _readAsset(String path) {
+  final loader = _assetLoader;
+  if (loader != null) return loader(path);
+  return rootBundle.loadString(path, cache: false);
+}
+
 Future<void> _loadCatalog() async {
   try {
-    final t = await rootBundle.loadString('assets/laws_catalog.json', cache: false);
+    final t = await _readAsset('assets/laws_catalog.json');
     final m = jsonDecode(t) as Map<String, dynamic>;
     final cats = (m['categories'] ?? {}) as Map<String, dynamic>;
     cats.forEach((k, v) => categoryNames[k] = v.toString());
@@ -30,7 +36,7 @@ Future<void> _loadCatalog() async {
 
 Future<void> _loadMeta() async {
   try {
-    final t = await rootBundle.loadString('assets/laws/_meta.json', cache: false);
+    final t = await _readAsset('assets/laws/_meta.json');
     final m = jsonDecode(t) as Map<String, dynamic>;
     m.forEach((k, v) {
       if (v is Map<String, dynamic>) meta[k] = v;
@@ -42,7 +48,7 @@ Future<void> _loadMeta() async {
 
 Future<void> _loadReplies() async {
   try {
-    final t = await rootBundle.loadString('assets/replies.json', cache: false);
+    final t = await _readAsset('assets/replies.json');
     final m = jsonDecode(t) as Map<String, dynamic>;
     _repliesRaw = m;
     replies.setOverridesRaw(m);
@@ -55,11 +61,11 @@ Future<void> _loadTopicFlows() async {
   _topicFlows = const [];
   try {
     final idx = jsonDecode(
-      await rootBundle.loadString('assets/brain/topics/index.json', cache: false),
+      await _readAsset('assets/brain/topics/index.json'),
     ) as Map<String, dynamic>;
     final out = <Map<String, dynamic>>[];
     for (final name in (idx['topics'] as List).cast<String>()) {
-      final t = await rootBundle.loadString('assets/brain/topics/$name', cache: false);
+      final t = await _readAsset('assets/brain/topics/$name');
       out.add(jsonDecode(t) as Map<String, dynamic>);
     }
     _topicFlows = out;
@@ -71,7 +77,7 @@ Future<void> _loadTopicFlows() async {
 Future<void> _loadLegalTerms() async {
   _legalTerms = const {};
   try {
-    final t = await rootBundle.loadString('assets/brain/legal_terms.json', cache: false);
+    final t = await _readAsset('assets/brain/legal_terms.json');
     _legalTerms = jsonDecode(t) as Map<String, dynamic>;
   } catch (e) {
     warnings.add('assets/brain/legal_terms.json: $e');
@@ -81,7 +87,7 @@ Future<void> _loadLegalTerms() async {
 Future<void> _loadQa() async {
   _qaBank = QaBank.empty;
   try {
-    final t = await rootBundle.loadString('assets/qa/lease_qa.json', cache: false);
+    final t = await _readAsset('assets/qa/lease_qa.json');
     _qaBank = QaBank.fromJson(jsonDecode(t));
   } catch (e) {
     warnings.add('qa/lease_qa.json: $e');
@@ -91,7 +97,7 @@ Future<void> _loadQa() async {
 Future<void> _loadLawTopics() async {
   _lawPrior = LawTopicPrior.empty;
   try {
-    final t = await rootBundle.loadString('assets/brain/law_topics.json', cache: false);
+    final t = await _readAsset('assets/brain/law_topics.json');
     _lawTopicsRaw = jsonDecode(t);
     if (_lawTopicsRaw != null) {
       _lawPrior = LawTopicPrior.fromJson(_lawTopicsRaw);
@@ -103,7 +109,7 @@ Future<void> _loadLawTopics() async {
 
 Future<void> _loadRelationships() async {
   try {
-    final t = await rootBundle.loadString('assets/relationships.json', cache: false);
+    final t = await _readAsset('assets/relationships.json');
     final m = jsonDecode(t);
     if (m is Map<String, dynamic>) {
       _relationships = m;
@@ -115,7 +121,7 @@ Future<void> _loadRelationships() async {
 
 Future<void> _loadPipeline() async {
   try {
-    final t = await rootBundle.loadString('assets/pipeline.json', cache: false);
+    final t = await _readAsset('assets/pipeline.json');
     final cfg = PipelineConfig.fromJson(jsonDecode(t));
     if (cfg != null) {
       _pipeline = cfg;
@@ -129,7 +135,7 @@ Future<void> _loadPipeline() async {
 
 Future<List<String>?> _loadKnowledgeChunk() async {
   try {
-    final text = await rootBundle.loadString('assets/knowledge.txt', cache: false);
+    final text = await _readAsset('assets/knowledge.txt');
     return ['knowledge', 'دانش عمومی', text];
   } catch (e) {
     warnings.add('assets/knowledge.txt: $e');
@@ -178,7 +184,7 @@ Future<void> load({bool startWorker = false}) async {
       if (path is! String || path.isEmpty) return null;
       final fullPath = 'assets/laws/$path';
       try {
-        final text = await rootBundle.loadString(fullPath, cache: false);
+        final text = await _readAsset(fullPath);
         final fallbackTitle = (entry.value['title'] ?? '').toString().trim();
         return [lawId, fallbackTitle, text];
       } catch (e) {
@@ -286,7 +292,7 @@ IndexBuild adoptWorkerData(Map<String, dynamic> data) {
 Future<void> _loadSynonyms() async {
   _syn.clear();
   try {
-    final t = await rootBundle.loadString('assets/synonyms.txt', cache: false);
+    final t = await _readAsset('assets/synonyms.txt');
     for (final line in t.split('\n')) {
       final l = line.trim();
       if (l.isEmpty || l.startsWith('#')) continue;
