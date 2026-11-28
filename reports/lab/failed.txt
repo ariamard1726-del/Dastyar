@@ -1,2 +1,6 @@
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/domain/advocate_texts_test.dart: متنهای عمومی وکیل از فایل دارایی نصب می‌شوند (failed)
 ::group::❌ /home/runner/work/Dastyar/Dastyar/test/understanding/noql_test.dart: روی جمله‌های محک همان دسته و همان اطمینانِ مرجع را می‌دهد (failed)
-::error::951 tests passed, 1 failed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/contradiction_test.dart: نفی صریح شرط شناسایی می‌شود (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/contradiction_test.dart: نفی در جملهٔ همسایه شرط را رد نمی‌کند (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/core/contradiction_test.dart: negatedCues فهرست شرط‌های نفی‌شده را برمی‌گرداند (failed)
+::error::962 tests passed, 5 failed.
