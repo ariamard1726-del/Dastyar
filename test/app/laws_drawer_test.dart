@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/ui/laws_drawer.dart';
+import 'package:dastyar/core/legal_disclaimer.dart';
 import 'package:dastyar/ui/laws_library.dart';
 
 ArticleEntry _article(int n, String text, {bool mokarrar = false}) =>
@@ -164,12 +165,14 @@ void main() {
   });
 
   group('دراور فهرست قوانین', () {
+    // قانون‌ِ preloadشده برای تزریق مستقیم به drawer؛ در testWidgets ساعتِ
+    // binding فِیک است و I/O واقعی هرگز به‌موقع تمام نمی‌شود، بنابراین داده
+    // یک‌بار در setUpAll آماده و مستقیم به showLawsDrawer داده می‌شود.
+    late List<LawEntry> _laws;
+
     setUpAll(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      // کش استاتیک LawsLibrary را قبل از همهٔ WidgetTestهای این گروه پر
-      // می‌کنیم؛ دیگر هیچ‌کدام از آن‌ها منتظر load نیستند و
-      // CircularProgressIndicator هرگز معلق نمی‌ماند.
-      await LawsLibrary.load();
+      _laws = await LawsLibrary.load();
     });
 
     // helper مشترک: باز کردن دراور با دکمهٔ سه‌نقطه و انتظار برای بارگذاری ۲۴ قانون.
@@ -206,7 +209,7 @@ void main() {
                   leading: IconButton(
                     tooltip: 'فهرست قوانین',
                     icon: const Icon(Icons.more_vert),
-                    onPressed: () => showLawsDrawer(context),
+                    onPressed: () => showLawsDrawer(context, library: _laws),
                   ),
                 ),
               ),
@@ -216,6 +219,8 @@ void main() {
       );
 
       await openDrawer(tester);
+      expect(find.text(legalDisclaimer), findsOneWidget,
+          reason: 'Error: DRW-light disclaimer missing');
       expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget,
           reason: 'Error: DRW-light placeholder missing');
       expect(find.byType(CircularProgressIndicator), findsNothing,
@@ -267,7 +272,7 @@ void main() {
                   leading: IconButton(
                     tooltip: 'فهرست قوانین',
                     icon: const Icon(Icons.more_vert),
-                    onPressed: () => showLawsDrawer(context, legalTerms: const {}),
+                    onPressed: () => showLawsDrawer(context, legalTerms: const {}, library: _laws),
                   ),
                 ),
               ),
@@ -278,6 +283,8 @@ void main() {
 
       await openDrawer(tester);
 
+      expect(find.text(legalDisclaimer), findsOneWidget,
+          reason: 'Error: DRW-dark disclaimer missing');
       expect(find.byType(CircularProgressIndicator), findsNothing,
           reason: 'Error: DRW-dark drawer still loading');
       expect(find.text('قوانین بار نشدند'), findsNothing,

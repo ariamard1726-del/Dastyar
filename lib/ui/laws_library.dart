@@ -6,6 +6,7 @@
 //
 // قانون‌ها به ترتیبی که در `laws_catalog.json` آمده‌اند فهرست می‌شوند.
 
+import 'package:dastyar/core/legal_disclaimer.dart';
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -31,7 +32,7 @@ class ArticleEntry {
   });
 
   /// متنِ کپی‌شونده: سرخط + متن.
-  String get copyText => '$title\n$text';
+  String get copyText => '$title\n$text\n\n$legalDisclaimer';
 
   late final String _norm = _searchNormalize(text);
 
@@ -49,7 +50,7 @@ class LawEntry {
 
   /// متنِ کپی‌شوندهٔ کل قانون: عنوان + تمام ماده‌ها پشت‌سرهم.
   String get fullCopyText {
-    final b = StringBuffer(title)..write('\n\n');
+    final b = StringBuffer(legalDisclaimer)..write('\n\n')..write(title)..write('\n\n');
     for (final a in articles) {
       b
         ..write(a.title)

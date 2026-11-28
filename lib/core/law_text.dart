@@ -1,4 +1,5 @@
 import 'package:dastyar/core/models.dart';
+import 'package:dastyar/core/legal_disclaimer.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/core/replies.dart';
 
@@ -46,6 +47,7 @@ class LawText {
     }
     if ((meta[c.lawId]?['status'] ?? '').toString().trim() != 'verified') {
       sb.write('\nاین متن هنوز با منبع رسمی تطبیق داده نشده است.');
+      sb.write('\n' + legalDisclaimer);
     }
   }
   return sb.toString();

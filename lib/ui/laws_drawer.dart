@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
+import 'package:dastyar/core/legal_disclaimer.dart';
 import 'package:dastyar/core/persian_text.dart';
 import 'package:dastyar/ui/laws_drawer_articles.dart';
 import 'package:dastyar/ui/laws_drawer_cards.dart';
@@ -28,6 +29,7 @@ import 'package:dastyar/ui/laws_library.dart';
 Future<void> showLawsDrawer(
   BuildContext context, {
   Map<String, dynamic>? legalTerms,
+  List<LawEntry>? library,
 }) {
   return showGeneralDialog<void>(
     context: context,
@@ -36,7 +38,7 @@ Future<void> showLawsDrawer(
     barrierColor: Colors.black54,
     transitionDuration: const Duration(milliseconds: 280),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        _LawsDrawerPanel(legalTerms: legalTerms),
+        _LawsDrawerPanel(legalTerms: legalTerms, library: library),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       final curved = CurvedAnimation(
         parent: animation,
@@ -56,14 +58,20 @@ Future<void> showLawsDrawer(
 class _LawsDrawerPanel extends StatefulWidget {
   final Map<String, dynamic>? legalTerms;
 
-  const _LawsDrawerPanel({this.legalTerms});
+  /// داده‌های آمادهٔ قانون؛ اگر داده شود، از `LawsLibrary.load()` استفاده
+  /// نمی‌شود (برای آزمون‌های Widget که ساعتِ binding شان فِیک است).
+  final List<LawEntry>? library;
+
+  const _LawsDrawerPanel({this.legalTerms, this.library});
 
   @override
   State<_LawsDrawerPanel> createState() => _LawsDrawerPanelState();
 }
 
 class _LawsDrawerPanelState extends State<_LawsDrawerPanel> {
-  late final Future<List<LawEntry>> _library = LawsLibrary.load();
+  late final Future<List<LawEntry>> _library = widget.library != null
+      ? Future<List<LawEntry>>.value(widget.library)
+      : LawsLibrary.load();
   late final List<Map<String, dynamic>>? _termEntries = _extractEntries(
     widget.legalTerms,
   );
@@ -132,6 +140,20 @@ class _LawsDrawerPanelState extends State<_LawsDrawerPanel> {
                       onClear: _clearQuery,
                     ),
                     Expanded(child: _buildBody()),
+                    const Divider(height: 1, color: drawerCardBorder),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+                      child: Text(
+                        legalDisclaimer,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontFamily: drawerFont,
+                          fontSize: 9.5,
+                          height: 1.55,
+                          color: drawerMuted,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
