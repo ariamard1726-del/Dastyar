@@ -10,6 +10,7 @@ WF = ROOT / '.github' / 'workflows'
 EXPERIMENTAL_WORKFLOWS = (
     'agent.yml',
     'alt-bench.yml',
+    'build-preview.yml',
     'embed-bench.yml',
     'embed.yml',
     'eval.yml',

@@ -1,0 +1,106 @@
+name: Build Preview APK (قوانین تائیدنشده — فقط تست)
+
+# چرا این گردش‌کار وجود دارد؟
+# ساخت انتشار (build.yml) روی دروازهٔ «check.py trust» می‌شکند چون هیچ‌کدام از
+# ۲۴ قانون با منبع رسمی تطبیق داده نشده‌اند — تصمیمِ مالک همین است. این
+# گردش‌کار **فقط برای تولید نسخهٔ آزمایشی داخلی** است (قوانین تائیدنشده‌اند)؛
+# دروازهٔ انتشار دست‌نخورده می‌ماند و APK این گردش‌کار هرگز نباید برای توزیع
+# استفاده شود. امضا با کلید debug است.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Data checks
+        run: |
+          python dev/tools/check.py all
+          python dev/tools/sync_meta.py --check
+          python dev/tools/doctor.py
+          python dev/tools/eval_py.py --check
+          python dev/tools/eval_none.py --check
+
+      - name: Preview notice (not a release)
+        run: |
+          echo "::warning::یادآوری: هیچ‌کدام از ۲۴ قانون با منبع رسمی تطبیق داده نشده‌اند (۰/۲۴ verified)."
+          echo "::warning::این APK فقط برای تست داخلی است؛ توزیع نکنید. دروازهٔ انتشار (check.py trust) در build.yml دست‌نخورده است."
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+
+      - run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-warnings --no-fatal-infos
+
+      - name: Tests
+        run: flutter test
+
+      - name: Build preview APK (debug-signed)
+        env:
+          ALLOW_DEBUG_SIGNING: 'true'
+        run: |
+          python dev/tools/sync_meta.py --write
+          flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: Verify preview signature
+        env:
+          ALLOW_DEBUG: 'true'
+        run: |
+          set -eu
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          APKSIGNER="$(find "$SDK/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$APKSIGNER" ]; then
+            echo "::error::ابزار apksigner پیدا نشد."
+            exit 1
+          fi
+          CERT_INFO="$("$APKSIGNER" verify -v --print-certs build/app/outputs/flutter-apk/app-release.apk)"
+          echo "$CERT_INFO" | head -n 30
+          if echo "$CERT_INFO" | grep -q "CN=Android Debug"; then
+            echo "::warning::این APK با کلید Android Debug امضا شده است (متوقع برای نسخهٔ آزمایشی)."
+          else
+            echo "::error::انتظار می‌رفت امضای debug باشد، ولی نیست؛ محتوای نسخهٔ آزمایشی تأیید نشد."
+            exit 1
+          fi
+
+      - name: Preview note
+        run: |
+          {
+            echo "dastyar — نسخهٔ آزمایشی (Preview)"
+            echo "شاخه: ${GITHUB_REF_NAME}"
+            echo "کامیت: ${GITHUB_SHA}"
+            echo "اجرا: #${GITHUB_RUN_NUMBER}"
+            echo ""
+            echo "این فایل فقط برای تست داخلی است. هیچ‌کدام از ۲۴ قانون بسته‌بندی‌شده با منبع رسمی تطبیق داده نشده‌اند (۰/۲۴ verified)."
+            echo "کاربر نهایی باید خود تائیدیهٔ نهایی را از سامانه‌های معتبر (qavanin.ir و مانند آن) دریافت کند؛ متن اصلی برنامه می‌گوید قوانین تائیدنشده‌اند."
+            echo "انتشار رسمی فقط از مسیر build.yml پس از تطبیق رسمی قوانین انجام می‌شود."
+          } > PREVIEW_NOTE.txt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dastyar-preview-apk
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            PREVIEW_NOTE.txt
