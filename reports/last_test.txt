@@ -1,11 +1,11 @@
-commit: 2850824
+commit: c28c840
 🎉 855 tests passed.
 --- analyze ---
-No issues found! (ran in 9.2s)
+No issues found! (ran in 7.9s)
 --- coverage ---
 coverage: 8540/9288 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=1156 assets_ms=66 index_ms=1090 worker_load_ms=952 first_query_ms=47 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=256.6
+STARTUP-BASELINE load_ms=769 assets_ms=48 index_ms=721 worker_load_ms=848 first_query_ms=37 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=253.5
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
