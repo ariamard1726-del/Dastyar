@@ -65,7 +65,7 @@
 
 ## پیشنهادهای ارتقای برنامه
 
-فهرست کامل و اولویت‌بندی‌شده در **`docs/UPGRADE_SUGGESTIONS.md`** آمده است. خلاصهٔ آن:
+فهرست کامل و اولویت‌بندی‌شده در **`docs/UPGRADE_SUGGESTIONS.md`** آمده است؛ برنامهٔ اختصاصی ارتقای فهم و استدلال متن کاربر (بدون LLM، با همان Noql و داده/قاعده/استناد) در **`docs/UNDERSTANDING_UPGRADE_1405.md`** نوشته شده است. خلاصهٔ پیشنهادهای کلی:
 
 1. **اعتبار حقوقی (پیش‌شرط انتشار، وظیفهٔ مالک):** تصمیم مالک (۱۴۰۵/۰۹/۰۷) ثبت نشدن `verified` پس از «بازبینی یک‌دوره‌ای» است؛ چک‌لیست آن بازبینی: `docs/LAW_REVIEW_CHECKLIST.md`. مسیر باز کردن انتشار فقط تطبیق ماده‌به‌ماده با متن خام رسمی (`law_registry.py verify` با `url` رسمی) است — اصلاح دو هشدار چسبیدگی `direct_taxes`؛ سه `amended` کهنه (`labor`، `civil_procedure`، `civil_execution`)؛ ثبت `url` رسمی (امروز ۰ مورد)؛ بازبینی انسانی ۷ قالبِ باقی‌مانده. برنامه جایگزین این بازبینی نمی‌شود.
 2. **معماری و کد:** پرداخت بدهی «دو پیاده‌سازی» پایتون/دارت با تکیهٔ `dart_eval.py` در CI؛ SQLite + SQLCipher (منتظر دسترسی `pub.dev`)؛ تکمیل تفکیک `ReplyRoutes` به ۲۶ کاندید خالص + داور؛ حفظ سقف ۴۲۰ خط.
@@ -91,7 +91,8 @@ test/           دسته‌های آزمون Dart (engine، app، advocate، aud
 tests/python/   نگهبان‌های قرارداد/سبک/مستندات پایتون
 dev/tools/      ابزارهای توسعه (check.py، doctor.py، coverage_gate.py …)
 docs/           ARCHITECTURE.md، PHASES.md، LAW_SOURCES.md، LAW_GAPS.md، ROADMAP.md،
-                LAW_VERIFICATION_1405.md (ممیزی داخلی)، UPGRADE_SUGGESTIONS.md (پیشنهادهای ارتقا) …
+                LAW_VERIFICATION_1405.md (ممیزی داخلی)، LAW_REVIEW_CHECKLIST.md (بازبینی مالک)،
+                UPGRADE_SUGGESTIONS.md (پیشنهادهای ارتقا)، UNDERSTANDING_UPGRADE_1405.md (فهم و استدلال)
 scripts/        محاسبات کمکی تولید دارایی‌ها
 ```
 
@@ -111,7 +112,7 @@ python3 dev/tools/check.py trust   # تا پیش از تطبیق رسمی قوا
 
 **شرط صداقت محیط اجرا:** در محیط توسعه، فقط `python3` در دسترس بود؛ نصب و اجرای Flutter/Dart در این محیط ممکن نیست. به همین دلیل، مسائلی که به اجرای واقعی Dart نیاز دارند فقط از طریق CI سنجیده می‌شوند و در این README هیچ عددی به‌عنوان «سبز در CI» ثبت نمی‌شود مگر آنکه واقعاً در اجرای CI ثبت شده باشد.
 
-برای جزئیات عمیق‌تر ببینید: `docs/ARCHITECTURE.md`، `docs/CONTRACTS.md`، `docs/PHASES.md`، `docs/ROADMAP.md`، `docs/LAW_GAPS.md`، `docs/LAW_SOURCES.md`، `docs/LAW_VERIFICATION_1405.md`، `docs/LAW_REVIEW_CHECKLIST.md`، `docs/UPGRADE_SUGGESTIONS.md` و `docs/CODE_REVIEW.md`.
+برای جزئیات عمیق‌تر ببینید: `docs/ARCHITECTURE.md`، `docs/CONTRACTS.md`، `docs/PHASES.md`، `docs/ROADMAP.md`، `docs/LAW_GAPS.md`، `docs/LAW_SOURCES.md`، `docs/LAW_VERIFICATION_1405.md`، `docs/LAW_REVIEW_CHECKLIST.md`، `docs/UPGRADE_SUGGESTIONS.md`، `docs/UNDERSTANDING_UPGRADE_1405.md` و `docs/CODE_REVIEW.md`.
 
 ---
 
