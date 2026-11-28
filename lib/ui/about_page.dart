@@ -1,3 +1,4 @@
+import 'package:dastyar/core/legal_disclaimer.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -207,6 +208,7 @@ class _AboutPageState extends State<AboutPage> {
                   'عدد صفر یعنی هیچکدام از متنها تأیید رسمی ندارند؛ آنها را '
                   'فقط برای آشنایی عمومی بخوانید و پیش از اقدام حقوقی، متن '
                   'رسمی را ببینید.'),
+              _p(legalDisclaimer),
             ]),
             const SizedBox(height: 8),
             _card('وضعیت ذخیرهٔ محلی', [_p(cryptoNote)]),

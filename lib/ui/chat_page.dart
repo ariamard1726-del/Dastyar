@@ -15,6 +15,7 @@ import 'package:dastyar/ui/app_settings.dart';
 import 'package:dastyar/ui/settings_page.dart';
 import 'package:dastyar/domain/templates.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';
+import 'package:dastyar/ui/laws_drawer.dart';
 import 'package:dastyar/ui/widgets/chat_bubbles.dart';
 
 class ChatPage extends StatefulWidget {
@@ -178,12 +179,35 @@ class _ChatPageState extends State<ChatPage> {
             onAbout: _openAbout,
           ),
           appBar: AppBar(
+            centerTitle: true,
+            // فهرست قوانین فقط از دکمهٔ سه‌نقطهٔ (⋮) سمت راست باز می‌شود.
+            // منوی کناریِ موجود (AppDrawer) کاملاً دست‌نخورده می‌ماند.
+            // نکته: «leading صریح» یعنی دکمهٔ خودکار منوی کناری در این
+            // نوار نمایش داده نمی‌شود؛ خود AppDrawer و drawer چیدمان
+            // Scaffold همان قبل هستند.
+            leading: IconButton(
+              tooltip: 'فهرست قوانین',
+              icon: const Icon(Icons.more_vert),
+              onPressed: () =>
+                  showLawsDrawer(context, legalTerms: widget.engine.legalTerms),
+            ),
             title: const Text('دستیار'),
+            // دقیقاً سه کنش در سمت چپ: گفتگوی جدید، تاریخچه، تنظیمات.
             actions: [
               IconButton(
                 tooltip: 'گفتگوی جدید',
                 onPressed: _chat.newChat,
                 icon: const Icon(Icons.add_comment_outlined),
+              ),
+              IconButton(
+                tooltip: 'تاریخچه',
+                onPressed: _openHistory,
+                icon: const Icon(Icons.history),
+              ),
+              IconButton(
+                tooltip: 'تنظیمات',
+                onPressed: _openSettings,
+                icon: const Icon(Icons.settings_outlined),
               ),
             ],
           ),

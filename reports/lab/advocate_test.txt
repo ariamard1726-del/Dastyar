@@ -1,4 +1,3 @@
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۴) ادامهٔ حرفِ قبلی > اصلاحِ موضوع
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۵) ادامهٔ حرفِ قبلی > پرونده یا پاسخِ کلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۱۸) تنظیمِ سند > تکرارِ حرفِ قبلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۲۵) تنظیمِ سند > پرونده یا پاسخِ کلی
@@ -98,6 +97,7 @@
 ✅ test/advocate/conversation_fixes_test.dart: «قرارداد یک‌ساله» به معنی «قرارداد کتبی» گرفته نمی‌شود
 ✅ test/advocate/isolation_test.dart: امتیاز موضوع، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: تشخیص موضوع، بی‌نیاز از وکیل
+✅ test/advocate/isolation_test.dart: فروشنده‌ای که ثمن را نگرفته، موضوع طلب است نه مصرف‌کننده
 ✅ test/advocate/isolation_test.dart: پرسش بعدی، بی‌نیاز از وکیل
 ✅ test/advocate/isolation_test.dart: پرسشی که دو بار بی‌جواب ماند، سومین بار پرسیده نمی‌شود
 ✅ test/advocate/understanding_test.dart: تکرار عین پیام بلند تشخیص داده می‌شود
@@ -187,14 +187,14 @@
 ✅ test/advocate/reply_recursion_test.dart: سقف بازگشت روی ReplyLoopGuard: عمق ۱ مجاز، عمق ۲ و !again خطا
 ✅ test/advocate/reply_recursion_test.dart: ساختنِ حلقهٔ routes → reply → routes با سقف بازگشت متوقف می‌شود
 ✅ test/advocate/reply_recursion_test.dart: file.turns در هر پیامِ کاربر دقیقاً یکی بزرگ می‌شود
-✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
-✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
 ✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
+✅ test/advocate/reply_recursion_test.dart: مسیر بازگشتیِ offer با again: true نوبت را فقط یکی می‌شمارد
+✅ test/advocate/reply_recursion_test.dart: پیشنهادِ سند (offer == draft) بازگشت نمی‌زند و نوبت یکی بالا می‌رود
 ✅ test/advocate/rule_dsl_test.dart: همهٔ ۲۰ موضوع فاز ۹ به‌صورت RuleDSL تعریف شده و JSON معتبر می‌دهند
 ✅ test/advocate/rule_dsl_test.dart: FactExpr ارزیابی سه‌ارزشی و دوارزشی و toJson را درست انجام می‌دهد
 ✅ test/advocate/rule_dsl_test.dart: موضوع‌های مهاجرت‌یافته در سناریوهای کلیدی خروجی دقیق می‌دهند
 ::endgroup::
 
-🎉 509 tests passed.
+🎉 510 tests passed.

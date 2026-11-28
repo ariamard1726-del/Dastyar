@@ -25,7 +25,7 @@ def cut(s, n=280, ellipsis=True):
     return s[:n] + ('…' if ellipsis else '')
 
 
-def blocks(lines, max_detail=3, detail_only=True, limit=280, ellipsis=True):
+def blocks(lines, max_detail=4, detail_only=True, limit=280, ellipsis=True):
     """(سرتیتر، جزئیات) هر آزمونِ ناموفق با نشانگر `[E]` در خروجی `flutter test`."""
     out = []
     i = 0
@@ -51,7 +51,7 @@ def blocks(lines, max_detail=3, detail_only=True, limit=280, ellipsis=True):
     return out
 
 
-def cross_blocks(lines, max_detail=3, skip_ci_prefix=True, limit=280, ellipsis=True):
+def cross_blocks(lines, max_detail=4, skip_ci_prefix=True, limit=280, ellipsis=True):
     """بلوک‌های ❌ (گزارش‌گرِ داخلیِ مخزن) هم همان معنا را دارند."""
     out = []
     skip = ('package:', 'dart:', '::') if skip_ci_prefix else ('package:', 'dart:')
@@ -73,7 +73,7 @@ def cross_blocks(lines, max_detail=3, skip_ci_prefix=True, limit=280, ellipsis=T
     return out
 
 
-def annotate(lines, limit=8):
+def annotate(lines, limit=12):
     """خطوطِ آنوتیشن؛ سقفِ گیت‌هاب برای هر step حدود ده است."""
     out = []
     found = blocks(lines)
@@ -86,7 +86,7 @@ def annotate(lines, limit=8):
         # «چند آزمون شکست خورد؟» بیپاسخ نماند.
         for head, detail in found[:2]:
             out.append('::error::' + head)
-            for d in detail[:2]:
+            for d in detail[:4]:
                 out.append('::error::    ' + d)
         names = ' | '.join(head.replace('::group::❌ ', '')[:160] for head, _ in found)
         out.append('::error:: %d آزمون شکست خورد: %s' % (len(found), names[:6000]))
