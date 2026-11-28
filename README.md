@@ -119,15 +119,43 @@
 
 ---
 
-## ۶. پیشنهادات اولویت‌دار برای ارتقای بعدی
+## ۶. نقشهٔ کامل و ترتیب فازبندی‌شدهٔ کارهای باقیمانده (فازهای ۱۵ تا ۲۱)
 
-1. **تطبیق و ممیزی حقوقی محتوای قوانین و قالب‌ها (اولویت ۱ — شرط انتشار):** تکمیل فیلدهای `status: verified`، `source` و `url` در `assets/laws/_meta.json` با استناد به روزنامهٔ رسمی/سامانهٔ قوانین، بررسی ۱۲۷ مادهٔ جاافتاده (به‌ویژه در `commerce` و `penal_taazirat`) و بازبینی ۷ قالب باقی‌مانده تا سبزشدن `check.py trust`.
-2. **بهبود دقت `LawTerms` و `BM25F` برای ۶ مورد باز `term_audit.md` و `eval_blind` (اولویت ۲):** افزودن بررسی هم‌معنایی/حوزهٔ حقوقی پیش از پذیرش `LawTerms` تا جمله‌های نامرتبطِ دارای یک واژهٔ مشترک عمومی (مانند «زمین» یا «عکس») پذیرفته نشوند، گسترش `assets/synonyms.txt` برای عبارات محاوره‌ای/حقوقی («قولنامه عادی»، «خیانت در امانت»، «بیع شرط») و افزودن نمونه‌های کور تازه از بازخوردها.
-3. **حذف بدهی دوپیاده‌سازی پایتون ↔ دارت (اولویت ۳):** افزودن یک runner سبک CLI در Dart برای اجرای مستقیم `KnowledgeEngine` و `Sense` روی فایل‌های `eval/*.txt` و `tests/*.json` در CI؛ با این کار منطق آینه‌ای در `dev/brain/{common,engine}.py` و `dev/tools/{eval_py,law_terms,topic_flow}.py` قابل حذف خواهد بود.
-4. **ارتقای لایهٔ ذخیره به SQLite + SQLCipher (اولویت ۴):** جایگزینی `SharedPreferences` برای تاریخچهٔ گفتگوها، بازخورد و پرونده‌ها با پایگاه‌دادهٔ رمزنگاری‌شدهٔ SQLCipher جهت پشتیبانی از جست‌وجوی سریع بدون بارگذاری کل پیام‌ها در RAM و مهاجرت نسخه‌دار جداول.
-5. **تایید تعاملی مبالغ در `Sense.amount` (اولویت ۵):** به‌جای ضرب قطعی اعداد کوچک در ۱٬۰۰۰٬۰۰۰، وقتی واحد «میلیون/هزار» صریح ذکر نشده (`!Sense.amountIsExplicit`)، وکیل می‌تواند با دکمه‌های پیشنهادی بین مبلغ خُرد و میلیون تومان تایید بگیرد تا هم مکالمهٔ طبیعی حفظ شود و هم خطای عددی رخ ندهد.
-6. **اجرای موتور موضوع از روی JSON تولیدشدهٔ `RuleDSL` (اولویت ۶):** اکنون که هر ۲۴ موضوع دارای `Topic.toJson()` کامل هستند، می‌توان بارگذار موضوع از JSON ساخت تا به‌روزرسانی قواعد و متون موضوع‌ها بدون کامپایل مجدد کد Dart ممکن شود.
-7. **هم‌راستاسازی `pubspec.yaml` و ارزیابی دوره‌ای خروجی `feedback_eval.py`:** به‌روزرسانی محدودهٔ SDK در `pubspec.yaml` مطابق نسخهٔ CI (`Flutter 3.47.6` / `Dart >=3.13.0`) و تبدیل دوره‌ای بازخوردهای برچسب‌خوردهٔ کاربران با `dev/tools/feedback_eval.py` به مجموعهٔ آزمون کور برای جلوگیری از بازگشت خطاها.
+کارهای باقیمانده بر پایهٔ وابستگی فنی، ریسک رگرسیون و مرزهای محیطی (نیاز به `pub.dev` یا بازبینی رسمی حقوقی) به **۷ فاز ترتیبی** از **فاز ۱۵** تا **فاز ۲۱** تقسیم شده‌اند:
+
+### فاز ۱۵ — پاک‌سازی بدهی‌های خُرد و ایمنی مبالغ در Dart/پیکربندی
+1. **انتقال ۱۵ برچسب گزینه‌ای باقی‌ماندهٔ `lib/domain/advocate/topics/rent_fill.dart` به JSON (`🟡` مرحلهٔ ۱):** انتقال رشته‌های گزینه‌ای `FillAssign` به بخش `fillOptions` در `assets/brain/topics/rent_texts.json`، افزودن بارگذاری و تست هم‌ارزی نویسه‌به‌نویسه در `tests/python/test_rent_text_equivalence.py` + تطبیق با گزینه‌های `assets/templates/*.json` و به‌روزرسانی `assets/brain/text_manifest.json`.
+2. **اصلاح تعامل «تومان → میلیون تومان» در `Sense.amount` (`lib/domain/advocate/text_sense.dart` و `case_text.dart`/`case_flow.dart`، `⬜` مرحلهٔ ۳):** نگهداشتن برداشت گفتاری (`۳۰ تومن` → `۳۰ میلیون`) برای حفظ سازگاری پاسخ نخست، ولی افزودن گام شفاف‌سازی و امکان اصلاح مستقیم مبلغ خُرد/میلیونی از طریق دکمه/پیام اصلاحی در همان پرونده.
+3. **هم‌راستاسازی محدودهٔ SDK در `pubspec.yaml`:** هماهنگ‌کردن `environment.sdk` با نسخهٔ واقعی قفل‌شده در `pubspec.lock` (`dart >=3.13.0 <4.0.0`) و Flutter CI (`3.47.6`).
+
+### فاز ۱۶ — تکمیل داور یکپارچهٔ `AnswerArbiter` و موتور اجرای JSON موضوع‌ها (`Topic.fromJson`)
+1. **واردکردن شاخه‌های انتهایی `_reply` در `lib/domain/advocate/advocate_reply.dart` به `AnswerArbiter` (`⏳` مرحلهٔ ۲):** تبدیل `_meta` و شاخه‌های انتهایی (واژه/پیوند ماده، هشدار قهر، گفتگوی با برنامه، `_correctionReply` و `_noCaseReply`/`_inCaseReply`) به کاندیدهای نام‌دار داخل `AnswerArbiter`، به‌روزرسانی جدول قرارداد `dev/tools/contracts/priority.json` + بازتولید `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` با `gen_priority.py --write`، و اتصال داده‌ای ترتیب خط لوله به `assets/pipeline.json`.
+2. **افزودن `Topic.fromJson` در `lib/domain/advocate/rule_dsl_json.dart`:** پیاده‌سازی دِسریال‌سازی کامل گره‌های `RuleDSL` (`FactExpr`، `TextExpr`، `ReadRule`، `GateRule`، `RankRule`، `FilingRule`، `PromptRule`، `FillRule`، `Slot`، `Element`، `Claim` و `Topic`) و آزمودن چرخهٔ رفت‌وبرگشت (`Topic.toJson()` → `Topic.fromJson()`) روی هر ۲۴ موضوع در Dart.
+
+### فاز ۱۷ — کاهش و حذف بدهیِ دوپیاده‌سازی پایتون ↔ دارت و خودکارسازی مشتق‌ها
+1. **افزودن اجراگر CLI روی کد واقعی Dart برای سنجش‌های `eval` و رگرسیون:** اجرای مستقیم `PersianText`/`Sense`، `KnowledgeEngine`، `LawTerms` و `TopicFlow` روی `eval/*.txt` و `tests/**/*.json` توسط Dart در CI.
+2. **بازنشانی/یکپارچه‌سازی ۴ جفتِ `dev/tools/contracts/duplicated_logic.json`:** استفاده از خروجی مستقیم Dart در ارزیابی CI و پاک‌سازی/کاهش کد تکراری در `dev/brain/{common,engine}.py` و `dev/tools/{eval_py,law_terms,topic_flow}.py` همگام با `dev/tools/debt_check.py` و `docs/ROADMAP.md`.
+3. **اتصال خودکار مشتق‌های `_meta.json` (`dev/tools/sync_meta.py`):** بررسی یا تولید خودکار `assets/laws_catalog.json` و `assets/data_info.json` در گام پیش‌ساخت/CI برای جلوگیری از ناهماهنگی دستی.
+
+### فاز ۱۸ — بهبود دقت بازیابی (`LawTerms`، `BM25F`) و بستن موارد بازِ ممیزی (`term_audit.md`)
+1. **بستن ۶ مورد باز `tests/law_terms/audit.json` / `reports/term_audit.md` بدون افت ۳۵ مورد قفل‌شدهٔ `cases.json`:**
+   - جلوگیری از پذیرش پرسش‌های نامرتبط/غیرحقوقی (`نزدیک‌ترین ستاره به زمین`، `بهترین نرم‌افزار ویرایش عکس`، `این مجموعه اندازه‌گیری`) از طریق کنترل معناداری و نسبت اصطلاحات حقوقی در `LawTerms`.
+   - پوشش پرسش‌های کوتاه حقوقی (`قولنامه عادی`، `خیانت در امانت` و `بیع شرط رهن`) با گسترش کنترل‌شدهٔ `assets/synonyms.txt` و هم‌ترازسازی قواعد تطبیق و مجموعهٔ آزمون.
+2. **بهبود `eval_blind.txt` (`0.58` فعلی)، `eval_none.txt` (`27/28`) و تولید دادهٔ جدید با `feedback_eval.py`:** افزودن هم‌معناهای دقیق گفتاری، بازسنجی رتبه‌بندی و مستندسازی بهبود بدون دست‌کاری غیرمجاز در وزن‌های `Noql`.
+
+### فاز ۱۹ — جداسازی کامل `lib/core/` از `flutter/services` و آماده‌سازی لایهٔ ذخیره برای SQLCipher
+1. **جداسازی کامل `lib/core/` از `flutter/services` (بدهی ۲ در `docs/ARCHITECTURE.md`):** تزریق رابط خواندن دارایی (`AssetLoader`) به `KnowledgeEngine.load` (`lib/core/engine_load.dart`) تا کدهای بارگذاری `core` بدون وابستگی مستقیم به `rootBundle` عمل کنند و کل `lib/core/` نیز مستقل از Flutter شود.
+2. **انتزاع لایهٔ ذخیره برای مهاجرت به SQLite + SQLCipher (`⬜` مرحلهٔ ۳ در `ROADMAP.md`):** جداسازی رابط کلید-مقدار و تاریخچه/بازخورد/پیش‌نویس پشت یک واسط ذخیره‌سازی آزمایش‌پذیر و آماده‌سازی مسیر مهاجرت یک‌باره از کلیدهای `history_v1*`، `active_draft_v1` و `feedback_v1` *(نکتهٔ محیطی: افزودن بستهٔ واقعی `sqflite_sqlcipher` نیازمند دریافت از `pub.dev` است که در محیط فاقد دسترسی به `pub.dev` به‌صورت کاملاً شفاف مستند می‌شود)*.
+
+### فاز ۲۰ — تمیزکاری و بهینه‌سازی گردش‌کارهای پژوهشی CI (`.github/workflows/`)
+- محدودکردن گردش‌کارهای آزمایشی سنگین (`alt-bench.yml`، `embed-bench.yml`، `llm-bench.yml`، `noql-export.yml`، `noql-finetune.yml`، `vex-probe.yml` و سایر پروب‌ها) به اجرای دستی (`workflow_dispatch`) تا روی هر پوش شاخهٔ کاری بدون نیاز اجرا نشوند و تاریخچه و زمان CI محصول (`test.yml`، `lawyer-lab.yml`، `intent-eval.yml`) سبک بماند.
+
+### فاز ۲۱ — دروازهٔ محتوایی و حقوقی انتشار (بلوکر نهایی انتشار عمومی)
+*(بخش محتوایی نیازمند بازبینی انسانی و تطبیق با سامانهٔ رسمی قوانین — بدون جعل وضعیت `verified`)*
+1. **تطبیق رسمی تمام ۲۴ قانون (`assets/laws/_meta.json`):** تکمیل فیلدهای `status: verified`، `source` و `url` از سامانهٔ قوانین/روزنامهٔ رسمی (اکنون **۰ از ۲۴**) و گسترش `reports/source_check.md` از ۱۰ ماده به همهٔ **۲۳۳ مادهٔ استنادی**.
+2. **تعیین تکلیف ۱۲۷ مادهٔ جاافتاده در `dev/tools/doctor.py`:** بررسی/مستندسازی موارد نسخ‌شده یا حذف‌شده در `commerce` (۷۳)، `penal_taazirat` (۳۴)، `direct_taxes` (۷)، `registration` (۵)، `civil` (۳)، `social_security` (۳) و `civil_procedure` (۲).
+3. **بازبینی حقوقی ۷ قالب سند باقی‌مانده (`assets/templates/`):** تکمیل بررسی و افزودن ارجاعات قانونی برای قالب‌های بازبینی‌نشده تا عبور موفق `python3 dev/tools/check.py trust`.
+4. **پیکربندی نهایی انتشار اندروید:** امضای `release` با `key.properties` واقعی (بدون `ALLOW_DEBUG_SIGNING`).
 
 ---
 
