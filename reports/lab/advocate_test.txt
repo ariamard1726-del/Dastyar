@@ -1,14 +1,14 @@
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید خرابیِ خانهٔ اجاره‌ای با زبان کوچه هم پروندهٔ اجاره باز می‌کند
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۴) ادامهٔ حرفِ قبلی > اصلاحِ موضوع
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۱, ۲۵) ادامهٔ حرفِ قبلی > پرونده یا پاسخِ کلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۱۸) تنظیمِ سند > تکرارِ حرفِ قبلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۲, ۲۵) تنظیمِ سند > پرونده یا پاسخِ کلی
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۱۷) پیشنهادِ پاسخ > پاسخِ کلیِ مقدم
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۱۹) پیشنهادِ پاسخ > قاعدهٔ ثابت
-✅ test/advocate/rent_test.dart: طرف مقابل چه می‌گوید نقلِ حرفِ مستأجر، موجر را مستأجر نمی‌کند
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۲) پیشنهادِ پاسخ > هشدارِ قهر
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: خرجِ ملک، جریمهٔ قرارداد و قراردادِ بی‌مدت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۳) پیشنهادِ پاسخ > گفتگو با برنامه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۴) پیشنهادِ پاسخ > اصلاحِ موضوع
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره مستأجر: بهانهٔ «خودم می‌خواهم بنشینم» و ملکی که تحویل نمی‌شود
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۵) پیشنهادِ پاسخ > پرونده یا پاسخِ کلی
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۷) «باشه» > پاسخِ کلیِ مقدم
-✅ test/advocate/rent_test.dart: پرسش‌های تازهٔ اجاره موجر: ضامن، ادعای پرداخت و تغییرِ بی‌اجازه
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۹) «باشه» > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۲) «باشه» > هشدارِ قهر
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۴) «باشه» > اصلاحِ موضوع
