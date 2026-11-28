@@ -1,13 +1,13 @@
-commit: fb1bf2b
+commit: 0821fdb
 🎉 941 tests passed.
 --- analyze ---
-2 issues found. (ran in 12.3s)
+2 issues found. (ran in 12.6s)
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:144:21 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:146:30 • prefer_const_constructors
 --- coverage ---
 coverage: 8844/9627 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=1409 assets_ms=74 index_ms=1334 worker_load_ms=1495 first_query_ms=75 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=254.3
+STARTUP-BASELINE load_ms=1447 assets_ms=86 index_ms=1361 worker_load_ms=1360 first_query_ms=75 laws=24 chunks=5725 vocab=9215 assets_mb=17.36 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=255.1
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
