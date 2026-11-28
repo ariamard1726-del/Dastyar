@@ -188,7 +188,8 @@ class _ChatPageState extends State<ChatPage> {
             leading: IconButton(
               tooltip: 'فهرست قوانین',
               icon: const Icon(Icons.more_vert),
-              onPressed: () => showLawsDrawer(context),
+              onPressed: () =>
+                  showLawsDrawer(context, legalTerms: widget.engine.legalTerms),
             ),
             title: const Text('دستیار'),
             // دقیقاً سه کنش در سمت چپ: گفتگوی جدید، تاریخچه، تنظیمات.

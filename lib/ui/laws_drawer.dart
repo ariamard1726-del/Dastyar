@@ -16,11 +16,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
 import 'package:dastyar/core/persian_text.dart';
+import 'package:dastyar/ui/laws_drawer_articles.dart';
 import 'package:dastyar/ui/laws_drawer_cards.dart';
+import 'package:dastyar/ui/laws_drawer_theme.dart';
 import 'package:dastyar/ui/laws_library.dart';
 
 /// دراور فهرست قوانین را باز می‌کند؛ شیت ۸۰٪ سمت راست، بقیهٔ صفحه کم‌رنگ.
-Future<void> showLawsDrawer(BuildContext context) {
+///
+/// اگر `legalTerms` داده شود (معمولاً `engine.legalTerms`)، جست‌وجوی
+/// ماده‌ها از پیوندهای «واژهٔ حقوقی ↔ ماده» هم استفاده می‌کند.
+Future<void> showLawsDrawer(
+  BuildContext context, {
+  Map<String, dynamic>? legalTerms,
+}) {
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -28,7 +36,7 @@ Future<void> showLawsDrawer(BuildContext context) {
     barrierColor: Colors.black54,
     transitionDuration: const Duration(milliseconds: 280),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        const _LawsDrawerPanel(),
+        _LawsDrawerPanel(legalTerms: legalTerms),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       final curved = CurvedAnimation(
         parent: animation,
@@ -46,7 +54,9 @@ Future<void> showLawsDrawer(BuildContext context) {
 }
 
 class _LawsDrawerPanel extends StatefulWidget {
-  const _LawsDrawerPanel();
+  final Map<String, dynamic>? legalTerms;
+
+  const _LawsDrawerPanel({this.legalTerms});
 
   @override
   State<_LawsDrawerPanel> createState() => _LawsDrawerPanelState();
@@ -54,9 +64,19 @@ class _LawsDrawerPanel extends StatefulWidget {
 
 class _LawsDrawerPanelState extends State<_LawsDrawerPanel> {
   late final Future<List<LawEntry>> _library = LawsLibrary.load();
+  late final List<Map<String, dynamic>>? _termEntries = _extractEntries(
+    widget.legalTerms,
+  );
   final TextEditingController _searchCtrl = TextEditingController();
   final Set<String> _expanded = <String>{};
   String _query = '';
+
+  static List<Map<String, dynamic>>? _extractEntries(
+      Map<String, dynamic>? raw) {
+    final list = raw?['entries'];
+    if (list is! List) return null;
+    return list.whereType<Map<String, dynamic>>().toList();
+  }
 
   @override
   void dispose() {
@@ -99,7 +119,7 @@ class _LawsDrawerPanelState extends State<_LawsDrawerPanel> {
           width: size.width * 0.8, // دقیقاً ۸۰٪ عرض صفحه
           height: size.height,
           child: DefaultTextStyle(
-            style: const TextStyle(fontFamily: drawerFont, color: Color(0xFFF2EDE4)),
+            style: const TextStyle(fontFamily: drawerFont, color: drawerOffWhite),
             child: ColoredBox(
               color: drawerPanelBg,
               child: SafeArea(
@@ -178,7 +198,7 @@ class _LawsDrawerPanelState extends State<_LawsDrawerPanel> {
   }
 
   Widget _results(List<LawEntry> laws, String query) {
-    final hits = searchLaws(laws, query);
+    final hits = searchLaws(laws, query, legalTerms: _termEntries);
     if (hits.isEmpty) {
       return const DrawerMessage(
         icon: Icons.search_off,

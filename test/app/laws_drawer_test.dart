@@ -96,6 +96,45 @@ void main() {
       expect(hits.first.law.id, 'civil');
     });
 
+    test('legal_terms مادهٔ متناظر را با تگ اولِ مرتبط‌ها می‌آورد', () {
+      final testLaws = [
+        _law('landlord_tenant', 'قانون روابط موجر و مستأجر',
+            [_article(3, 'موجر پس از انقضای مدت می‌تواند تخلیه بخواهد')]),
+        _law('civil', 'قانون مدنی',
+            [_article(3, 'متن آزمایشی سادهٔ مدنی')]),
+      ];
+      final terms = [
+        {
+          'phrases': ['تخلیه ملک'],
+          'law': 'landlord_tenant',
+          'title': 'ماده 3',
+          'anchor': 'تخلیه',
+        },
+      ];
+      final hits = searchLaws(testLaws, 'تخلیه ملک', legalTerms: terms);
+      expect(hits.first.law.id, 'landlord_tenant');
+      expect(hits.first.article.number, 3);
+      expect(hits.first.tag, 'تخلیه');
+    });
+
+    test('legal_terms با ورودی صرفاً عددی اثر نمی‌گذارد', () {
+      final testLaws = [
+        _law('landlord_tenant', 'قانون روابط موجر و مستأجر',
+            [_article(3, 'متن مادهٔ سه')]),
+      ];
+      final terms = [
+        {
+          'phrases': ['تخلیه ملک'],
+          'law': 'landlord_tenant',
+          'title': 'ماده 3',
+          'anchor': 'تخلیه',
+        },
+      ];
+      final hits = searchLaws(testLaws, '3', legalTerms: terms);
+      expect(hits.where((h) => h.exact), hasLength(1));
+      expect(hits.where((h) => h.tag != null), isEmpty);
+    });
+
     test('query خالی نتیجه ندارد', () {
       expect(searchLaws(laws, '   '), isEmpty);
     });
@@ -178,6 +217,50 @@ void main() {
       expect(find.text('کل قانون کپی شد'), findsOneWidget);
       expect(copied, contains('قانون مدنی'));
       expect(copied, contains('ماده ۱۱۶۷'));
+    });
+
+    testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          themeMode: ThemeMode.dark,
+          darkTheme: ThemeData.dark(useMaterial3: true),
+          home: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Builder(
+              builder: (context) => Scaffold(
+                appBar: AppBar(
+                  title: const Text('دستیار'),
+                  leading: IconButton(
+                    tooltip: 'فهرست قوانین',
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () => showLawsDrawer(context, legalTerms: const {}),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byTooltip('فهرست قوانین'));
+      for (var i = 0; i < 60; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('شماره ماده را وارد کنید...'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'ماده ۱۰');
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('پاک کردن جست‌وجو'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('پاک کردن جست‌وجو'));
+      await tester.pumpAndSettle();
+      // لیست پیش‌فرض (۲۴ قانون) دوباره دیده می‌شود.
+      expect(find.text('قانون مدنی'), findsOneWidget);
+      expect(find.byTooltip('پاک کردن جست‌وجو'), findsNothing);
     });
   });
 }

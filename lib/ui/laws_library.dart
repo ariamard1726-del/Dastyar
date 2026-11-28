@@ -68,11 +68,16 @@ class ArticleHit {
   final bool exact;
   final int score;
 
+  /// واژهٔ حقوقی‌ای که این ماده به آن پیوند خورده (از `legal_terms.json`)،
+  /// در صورت وجود.
+  final String? tag;
+
   const ArticleHit({
     required this.law,
     required this.article,
     required this.exact,
     required this.score,
+    this.tag,
   });
 }
 
@@ -196,10 +201,14 @@ String _searchNormalize(String input) {
 /// * بقیهٔ واژه‌های غیرعددی، روی متن نرمال‌شده همهٔ ماده‌ها امتیاز می‌گیرند
 ///   (هر واژه در متن = ۲ امتیاز، در عنوان = ۳ امتیاز) و بهترین‌ها به‌عنوان
 ///   «مرتبط» برگردانده می‌شوند.
+/// * اگر `legalTerms` داده شود (همان `assets/brain/legal_terms.json`)،
+///   هر ورودی‌ای که عبارتش با ورودی کاربر بخواند، مادهٔ متناظرش با تگ
+///   «واژهٔ حقوقی» و امتیاز ۹۰۰ به بالای مرتبط‌ها می‌آید.
 List<ArticleHit> searchLaws(
   List<LawEntry> laws,
   String query, {
   int maxRelated = 8,
+  List<Map<String, dynamic>>? legalTerms,
 }) {
   final q = _searchNormalize(query);
   if (q.isEmpty) return const [];
@@ -223,7 +232,7 @@ List<ArticleHit> searchLaws(
           !stop.contains(t))
       .toList();
 
-  final hits = <ArticleHit>[];
+  var hits = <ArticleHit>[];
   for (final law in laws) {
     for (final a in law.articles) {
       if (isNumberQuery && a.number == wantNumber && a.mokarrar == wantMok) {
@@ -241,8 +250,74 @@ List<ArticleHit> searchLaws(
       }
     }
   }
+  if (legalTerms != null && !RegExp(r'^[0-9]+$').hasMatch(q)) {
+    hits = _applyLegalTerms(laws, hits, legalTerms, q);
+  }
   final exact = hits.where((h) => h.exact).toList();
   final related = hits.where((h) => !h.exact).toList()
     ..sort((a, b) => b.score.compareTo(a.score));
   return [...exact, ...related.take(maxRelated)];
+}
+
+/// «واژهٔ حقوقی»ها را با امتیاز ۹۰۰ تزریق می‌کند و تکراری‌ها را یکتا می‌کند.
+List<ArticleHit> _applyLegalTerms(
+  List<LawEntry> laws,
+  List<ArticleHit> base,
+  List<Map<String, dynamic>> entries,
+  String q,
+) {
+  String keyOf(String lawId, ArticleEntry a) =>
+      '$lawId#${a.number}#${a.mokarrar}';
+
+  final boosted = <ArticleHit>[];
+  final boostedKeys = <String>{};
+  for (final e in entries) {
+    final rawPhrases = (e['phrases'] as List?) ?? const [];
+    final phrases = rawPhrases
+        .map((x) => _searchNormalize(x.toString()))
+        .where((p) => p.isNotEmpty)
+        .toList();
+    final matches = phrases.any(
+        (p) => q.contains(p) || (q.length >= 3 && p.contains(q)));
+    if (!matches) continue;
+
+    final lawId = (e['law'] ?? '').toString();
+    LawEntry? law;
+    for (final l in laws) {
+      if (l.id == lawId) {
+        law = l;
+        break;
+      }
+    }
+    final titleMatch = RegExp(r'^(ماده|اصل)\s+([0-9۰-۹٠-٩]+)\s*(مکرر)?')
+        .firstMatch((e['title'] ?? '').toString());
+    if (law == null || titleMatch == null) continue;
+    final wantNumber = int.tryParse(_toEnDigits(titleMatch.group(2)!));
+    final wantMok = titleMatch.group(3) != null;
+    ArticleEntry? target;
+    for (final a in law.articles) {
+      if (a.number == wantNumber && a.mokarrar == wantMok) {
+        target = a;
+        break;
+      }
+    }
+    if (target == null) continue;
+
+    final key = keyOf(law.id, target);
+    if (boostedKeys.add(key)) {
+      boosted.add(ArticleHit(
+        law: law,
+        article: target,
+        exact: false,
+        score: 900,
+        tag: (e['anchor'] ?? '').toString(),
+      ));
+    }
+  }
+
+  if (boosted.isEmpty) return base;
+  final merged = List<ArticleHit>.from(base)
+    ..removeWhere((h) =>
+        boostedKeys.contains(keyOf(h.law.id, h.article)));
+  return [...merged, ...boosted];
 }

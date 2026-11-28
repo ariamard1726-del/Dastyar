@@ -47,6 +47,7 @@ ThemeData _buildTheme(Brightness b) {
   ).copyWith(surface: bg);
   return ThemeData(
     useMaterial3: true,
+    fontFamily: 'Vazirmatn',
     colorScheme: scheme,
     scaffoldBackgroundColor: bg,
     appBarTheme: AppBarTheme(
