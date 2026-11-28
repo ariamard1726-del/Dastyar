@@ -9,8 +9,8 @@ import 'package:dastyar/domain/advocate/advocate_texts_loader.dart';
 void main() {
   test('متنهای عمومی وکیل از فایل دارایی نصب می‌شوند', () async {
     final keys = await loadAdvocateTexts();
-    // ۱۸ بخش، ۴۷۳ متن.
-    expect(keys.length, 473);
+    // ۱۸ بخش، ۴۷۶ متن.
+    expect(keys.length, 476);
     expect(loadedAdvocateTexts.containsKey('term_esar_text'), isTrue);
     expect(loadedAdvocateTexts.containsKey('say_disclaimer'), isTrue);
     expect(loadedAdvocateTexts.containsKey('safetySelfHarmText'), isTrue);
