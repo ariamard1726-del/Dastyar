@@ -12,18 +12,13 @@ on:
         default: 'all'
         type: choice
         options: ['all', 'extra']
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/qwen_probe.py'
-      - '.github/workflows/qwen-probe.yml'
 
 permissions:
   contents: write
 
 jobs:
   gguf:
-    if: github.event_name == 'push' || inputs.stage == 'all'
+    if: inputs.stage == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -53,7 +48,7 @@ jobs:
           done
 
   tuned:
-    if: github.event_name == 'push' || inputs.stage == 'all'
+    if: inputs.stage == 'extra' || inputs.stage == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:

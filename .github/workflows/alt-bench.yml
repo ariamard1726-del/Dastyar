@@ -6,12 +6,6 @@ name: Alternative embedding models
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/alt_bench.py'
-      - 'eval/topic_examples.tsv'
-      - '.github/workflows/alt-bench.yml'
 
 permissions:
   contents: write

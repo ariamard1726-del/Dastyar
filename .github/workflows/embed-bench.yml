@@ -6,12 +6,6 @@ name: Embedding model benchmark
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/embed_bench.py'
-      - 'eval/topic_examples.tsv'
-      - '.github/workflows/embed-bench.yml'
 
 permissions:
   contents: write

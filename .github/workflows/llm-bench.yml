@@ -6,12 +6,6 @@ name: Small LLM benchmark
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/llm_bench.py'
-      - 'eval/understanding_probe.tsv'
-      - '.github/workflows/llm-bench.yml'
 
 permissions:
   contents: write

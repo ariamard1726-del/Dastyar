@@ -5,11 +5,6 @@ name: Vex model probe
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/vex_probe.py'
-      - '.github/workflows/vex-probe.yml'
 
 permissions:
   contents: write
