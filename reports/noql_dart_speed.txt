@@ -1,1 +1,1 @@
-NOQL-DART 39 sentences, 424 tokens, 19318 ms total, 495 ms per sentence
+NOQL-DART 39 sentences, 424 tokens, 16431 ms total, 421 ms per sentence
