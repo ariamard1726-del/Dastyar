@@ -104,7 +104,7 @@
 | فایل | خط | مسئولیت |
 |---|---|---|
 | `engine.dart` | **۱۹۲** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` (قواعد از `engine_rules.dart`) |
-| `engine_load.dart` | **۲۹۸** | تنها جایی که دارایی خوانده می‌شود: `load` و بارگذاری‌های `_load*` |
+| `engine_load.dart` | **۳۱۴** | تنها جایی که دارایی خوانده می‌شود: `load`، `_loadPipeline` (`assets/pipeline.json`) و بارگذاری‌های `_load*` |
 | `engine_query.dart` | **۳۰۸** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
 | `engine_worker.dart` | **۱۴۰** | همان پاسخ‌سازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دست‌نخورده |
 
@@ -248,7 +248,7 @@
 |---|---|---|
 | `case_file.dart` | **۹** | فقط دو `export`؛ همان مسیرِ پیشین برای چهل `import` |
 | `case_state.dart` | **۱۳۶** | `CaseFile`: واقعیت‌ها، شمارشِ پرسش‌ها، `toJson`/`fromJson`، `schemaVersion` |
-| `case_model.dart` | **۲۷۱** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl`) |
+| `case_model.dart` | **۲۷۳** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl` و `Topic.fromJson`) |
 
 - **چرا دروازه و نه تغییرِ مسیر:** چهل فایل و آزمون `case_file.dart` را
   `import` می‌کنند. `export` در همان فایل، هم `CaseFile` و هم مدل‌ها را می‌دهد،

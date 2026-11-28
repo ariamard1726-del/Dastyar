@@ -171,3 +171,42 @@ class MetaReply {
     );
   }
 }
+
+extension _MetaReplyHelpers on Advocate {
+  AdvocateReply? _termOrLinkReply(
+      String raw, String n, TopicRead read, TopicGuess? guess) {
+    if (hasCase || read.bestScore >= _topicOpenMin) return null;
+    final confidentGuess = guess != null && guess.confident;
+    final lt =
+        Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);
+    if (lt != null) return lt;
+    final refs = Understanding.linkedArticles(n);
+    if (refs.isEmpty) return null;
+    return _out(
+      advocateFormat('replyLinkedArticles', {'refs': refs.join(' ')}),
+      ask: advocateText('replyLinkedAsk'),
+      full: true,
+    );
+  }
+
+  AdvocateReply? _sulkingReply(String n) {
+    if (!Sense.has(n, 'قهر') ||
+        !Sense.has(n, 'زندان|حبس|بازداشت|جریمه|پلیس|دادگاه')) {
+      return null;
+    }
+    return _out(
+      advocateText('replySulkingWarning'),
+      ask: advocateText('replySulkingAsk'),
+    );
+  }
+
+  AdvocateReply? _appChatReply(String n) {
+    if (!Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
+      return null;
+    }
+    return _out(
+      advocateText('replyAppChatBody'),
+      ask: advocateText('replyAppChatAsk'),
+    );
+  }
+}

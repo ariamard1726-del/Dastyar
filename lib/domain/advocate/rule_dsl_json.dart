@@ -87,7 +87,11 @@ extension SlotRuleJson on Slot {
   Map<String, dynamic> toJson() => {
         'id': id,
         'ask': ask,
+        'why': why,
         if (options.isNotEmpty) 'options': options,
+        if (yesValue != 'yes') 'yesValue': yesValue,
+        if (noValue != 'no') 'noValue': noValue,
+        if (first) 'first': true,
         if (sticky) 'sticky': true,
         if (priority.isNotEmpty) 'priority': priority,
         if (rules != null) 'read': rules!.read.toJson(),

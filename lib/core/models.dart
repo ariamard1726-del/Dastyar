@@ -88,3 +88,42 @@ class StartupMetrics {
     required this.withWorker,
   });
 }
+
+/// پیکربندی زندهٔ خط لولهٔ پاسخ که از `assets/pipeline.json` بارگذاری می‌شود.
+class PipelineConfig {
+  final List<String> order;
+  final double netMin;
+  final int topicOpen;
+  final int topicStrong;
+  final int topicDominant;
+
+  const PipelineConfig({
+    required this.order,
+    required this.netMin,
+    required this.topicOpen,
+    required this.topicStrong,
+    required this.topicDominant,
+  });
+
+  static PipelineConfig? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    final ord = raw['order'];
+    final th = raw['thresholds'];
+    if (ord is! List || ord.isEmpty || th is! Map) return null;
+    final orderList = <String>[for (final s in ord) s.toString()];
+    final net = th['netMin'];
+    final open = th['topicOpen'];
+    final strong = th['topicStrong'];
+    final dom = th['topicDominant'];
+    if (net is! num || open is! int || strong is! int || dom is! int) {
+      return null;
+    }
+    return PipelineConfig(
+      order: List<String>.unmodifiable(orderList),
+      netMin: net.toDouble(),
+      topicOpen: open,
+      topicStrong: strong,
+      topicDominant: dom,
+    );
+  }
+}

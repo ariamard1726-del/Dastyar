@@ -24,12 +24,9 @@ export 'models.dart';
 // موتورِ دانش: وضعیت و API عمومی.
 //
 // این فایل فقط چیزی را نگه می‌دارد که «وضعیتِ موتور» است: فهرستِ قوانین،
-// ایندکس، بردارِ واژه‌ها، پاسخ‌های ثابت و پاس‌دهنده‌های نازک. دو مسئولیتِ
-// سنگین در بخش‌های خودشان‌اند و با `extension` روی همین کلاس به همان وضعیت
-// دسترسی دارند (هم‌کتابخانه، پس اعضای خصوصی می‌مانند):
-//
-//  • `engine_load.dart`  — خواندنِ دارایی‌ها و ساختنِ ایندکس (`load`).
-//  • `engine_query.dart` — پاسخ‌سازی: یافتنِ ماده، رتبه‌بندی، پیشنهادها.
+// ایندکس، بردارِ واژه‌ها، پیکربندیِ زندهٔ خط لوله و پاسخ‌های ثابت.
+// دو مسئولیتِ سنگین در بخش‌های خودشان‌اند و با `extension` به وضعیت دسترسی
+// دارند: `engine_load.dart` (`load`) و `engine_query.dart` (پاسخ‌سازی).
 
 part 'engine_load.dart';
 part 'engine_query.dart';
@@ -76,12 +73,15 @@ class KnowledgeEngine {
   Object? _lawTopicsRaw;
   EngineWorker? _worker;
   StartupMetrics? _startup;
+  PipelineConfig? _pipeline;
 
   /// خطاهای بارگذاری فایل‌های کمکی؛ دیگر بی‌صدا نادیده گرفته نمی‌شوند.
   final List<String> warnings = [];
 
   int get size => _index.chunks.length;
   StartupMetrics? get startupMetrics => _startup;
+  /// پیکربندی زندهٔ خط لولهٔ پاسخ (`assets/pipeline.json`).
+  PipelineConfig? get pipeline => _pipeline;
 
   /// بخش‌های قوانین و فهرست وارونهٔ آن‌ها؛ برای تطبیق واژه‌ها (law_terms.dart).
   List<Chunk> get chunks => _index.chunks;

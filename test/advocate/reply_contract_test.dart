@@ -39,6 +39,7 @@ void main() {
     for (final m in messages) {
       final a = Advocate(engine);
       final r = a.respond(m);
+      expect(a.lastDecision, isNotNull, reason: m);
       expect(r.text.trim(), isNotEmpty, reason: m);
       expect(r.source, isNot(AnswerSource.unknown), reason: m);
       for (final c in r.chips) {

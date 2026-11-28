@@ -23,18 +23,18 @@ class PriorityMatrixTests(unittest.TestCase):
     def setUp(self):
         self.contract = GP.load()
 
-    def test_contract_has_all_190_pairs_and_passes_validation(self):
+    def test_contract_has_all_325_pairs_and_passes_validation(self):
         self.assertEqual(GP.validate(self.contract), [])
         cands = self.contract['candidates']
-        self.assertEqual(len(cands), 20)
+        self.assertEqual(len(cands), 26)
         self.assertEqual([c['name'] for c in cands], CANDIDATE_ORDER)
         pairs = self.contract['pairs']
-        self.assertEqual(len(pairs), 190)
+        self.assertEqual(len(pairs), 325)
         overlaps = [p for p in pairs if p['status'] == 'overlap']
         disjoints = [p for p in pairs if p['status'] == 'disjoint']
-        self.assertEqual(len(overlaps) + len(disjoints), 190)
-        self.assertEqual(len(overlaps), 113)
-        self.assertEqual(len(disjoints), 77)
+        self.assertEqual(len(overlaps) + len(disjoints), 325)
+        self.assertEqual(len(overlaps), 231)
+        self.assertEqual(len(disjoints), 94)
 
     def test_generated_doc_and_dart_test_are_fresh(self):
         self.assertEqual(GP.main(['--check']), 0,
@@ -44,7 +44,7 @@ class PriorityMatrixTests(unittest.TestCase):
         bad = copy.deepcopy(self.contract)
         bad['pairs'].pop()
         errs = GP.validate(bad)
-        self.assertTrue(any('۱۹۰' in e for e in errs), errs)
+        self.assertTrue(any('۳۲۵' in e or '۱۹۰' in e for e in errs), errs)
 
     def test_reordered_candidate_fails_validation(self):
         bad = copy.deepcopy(self.contract)

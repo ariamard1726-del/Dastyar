@@ -113,6 +113,20 @@ Future<void> _loadRelationships() async {
   }
 }
 
+Future<void> _loadPipeline() async {
+  try {
+    final t = await rootBundle.loadString('assets/pipeline.json', cache: false);
+    final cfg = PipelineConfig.fromJson(jsonDecode(t));
+    if (cfg != null) {
+      _pipeline = cfg;
+    } else {
+      warnings.add('pipeline.json: ساختار نامعتبر');
+    }
+  } catch (e) {
+    warnings.add('pipeline.json: $e');
+  }
+}
+
 Future<List<String>?> _loadKnowledgeChunk() async {
   try {
     final text = await rootBundle.loadString('assets/knowledge.txt', cache: false);
@@ -133,6 +147,7 @@ Future<void> load({bool startWorker = false}) async {
   _relationships = const {};
   warnings.clear();
   _startup = null;
+  _pipeline = null;
 
   final knowledgeFuture = _loadKnowledgeChunk();
   await Future.wait<void>([
@@ -141,6 +156,7 @@ Future<void> load({bool startWorker = false}) async {
     _loadReplies(),
     _loadSynonyms(),
     _loadRelationships(),
+    _loadPipeline(),
     _loadLawTopics(),
     _loadQa(),
     _loadLegalTerms(),

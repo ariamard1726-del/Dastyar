@@ -21,7 +21,7 @@
 | جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `dev/tools/contracts/duplicated_logic.json` | `python3 dev/tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
 | ایست‌واژه‌ها، آستانه و رتبه‌بندی تطبیق واژه‌ها | `dev/tools/contracts/law_terms.json` | `python3 dev/tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
 | قاعده‌های موتور بازیابی و نمایهٔ قوانین | `dev/tools/contracts/engine_rules.json` | `python3 dev/tools/gen_engine_rules.py --check` (در `check.py enginerules`) | `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_engine_rules_parity.py` + `test/core/engine_rules_test.dart` |
-| ماتریس اولویت ۲۰ کاندید (۱۹۰ جفت) | `dev/tools/contracts/priority.json` | `python3 dev/tools/gen_priority.py --check` (در `check.py priority`) | `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_priority_matrix.py` |
+| ماتریس اولویت ۲۶ کاندید (۳۲۵ جفت) | `dev/tools/contracts/priority.json` | `python3 dev/tools/gen_priority.py --check` (در `check.py priority`) | `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_priority_matrix.py` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
 > از جداافتادن‌شان جلوگیری می‌کند. ایست‌واژه‌ها و آستانه‌ها از این قاعده بیرون
@@ -155,13 +155,13 @@ python dev/tools/check.py refs
 
 آزمون: `tests/python/test_debt_check.py`.
 
-## ۷. ماتریس اولویت ۲۰ کاندید پاسخ (`dev/tools/contracts/priority.json`)
+## ۷. ماتریس اولویت ۲۶ کاندید پاسخ (`dev/tools/contracts/priority.json`)
 
-۲۰ کاندید خطِ تولیدِ پاسخ در `lib/domain/advocate/advocate_reply.dart`
-($\binom{20}{2} = ۱۹۰$ جفتِ ممکن) به ترتیبِ `hitDecision` (۱۶)، `dueDecision` (۱)
-و `tailDecision` (۳) داوری می‌شوند. هر ۱۹۰ جفت در همین قرارداد فهرست
-شده‌اند: **۱۱۳ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
-بازنده و ورودی مرکب) و **۷۷ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
+۲۶ کاندید خطِ تولیدِ پاسخ در `lib/domain/advocate/advocate_reply.dart`
+($\binom{26}{2} = ۳۲۵$ جفتِ ممکن) به ترتیبِ `hitDecision` (۱۶)، `dueDecision` (۲)
+و `tailDecision` (۸) داوری می‌شوند. هر ۳۲۵ جفت در همین قرارداد فهرست
+شده‌اند: **۲۳۱ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
+بازنده و ورودی مرکب) و **۹۴ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
 
 - **تولید:** `python3 dev/tools/gen_priority.py --write` ← `docs/PRIORITY.md`
   و `test/advocate/priority_matrix_test.dart`.
