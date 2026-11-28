@@ -3,4 +3,4 @@ Analyzing Dastyar...
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:144:21 • prefer_const_constructors
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/laws_drawer.dart:146:30 • prefer_const_constructors
 
-2 issues found. (ran in 11.2s)
+2 issues found. (ran in 12.5s)
