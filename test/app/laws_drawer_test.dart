@@ -249,12 +249,12 @@ void main() {
       expect(find.text('کل قانون کپی شد'), findsOneWidget,
           reason: 'Error: DRW-light toast missing');
       expect(copied, isNotNull, reason: 'Error: DRW-light clipboard empty');
-      expect(copied, contains('قانون صدور چک'),
+      expect(copied, contains('قانون مسئولیت مدنی'),
           reason: 'Error: DRW-light clipboard lacks law title');
       expect(copied, contains('ماده ۱'),
           reason: 'Error: DRW-light clipboard lacks article 1');
-      expect(copied, contains('ماده ۲۷'),
-          reason: 'Error: DRW-light clipboard lacks article 27');
+      expect(copied, contains('ماده ۱۶'),
+          reason: 'Error: DRW-light clipboard lacks article 16');
     }, timeout: const Timeout(Duration(minutes: 3)));
 
     testWidgets('دراور در تم تیرهٔ RTL بدون خطا رندر می‌شود و دکمهٔ X جست‌وجو را پاک می‌کند',
