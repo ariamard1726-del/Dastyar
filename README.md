@@ -16,7 +16,7 @@
 | سنجه | مقدار واقعی | منبع سنجش |
 |---|---|---|
 | کد برنامه (`lib/`) | **۱۸۱** فایل Dart (مجموع **۲۶٬۹۵۸** خط؛ بزرگ‌ترین فایل `advocate.dart` با **۴۰۷** خط و هیچ فایلی بالای سقف ۴۲۰ خط نیست) | `dev/tools/library.py` و `tests/python/test_file_sizes.py` |
-| آزمون‌های Flutter/Dart | خط پایهٔ **۷۰۱** آزمون پس از تفکیک کنترلر؛ آخرین گزارش خودکار CI این شاخه (منبع و شمارهٔ کامِت در خودِ `reports/last_test.txt` هر بار تازه می‌شود): **۹۴۹ آزمون سبز**، تحلیل ایستا **۲ هشدار `info`** (`prefer_const_constructors` در `laws_drawer.dart`)، پوشش **۹۱٫۹٪** (`8850/9633` خط)، بودجهٔ استارت `≤ ۱۵٬۰۰۰ ms` با بارگذاری سرد ۱٬۲۴۵ ms | `reports/last_test.txt`، `reports/coverage.txt`، `reports/startup.txt` و CI شاخه |
+| آزمون‌های Flutter/Dart | خط پایهٔ **۷۰۱** آزمون پس از تفکیک کنترلر؛ آخرین گزارش خودکار CI این شاخه (منبع و شمارهٔ کامِت در خودِ `reports/last_test.txt` هر بار تازه می‌شود): **۹۵۲ آزمون سبز**، تحلیل ایستا **۲ هشدار `info`** (`prefer_const_constructors` در `laws_drawer.dart`)، پوشش **۹۱٫۹٪** (`8868/9651` خط)، بودجهٔ استارت `≤ ۱۵٬۰۰۰ ms` با بارگذاری سرد ۱٬۲۴۵ ms | `reports/last_test.txt`، `reports/coverage.txt`، `reports/startup.txt` و CI شاخه |
 | سناریوهای گفتگوی انتهابه‌انتها | **۱۳۰ از ۱۳۰** و **۱۷ از ۱۷** سناریو موفق، با **۰ هشدار/خطا** در تحلیل ایستا | گردش‌کار `.github/workflows/test.yml` |
 | آزمون‌های نگهبان و قرارداد (Python) | **۳۹۷ از ۳۹۷** آزمون سبز در `۶۷` فایل با `-W error::ResourceWarning` | `tests/python/` و `check.py all` |
 | دانش قوانین | **۲۴ قانون** (`۵٬۷۲۴` بخش متن، `۹٬۲۱۴` واژه)، قفل SHA-256 هر فایل متن (`sha256` در `_meta.json`) | `assets/laws/`، `dev/tools/doctor.py` |
