@@ -1,1 +1,6 @@
-🎉 725 tests passed.
+::group::❌ loading /home/runner/work/Dastyar/Dastyar/test/advocate/amount_clarification_test.dart (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۳۱ جفت) (۴, ۲۵) کنار گذاشتنِ موضوع > پرونده یا پاسخِ کلی (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۳۱ جفت) (۹, ۲۳) انتخابِ موضوع > گفتگو با برنامه (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۳۱ جفت) (۱۴, ۲۳) «باشه» > گفتگو با برنامه (failed)
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۳۱ جفت) (۱۸, ۲۴) تکرارِ حرفِ قبلی > اصلاحِ موضوع (failed)
+::error::843 tests passed, 5 failed.
