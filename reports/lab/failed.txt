@@ -1,1 +1,2 @@
-🎉 952 tests passed.
+::group::❌ /home/runner/work/Dastyar/Dastyar/test/understanding/noql_test.dart: روی جمله‌های محک همان دسته و همان اطمینانِ مرجع را می‌دهد (failed)
+::error::951 tests passed, 1 failed.
