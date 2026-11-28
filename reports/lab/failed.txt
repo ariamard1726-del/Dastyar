@@ -1,2 +1,1 @@
-::group::❌ /home/runner/work/Dastyar/Dastyar/test/app/laws_drawer_test.dart: دراور فهرست قوانین باز شدن با سه‌نقطه، آکاردئون و کپی کل قانون (failed)
-::error::940 tests passed, 1 failed.
+🎉 941 tests passed.
