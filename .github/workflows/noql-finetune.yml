@@ -6,11 +6,6 @@ name: Noql fine-tune experiment
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/noql_finetune.py'
-      - '.github/workflows/noql-finetune.yml'
 
 permissions:
   contents: write

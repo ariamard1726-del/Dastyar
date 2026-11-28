@@ -11,10 +11,9 @@
   {
     "q": "بیع شرط رهن",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "رهن"
-      ]
+      "accepted": true,
+      "law": "registration",
+      "title": "ماده 34"
     }
   },
   {
@@ -165,10 +164,9 @@
   {
     "q": "قولنامه عادی",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "قولنامه"
-      ]
+      "accepted": true,
+      "law": "civil",
+      "title": "ماده 1291"
     }
   },
   {
@@ -190,10 +188,9 @@
   {
     "q": "خیانت در امانت",
     "expect": {
-      "accepted": false,
-      "missing": [
-        "خیانت"
-      ]
+      "accepted": true,
+      "law": "penal_taazirat",
+      "title": "ماده 674"
     }
   },
   {
@@ -266,6 +263,24 @@
       "accepted": true,
       "law": "landlord_tenant",
       "title": "ماده 6"
+    }
+  },
+  {
+    "q": "نزدیک‌ترین ستاره به زمین",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "بهترین نرم‌افزار ویرایش عکس",
+    "expect": {
+      "accepted": false
+    }
+  },
+  {
+    "q": "این مجموعه اندازه‌گیری",
+    "expect": {
+      "accepted": false
     }
   }
 ]

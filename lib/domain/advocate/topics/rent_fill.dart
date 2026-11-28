@@ -27,8 +27,8 @@ const FillRule _rentFill = FillRule({
       'basis',
       TxCond(
         FactYes('contract'),
-        TxRaw('سند عادی (رسید یا قرارداد)'),
-        TxRaw('سایر'),
+        TxRent('optDmBasisContract'),
+        TxRent('optDmBasisOther'),
       ),
       when: FactHas('contract'),
     ),
@@ -98,17 +98,17 @@ const FillRule _rentFill = FillRule({
     FillAssign(
       'contract_kind',
       TxCases([
-        TextCase(FactNo('contract'), TxRaw('قرارداد شفاهی')),
-        TextCase(FactYes('witness'), TxRaw('اجاره‌نامهٔ عادی با امضای دو شاهد')),
-        TextCase(FactNo('witness'), TxRaw('اجاره‌نامهٔ عادی بدون شاهد')),
+        TextCase(FactNo('contract'), TxRent('optEvKindOral')),
+        TextCase(FactYes('witness'), TxRent('optEvKindWitness')),
+        TextCase(FactNo('witness'), TxRent('optEvKindNoWitness')),
       ]),
     ),
     FillAssign(
       'ground',
       TxCond(
         _fillBreach,
-        TxRaw('فسخ اجاره به‌علت تخلف مستأجر'),
-        TxRaw('پایان مدت اجاره'),
+        TxRent('optEvGroundBreach'),
+        TxRent('optEvGroundEnded'),
       ),
     ),
     FillAssign(
@@ -135,8 +135,8 @@ const FillRule _rentFill = FillRule({
       'authority_type',
       TxCond(
         FactAll([_fillDbMoney, _rentSumBig]),
-        TxRaw('شعبهٔ دادگاه عمومی حقوقی'),
-        TxRaw('شعبهٔ دادگاه صلح'),
+        TxRent('optDbAuthGeneral'),
+        TxRent('optDbAuthPeace'),
       ),
     ),
     FillAssign(
@@ -146,8 +146,8 @@ const FillRule _rentFill = FillRule({
           FactNot(_landlordSide),
           FactAny([_ordered, FactCovered('damage')]),
         ]),
-        TxRaw('خوانده'),
-        TxRaw('خواهان / شاکی'),
+        TxRent('optDbRoleDefendant'),
+        TxRent('optDbRolePlaintiff'),
       ),
     ),
     FillAssign(
@@ -217,13 +217,13 @@ const FillRule _rentFill = FillRule({
         _landlordSide,
         TxCond(
           FactIn('aim', ['unpaid', 'damage']),
-          TxRaw('مطالبهٔ وجه و تسویهٔ بدهی'),
-          TxRaw('استرداد ودیعه (پول پیش) یا تخلیهٔ ملک استیجاری'),
+          TxRent('optFnTopicMoney'),
+          TxRent('optFnTopicDeposit'),
         ),
         TxCond(
           FactIn('matter', ['deposit', 'leave']),
-          TxRaw('استرداد ودیعه (پول پیش) یا تخلیهٔ ملک استیجاری'),
-          TxRaw('سایر موارد قانونی'),
+          TxRent('optFnTopicDeposit'),
+          TxRent('optFnTopicOther'),
         ),
       ),
     ),

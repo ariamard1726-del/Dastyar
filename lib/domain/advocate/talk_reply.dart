@@ -15,7 +15,8 @@ class TalkReply {
     required this.voice,
     required this.intentNet,
     required this.chipPlan,
-  });
+    int Function()? openMin,
+  }) : _openMin = openMin ?? (() => topicOpenMin);
 
   final CaseFile file;
   final DialogueState dialog;
@@ -26,6 +27,7 @@ class TalkReply {
 
   /// دکمه‌های پیشنهادی؛ سازنده‌اش هر بار از پروندهٔ جاری ساخته می‌شود.
   final ChipPlan Function() chipPlan;
+  final int Function() _openMin;
 
   /// موضوعی که همین حالا باز است.
   Topic? get _currentTopic {
@@ -207,8 +209,9 @@ class TalkReply {
   /// آیا پیام به موضوعی نشانهٔ روشن (امتیاز ۳ به بالا) دارد؟ برای اینکه
   /// قاعده‌های عمومی (مثل «دعوای لفظی») ماجرای موضوع‌دار را ندزدند.
   bool anyTopicCue(String n) {
+    final openMin = _openMin();
     for (final t in allTopics) {
-      if (_score(t, n) >= topicOpenMin) return true;
+      if (_score(t, n) >= openMin) return true;
     }
     return false;
   }

@@ -2,11 +2,6 @@ name: Noql export
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/noql/**'
-      - '.github/workflows/noql-export.yml'
 
 permissions:
   contents: write

@@ -62,6 +62,17 @@ extension _CaseText on CaseFlow {
     }
   }
 
+  /// آیا برداشتِ میلیونی خودکار روی مبلغ/حقوق در این نوبت رخ داده است؟
+  bool hasImplicitAmountNote(List<Slot> news, String n) {
+    if (Sense.amountIsExplicit(n)) return false;
+    for (final s in news) {
+      if (s.id != 'amount' && s.id != 'salary') continue;
+      final v = file.n(s.id);
+      if (v != null && v >= 1000000) return true;
+    }
+    return false;
+  }
+
   /// اگر مبلغ بدون واحد گفته شده («۳۰ تومن»)، برداشت خودم را شفاف می‌گویم.
   void noteAmount(List<String> parts, List<Slot> news, String n) {
     if (Sense.amountIsExplicit(n)) return;

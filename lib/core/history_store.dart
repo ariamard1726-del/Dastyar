@@ -13,6 +13,8 @@ part of 'history.dart';
 /// - خطای یک رکورد، آن رکورد را رد می‌کند، نه کل تاریخچه را.
 
 class HistoryStore {
+  HistoryStore({KeyValueStore? store}) : _store = store;
+
   /// کلید فهرست. همان کلید نسخهٔ قبلی است تا دادهٔ کهنه بی‌مشکل پیدا و
   /// مهاجرت شود؛ محتوایش اکنون فقط سرصفحه‌هاست.
   static const String _key = 'history_v1';
@@ -27,7 +29,7 @@ class HistoryStore {
   static final RegExp _spacesRe = RegExp(r'\s+');
 
   final List<ChatSession> sessions = [];
-  SharedPreferences? _prefs;
+  KeyValueStore? _store;
 
   /// گفتگوهایی که باید نوشته شوند (آخرین نسخه برنده است).
   final Map<String, ChatSession> _dirty = {};
@@ -45,21 +47,15 @@ class HistoryStore {
   /// [lastError] یک شکست نیست، ولی نباید بیص بماند.
   String? lastNotice;
 
-  Future<SharedPreferences> _prefsOrLoad() async {
-    final ready = _prefs;
-    if (ready != null) return ready;
-    final loaded = await SharedPreferences.getInstance();
-    _prefs = loaded;
-    return loaded;
-  }
+  KeyValueStore _storeOrLoad() => _store ??= LocalStoreRegistry.open();
 
   static String _msgKey(String id) => '$_msgPrefix$id';
 
   Future<void> load() async {
     sessions.clear();
     try {
-      final prefs = await _prefsOrLoad();
-      final stored = prefs.getString(_key);
+      final prefs = _storeOrLoad();
+      final stored = await prefs.getString(_key);
       if (stored == null || stored.isEmpty) return;
       final wasPlain = !PrivacyService.isEncrypted(stored);
       final raw = await PrivacyService.open(stored);
@@ -70,9 +66,9 @@ class HistoryStore {
         if (stored.startsWith(PrivacyService.fallbackPrefix)) {
           // محمولههای تکتک گفتگوها هم همان سرنوشت را دارند؛ پاککردن فهرست
           // بهتنهایی رکوردهای ناخوانا را روی دستگاه باقی میگذارد.
-          for (final k in prefs.getKeys().toList()) {
+          for (final k in (await prefs.getKeys()).toList()) {
             if (k.startsWith(_msgPrefix) &&
-                (prefs.getString(k) ?? '').startsWith(
+                ((await prefs.getString(k)) ?? '').startsWith(
                     PrivacyService.fallbackPrefix)) {
               await prefs.remove(k);
             }
@@ -119,8 +115,8 @@ class HistoryStore {
     final id = (head['id'] ?? '').toString();
     if (id.isEmpty) return null;
     try {
-      final prefs = await _prefsOrLoad();
-      final stored = prefs.getString(_msgKey(id));
+      final prefs = _storeOrLoad();
+      final stored = await prefs.getString(_msgKey(id));
       if (stored == null || stored.isEmpty) return null;
       final raw = await PrivacyService.open(stored);
       if (raw == null || raw.isEmpty) {
@@ -183,7 +179,7 @@ class HistoryStore {
       lastError = 'ذخیرهٔ تاریخچه خاموش است: رمزنگاری بومی دردسترس نیست.';
       return;
     }
-    final prefs = await _prefsOrLoad();
+    final prefs = _storeOrLoad();
     var messages = s.messages;
     if (messages.length > maxMessages) {
       messages = messages.sublist(messages.length - maxMessages);
@@ -200,7 +196,7 @@ class HistoryStore {
     };
     final sealed = await PrivacyService.seal(jsonEncode(payload));
     if (!await prefs.setString(_msgKey(s.id), sealed)) {
-      throw StateError('SharedPreferences.setString failed');
+      throw StateError('KeyValueStore.setString failed');
     }
   }
 
@@ -209,7 +205,7 @@ class HistoryStore {
       lastError = 'ذخیرهٔ فهرست تاریخچه خاموش است: رمزنگاری بومی دردسترس نیست.';
       return;
     }
-    final prefs = await _prefsOrLoad();
+    final prefs = _storeOrLoad();
     final heads = [
       for (final s in sessions)
         {
@@ -222,7 +218,7 @@ class HistoryStore {
     final sealed =
         await PrivacyService.seal(jsonEncode({'v': _format, 'sessions': heads}));
     if (!await prefs.setString(_key, sealed)) {
-      throw StateError('SharedPreferences.setString failed');
+      throw StateError('KeyValueStore.setString failed');
     }
   }
 
@@ -233,7 +229,7 @@ class HistoryStore {
       _dirty.clear();
       final gone = Set<String>.from(_pendingDeletes);
       _pendingDeletes.clear();
-      final prefs = await _prefsOrLoad();
+      final prefs = _storeOrLoad();
       for (final id in gone) {
         try {
           await prefs.remove(_msgKey(id));
@@ -325,8 +321,8 @@ class HistoryStore {
     _pendingDeletes.clear();
     lastNotice = null;
     try {
-      final prefs = await _prefsOrLoad();
-      for (final k in prefs.getKeys().toList()) {
+      final prefs = _storeOrLoad();
+      for (final k in (await prefs.getKeys()).toList()) {
         if (k == _key || k.startsWith(_msgPrefix)) await prefs.remove(k);
       }
     } catch (e) {

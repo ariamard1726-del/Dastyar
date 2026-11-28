@@ -7,6 +7,11 @@ part of 'advocate.dart';
 int _score(Topic t, String n) => TopicScore.of(t, n);
 
 extension _TopicPicking on Advocate {
+  double get _netMin => resolveNetMin(engine.pipeline);
+  int get _topicOpenMin => resolveTopicOpenMin(engine.pipeline);
+  int get _topicStrongMin => resolveTopicStrongMin(engine.pipeline);
+  int get _topicDominantMin => resolveTopicDominantMin(engine.pipeline);
+
   // تشخیص موضوع در `TopicPicker` (topic_picker.dart) است؛ این‌ها پوستهٔ نازک‌اند.
   Topic? _current() => _picker.current();
 

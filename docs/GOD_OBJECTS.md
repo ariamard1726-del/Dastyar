@@ -103,9 +103,9 @@
 
 | فایل | خط | مسئولیت |
 |---|---|---|
-| `engine.dart` | **۱۹۲** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` (قواعد از `engine_rules.dart`) |
-| `engine_load.dart` | **۲۹۸** | تنها جایی که دارایی خوانده می‌شود: `load` و بارگذاری‌های `_load*` |
-| `engine_query.dart` | **۳۰۸** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
+| `engine.dart` | **۱۹۸** | وضعیت + API: پاس‌دهنده‌های یک‌خطی برای آنچه در بخش‌هاست + `prepareWith` + تزریق `AssetTextLoader` (قواعد از `engine_rules.dart`) |
+| `engine_load.dart` | **۳۲۰** | تنها جایی که دارایی خوانده می‌شود: `load`، `_readAsset`، `_loadPipeline` (`assets/pipeline.json`) و بارگذاری‌های `_load*` |
+| `engine_query.dart` | **۳۱۱** | پاسخ: `findArticle`، `query`، `conflictChainsFor`، `alternatives` |
 | `engine_worker.dart` | **۱۴۰** | همان پاسخ‌سازی و اجرای تابعِ سطحِ بالا (`run`/`fn`) در isolate دائمی؛ API همگام دست‌نخورده |
 
 - با `extension` روی همان کلاس، تا وضعیت و اعضای خصوصی دست‌نخورده بمانند؛
@@ -132,7 +132,7 @@
 |---|---|---|
 | `advocate.dart` | ۵۹۵ → **۴۵۳** | سیم‌کشی و API (۲۶۳ خطِ کد؛ بقیه مستندِ همان کد) |
 | `advocate_model.dart` | **۹۵** | `AnswerSource`، `AdvocateReply`، `_Ask` |
-| `chip_texts.dart` | **۵۵** | نوزده برچسبِ دکمه (`ChipTexts.moreChip` …) |
+| `chip_texts.dart` | **۵۷** | بیست برچسبِ دکمه (`ChipTexts.moreChip` …) |
 
 - `Advocate.moreChip` و هفده هم‌نوعش به `ChipTexts.` رفتند (۸۵ ارجاع در ۲۱ فایل، شاملِ آزمون‌ها). `idleChips` عمداً در `Advocate` ماند: آن یک **تصمیم** است (`_idleChips()`)، نه برچسب.
 - آزمونِ نگهبان، برچسب‌ها را **حرف‌به‌حرف** قفل می‌کند (`test_chip_labels_are_data_not_class_members`) و همچنین می‌سنجد که مدلِ پاسخ در فایلِ خودش باشد و میدان‌های `AdvocateReply` دست‌نخورده بمانند.
@@ -248,7 +248,7 @@
 |---|---|---|
 | `case_file.dart` | **۹** | فقط دو `export`؛ همان مسیرِ پیشین برای چهل `import` |
 | `case_state.dart` | **۱۳۶** | `CaseFile`: واقعیت‌ها، شمارشِ پرسش‌ها، `toJson`/`fromJson`، `schemaVersion` |
-| `case_model.dart` | **۲۷۱** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl`) |
+| `case_model.dart` | **۲۷۳** | زبانِ موضوع: شرط، ادعا، واقعیت، بحث، سند، پرسشِ موضوع، خودِ موضوع (+ سازنده‌های `.dsl` و `Topic.fromJson`) |
 
 - **چرا دروازه و نه تغییرِ مسیر:** چهل فایل و آزمون `case_file.dart` را
   `import` می‌کنند. `export` در همان فایل، هم `CaseFile` و هم مدل‌ها را می‌دهد،

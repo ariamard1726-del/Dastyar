@@ -47,6 +47,7 @@ extension _CaseAnswers on CaseFlow {
     addEffects(parts, news, 1,
         skip: dialog.deferred.isEmpty && issue != null ? issue.covers : const {});
     noteAmount(parts, news, n);
+    final plainHint = hasImplicitAmountNote(news, n);
     if (voice.lastBody.isEmpty) {
       // «ساده‌تر بگو» باید سراغ حرف قانون برود، نه بازگویی ماجرا.
       if (open.isNotEmpty) {
@@ -70,7 +71,7 @@ extension _CaseAnswers on CaseFlow {
     if (also != null && also.id != t.id) {
       parts.add(advocateFormat('caseAlsoNotice', {'title': also.title}));
     }
-    return finish(t, parts, lead: lead);
+    return finish(t, parts, lead: lead, plainHint: plainHint);
   }
 
   AdvocateReply inCase(Topic t, String raw, String n, Issue? issue) {
@@ -216,6 +217,7 @@ extension _CaseAnswers on CaseFlow {
     final fix = argument._correction(t);
     if (fix.isNotEmpty) parts.insert(0, fix);
     noteAmount(parts, news, n);
+    final plainHint = hasImplicitAmountNote(news, n);
     if (!understood && echo.isNotEmpty) {
       parts.add(_pick(Say.known));
       understood = true;
@@ -277,10 +279,11 @@ extension _CaseAnswers on CaseFlow {
       dialog.side = null;
       dialog.sideText = '';
     }
-    return finish(t, parts);
+    return finish(t, parts, plainHint: plainHint);
   }
 
-  AdvocateReply finish(Topic t, List<String> parts, {String lead = ''}) {
+  AdvocateReply finish(Topic t, List<String> parts,
+      {String lead = '', bool plainHint = false}) {
     var body = parts.join('\n\n');
     if (lead.isNotEmpty) body = body.isEmpty ? lead : '$lead\n\n$body';
     voice.said.addAll(parts);
@@ -306,6 +309,9 @@ extension _CaseAnswers on CaseFlow {
     }
     if (dialog.side != null) {
       chips.insertAll(0, const [ChipTexts.newTopicChip, ChipTexts.sameCaseChip]);
+    }
+    if (plainHint && !chips.contains(ChipTexts.plainTomanChip)) {
+      chips.add(ChipTexts.plainTomanChip);
     }
     final roomy = dialog.roomy;
     dialog.roomy = false;

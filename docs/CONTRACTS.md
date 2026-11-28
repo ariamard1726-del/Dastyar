@@ -15,13 +15,17 @@
 | ارجاع‌های `[[کلید:شماره]]` در دانش وکیل | متن قوانین | `python dev/tools/check_refs.py` + `test_law_citations_inside_*` | `test/advocate/advocate_test.dart` (روی `.dart`، `rent_texts.json`، `topic_texts.json` و `advocate_texts.json`) + `tests/python/test_topic_text_equivalence.py` + `tests/python/test_advocate_text_equivalence.py` |
 | متنِ ثابت موضوع‌های غیرِاجاره و بخش مشترک | `assets/brain/topic_texts.json` + `topic_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_topic_text_equivalence.py`، `test/domain/topic_texts_test.dart` |
 | متنِ ثابت عمومیِ وکیل (گفت‌وگو و استدلال) | `assets/brain/advocate_texts.json` + `advocate_texts_loader.dart` | `python dev/tools/check.py text` | `tests/python/test_advocate_text_equivalence.py`، `test/domain/advocate_texts_test.dart` |
-| شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` | `tests/python/` |
+| شناسنامهٔ قوانین | `assets/laws/_meta.json` | `python dev/tools/check.py meta` + `python dev/tools/sync_meta.py --check` | `tests/python/test_sync_meta.py` + گام‌های خودکار `.github/workflows/{test,build}.yml` |
+| ارزیابی مستقیم کد واقعی Dart | `eval/*.txt` + `tests/law_terms/*.json` + `tests/topics/*.json` | `python dev/tools/dart_eval.py --check` | `test/core/dart_eval_suite_test.dart` + `tests/python/test_dart_eval_tool.py` (`reports/dart_eval.txt`) |
 | قاعده‌های متن | `dev/tools/contracts/text_norm.json` | `python3 dev/tools/gen_text_norm.py --check` (در `check.py textnorm`) | `lib/core/text_norm_rules.dart` و `dev/brain/text_norm_rules.py` (تولیدشده، دستی ویرایش نکنید؛ شامل `tokenize` و `spaced.tools/terms`) |
 | خروجی لایهٔ متن | `tests/text_norm_golden.json` (پیش از یکسان‌سازی) + `tests/text_norm_norm_cases.json` | `tests/python/test_text_norm_parity.py` | `test/core/text_norm_rules_test.dart` |
 | جدولِ بدهی‌های موقت (دو پیاده‌سازی) | `dev/tools/contracts/duplicated_logic.json` | `python3 dev/tools/debt_check.py --check` (در `check.py debt`) | `tests/python/test_debt_check.py` |
 | ایست‌واژه‌ها، آستانه و رتبه‌بندی تطبیق واژه‌ها | `dev/tools/contracts/law_terms.json` | `python3 dev/tools/gen_law_terms.py --check` (در `check.py lawterms`) | `lib/domain/advocate/law_terms_rules.dart` و `dev/brain/law_terms_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_law_terms_parity.py` |
 | قاعده‌های موتور بازیابی و نمایهٔ قوانین | `dev/tools/contracts/engine_rules.json` | `python3 dev/tools/gen_engine_rules.py --check` (در `check.py enginerules`) | `lib/core/engine_rules.dart` و `dev/brain/engine_rules.py` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_engine_rules_parity.py` + `test/core/engine_rules_test.dart` |
-| ماتریس اولویت ۲۰ کاندید (۱۹۰ جفت) | `dev/tools/contracts/priority.json` | `python3 dev/tools/gen_priority.py --check` (در `check.py priority`) | `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_priority_matrix.py` |
+| ماتریس اولویت ۲۶ کاندید (۳۲۵ جفت) | `dev/tools/contracts/priority.json` | `python3 dev/tools/gen_priority.py --check` (در `check.py priority`) | `docs/PRIORITY.md` و `test/advocate/priority_matrix_test.dart` (تولیدشده، دستی ویرایش نکنید) + `tests/python/test_priority_matrix.py` |
+| جداسازی بارگذار و انبار کلید-مقدار | `lib/core/asset_loader.dart`، `lib/core/local_store.dart`، `lib/core/storage_migration.dart` | `python3 -m unittest tests/python/test_phase19_decoupling.py` | `test/core/engine_pure_dart_test.dart`، `test/core/local_store_migration_test.dart`، `tests/python/test_phase19_decoupling.py` |
+| تفکیک گردش‌کارهای CI محصول از پروب‌ها | `.github/workflows/*.yml` | `python3 -m unittest tests/python/test_workflows_hygiene.py` | `tests/python/test_workflows_hygiene.py` |
+| آمادگی انتشار، ۹/۹ ارجاعات قالب و ممیزی ۱۲۷ فاصله | `assets/templates/*.json`، `docs/LAW_GAPS.md`، `android/key.properties.example` | `python3 dev/tools/setup_release_signing.py --check` + `python3 dev/tools/release_readiness.py` + `python3 dev/tools/check.py trust` | `tests/python/test_release_readiness.py`، `tests/python/test_trust_gate.py`، `test/drafting/templates_refs_test.dart` |
 
 > دو پیاده‌سازیِ جدا (دارت و پایتون) **بدهی** است، نه راه‌حل؛ آزمون آینه فقط
 > از جداافتادن‌شان جلوگیری می‌کند. ایست‌واژه‌ها و آستانه‌ها از این قاعده بیرون
@@ -155,13 +159,13 @@ python dev/tools/check.py refs
 
 آزمون: `tests/python/test_debt_check.py`.
 
-## ۷. ماتریس اولویت ۲۰ کاندید پاسخ (`dev/tools/contracts/priority.json`)
+## ۷. ماتریس اولویت ۲۶ کاندید پاسخ (`dev/tools/contracts/priority.json`)
 
-۲۰ کاندید خطِ تولیدِ پاسخ در `lib/domain/advocate/advocate_reply.dart`
-($\binom{20}{2} = ۱۹۰$ جفتِ ممکن) به ترتیبِ `hitDecision` (۱۶)، `dueDecision` (۱)
-و `tailDecision` (۳) داوری می‌شوند. هر ۱۹۰ جفت در همین قرارداد فهرست
-شده‌اند: **۱۱۳ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
-بازنده و ورودی مرکب) و **۷۷ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
+۲۶ کاندید خطِ تولیدِ پاسخ در `lib/domain/advocate/advocate_reply.dart`
+($\binom{26}{2} = ۳۲۵$ جفتِ ممکن) به ترتیبِ `hitDecision` (۱۶)، `dueDecision` (۲)
+و `tailDecision` (۸) داوری می‌شوند. هر ۳۲۵ جفت در همین قرارداد فهرست
+شده‌اند: **۲۲۹ جفتِ هم‌پوشان** (هر یک با حالت واقعیِ گفت‌وگو، ورودی پایهٔ
+بازنده و ورودی مرکب) و **۹۶ جفتِ جداگانه** (با کد و دلیل عدم تلاقی).
 
 - **تولید:** `python3 dev/tools/gen_priority.py --write` ← `docs/PRIORITY.md`
   و `test/advocate/priority_matrix_test.dart`.

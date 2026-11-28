@@ -8,8 +8,10 @@ import 'package:dastyar/domain/advocate/topics/rent_texts_loader.dart';
 void main() {
   test('متنها از فایلِ دارایی نصب میشوند', () async {
     final keys = await loadRentTexts();
-    // ۴۲+۸۷+۳۲+۳۶+۵۱+۵۱+۲۸+۳۳+۵۸+۵۷+۵۰ = ۵۲۵ متن در یازده جدول. نبودِ یکی خطای صریح است.
-    expect(keys.length, 525);
+    // ۴۲+۸۷+۳۲+۳۶+۵۱+۵۱+۲۸+۳۳+۵۸+۵۷+۵۰+۱۴ = ۵۳۹ متن در دوازده جدول. نبودِ یکی خطای صریح است.
+    expect(keys.length, 539);
+    expect(loadedRentTexts.containsKey('optDmBasisContract'), isTrue);
+    expect(loadedRentTexts.containsKey('optFnTopicDeposit'), isTrue);
     expect(loadedRentTexts.containsKey('rentPeace'), isTrue);
     expect(loadedRentTexts.containsKey('rentLandlordPaidBody'), isTrue);
     expect(loadedRentTexts.containsKey('claim0_goal'), isTrue);

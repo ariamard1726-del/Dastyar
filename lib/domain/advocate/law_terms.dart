@@ -298,8 +298,10 @@ class LawTerms {
       for (final t in known)
         if ((postings[t]?.length ?? 0) <= rareDf && !matched.contains(t)) t
     ];
-    final accepted = (((ph.isNotEmpty && m >= minPhraseWords) || headHit) && rareMissing.isEmpty) ||
-        (cover >= minCover && rareN >= minRareHits && near);
+    final accepted = (((ph.isNotEmpty && m >= minPhraseWords) || headHit) ||
+            (cover >= minCover && rareN >= minRareHits && near)) &&
+        rareMissing.isEmpty &&
+        unknown.isEmpty;
     return TermMatch(
       accepted: accepted,
       chunk: c,

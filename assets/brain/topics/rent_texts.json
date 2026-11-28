@@ -547,5 +547,21 @@
     "recapToldNo": "هنوز خرابی را کتبی به موجر خبر نداده‌اید",
     "recapConsentYes": "موجر با زودتر رفتن موافق است",
     "recapConsentNo": "موجر با زودتر رفتن موافق نیست"
+  },
+  "fillOptions": {
+    "optDmBasisContract": "سند عادی (رسید یا قرارداد)",
+    "optDmBasisOther": "سایر",
+    "optEvKindOral": "قرارداد شفاهی",
+    "optEvKindWitness": "اجاره‌نامهٔ عادی با امضای دو شاهد",
+    "optEvKindNoWitness": "اجاره‌نامهٔ عادی بدون شاهد",
+    "optEvGroundBreach": "فسخ اجاره به‌علت تخلف مستأجر",
+    "optEvGroundEnded": "پایان مدت اجاره",
+    "optDbAuthGeneral": "شعبهٔ دادگاه عمومی حقوقی",
+    "optDbAuthPeace": "شعبهٔ دادگاه صلح",
+    "optDbRoleDefendant": "خوانده",
+    "optDbRolePlaintiff": "خواهان / شاکی",
+    "optFnTopicMoney": "مطالبهٔ وجه و تسویهٔ بدهی",
+    "optFnTopicDeposit": "استرداد ودیعه (پول پیش) یا تخلیهٔ ملک استیجاری",
+    "optFnTopicOther": "سایر موارد قانونی"
   }
 }

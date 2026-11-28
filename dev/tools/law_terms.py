@@ -222,7 +222,7 @@ def match(q, e=None):
     # آن را به‌عنوان پاسخ قطعی نمی‌پذیریم.
     rare_missing = [t for t in known if len(e.postings[t]) <= RARE_DF and t not in matched]
     by_phrase = bool(ph) and m >= MIN_PHRASE_WORDS
-    accepted = ((by_phrase or head_hit) and not rare_missing) or (cover >= MIN_COVER and rare_n >= MIN_RARE_HITS and near)
+    accepted = ((by_phrase or head_hit) or (cover >= MIN_COVER and rare_n >= MIN_RARE_HITS and near)) and not rare_missing and not unknown
     return {
         'accepted': accepted,
         'law': c['law'],

@@ -131,7 +131,7 @@ extension _ReplyGuards on Advocate {
           score = sc;
         }
       }
-      if (pick != null && score >= topicOpenMin) {
+      if (pick != null && score >= _topicOpenMin) {
         _open(pick, n);
         // دکمه‌های داخلی با دکمه‌های ایمنیِ نمایش‌داده‌شده هم‌خوان بماند.
         dialog.askChips = safe.chips;
@@ -194,7 +194,7 @@ extension _ReplyGuards on Advocate {
     }
     _closeCase();
     dialog.loose.clear();
-    if (nb != null && ns >= topicOpenMin) return _open(nb, fixed);
+    if (nb != null && ns >= _topicOpenMin) return _open(nb, fixed);
     return _out(
       advocateText('guardCorrectionBody'),
       ask: advocateText('guardCorrectionAsk'),

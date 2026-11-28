@@ -1,11 +1,23 @@
-commit: 44db3e2
-🎉 725 tests passed.
+commit: 2850824
+🎉 855 tests passed.
 --- analyze ---
-No issues found! (ran in 9.6s)
+No issues found! (ran in 9.2s)
 --- coverage ---
-coverage: 8049/8782 خط (91.7%) | آستانه 40.0%
+coverage: 8540/9288 خط (91.9%) | آستانه 40.0%
 --- startup ---
-STARTUP-BASELINE load_ms=1199 assets_ms=67 index_ms=1132 worker_load_ms=1221 first_query_ms=50 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=255.7
+STARTUP-BASELINE load_ms=1156 assets_ms=66 index_ms=1090 worker_load_ms=952 first_query_ms=47 laws=24 chunks=5724 vocab=9214 assets_mb=16.88 laws_mb=3.11 lazy_noql_mb=12.72 rss_mb=256.6
 LOAD_BUDGET_MS=15000
 WORKER_LOAD_BUDGET_MS=15000
 FIRST_QUERY_BUDGET_MS=5000
+--- dart_eval ---
+# گزارش ارزیابی مستقیم کد واقعی Dart (PersianText / KnowledgeEngine / LawTerms / TopicFlow)
+DART_EVAL text_norm ok: golden=45 sense=14 parity=20
+DART_EVAL eval.txt: n=30 recall@1=0.93 recall@5=1.00 MRR=0.961
+DART_EVAL eval_extra.txt: n=30 recall@1=0.83 recall@5=0.93 MRR=0.881
+DART_EVAL eval_blind.txt: n=31 recall@1=0.68 recall@5=0.97 MRR=0.805
+DART_EVAL eval_all_laws.txt: n=31 recall@1=0.90 recall@5=1.00 MRR=0.930
+DART_EVAL eval_feedback.txt: n=18 recall@1=0.50 recall@5=0.83 MRR=0.660
+DART_EVAL eval_everyday_laws.txt: n=43 law@1=0.95
+DART_EVAL eval_none.txt: n=28 rejected=28 false_confident=0 (0.0%)
+DART_EVAL law_terms: cases=38/38 audit_ok=14 audit_open=0
+DART_EVAL topic_flow: files=4 cases=56/56

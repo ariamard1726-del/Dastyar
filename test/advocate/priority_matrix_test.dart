@@ -12,7 +12,7 @@ import 'package:dastyar/domain/draft_words.dart';
 import 'package:dastyar/domain/understanding/topic_guess.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// آزمونِ ماتریس اولویتِ ۲۰ کاندید (۱۹۰ جفت: ۱۱۳ هم‌پوشان + ۷۷ جداگانه).
+/// آزمونِ ماتریس اولویتِ ۲۶ کاندید (۳۲۵ جفت: ۲۲۹ هم‌پوشان + ۹۶ جداگانه).
 ///
 /// تمام نوبت‌های پیش‌شرط با فراخوانی واقعی `Advocate.respond` ساخته می‌شوند،
 /// نه با دست‌کاریِ وضعیت داخلی؛ هر تغییر در ترتیب یا پیش‌شرط کاندیدها
@@ -196,7 +196,7 @@ void main() {
     });
   });
 
-  group('ماتریس جفت‌های هم‌پوشان (۱۱۳ جفت)' , () {
+  group('ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت)' , () {
     test('(۰, ۱) موضوعِ تازه > «هیچ‌کدام»', () {
       final loser = buildSetup('idle');
       loser.respond('گزینه‌ای وجود ندارد');
@@ -340,40 +340,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
           reason: 'ترکیب برنده در (0, 16)');
     });
-    test('(۰, ۱۷) موضوعِ تازه > تکرارِ حرفِ قبلی', () {
+    test('(۰, ۱۷) موضوعِ تازه > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (0, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('موضوع تازه ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 17)');
+    });
+    test('(۰, ۱۸) موضوعِ تازه > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (0, 17)');
+          reason: 'پایهٔ بازنده در (0, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('این پرونده درباره موضوع تازه است الان');
       winner.respond('این پرونده درباره موضوع تازه است');
       expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
-          reason: 'ترکیب برنده در (0, 17)');
+          reason: 'ترکیب برنده در (0, 18)');
     });
-    test('(۰, ۱۸) موضوعِ تازه > قاعدهٔ ثابت', () {
+    test('(۰, ۱۹) موضوعِ تازه > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (0, 18)');
+          reason: 'پایهٔ بازنده در (0, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('موضوع تازه طلاق ثبت دفترخانه نمیشه');
       expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
-          reason: 'ترکیب برنده در (0, 18)');
+          reason: 'ترکیب برنده در (0, 19)');
     });
-    test('(۰, ۱۹) موضوعِ تازه > مهلتِ اعتراض', () {
+    test('(۰, ۲۰) موضوعِ تازه > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (0, 19)');
+          reason: 'پایهٔ بازنده در (0, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('موضوع تازه مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
-          reason: 'ترکیب برنده در (0, 19)');
+          reason: 'ترکیب برنده در (0, 20)');
+    });
+    test('(۰, ۲۱) موضوعِ تازه > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (0, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('موضوع تازه غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 21)');
+    });
+    test('(۰, ۲۲) موضوعِ تازه > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (0, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('موضوع تازه قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 22)');
+    });
+    test('(۰, ۲۳) موضوعِ تازه > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (0, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('موضوع تازه گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 23)');
+    });
+    test('(۰, ۲۴) موضوعِ تازه > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (0, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('موضوع تازه اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 24)');
+    });
+    test('(۰, ۲۵) موضوعِ تازه > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (0, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('موضوع تازه');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ تازه',
+          reason: 'ترکیب برنده در (0, 25)');
     });
     test('(۱, ۲) «هیچ‌کدام» > تازه است یا مربوط؟', () {
       final loser = buildSetup('open_pending');
@@ -518,40 +584,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
           reason: 'ترکیب برنده در (1, 16)');
     });
-    test('(۱, ۱۷) «هیچ‌کدام» > تکرارِ حرفِ قبلی', () {
+    test('(۱, ۱۷) «هیچ‌کدام» > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (1, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گزینه‌ای وجود ندارد ربات هستی');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 17)');
+    });
+    test('(۱, ۱۸) «هیچ‌کدام» > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (1, 17)');
+          reason: 'پایهٔ بازنده در (1, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('در این صفحه هیچ گزینه ای وجود ندارد متاسفانه');
       winner.respond('در این صفحه هیچ گزینه ای وجود ندارد متاسفانه');
       expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
-          reason: 'ترکیب برنده در (1, 17)');
+          reason: 'ترکیب برنده در (1, 18)');
     });
-    test('(۱, ۱۸) «هیچ‌کدام» > قاعدهٔ ثابت', () {
+    test('(۱, ۱۹) «هیچ‌کدام» > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (1, 18)');
+          reason: 'پایهٔ بازنده در (1, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('گزینه‌ای وجود ندارد طلاق ثبت دفترخانه نمیشه');
       expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
-          reason: 'ترکیب برنده در (1, 18)');
+          reason: 'ترکیب برنده در (1, 19)');
     });
-    test('(۱, ۱۹) «هیچ‌کدام» > مهلتِ اعتراض', () {
+    test('(۱, ۲۰) «هیچ‌کدام» > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (1, 19)');
+          reason: 'پایهٔ بازنده در (1, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('گزینه‌ای وجود ندارد مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
-          reason: 'ترکیب برنده در (1, 19)');
+          reason: 'ترکیب برنده در (1, 20)');
+    });
+    test('(۱, ۲۱) «هیچ‌کدام» > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (1, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گزینه‌ای وجود ندارد غبن چیست');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 21)');
+    });
+    test('(۱, ۲۲) «هیچ‌کدام» > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (1, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گزینه‌ای وجود ندارد قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 22)');
+    });
+    test('(۱, ۲۳) «هیچ‌کدام» > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (1, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گزینه‌ای وجود ندارد گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 23)');
+    });
+    test('(۱, ۲۴) «هیچ‌کدام» > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (1, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('گزینه‌ای وجود ندارد اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 24)');
+    });
+    test('(۱, ۲۵) «هیچ‌کدام» > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (1, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گزینه‌ای وجود ندارد');
+      expect(winner.lastDecision?.candidate.name, '«هیچ‌کدام»',
+          reason: 'ترکیب برنده در (1, 25)');
     });
     test('(۲, ۴) تازه است یا مربوط؟ > کنار گذاشتنِ موضوع', () {
       final loser = buildSetup('open_pending');
@@ -630,29 +762,84 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
           reason: 'ترکیب برنده در (2, 15)');
     });
-    test('(۲, ۱۷) تازه است یا مربوط؟ > تکرارِ حرفِ قبلی', () {
+    test('(۲, ۱۷) تازه است یا مربوط؟ > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (2, 17)');
+
+      final winner = buildSetup('open_pending');
+      winner.respond('مربوط است ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
+          reason: 'ترکیب برنده در (2, 17)');
+    });
+    test('(۲, ۱۸) تازه است یا مربوط؟ > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_pending');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (2, 17)');
+          reason: 'پایهٔ بازنده در (2, 18)');
 
       final winner = buildSetup('open_pending');
       winner.respond('کتاب دفتر موضوع دیگه است این الان');
       winner.respond('کتاب دفتر موضوع دیگه است این');
       expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
-          reason: 'ترکیب برنده در (2, 17)');
+          reason: 'ترکیب برنده در (2, 18)');
     });
-    test('(۲, ۱۸) تازه است یا مربوط؟ > قاعدهٔ ثابت', () {
+    test('(۲, ۱۹) تازه است یا مربوط؟ > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_pending');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (2, 18)');
+          reason: 'پایهٔ بازنده در (2, 19)');
 
       final winner = buildSetup('open_pending');
       winner.respond('موضوع دیگه طلاق ثبت دفترخانه نمیشه');
       expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
-          reason: 'ترکیب برنده در (2, 18)');
+          reason: 'ترکیب برنده در (2, 19)');
+    });
+    test('(۲, ۲۲) تازه است یا مربوط؟ > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (2, 22)');
+
+      final winner = buildSetup('open_pending');
+      winner.respond('مربوط است قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
+          reason: 'ترکیب برنده در (2, 22)');
+    });
+    test('(۲, ۲۳) تازه است یا مربوط؟ > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (2, 23)');
+
+      final winner = buildSetup('open_pending');
+      winner.respond('مربوط است گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
+          reason: 'ترکیب برنده در (2, 23)');
+    });
+    test('(۲, ۲۴) تازه است یا مربوط؟ > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (2, 24)');
+
+      final winner = buildSetup('open_pending');
+      winner.respond('مربوط است اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
+          reason: 'ترکیب برنده در (2, 24)');
+    });
+    test('(۲, ۲۵) تازه است یا مربوط؟ > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (2, 25)');
+
+      final winner = buildSetup('open_pending');
+      winner.respond('مربوط است');
+      expect(winner.lastDecision?.candidate.name, 'تازه است یا مربوط؟',
+          reason: 'ترکیب برنده در (2, 25)');
     });
     test('(۳, ۴) دکمهٔ دستهٔ مشکل > کنار گذاشتنِ موضوع', () {
       final loser = buildSetup('open_rent');
@@ -698,27 +885,82 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
           reason: 'ترکیب برنده در (3, 8)');
     });
-    test('(۳, ۱۸) دکمهٔ دستهٔ مشکل > قاعدهٔ ثابت', () {
+    test('(۳, ۱۷) دکمهٔ دستهٔ مشکل > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (3, 17)');
+
+      final winner = buildSetup('asked');
+      winner.respond('خروج ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
+          reason: 'ترکیب برنده در (3, 17)');
+    });
+    test('(۳, ۱۹) دکمهٔ دستهٔ مشکل > قاعدهٔ ثابت', () {
       final loser = buildSetup('asked');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (3, 18)');
+          reason: 'پایهٔ بازنده در (3, 19)');
 
       final winner = buildSetup('asked');
       winner.respond('طلاق ثبت نمیشه خروج');
       expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
-          reason: 'ترکیب برنده در (3, 18)');
+          reason: 'ترکیب برنده در (3, 19)');
     });
-    test('(۳, ۱۹) دکمهٔ دستهٔ مشکل > مهلتِ اعتراض', () {
+    test('(۳, ۲۰) دکمهٔ دستهٔ مشکل > مهلتِ اعتراض', () {
       final loser = buildSetup('asked');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (3, 19)');
+          reason: 'پایهٔ بازنده در (3, 20)');
 
       final winner = buildSetup('asked');
       winner.respond('خروج مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
-          reason: 'ترکیب برنده در (3, 19)');
+          reason: 'ترکیب برنده در (3, 20)');
+    });
+    test('(۳, ۲۱) دکمهٔ دستهٔ مشکل > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (3, 21)');
+
+      final winner = buildSetup('asked');
+      winner.respond('خروج غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
+          reason: 'ترکیب برنده در (3, 21)');
+    });
+    test('(۳, ۲۲) دکمهٔ دستهٔ مشکل > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (3, 22)');
+
+      final winner = buildSetup('asked');
+      winner.respond('خروج قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
+          reason: 'ترکیب برنده در (3, 22)');
+    });
+    test('(۳, ۲۳) دکمهٔ دستهٔ مشکل > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (3, 23)');
+
+      final winner = buildSetup('asked');
+      winner.respond('خروج گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
+          reason: 'ترکیب برنده در (3, 23)');
+    });
+    test('(۳, ۲۵) دکمهٔ دستهٔ مشکل > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (3, 25)');
+
+      final winner = buildSetup('asked');
+      winner.respond('خروج');
+      expect(winner.lastDecision?.candidate.name, 'دکمهٔ دستهٔ مشکل',
+          reason: 'ترکیب برنده در (3, 25)');
     });
     test('(۴, ۵) کنار گذاشتنِ موضوع > ایمنی', () {
       final loser = buildSetup('idle');
@@ -841,40 +1083,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
           reason: 'ترکیب برنده در (4, 16)');
     });
-    test('(۴, ۱۷) کنار گذاشتنِ موضوع > تکرارِ حرفِ قبلی', () {
+    test('(۴, ۱۷) کنار گذاشتنِ موضوع > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (4, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('انصراف ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 17)');
+    });
+    test('(۴, ۱۸) کنار گذاشتنِ موضوع > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (4, 17)');
+          reason: 'پایهٔ بازنده در (4, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('از این موضوع و بحث قبلی برای امروز بسه');
       winner.respond('خروج از این موضوع و بحث قبلی برای امروز بسه');
       expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
-          reason: 'ترکیب برنده در (4, 17)');
+          reason: 'ترکیب برنده در (4, 18)');
     });
-    test('(۴, ۱۸) کنار گذاشتنِ موضوع > قاعدهٔ ثابت', () {
+    test('(۴, ۱۹) کنار گذاشتنِ موضوع > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (4, 18)');
+          reason: 'پایهٔ بازنده در (4, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('طلاق ثبت نمیشه انصراف');
       expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
-          reason: 'ترکیب برنده در (4, 18)');
+          reason: 'ترکیب برنده در (4, 19)');
     });
-    test('(۴, ۱۹) کنار گذاشتنِ موضوع > مهلتِ اعتراض', () {
+    test('(۴, ۲۰) کنار گذاشتنِ موضوع > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (4, 19)');
+          reason: 'پایهٔ بازنده در (4, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('انصراف مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
-          reason: 'ترکیب برنده در (4, 19)');
+          reason: 'ترکیب برنده در (4, 20)');
+    });
+    test('(۴, ۲۱) کنار گذاشتنِ موضوع > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (4, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('انصراف غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 21)');
+    });
+    test('(۴, ۲۲) کنار گذاشتنِ موضوع > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (4, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('انصراف قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 22)');
+    });
+    test('(۴, ۲۳) کنار گذاشتنِ موضوع > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (4, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('انصراف گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 23)');
+    });
+    test('(۴, ۲۴) کنار گذاشتنِ موضوع > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (4, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('انصراف اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 24)');
+    });
+    test('(۴, ۲۵) کنار گذاشتنِ موضوع > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (4, 25)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('انصراف');
+      expect(winner.lastDecision?.candidate.name, 'کنار گذاشتنِ موضوع',
+          reason: 'ترکیب برنده در (4, 25)');
     });
     test('(۵, ۶) ایمنی > پرسش فرضی', () {
       final loser = buildSetup('idle');
@@ -986,40 +1294,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'ایمنی',
           reason: 'ترکیب برنده در (5, 16)');
     });
-    test('(۵, ۱۷) ایمنی > تکرارِ حرفِ قبلی', () {
+    test('(۵, ۱۷) ایمنی > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (5, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('الان در خطرم ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 17)');
+    });
+    test('(۵, ۱۸) ایمنی > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (5, 17)');
+          reason: 'پایهٔ بازنده در (5, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('الان در خطر فوری هستم کمک کن من میترسم بسیار');
       winner.respond('الان در خطر فوری هستم کمک کن من میترسم خیلی');
       expect(winner.lastDecision?.candidate.name, 'ایمنی',
-          reason: 'ترکیب برنده در (5, 17)');
+          reason: 'ترکیب برنده در (5, 18)');
     });
-    test('(۵, ۱۸) ایمنی > قاعدهٔ ثابت', () {
+    test('(۵, ۱۹) ایمنی > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (5, 18)');
+          reason: 'پایهٔ بازنده در (5, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('الان در خطرم طلاق ثبت دفترخانه نمیشه');
       expect(winner.lastDecision?.candidate.name, 'ایمنی',
-          reason: 'ترکیب برنده در (5, 18)');
+          reason: 'ترکیب برنده در (5, 19)');
     });
-    test('(۵, ۱۹) ایمنی > مهلتِ اعتراض', () {
+    test('(۵, ۲۰) ایمنی > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (5, 19)');
+          reason: 'پایهٔ بازنده در (5, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('الان در خطرم مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'ایمنی',
-          reason: 'ترکیب برنده در (5, 19)');
+          reason: 'ترکیب برنده در (5, 20)');
+    });
+    test('(۵, ۲۱) ایمنی > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (5, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('الان در خطرم غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 21)');
+    });
+    test('(۵, ۲۲) ایمنی > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (5, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('الان در خطرم قهر کرده جریمه میشوم؟');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 22)');
+    });
+    test('(۵, ۲۳) ایمنی > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (5, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('الان در خطرم گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 23)');
+    });
+    test('(۵, ۲۴) ایمنی > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (5, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('الان در خطرم اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 24)');
+    });
+    test('(۵, ۲۵) ایمنی > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (5, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('الان در خطرم');
+      expect(winner.lastDecision?.candidate.name, 'ایمنی',
+          reason: 'ترکیب برنده در (5, 25)');
     });
     test('(۶, ۷) پرسش فرضی > دربارهٔ برنامه', () {
       final loser = buildSetup('idle');
@@ -1054,40 +1428,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
           reason: 'ترکیب برنده در (6, 16)');
     });
-    test('(۶, ۱۷) پرسش فرضی > تکرارِ حرفِ قبلی', () {
+    test('(۶, ۱۷) پرسش فرضی > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (6, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('پرسشها درباره دسترسی آزاد به اطلاعات بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 17)');
+    });
+    test('(۶, ۱۸) پرسش فرضی > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (6, 17)');
+          reason: 'پایهٔ بازنده در (6, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('پرسشها این است که میان الف و ب چه قرارداد و تعهدی در جریان بوده');
       winner.respond('پرسشها این است که میان الف و ب چه قرارداد و تعهدی در جریان بوده');
       expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
-          reason: 'ترکیب برنده در (6, 17)');
+          reason: 'ترکیب برنده در (6, 18)');
     });
-    test('(۶, ۱۸) پرسش فرضی > قاعدهٔ ثابت', () {
+    test('(۶, ۱۹) پرسش فرضی > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (6, 18)');
+          reason: 'پایهٔ بازنده در (6, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('طلاق ثبت دفترخانه نمیشه و پرسشها این است که میان الف و ب چه میشود');
       expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
-          reason: 'ترکیب برنده در (6, 18)');
+          reason: 'ترکیب برنده در (6, 19)');
     });
-    test('(۶, ۱۹) پرسش فرضی > مهلتِ اعتراض', () {
+    test('(۶, ۲۰) پرسش فرضی > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (6, 19)');
+          reason: 'پایهٔ بازنده در (6, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('در مهلت ابلاغ پرسشها این است که میان الف و ب چه تکلیفی وجود دارد');
       expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
-          reason: 'ترکیب برنده در (6, 19)');
+          reason: 'ترکیب برنده در (6, 20)');
+    });
+    test('(۶, ۲۱) پرسش فرضی > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (6, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('پرسشها درباره غبن بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 21)');
+    });
+    test('(۶, ۲۲) پرسش فرضی > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (6, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('پرسشها درباره قهر جریمه بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 22)');
+    });
+    test('(۶, ۲۳) پرسش فرضی > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (6, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('پرسشها درباره گفتگو با برنامه بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 23)');
+    });
+    test('(۶, ۲۴) پرسش فرضی > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (6, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('پرسشها درباره اشتباه گرفتی بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 24)');
+    });
+    test('(۶, ۲۵) پرسش فرضی > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (6, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('پرسشها درباره قرارداد بین الف و ب چیست و در قانون چه میشود');
+      expect(winner.lastDecision?.candidate.name, 'پرسش فرضی',
+          reason: 'ترکیب برنده در (6, 25)');
     });
     test('(۷, ۸) دربارهٔ برنامه > دعوا و شکایت', () {
       final loser = buildSetup('idle');
@@ -1177,40 +1617,106 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
           reason: 'ترکیب برنده در (7, 16)');
     });
-    test('(۷, ۱۷) دربارهٔ برنامه > تکرارِ حرفِ قبلی', () {
+    test('(۷, ۱۷) دربارهٔ برنامه > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (7, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('تاریخچه ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 17)');
+    });
+    test('(۷, ۱۸) دربارهٔ برنامه > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (7, 17)');
+          reason: 'پایهٔ بازنده در (7, 18)');
 
       final winner = buildSetup('open_rent');
       winner.respond('چت قبلی من کجا رفته و پاک شد');
       winner.respond('چت قبلی من کجا رفته و پاک شد');
       expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
-          reason: 'ترکیب برنده در (7, 17)');
+          reason: 'ترکیب برنده در (7, 18)');
     });
-    test('(۷, ۱۸) دربارهٔ برنامه > قاعدهٔ ثابت', () {
+    test('(۷, ۱۹) دربارهٔ برنامه > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('غبن فاحش اسقاط');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (7, 18)');
+          reason: 'پایهٔ بازنده در (7, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('چت قبلی غبن فاحش اسقاط');
       expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
-          reason: 'ترکیب برنده در (7, 18)');
+          reason: 'ترکیب برنده در (7, 19)');
     });
-    test('(۷, ۱۹) دربارهٔ برنامه > مهلتِ اعتراض', () {
+    test('(۷, ۲۰) دربارهٔ برنامه > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (7, 19)');
+          reason: 'پایهٔ بازنده در (7, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('چت قبلی مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
-          reason: 'ترکیب برنده در (7, 19)');
+          reason: 'ترکیب برنده در (7, 20)');
+    });
+    test('(۷, ۲۱) دربارهٔ برنامه > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (7, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('تاریخچه غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 21)');
+    });
+    test('(۷, ۲۲) دربارهٔ برنامه > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (7, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('تاریخچه قهر کرده جریمه میشوم؟');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 22)');
+    });
+    test('(۷, ۲۳) دربارهٔ برنامه > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (7, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('تاریخچه گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 23)');
+    });
+    test('(۷, ۲۴) دربارهٔ برنامه > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (7, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('تاریخچه اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 24)');
+    });
+    test('(۷, ۲۵) دربارهٔ برنامه > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (7, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('تاریخچه');
+      expect(winner.lastDecision?.candidate.name, 'دربارهٔ برنامه',
+          reason: 'ترکیب برنده در (7, 25)');
     });
     test('(۸, ۹) دعوا و شکایت > انتخابِ موضوع', () {
       final loser = buildSetup('choices');
@@ -1245,49 +1751,148 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
           reason: 'ترکیب برنده در (8, 16)');
     });
-    test('(۸, ۱۸) دعوا و شکایت > قاعدهٔ ثابت', () {
+    test('(۸, ۱۷) دعوا و شکایت > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (8, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دعوام شد ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
+          reason: 'ترکیب برنده در (8, 17)');
+    });
+    test('(۸, ۱۹) دعوا و شکایت > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('غبن فاحش اسقاط');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (8, 18)');
+          reason: 'پایهٔ بازنده در (8, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('دعوام شد غبن فاحش اسقاط');
       expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
-          reason: 'ترکیب برنده در (8, 18)');
+          reason: 'ترکیب برنده در (8, 19)');
     });
-    test('(۸, ۱۹) دعوا و شکایت > مهلتِ اعتراض', () {
+    test('(۸, ۲۰) دعوا و شکایت > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (8, 19)');
+          reason: 'پایهٔ بازنده در (8, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('دعوام شد مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
-          reason: 'ترکیب برنده در (8, 19)');
+          reason: 'ترکیب برنده در (8, 20)');
     });
-    test('(۹, ۱۸) انتخابِ موضوع > قاعدهٔ ثابت', () {
+    test('(۸, ۲۱) دعوا و شکایت > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (8, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دعوام شد غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
+          reason: 'ترکیب برنده در (8, 21)');
+    });
+    test('(۸, ۲۲) دعوا و شکایت > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (8, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دعوام شد قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
+          reason: 'ترکیب برنده در (8, 22)');
+    });
+    test('(۸, ۲۳) دعوا و شکایت > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (8, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دعوام شد گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
+          reason: 'ترکیب برنده در (8, 23)');
+    });
+    test('(۸, ۲۵) دعوا و شکایت > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (8, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دعوام شد');
+      expect(winner.lastDecision?.candidate.name, 'دعوا و شکایت',
+          reason: 'ترکیب برنده در (8, 25)');
+    });
+    test('(۹, ۱۷) انتخابِ موضوع > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (9, 17)');
+
+      final winner = buildSetup('choices');
+      winner.respond('نه ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
+          reason: 'ترکیب برنده در (9, 17)');
+    });
+    test('(۹, ۱۹) انتخابِ موضوع > قاعدهٔ ثابت', () {
       final loser = buildSetup('choices');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (9, 18)');
+          reason: 'پایهٔ بازنده در (9, 19)');
 
       final winner = buildSetup('choices');
       winner.respond('نمیخوام ثبت طلاق');
       expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
-          reason: 'ترکیب برنده در (9, 18)');
+          reason: 'ترکیب برنده در (9, 19)');
     });
-    test('(۹, ۱۹) انتخابِ موضوع > مهلتِ اعتراض', () {
+    test('(۹, ۲۰) انتخابِ موضوع > مهلتِ اعتراض', () {
       final loser = buildSetup('choices');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (9, 19)');
+          reason: 'پایهٔ بازنده در (9, 20)');
 
       final winner = buildSetup('choices');
       winner.respond('نه مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
-          reason: 'ترکیب برنده در (9, 19)');
+          reason: 'ترکیب برنده در (9, 20)');
+    });
+    test('(۹, ۲۱) انتخابِ موضوع > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (9, 21)');
+
+      final winner = buildSetup('choices');
+      winner.respond('نه غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
+          reason: 'ترکیب برنده در (9, 21)');
+    });
+    test('(۹, ۲۲) انتخابِ موضوع > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (9, 22)');
+
+      final winner = buildSetup('choices');
+      winner.respond('نه قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
+          reason: 'ترکیب برنده در (9, 22)');
+    });
+    test('(۹, ۲۵) انتخابِ موضوع > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (9, 25)');
+
+      final winner = buildSetup('choices');
+      winner.respond('نه');
+      expect(winner.lastDecision?.candidate.name, 'انتخابِ موضوع',
+          reason: 'ترکیب برنده در (9, 25)');
     });
     test('(۱۰, ۱۱) حدسِ اشتباه > ادامهٔ حرفِ قبلی', () {
       final loser = buildSetup('open_rest');
@@ -1311,28 +1916,83 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
           reason: 'ترکیب برنده در (10, 13)');
     });
-    test('(۱۰, ۱۷) حدسِ اشتباه > تکرارِ حرفِ قبلی', () {
+    test('(۱۰, ۱۷) حدسِ اشتباه > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (10, 17)');
+
+      final winner = buildSetup('open_guessed');
+      winner.respond('اشتباه گرفتی ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
+          reason: 'ترکیب برنده در (10, 17)');
+    });
+    test('(۱۰, ۱۸) حدسِ اشتباه > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (10, 17)');
+          reason: 'پایهٔ بازنده در (10, 18)');
 
       final winner = buildSetup('open_guessed_repeat');
       winner.respond('منظورم این نبود اشتباه گرفتی دوست من');
       expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
-          reason: 'ترکیب برنده در (10, 17)');
+          reason: 'ترکیب برنده در (10, 18)');
     });
-    test('(۱۰, ۱۸) حدسِ اشتباه > قاعدهٔ ثابت', () {
+    test('(۱۰, ۱۹) حدسِ اشتباه > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_guessed');
       loser.respond('غبن فاحش اسقاط شرط');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (10, 18)');
+          reason: 'پایهٔ بازنده در (10, 19)');
 
       final winner = buildSetup('open_guessed');
       winner.respond('غبن فاحش اسقاط شرط اشتباه گرفتی');
       expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
-          reason: 'ترکیب برنده در (10, 18)');
+          reason: 'ترکیب برنده در (10, 19)');
+    });
+    test('(۱۰, ۲۲) حدسِ اشتباه > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (10, 22)');
+
+      final winner = buildSetup('open_guessed');
+      winner.respond('اشتباه گرفتی قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
+          reason: 'ترکیب برنده در (10, 22)');
+    });
+    test('(۱۰, ۲۳) حدسِ اشتباه > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (10, 23)');
+
+      final winner = buildSetup('open_guessed');
+      winner.respond('اشتباه گرفتی گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
+          reason: 'ترکیب برنده در (10, 23)');
+    });
+    test('(۱۰, ۲۴) حدسِ اشتباه > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (10, 24)');
+
+      final winner = buildSetup('open_guessed');
+      winner.respond('اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
+          reason: 'ترکیب برنده در (10, 24)');
+    });
+    test('(۱۰, ۲۵) حدسِ اشتباه > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (10, 25)');
+
+      final winner = buildSetup('open_guessed');
+      winner.respond('اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'حدسِ اشتباه',
+          reason: 'ترکیب برنده در (10, 25)');
     });
     test('(۱۱, ۱۳) ادامهٔ حرفِ قبلی > پیشنهادِ پاسخ', () {
       final loser = buildSetup('open_rest_offer');
@@ -1345,129 +2005,751 @@ void main() {
       expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
           reason: 'ترکیب برنده در (11, 13)');
     });
-    test('(۱۱, ۱۸) ادامهٔ حرفِ قبلی > قاعدهٔ ثابت', () {
+    test('(۱۱, ۱۷) ادامهٔ حرفِ قبلی > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (11, 17)');
+
+      final winner = buildSetup('idle_rest');
+      winner.respond('ادامه ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 17)');
+    });
+    test('(۱۱, ۱۹) ادامهٔ حرفِ قبلی > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_rest');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (11, 18)');
+          reason: 'پایهٔ بازنده در (11, 19)');
 
       final winner = buildSetup('open_rest');
       winner.respond('ادامه طلاق ثبت نمیشه');
       expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
-          reason: 'ترکیب برنده در (11, 18)');
+          reason: 'ترکیب برنده در (11, 19)');
     });
-    test('(۱۱, ۱۹) ادامهٔ حرفِ قبلی > مهلتِ اعتراض', () {
+    test('(۱۱, ۲۰) ادامهٔ حرفِ قبلی > مهلتِ اعتراض', () {
       final loser = buildSetup('idle_rest');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (11, 19)');
+          reason: 'پایهٔ بازنده در (11, 20)');
 
       final winner = buildSetup('idle_rest');
       winner.respond('ادامه مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
-          reason: 'ترکیب برنده در (11, 19)');
+          reason: 'ترکیب برنده در (11, 20)');
     });
-    test('(۱۲, ۱۷) تنظیمِ سند > تکرارِ حرفِ قبلی', () {
+    test('(۱۱, ۲۱) ادامهٔ حرفِ قبلی > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (11, 21)');
+
+      final winner = buildSetup('idle_rest');
+      winner.respond('ادامه غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 21)');
+    });
+    test('(۱۱, ۲۲) ادامهٔ حرفِ قبلی > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (11, 22)');
+
+      final winner = buildSetup('idle_rest');
+      winner.respond('ادامه قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 22)');
+    });
+    test('(۱۱, ۲۳) ادامهٔ حرفِ قبلی > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (11, 23)');
+
+      final winner = buildSetup('idle_rest');
+      winner.respond('ادامه گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 23)');
+    });
+    test('(۱۱, ۲۴) ادامهٔ حرفِ قبلی > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (11, 24)');
+
+      final winner = buildSetup('open_rest');
+      winner.respond('ادامه اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 24)');
+    });
+    test('(۱۱, ۲۵) ادامهٔ حرفِ قبلی > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (11, 25)');
+
+      final winner = buildSetup('idle_rest');
+      winner.respond('ادامه بده');
+      expect(winner.lastDecision?.candidate.name, 'ادامهٔ حرفِ قبلی',
+          reason: 'ترکیب برنده در (11, 25)');
+    });
+    test('(۱۲, ۱۸) تنظیمِ سند > تکرارِ حرفِ قبلی', () {
       final loser = buildSetup('open_rent_filing14');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       loser.respond('این پرونده قدیمی من هنوز حل نشده است');
       expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'پایهٔ بازنده در (12, 17)');
+          reason: 'پایهٔ بازنده در (12, 18)');
 
       final winner = buildSetup('open_rent_filing14');
       winner.respond('تنظیم لایحهٔ دفاع در برابر ادعای خسارت');
       winner.respond('تنظیم لایحهٔ دفاع در برابر ادعای خسارت');
       expect(winner.lastDecision?.candidate.name, 'تنظیمِ سند',
-          reason: 'ترکیب برنده در (12, 17)');
+          reason: 'ترکیب برنده در (12, 18)');
     });
-    test('(۱۳, ۱۸) پیشنهادِ پاسخ > قاعدهٔ ثابت', () {
+    test('(۱۲, ۲۵) تنظیمِ سند > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اجاره نامه کتبی است');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (12, 25)');
+
+      final winner = buildSetup('open_rent_filing14');
+      winner.respond('تنظیم لایحهٔ دفاع در برابر ادعای خسارت');
+      expect(winner.lastDecision?.candidate.name, 'تنظیمِ سند',
+          reason: 'ترکیب برنده در (12, 25)');
+    });
+    test('(۱۳, ۱۷) پیشنهادِ پاسخ > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (13, 17)');
+
+      final winner = buildSetup('open_offer');
+      winner.respond('بله ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
+          reason: 'ترکیب برنده در (13, 17)');
+    });
+    test('(۱۳, ۱۹) پیشنهادِ پاسخ > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_offer');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (13, 18)');
+          reason: 'پایهٔ بازنده در (13, 19)');
 
       final winner = buildSetup('open_offer');
       winner.respond('بله طلاق ثبت نمیشه');
       expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
-          reason: 'ترکیب برنده در (13, 18)');
+          reason: 'ترکیب برنده در (13, 19)');
     });
-    test('(۱۴, ۱۸) «باشه» > قاعدهٔ ثابت', () {
+    test('(۱۳, ۲۲) پیشنهادِ پاسخ > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (13, 22)');
+
+      final winner = buildSetup('open_offer');
+      winner.respond('بله قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
+          reason: 'ترکیب برنده در (13, 22)');
+    });
+    test('(۱۳, ۲۳) پیشنهادِ پاسخ > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (13, 23)');
+
+      final winner = buildSetup('open_offer');
+      winner.respond('بله گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
+          reason: 'ترکیب برنده در (13, 23)');
+    });
+    test('(۱۳, ۲۴) پیشنهادِ پاسخ > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (13, 24)');
+
+      final winner = buildSetup('open_offer');
+      winner.respond('بله اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
+          reason: 'ترکیب برنده در (13, 24)');
+    });
+    test('(۱۳, ۲۵) پیشنهادِ پاسخ > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (13, 25)');
+
+      final winner = buildSetup('open_offer');
+      winner.respond('بله');
+      expect(winner.lastDecision?.candidate.name, 'پیشنهادِ پاسخ',
+          reason: 'ترکیب برنده در (13, 25)');
+    });
+    test('(۱۴, ۱۷) «باشه» > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (14, 17)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('بله ربات هستی');
+      expect(winner.lastDecision?.candidate.name, '«باشه»',
+          reason: 'ترکیب برنده در (14, 17)');
+    });
+    test('(۱۴, ۱۹) «باشه» > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_rent');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (14, 18)');
+          reason: 'پایهٔ بازنده در (14, 19)');
 
       final winner = buildSetup('open_rent');
       winner.respond('نمیخوام ثبت طلاق');
       expect(winner.lastDecision?.candidate.name, '«باشه»',
-          reason: 'ترکیب برنده در (14, 18)');
+          reason: 'ترکیب برنده در (14, 19)');
     });
-    test('(۱۵, ۱۸) موضوعِ کنارِ هم > قاعدهٔ ثابت', () {
+    test('(۱۴, ۲۲) «باشه» > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (14, 22)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('بله قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, '«باشه»',
+          reason: 'ترکیب برنده در (14, 22)');
+    });
+    test('(۱۴, ۲۴) «باشه» > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (14, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('بله اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, '«باشه»',
+          reason: 'ترکیب برنده در (14, 24)');
+    });
+    test('(۱۴, ۲۵) «باشه» > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (14, 25)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('بله');
+      expect(winner.lastDecision?.candidate.name, '«باشه»',
+          reason: 'ترکیب برنده در (14, 25)');
+    });
+    test('(۱۵, ۱۷) موضوعِ کنارِ هم > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (15, 17)');
+
+      final winner = buildSetup('open_side');
+      winner.respond('جداست ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
+          reason: 'ترکیب برنده در (15, 17)');
+    });
+    test('(۱۵, ۱۹) موضوعِ کنارِ هم > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_side');
       loser.respond('طلاق ثبت نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (15, 18)');
+          reason: 'پایهٔ بازنده در (15, 19)');
 
       final winner = buildSetup('open_side');
       winner.respond('طلاق ثبت نمیشه جداست');
       expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
-          reason: 'ترکیب برنده در (15, 18)');
+          reason: 'ترکیب برنده در (15, 19)');
     });
-    test('(۱۶, ۱۸) مهلت > قاعدهٔ ثابت', () {
+    test('(۱۵, ۲۲) موضوعِ کنارِ هم > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (15, 22)');
+
+      final winner = buildSetup('open_side');
+      winner.respond('جداست قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
+          reason: 'ترکیب برنده در (15, 22)');
+    });
+    test('(۱۵, ۲۳) موضوعِ کنارِ هم > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (15, 23)');
+
+      final winner = buildSetup('open_side');
+      winner.respond('جداست گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
+          reason: 'ترکیب برنده در (15, 23)');
+    });
+    test('(۱۵, ۲۴) موضوعِ کنارِ هم > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (15, 24)');
+
+      final winner = buildSetup('open_side');
+      winner.respond('جداست اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
+          reason: 'ترکیب برنده در (15, 24)');
+    });
+    test('(۱۵, ۲۵) موضوعِ کنارِ هم > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (15, 25)');
+
+      final winner = buildSetup('open_side');
+      winner.respond('جداست');
+      expect(winner.lastDecision?.candidate.name, 'موضوعِ کنارِ هم',
+          reason: 'ترکیب برنده در (15, 25)');
+    });
+    test('(۱۶, ۱۷) مهلت > پاسخِ کلیِ مقدم', () {
+      final loser = buildSetup('idle');
+      loser.respond('ربات هستی');
+      expect(loser.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'پایهٔ بازنده در (16, 17)');
+
+      final winner = buildSetup('idle');
+      winner.respond('دسترسی آزاد به اطلاعات مهلت ابلاغ ۱۴۰۳/۱/۱ ۲۰ روز');
+      expect(winner.lastDecision?.candidate.name, 'مهلت',
+          reason: 'ترکیب برنده در (16, 17)');
+    });
+    test('(۱۶, ۱۹) مهلت > قاعدهٔ ثابت', () {
       final loser = buildSetup('idle');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (16, 18)');
+          reason: 'پایهٔ بازنده در (16, 19)');
 
       final winner = buildSetup('idle');
       winner.respond('طلاق ثبت دفترخانه نمیشه مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز');
       expect(winner.lastDecision?.candidate.name, 'مهلت',
-          reason: 'ترکیب برنده در (16, 18)');
+          reason: 'ترکیب برنده در (16, 19)');
     });
-    test('(۱۶, ۱۹) مهلت > مهلتِ اعتراض', () {
+    test('(۱۶, ۲۰) مهلت > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (16, 19)');
+          reason: 'پایهٔ بازنده در (16, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('مهلت ابلاغ ۱۴۰۳/۱/۱ ۲۰ روز');
       expect(winner.lastDecision?.candidate.name, 'مهلت',
-          reason: 'ترکیب برنده در (16, 19)');
+          reason: 'ترکیب برنده در (16, 20)');
     });
-    test('(۱۷, ۱۸) تکرارِ حرفِ قبلی > قاعدهٔ ثابت', () {
+    test('(۱۶, ۲۱) مهلت > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (16, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'مهلت',
+          reason: 'ترکیب برنده در (16, 21)');
+    });
+    test('(۱۶, ۲۲) مهلت > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (16, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ ۱۴۰۳/۱/۱ ۲۰ روز قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'مهلت',
+          reason: 'ترکیب برنده در (16, 22)');
+    });
+    test('(۱۶, ۲۳) مهلت > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (16, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ ۱۴۰۳/۱/۱ ۲۰ روز گفتگو با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'مهلت',
+          reason: 'ترکیب برنده در (16, 23)');
+    });
+    test('(۱۶, ۲۵) مهلت > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (16, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت رأی ۱۴۰۳/۱/۱ ۲۰ روز');
+      expect(winner.lastDecision?.candidate.name, 'مهلت',
+          reason: 'ترکیب برنده در (16, 25)');
+    });
+    test('(۱۷, ۱۸) پاسخِ کلیِ مقدم > تکرارِ حرفِ قبلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('این پرونده قدیمی من هنوز حل نشده است');
+      loser.respond('این پرونده قدیمی من هنوز حل نشده است');
+      expect(loser.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
+          reason: 'پایهٔ بازنده در (17, 18)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('تو واقعا ربات هستی یا هوش مصنوعی واقعی؟');
+      winner.respond('تو واقعا ربات هستی یا هوش مصنوعی واقعی؟');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 18)');
+    });
+    test('(۱۷, ۱۹) پاسخِ کلیِ مقدم > قاعدهٔ ثابت', () {
+      final loser = buildSetup('idle');
+      loser.respond('طلاق ثبت دفترخانه نمیشه');
+      expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'پایهٔ بازنده در (17, 19)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی طلاق ثبت دفترخانه نمیشه');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 19)');
+    });
+    test('(۱۷, ۲۰) پاسخِ کلیِ مقدم > مهلتِ اعتراض', () {
+      final loser = buildSetup('idle');
+      loser.respond('مهلت ابلاغ این نامه');
+      expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
+          reason: 'پایهٔ بازنده در (17, 20)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی مهلت ابلاغ این نامه');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 20)');
+    });
+    test('(۱۷, ۲۱) پاسخِ کلیِ مقدم > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (17, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 21)');
+    });
+    test('(۱۷, ۲۲) پاسخِ کلیِ مقدم > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (17, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی قهر کرده جریمه میشوم؟');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 22)');
+    });
+    test('(۱۷, ۲۳) پاسخِ کلیِ مقدم > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (17, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی گفتگو با برنامه چطور است');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 23)');
+    });
+    test('(۱۷, ۲۴) پاسخِ کلیِ مقدم > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (17, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('ربات هستی اشتباه گرفتی حرفم چیه');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 24)');
+    });
+    test('(۱۷, ۲۵) پاسخِ کلیِ مقدم > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (17, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('ربات هستی');
+      expect(winner.lastDecision?.candidate.name, 'پاسخِ کلیِ مقدم',
+          reason: 'ترکیب برنده در (17, 25)');
+    });
+    test('(۱۸, ۱۹) تکرارِ حرفِ قبلی > قاعدهٔ ثابت', () {
       final loser = buildSetup('open_rent');
       loser.respond('طلاق ثبت دفترخانه نمیشه');
       expect(loser.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'پایهٔ بازنده در (17, 18)');
+          reason: 'پایهٔ بازنده در (18, 19)');
 
       final winner = buildSetup('open_rent');
       winner.respond('طلاق ثبت دفترخانه نمیشه و امتناع میکنه');
       winner.respond('طلاق ثبت دفترخانه نمیشه و امتناع میکنه');
       expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
-          reason: 'ترکیب برنده در (17, 18)');
+          reason: 'ترکیب برنده در (18, 19)');
     });
-    test('(۱۸, ۱۹) قاعدهٔ ثابت > مهلتِ اعتراض', () {
+    test('(۱۸, ۲۲) تکرارِ حرفِ قبلی > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (18, 22)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('قهر کرده جریمه میشوم و خیلی نگرانم');
+      winner.respond('قهر کرده جریمه میشوم و خیلی نگرانم');
+      expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
+          reason: 'ترکیب برنده در (18, 22)');
+    });
+    test('(۱۸, ۲۳) تکرارِ حرفِ قبلی > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (18, 23)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('گفتگوی من با برنامه الان چطور است دوست من');
+      winner.respond('گفتگوی من با برنامه الان چطور است دوست من');
+      expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
+          reason: 'ترکیب برنده در (18, 23)');
+    });
+    test('(۱۸, ۲۴) تکرارِ حرفِ قبلی > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (18, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      winner.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
+          reason: 'ترکیب برنده در (18, 24)');
+    });
+    test('(۱۸, ۲۵) تکرارِ حرفِ قبلی > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (18, 25)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('این پرونده قدیمی من هنوز حل نشده است');
+      winner.respond('این پرونده قدیمی من هنوز حل نشده است');
+      expect(winner.lastDecision?.candidate.name, 'تکرارِ حرفِ قبلی',
+          reason: 'ترکیب برنده در (18, 25)');
+    });
+    test('(۱۹, ۲۰) قاعدهٔ ثابت > مهلتِ اعتراض', () {
       final loser = buildSetup('idle');
       loser.respond('مهلت ابلاغ این نامه');
       expect(loser.lastDecision?.candidate.name, 'مهلتِ اعتراض',
-          reason: 'پایهٔ بازنده در (18, 19)');
+          reason: 'پایهٔ بازنده در (19, 20)');
 
       final winner = buildSetup('idle');
       winner.respond('طلاق ثبت دفترخانه نمیشه مهلت ابلاغ');
       expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
-          reason: 'ترکیب برنده در (18, 19)');
+          reason: 'ترکیب برنده در (19, 20)');
+    });
+    test('(۱۹, ۲۱) قاعدهٔ ثابت > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (19, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('غبن فاحش با شرط اسقاط چیست');
+      expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'ترکیب برنده در (19, 21)');
+    });
+    test('(۱۹, ۲۲) قاعدهٔ ثابت > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (19, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('غبن فاحش با شرط اسقاط قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'ترکیب برنده در (19, 22)');
+    });
+    test('(۱۹, ۲۳) قاعدهٔ ثابت > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (19, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('غبن فاحش با شرط اسقاط گفتگوی من با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'ترکیب برنده در (19, 23)');
+    });
+    test('(۱۹, ۲۴) قاعدهٔ ثابت > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (19, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('طلاق ثبت دفترخانه نمیشه اشتباه گرفتی');
+      expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'ترکیب برنده در (19, 24)');
+    });
+    test('(۱۹, ۲۵) قاعدهٔ ثابت > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (19, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('طلاق ثبت دفترخانه نمیشه');
+      expect(winner.lastDecision?.candidate.name, 'قاعدهٔ ثابت',
+          reason: 'ترکیب برنده در (19, 25)');
+    });
+    test('(۲۰, ۲۱) مهلتِ اعتراض > واژهٔ قانون و پیوند', () {
+      final loser = buildSetup('idle');
+      loser.respond('غبن چیست');
+      expect(loser.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'پایهٔ بازنده در (20, 21)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'مهلتِ اعتراض',
+          reason: 'ترکیب برنده در (20, 21)');
+    });
+    test('(۲۰, ۲۲) مهلتِ اعتراض > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (20, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ قهر کرده جریمه میشوم؟');
+      expect(winner.lastDecision?.candidate.name, 'مهلتِ اعتراض',
+          reason: 'ترکیب برنده در (20, 22)');
+    });
+    test('(۲۰, ۲۳) مهلتِ اعتراض > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (20, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ گفتگوی من با برنامه');
+      expect(winner.lastDecision?.candidate.name, 'مهلتِ اعتراض',
+          reason: 'ترکیب برنده در (20, 23)');
+    });
+    test('(۲۰, ۲۵) مهلتِ اعتراض > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (20, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('مهلت ابلاغ این نامه');
+      expect(winner.lastDecision?.candidate.name, 'مهلتِ اعتراض',
+          reason: 'ترکیب برنده در (20, 25)');
+    });
+    test('(۲۱, ۲۲) واژهٔ قانون و پیوند > هشدارِ قهر', () {
+      final loser = buildSetup('idle');
+      loser.respond('قهر کرده جریمه میشوم؟');
+      expect(loser.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'پایهٔ بازنده در (21, 22)');
+
+      final winner = buildSetup('idle');
+      winner.respond('غبن بابت قهر جریمه دارد؟');
+      expect(winner.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'ترکیب برنده در (21, 22)');
+    });
+    test('(۲۱, ۲۳) واژهٔ قانون و پیوند > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (21, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گفتگو با برنامه درباره غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'ترکیب برنده در (21, 23)');
+    });
+    test('(۲۱, ۲۵) واژهٔ قانون و پیوند > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (21, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('غبن چیست');
+      expect(winner.lastDecision?.candidate.name, 'واژهٔ قانون و پیوند',
+          reason: 'ترکیب برنده در (21, 25)');
+    });
+    test('(۲۲, ۲۳) هشدارِ قهر > گفتگو با برنامه', () {
+      final loser = buildSetup('idle');
+      loser.respond('گفتگوی من با برنامه چطور است');
+      expect(loser.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'پایهٔ بازنده در (22, 23)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گفتگوی من با برنامه قهر جریمه');
+      expect(winner.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'ترکیب برنده در (22, 23)');
+    });
+    test('(۲۲, ۲۴) هشدارِ قهر > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (22, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('اشتباه گرفتی قهر کرده جریمه میشوم');
+      expect(winner.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'ترکیب برنده در (22, 24)');
+    });
+    test('(۲۲, ۲۵) هشدارِ قهر > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (22, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('قهر کرده جریمه میشوم؟');
+      expect(winner.lastDecision?.candidate.name, 'هشدارِ قهر',
+          reason: 'ترکیب برنده در (22, 25)');
+    });
+    test('(۲۳, ۲۴) گفتگو با برنامه > اصلاحِ موضوع', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(loser.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'پایهٔ بازنده در (23, 24)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('اشتباه گرفتی گفتگوی من با برنامه چطور است');
+      expect(winner.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'ترکیب برنده در (23, 24)');
+    });
+    test('(۲۳, ۲۵) گفتگو با برنامه > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('idle');
+      loser.respond('سلام');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (23, 25)');
+
+      final winner = buildSetup('idle');
+      winner.respond('گفتگوی من با برنامه چطور است');
+      expect(winner.lastDecision?.candidate.name, 'گفتگو با برنامه',
+          reason: 'ترکیب برنده در (23, 25)');
+    });
+    test('(۲۴, ۲۵) اصلاحِ موضوع > پرونده یا پاسخِ کلی', () {
+      final loser = buildSetup('open_rent');
+      loser.respond('امروز در مورد پرونده سوال دارم');
+      expect(loser.lastDecision?.candidate.name, 'پرونده یا پاسخِ کلی',
+          reason: 'پایهٔ بازنده در (24, 25)');
+
+      final winner = buildSetup('open_rent');
+      winner.respond('اشتباه گرفتی حرفم در مورد چک صیادی بود');
+      expect(winner.lastDecision?.candidate.name, 'اصلاحِ موضوع',
+          reason: 'ترکیب برنده در (24, 25)');
     });
   });
 
-  group('ناهم‌پوشانی جفت‌های جداگانه (۷۷ جفت)', () {
+  group('ناهم‌پوشانی جفت‌های جداگانه (۹۶ جفت)', () {
     test('همهٔ ۲۴ موضوع follow[next] دارند پس (۱۰, ۱۴) در عمل جداست', () {
       for (final Topic t in Advocate.topics) {
         expect(t.follow.containsKey('next'), isTrue, reason: t.id);
       }
     });
 
-    test('عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۷) جداست', () {
+    test('عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۸) جداست', () {
       for (final Topic t in Advocate.topics) {
         expect(Sense.words(Sense.norm(t.title)), lessThanOrEqualTo(7),
             reason: t.title);
@@ -1482,12 +2764,12 @@ void main() {
         expect(Sense.words(n), lessThanOrEqualTo(7), reason: chip);
         expect(DraftWords.isLeave(chip), isFalse, reason: chip);
         expect(DraftWords.isComplaintNoOption(chip), isFalse, reason: chip);
-        expect(Sense.has(n, 'پرسش|خودکش|تاریخچه|چت قبلی|دعوام|مهلت|طلاق|غبن'),
+        expect(Sense.has(n, 'پرسش|خودکش|تاریخچه|چت قبلی|دعوام|مهلت|طلاق|غبن|قهر|برنامه|ربات'),
             isFalse, reason: chip);
       }
     });
 
-    test('واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۷) و (۱۶) هم‌خوان است', () {
+    test('واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۸) و (۱۶) هم‌خوان است', () {
       for (final c in ChipTexts.branchChips) {
         expect(Sense.words(Sense.norm(c)), lessThanOrEqualTo(1), reason: c);
       }

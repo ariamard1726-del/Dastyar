@@ -16,7 +16,8 @@ class TopicPicker {
     required this.intentNet,
     required this.open,
     required this.voice,
-  });
+    double Function()? minNet,
+  }) : _minNet = minNet ?? (() => netMin);
 
   final CaseFile file;
   final DialogueState dialog;
@@ -29,6 +30,7 @@ class TopicPicker {
 
   /// صدا؛ تنبل می‌گیریمش تا آزمونِ تشخیصِ موضوع به صدای واقعی نیاز نداشته باشد.
   final ReplyVoice Function() voice;
+  final double Function() _minNet;
 
   AdvocateReply _out(
     String text, {
@@ -142,7 +144,7 @@ class TopicPicker {
     if (net == null || dialog.guide != null || Sense.words(n) < 3) return null;
     if (Sense.has(n, '(?:ماده|اصل) [0-9]+')) return null;
     final top = net.classify(raw);
-    if (top.score < netMin) return null;
+    if (top.score < _minNet()) return null;
     final id = netTopics[top.label];
     if (id == null) return null;
     for (final t in Advocate.topics) {

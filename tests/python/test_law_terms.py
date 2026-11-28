@@ -43,6 +43,18 @@ class LawTermsTest(unittest.TestCase):
         self.assertIn('لاکپشت', r['unknown'])
         self.assertFalse(r['accepted'])
 
+    def test_audit_has_zero_open_cases_and_zero_regressions(self):
+        with open(os.path.join(ROOT, 'tests', 'law_terms', 'audit.json'), encoding='utf-8') as f:
+            audit = json.load(f)
+        self.assertEqual([x['q'] for x in audit if x.get('status') == 'open'], [])
+        for x in audit:
+            got = law_terms.match(x['q'])
+            self.assertEqual(got['accepted'], x['accepted'], x['q'])
+            if 'law' in x:
+                self.assertEqual(got['law'], x['law'], x['q'])
+            if 'title' in x:
+                self.assertEqual(got['title'], x['title'], x['q'])
+
 
 if __name__ == '__main__':
     unittest.main()

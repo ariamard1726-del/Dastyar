@@ -268,4 +268,6 @@ class Topic {
         );
 
   bool get isDeclarative => rules != null;
+
+  factory Topic.fromJson(Map<String, dynamic> json) => topicFromJson(json);
 }

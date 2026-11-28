@@ -85,19 +85,18 @@ extension _ReplyPipeline on Advocate {
     // گرفته می‌شود.
     final read = _readTopics(n);
 
-    // دُمِ مسیرها: پیش از امتیاززدنِ موضوع، «مهلت» و «موضوعِ صریح» جای خودشان
-    // را دارند؛ پس داور یک بار تنها با «مهلت» صدا زده می‌شود، بعد پاسخِ
-    // موضوعی می‌آید و بعد داورِ دوم.
+    // دُمِ مسیرها: پیش از شاخه‌های پرونده، «مهلت» و «پاسخِ کلیِ مقدم»
+    // در گام دوم داور می‌آیند؛ سپس بقیهٔ مسیرها تا fallback در گام سوم.
     final dueDecision = Advocate._arbiter.decide(<AnswerCandidate>[
       AnswerCandidate('مهلت', () => _routes.deadline(raw, n, hasCase),
           source: AnswerSource.lawTerms, why: 'مهلتِ ابلاغ و حسابِ تاریخ'),
+      AnswerCandidate('پاسخِ کلیِ مقدم',
+          () => _meta(n, topic, explicit: topic == null && read.bestScore >= _topicStrongMin),
+          source: AnswerSource.topic, why: 'پاسخِ کلیِ مقدم به پرسش عمومی و هویت'),
     ]);
     lastDecision = dueDecision;
     final due = dueDecision?.reply;
     if (due != null) return due;
-    // موضوع صریح (امتیاز بالا، بدون پرونده) بر پاسخ‌های کلیِ مقدم برتری دارد.
-    final meta = _meta(n, topic, explicit: topic == null && read.bestScore >= topicStrongMin);
-    if (meta != null) return meta;
 
     final tailDecision = Advocate._arbiter.decide(<AnswerCandidate>[
       AnswerCandidate('تکرارِ حرفِ قبلی', () => _routes.repeat(prevN, n, hasCase),
@@ -108,48 +107,20 @@ extension _ReplyPipeline on Advocate {
       // بانک من نیست؛ پس بی‌پاسخ رها نمی‌کنم، راه درست را می‌گویم.
       AnswerCandidate('مهلتِ اعتراض', () => _objectionDeadline(n),
           source: AnswerSource.lawTerms, why: 'مهلتِ اعتراض بدون متنِ قانون'),
+      AnswerCandidate('واژهٔ قانون و پیوند', () => _termOrLinkReply(raw, n, read, guess),
+          source: AnswerSource.lawTerms, why: 'تطبیق واژهٔ قانون یا پیوند ماده'),
+      AnswerCandidate('هشدارِ قهر', () => _sulkingReply(n),
+          source: AnswerSource.topic, why: 'اطمینان‌بخشی دربارهٔ جرم‌نبودن قهر'),
+      AnswerCandidate('گفتگو با برنامه', () => _appChatReply(n),
+          source: AnswerSource.qaBank, why: 'پاسخ به پرسش دربارهٔ گفتگو با برنامه'),
+      AnswerCandidate('اصلاحِ موضوع', () => _correctionReply(n, topic),
+          source: AnswerSource.topic, why: 'اصلاح موضوع قبلی توسط کاربر'),
+      AnswerCandidate('پرونده یا پاسخِ کلی',
+          () => topic == null ? _noCaseReply(raw, n, read, guess) : _inCaseReply(raw, n, topic, read),
+          source: AnswerSource.topic, why: 'ورود به پرونده، ادامه یا پاسخ عمومی'),
     ]);
     lastDecision = tailDecision;
-    final tail = tailDecision?.reply;
-    if (tail != null) return tail;
-    // واژهٔ مشخصِ قانونی (مهریه، ودیعه، غبن…) وقتی هیچ پرونده‌ای باز نیست
-    // و موضوعی هم تشخیص داده نشده: همان مادهٔ مستند را نشان می‌دهیم.
-    if (!hasCase && read.bestScore < topicOpenMin) {
-      // «قهر» و حدس مطمئنِ خوانندهٔ موضوع پیش از متن قانون می‌آیند.
-      final confidentGuess = guess != null && guess.confident;
-      final lt = Sense.has(n, 'قهر') || confidentGuess ? null : _termReply.lawTerms(raw, n);
-      if (lt != null) return lt;
-      final refs = Understanding.linkedArticles(n);
-      if (refs.isNotEmpty) {
-        return _out(
-          advocateFormat('replyLinkedArticles', {'refs': refs.join(' ')}),
-          ask: advocateText('replyLinkedAsk'),
-          full: true,
-        );
-      }
-    }
-
-    // «قهر» جرم نیست و کسی را به‌خاطر قهر زندانی یا جریمه نمی‌کنند. این را
-    // پیش از هر موضوع می‌گوییم تا برداشت اشتباه جا نماند.
-    if (Sense.has(n, 'قهر') &&
-        Sense.has(n, 'زندان|حبس|بازداشت|جریمه|پلیس|دادگاه')) {
-      return _out(
-        advocateText('replySulkingWarning'),
-        ask: advocateText('replySulkingAsk'),
-      );
-    }
-
-    if (Sense.has(n, 'گفتگوی من با برنامه|گفتگو با برنامه|با برنامه (?:هست|است)')) {
-      return _out(
-        advocateText('replyAppChatBody'),
-        ask: advocateText('replyAppChatAsk'),
-      );
-    }
-
-    final corrected = _correctionReply(n, topic);
-    if (corrected != null) return corrected;
-    if (topic == null) return _noCaseReply(raw, n, read, guess);
-    return _inCaseReply(raw, n, topic, read);
+    return tailDecision!.reply;
   }
 
   /// پرسش فرضی (طرفهای الف/ب/ج) را از ماجرای شخصی جدا میکند. متن قانون

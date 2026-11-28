@@ -11,13 +11,6 @@ on:
         description: 'مخزنِ وزنها (خالی یعنی ارزیابی نشود)'
         required: false
         default: ''
-  push:
-    branches: ['arena/**']
-    paths:
-      - 'dev/brain/hakim_eval.py'
-      - '.github/workflows/hakim-eval.yml'
-      - 'eval/topic_examples.tsv'
-      - 'eval/understanding_probe.tsv'
 
 permissions:
   contents: write

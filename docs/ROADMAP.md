@@ -24,16 +24,16 @@
 | اسکیمای مسیر موضوعی | ✅ | `dev/tools/schemas/topic_flow.schema.json` |
 | پروندهٔ گفتگو قابل‌سریال‌شدن | ✅ | `CaseFile.toJson/fromJson` + آزمون |
 | ذخیره و بازیابی پرونده در تاریخچه | ✅ | `caseJson` داخل محمولهٔ رمزنگاریشدهٔ هر گفتگو (`_format = 4`) + `Advocate.restoreCase(json, dialogue: …)`؛ آزمون با `HistoryStore` تازه (راهاندازی مجدد)؛ قالب قدیمی با بازپخش پیام باز میشود |
-| انتقال متنِ ثابتِ موضوع‌ها به JSON | 🟡 | تمام متنِ آزادِ موضوعِ اجاره (۵۲۵ کلید در ۱۱ جدولِ `rent_texts.json`)، تمام بخش‌های `shared` و ۲۳ موضوعِ غیرِاجاره (۱٬۱۰۶ کلید در ۲۴ بخشِ `assets/brain/topic_texts.json`) و تمام نثرِ ثابتِ ۲۱ فایلِ غیرموضوعیِ `lib/domain/advocate/` (۴۷۰ کلید در ۱۸ بخشِ `assets/brain/advocate_texts.json`؛ جمعاً ۲٬۱۰۱ کلید و ۲۱۹٬۰۸۳ نویسه) به داده منتقل و در `test_rent_text_equivalence.py` + `test_topic_text_equivalence.py` + `test_advocate_text_equivalence.py` + `text_manifest.json` (۶۶ فایل) قفل شده‌اند؛ تنها ۱۵ گزینهٔ قالبیِ `rent_fill.dart`، برچسب‌های ساختاری، الگوهای Regex و closureهای تصمیم در Dart مانده‌اند |
+| انتقال متنِ ثابتِ موضوع‌ها به JSON | ✅ | تمام متنِ آزادِ موضوعِ اجاره (`۵۳۹` کلید در `۱۲` جدولِ `rent_texts.json` شامل `fillOptions`)، تمام بخش‌های `shared` و ۲۳ موضوعِ غیرِاجاره (`۱٬۱۰۶` کلید در `۲۴` بخشِ `assets/brain/topic_texts.json`) و تمام نثرِ ثابتِ ۲۱ فایلِ غیرموضوعیِ `lib/domain/advocate/` (`۴۷۰` کلید در `۱۸` بخشِ `assets/brain/advocate_texts.json`) به داده منتقل و در `test_rent_text_equivalence.py` + `test_topic_text_equivalence.py` + `test_advocate_text_equivalence.py` + `text_manifest.json` (`۶۶` فایل) قفل شده‌اند |
 | حذف `live:false` از APK | ✅ | `rent.json`/`labor_wages.json` در `lab/topics/`؛ آزمون‌هایشان همچنان اجرا می‌شوند |
-| جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ✅ | موتور `RuleDSL` (`rule_dsl*.dart`) + مهاجرت تمام ۲۴ موضوع به `.dsl(...)` و `Topic.toJson()` با ۰ کلوژر (`test_phase10_rule_dsl.py` + `phase10_rule_dsl_test.dart`) |
+| جایگزینی closureها (`Reader/Body/Tri`) با شناسهٔ قاعده | ✅ | موتور `RuleDSL` (`rule_dsl*.dart`) + مهاجرت تمام ۲۴ موضوع به `.dsl(...)` و چرخهٔ کامل `Topic.toJson()`/`Topic.fromJson()` با ۰ کلوژر (`test_phase10_rule_dsl.py` + `phase10_rule_dsl_test.dart` + `rule_dsl_from_json_test.dart`) |
 
 ## مرحلهٔ ۲ — یک داور، نه زنجیرهٔ ۷۵۰ خطی
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| نوع `AnswerCandidate {source, confidence, why}` | ✅ | `answer_candidate.dart` هر کاندید را نامدار میکند و `AnswerDecision` نام، منبع، دلیل و پاسخِ برنده را نگه میدارد؛ `Advocate.lastDecision` برای بازرسی. ترتیب و رفتار عوض نشد؛ `test/advocate/answer_candidate_test.dart` و `tests/python/test_reply_pipeline_candidate_contract.py` نگهباناند |
-| جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ⏳ | ترتیب و آستانه‌ها (`netMin`، `topicOpenMin`، `topicStrongMin`، `topicDominantMin`) از `assets/pipeline.json` قفل شدند (`pipeline_check.py` + `pipeline_contract_test.dart`)؛ ارزیابی کاندیدها هنوز در `_reply` با `AnswerArbiter` است |
+| نوع `AnswerCandidate {source, confidence, why}` | ✅ | `answer_candidate.dart` هر کاندید را نامدار میکند و `AnswerDecision` نام، منبع، دلیل و پاسخِ برنده را نگه میدارد؛ `Advocate.lastDecision` برای بازرسی. هر ۲۶ کاندیدِ خط پاسخ در `AnswerArbiter` ثبت شده‌اند (`test/advocate/answer_candidate_test.dart`, `priority_matrix_test.dart` با ۳۲۵ جفت، `tests/python/test_reply_pipeline_candidate_contract.py`) |
+| جدول خط لوله از JSON به‌جای `if`های زنجیره‌ای | ✅ | ترتیب ۲۶ کاندید و ۴ آستانه (`netMin`، `topicOpenMin`، `topicStrongMin`، `topicDominantMin`) هم در قرارداد (`assets/pipeline.json`، `pipeline_check.py`) قفل شدند و هم هنگام اجرا توسط `KnowledgeEngine.load()` در `PipelineConfig` خوانده و به `Advocate` تزریق می‌شوند (`pipeline_contract_test.dart` + `test_phase16_arbiter_and_from_json.py`) |
 | تصمیم دربارهٔ `IntentNet` و `Noql` | ✅ | مقایسهٔ چهار مجموعهٔ نگهداشته (`reports/intent_holdout.md`) نتیجهٔ یکسانی با و بدون IntentNet داد (۵/۱۱، ۶/۹، ۵/۹، ۴/۸). اپ فقط Noql را بار میکند؛IntentNet و مدلش فقط برای سنجش قابلتکرار نگه داشته شدهاند (`tests/python/test_classifier_choice.py`) |
 | `NoqlEncoder` دستنویس — **دارایی اصلی، حفظشده** | ✅ | مدل ۱۲٫۳ MB در `assets/brain/noql.bin` عمداً در APK میماند: تنها مسیر حدس موضوع است (در Isolate، بارگذاری تنبلی، ۱۲s تایمـاوت) و دقتش در `reports/noql_finetune.md` ثبت شده است. چهار فایل `assets/brain/noql*` توسط `check.py noql` و `tests/python/test_noql_assets_guard.py` نگهبانی میشوند. بهینهسازی حافظهٔ `embed` فعلاً انجام نمیشود (ریاضیات حساس، ۳۴۶ms در پسزمینه قابلقبول است) |
 
@@ -41,7 +41,7 @@
 
 | کار | وضعیت | یادداشت |
 |---|---|---|
-| SQLite + SQLCipher به‌جای SharedPreferences | ⬜ | کوئری، ایندکس و مهاجرت واقعی |
+| SQLite + SQLCipher به‌جای SharedPreferences | ⏳ | واسط `KeyValueStore`، `SharedPrefsKeyValueStore`، `MemoryKeyValueStore` و مهاجرت یک‌بارهٔ `StorageMigration.migrateOneShot` پیاده‌سازی و بدون `SharedPreferences` آزموده شدند (`lib/core/local_store.dart`، `lib/core/storage_migration.dart`، `test/core/local_store_migration_test.dart`)؛ اتصال درایور واقعی `sqflite_sqlcipher` منتظر محیط دارای دسترسی به `pub.dev` است |
 | رمزنگاری دست‌نویس حذف شود | ✅ | SHA-256/HMAC از `package:crypto`؛ بردارهای RFC در آزمون |
 | کلید فقط در Keystore (بدون fallback) | ✅ | اندروید از Keystore استفاده میکند؛ مسیر جایگزین کلید را فقط در حافظهٔ همان اجرا نگه میدارد، آن را در SharedPreferences نمینویسد، کلید قدیمی را پاک میکند و دادهٔ اجرای قبل را fail-closed رد میکند (`test/core/privacy_test.dart`) |
 | خطای ذخیرهٔ تنظیمات دیده شود | ✅ | `AppSettings.lastError` + بنر صفحهٔ تنظیمات؛ `setSecureScreen` bool برمی‌گرداند و `applySecureScreenAtStartup` تیک دروغین هنگام شروع را خاموش می‌کند؛ در گام ۱۴ خطاهای `FeedbackStore`، `DraftCheckpointStore` و `HistoryStore` نیز به `FeedbackBar`، `SettingsPage`، `HistoryPage` و `ReplyFlow` رسیدند |
@@ -50,7 +50,7 @@
 | حذف کامل انیمیشن نویسهبهنویسه | ✅ | انیمیشن و `onRevealTick` حذف شدند؛ تنها نشانگر «در حال نوشتن…» پیش از آمدن پاسخ مانده (`tests/python/test_ui_budget.py`) |
 | نگه‌داشتن دکمه‌های پیشنهادی در تاریخچه | ✅ | `StoredMsg.chips`؛ گفتگوی بازیابی‌شده دیگر بی‌دکمه نیست |
 | قفل‌کردن تقویم شمسی با الگوریتم مرجع | ✅ | `test/core/jalali_reference_test.dart` (۱۳۰۰–۱۵۰۰) |
-| حذف حدس «تومان → میلیون» در `Sense.amount` | ⬜ | تغییر عدد به‌معنای تغییر حکم است |
+| حذف حدس «تومان → میلیون» در `Sense.amount` | 🟡 | برداشت محاوره‌ای در گفتگوی نخست حفظ شد، اما در فاز ۱۵ دکمه و مسیر شفاف‌سازی مبلغ خُرد (`ChipTexts.plainTomanChip`/`Sense.wantsPlainToman`) و بازنویسی اصلاحی اضافه شد (`test/advocate/amount_clarification_test.dart`) |
 
 ## مرحلهٔ ۴ — آزمون، CI، بهداشت مخزن
 
@@ -87,9 +87,9 @@
 |---|---|---|---|
 | الگوریتمِ تطبیق واژه‌ها | `lib/domain/advocate/law_terms.dart` ↔ `dev/tools/law_terms.py` | فهرست، آستانه‌ها، ضرایب رتبه‌بندی و نام منبع عمومی یک‌جا شد (`check.py lawterms` + `textnorm`)، ولی کدِ تطبیق دو جاست: `tests/law_terms/cases.json` روی هر دو اجرا می‌شود | ارزیابی روی خروجی خودِ اپ، یا حذف آینهٔ پایتون |
 | یکدست‌سازی متن (الگوریتم) | `lib/core/persian_text.dart` + `lib/core/text_norm_rules.dart` ↔ `dev/brain/common.py` | قاعده‌های نویسه، محاوره، واژه‌بندی و نرمال‌سازی فاصله‌دار (`tools`/`terms`) یک‌جا شد (`check.py textnorm`)؛ کدِ اجراکننده دو جاست: `tests/text_norm_golden.json` و `tests/text_norm_norm_cases.json` | ارزیابی روی خروجی خودِ اپ |
-| موتور بازیابی | `lib/core/engine.dart` + `lib/core/engine_rules.dart` ↔ `dev/tools/eval_py.py` | قاعده‌ها و ضرایب در `engine_rules.json` + `text_norm.json` یک‌جا شدند (`check.py enginerules` + `test_engine_rules_parity.py`)؛ منطق و استاندارد طلایی با `dev/tools/check.py parity` + `test/core/parity_test.dart` قفل‌اند | ارزیابی روی خروجی خودِ اپ (بدون بازنویسی پایتون) |
-| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `dev/tools/topic_flow.py` | نرمال‌سازی فاصله‌دار از `text_norm.json` می‌آید؛ `tests/python/test_topic_flow.py` و `test/advocate/topic_flow_test.dart` روی `tests/topics/*_gold.json` | همان موتور Dart از میز فرمان اجرا شود |
-| دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `dev/tools/sync_meta.py` | `dev/tools/check.py meta` (تازگی) | تولید در زمان ساخت، نه فایل کامیت‌شده |
+| موتور بازیابی | `lib/core/engine.dart` + `lib/core/engine_rules.dart` ↔ `dev/tools/eval_py.py` | قاعده‌ها و ضرایب در `engine_rules.json` + `text_norm.json` یک‌جا شدند (`check.py enginerules` + `test_engine_rules_parity.py`)؛ توابع کمکی `eval_py.py` در `dev/brain/common.py` یکتاسازی شدند و `test/core/dart_eval_suite_test.dart` + `dev/tools/dart_eval.py` اکنون مستقیم روی موتور واقعی Dart در CI ارزیابی می‌کند (همراه با قفل `check.py parity` + `test/core/parity_test.dart`) | حفظ اجراگر مستقیم CI و حذف آینهٔ پایتون در فاز نهایی |
+| مسیر موضوعی | `lib/domain/advocate/topic_flow.dart` ↔ `dev/tools/topic_flow.py` | نرمال‌سازی فاصله‌دار از `text_norm.json` می‌آید؛ `tests/python/test_topic_flow.py`، `test/advocate/topic_flow_test.dart` و `test/core/dart_eval_suite_test.dart` روی `tests/topics/*_gold.json` | همان موتور Dart مستقیم از طریق `dev/tools/dart_eval.py` در CI اجرا می‌شود |
+| دادهٔ مشتق (`laws_catalog.json`، `data_info.json`) | `assets/laws/_meta.json` → `dev/tools/sync_meta.py` | `check.py meta` + `dev/tools/sync_meta.py --check` در `test.yml` و `build.yml` + همگام‌سازی خودکار پیش‌ساخت در `build.yml` | همگام‌سازی خودکار پیش‌ساخت فعال شد؛ حذف نهایی فایل‌های کامیت‌شده اختیاری است |
 
 ### پرداخت‌شده: ایست‌واژه‌های تطبیق واژه‌ها
 

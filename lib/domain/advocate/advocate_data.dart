@@ -69,3 +69,26 @@ const Map<String, List<String>> guessTopics = {
   'guarantee': ['guarantee'],
   'admin': ['admin'],
 };
+
+/// ترتیب فعال خط لوله با اتصال زنده به `assets/pipeline.json` (و تکیه بر
+/// قرارداد ایستا وقتی موتور هنوز بارگذاری نشده باشد).
+List<AnswerSource> resolvePipelineOrder(PipelineConfig? cfg) {
+  if (cfg == null) return pipelineOrder;
+  final out = <AnswerSource>[];
+  for (final name in cfg.order) {
+    for (final src in AnswerSource.values) {
+      if (src.name == name && !out.contains(src)) {
+        out.add(src);
+        break;
+      }
+    }
+  }
+  return out.isEmpty ? pipelineOrder : List<AnswerSource>.unmodifiable(out);
+}
+
+double resolveNetMin(PipelineConfig? cfg) => cfg?.netMin ?? netMin;
+int resolveTopicOpenMin(PipelineConfig? cfg) => cfg?.topicOpen ?? topicOpenMin;
+int resolveTopicStrongMin(PipelineConfig? cfg) =>
+    cfg?.topicStrong ?? topicStrongMin;
+int resolveTopicDominantMin(PipelineConfig? cfg) =>
+    cfg?.topicDominant ?? topicDominantMin;

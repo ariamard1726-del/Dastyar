@@ -14,8 +14,8 @@
       "lines": 1157
     },
     "assets/brain/topics/rent_texts.json": {
-      "sha256": "be525803b8089cf837fff7831fbe1490d260c4a3c2ce9f19ac790778d711a127",
-      "lines": 551
+      "sha256": "c6c201addb05a115bc7da294ec672985cb38ccfb0123719fc0005c112fb3988c",
+      "lines": 567
     },
     "assets/laws/Hoghough_e_Khosousi/Hoghough_e_Kar/Hoghough_E_Kar.txt": {
       "sha256": "ee27578094992548a7158c39643c378a32c3ffd42e9e971a9c511f0e777e1388",
@@ -246,7 +246,7 @@
       "lines": 331
     },
     "lib/domain/advocate/topics/rent_fill.dart": {
-      "sha256": "aac9b3d6313b9e63795e055d3803f382c85dcee115aee3f0711712876aaf8b8a",
+      "sha256": "17e2cb82fd48c284d6688b0684117aac3f89ecf8ff8b9abb2946a61b59b5061e",
       "lines": 261
     },
     "lib/domain/advocate/topics/rent_plan.dart": {

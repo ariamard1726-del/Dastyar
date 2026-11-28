@@ -83,7 +83,7 @@ class Advocate {
     dialog: dialog,
     intentNet: intentNet,
     open: (t, n, {bool guessed = false}) => _open(t, n, guessed: guessed),
-    voice: () => voice,
+    voice: () => voice, minNet: () => _netMin,
   );
 
   /// روندِ پرونده: بازکردن، خواندنِ واقعیت‌ها، پرسشِ بعدی و جمع‌بندی.
@@ -113,7 +113,7 @@ class Advocate {
     dialog: dialog,
     voice: voice,
     intentNet: intentNet,
-    chipPlan: () => _chipPlan,
+    chipPlan: () => _chipPlan, openMin: () => _topicOpenMin,
   );
 
   late final GuideReply _guides = GuideReply(
@@ -387,7 +387,7 @@ class Advocate {
     final n = Sense.norm(raw);
     if (!_guessable(n)) return false;
     for (final t in topics) {
-      if (_score(t, n) >= topicOpenMin) return false;
+      if (_score(t, n) >= _topicOpenMin) return false;
     }
     return true;
   }

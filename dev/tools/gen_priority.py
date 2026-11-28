@@ -83,7 +83,8 @@ def validate(c):
     want_pairs = [(i, j) for i in range(len(cands)) for j in range(i + 1, len(cands))]
     got_pairs = [(p.get('winner_index'), p.get('loser_index')) for p in pairs]
     if got_pairs != want_pairs:
-        errors.append('جفت‌های اعلام‌شده با ۱۹۰ جفتِ ممکن یکی نیست (تعداد=%d)' % len(pairs))
+        errors.append('جفت‌های اعلام‌شده با %s جفتِ ممکن یکی نیست (تعداد=%d)' %
+                      (_fa(len(want_pairs)), len(pairs)))
         return errors
 
     for p in pairs:
@@ -168,7 +169,7 @@ def render_doc(c):
 
     lines.extend([
         '',
-        '## ۲. ماتریسِ ۲۰×۲۰ جفت‌به‌جفت',
+        '## ۲. ماتریسِ %s×%s جفت‌به‌جفت' % (_fa(len(cands)), _fa(len(cands))),
         '',
         'نمادها: `>` ردیف بر ستون برتری دارد (هم‌پوشان، آزموده در Dart) · `<` ستون بر ردیف برتری دارد · `—` جداگانه (هم‌زمان فعال نمی‌شوند) · `·` قطر اصلی.',
         '',
@@ -245,8 +246,8 @@ def render_dart(c):
         "import 'package:dastyar/domain/understanding/topic_guess.dart';",
         "import 'package:flutter_test/flutter_test.dart';",
         '',
-        '/// آزمونِ ماتریس اولویتِ ۲۰ کاندید (%s جفت: %s هم‌پوشان + %s جداگانه).' % (
-            _fa(len(pairs)), _fa(len(overlaps)), _fa(len(disjoints))),
+        '/// آزمونِ ماتریس اولویتِ %s کاندید (%s جفت: %s هم‌پوشان + %s جداگانه).' % (
+            _fa(len(c['candidates'])), _fa(len(pairs)), _fa(len(overlaps)), _fa(len(disjoints))),
         '///',
         '/// تمام نوبت‌های پیش‌شرط با فراخوانی واقعی `Advocate.respond` ساخته می‌شوند،',
         '/// نه با دست‌کاریِ وضعیت داخلی؛ هر تغییر در ترتیب یا پیش‌شرط کاندیدها',
@@ -401,7 +402,7 @@ def render_dart(c):
         title = '(%s, %s) %s > %s' % (_fa(w), _fa(l), wname, lname)
         out.append('    test(%s, () {' % _dart_str(title))
         out.append('      final loser = buildSetup(%s);' % _dart_str(lsetup))
-        if l == 17:
+        if lname == 'تکرارِ حرفِ قبلی':
             out.append('      loser.respond(%s);' % _dart_str(lraw))
         out.append('      loser.respond(%s);' % _dart_str(lraw))
         out.append('      expect(loser.lastDecision?.candidate.name, %s,' % _dart_str(lname))
@@ -425,7 +426,7 @@ def render_dart(c):
         '      }',
         '    });',
         '',
-        "    test('عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۷) جداست', () {",
+        "    test('عنوان موضوع‌ها حداکثر ۷ واژه است پس انتخاب موضوع (۹) از تکرار (۱۸) جداست', () {",
         '      for (final Topic t in Advocate.topics) {',
         '        expect(Sense.words(Sense.norm(t.title)), lessThanOrEqualTo(7),',
         '            reason: t.title);',
@@ -440,12 +441,12 @@ def render_dart(c):
         '        expect(Sense.words(n), lessThanOrEqualTo(7), reason: chip);',
         '        expect(DraftWords.isLeave(chip), isFalse, reason: chip);',
         '        expect(DraftWords.isComplaintNoOption(chip), isFalse, reason: chip);',
-        "        expect(Sense.has(n, 'پرسش|خودکش|تاریخچه|چت قبلی|دعوام|مهلت|طلاق|غبن'),",
+        "        expect(Sense.has(n, 'پرسش|خودکش|تاریخچه|چت قبلی|دعوام|مهلت|طلاق|غبن|قهر|برنامه|ربات'),",
         '            isFalse, reason: chip);',
         '      }',
         '    });',
         '',
-        "    test('واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۷) و (۱۶) هم‌خوان است', () {",
+        "    test('واژه‌شمار دکمه‌های شاخه و انصراف با (۱, ۴) و (۱۸) و (۱۶) هم‌خوان است', () {",
         '      for (final c in ChipTexts.branchChips) {',
         '        expect(Sense.words(Sense.norm(c)), lessThanOrEqualTo(1), reason: c);',
         '      }',

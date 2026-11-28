@@ -1,9 +1,11 @@
 import 'package:dastyar/domain/advocate/case_state.dart';
 
+export 'package:dastyar/domain/advocate/rule_dsl_from_json.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_json.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_read.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_text.dart';
 export 'package:dastyar/domain/advocate/rule_dsl_topic.dart';
+export 'package:dastyar/domain/advocate/rule_dsl_topic_from_json.dart';
 
 /// زبانِ داده‌ای شرط‌های موضوع (`FactExpr`): جایگزین قابل سریال‌سازی برای
 /// کلوژرهای `when` و `Element.test`.

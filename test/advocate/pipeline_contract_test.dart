@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dastyar/core/engine.dart';
 import 'package:dastyar/domain/advocate/advocate.dart';
 
 /// قرارداد خط لوله: `assets/pipeline.json` تنها منبع حقیقت است و کد Dart
@@ -10,11 +11,24 @@ import 'package:dastyar/domain/advocate/advocate.dart';
 /// پیش از این، ترتیب مسیرها فقط در `pipelineOrder` بود و آستانه‌ها
 /// عدد جادویی وسط کد؛ هر تغییر بی‌هماهنگ بی‌صدا رفتار را عوض می‌کرد.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Map<String, dynamic> pipeline;
 
   setUpAll(() {
     final raw = File('assets/pipeline.json').readAsStringSync();
     pipeline = jsonDecode(raw) as Map<String, dynamic>;
+  });
+
+  test('KnowledgeEngine.load تنظیمات خط لوله را زنده از assets/pipeline.json می‌خواند', () async {
+    final engine = KnowledgeEngine();
+    await engine.load();
+    final cfg = engine.pipeline;
+    expect(cfg, isNotNull);
+    expect(resolvePipelineOrder(cfg), pipelineOrder);
+    expect(resolveNetMin(cfg), netMin);
+    expect(resolveTopicOpenMin(cfg), topicOpenMin);
+    expect(resolveTopicStrongMin(cfg), topicStrongMin);
+    expect(resolveTopicDominantMin(cfg), topicDominantMin);
   });
 
   test('فایل خط لوله در دسترس و دارای order است', () {
