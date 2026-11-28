@@ -1,8 +1,8 @@
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۷) «باشه» > پاسخِ کلیِ مقدم
+✅ test/advocate/intent_hint_test.dart: نظر طبقه‌بند فقط با اطمینان بالا و فقط برای موضوع هم‌معنا پذیرفته می‌شود
+✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۹) «باشه» > قاعدهٔ ثابت
 ✅ test/advocate/intent_hint_test.dart: ارجاع مستقیم به ماده و پیام‌های کوتاه هرگز با طبقه‌بند پرونده باز نمی‌کنند
 ✅ test/advocate/intent_hint_test.dart: بدون طبقه‌بند هم وکیل کامل کار می‌کند
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۳, ۲۵) پیشنهادِ پاسخ > پرونده یا پاسخِ کلی
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۷) «باشه» > پاسخِ کلیِ مقدم
-✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۱۹) «باشه» > قاعدهٔ ثابت
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۲) «باشه» > هشدارِ قهر
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۴) «باشه» > اصلاحِ موضوع
 ✅ test/advocate/priority_matrix_test.dart: ماتریس جفت‌های هم‌پوشان (۲۲۹ جفت) (۱۴, ۲۵) «باشه» > پرونده یا پاسخِ کلی
@@ -161,17 +161,17 @@
 ✅ test/advocate/understanding_test.dart: ثبت طلاق با امتناع زوجه به مواد ۳۴ و ۳۵ مستند است
 ✅ test/advocate/understanding_test.dart: پاسخ ثبت طلاق در گفتگو، ماده ۳۵ را واقعاً نشان می‌دهد
 ✅ test/advocate/understanding_test.dart: تعارض تخفیف: ماده ۳۸ و ماده خاص، یک جهت یک‌بار حساب می‌شود
+✅ test/advocate/case_model_test.dart: نُه نام، از یک import
 ✅ test/advocate/understanding_test.dart: غبن: اسقاط صریح و غبن فاحش، با مواد ۴۱۶ و ۴۲۰ و بدون ادعای اصطلاح غیرقانونی
 ✅ test/advocate/understanding_test.dart: واژه‌های پیوند: مهریه و ودیعه به مادهٔ درست می‌روند
+✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
 ✅ test/advocate/understanding_test.dart: پیام عادی قاعدهٔ تعارض نمی‌گیرد
+✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
 ✅ test/advocate/understanding_test.dart: واژهٔ قانونیِ تنها بدون پرونده، ماده را نشان می‌دهد یا موضوع را باز می‌کند
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط از حرف کاربر ساخته می‌شود
 ✅ test/advocate/understanding_test.dart: دکمهٔ مرتبط در پاسخ نشان داده می‌شود و تکراری نیست
 ✅ test/advocate/understanding_test.dart: همان دکمه وقتی فرستاده شود، دوباره دکمه نمی‌سازد
-✅ test/advocate/case_model_test.dart: نُه نام، از یک import
-✅ test/advocate/case_model_test.dart: پیش‌فرض‌های عمومی مدل‌ها عوض نشده‌اند
 ✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
-✅ test/advocate/case_model_test.dart: قراردادِ JSON از دروازه رد می‌شود: نسخه ۱ و رفت‌وبرگشت
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
 ✅ test/advocate/understanding_test.dart: پرسش فروش دوباره ملک به پاسخ بانک اجاره نمی‌رود
 ✅ test/advocate/understanding_test.dart: پژواک پرسش با گیومه تودرتو نمی‌شود
