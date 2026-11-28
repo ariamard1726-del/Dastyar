@@ -45,6 +45,7 @@ List<String> parseRentTexts(String source) {
     'slots',
     'issues',
     'recaps',
+    'fillOptions',
   ]) {
     final raw = data[section];
     if (raw is! Map) {

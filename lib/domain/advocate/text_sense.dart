@@ -89,8 +89,18 @@ class Sense {
     return 1000;
   }
 
+  static const String _plainMarker =
+      'تومان واقعی|تومان خرد|میلیون نیست|نه میلیون|مبلغ خرد|هزار نیست';
+
+  /// آیا کاربر صریحاً اشاره کرده که عدد را به‌عنوان تومان واقعی/خُرد بگیریم نه میلیون؟
+  static bool wantsPlainToman(String n) => has(n, _plainMarker);
+
   /// نخستین مبلغِ متن به تومان (یا null).
   static int? amount(String n) {
+    if (wantsPlainToman(n) && !has(n, '(?<= )($_numAlt) ?(هزار|میلیارد)')) {
+      final plain = rx('(?<= )([0-9]{1,3})(?= ?تومان| |\$)').firstMatch(n);
+      if (plain != null) return int.tryParse(plain[1]!) ?? 0;
+    }
     final m = rx(
       '(?<= )($_numAlt) ?(میلیارد|میلیون|هزار)'
       '(?: و ($_numAlt) ?(میلیون|هزار))?( تومان| ریال)?',
@@ -124,9 +134,9 @@ class Sense {
     return (int.tryParse(m[1]!) ?? 0) * 1000000;
   }
 
-  /// آیا مبلغ با واحد روشن گفته شده (میلیون، هزار، …)؟
+  /// آیا مبلغ با واحد روشن گفته شده (میلیون، هزار، یا تومان واقعی)؟
   static bool amountIsExplicit(String n) =>
-      has(n, 'میلیون|میلیارد|هزار|ریال|[0-9]{4,}');
+      has(n, 'میلیون|میلیارد|هزار|ریال|[0-9]{4,}|$_plainMarker');
 
   /// نخستین مدتِ متن به ماه (سال×۱۲؛ هفته و روز به کسری از ماه).
   static double? months(String n) {

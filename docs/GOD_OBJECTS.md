@@ -132,7 +132,7 @@
 |---|---|---|
 | `advocate.dart` | ۵۹۵ → **۴۵۳** | سیم‌کشی و API (۲۶۳ خطِ کد؛ بقیه مستندِ همان کد) |
 | `advocate_model.dart` | **۹۵** | `AnswerSource`، `AdvocateReply`، `_Ask` |
-| `chip_texts.dart` | **۵۵** | نوزده برچسبِ دکمه (`ChipTexts.moreChip` …) |
+| `chip_texts.dart` | **۵۷** | بیست برچسبِ دکمه (`ChipTexts.moreChip` …) |
 
 - `Advocate.moreChip` و هفده هم‌نوعش به `ChipTexts.` رفتند (۸۵ ارجاع در ۲۱ فایل، شاملِ آزمون‌ها). `idleChips` عمداً در `Advocate` ماند: آن یک **تصمیم** است (`_idleChips()`)، نه برچسب.
 - آزمونِ نگهبان، برچسب‌ها را **حرف‌به‌حرف** قفل می‌کند (`test_chip_labels_are_data_not_class_members`) و همچنین می‌سنجد که مدلِ پاسخ در فایلِ خودش باشد و میدان‌های `AdvocateReply` دست‌نخورده بمانند.

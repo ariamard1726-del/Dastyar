@@ -57,6 +57,7 @@ extension _CaseFacts on CaseFlow {
     }
     final unsure = Sense.saysDontKnow(n);
     final hedged = unsure && Sense.has(n, ' یا نه |شاید|مطمئن نیستم');
+    final plainSwitch = live && Sense.wantsPlainToman(n);
     final reads = <String, String?>{for (final s in t.slots) s.id: s.read(n)};
     // «آره مدتش تموم شده»: بله‌ای که پشتش واقعیتِ بله/نه‌ایِ دیگری آمده،
     // جوابِ همان واقعیت است نه پرسشِ معلق.
@@ -70,7 +71,7 @@ extension _CaseFacts on CaseFlow {
     for (final s in t.slots) {
       var v = reads[s.id];
       if (v != null && hedged && (v == 'yes' || v == 'no')) v = '?';
-      if (live && v == null && s.id == file.pending) {
+      if (live && v == null && s.id == file.pending && !plainSwitch) {
         final rp = s.readPending;
         final r = rp == null ? null : rp(n);
         if (r != null && !(otherBool && (r == 'yes' || r == 'no'))) v = r;
@@ -111,6 +112,23 @@ extension _CaseFacts on CaseFlow {
       }
       file.facts[s.id] = v;
       if (v != '?') out.add(s);
+    }
+    if (plainSwitch &&
+        !out.any((s) => s.id == 'amount' || s.id == 'salary')) {
+      for (final s in t.slots) {
+        if (s.id != 'amount' && s.id != 'salary') continue;
+        final cur = file.n(s.id);
+        if (cur != null &&
+            cur >= 1000000 &&
+            cur < 1000000000 &&
+            cur % 1000000 == 0) {
+          final plain = cur ~/ 1000000;
+          flips[s.id] = '$cur';
+          file.facts[s.id] = '$plain';
+          out.add(s);
+          break;
+        }
+      }
     }
     return out;
   }

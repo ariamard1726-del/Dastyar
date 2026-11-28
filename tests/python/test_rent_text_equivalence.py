@@ -36,6 +36,8 @@ BODIES_BEFORE_SHA256 = 'ab62ffd0256e9f91ee633949d814efb771df351004a8424af4063808
 BODIES_BEFORE_COUNT = 51
 FILLS_BEFORE_SHA256 = '8d141bd9dc618bffceb6d42bcfd279f710539156267e738fda40d82025151fe9'
 FILLS_BEFORE_COUNT = 51
+FILL_OPTIONS_BEFORE_SHA256 = 'b79885446d802be1ba967b4087820f0c925dc81680e701df38e77762202fd9d6'
+FILL_OPTIONS_BEFORE_COUNT = 14
 PROMPTS_BEFORE_SHA256 = 'd57126f6a98e3ec207314f00d81771a7e01183f567e04030ed68d55c16cdd760'
 PROMPTS_BEFORE_COUNT = 28
 EFFECTS_BEFORE_SHA256 = 'a92491ef609a40deaebc6924dd09a4e2006df3f4f49b778876556d61f80a4a13'
@@ -200,8 +202,14 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertEqual(FILLS_BEFORE_SHA256, digest(fills),
                          'یک نویسه از متنِ فیلدهای سند عوض شده است')
         self.assertTrue(all(fills.values()), 'فیلدِ خالی در دارایی نیست')
+        fill_opts = self.data['fillOptions']
+        self.assertEqual(FILL_OPTIONS_BEFORE_COUNT, len(fill_opts))
+        self.assertEqual(FILL_OPTIONS_BEFORE_SHA256, digest(fill_opts),
+                         'یک نویسه از گزینه‌های فیلد سند عوض شده است')
+        self.assertTrue(all(fill_opts.values()), 'گزینهٔ خالی در دارایی نیست')
         for section in ('texts', 'claims', 'filings', 'plans', 'bodies'):
             self.assertFalse(set(fills) & set(self.data[section]))
+            self.assertFalse(set(fill_opts) & set(self.data[section]))
 
     def test_fill_keeps_only_delegates_and_template_choices(self):
         src = read(ROOT, 'lib/domain/advocate/topics/rent_fill.dart')
@@ -209,20 +217,26 @@ class RentTextEquivalenceTest(unittest.TestCase):
         used = re.findall(r"'(fill\w+)'", code)
         self.assertEqual(set(used), set(self.data['fills']),
                          'کلیدِ بدون استفاده یا گم‌شده در جدول fills')
-        # گزینه‌های فیلدهای انتخابی باید دقیقاً برابر قالب بمانند؛ متنِ بلندِ
-        # آزاد نباید دوباره به کد برگردد.
+        used_opts = re.findall(r"'(opt\w+)'", code)
+        self.assertEqual(set(used_opts), set(self.data['fillOptions']),
+                         'کلیدِ بدون استفاده یا گم‌شده در جدول fillOptions')
+        # گزینه‌های فیلدهای انتخابی باید دقیقاً برابر قالب بمانند؛ هیچ رشتهٔ
+        # فارسی در کد Dart نماند.
         tmpl_opts = set()
         for name in ('demand_money', 'eviction', 'defense_brief', 'formal_notice'):
             with open(os.path.join(ROOT, 'assets', 'templates', name + '.json'),
                       encoding='utf-8') as f:
                 for field in json.load(f).get('fields', []):
                     tmpl_opts.update(field.get('options', []))
+        for val in self.data['fillOptions'].values():
+            self.assertIn(val, tmpl_opts,
+                          'گزینهٔ fillOptions با قالب هم‌خوان نیست: %s' % val)
         for lit in re.findall(r"'((?:\\.|[^'])*)'", code):
             if lit == '، ':
                 continue
-            if any('\u0600' <= c <= '\u06FF' for c in lit):
-                self.assertIn(lit, tmpl_opts,
-                              'متنِ غیرازگزینه دوباره در rent_fill آمده: %s' % lit)
+            self.assertFalse(
+                any('\u0600' <= c <= '\u06FF' for c in lit),
+                'متنِ فارسی دوباره در rent_fill آمده: %s' % lit)
 
     def test_prompts_and_effects_match_the_pre_move_source(self):
         prompts = self.data['prompts']
@@ -237,7 +251,8 @@ class RentTextEquivalenceTest(unittest.TestCase):
         self.assertTrue(all(effects.values()), 'اثرِ خالی در دارایی نیست')
         seen = set()
         for sec in ('texts', 'claims', 'filings', 'plans', 'bodies', 'fills',
-                    'prompts', 'effects', 'slots', 'issues', 'recaps'):
+                    'prompts', 'effects', 'slots', 'issues', 'recaps',
+                    'fillOptions'):
             keys = set(self.data[sec])
             self.assertFalse(seen & keys, 'تداخل شناسه در بخش %s' % sec)
             seen |= keys

@@ -23,6 +23,8 @@ abstract final class ChipTexts {
   static const String newTopicChip = 'بله، موضوع تازه است';
   static const String sameCaseChip = 'خیر، به همان ماجرا مربوط است';
   /// خروج از موضوع فقط با این دکمه (یا «انصراف» نوشته‌شده) انجام می‌شود.
+  /// دکمهٔ اصلاح وقتی کاربر مبلغ را بدون واحد گفته و وکیل آن را میلیون فرض کرده.
+  static const String plainTomanChip = 'منظورم میلیون نیست، مبلغ خُرد است';
   static const String leaveChip = 'انصراف';
   /// پاسخ کاربر به «ماجرای شما به کدام نزدیک‌تر است؟».
   static const String noneChip = 'هیچ‌کدام';
