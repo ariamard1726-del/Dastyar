@@ -113,21 +113,45 @@ class LawAnswer {
         );
       }
       if (_isLawHit(r)) {
+        // خودبررسی (فاز ۴): پیش از نمایش، ماده‌ها/نام‌های قانون داخل متن
+        // باید در همان چانک‌های بازیابی‌شده دیده شوند. اگر نشد، به‌جای
+        // پاسخ نمایش داده نمی‌شود و سؤال پیگیری می‌آید.
+        final lead = direct
+            ? advocateText('lawDirectLead')
+            : advocateText('lawFallbackLead');
+        final tail = hasCase
+            ? advocateText('lawInCaseTail')
+            : advocateText('lawOutCaseTail');
+        final allowedArts = <String>{};
+        final allowedTitles = <String>[];
+        final allowedBodies = <String>[];
+        // همهٔ چانک‌های بازیابی‌شده شمرده می‌شوند (نه فقط برترها): خطوط
+        // «مواد نزدیک دیگر» هم دقیقاً همین مجموعهٔ شرطی‌نخورده است.
+        for (final h in r.contextHits) {
+          allowedArts.addAll(Groundedness.articleRefs(h.chunk.title));
+          allowedArts.addAll(Groundedness.articleRefs(h.chunk.body));
+          allowedTitles.add(h.chunk.source);
+          allowedBodies.add(h.chunk.body);
+        }
+        final issues = Groundedness.check('$lead\n\n${r.text}\n\n$tail',
+            allowedArticles: allowedArts,
+            allowedLawTitles: allowedTitles,
+            allowedLawBodies: allowedBodies);
+        if (issues.isNotEmpty) {
+          return _out(
+            advocateText('lawGroundednessBlocked'),
+            ask: advocateText('lawGroundednessBlockedAsk'),
+          );
+        }
         final laws = [
           for (final h in r.contextHits.where(_isLaw).take(2))
             LawText(h.chunk.title, h.chunk.source, h.chunk.body, '',
                 status: engine.meta[h.chunk.lawId]?['status']?.toString() ?? ''),
         ];
-        final lead = direct
-            ? advocateText('lawDirectLead')
-            : advocateText('lawFallbackLead');
         voice.rest = '';
         voice.offeredMore = false;
         return AdvocateReply(
-          '$lead\n\n${r.text}\n\n'
-          // اگر ماجرای کاربر را از پیش می‌دانیم، پرسیدنِ «چه شده؟» یعنی
-          // فراموش‌کردنِ حرف‌هایش؛ پس همان را به پروندهٔ باز وصل می‌کنیم.
-          '${hasCase ? advocateText('lawInCaseTail') : advocateText('lawOutCaseTail')}',
+          '$lead\n\n${r.text}\n\n$tail',
           laws: laws,
           source: AnswerSource.engine,
         );

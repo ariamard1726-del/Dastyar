@@ -161,6 +161,12 @@ extension _CaseAnswers on CaseFlow {
             : (t.follow[kind == 'argue' ? 'chance' : kind] ?? generic(kind));
         if (arg != null) {
           reasoned = true;
+          // ردپای فاز ۴ (زنجیرهٔ استناد): استدلالِ ساخته‌شده همان‌لحظه روی
+          // مدلِ زنجیره هم سنجیده می‌شود تا ناهمگنی‌اش بی‌صدا رد نشود؛
+          // متنِ پاسخ عوض نمی‌شود و نمایش در UI کارِ فاز بعد است.
+          for (final v in Reasoner.assess(t, file)) {
+            _checkChain(v);
+          }
           parts.add(arg);
           dialog.roomy = true;
           dialog.arguedOn = _factsKey();
@@ -270,6 +276,8 @@ extension _CaseAnswers on CaseFlow {
       );
     }
     if (parts.isEmpty) parts.add(_pick(Say.fine));
+    final contra = _contraNote(t, n);
+    if (contra.isNotEmpty) parts.add(contra);
     // اگر حرف کاربر را در همین پرونده فهمیده‌ام، فقط برای پیام‌های بلند
     // می‌پرسم که آیا ماجرای جدایی هم هست؛ وگرنه مزاحم گفتگو می‌شود.
     final note = picker.sideNote();
@@ -280,6 +288,46 @@ extension _CaseAnswers on CaseFlow {
       dialog.sideText = '';
     }
     return finish(t, parts, plainHint: plainHint);
+  }
+
+  /// ردپای فاز ۴ (تناقض‌یابی محتوایی): اگر پیامِ کاربر همان نشانه‌ای
+  /// را که ادعاهای این موضوع روی آن تکیه دارند صریحاً نفی کند، همان نشانه
+  /// را نشان می‌دهم تا استدلال روی «منفیِ کاربر» سنجیده شود، نه روی
+  /// فرضِ برقراریِ شرط. فقط نشانه‌های تمام‌متنی وارد سنجش می‌شوند؛
+  /// نشانه‌های regex در این لایه سنجش نمی‌شوند.
+  String _contraNote(Topic t, String n) {
+    final mark = RegExp(r'[\\|()\[\]{}?.+*^$]');
+    for (final c in t.claims) {
+      for (final raw in c.cues.split('|')) {
+        if (raw.isEmpty || mark.hasMatch(raw)) continue;
+        if (Sense.has(n, RegExp.escape(raw)) && Contradiction.negates(n, raw)) {
+          return advocateFormat('contraNote', {'cue': raw});
+        }
+      }
+    }
+    return '';
+  }
+
+  /// ردپای فاز ۴ (زنجیرهٔ استناد): زنجیره را از همان ClaimView امروز
+  /// می‌سازد و ناهمگنی‌اش را به‌جای بی‌صدا رد شدن، صریح می‌اندازد.
+  /// استثنا: «استنادِ مشهود» تا مهاجرت UI به زنجیره خالی می‌ماند.
+  void _checkChain(ClaimView v) {
+    final chain = CiteChain(
+      facts: [
+        for (final e in v.elements)
+          if (e.holds != null && e.element.text.isNotEmpty) e.element.text,
+      ],
+      rule: v.claim.goal,
+      standing: v.standing,
+      citation: '',
+      failedConditions: [
+        for (final e in v.elements)
+          if (e.holds == false) e.element.text,
+      ],
+    );
+    if (chain.failedConditions.length != v.failed.length) {
+      throw StateError('CiteChain inconsistent build');
+    }
   }
 
   AdvocateReply finish(Topic t, List<String> parts,

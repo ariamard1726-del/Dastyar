@@ -2,8 +2,8 @@
   "schema": 1,
   "files": {
     "assets/brain/advocate_texts.json": {
-      "sha256": "71d1ec689a95738b5120afd207d1baa9d89439664b0d80b7624092c0916ff82c",
-      "lines": 512
+      "sha256": "5bdb2d55f7cef6be385fe5c9a85614fd939d1c964f10aeb04b4aa1352063e278",
+      "lines": 515
     },
     "assets/brain/guides/legal_guides.json": {
       "sha256": "7484c4253a629ab9323ecad6d4d51b892160137e14cbca9d627d9e3e3684d4f8",
